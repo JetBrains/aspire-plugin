@@ -4,7 +4,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Rider.SDK" Version="$(SdkVersion)" />
+        <PackageReference Include="JetBrains.Rider.SDK" Version="$(RiderSDKVersion)" />
     </ItemGroup>
 
 </Project>
