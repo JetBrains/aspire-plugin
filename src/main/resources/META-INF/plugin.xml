@@ -1,18 +1,12 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.rafaelldi.aspireplugin</id>
-    <name>aspire-plugin Template</name>
-    <vendor>rafaelldi</vendor>
+    <name>Aspire</name>
+    <vendor url="https://github.com/rafaelldi">Rival Abdrakhmanov</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.rider</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <resource-bundle>messages.AspireBundle</resource-bundle>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.rafaelldi.aspireplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-    </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.rafaelldi.aspireplugin.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
 </idea-plugin>
