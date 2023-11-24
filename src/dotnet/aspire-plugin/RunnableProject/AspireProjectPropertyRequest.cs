@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Application;
-using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Properties;
 
 namespace AspirePlugin.RunnableProject;

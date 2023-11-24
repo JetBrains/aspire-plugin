@@ -10,8 +10,7 @@
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <rider.run.configurations.externalRunConfigurationGenerator
-                implementation="com.github.rafaelldi.aspireplugin.run.AspireHostRunConfigurationGenerator"/>
+        <configurationType implementation="com.github.rafaelldi.aspireplugin.run.AspireHostConfigurationType"/>
     </extensions>
 
 </idea-plugin>

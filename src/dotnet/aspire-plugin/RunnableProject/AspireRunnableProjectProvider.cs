@@ -13,7 +13,6 @@ public class AspireRunnableProjectProvider : IRunnableProjectProvider
 {
     public JetBrains.Rider.Model.RunnableProject? CreateRunnableProject(IProject project, string name, string fullName, IconModel? icon)
     {
-        System.Diagnostics.Debugger.Launch();
         if (!project.IsDotNetCoreProject()) return null;
 
         var isAspireHost = project.GetUniqueRequestedProjectProperty(IsAspireHost);
