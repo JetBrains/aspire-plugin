@@ -5,12 +5,10 @@ fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
 
 plugins {
-    id("java") // Java support
     alias(libs.plugins.kotlin) // Kotlin support
     alias(libs.plugins.gradleIntelliJPlugin) // Gradle IntelliJ Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
-    alias(libs.plugins.kover) // Gradle Kover Plugin
 }
 
 group = properties("pluginGroup").get()
@@ -19,6 +17,7 @@ version = properties("pluginVersion").get()
 // Configure project's dependencies
 repositories {
     mavenCentral()
+    maven { setUrl("https://cache-redirector.jetbrains.com/maven-central") }
 }
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
@@ -59,18 +58,44 @@ qodana {
     showReport = environment("QODANA_SHOW_REPORT").map { it.toBoolean() }.getOrElse(false)
 }
 
-// Configure Gradle Kover Plugin - read more: https://github.com/Kotlin/kotlinx-kover#configuration
-koverReport {
-    defaults {
-        xml {
-            onCheck = true
-        }
-    }
-}
-
 tasks {
     wrapper {
         gradleVersion = properties("gradleVersion").get()
+    }
+
+    val dotnetBuildConfiguration = properties("dotnetBuildConfiguration").get()
+    val compileDotNet by registering {
+        doLast {
+            exec {
+                executable("dotnet")
+                args("build", "-c", dotnetBuildConfiguration, "aspire-plugin.sln")
+            }
+        }
+    }
+
+    buildPlugin {
+        dependsOn(compileDotNet)
+    }
+
+    prepareSandbox {
+        dependsOn(compileDotNet)
+
+        val outputFolder = file("$projectDir/src/dotnet/aspire-plugin/bin/$dotnetBuildConfiguration")
+        val dllFiles = listOf(
+            "$outputFolder/aspire-plugin.dll",
+            "$outputFolder/aspire-plugin.pdb"
+        )
+
+        for (f in dllFiles) {
+            from(f) { into("${rootProject.name}/dotnet") }
+        }
+
+        doLast {
+            for (f in dllFiles) {
+                val file = file(f)
+                if (!file.exists()) throw RuntimeException("File \"$file\" does not exist")
+            }
+        }
     }
 
     patchPluginXml {
