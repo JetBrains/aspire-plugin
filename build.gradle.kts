@@ -98,6 +98,12 @@ tasks {
         }
     }
 
+    runPluginVerifier {
+        ideVersions.set(
+            properties("pluginVerifierIdeVersions").get().split(',').map(String::trim).filter(String::isNotEmpty)
+        )
+    }
+
     patchPluginXml {
         version = properties("pluginVersion")
         sinceBuild = properties("pluginSinceBuild")
