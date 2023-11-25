@@ -9,21 +9,41 @@ using static AspirePlugin.RunnableProject.AspireProjectPropertyRequest;
 namespace AspirePlugin.RunnableProject;
 
 [SolutionComponent]
-public class AspireRunnableProjectProvider : IRunnableProjectProvider
+public class AspireRunnableProjectProvider(
+    ProjectRunnableOutputDetector projectRunnableOutputDetector,
+    ILogger logger
+) : IRunnableProjectProvider
 {
-    public JetBrains.Rider.Model.RunnableProject? CreateRunnableProject(IProject project, string name, string fullName, IconModel? icon)
+    public JetBrains.Rider.Model.RunnableProject? CreateRunnableProject(
+        IProject project,
+        string name,
+        string fullName,
+        IconModel? icon)
     {
         if (!project.IsDotNetCoreProject()) return null;
 
         var isAspireHost = project.GetUniqueRequestedProjectProperty(IsAspireHost);
         if (isAspireHost.IsNullOrEmpty() || isAspireHost != "true") return null;
 
+        var projectOutputs = new List<ProjectOutput>();
+        foreach (var tfm in project.TargetFrameworkIds)
+        {
+            var projectOutput = projectRunnableOutputDetector.CalculateProjectOutput(project, tfm);
+            if (projectOutput == null)
+            {
+                logger.Trace("Unable to find output for project for {0}", tfm);
+                continue;
+            }
+
+            projectOutputs.Add(projectOutput);
+        }
+
         return new JetBrains.Rider.Model.RunnableProject(
             name,
             fullName,
             project.ProjectFileLocation.NormalizeSeparators(FileSystemPathEx.SeparatorStyle.Unix),
             AspireRunnableProjectKinds.AspireHost,
-            [],
+            projectOutputs,
             [],
             null,
             []

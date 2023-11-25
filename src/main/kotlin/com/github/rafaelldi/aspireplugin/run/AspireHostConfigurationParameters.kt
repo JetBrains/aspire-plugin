@@ -1,6 +1,12 @@
 package com.github.rafaelldi.aspireplugin.run
 
+import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.configurations.RuntimeConfigurationError
+import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.ide.browsers.BrowserStarter
+import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.rider.model.RunnableProject
@@ -21,6 +27,19 @@ class AspireHostConfigurationParameters(
         private const val PROJECT_FILE_PATH = "PROJECT_FILE_PATH"
         private const val TRACK_URL = "TRACK_URL"
     }
+
+    val startBrowserAction: (ExecutionEnvironment, RunProfile, ProcessHandler) -> Unit =
+        { _, runProfile, processHandler ->
+            if (startBrowserParameters.startAfterLaunch && runProfile is RunConfiguration) {
+                val startBrowserSettings = StartBrowserSettings().apply {
+                    isSelected = startBrowserParameters.startAfterLaunch
+                    url = startBrowserParameters.url
+                    browser = startBrowserParameters.browser
+                    isStartJavaScriptDebugger = startBrowserParameters.withJavaScriptDebugger
+                }
+                BrowserStarter(runProfile, startBrowserSettings, processHandler).start()
+            }
+        }
 
     fun validate() {
         val runnableProjects = project.solution.runnableProjectsModel.projects.valueOrNull

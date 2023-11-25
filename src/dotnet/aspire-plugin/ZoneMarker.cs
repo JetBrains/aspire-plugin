@@ -1,8 +1,7 @@
 using JetBrains.Application.BuildScript.Application.Zones;
-using JetBrains.ProjectModel;
-using JetBrains.ReSharper.Psi.CSharp;
+using JetBrains.ReSharper.Features.Running;
 
 namespace AspirePlugin;
 
 [ZoneMarker]
-public class ZoneMarker :  IRequire<ILanguageCSharpZone>, IRequire<IProjectModelZone>;
+public class ZoneMarker : IRequire<RunnableProjectsZone>;

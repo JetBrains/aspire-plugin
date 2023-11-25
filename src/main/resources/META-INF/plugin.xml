@@ -11,6 +11,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="com.github.rafaelldi.aspireplugin.run.AspireHostConfigurationType"/>
+        <programRunner implementation="com.github.rafaelldi.aspireplugin.run.AspireHostProgramRunner"/>
     </extensions>
 
 </idea-plugin>

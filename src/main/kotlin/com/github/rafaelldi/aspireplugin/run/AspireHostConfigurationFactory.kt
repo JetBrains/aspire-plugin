@@ -6,6 +6,8 @@ import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParamete
 
 class AspireHostConfigurationFactory(type: AspireHostConfigurationType) :
     DotNetConfigurationFactoryBase<AspireHostConfiguration>(type) {
+    override fun getId() = "Aspire Host"
+
     override fun createTemplateConfiguration(project: Project) = AspireHostConfiguration(
         project,
         this,
