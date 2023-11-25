@@ -1,0 +1,79 @@
+﻿using AspireSessionHost.Generated;
+using JetBrains.Collections.Viewable;
+using JetBrains.Lifetimes;
+using JetBrains.Rd;
+using JetBrains.Rd.Impl;
+
+namespace AspireSessionHost;
+
+internal class Connection : IDisposable
+{
+    private readonly LifetimeDefinition _lifetimeDef = new();
+    private readonly Lifetime _lifetime;
+    private readonly IScheduler _scheduler;
+    private readonly IProtocol _protocol;
+    private readonly Task<AspireSessionHostModel> _model;
+
+    internal Connection(int port)
+    {
+        _lifetime = _lifetimeDef.Lifetime;
+        _scheduler = SingleThreadScheduler.RunOnSeparateThread(_lifetime, "AspireSessionHost Protocol Connection");
+        var wire = new SocketWire.Client(_lifetime, _scheduler, port);
+        _protocol = new Protocol(
+            "AspireSessionHost Protocol",
+            new Serializers(),
+            new Identities(IdKind.Client),
+            _scheduler,
+            wire,
+            _lifetime
+        );
+        _model = InitializeModelAsync();
+    }
+
+    private Task<AspireSessionHostModel> InitializeModelAsync()
+    {
+        var tcs = new TaskCompletionSource<AspireSessionHostModel>();
+        _scheduler.Queue(() =>
+        {
+            try
+            {
+                tcs.SetResult(new AspireSessionHostModel(_lifetime, _protocol));
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
+        });
+        return tcs.Task;
+    }
+
+    internal async Task<T> DoWithModel<T>(Func<AspireSessionHostModel, T> action)
+    {
+        var model = await _model;
+        var tcs = new TaskCompletionSource<T>();
+        _scheduler.Queue(() =>
+        {
+            try
+            {
+                tcs.SetResult(action(model));
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
+        });
+        return await tcs.Task;
+    }
+
+    internal Task DoWithModel(Action<AspireSessionHostModel> action) =>
+        DoWithModel(model =>
+        {
+            action(model);
+            return 0;
+        });
+
+    public void Dispose()
+    {
+        _lifetimeDef.Terminate();
+    }
+}

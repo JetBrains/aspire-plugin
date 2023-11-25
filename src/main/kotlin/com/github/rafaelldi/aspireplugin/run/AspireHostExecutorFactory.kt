@@ -1,5 +1,6 @@
 package com.github.rafaelldi.aspireplugin.run
 
+import com.github.rafaelldi.aspireplugin.sessionHost.AspireSessionHost
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.executors.DefaultDebugExecutor
@@ -13,9 +14,10 @@ import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
-import com.jetbrains.rider.run.configurations.project.getRunOptions
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
+import com.jetbrains.rider.util.NetUtils
+import java.util.*
 
 class AspireHostExecutorFactory(
     private val project: Project,
@@ -36,8 +38,14 @@ class AspireHostExecutorFactory(
             AspireHostConfigurationType.isTypeApplicable(it.kind) && it.projectFilePath == parameters.projectFilePath
         } ?: throw CantRunException(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
 
+        val aspNetPort = NetUtils.findFreePort(67800)
+        val sessionHost = AspireSessionHost.getInstance()
+        sessionHost.start(project, aspNetPort, lifetime)
+
         val executable = getDotNetExecutable(
-            runnableProject
+            runnableProject,
+            aspNetPort,
+            UUID.randomUUID().toString()
         )
 
         return when (executorId) {
@@ -48,7 +56,9 @@ class AspireHostExecutorFactory(
     }
 
     private fun getDotNetExecutable(
-        runnableProject: RunnableProject
+        runnableProject: RunnableProject,
+        port: Int,
+        token: String
     ): DotNetExecutable {
         val projectOutput = runnableProject.projectOutputs.firstOrNull()
             ?: throw CantRunException("Unable to find project output")
@@ -61,8 +71,8 @@ class AspireHostExecutorFactory(
             false,
             false,
             mapOf(
-                "DEBUG_SESSION_PORT" to "localhost:5000",
-                "DEBUG_SESSION_TOKEN" to "123"
+                "DEBUG_SESSION_PORT" to "localhost:$port",
+                "DEBUG_SESSION_TOKEN" to token
             ),
             true,
             parameters.startBrowserAction,

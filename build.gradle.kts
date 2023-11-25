@@ -9,10 +9,14 @@ plugins {
     alias(libs.plugins.gradleIntelliJPlugin) // Gradle IntelliJ Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
+    alias(libs.plugins.rdgen)
 }
 
 group = properties("pluginGroup").get()
 version = properties("pluginVersion").get()
+
+val rdLibDirectory: () -> File = { file("${tasks.setupDependencies.get().idea.get().classes}/lib/rd") }
+extra["rdLibDirectory"] = rdLibDirectory
 
 // Configure project's dependencies
 repositories {
@@ -63,22 +67,64 @@ tasks {
         gradleVersion = properties("gradleVersion").get()
     }
 
+    configure<com.jetbrains.rd.generator.gradle.RdGenExtension> {
+        val modelDir = projectDir.resolve("protocol/src/main/kotlin/model/sessionHost")
+        val pluginSourcePath = projectDir.resolve("src")
+        val ktOutput = pluginSourcePath.resolve("main/kotlin/com/github/rafaelldi/aspireplugin/generated")
+        val csOutput = pluginSourcePath.resolve("dotnet/aspire-session-host/Generated")
+
+        verbose = true
+        classpath({
+            rdLibDirectory().resolve("rider-model.jar").canonicalPath
+        })
+        sources(modelDir)
+        hashFolder = "$rootDir/build/rdgen/rider"
+        packages = "model.sessionHost"
+
+        generator {
+            language = "kotlin"
+            transform = "asis"
+            root = "model.sessionHost.AspireSessionHostRoot"
+            directory = ktOutput.canonicalPath
+        }
+
+        generator {
+            language = "csharp"
+            transform = "reversed"
+            root = "model.sessionHost.AspireSessionHostRoot"
+            directory = csOutput.canonicalPath
+        }
+    }
+
     val dotnetBuildConfiguration = properties("dotnetBuildConfiguration").get()
     val compileDotNet by registering {
         doLast {
             exec {
                 executable("dotnet")
-                args("build", "-c", dotnetBuildConfiguration, "aspire-plugin.sln")
+                args("build", "-c", dotnetBuildConfiguration, "/clp:ErrorsOnly", "aspire-plugin.sln")
+            }
+        }
+    }
+    val publishSessionHost by registering {
+        dependsOn(compileDotNet)
+        doLast {
+            exec {
+                executable("dotnet")
+                args(
+                    "publish",
+                    "src/dotnet/aspire-session-host/aspire-session-host.csproj",
+                    "--configuration", dotnetBuildConfiguration
+                )
             }
         }
     }
 
     buildPlugin {
-        dependsOn(compileDotNet)
+        dependsOn(publishSessionHost)
     }
 
     prepareSandbox {
-        dependsOn(compileDotNet)
+        dependsOn(publishSessionHost)
 
         val outputFolder = file("$projectDir/src/dotnet/aspire-plugin/bin/$dotnetBuildConfiguration")
         val dllFiles = listOf(
@@ -95,6 +141,10 @@ tasks {
                 val file = file(f)
                 if (!file.exists()) throw RuntimeException("File \"$file\" does not exist")
             }
+        }
+
+        from("$projectDir/src/dotnet/aspire-session-host/bin/$dotnetBuildConfiguration/publish") {
+            into("${rootProject.name}/aspire-session-host")
         }
     }
 
@@ -114,7 +164,7 @@ tasks {
             val start = "<!-- Plugin description -->"
             val end = "<!-- Plugin description end -->"
 
-            with (it.lines()) {
+            with(it.lines()) {
                 if (!containsAll(listOf(start, end))) {
                     throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
                 }
@@ -157,6 +207,7 @@ tasks {
         // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
-        channels = properties("pluginVersion").map { listOf(it.split('-').getOrElse(1) { "default" }.split('.').first()) }
+        channels =
+            properties("pluginVersion").map { listOf(it.split('-').getOrElse(1) { "default" }.split('.').first()) }
     }
 }

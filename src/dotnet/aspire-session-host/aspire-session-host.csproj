@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
       <PackageReference Include="JetBrains.RdFramework" Version="2023.3.3" />
     </ItemGroup>
 

@@ -1,7 +1,15 @@
-using System.Net.WebSockets;
+using System.Globalization;
 using System.Text.Json;
+using AspireSessionHost;
+
+var port = Environment.GetEnvironmentVariable("RIDER_RD_PORT");
+if (port == null) throw new ApplicationException("Unable to find RIDER_RD_PORT variable");
+
+var connection = new Connection(int.Parse(port, CultureInfo.InvariantCulture));
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton(connection);
+builder.Services.AddScoped<SessionService>();
 builder.Services.ConfigureHttpJsonOptions(it =>
 {
     it.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
@@ -11,55 +19,6 @@ var app = builder.Build();
 
 app.UseWebSockets();
 
-app.MapPut("/run_session", (Session session) =>
-{
-    app.Logger.LogInformation("Session request {session}", session);
-    return TypedResults.Created();
-});
-
-app.MapDelete("/run_session/{sessionId:guid}", (Guid sessionId) =>
-{
-    return TypedResults.Ok();
-});
-
-app.MapGet("/run_session/notify", async context =>
-{
-    if (context.WebSockets.IsWebSocketRequest)
-    {
-        using var ws = await context.WebSockets.AcceptWebSocketAsync();
-        await Receive(ws);
-    }
-    else
-    {
-        context.Response.StatusCode = StatusCodes.Status400BadRequest;
-    }
-});
+app.MapSessionEndpoints();
 
 app.Run();
-
-static async Task Receive(WebSocket webSocket)
-{
-    var buffer = new byte[1024 * 4];
-    var receiveResult = await webSocket.ReceiveAsync(
-        new ArraySegment<byte>(buffer), CancellationToken.None);
-
-    while (!receiveResult.CloseStatus.HasValue)
-    {
-        receiveResult = await webSocket.ReceiveAsync(
-            new ArraySegment<byte>(buffer), CancellationToken.None);
-    }
-
-    await webSocket.CloseAsync(
-        receiveResult.CloseStatus.Value,
-        receiveResult.CloseStatusDescription,
-        CancellationToken.None);
-}
-
-record Session(
-    string ProjectPath,
-    bool Debug,
-    EnvironmentVariable[] Env,
-    string[] Args
-);
-
-record EnvironmentVariable(string Name, string Value);
