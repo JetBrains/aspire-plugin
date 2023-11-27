@@ -8,7 +8,6 @@ import com.intellij.execution.process.KillableColoredProcessHandler
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -25,7 +24,7 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 @Service
-class AspireSessionHost : Disposable.Default {
+class AspireSessionHost {
     companion object {
         fun getInstance(): AspireSessionHost = service()
 
@@ -97,7 +96,15 @@ class AspireSessionHost : Disposable.Default {
         project: Project
     ) = withUiContext {
         model.sessions.view(lifetime) { lt, id, session ->
-            LOG.trace("New session added $id, $session")
+            LOG.info("New session added $id, $session")
+
+            val runner = AspireSessionRunner.getInstance(project)
+            runner.runSession(session)
+
+            lt.onTermination {
+                LOG.info("Session removed $id")
+                runner.stopSession(session)
+            }
         }
     }
 }
