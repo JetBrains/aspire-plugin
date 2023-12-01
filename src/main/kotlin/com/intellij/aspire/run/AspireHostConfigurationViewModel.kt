@@ -1,4 +1,4 @@
-package com.github.rafaelldi.aspireplugin.run
+package com.intellij.aspire.run
 
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.reactive.adviseOnce

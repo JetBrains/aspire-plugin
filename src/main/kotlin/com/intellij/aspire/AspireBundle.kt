@@ -1,4 +1,4 @@
-package com.github.rafaelldi.aspireplugin
+package com.intellij.aspire
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

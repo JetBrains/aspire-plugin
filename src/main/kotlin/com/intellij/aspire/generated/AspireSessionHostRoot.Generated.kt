@@ -1,18 +1,10 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE","EXPERIMENTAL_UNSIGNED_LITERALS","PackageDirectoryMismatch","UnusedImport","unused","LocalVariableName","CanBeVal","PropertyName","EnumEntryName","ClassName","ObjectPropertyName","UnnecessaryVariable","SpellCheckingInspection")
-package com.github.rafaelldi.aspireplugin.generated
+package com.intellij.aspire.generated
 
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.framework.base.*
-import com.jetbrains.rd.framework.impl.*
 
-import com.jetbrains.rd.util.lifetime.*
-import com.jetbrains.rd.util.reactive.*
 import com.jetbrains.rd.util.string.*
-import com.jetbrains.rd.util.*
-import kotlin.time.Duration
-import kotlin.reflect.KClass
-import kotlin.jvm.JvmStatic
-
 
 
 /**
@@ -37,7 +29,7 @@ class AspireSessionHostRoot private constructor(
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostRoot
-    override val serializationHash: Long get() = AspireSessionHostRoot.serializationHash
+    override val serializationHash: Long get() = Companion.serializationHash
     
     //fields
     //methods
@@ -51,7 +43,7 @@ class AspireSessionHostRoot private constructor(
         printer.print(")")
     }
     //deepClone
-    override fun deepClone(): AspireSessionHostRoot   {
+    override fun deepClone(): AspireSessionHostRoot {
         return AspireSessionHostRoot(
         )
     }

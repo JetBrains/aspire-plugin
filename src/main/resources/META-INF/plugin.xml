@@ -1,6 +1,6 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.rafaelldi.aspireplugin</id>
+    <id>com.intellij.aspire</id>
     <name>Aspire</name>
     <vendor url="https://github.com/rafaelldi">Rival Abdrakhmanov</vendor>
 
@@ -10,8 +10,8 @@
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <configurationType implementation="com.github.rafaelldi.aspireplugin.run.AspireHostConfigurationType"/>
-        <programRunner implementation="com.github.rafaelldi.aspireplugin.run.AspireHostProgramRunner"/>
+        <configurationType implementation="com.intellij.aspire.run.AspireHostConfigurationType"/>
+        <programRunner implementation="com.intellij.aspire.run.AspireHostProgramRunner"/>
     </extensions>
 
 </idea-plugin>

@@ -1,6 +1,6 @@
-package com.github.rafaelldi.aspireplugin.sessionHost
+package com.intellij.aspire.sessionHost
 
-import com.github.rafaelldi.aspireplugin.generated.SessionModel
+import com.intellij.aspire.generated.SessionModel
 import com.intellij.execution.ProgramRunnerUtil
 import com.intellij.execution.RunManager
 import com.intellij.execution.RunnerAndConfigurationSettings

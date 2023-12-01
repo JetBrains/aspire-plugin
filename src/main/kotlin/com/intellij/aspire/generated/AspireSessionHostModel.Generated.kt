@@ -1,5 +1,5 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE","EXPERIMENTAL_UNSIGNED_LITERALS","PackageDirectoryMismatch","UnusedImport","unused","LocalVariableName","CanBeVal","PropertyName","EnumEntryName","ClassName","ObjectPropertyName","UnnecessaryVariable","SpellCheckingInspection")
-package com.github.rafaelldi.aspireplugin.generated
+package com.intellij.aspire.generated
 
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.framework.base.*
@@ -8,8 +8,6 @@ import com.jetbrains.rd.framework.impl.*
 import com.jetbrains.rd.util.lifetime.*
 import com.jetbrains.rd.util.reactive.*
 import com.jetbrains.rd.util.string.*
-import com.jetbrains.rd.util.*
-import kotlin.time.Duration
 import kotlin.reflect.KClass
 import kotlin.jvm.JvmStatic
 
@@ -34,14 +32,14 @@ class AspireSessionHostModel private constructor(
         @JvmStatic
         @JvmName("internalCreateModel")
         @Deprecated("Use create instead", ReplaceWith("create(lifetime, protocol)"))
-        internal fun createModel(lifetime: Lifetime, protocol: IProtocol): AspireSessionHostModel  {
+        internal fun createModel(lifetime: Lifetime, protocol: IProtocol): AspireSessionHostModel {
             @Suppress("DEPRECATION")
             return create(lifetime, protocol)
         }
         
         @JvmStatic
         @Deprecated("Use protocol.aspireSessionHostModel or revise the extension scope instead", ReplaceWith("protocol.aspireSessionHostModel"))
-        fun create(lifetime: Lifetime, protocol: IProtocol): AspireSessionHostModel  {
+        fun create(lifetime: Lifetime, protocol: IProtocol): AspireSessionHostModel {
             AspireSessionHostRoot.register(protocol.serializers)
             
             return AspireSessionHostModel()
@@ -52,7 +50,7 @@ class AspireSessionHostModel private constructor(
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
-    override val serializationHash: Long get() = AspireSessionHostModel.serializationHash
+    override val serializationHash: Long get() = Companion.serializationHash
     
     //fields
     val sessions: IMutableViewableMap<String, SessionModel> get() = _sessions
@@ -83,7 +81,7 @@ class AspireSessionHostModel private constructor(
         printer.print(")")
     }
     //deepClone
-    override fun deepClone(): AspireSessionHostModel   {
+    override fun deepClone(): AspireSessionHostModel {
         return AspireSessionHostModel(
             _sessions.deepClonePolymorphic()
         )
@@ -92,7 +90,10 @@ class AspireSessionHostModel private constructor(
     //threading
     override val extThreading: ExtThreadingKind get() = ExtThreadingKind.Default
 }
-val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionHostModel::class) { @Suppress("DEPRECATION") AspireSessionHostModel.create(lifetime, this) }
+val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionHostModel::class) { @Suppress("DEPRECATION") (AspireSessionHostModel.create(
+    lifetime,
+    this
+)) }
 
 
 
@@ -109,7 +110,7 @@ data class EnvironmentVariableModel (
         override val _type: KClass<EnvironmentVariableModel> = EnvironmentVariableModel::class
         
         @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): EnvironmentVariableModel  {
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): EnvironmentVariableModel {
             val key = buffer.readString()
             val value = buffer.readString()
             return EnvironmentVariableModel(key, value)
@@ -175,10 +176,10 @@ data class SessionModel (
         override val _type: KClass<SessionModel> = SessionModel::class
         
         @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionModel  {
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionModel {
             val projectPath = buffer.readString()
             val debug = buffer.readBool()
-            val envs = buffer.readNullable { buffer.readArray {EnvironmentVariableModel.read(ctx, buffer)} }
+            val envs = buffer.readNullable { buffer.readArray { EnvironmentVariableModel.read(ctx, buffer) } }
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
             return SessionModel(projectPath, debug, envs, args)
         }

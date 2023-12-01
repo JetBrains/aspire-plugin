@@ -1,4 +1,4 @@
-package com.github.rafaelldi.aspireplugin.run
+package com.intellij.aspire.run
 
 import com.intellij.execution.configurations.RunProfile
 import com.jetbrains.rider.debugger.DotNetProgramRunner
