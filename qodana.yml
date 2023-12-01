@@ -10,3 +10,5 @@ exclude:
   - name: All
     paths:
       - .qodana
+      - protocol
+      - src/main/kotlin/com/intellij/aspire/generated

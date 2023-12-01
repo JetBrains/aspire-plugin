@@ -37,6 +37,12 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
+      # Setup .NET 8 environment for the next steps
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+
       # Set environment variables
       - name: Export Properties
         id: properties
