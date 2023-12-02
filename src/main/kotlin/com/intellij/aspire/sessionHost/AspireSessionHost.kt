@@ -30,10 +30,11 @@ class AspireSessionHost {
 
         private val LOG = logger<AspireSessionHost>()
 
+        private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
         private const val RIDER_RD_PORT = "RIDER_RD_PORT"
     }
 
-    private val pluginId = PluginId.getId("com.github.rafaelldi.aspireplugin")
+    private val pluginId = PluginId.getId("com.intellij.aspire")
 
     private val hostAssemblyPath: Path = run {
         val plugin = PluginManagerCore.getPlugin(pluginId) ?: error("Plugin $pluginId could not be found.")
@@ -42,6 +43,8 @@ class AspireSessionHost {
     }
 
     suspend fun start(project: Project, aspNetPort: Int, lifetime: Lifetime) {
+        LOG.info("Starting Aspire session host")
+
         val dotnet = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Cannot find active .NET runtime.")
 
@@ -56,7 +59,7 @@ class AspireSessionHost {
             .withParameters(hostAssemblyPath.toString())
             .withEnvironment(
                 mapOf(
-                    "ASPNETCORE_URLS" to "http://localhost:$aspNetPort/",
+                    ASPNETCORE_URLS to "http://localhost:$aspNetPort/",
                     RIDER_RD_PORT to "${protocol.wire.serverPort}"
                 )
             )
@@ -92,19 +95,13 @@ class AspireSessionHost {
 
     private suspend fun subscribe(
         model: AspireSessionHostModel,
-        lifetime: Lifetime,
+        processLifetime: Lifetime,
         project: Project
     ) = withUiContext {
-        model.sessions.view(lifetime) { lt, id, session ->
+        model.sessions.view(processLifetime) { lt, id, session ->
             LOG.info("New session added $id, $session")
-
             val runner = AspireSessionRunner.getInstance(project)
-            runner.runSession(session)
-
-            lt.onTermination {
-                LOG.info("Session removed $id")
-                runner.stopSession(session)
-            }
+            runner.runSession(id, session, lt, model, processLifetime)
         }
     }
 }

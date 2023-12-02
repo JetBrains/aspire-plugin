@@ -32,7 +32,7 @@ internal class Connection : IDisposable
 
     private Task<AspireSessionHostModel> InitializeModelAsync()
     {
-        var tcs = new TaskCompletionSource<AspireSessionHostModel>();
+        var tcs = new TaskCompletionSource<AspireSessionHostModel>(TaskCreationOptions.RunContinuationsAsynchronously);
         _scheduler.Queue(() =>
         {
             try
@@ -50,7 +50,7 @@ internal class Connection : IDisposable
     internal async Task<T> DoWithModel<T>(Func<AspireSessionHostModel, T> action)
     {
         var model = await _model;
-        var tcs = new TaskCompletionSource<T>();
+        var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
         _scheduler.Queue(() =>
         {
             try

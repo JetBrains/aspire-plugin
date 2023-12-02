@@ -1,4 +1,7 @@
 ﻿using System.Net.WebSockets;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Channels;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AspireSessionHost;
@@ -9,49 +12,61 @@ internal static class SessionEndpoints
     {
         var group = routes.MapGroup("/run_session");
 
-        group.MapPut("/", async (Session session, SessionService service) =>
-        {
-            var id = await service.Create(session);
-            return TypedResults.Created($"/run_session/{id}", session);
-        });
+        group.MapPut(
+            "/",
+            async (Session session, SessionService service) =>
+            {
+                var id = await service.Create(session);
+                return TypedResults.Created($"/run_session/{id}", session);
+            });
 
         group.MapDelete(
             "/{sessionId:guid}",
-            async Task<Results<Ok, NoContent>> (Guid sessionId, SessionService service) =>
+            Results<Ok, NoContent> (Guid sessionId, SessionService service) =>
             {
-                var isSuccessful = await service.Delete(sessionId);
+                var isSuccessful = service.Delete(sessionId);
                 return isSuccessful ? TypedResults.Ok() : TypedResults.NoContent();
             });
 
-        group.MapGet("/notify", async context =>
-        {
-            if (context.WebSockets.IsWebSocketRequest)
+        group.MapGet(
+            "/notify",
+            async (HttpContext context, SessionEventService service) =>
             {
-                using var ws = await context.WebSockets.AcceptWebSocketAsync();
-                await Receive(ws);
-            }
-            else
-            {
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            }
-        });
+                if (context.WebSockets.IsWebSocketRequest)
+                {
+                    using var ws = await context.WebSockets.AcceptWebSocketAsync();
+                    await Receive(ws, service.Reader);
+                }
+                else
+                {
+                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                }
+            });
     }
 
-    private static async Task Receive(WebSocket webSocket)
+    private static async Task Receive(WebSocket webSocket, ChannelReader<ISessionEvent> reader)
     {
-        var buffer = new byte[1024 * 4];
-        var receiveResult = await webSocket.ReceiveAsync(
-            new ArraySegment<byte>(buffer), CancellationToken.None);
-
-        while (!receiveResult.CloseStatus.HasValue)
+        var jsonOptions = new JsonSerializerOptions
         {
-            receiveResult = await webSocket.ReceiveAsync(
-                new ArraySegment<byte>(buffer), CancellationToken.None);
-        }
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        };
 
-        await webSocket.CloseAsync(
-            receiveResult.CloseStatus.Value,
-            receiveResult.CloseStatusDescription,
-            CancellationToken.None);
+        await foreach (var value in reader.ReadAllAsync())
+        {
+            if (webSocket.State is WebSocketState.Closed or WebSocketState.Aborted)
+            {
+                break;
+            }
+
+            var jsonString = JsonSerializer.Serialize(value, jsonOptions);
+            var bytes = Encoding.UTF8.GetBytes(jsonString);
+            var arraySegment = new ArraySegment<byte>(bytes, 0, bytes.Length);
+
+            await webSocket.SendAsync(arraySegment,
+                WebSocketMessageType.Text,
+                true,
+                CancellationToken.None
+            );
+        }
     }
 }

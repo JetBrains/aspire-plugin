@@ -31,7 +31,7 @@ public class AspireRunnableProjectProvider(
             var projectOutput = projectRunnableOutputDetector.CalculateProjectOutput(project, tfm);
             if (projectOutput == null)
             {
-                logger.Trace("Unable to find output for project for {0}", tfm);
+                logger.Trace($"Unable to find output for project for {tfm}");
                 continue;
             }
 

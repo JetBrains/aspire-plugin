@@ -7,7 +7,7 @@ import com.jetbrains.rd.generator.nova.kotlin.Kotlin11Generator
 
 object AspireSessionHostRoot : Root() {
     init {
-        setting(Kotlin11Generator.Namespace, "com.github.rafaelldi.aspireplugin.generated")
+        setting(Kotlin11Generator.Namespace, "com.intellij.aspire.generated")
         setting(CSharp50Generator.Namespace, "AspireSessionHost.Generated")
     }
 }
@@ -19,7 +19,23 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("value", string)
     }
 
-    private val SessionModel = structdef {
+    private val ProcessStarted = structdef {
+        field("id", string)
+        field("pid", long)
+    }
+
+    private val ProcessTerminated = structdef {
+        field("id", string)
+        field("exitCode", int)
+    }
+
+    private val LogReceived = structdef {
+        field("id", string)
+        field("isStdErr", bool)
+        field("message", string)
+    }
+
+    private val SessionModel = classdef {
         field("projectPath", string)
         field("debug", bool)
         field("envs", array(EnvironmentVariableModel).nullable)
@@ -28,5 +44,8 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
 
     init {
         map("sessions", string, SessionModel)
+        source("processStarted", ProcessStarted)
+        source("processTerminated", ProcessTerminated)
+        source("logReceived", LogReceived)
     }
 }

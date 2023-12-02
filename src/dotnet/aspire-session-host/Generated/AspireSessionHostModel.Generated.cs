@@ -43,32 +43,52 @@ namespace AspireSessionHost.Generated
     //fields
     //public fields
     [NotNull] public IViewableMap<string, SessionModel> Sessions => _Sessions;
+    [NotNull] public ISource<AspireSessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
+    [NotNull] public ISource<AspireSessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
+    [NotNull] public ISource<AspireSessionHost.Generated.LogReceived> LogReceived => _LogReceived;
     
     //private fields
     [NotNull] private readonly RdMap<string, SessionModel> _Sessions;
+    [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessStarted> _ProcessStarted;
+    [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessTerminated> _ProcessTerminated;
+    [NotNull] private readonly RdSignal<AspireSessionHost.Generated.LogReceived> _LogReceived;
     
     //primary constructor
     private AspireSessionHostModel(
-      [NotNull] RdMap<string, SessionModel> sessions
+      [NotNull] RdMap<string, SessionModel> sessions,
+      [NotNull] RdSignal<AspireSessionHost.Generated.ProcessStarted> processStarted,
+      [NotNull] RdSignal<AspireSessionHost.Generated.ProcessTerminated> processTerminated,
+      [NotNull] RdSignal<AspireSessionHost.Generated.LogReceived> logReceived
     )
     {
       if (sessions == null) throw new ArgumentNullException("sessions");
+      if (processStarted == null) throw new ArgumentNullException("processStarted");
+      if (processTerminated == null) throw new ArgumentNullException("processTerminated");
+      if (logReceived == null) throw new ArgumentNullException("logReceived");
       
       _Sessions = sessions;
-      _Sessions.OptimizeNested = true;
+      _ProcessStarted = processStarted;
+      _ProcessTerminated = processTerminated;
+      _LogReceived = logReceived;
       BindableChildren.Add(new KeyValuePair<string, object>("sessions", _Sessions));
+      BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
+      BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
+      BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
     }
     //secondary constructor
     private AspireSessionHostModel (
     ) : this (
-      new RdMap<string, SessionModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, SessionModel.Read, SessionModel.Write)
+      new RdMap<string, SessionModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, SessionModel.Read, SessionModel.Write),
+      new RdSignal<AspireSessionHost.Generated.ProcessStarted>(AspireSessionHost.Generated.ProcessStarted.Read, AspireSessionHost.Generated.ProcessStarted.Write),
+      new RdSignal<AspireSessionHost.Generated.ProcessTerminated>(AspireSessionHost.Generated.ProcessTerminated.Read, AspireSessionHost.Generated.ProcessTerminated.Write),
+      new RdSignal<AspireSessionHost.Generated.LogReceived>(AspireSessionHost.Generated.LogReceived.Read, AspireSessionHost.Generated.LogReceived.Write)
     ) {}
     //deconstruct trait
     //statics
     
     
     
-    protected override long SerializationHash => 4358981829313666140L;
+    protected override long SerializationHash => -7785002699677100762L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -95,6 +115,9 @@ namespace AspireSessionHost.Generated
       printer.Println("AspireSessionHostModel (");
       using (printer.IndentCookie()) {
         printer.Print("sessions = "); _Sessions.PrintEx(printer); printer.Println();
+        printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
+        printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
+        printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -203,9 +226,297 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:32</p>
+  /// </summary>
+  public sealed class LogReceived : IPrintable, IEquatable<LogReceived>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Id {get; private set;}
+    public bool IsStdErr {get; private set;}
+    [NotNull] public string Message {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public LogReceived(
+      [NotNull] string id,
+      bool isStdErr,
+      [NotNull] string message
+    )
+    {
+      if (id == null) throw new ArgumentNullException("id");
+      if (message == null) throw new ArgumentNullException("message");
+      
+      Id = id;
+      IsStdErr = isStdErr;
+      Message = message;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string id, out bool isStdErr, [NotNull] out string message)
+    {
+      id = Id;
+      isStdErr = IsStdErr;
+      message = Message;
+    }
+    //statics
+    
+    public static CtxReadDelegate<LogReceived> Read = (ctx, reader) => 
+    {
+      var id = reader.ReadString();
+      var isStdErr = reader.ReadBool();
+      var message = reader.ReadString();
+      var _result = new LogReceived(id, isStdErr, message);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<LogReceived> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Id);
+      writer.Write(value.IsStdErr);
+      writer.Write(value.Message);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((LogReceived) obj);
+    }
+    public bool Equals(LogReceived other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Id == other.Id && IsStdErr == other.IsStdErr && Message == other.Message;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Id.GetHashCode();
+        hash = hash * 31 + IsStdErr.GetHashCode();
+        hash = hash * 31 + Message.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("LogReceived (");
+      using (printer.IndentCookie()) {
+        printer.Print("id = "); Id.PrintEx(printer); printer.Println();
+        printer.Print("isStdErr = "); IsStdErr.PrintEx(printer); printer.Println();
+        printer.Print("message = "); Message.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:22</p>
   /// </summary>
-  public sealed class SessionModel : IPrintable, IEquatable<SessionModel>
+  public sealed class ProcessStarted : IPrintable, IEquatable<ProcessStarted>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Id {get; private set;}
+    public long Pid {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public ProcessStarted(
+      [NotNull] string id,
+      long pid
+    )
+    {
+      if (id == null) throw new ArgumentNullException("id");
+      
+      Id = id;
+      Pid = pid;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string id, out long pid)
+    {
+      id = Id;
+      pid = Pid;
+    }
+    //statics
+    
+    public static CtxReadDelegate<ProcessStarted> Read = (ctx, reader) => 
+    {
+      var id = reader.ReadString();
+      var pid = reader.ReadLong();
+      var _result = new ProcessStarted(id, pid);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<ProcessStarted> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Id);
+      writer.Write(value.Pid);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((ProcessStarted) obj);
+    }
+    public bool Equals(ProcessStarted other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Id == other.Id && Pid == other.Pid;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Id.GetHashCode();
+        hash = hash * 31 + Pid.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("ProcessStarted (");
+      using (printer.IndentCookie()) {
+        printer.Print("id = "); Id.PrintEx(printer); printer.Println();
+        printer.Print("pid = "); Pid.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:27</p>
+  /// </summary>
+  public sealed class ProcessTerminated : IPrintable, IEquatable<ProcessTerminated>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Id {get; private set;}
+    public int ExitCode {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public ProcessTerminated(
+      [NotNull] string id,
+      int exitCode
+    )
+    {
+      if (id == null) throw new ArgumentNullException("id");
+      
+      Id = id;
+      ExitCode = exitCode;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string id, out int exitCode)
+    {
+      id = Id;
+      exitCode = ExitCode;
+    }
+    //statics
+    
+    public static CtxReadDelegate<ProcessTerminated> Read = (ctx, reader) => 
+    {
+      var id = reader.ReadString();
+      var exitCode = reader.ReadInt();
+      var _result = new ProcessTerminated(id, exitCode);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<ProcessTerminated> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Id);
+      writer.Write(value.ExitCode);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((ProcessTerminated) obj);
+    }
+    public bool Equals(ProcessTerminated other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Id == other.Id && ExitCode == other.ExitCode;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Id.GetHashCode();
+        hash = hash * 31 + ExitCode.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("ProcessTerminated (");
+      using (printer.IndentCookie()) {
+        printer.Print("id = "); Id.PrintEx(printer); printer.Println();
+        printer.Print("exitCode = "); ExitCode.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:38</p>
+  /// </summary>
+  public sealed class SessionModel : RdBindableBase
   {
     //fields
     //public fields
@@ -232,22 +543,16 @@ namespace AspireSessionHost.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string projectPath, out bool debug, [CanBeNull] out EnvironmentVariableModel[] envs, [CanBeNull] out string[] args)
-    {
-      projectPath = ProjectPath;
-      debug = Debug;
-      envs = Envs;
-      args = Args;
-    }
     //statics
     
     public static CtxReadDelegate<SessionModel> Read = (ctx, reader) => 
     {
+      var _id = RdId.Read(reader);
       var projectPath = reader.ReadString();
       var debug = reader.ReadBool();
       var envs = ReadEnvironmentVariableModelArrayNullable(ctx, reader);
       var args = ReadStringArrayNullable(ctx, reader);
-      var _result = new SessionModel(projectPath, debug, envs, args);
+      var _result = new SessionModel(projectPath, debug, envs, args).WithId(_id);
       return _result;
     };
     public static CtxReadDelegate<EnvironmentVariableModel[]> ReadEnvironmentVariableModelArrayNullable = EnvironmentVariableModel.Read.Array().NullableClass();
@@ -255,6 +560,7 @@ namespace AspireSessionHost.Generated
     
     public static CtxWriteDelegate<SessionModel> Write = (ctx, writer, value) => 
     {
+      value.RdId.Write(writer);
       writer.Write(value.ProjectPath);
       writer.Write(value.Debug);
       WriteEnvironmentVariableModelArrayNullable(ctx, writer, value.Envs);
@@ -268,33 +574,9 @@ namespace AspireSessionHost.Generated
     //custom body
     //methods
     //equals trait
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
-      return Equals((SessionModel) obj);
-    }
-    public bool Equals(SessionModel other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return ProjectPath == other.ProjectPath && Debug == other.Debug && Equals(Envs, other.Envs) && Equals(Args, other.Args);
-    }
     //hash code trait
-    public override int GetHashCode()
-    {
-      unchecked {
-        var hash = 0;
-        hash = hash * 31 + ProjectPath.GetHashCode();
-        hash = hash * 31 + Debug.GetHashCode();
-        hash = hash * 31 + (Envs != null ? Envs.ContentHashCode() : 0);
-        hash = hash * 31 + (Args != null ? Args.ContentHashCode() : 0);
-        return hash;
-      }
-    }
     //pretty print
-    public void Print(PrettyPrinter printer)
+    public override void Print(PrettyPrinter printer)
     {
       printer.Println("SessionModel (");
       using (printer.IndentCookie()) {
