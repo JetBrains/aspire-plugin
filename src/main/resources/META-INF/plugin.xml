@@ -12,6 +12,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="com.intellij.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="com.intellij.aspire.run.AspireHostProgramRunner"/>
+
+        <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
+
+        <dependencySupport kind="dotnet" coordinate="Aspire.Hosting" displayName="Aspire"/>
     </extensions>
 
 </idea-plugin>
