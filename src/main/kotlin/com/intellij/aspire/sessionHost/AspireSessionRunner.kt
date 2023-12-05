@@ -49,14 +49,21 @@ class AspireSessionRunner(private val project: Project) {
     ) {
         LOG.info("Starting a session for the project ${session.projectPath}")
 
-        val configuration = getOrCreateConfiguration(session, hostId)
+        val host = AspireSessionHostService.getInstance().getHost(hostId)
+        if (host == null) {
+            LOG.warn("Unable to find Aspire host with id=$hostId")
+            return
+        }
+
+        val configuration = getOrCreateConfiguration(session, host)
         if (configuration == null) {
             LOG.warn("Unable to find or create run configuration for the project ${session.projectPath}")
             return
         }
 
+        val isDebug = host.isDebug || session.debug
         val executor =
-            if (!session.debug) DefaultRunExecutor.getRunExecutorInstance()
+            if (!isDebug) DefaultRunExecutor.getRunExecutorInstance()
             else DefaultDebugExecutor.getDebugExecutorInstance()
 
         val environment = ExecutionEnvironmentBuilder
@@ -102,16 +109,13 @@ class AspireSessionRunner(private val project: Project) {
         ProgramRunnerUtil.executeConfiguration(environment, false, true)
     }
 
-    private fun getOrCreateConfiguration(session: SessionModel, hostId: String): RunnerAndConfigurationSettings? {
+    private fun getOrCreateConfiguration(
+        session: SessionModel,
+        host: AspireSessionHostService.HostConfiguration
+    ): RunnerAndConfigurationSettings? {
         val projects = project.solution.runnableProjectsModel.projects.valueOrNull
         if (projects == null) {
             LOG.warn("Runnable projects model doesn't contain projects")
-            return null
-        }
-
-        val host = AspireSessionHostService.getInstance().getHost(hostId)
-        if (host == null) {
-            LOG.warn("Unable to find Aspire host with id=$hostId")
             return null
         }
 
