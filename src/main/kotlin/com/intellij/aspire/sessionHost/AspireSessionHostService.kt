@@ -16,19 +16,21 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
 import com.intellij.openapi.rd.util.withUiContext
 import com.jetbrains.rd.framework.*
+import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.div
 
 @Service
-class AspireSessionHost {
+class AspireSessionHostService {
     companion object {
-        fun getInstance(): AspireSessionHost = service()
+        fun getInstance(): AspireSessionHostService = service()
 
-        private val LOG = logger<AspireSessionHost>()
+        private val LOG = logger<AspireSessionHostService>()
 
         private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
         private const val RIDER_RD_PORT = "RIDER_RD_PORT"
@@ -42,16 +44,32 @@ class AspireSessionHost {
         basePath / "aspire-session-host" / "aspire-session-host.dll"
     }
 
-    suspend fun start(project: Project, aspNetPort: Int, lifetime: Lifetime) {
-        LOG.info("Starting Aspire session host")
+    private val hosts = ConcurrentHashMap<String, HostConfiguration>()
+
+    data class HostConfiguration(
+        val id: String,
+        val projectName: String,
+        val isDebug: Boolean,
+        val aspNetPort: Int
+    )
+
+    fun getHost(id: String) = hosts[id]
+
+    suspend fun startHost(project: Project, hostConfig: HostConfiguration, lifetime: Lifetime) {
+        LOG.info("Starting Aspire session host: $hostConfig")
 
         val dotnet = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
-            ?: throw CantRunException("Cannot find active .NET runtime.")
+            ?: throw CantRunException("Cannot find active .NET runtime")
+
+        if (hosts.containsKey(hostConfig.id))
+            throw CantRunException("Session id is not unique")
 
         val processLifetime = lifetime.createNested()
 
+        hosts.addUnique(processLifetime, hostConfig.id, hostConfig)
+
         val protocol = startProtocol(processLifetime)
-        subscribe(protocol.aspireSessionHostModel, processLifetime, project)
+        subscribe(hostConfig.id, protocol.aspireSessionHostModel, processLifetime, project)
 
         val commandLine = GeneralCommandLine()
             .withExePath(dotnet.cliExePath)
@@ -59,7 +77,7 @@ class AspireSessionHost {
             .withParameters(hostAssemblyPath.toString())
             .withEnvironment(
                 mapOf(
-                    ASPNETCORE_URLS to "http://localhost:$aspNetPort/",
+                    ASPNETCORE_URLS to "http://localhost:${hostConfig.aspNetPort}/",
                     RIDER_RD_PORT to "${protocol.wire.serverPort}"
                 )
             )
@@ -94,6 +112,7 @@ class AspireSessionHost {
     }
 
     private suspend fun subscribe(
+        hostId: String,
         model: AspireSessionHostModel,
         processLifetime: Lifetime,
         project: Project
@@ -101,7 +120,7 @@ class AspireSessionHost {
         model.sessions.view(processLifetime) { lt, id, session ->
             LOG.info("New session added $id, $session")
             val runner = AspireSessionRunner.getInstance(project)
-            runner.runSession(id, session, lt, model, processLifetime)
+            runner.runSession(id, session, lt, hostId, model, processLifetime)
         }
     }
 }

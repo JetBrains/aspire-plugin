@@ -21,6 +21,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfiguration
@@ -42,12 +43,18 @@ class AspireSessionRunner(private val project: Project) {
         id: String,
         session: SessionModel,
         sessionLifetime: Lifetime,
+        hostId: String,
         model: AspireSessionHostModel,
         hostLifetime: Lifetime
     ) {
         LOG.info("Starting a session for the project ${session.projectPath}")
 
-        val configuration = getOrCreateConfiguration(session) ?: return
+        val configuration = getOrCreateConfiguration(session, hostId)
+        if (configuration == null) {
+            LOG.warn("Unable to find or create run configuration for the project ${session.projectPath}")
+            return
+        }
+
         val executor =
             if (!session.debug) DefaultRunExecutor.getRunExecutorInstance()
             else DefaultDebugExecutor.getDebugExecutorInstance()
@@ -95,36 +102,67 @@ class AspireSessionRunner(private val project: Project) {
         ProgramRunnerUtil.executeConfiguration(environment, false, true)
     }
 
-    private fun getOrCreateConfiguration(session: SessionModel): RunnerAndConfigurationSettings? {
+    private fun getOrCreateConfiguration(session: SessionModel, hostId: String): RunnerAndConfigurationSettings? {
         val projects = project.solution.runnableProjectsModel.projects.valueOrNull
         if (projects == null) {
-            LOG.trace("Runnable projects model doesn't contain projects")
+            LOG.warn("Runnable projects model doesn't contain projects")
+            return null
+        }
+
+        val host = AspireSessionHostService.getInstance().getHost(hostId)
+        if (host == null) {
+            LOG.warn("Unable to find Aspire host with id=$hostId")
             return null
         }
 
         val projectPath = Path(session.projectPath).systemIndependentPath
-
         val runnableProject = projects.firstOrNull {
             DotNetProjectConfigurationType.isTypeApplicable(it.kind) && it.projectFilePath == projectPath
         }
         if (runnableProject == null) {
-            LOG.trace("Unable to find a specified runnable project")
+            LOG.warn("Unable to find a specified runnable project")
             return null
         }
 
         val runManager = RunManager.getInstance(project)
-
         val configurationType = ConfigurationTypeUtil.findConfigurationType(DotNetProjectConfigurationType::class.java)
-
         val existingConfiguration = runManager.allSettings.firstOrNull {
-            it.type.id == configurationType.id && it.name.endsWith(ASPIRE_SUFFIX)
+            it.type.id == configurationType.id && it.name.endsWith(ASPIRE_SUFFIX) && it.folderName == host.projectName
         }
 
         if (existingConfiguration != null) {
             LOG.trace("Found existing configurations: ${existingConfiguration.name}")
-            return existingConfiguration
+            return updateConfiguration(existingConfiguration, runnableProject, session)
         }
 
+        LOG.trace("Creating a new configuration")
+        return createConfiguration(configurationType, runManager, runnableProject, session, host)
+    }
+
+    private fun updateConfiguration(
+        existingConfiguration: RunnerAndConfigurationSettings,
+        runnableProject: RunnableProject,
+        session: SessionModel,
+    ): RunnerAndConfigurationSettings {
+        existingConfiguration.apply {
+            (configuration as DotNetProjectConfiguration).apply {
+                parameters.projectFilePath = runnableProject.projectFilePath
+                parameters.projectKind = runnableProject.kind
+                parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
+                parameters.envs = session.envs?.associate { it.key to it.value } ?: emptyMap()
+            }
+        }
+
+        return existingConfiguration
+    }
+
+    private fun createConfiguration(
+        configurationType: DotNetProjectConfigurationType,
+        runManager: RunManager,
+        runnableProject: RunnableProject,
+        session: SessionModel,
+        host: AspireSessionHostService.HostConfiguration
+    ): RunnerAndConfigurationSettings {
         val factory = configurationType.factory
         val defaultConfiguration =
             runManager.createConfiguration("${runnableProject.name}-$ASPIRE_SUFFIX", factory).apply {
@@ -134,10 +172,11 @@ class AspireSessionRunner(private val project: Project) {
                     parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
                     parameters.envs = session.envs?.associate { it.key to it.value } ?: emptyMap()
                 }
-                isTemporary = true
                 isActivateToolWindowBeforeRun = false
                 isFocusToolWindowBeforeRun = false
+                folderName = host.projectName
             }
+
         runManager.addConfiguration(defaultConfiguration)
 
         return defaultConfiguration
