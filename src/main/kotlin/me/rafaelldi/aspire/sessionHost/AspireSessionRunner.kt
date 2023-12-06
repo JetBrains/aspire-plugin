@@ -1,6 +1,5 @@
-package com.intellij.aspire.sessionHost
+package me.rafaelldi.aspire.sessionHost
 
-import com.intellij.aspire.generated.*
 import com.intellij.execution.ProgramRunnerUtil
 import com.intellij.execution.RunManager
 import com.intellij.execution.RunnerAndConfigurationSettings
@@ -36,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
+import me.rafaelldi.aspire.generated.*
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)

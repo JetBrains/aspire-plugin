@@ -1,4 +1,4 @@
-package com.intellij.aspire.run
+package me.rafaelldi.aspire.run
 
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime

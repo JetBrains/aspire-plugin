@@ -1,7 +1,7 @@
-package com.intellij.aspire.sessionHost
+package me.rafaelldi.aspire.sessionHost
 
-import com.intellij.aspire.generated.AspireSessionHostModel
-import com.intellij.aspire.generated.aspireSessionHostModel
+import me.rafaelldi.aspire.generated.AspireSessionHostModel
+import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.KillableColoredProcessHandler

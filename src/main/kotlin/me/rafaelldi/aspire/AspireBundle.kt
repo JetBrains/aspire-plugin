@@ -1,4 +1,4 @@
-package com.intellij.aspire
+package me.rafaelldi.aspire
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

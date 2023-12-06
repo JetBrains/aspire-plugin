@@ -70,7 +70,7 @@ tasks {
     configure<com.jetbrains.rd.generator.gradle.RdGenExtension> {
         val modelDir = projectDir.resolve("protocol/src/main/kotlin/model/sessionHost")
         val pluginSourcePath = projectDir.resolve("src")
-        val ktOutput = pluginSourcePath.resolve("main/kotlin/com/intellij/aspire/generated")
+        val ktOutput = pluginSourcePath.resolve("main/kotlin/me/rafaelldi/aspire/generated")
         val csOutput = pluginSourcePath.resolve("dotnet/aspire-session-host/Generated")
 
         verbose = true

@@ -1,6 +1,6 @@
-package com.intellij.aspire.run
+package me.rafaelldi.aspire.run
 
-import com.intellij.aspire.sessionHost.AspireSessionHostService
+import me.rafaelldi.aspire.sessionHost.AspireSessionHostService
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.executors.DefaultDebugExecutor

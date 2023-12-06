@@ -7,7 +7,7 @@ import com.jetbrains.rd.generator.nova.kotlin.Kotlin11Generator
 
 object AspireSessionHostRoot : Root() {
     init {
-        setting(Kotlin11Generator.Namespace, "com.intellij.aspire.generated")
+        setting(Kotlin11Generator.Namespace, "me.rafaelldi.aspire.generated")
         setting(CSharp50Generator.Namespace, "AspireSessionHost.Generated")
     }
 }
