@@ -120,7 +120,7 @@ class AspireSessionHostService {
         model.sessions.view(processLifetime) { lt, id, session ->
             LOG.info("New session added $id, $session")
             val runner = AspireSessionRunner.getInstance(project)
-            runner.runSession(id, session, lt, hostId, model, processLifetime)
+            runner.runSession(AspireSessionRunner.RunSessionCommand(id, session, lt, hostId, model, processLifetime))
         }
     }
 }
