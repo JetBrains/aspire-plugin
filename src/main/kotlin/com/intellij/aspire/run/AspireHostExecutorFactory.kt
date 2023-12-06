@@ -71,6 +71,11 @@ class AspireHostExecutorFactory(
     ): DotNetExecutable {
         val projectOutput = runnableProject.projectOutputs.firstOrNull()
             ?: throw CantRunException("Unable to find project output")
+        val envs = runnableProject.environmentVariables
+            .associate { it.key to it.value }
+            .toMutableMap()
+        envs["DEBUG_SESSION_PORT"] = "localhost:$port"
+        envs["DEBUG_SESSION_TOKEN"] = token
 
         return DotNetExecutable(
             projectOutput.exePath,
@@ -79,10 +84,7 @@ class AspireHostExecutorFactory(
             ParametersListUtil.join(projectOutput.defaultArguments),
             false,
             false,
-            mapOf(
-                "DEBUG_SESSION_PORT" to "localhost:$port",
-                "DEBUG_SESSION_TOKEN" to token
-            ),
+            envs,
             true,
             parameters.startBrowserAction,
             null,
