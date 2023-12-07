@@ -1,4 +1,5 @@
-﻿using System.Net.WebSockets;
+﻿using System.Diagnostics;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
@@ -14,17 +15,19 @@ internal static class SessionEndpoints
 
         group.MapPut(
             "/",
-            async (Session session, SessionService service) =>
+            async Task<Results<Created<Session>, BadRequest<string>>> (Session session, SessionService service) =>
             {
                 var id = await service.Create(session);
-                return TypedResults.Created($"/run_session/{id}", session);
+                return id.HasValue
+                    ? TypedResults.Created($"/run_session/{id.Value}", session)
+                    : TypedResults.BadRequest("Unable to create a session");
             });
 
         group.MapDelete(
             "/{sessionId:guid}",
-            Results<Ok, NoContent> (Guid sessionId, SessionService service) =>
+            async Task<Results<Ok, NoContent>> (Guid sessionId, SessionService service) =>
             {
-                var isSuccessful = service.Delete(sessionId);
+                var isSuccessful = await service.Delete(sessionId);
                 return isSuccessful ? TypedResults.Ok() : TypedResults.NoContent();
             });
 

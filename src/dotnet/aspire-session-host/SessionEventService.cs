@@ -1,5 +1,6 @@
 ﻿using System.Threading.Channels;
 using JetBrains.Lifetimes;
+// ReSharper disable ReplaceAsyncWithTaskReturn
 
 namespace AspireSessionHost;
 

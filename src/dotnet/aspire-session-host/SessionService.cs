@@ -1,17 +1,14 @@
-﻿using System.Collections.Concurrent;
-using AspireSessionHost.Generated;
-using JetBrains.Lifetimes;
+﻿using AspireSessionHost.Generated;
+
+// ReSharper disable ReplaceAsyncWithTaskReturn
 
 namespace AspireSessionHost;
 
-internal class SessionService(Connection connection) : IDisposable
+internal class SessionService(Connection connection)
 {
-    private readonly LifetimeDefinition _lifetimeDef = new();
-
-    private readonly ConcurrentDictionary<Guid, LifetimeDefinition> _sessions = new();
-
-    internal async Task<Guid> Create(Session session)
+    internal async Task<Guid?> Create(Session session)
     {
+        var id = Guid.NewGuid();
         var sessionModel = new SessionModel(
             session.ProjectPath,
             session.Debug,
@@ -19,41 +16,13 @@ internal class SessionService(Connection connection) : IDisposable
             session.Args
         );
 
-        var id = Guid.NewGuid();
-        var sessionLifetime = _lifetimeDef.Lifetime.CreateNested();
-        _sessions.TryAdd(id, sessionLifetime);
+        var result = await connection.DoWithModel(model => model.Sessions.TryAdd(id.ToString(), sessionModel));
 
-        await connection.DoWithModel(model =>
-        {
-            sessionLifetime.Lifetime.Bracket(
-                () =>
-                {
-                    model.Sessions.Add(id.ToString(), sessionModel);
-                },
-                () =>
-                {
-                    model.Sessions.Remove(id.ToString());
-                }
-            );
-        });
-
-        return id;
+        return result ? id : null;
     }
 
-    internal bool Delete(Guid id)
+    internal async Task<bool> Delete(Guid id)
     {
-        if (!_sessions.TryRemove(id, out var sessionLifetime))
-        {
-            return false;
-        }
-
-        sessionLifetime.Terminate();
-
-        return true;
-    }
-
-    public void Dispose()
-    {
-        _lifetimeDef.Dispose();
+       return await connection.DoWithModel(model => model.Sessions.Remove(id.ToString()));
     }
 }

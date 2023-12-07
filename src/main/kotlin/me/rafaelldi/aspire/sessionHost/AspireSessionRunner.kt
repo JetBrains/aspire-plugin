@@ -90,7 +90,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         LOG.info("Starting a session for the project ${sessionModel.projectPath}")
 
         if (hostLifetime.isNotAlive || sessionLifetime.isNotAlive) {
-            LOG.info("Unable to run project ${sessionModel.projectPath} because lifetimes are not alive")
+            LOG.warn("Unable to run project ${sessionModel.projectPath} because lifetimes are not alive")
             return
         }
 

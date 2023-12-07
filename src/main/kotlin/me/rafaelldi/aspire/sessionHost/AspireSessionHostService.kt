@@ -18,6 +18,7 @@ import com.intellij.openapi.rd.util.withUiContext
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import java.nio.charset.StandardCharsets
@@ -58,18 +59,23 @@ class AspireSessionHostService {
     suspend fun startHost(project: Project, hostConfig: HostConfiguration, lifetime: Lifetime) {
         LOG.info("Starting Aspire session host: $hostConfig")
 
+        if (lifetime.isNotAlive) {
+            LOG.warn("Unable to start Aspire host because lifetime is not alive")
+            return
+        }
+
         val dotnet = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Cannot find active .NET runtime")
 
         if (hosts.containsKey(hostConfig.id))
             throw CantRunException("Session id is not unique")
 
-        val processLifetime = lifetime.createNested()
+        val hostLifetime = lifetime.createNested()
 
-        hosts.addUnique(processLifetime, hostConfig.id, hostConfig)
+        hosts.addUnique(hostLifetime, hostConfig.id, hostConfig)
 
-        val protocol = startProtocol(processLifetime)
-        subscribe(hostConfig.id, protocol.aspireSessionHostModel, processLifetime, project)
+        val protocol = startProtocol(hostLifetime)
+        subscribe(hostConfig.id, protocol.aspireSessionHostModel, hostLifetime, project)
 
         val commandLine = GeneralCommandLine()
             .withExePath(dotnet.cliExePath)
@@ -82,18 +88,18 @@ class AspireSessionHostService {
                 )
             )
         val processHandler = KillableColoredProcessHandler.Silent(commandLine)
-        processLifetime.onTermination {
+        hostLifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
                 processHandler.killProcess()
             }
         }
         processHandler.addProcessListener(object : ProcessListener {
             override fun processTerminated(event: ProcessEvent) {
-                processLifetime.executeIfAlive {
-                    processLifetime.terminate(true)
+                hostLifetime.executeIfAlive {
+                    hostLifetime.terminate(true)
                 }
             }
-        }, processLifetime.createNestedDisposable())
+        }, hostLifetime.createNestedDisposable())
         processHandler.startNotify()
     }
 
@@ -113,14 +119,23 @@ class AspireSessionHostService {
 
     private suspend fun subscribe(
         hostId: String,
-        model: AspireSessionHostModel,
-        processLifetime: Lifetime,
+        hostModel: AspireSessionHostModel,
+        hostLifetime: Lifetime,
         project: Project
     ) = withUiContext {
-        model.sessions.view(processLifetime) { lt, id, session ->
-            LOG.info("New session added $id, $session")
+        hostModel.sessions.view(hostLifetime) { sessionLifetime, sessionId, sessionModel ->
+            LOG.info("New session added $sessionId, $sessionModel")
             val runner = AspireSessionRunner.getInstance(project)
-            runner.runSession(AspireSessionRunner.RunSessionCommand(id, session, lt, hostId, model, processLifetime))
+            runner.runSession(
+                AspireSessionRunner.RunSessionCommand(
+                    sessionId,
+                    sessionModel,
+                    sessionLifetime,
+                    hostId,
+                    hostModel,
+                    hostLifetime
+                )
+            )
         }
     }
 }
