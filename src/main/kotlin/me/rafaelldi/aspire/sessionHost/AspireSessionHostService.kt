@@ -36,7 +36,7 @@ class AspireSessionHostService {
         private const val RIDER_RD_PORT = "RIDER_RD_PORT"
     }
 
-    private val pluginId = PluginId.getId("com.intellij.aspire")
+    private val pluginId = PluginId.getId("me.rafaelldi.aspire")
 
     private val hostAssemblyPath: Path = run {
         val plugin = PluginManagerCore.getPlugin(pluginId) ?: error("Plugin $pluginId could not be found.")

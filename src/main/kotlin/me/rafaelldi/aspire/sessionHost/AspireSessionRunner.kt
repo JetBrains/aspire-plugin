@@ -130,12 +130,11 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
 
                         val processAdapter = object : ProcessAdapter() {
                             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                                ansiEscapeDecoder.escapeText(event.text, outputType) { textChunk, _ ->
-                                    hostLifetime.launchOnUi {
-                                        hostModel.logReceived.fire(
-                                            LogReceived(sessionId, outputType == ProcessOutputType.STDERR, textChunk)
-                                        )
-                                    }
+                                val text = decodeAnsiCommandsToString(event.text, outputType)
+                                hostLifetime.launchOnUi {
+                                    hostModel.logReceived.fire(
+                                        LogReceived(sessionId, outputType == ProcessOutputType.STDERR, text)
+                                    )
                                 }
                             }
 
@@ -252,5 +251,11 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         runManager.addConfiguration(defaultConfiguration)
 
         return defaultConfiguration
+    }
+
+    private fun decodeAnsiCommandsToString(ansi: String, outputType: Key<*>): String {
+        val buffer = StringBuilder()
+        ansiEscapeDecoder.escapeText(ansi, outputType) { text, _ -> buffer.append(text) }
+        return buffer.toString()
     }
 }
