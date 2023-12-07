@@ -7,6 +7,9 @@
 <!-- Plugin description -->
 The plugin provides support for .NET Aspire projects in JetBrains Rider.
 
+**Features:**
+* Support for running and debugging of Aspire projects
+
 <!-- Plugin description end -->
 
 ## Installation
