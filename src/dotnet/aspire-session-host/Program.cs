@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Text.Json;
 using AspireSessionHost;
 
+ParentProcessWatchdog.StartNewIfAvailable();
+
 var port = Environment.GetEnvironmentVariable("RIDER_RD_PORT");
 if (port == null) throw new ApplicationException("Unable to find RIDER_RD_PORT variable");
 
