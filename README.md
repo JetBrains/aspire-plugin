@@ -1,8 +1,8 @@
 # Aspire Plugin for JetBrains Rider
 
 ![Build](https://github.com/rafaelldi/aspire-plugin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg?label=plugin&logo=rider)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg?label=plugin&logo=rider)](https://plugins.jetbrains.com/plugin/23289-aspire)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/23289-aspire)
 
 <!-- Plugin description -->
 The plugin provides support for .NET Aspire projects in JetBrains Rider.
