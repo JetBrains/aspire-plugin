@@ -9,6 +9,7 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.AnsiEscapeDecoder
 import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
+import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
@@ -24,9 +25,11 @@ import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
+import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.run.TerminalProcessHandler
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfiguration
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationType
 import com.jetbrains.rider.run.pid
@@ -119,7 +122,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         withUiContext {
             ProgramRunnerUtil.executeConfigurationAsync(environment, false, true, object : ProgramRunner.Callback {
                 override fun processStarted(descriptor: RunContentDescriptor?) {
-                    val processHandler = descriptor?.processHandler
+                    val processHandler = getProcessHandler(descriptor?.processHandler)
                     if (processHandler != null) {
                         val pid = processHandler.pid()
                         if (pid != null) {
@@ -171,6 +174,15 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
 
         if (!started.await()) {
             LOG.warn("Unable to start run configuration for the project ${sessionModel.projectPath}")
+        }
+    }
+
+    private fun getProcessHandler(processHandler: ProcessHandler?) = when (processHandler) {
+        is TerminalProcessHandler -> processHandler
+        is DebuggerWorkerProcessHandler -> processHandler.debuggerWorkerRealHandler
+        else -> {
+            LOG.warn("Unknown ProcessHandler: $processHandler")
+            null
         }
     }
 
