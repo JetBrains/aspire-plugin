@@ -4,6 +4,10 @@
 [![Version](https://img.shields.io/jetbrains/plugin/v/23289-aspire.svg?label=plugin&logo=rider)](https://plugins.jetbrains.com/plugin/23289-aspire)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/23289-aspire.svg)](https://plugins.jetbrains.com/plugin/23289-aspire)
 
+[Plugin documentation](https://rafaelldi.github.io/aspire-plugin)
+
+[.NET Aspire documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
+
 <!-- Plugin description -->
 The plugin provides support for .NET Aspire projects in JetBrains Rider.
 
@@ -23,9 +27,3 @@ The plugin provides support for .NET Aspire projects in JetBrains Rider.
 
   Download the [latest release](https://github.com/rafaelldi/aspire-plugin/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
-
-
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
-
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
