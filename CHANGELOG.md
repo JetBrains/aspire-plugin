@@ -8,6 +8,10 @@
 
 - Require restart after installing
 
+### Added
+
+- Plugin icon and run configuration icon
+
 ## [0.1.0] - 2023-12-08
 
 ### Added
