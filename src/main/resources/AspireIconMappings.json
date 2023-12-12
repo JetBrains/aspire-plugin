@@ -1,0 +1,8 @@
+{
+  "icons": {
+    "expui": {
+        "runConfigAspire.svg": "icons/runConfigAspire.svg",
+        "serviceAspire.svg": "icons/serviceAspire.svg"
+    }
+  }
+}
