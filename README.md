@@ -1,4 +1,4 @@
-# Aspire Plugin for JetBrains Rider
+# .NET Aspire Plugin for JetBrains Rider
 
 ![Build](https://github.com/rafaelldi/aspire-plugin/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/23289-aspire.svg?label=plugin&logo=rider)](https://plugins.jetbrains.com/plugin/23289-aspire)
