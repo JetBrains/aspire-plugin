@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2023-12-12
+
 ### Changed
 
 - Require restart after installing
@@ -18,5 +20,6 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/rafaelldi/aspire-plugin/commits/v0.1.0
