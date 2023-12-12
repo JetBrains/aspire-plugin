@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin url="https://github.com/rafaelldi/aspire-plugin" require-restart="true">
     <id>me.rafaelldi.aspire</id>
-    <name>Aspire</name>
+    <name>.NET Aspire</name>
     <vendor url="https://github.com/rafaelldi">Rival Abdrakhmanov</vendor>
 
     <depends>com.intellij.modules.platform</depends>
