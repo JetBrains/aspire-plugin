@@ -16,6 +16,8 @@
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
 
         <dependencySupport kind="dotnet" coordinate="Aspire.Hosting" displayName="Aspire"/>
+
+        <iconMapper mappingFile="AspireIconMappings.json"/>
     </extensions>
 
 </idea-plugin>
