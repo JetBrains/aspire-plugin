@@ -56,4 +56,6 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
             it to defaultSettings
         }
     }
+
+    override fun getHelpTopic() = "me.rafaelldi.aspire.run-config"
 }

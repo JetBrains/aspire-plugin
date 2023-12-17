@@ -13,6 +13,8 @@
         <configurationType implementation="me.rafaelldi.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="me.rafaelldi.aspire.run.AspireHostProgramRunner"/>
 
+        <webHelpProvider implementation="me.rafaelldi.aspire.AspireHelpProvider"/>
+
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
 
         <dependencySupport kind="dotnet" coordinate="Aspire.Hosting" displayName="Aspire"/>
