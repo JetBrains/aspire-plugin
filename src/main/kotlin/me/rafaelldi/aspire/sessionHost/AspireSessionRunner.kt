@@ -111,6 +111,11 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         withUiContext {
             ProgramRunnerUtil.executeConfigurationAsync(environment, false, true, object : ProgramRunner.Callback {
                 override fun processStarted(descriptor: RunContentDescriptor?) {
+                    descriptor?.apply {
+                        isActivateToolWindowWhenAdded = false
+                        isAutoFocusContent = false
+                    }
+
                     val processHandler = getProcessHandler(descriptor?.processHandler)
                     if (processHandler != null) {
                         val pid = processHandler.pid()
