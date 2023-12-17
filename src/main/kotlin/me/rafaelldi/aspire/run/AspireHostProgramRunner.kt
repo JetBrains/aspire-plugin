@@ -48,7 +48,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         val runProfileName = environment.runProfile.name
         val isDebug = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
-        val hostLifetime = environment.project.lifetime.createNested()
+        val sessionHostLifetime = environment.project.lifetime.createNested()
 
         val sessionHostRunner = AspireSessionHostRunner.getInstance()
         val config = AspireSessionHostConfig(
@@ -59,23 +59,23 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         )
         LOG.trace("Aspire session host config: $config")
 
-        val hostPromise = hostLifetime.startOnUiAsync {
-            sessionHostRunner.runSessionHost(environment.project, config, hostLifetime)
+        val sessionHostPromise = sessionHostLifetime.startOnUiAsync {
+            sessionHostRunner.runSessionHost(environment.project, config, sessionHostLifetime)
         }.asPromise()
 
-        return hostPromise.then {
+        return sessionHostPromise.then {
             val executionResult = state.execute(environment.executor, this)
 
             val processHandler = executionResult.processHandler
-            hostLifetime.onTermination {
+            sessionHostLifetime.onTermination {
                 if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
                     processHandler.destroyProcess()
                 }
             }
             processHandler.addProcessListener(object : ProcessListener {
                 override fun processTerminated(event: ProcessEvent) {
-                    hostLifetime.executeIfAlive {
-                        hostLifetime.terminate(true)
+                    sessionHostLifetime.executeIfAlive {
+                        sessionHostLifetime.terminate(true)
                     }
                 }
             })
