@@ -38,7 +38,7 @@ class AspireHostConfigurationViewModel(
             projectSelector.bindTo(
                 runnableProjectsModel,
                 lifetime,
-                { p -> AspireHostConfigurationType.isTypeApplicable(p.kind) },
+                { p -> p.kind == AspireRunnableProjectKinds.AspireHost },
                 ::enable,
                 ::handleProjectSelection
             )
@@ -83,10 +83,10 @@ class AspireHostConfigurationViewModel(
             )
 
             if (projectFilePath.isEmpty() || projectList.none {
-                    it.projectFilePath == projectFilePath && AspireHostConfigurationType.isTypeApplicable(it.kind)
+                    it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
                 }) {
                 if (projectFilePath.isEmpty()) {
-                    projectList.firstOrNull { AspireHostConfigurationType.isTypeApplicable(it.kind) }
+                    projectList.firstOrNull { it.kind == AspireRunnableProjectKinds.AspireHost }
                         ?.let { project ->
                             projectSelector.project.set(project)
                             isLoaded = true
@@ -112,7 +112,7 @@ class AspireHostConfigurationViewModel(
                 }
             } else {
                 projectList.singleOrNull {
-                    it.projectFilePath == projectFilePath && AspireHostConfigurationType.isTypeApplicable(it.kind)
+                    it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
                 }?.let { project ->
                     projectSelector.project.set(project)
 

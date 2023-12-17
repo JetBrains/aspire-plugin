@@ -19,9 +19,6 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
     "Aspire Host configuration",
     AspireIcons.RunConfig
 ), IRunnableProjectConfigurationType, IRunConfigurationWithDefault {
-    companion object {
-        fun isTypeApplicable(kind: RunnableProjectKind) = kind == AspireRunnableProjectKinds.AspireHost
-    }
 
     private val factory = AspireHostConfigurationFactory(this)
 
@@ -29,7 +26,7 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
         addFactory(factory)
     }
 
-    override fun isApplicable(kind: RunnableProjectKind) = isTypeApplicable(kind)
+    override fun isApplicable(kind: RunnableProjectKind) = kind == AspireRunnableProjectKinds.AspireHost
 
     override fun tryCreateDefault(
         project: Project,

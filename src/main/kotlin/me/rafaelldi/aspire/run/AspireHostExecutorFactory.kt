@@ -36,7 +36,7 @@ class AspireHostExecutorFactory(
             ?: throw CantRunException(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
 
         val runnableProject = projects.singleOrNull {
-            AspireHostConfigurationType.isTypeApplicable(it.kind) && it.projectFilePath == parameters.projectFilePath
+            it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath == parameters.projectFilePath
         } ?: throw CantRunException(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
 
         val executable = getDotNetExecutable(runnableProject)
