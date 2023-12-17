@@ -23,6 +23,7 @@ import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import me.rafaelldi.aspire.generated.*
+import me.rafaelldi.aspire.services.AspireServiceManager
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.div
@@ -86,6 +87,9 @@ class AspireHostRunner {
             }
         }, hostLifetime.createNestedDisposable())
         processHandler.startNotify()
+
+        project.messageBus.syncPublisher(AspireHostLifecycleListener.TOPIC)
+            .hostStarted(hostConfig, protocol.aspireSessionHostModel, hostLifetime)
     }
 
     private suspend fun startProtocol(lifetime: Lifetime) = withUiContext {
