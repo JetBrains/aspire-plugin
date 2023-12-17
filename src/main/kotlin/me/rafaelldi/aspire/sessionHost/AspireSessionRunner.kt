@@ -74,6 +74,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
     }
 
     fun runSession(command: RunSessionCommand) {
+        LOG.trace("Sending run session command $command")
         commandChannel.trySend(command)
     }
 
@@ -111,6 +112,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         withUiContext {
             ProgramRunnerUtil.executeConfigurationAsync(environment, false, true, object : ProgramRunner.Callback {
                 override fun processStarted(descriptor: RunContentDescriptor?) {
+                    LOG.info("Aspire session process started")
+
                     descriptor?.apply {
                         isActivateToolWindowWhenAdded = false
                         isAutoFocusContent = false
@@ -119,6 +122,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                     val processHandler = getProcessHandler(descriptor?.processHandler)
                     if (processHandler != null) {
                         val pid = processHandler.pid()
+                        LOG.trace("Aspire session pid: $pid")
                         if (pid != null) {
                             sessionEvents.trySend(AspireSessionStarted(sessionId, pid))
                         }
@@ -131,16 +135,19 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                             }
 
                             override fun processTerminated(event: ProcessEvent) {
+                                LOG.info("Aspire session process terminated (pid: $pid)")
                                 sessionEvents.trySend(AspireSessionTerminated(sessionId, event.exitCode))
                             }
 
                             override fun processNotStarted() {
+                                LOG.warn("Aspire session process is not started")
                                 sessionEvents.trySend(AspireSessionTerminated(sessionId, -1))
                             }
                         }
 
                         sessionLifetime.onTermination {
                             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
+                                LOG.trace("Killing session process (pid: $pid)")
                                 processHandler.destroyProcess()
                             }
                         }
@@ -179,6 +186,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         }
 
         val projectPath = Path(session.projectPath).systemIndependentPath
+        LOG.trace("Session project path: $projectPath")
         val runnableProject = projects.firstOrNull {
             DotNetProjectConfigurationType.isTypeApplicable(it.kind) && it.projectFilePath == projectPath
         }
@@ -190,16 +198,17 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         val runManager = RunManager.getInstance(project)
         val configurationType = ConfigurationTypeUtil.findConfigurationType(DotNetProjectConfigurationType::class.java)
         val configurationName = "${runnableProject.name}-$ASPIRE_SUFFIX"
+        LOG.trace("Session run configuration name: $configurationName")
         val existingConfiguration = runManager.allSettings.firstOrNull {
             it.type.id == configurationType.id && it.name == configurationName && it.folderName == hostName
         }
 
         if (existingConfiguration != null) {
-            LOG.trace("Found existing configurations: ${existingConfiguration.name}")
+            LOG.info("Found existing run configuration ${existingConfiguration.name}")
             return updateConfiguration(existingConfiguration, runnableProject, session)
         }
 
-        LOG.trace("Creating a new configuration")
+        LOG.info("Creating a new run configuration $configurationName")
         return createConfiguration(configurationType, configurationName, runManager, runnableProject, session, hostName)
     }
 
@@ -216,6 +225,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                 parameters.envs = session.envs?.associate { it.key to it.value } ?: emptyMap()
             }
         }
+
+        LOG.trace("Updated a run configuration $existingConfiguration")
 
         return existingConfiguration
     }
@@ -243,6 +254,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
             }
 
         runManager.addConfiguration(defaultConfiguration)
+
+        LOG.trace("Created a run configuration $defaultConfiguration")
 
         return defaultConfiguration
     }

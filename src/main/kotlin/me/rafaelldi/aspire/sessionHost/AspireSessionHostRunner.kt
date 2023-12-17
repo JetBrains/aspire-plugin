@@ -23,17 +23,16 @@ import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import me.rafaelldi.aspire.generated.*
-import me.rafaelldi.aspire.services.AspireServiceManager
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.div
 
 @Service
-class AspireHostRunner {
+class AspireSessionHostRunner {
     companion object {
-        fun getInstance() = service<AspireHostRunner>()
+        fun getInstance() = service<AspireSessionHostRunner>()
 
-        private val LOG = logger<AspireHostRunner>()
+        private val LOG = logger<AspireSessionHostRunner>()
 
         private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
         private const val RIDER_PARENT_PROCESS_PID = "RIDER_PARENT_PROCESS_PID"
@@ -48,7 +47,11 @@ class AspireHostRunner {
         basePath / "aspire-session-host" / "aspire-session-host.dll"
     }
 
-    suspend fun runHost(project: Project, hostConfig: AspireHostConfig, hostLifetime: LifetimeDefinition) {
+    suspend fun runSessionHost(
+        project: Project,
+        hostConfig: AspireSessionHostConfig,
+        hostLifetime: LifetimeDefinition
+    ) {
         LOG.info("Starting Aspire session host: $hostConfig")
 
         if (hostLifetime.isNotAlive) {
@@ -73,23 +76,27 @@ class AspireHostRunner {
                     RIDER_PARENT_PROCESS_PID to ProcessHandle.current().pid().toString()
                 )
             )
+        LOG.trace("Host command line: ${commandLine.commandLineString}")
         val processHandler = KillableColoredProcessHandler.Silent(commandLine)
         hostLifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
+                LOG.trace("Killing Aspire host process")
                 processHandler.killProcess()
             }
         }
         processHandler.addProcessListener(object : ProcessListener {
             override fun processTerminated(event: ProcessEvent) {
                 hostLifetime.executeIfAlive {
+                    LOG.trace("Terminating Aspire host lifetime")
                     hostLifetime.terminate(true)
                 }
             }
         }, hostLifetime.createNestedDisposable())
         processHandler.startNotify()
+        LOG.trace("Aspire session host started")
 
-        project.messageBus.syncPublisher(AspireHostLifecycleListener.TOPIC)
-            .hostStarted(hostConfig, protocol.aspireSessionHostModel, hostLifetime)
+        project.messageBus.syncPublisher(AspireSessionHostLifecycleListener.TOPIC)
+            .sessionHostStarted(hostConfig, protocol.aspireSessionHostModel, hostLifetime)
     }
 
     private suspend fun startProtocol(lifetime: Lifetime) = withUiContext {
@@ -107,7 +114,7 @@ class AspireHostRunner {
     }
 
     private suspend fun subscribe(
-        hostConfig: AspireHostConfig,
+        hostConfig: AspireSessionHostConfig,
         hostModel: AspireSessionHostModel,
         hostLifetime: Lifetime,
         project: Project
@@ -118,14 +125,17 @@ class AspireHostRunner {
             sessionEvents.consumeAsFlow().collect {
                 when (it) {
                     is AspireSessionStarted -> {
+                        LOG.trace("Aspire session started (${it.id}, ${it.pid})")
                         hostModel.processStarted.fire(ProcessStarted(it.id, it.pid))
                     }
 
                     is AspireSessionTerminated -> {
+                        LOG.trace("Aspire session terminated (${it.id}, ${it.exitCode})")
                         hostModel.processTerminated.fire(ProcessTerminated(it.id, it.exitCode))
                     }
 
                     is AspireSessionLogReceived -> {
+                        LOG.trace("Aspire session log received (${it.id}, ${it.isStdErr}, ${it.message})")
                         hostModel.logReceived.fire(LogReceived(it.id, it.isStdErr, it.message))
                     }
                 }

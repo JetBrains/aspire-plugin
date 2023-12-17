@@ -1,6 +1,6 @@
 package me.rafaelldi.aspire.sessionHost
 
-data class AspireHostConfig(
+data class AspireSessionHostConfig(
     val id: String,
     val projectName: String,
     val isDebug: Boolean,

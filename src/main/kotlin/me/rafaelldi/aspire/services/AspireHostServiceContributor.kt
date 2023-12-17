@@ -5,9 +5,9 @@ import com.intellij.execution.services.ServiceViewDescriptor
 import com.intellij.execution.services.SimpleServiceViewDescriptor
 import com.intellij.openapi.project.Project
 import me.rafaelldi.aspire.AspireIcons
-import me.rafaelldi.aspire.sessionHost.AspireHostConfig
+import me.rafaelldi.aspire.sessionHost.AspireSessionHostConfig
 
-class AspireHostServiceContributor(private val config: AspireHostConfig) : ServiceViewContributor<Unit> {
+class AspireHostServiceContributor(private val config: AspireSessionHostConfig) : ServiceViewContributor<Unit> {
     override fun getViewDescriptor(project: Project): ServiceViewDescriptor =
         SimpleServiceViewDescriptor(config.projectName, AspireIcons.Service)
 

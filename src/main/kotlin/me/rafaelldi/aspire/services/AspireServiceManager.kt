@@ -4,12 +4,11 @@ import com.intellij.execution.services.ServiceEventListener
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.rd.util.withUiContext
 import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
 import me.rafaelldi.aspire.generated.AspireSessionHostModel
-import me.rafaelldi.aspire.sessionHost.AspireHostConfig
-import me.rafaelldi.aspire.sessionHost.AspireHostLifecycleListener
+import me.rafaelldi.aspire.sessionHost.AspireSessionHostConfig
+import me.rafaelldi.aspire.sessionHost.AspireSessionHostLifecycleListener
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
@@ -18,11 +17,11 @@ class AspireServiceManager(project: Project) {
         fun getInstance(project: Project) = project.service<AspireServiceManager>()
     }
 
-    private val hosts = ConcurrentHashMap<String, AspireHostConfig>()
+    private val hosts = ConcurrentHashMap<String, AspireSessionHostConfig>()
     private val notifier = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
     fun addHost(
-        hostConfig: AspireHostConfig,
+        hostConfig: AspireSessionHostConfig,
         hostModel: AspireSessionHostModel,
         hostLifetime: Lifetime
     ) {
@@ -44,11 +43,11 @@ class AspireServiceManager(project: Project) {
         )
     }
 
-    fun getHosts(): List<AspireHostConfig> = hosts.values.toList()
+    fun getHosts(): List<AspireSessionHostConfig> = hosts.values.toList()
 
-    class HostLifecycleListener(val project: Project) : AspireHostLifecycleListener {
-        override fun hostStarted(
-            hostConfig: AspireHostConfig,
+    class HostLifecycleListener(val project: Project) : AspireSessionHostLifecycleListener {
+        override fun sessionHostStarted(
+            hostConfig: AspireSessionHostConfig,
             hostModel: AspireSessionHostModel,
             hostLifetime: Lifetime
         ) {
