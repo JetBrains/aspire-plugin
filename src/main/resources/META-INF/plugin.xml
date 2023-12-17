@@ -13,11 +13,20 @@
         <configurationType implementation="me.rafaelldi.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="me.rafaelldi.aspire.run.AspireHostProgramRunner"/>
 
+<!--        <serviceViewContributor implementation="me.rafaelldi.aspire.services.AspireServiceContributor"/>-->
+
+        <webHelpProvider implementation="me.rafaelldi.aspire.AspireHelpProvider"/>
+
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
 
         <dependencySupport kind="dotnet" coordinate="Aspire.Hosting" displayName="Aspire"/>
 
         <iconMapper mappingFile="AspireIconMappings.json"/>
     </extensions>
+
+    <projectListeners>
+        <listener class="me.rafaelldi.aspire.services.AspireServiceManager$HostLifecycleListener"
+                  topic="me.rafaelldi.aspire.sessionHost.AspireSessionHostLifecycleListener"/>
+    </projectListeners>
 
 </idea-plugin>

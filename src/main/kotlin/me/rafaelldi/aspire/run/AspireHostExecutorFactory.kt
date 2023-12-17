@@ -1,6 +1,5 @@
 package me.rafaelldi.aspire.run
 
-import me.rafaelldi.aspire.sessionHost.AspireSessionHostService
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.executors.DefaultDebugExecutor
@@ -17,6 +16,8 @@ import com.jetbrains.rider.run.configurations.project.DotNetProjectConfiguration
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
+import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_PORT
+import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_TOKEN
 import java.util.*
 
 class AspireHostExecutorFactory(
@@ -35,27 +36,10 @@ class AspireHostExecutorFactory(
             ?: throw CantRunException(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
 
         val runnableProject = projects.singleOrNull {
-            AspireHostConfigurationType.isTypeApplicable(it.kind) && it.projectFilePath == parameters.projectFilePath
+            it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath == parameters.projectFilePath
         } ?: throw CantRunException(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
 
-        val sessionId = UUID.randomUUID().toString()
-        val isDebug = executorId == DefaultDebugExecutor.EXECUTOR_ID
-        val aspNetPort = NetUtils.findFreePort(67800)
-
-        val sessionHost = AspireSessionHostService.getInstance()
-        val config = AspireSessionHostService.HostConfiguration(
-            sessionId,
-            runnableProject.name,
-            isDebug,
-            aspNetPort
-        )
-        sessionHost.startHost(project, config, lifetime)
-
-        val executable = getDotNetExecutable(
-            runnableProject,
-            aspNetPort,
-            sessionId
-        )
+        val executable = getDotNetExecutable(runnableProject)
 
         return when (executorId) {
             DefaultDebugExecutor.EXECUTOR_ID -> activeRuntime.createRunState(executable, environment)
@@ -64,18 +48,17 @@ class AspireHostExecutorFactory(
         }
     }
 
-    private fun getDotNetExecutable(
-        runnableProject: RunnableProject,
-        port: Int,
-        token: String
-    ): DotNetExecutable {
+    private fun getDotNetExecutable(runnableProject: RunnableProject): DotNetExecutable {
         val projectOutput = runnableProject.projectOutputs.firstOrNull()
             ?: throw CantRunException("Unable to find project output")
         val envs = runnableProject.environmentVariables
             .associate { it.key to it.value }
             .toMutableMap()
-        envs["DEBUG_SESSION_PORT"] = "localhost:$port"
-        envs["DEBUG_SESSION_TOKEN"] = token
+
+        val sessionId = UUID.randomUUID().toString()
+        val aspNetPort = NetUtils.findFreePort(67800)
+        envs[DEBUG_SESSION_TOKEN] = sessionId
+        envs[DEBUG_SESSION_PORT] = "localhost:$aspNetPort"
 
         return DotNetExecutable(
             projectOutput.exePath,

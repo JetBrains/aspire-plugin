@@ -6,11 +6,7 @@ import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.process.AnsiEscapeDecoder
-import com.intellij.execution.process.ProcessAdapter
-import com.intellij.execution.process.ProcessEvent
-import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.process.ProcessOutputType
+import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.RunContentDescriptor
@@ -18,7 +14,6 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.rd.util.launchOnUi
 import com.intellij.openapi.rd.util.withUiContext
 import com.intellij.openapi.util.Key
 import com.intellij.util.execution.ParametersListUtil
@@ -38,7 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
-import me.rafaelldi.aspire.generated.*
+import me.rafaelldi.aspire.generated.SessionModel
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
@@ -58,9 +53,9 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         val sessionId: String,
         val sessionModel: SessionModel,
         val sessionLifetime: Lifetime,
-        val hostId: String,
-        val hostModel: AspireSessionHostModel,
-        val hostLifetime: Lifetime
+        val sessionEvents: Channel<AspireSessionEvent>,
+        val hostName: String,
+        val isHostDebug: Boolean
     )
 
     init {
@@ -70,15 +65,16 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                     it.sessionId,
                     it.sessionModel,
                     it.sessionLifetime,
-                    it.hostId,
-                    it.hostModel,
-                    it.hostLifetime
+                    it.sessionEvents,
+                    it.hostName,
+                    it.isHostDebug
                 )
             }
         }
     }
 
     fun runSession(command: RunSessionCommand) {
+        LOG.trace("Sending run session command $command")
         commandChannel.trySend(command)
     }
 
@@ -86,30 +82,24 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
-        hostId: String,
-        hostModel: AspireSessionHostModel,
-        hostLifetime: Lifetime
+        sessionEvents: Channel<AspireSessionEvent>,
+        hostName: String,
+        isHostDebug: Boolean
     ) {
         LOG.info("Starting a session for the project ${sessionModel.projectPath}")
 
-        if (hostLifetime.isNotAlive || sessionLifetime.isNotAlive) {
+        if (sessionLifetime.isNotAlive) {
             LOG.warn("Unable to run project ${sessionModel.projectPath} because lifetimes are not alive")
             return
         }
 
-        val host = AspireSessionHostService.getInstance().getHost(hostId)
-        if (host == null) {
-            LOG.warn("Unable to find Aspire host with id=$hostId")
-            return
-        }
-
-        val configuration = getOrCreateConfiguration(sessionModel, host)
+        val configuration = getOrCreateConfiguration(sessionModel, hostName)
         if (configuration == null) {
             LOG.warn("Unable to find or create run configuration for the project ${sessionModel.projectPath}")
             return
         }
 
-        val isDebug = host.isDebug || sessionModel.debug
+        val isDebug = isHostDebug || sessionModel.debug
         val executor =
             if (!isDebug) DefaultRunExecutor.getRunExecutorInstance()
             else DefaultDebugExecutor.getDebugExecutorInstance()
@@ -122,40 +112,42 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         withUiContext {
             ProgramRunnerUtil.executeConfigurationAsync(environment, false, true, object : ProgramRunner.Callback {
                 override fun processStarted(descriptor: RunContentDescriptor?) {
+                    LOG.info("Aspire session process started")
+
+                    descriptor?.apply {
+                        isActivateToolWindowWhenAdded = false
+                        isAutoFocusContent = false
+                    }
+
                     val processHandler = getProcessHandler(descriptor?.processHandler)
                     if (processHandler != null) {
                         val pid = processHandler.pid()
+                        LOG.trace("Aspire session pid: $pid")
                         if (pid != null) {
-                            hostLifetime.launchOnUi {
-                                hostModel.processStarted.fire(ProcessStarted(sessionId, pid))
-                            }
+                            sessionEvents.trySend(AspireSessionStarted(sessionId, pid))
                         }
 
                         val processAdapter = object : ProcessAdapter() {
                             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
                                 val text = decodeAnsiCommandsToString(event.text, outputType)
-                                hostLifetime.launchOnUi {
-                                    hostModel.logReceived.fire(
-                                        LogReceived(sessionId, outputType == ProcessOutputType.STDERR, text)
-                                    )
-                                }
+                                val isStdErr = outputType == ProcessOutputType.STDERR
+                                sessionEvents.trySend(AspireSessionLogReceived(sessionId, isStdErr, text))
                             }
 
                             override fun processTerminated(event: ProcessEvent) {
-                                hostLifetime.launchOnUi {
-                                    hostModel.processTerminated.fire(ProcessTerminated(sessionId, event.exitCode))
-                                }
+                                LOG.info("Aspire session process terminated (pid: $pid)")
+                                sessionEvents.trySend(AspireSessionTerminated(sessionId, event.exitCode))
                             }
 
                             override fun processNotStarted() {
-                                hostLifetime.launchOnUi {
-                                    hostModel.processTerminated.fire(ProcessTerminated(sessionId, -1))
-                                }
+                                LOG.warn("Aspire session process is not started")
+                                sessionEvents.trySend(AspireSessionTerminated(sessionId, -1))
                             }
                         }
 
                         sessionLifetime.onTermination {
                             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
+                                LOG.trace("Killing session process (pid: $pid)")
                                 processHandler.destroyProcess()
                             }
                         }
@@ -186,10 +178,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         }
     }
 
-    private fun getOrCreateConfiguration(
-        session: SessionModel,
-        host: AspireSessionHostService.HostConfiguration
-    ): RunnerAndConfigurationSettings? {
+    private fun getOrCreateConfiguration(session: SessionModel, hostName: String): RunnerAndConfigurationSettings? {
         val projects = project.solution.runnableProjectsModel.projects.valueOrNull
         if (projects == null) {
             LOG.warn("Runnable projects model doesn't contain projects")
@@ -197,6 +186,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         }
 
         val projectPath = Path(session.projectPath).systemIndependentPath
+        LOG.trace("Session project path: $projectPath")
         val runnableProject = projects.firstOrNull {
             DotNetProjectConfigurationType.isTypeApplicable(it.kind) && it.projectFilePath == projectPath
         }
@@ -208,17 +198,18 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         val runManager = RunManager.getInstance(project)
         val configurationType = ConfigurationTypeUtil.findConfigurationType(DotNetProjectConfigurationType::class.java)
         val configurationName = "${runnableProject.name}-$ASPIRE_SUFFIX"
+        LOG.trace("Session run configuration name: $configurationName")
         val existingConfiguration = runManager.allSettings.firstOrNull {
-            it.type.id == configurationType.id && it.name == configurationName && it.folderName == host.projectName
+            it.type.id == configurationType.id && it.name == configurationName && it.folderName == hostName
         }
 
         if (existingConfiguration != null) {
-            LOG.trace("Found existing configurations: ${existingConfiguration.name}")
+            LOG.info("Found existing run configuration ${existingConfiguration.name}")
             return updateConfiguration(existingConfiguration, runnableProject, session)
         }
 
-        LOG.trace("Creating a new configuration")
-        return createConfiguration(configurationType, configurationName, runManager, runnableProject, session, host)
+        LOG.info("Creating a new run configuration $configurationName")
+        return createConfiguration(configurationType, configurationName, runManager, runnableProject, session, hostName)
     }
 
     private fun updateConfiguration(
@@ -235,6 +226,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
             }
         }
 
+        LOG.trace("Updated a run configuration $existingConfiguration")
+
         return existingConfiguration
     }
 
@@ -244,7 +237,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         runManager: RunManager,
         runnableProject: RunnableProject,
         session: SessionModel,
-        host: AspireSessionHostService.HostConfiguration
+        hostName: String
     ): RunnerAndConfigurationSettings {
         val factory = configurationType.factory
         val defaultConfiguration =
@@ -257,10 +250,12 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                 }
                 isActivateToolWindowBeforeRun = false
                 isFocusToolWindowBeforeRun = false
-                folderName = host.projectName
+                folderName = hostName
             }
 
         runManager.addConfiguration(defaultConfiguration)
+
+        LOG.trace("Created a run configuration $defaultConfiguration")
 
         return defaultConfiguration
     }

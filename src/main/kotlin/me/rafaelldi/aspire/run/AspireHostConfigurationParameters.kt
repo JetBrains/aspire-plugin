@@ -47,7 +47,7 @@ class AspireHostConfigurationParameters(
             throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
         }
         val project = runnableProjects.singleOrNull {
-            it.projectFilePath == projectFilePath && AspireHostConfigurationType.isTypeApplicable(it.kind)
+            it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
         } ?: throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
         if (!project.problems.isNullOrEmpty()) {
             throw RuntimeConfigurationError(project.problems)
