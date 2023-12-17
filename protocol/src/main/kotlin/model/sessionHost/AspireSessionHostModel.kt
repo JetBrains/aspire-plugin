@@ -40,6 +40,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("debug", bool)
         field("envs", array(EnvironmentVariableModel).nullable)
         field("args", array(string).nullable)
+        field("telemetryServiceName", string.nullable)
     }
 
     init {

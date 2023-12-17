@@ -88,7 +88,7 @@ namespace AspireSessionHost.Generated
     
     
     
-    protected override long SerializationHash => -7785002699677100762L;
+    protected override long SerializationHash => 2649266713995469936L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -524,6 +524,7 @@ namespace AspireSessionHost.Generated
     public bool Debug {get; private set;}
     [CanBeNull] public EnvironmentVariableModel[] Envs {get; private set;}
     [CanBeNull] public string[] Args {get; private set;}
+    [CanBeNull] public string TelemetryServiceName {get; private set;}
     
     //private fields
     //primary constructor
@@ -531,7 +532,8 @@ namespace AspireSessionHost.Generated
       [NotNull] string projectPath,
       bool debug,
       [CanBeNull] EnvironmentVariableModel[] envs,
-      [CanBeNull] string[] args
+      [CanBeNull] string[] args,
+      [CanBeNull] string telemetryServiceName
     )
     {
       if (projectPath == null) throw new ArgumentNullException("projectPath");
@@ -540,6 +542,7 @@ namespace AspireSessionHost.Generated
       Debug = debug;
       Envs = envs;
       Args = args;
+      TelemetryServiceName = telemetryServiceName;
     }
     //secondary constructor
     //deconstruct trait
@@ -552,11 +555,13 @@ namespace AspireSessionHost.Generated
       var debug = reader.ReadBool();
       var envs = ReadEnvironmentVariableModelArrayNullable(ctx, reader);
       var args = ReadStringArrayNullable(ctx, reader);
-      var _result = new SessionModel(projectPath, debug, envs, args).WithId(_id);
+      var telemetryServiceName = ReadStringNullable(ctx, reader);
+      var _result = new SessionModel(projectPath, debug, envs, args, telemetryServiceName).WithId(_id);
       return _result;
     };
     public static CtxReadDelegate<EnvironmentVariableModel[]> ReadEnvironmentVariableModelArrayNullable = EnvironmentVariableModel.Read.Array().NullableClass();
     public static CtxReadDelegate<string[]> ReadStringArrayNullable = JetBrains.Rd.Impl.Serializers.ReadString.Array().NullableClass();
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
     
     public static CtxWriteDelegate<SessionModel> Write = (ctx, writer, value) => 
     {
@@ -565,9 +570,11 @@ namespace AspireSessionHost.Generated
       writer.Write(value.Debug);
       WriteEnvironmentVariableModelArrayNullable(ctx, writer, value.Envs);
       WriteStringArrayNullable(ctx, writer, value.Args);
+      WriteStringNullable(ctx, writer, value.TelemetryServiceName);
     };
     public static  CtxWriteDelegate<EnvironmentVariableModel[]> WriteEnvironmentVariableModelArrayNullable = EnvironmentVariableModel.Write.Array().NullableClass();
     public static  CtxWriteDelegate<string[]> WriteStringArrayNullable = JetBrains.Rd.Impl.Serializers.WriteString.Array().NullableClass();
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
     
     //constants
     
@@ -584,6 +591,7 @@ namespace AspireSessionHost.Generated
         printer.Print("debug = "); Debug.PrintEx(printer); printer.Println();
         printer.Print("envs = "); Envs.PrintEx(printer); printer.Println();
         printer.Print("args = "); Args.PrintEx(printer); printer.Println();
+        printer.Print("telemetryServiceName = "); TelemetryServiceName.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }

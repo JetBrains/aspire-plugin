@@ -54,7 +54,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = -7785002699677100762L
+        const val serializationHash = 2649266713995469936L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -382,7 +382,8 @@ class SessionModel (
     val projectPath: String,
     val debug: Boolean,
     val envs: Array<EnvironmentVariableModel>?,
-    val args: Array<String>?
+    val args: Array<String>?,
+    val telemetryServiceName: String?
 ) : RdBindableBase() {
     //companion
     
@@ -396,7 +397,8 @@ class SessionModel (
             val debug = buffer.readBool()
             val envs = buffer.readNullable { buffer.readArray {EnvironmentVariableModel.read(ctx, buffer)} }
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
-            return SessionModel(projectPath, debug, envs, args).withId(_id)
+            val telemetryServiceName = buffer.readNullable { buffer.readString() }
+            return SessionModel(projectPath, debug, envs, args, telemetryServiceName).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionModel)  {
@@ -405,6 +407,7 @@ class SessionModel (
             buffer.writeBool(value.debug)
             buffer.writeNullable(value.envs) { buffer.writeArray(it) { EnvironmentVariableModel.write(ctx, buffer, it) } }
             buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
+            buffer.writeNullable(value.telemetryServiceName) { buffer.writeString(it) }
         }
         
         
@@ -423,6 +426,7 @@ class SessionModel (
             print("debug = "); debug.print(printer); println()
             print("envs = "); envs.print(printer); println()
             print("args = "); args.print(printer); println()
+            print("telemetryServiceName = "); telemetryServiceName.print(printer); println()
         }
         printer.print(")")
     }
@@ -432,7 +436,8 @@ class SessionModel (
             projectPath,
             debug,
             envs,
-            args
+            args,
+            telemetryServiceName
         )
     }
     //contexts
