@@ -1,7 +1,5 @@
 package me.rafaelldi.aspire.sessionHost
 
-import me.rafaelldi.aspire.generated.AspireSessionHostModel
-import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.KillableColoredProcessHandler
@@ -14,24 +12,27 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
+import com.intellij.openapi.rd.util.launchOnUi
 import com.intellij.openapi.rd.util.withUiContext
 import com.jetbrains.rd.framework.*
-import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.consumeAsFlow
+import me.rafaelldi.aspire.generated.*
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.div
 
 @Service
-class AspireSessionHostService {
+class AspireHostRunner {
     companion object {
-        fun getInstance(): AspireSessionHostService = service()
+        fun getInstance() = service<AspireHostRunner>()
 
-        private val LOG = logger<AspireSessionHostService>()
+        private val LOG = logger<AspireHostRunner>()
 
         private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
         private const val RIDER_PARENT_PROCESS_PID = "RIDER_PARENT_PROCESS_PID"
@@ -46,21 +47,10 @@ class AspireSessionHostService {
         basePath / "aspire-session-host" / "aspire-session-host.dll"
     }
 
-    private val hosts = ConcurrentHashMap<String, HostConfiguration>()
-
-    data class HostConfiguration(
-        val id: String,
-        val projectName: String,
-        val isDebug: Boolean,
-        val aspNetPort: Int
-    )
-
-    fun getHost(id: String) = hosts[id]
-
-    suspend fun startHost(project: Project, hostConfig: HostConfiguration, lifetime: Lifetime) {
+    suspend fun runHost(project: Project, hostConfig: AspireHostConfig, hostLifetime: LifetimeDefinition) {
         LOG.info("Starting Aspire session host: $hostConfig")
 
-        if (lifetime.isNotAlive) {
+        if (hostLifetime.isNotAlive) {
             LOG.warn("Unable to start Aspire host because lifetime is not alive")
             return
         }
@@ -68,15 +58,8 @@ class AspireSessionHostService {
         val dotnet = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Cannot find active .NET runtime")
 
-        if (hosts.containsKey(hostConfig.id))
-            throw CantRunException("Session id is not unique")
-
-        val hostLifetime = lifetime.createNested()
-
-        hosts.addUnique(hostLifetime, hostConfig.id, hostConfig)
-
         val protocol = startProtocol(hostLifetime)
-        subscribe(hostConfig.id, protocol.aspireSessionHostModel, hostLifetime, project)
+        subscribe(hostConfig, protocol.aspireSessionHostModel, hostLifetime, project)
 
         val commandLine = GeneralCommandLine()
             .withExePath(dotnet.cliExePath)
@@ -120,24 +103,46 @@ class AspireSessionHostService {
     }
 
     private suspend fun subscribe(
-        hostId: String,
+        hostConfig: AspireHostConfig,
         hostModel: AspireSessionHostModel,
         hostLifetime: Lifetime,
         project: Project
-    ) = withUiContext {
-        hostModel.sessions.view(hostLifetime) { sessionLifetime, sessionId, sessionModel ->
-            LOG.info("New session added $sessionId, $sessionModel")
-            val runner = AspireSessionRunner.getInstance(project)
-            runner.runSession(
-                AspireSessionRunner.RunSessionCommand(
-                    sessionId,
-                    sessionModel,
-                    sessionLifetime,
-                    hostId,
-                    hostModel,
-                    hostLifetime
+    ) {
+        val sessionEvents = Channel<AspireSessionEvent>(Channel.UNLIMITED)
+
+        hostLifetime.launchOnUi {
+            sessionEvents.consumeAsFlow().collect {
+                when (it) {
+                    is AspireSessionStarted -> {
+                        hostModel.processStarted.fire(ProcessStarted(it.id, it.pid))
+                    }
+
+                    is AspireSessionTerminated -> {
+                        hostModel.processTerminated.fire(ProcessTerminated(it.id, it.exitCode))
+                    }
+
+                    is AspireSessionLogReceived -> {
+                        hostModel.logReceived.fire(LogReceived(it.id, it.isStdErr, it.message))
+                    }
+                }
+            }
+        }
+
+        withUiContext {
+            hostModel.sessions.view(hostLifetime) { sessionLifetime, sessionId, sessionModel ->
+                LOG.info("New session added $sessionId, $sessionModel")
+                val runner = AspireSessionRunner.getInstance(project)
+                runner.runSession(
+                    AspireSessionRunner.RunSessionCommand(
+                        sessionId,
+                        sessionModel,
+                        sessionLifetime,
+                        sessionEvents,
+                        hostConfig.projectName,
+                        hostConfig.isDebug
+                    )
                 )
-            )
+            }
         }
     }
 }
