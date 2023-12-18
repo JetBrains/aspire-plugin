@@ -13,7 +13,14 @@
         <configurationType implementation="me.rafaelldi.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="me.rafaelldi.aspire.run.AspireHostProgramRunner"/>
 
-<!--        <serviceViewContributor implementation="me.rafaelldi.aspire.services.AspireServiceContributor"/>-->
+        <serviceViewContributor implementation="me.rafaelldi.aspire.services.AspireServiceContributor"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                instance="me.rafaelldi.aspire.settings.AspireConfigurable"
+                id="Aspire.Configurable"
+                key="configurable.Aspire"
+                bundle="messages.AspireBundle"/>
 
         <webHelpProvider implementation="me.rafaelldi.aspire.AspireHelpProvider"/>
 
