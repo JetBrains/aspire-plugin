@@ -4,7 +4,7 @@ using JetBrains.Lifetimes;
 
 namespace AspireSessionHost;
 
-internal class SessionEventService : IDisposable
+internal sealed class SessionEventService : IDisposable
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
 

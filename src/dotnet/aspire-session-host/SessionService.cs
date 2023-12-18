@@ -4,7 +4,7 @@
 
 namespace AspireSessionHost;
 
-internal class SessionService(Connection connection)
+internal sealed class SessionService(Connection connection)
 {
     private const string TelemetryServiceName = "OTEL_SERVICE_NAME";
 

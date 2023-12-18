@@ -35,6 +35,7 @@ class AspireSessionHostRunner {
         private val LOG = logger<AspireSessionHostRunner>()
 
         private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
+        private const val RIDER_OTEL_PORT = "RIDER_OTEL_PORT"
         private const val RIDER_PARENT_PROCESS_PID = "RIDER_PARENT_PROCESS_PID"
         private const val RIDER_RD_PORT = "RIDER_RD_PORT"
     }
@@ -72,6 +73,7 @@ class AspireSessionHostRunner {
             .withEnvironment(
                 mapOf(
                     ASPNETCORE_URLS to "http://localhost:${hostConfig.aspNetPort}/",
+                    RIDER_OTEL_PORT to hostConfig.otelPort.toString(),
                     RIDER_RD_PORT to "${protocol.wire.serverPort}",
                     RIDER_PARENT_PROCESS_PID to ProcessHandle.current().pid().toString()
                 )
@@ -153,7 +155,8 @@ class AspireSessionHostRunner {
                         sessionLifetime,
                         sessionEvents,
                         hostConfig.projectName,
-                        hostConfig.isDebug
+                        hostConfig.isDebug,
+                        hostConfig.otelPort
                     )
                 )
             }

@@ -44,6 +44,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         private val LOG = logger<AspireSessionRunner>()
 
         private const val ASPIRE_SUFFIX = "Aspire"
+        private const val OTEL_EXPORTER_OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
     }
 
     private val commandChannel = Channel<RunSessionCommand>(Channel.UNLIMITED)
@@ -55,7 +56,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         val sessionLifetime: Lifetime,
         val sessionEvents: Channel<AspireSessionEvent>,
         val hostName: String,
-        val isHostDebug: Boolean
+        val isHostDebug: Boolean,
+        val otelPort: Int
     )
 
     init {
@@ -67,7 +69,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                     it.sessionLifetime,
                     it.sessionEvents,
                     it.hostName,
-                    it.isHostDebug
+                    it.isHostDebug,
+                    it.otelPort
                 )
             }
         }
@@ -84,7 +87,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         sessionLifetime: Lifetime,
         sessionEvents: Channel<AspireSessionEvent>,
         hostName: String,
-        isHostDebug: Boolean
+        isHostDebug: Boolean,
+        otelPort: Int
     ) {
         LOG.info("Starting a session for the project ${sessionModel.projectPath}")
 
@@ -93,7 +97,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
             return
         }
 
-        val configuration = getOrCreateConfiguration(sessionModel, hostName)
+        val configuration = getOrCreateConfiguration(sessionModel, hostName, otelPort)
         if (configuration == null) {
             LOG.warn("Unable to find or create run configuration for the project ${sessionModel.projectPath}")
             return
@@ -178,7 +182,11 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         }
     }
 
-    private fun getOrCreateConfiguration(session: SessionModel, hostName: String): RunnerAndConfigurationSettings? {
+    private fun getOrCreateConfiguration(
+        session: SessionModel,
+        hostName: String,
+        otelPort: Int
+    ): RunnerAndConfigurationSettings? {
         val projects = project.solution.runnableProjectsModel.projects.valueOrNull
         if (projects == null) {
             LOG.warn("Runnable projects model doesn't contain projects")
@@ -205,24 +213,40 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
 
         if (existingConfiguration != null) {
             LOG.info("Found existing run configuration ${existingConfiguration.name}")
-            return updateConfiguration(existingConfiguration, runnableProject, session)
+            return updateConfiguration(
+                existingConfiguration,
+                runnableProject,
+                session,
+                otelPort
+            )
+        } else {
+            LOG.info("Creating a new run configuration $configurationName")
+            return createConfiguration(
+                configurationType,
+                configurationName,
+                runManager,
+                runnableProject,
+                session,
+                hostName,
+                otelPort
+            )
         }
-
-        LOG.info("Creating a new run configuration $configurationName")
-        return createConfiguration(configurationType, configurationName, runManager, runnableProject, session, hostName)
     }
 
     private fun updateConfiguration(
         existingConfiguration: RunnerAndConfigurationSettings,
         runnableProject: RunnableProject,
         session: SessionModel,
+        otelPort: Int
     ): RunnerAndConfigurationSettings {
         existingConfiguration.apply {
             (configuration as DotNetProjectConfiguration).apply {
                 parameters.projectFilePath = runnableProject.projectFilePath
                 parameters.projectKind = runnableProject.kind
                 parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
-                parameters.envs = session.envs?.associate { it.key to it.value } ?: emptyMap()
+                val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
+//                envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$otelPort"
+                parameters.envs = envs
             }
         }
 
@@ -237,7 +261,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         runManager: RunManager,
         runnableProject: RunnableProject,
         session: SessionModel,
-        hostName: String
+        hostName: String,
+        otelPort: Int
     ): RunnerAndConfigurationSettings {
         val factory = configurationType.factory
         val defaultConfiguration =
@@ -246,7 +271,9 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                     parameters.projectFilePath = runnableProject.projectFilePath
                     parameters.projectKind = runnableProject.kind
                     parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
-                    parameters.envs = session.envs?.associate { it.key to it.value } ?: emptyMap()
+                    val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
+//                    envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$otelPort"
+                    parameters.envs = envs
                 }
                 isActivateToolWindowBeforeRun = false
                 isFocusToolWindowBeforeRun = false

@@ -6,7 +6,7 @@ using JetBrains.Rd.Impl;
 
 namespace AspireSessionHost;
 
-internal class Connection : IDisposable
+internal sealed class Connection : IDisposable
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
     private readonly Lifetime _lifetime;

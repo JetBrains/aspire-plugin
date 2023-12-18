@@ -14,6 +14,7 @@ import com.intellij.openapi.rd.util.lifetime
 import com.intellij.openapi.rd.util.startOnUiAsync
 import com.jetbrains.rider.debugger.DotNetProgramRunner
 import com.jetbrains.rider.run.DotNetProcessRunProfileState
+import com.jetbrains.rider.util.NetUtils
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostConfig
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostRunner
 import org.jetbrains.concurrency.Promise
@@ -38,12 +39,12 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         val dotnetProcessState = state as? DotNetProcessRunProfileState
             ?: throw CantRunException("Unable to execute RunProfileState: $state")
         val token = dotnetProcessState.dotNetExecutable.environmentVariables[DEBUG_SESSION_TOKEN]
-        val port = dotnetProcessState.dotNetExecutable.environmentVariables[DEBUG_SESSION_PORT]
+        val aspNetPort = dotnetProcessState.dotNetExecutable.environmentVariables[DEBUG_SESSION_PORT]
             ?.substringAfter(':')
             ?.toInt()
-        if (token == null || port == null)
+        if (token == null || aspNetPort == null)
             throw CantRunException("Unable to find token or port")
-        LOG.trace("Found token $token and port $port")
+        LOG.trace("Found token $token and port $aspNetPort")
 
         val runProfileName = environment.runProfile.name
         val isDebug = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
@@ -51,11 +52,13 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         val sessionHostLifetime = environment.project.lifetime.createNested()
 
         val sessionHostRunner = AspireSessionHostRunner.getInstance()
+        val otelPort = NetUtils.findFreePort(77800)
         val config = AspireSessionHostConfig(
             token,
             runProfileName,
             isDebug,
-            port
+            aspNetPort,
+            otelPort
         )
         LOG.trace("Aspire session host config: $config")
 
