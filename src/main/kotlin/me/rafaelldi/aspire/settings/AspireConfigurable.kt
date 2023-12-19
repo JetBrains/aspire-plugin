@@ -13,5 +13,9 @@ class AspireConfigurable: BoundConfigurable(AspireBundle.message("configurable.A
             checkBox(AspireBundle.message("configurable.Aspire.show.service"))
                 .bindSelected(settings::showServices)
         }
+        row {
+            checkBox(AspireBundle.message("configurable.Aspire.collect.telemetry"))
+                .bindSelected(settings::collectTelemetry)
+        }
     }
 }

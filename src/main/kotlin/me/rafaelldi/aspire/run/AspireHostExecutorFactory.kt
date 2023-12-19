@@ -18,6 +18,8 @@ import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
 import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_PORT
 import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_TOKEN
+import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
+import me.rafaelldi.aspire.settings.AspireSettings
 import java.util.*
 
 class AspireHostExecutorFactory(
@@ -57,8 +59,11 @@ class AspireHostExecutorFactory(
 
         val sessionId = UUID.randomUUID().toString()
         val aspNetPort = NetUtils.findFreePort(67800)
+        val otlpEndpointPort = NetUtils.findFreePort(87800)
         envs[DEBUG_SESSION_TOKEN] = sessionId
         envs[DEBUG_SESSION_PORT] = "localhost:$aspNetPort"
+        if (AspireSettings.getInstance().collectTelemetry)
+            envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] = "http://localhost:$otlpEndpointPort"
 
         return DotNetExecutable(
             projectOutput.exePath,

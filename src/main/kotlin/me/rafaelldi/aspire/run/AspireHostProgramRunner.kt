@@ -24,6 +24,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
     companion object {
         const val DEBUG_SESSION_TOKEN = "DEBUG_SESSION_TOKEN"
         const val DEBUG_SESSION_PORT = "DEBUG_SESSION_PORT"
+        const val DOTNET_DASHBOARD_OTLP_ENDPOINT_URL = "DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"
         private const val RUNNER_ID = "aspire-runner"
 
         private val LOG = logger<AspireHostProgramRunner>()
@@ -44,7 +45,11 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             ?.toInt()
         if (token == null || aspNetPort == null)
             throw CantRunException("Unable to find token or port")
-        LOG.trace("Found token $token and port $aspNetPort")
+        LOG.trace("Found $DEBUG_SESSION_TOKEN $token and $DEBUG_SESSION_PORT $aspNetPort")
+
+        val otlpEndpointUrl =
+            dotnetProcessState.dotNetExecutable.environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
+        LOG.trace("Found $DOTNET_DASHBOARD_OTLP_ENDPOINT_URL $otlpEndpointUrl")
 
         val runProfileName = environment.runProfile.name
         val isDebug = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
@@ -58,7 +63,8 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             runProfileName,
             isDebug,
             aspNetPort,
-            otelPort
+            otelPort,
+            otlpEndpointUrl
         )
         LOG.trace("Aspire session host config: $config")
 

@@ -38,6 +38,7 @@ class AspireSessionHostRunner {
         private const val RIDER_OTEL_PORT = "RIDER_OTEL_PORT"
         private const val RIDER_PARENT_PROCESS_PID = "RIDER_PARENT_PROCESS_PID"
         private const val RIDER_RD_PORT = "RIDER_RD_PORT"
+        private const val DOTNET_OTLP_ENDPOINT_URL = "DOTNET_OTLP_ENDPOINT_URL"
     }
 
     private val pluginId = PluginId.getId("me.rafaelldi.aspire")
@@ -71,12 +72,14 @@ class AspireSessionHostRunner {
             .withCharset(StandardCharsets.UTF_8)
             .withParameters(hostAssemblyPath.toString())
             .withEnvironment(
-                mapOf(
-                    ASPNETCORE_URLS to "http://localhost:${hostConfig.aspNetPort}/",
-                    RIDER_OTEL_PORT to hostConfig.otelPort.toString(),
-                    RIDER_RD_PORT to "${protocol.wire.serverPort}",
-                    RIDER_PARENT_PROCESS_PID to ProcessHandle.current().pid().toString()
-                )
+                buildMap {
+                    put(ASPNETCORE_URLS, "http://localhost:${hostConfig.aspNetPort}/")
+                    put(RIDER_OTEL_PORT, hostConfig.otelPort.toString())
+                    put(RIDER_RD_PORT, "${protocol.wire.serverPort}")
+                    put(RIDER_PARENT_PROCESS_PID, ProcessHandle.current().pid().toString())
+                    if (hostConfig.otlpEndpointUrl != null)
+                        put(DOTNET_OTLP_ENDPOINT_URL, hostConfig.otlpEndpointUrl)
+                }
             )
         LOG.trace("Host command line: ${commandLine.commandLineString}")
         val processHandler = KillableColoredProcessHandler.Silent(commandLine)

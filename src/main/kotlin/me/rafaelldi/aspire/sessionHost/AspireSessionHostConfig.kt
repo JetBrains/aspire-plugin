@@ -5,5 +5,6 @@ data class AspireSessionHostConfig(
     val projectName: String,
     val isDebug: Boolean,
     val aspNetPort: Int,
-    val otelPort: Int
+    val otelPort: Int,
+    val otlpEndpointUrl: String?
 )

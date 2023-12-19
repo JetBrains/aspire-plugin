@@ -21,6 +21,10 @@ if (otelPortValue == null) throw new ApplicationException("Unable to find RIDER_
 if (!int.TryParse(otelPortValue, CultureInfo.InvariantCulture, out var otelPort))
     throw new ApplicationException("RIDER_OTEL_PORT is not a valid port");
 
+var otlpEndpointUrlValue = Environment.GetEnvironmentVariable("DOTNET_OTLP_ENDPOINT_URL");
+Uri? otlpEndpointUrl = null;
+if (otlpEndpointUrlValue != null) Uri.TryCreate(otlpEndpointUrlValue, UriKind.Absolute, out otlpEndpointUrl);
+
 var connection = new Connection(rdPort);
 var sessionEventService = new SessionEventService();
 await sessionEventService.Subscribe(connection);
@@ -28,7 +32,7 @@ await sessionEventService.Subscribe(connection);
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGrpc();
-
+if (otlpEndpointUrl != null) builder.Services.AddOtelClients(otlpEndpointUrl);
 builder.Services.AddSingleton(connection);
 builder.Services.AddSingleton(sessionEventService);
 builder.Services.AddSingleton<SessionService>();

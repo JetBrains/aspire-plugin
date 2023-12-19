@@ -34,6 +34,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import me.rafaelldi.aspire.generated.SessionModel
+import me.rafaelldi.aspire.settings.AspireSettings
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
@@ -245,7 +246,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                 parameters.projectKind = runnableProject.kind
                 parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
                 val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
-//                envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$otelPort"
+                if (AspireSettings.getInstance().collectTelemetry)
+                    envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$otelPort"
                 parameters.envs = envs
             }
         }
@@ -272,7 +274,8 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                     parameters.projectKind = runnableProject.kind
                     parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
                     val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
-//                    envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$otelPort"
+                    if (AspireSettings.getInstance().collectTelemetry)
+                        envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$otelPort"
                     parameters.envs = envs
                 }
                 isActivateToolWindowBeforeRun = false
