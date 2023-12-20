@@ -1,8 +1,12 @@
-# .NET Aspire Plugin for JetBrains Rider
+<div align="center">
+  <img alt="Logo" src="./src/main/resources/META-INF/pluginIcon.svg#gh-light-mode-only" width="100">
+  <img alt="Logo" src="./src/main/resources/META-INF/pluginIcon_dark.svg#gh-dark-mode-only" width="100">
+  <h2>.NET Aspire Plugin for JetBrains Rider</h2>
 
-![Build](https://github.com/rafaelldi/aspire-plugin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/23289-aspire.svg?label=plugin&logo=rider)](https://plugins.jetbrains.com/plugin/23289-aspire)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/23289-aspire.svg)](https://plugins.jetbrains.com/plugin/23289-aspire)
+  <a href="https://github.com/rafaelldi/aspire-plugin/actions/workflows/build.yml"><img src="https://github.com/rafaelldi/aspire-plugin/workflows/Build/badge.svg" alt="Build"></a>
+  <a href="https://plugins.jetbrains.com/plugin/23289-aspire"><img src="https://img.shields.io/jetbrains/plugin/v/23289-aspire.svg?label=plugin&logo=rider" alt="Version"></a>
+  <a href="https://plugins.jetbrains.com/plugin/23289-aspire"><img src="https://img.shields.io/jetbrains/plugin/d/23289-aspire.svg" alt="Downloads"></a>
+</div>
 
 [Plugin documentation](https://rafaelldi.github.io/aspire-plugin)
 

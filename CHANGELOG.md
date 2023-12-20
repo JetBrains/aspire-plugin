@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Suggest updating Aspire workload
+
+### Fixed
+
+- Fix an issue when the Aspire host can exceed the execution time of the run configuration
+
 ## [0.1.1] - 2023-12-12
 
 ### Changed
