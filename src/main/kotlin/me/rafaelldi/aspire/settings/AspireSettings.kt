@@ -12,6 +12,11 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         fun getInstance() = service<AspireSettings>()
     }
 
+    var checkForNewVersions
+        get() = state.checkForNewVersions
+        set(value) {
+            state.checkForNewVersions = value
+        }
     var showServices
         get() = state.showServices
         set(value) {

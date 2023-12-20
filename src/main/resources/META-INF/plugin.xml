@@ -10,6 +10,8 @@
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="me.rafaelldi.aspire.UpdateWorkloadActivity"/>
+
         <configurationType implementation="me.rafaelldi.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="me.rafaelldi.aspire.run.AspireHostProgramRunner"/>
 
@@ -21,6 +23,8 @@
                 id="Aspire.Configurable"
                 key="configurable.Aspire"
                 bundle="messages.AspireBundle"/>
+
+        <notificationGroup id="Aspire" displayType="BALLOON"/>
 
         <webHelpProvider implementation="me.rafaelldi.aspire.AspireHelpProvider"/>
 
