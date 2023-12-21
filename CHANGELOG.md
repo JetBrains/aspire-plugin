@@ -6,6 +6,7 @@
 
 ### Added
 
+- Documentation: https://rafaelldi.github.io/aspire-plugin/starter-topic.html
 - Suggest updating Aspire workload
 
 ### Fixed
