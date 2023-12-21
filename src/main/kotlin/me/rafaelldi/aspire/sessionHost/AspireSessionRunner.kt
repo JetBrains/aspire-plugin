@@ -58,7 +58,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         val sessionEvents: Channel<AspireSessionEvent>,
         val hostName: String,
         val isHostDebug: Boolean,
-        val otelPort: Int
+        val openTelemetryPort: Int
     )
 
     init {
@@ -71,7 +71,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                     it.sessionEvents,
                     it.hostName,
                     it.isHostDebug,
-                    it.otelPort
+                    it.openTelemetryPort
                 )
             }
         }
@@ -89,7 +89,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         sessionEvents: Channel<AspireSessionEvent>,
         hostName: String,
         isHostDebug: Boolean,
-        otelPort: Int
+        openTelemetryPort: Int
     ) {
         LOG.info("Starting a session for the project ${sessionModel.projectPath}")
 
@@ -98,7 +98,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
             return
         }
 
-        val configuration = getOrCreateConfiguration(sessionModel, hostName, otelPort)
+        val configuration = getOrCreateConfiguration(sessionModel, hostName, openTelemetryPort)
         if (configuration == null) {
             LOG.warn("Unable to find or create run configuration for the project ${sessionModel.projectPath}")
             return
@@ -186,7 +186,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
     private fun getOrCreateConfiguration(
         session: SessionModel,
         hostName: String,
-        otelPort: Int
+        openTelemetryPort: Int
     ): RunnerAndConfigurationSettings? {
         val projects = project.solution.runnableProjectsModel.projects.valueOrNull
         if (projects == null) {
@@ -218,7 +218,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                 existingConfiguration,
                 runnableProject,
                 session,
-                otelPort
+                openTelemetryPort
             )
         } else {
             LOG.info("Creating a new run configuration $configurationName")
@@ -229,7 +229,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                 runnableProject,
                 session,
                 hostName,
-                otelPort
+                openTelemetryPort
             )
         }
     }
@@ -238,7 +238,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         existingConfiguration: RunnerAndConfigurationSettings,
         runnableProject: RunnableProject,
         session: SessionModel,
-        otelPort: Int
+        openTelemetryPort: Int
     ): RunnerAndConfigurationSettings {
         existingConfiguration.apply {
             (configuration as DotNetProjectConfiguration).apply {
@@ -247,7 +247,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                 parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
                 val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
                 if (AspireSettings.getInstance().collectTelemetry)
-                    envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$otelPort"
+                    envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$openTelemetryPort"
                 parameters.envs = envs
             }
         }
@@ -264,7 +264,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         runnableProject: RunnableProject,
         session: SessionModel,
         hostName: String,
-        otelPort: Int
+        openTelemetryPort: Int
     ): RunnerAndConfigurationSettings {
         val factory = configurationType.factory
         val defaultConfiguration =
@@ -275,7 +275,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                     parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
                     val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
                     if (AspireSettings.getInstance().collectTelemetry)
-                        envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$otelPort"
+                        envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$openTelemetryPort"
                     parameters.envs = envs
                 }
                 isActivateToolWindowBeforeRun = false

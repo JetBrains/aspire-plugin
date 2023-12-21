@@ -57,11 +57,11 @@ class AspireHostExecutorFactory(
             .associate { it.key to it.value }
             .toMutableMap()
 
-        val sessionId = UUID.randomUUID().toString()
-        val aspNetPort = NetUtils.findFreePort(67800)
+        val debugSessionToken = UUID.randomUUID().toString()
+        val debugSessionPort = NetUtils.findFreePort(67800)
         val otlpEndpointPort = NetUtils.findFreePort(87800)
-        envs[DEBUG_SESSION_TOKEN] = sessionId
-        envs[DEBUG_SESSION_PORT] = "localhost:$aspNetPort"
+        envs[DEBUG_SESSION_TOKEN] = debugSessionToken
+        envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
         if (AspireSettings.getInstance().collectTelemetry)
             envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] = "http://localhost:$otlpEndpointPort"
 

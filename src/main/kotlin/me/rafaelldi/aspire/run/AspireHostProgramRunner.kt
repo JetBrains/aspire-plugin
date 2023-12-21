@@ -24,6 +24,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
     companion object {
         const val DEBUG_SESSION_TOKEN = "DEBUG_SESSION_TOKEN"
         const val DEBUG_SESSION_PORT = "DEBUG_SESSION_PORT"
+        const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
         const val DOTNET_DASHBOARD_OTLP_ENDPOINT_URL = "DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"
         private const val RUNNER_ID = "aspire-runner"
 
@@ -39,16 +40,19 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
 
         val dotnetProcessState = state as? DotNetProcessRunProfileState
             ?: throw CantRunException("Unable to execute RunProfileState: $state")
-        val token = dotnetProcessState.dotNetExecutable.environmentVariables[DEBUG_SESSION_TOKEN]
-        val aspNetPort = dotnetProcessState.dotNetExecutable.environmentVariables[DEBUG_SESSION_PORT]
+
+        val environmentVariables = dotnetProcessState.dotNetExecutable.environmentVariables
+        val debugSessionToken = environmentVariables[DEBUG_SESSION_TOKEN]
+        val debugSessionPort = environmentVariables[DEBUG_SESSION_PORT]
             ?.substringAfter(':')
             ?.toInt()
-        if (token == null || aspNetPort == null)
+        if (debugSessionToken == null || debugSessionPort == null)
             throw CantRunException("Unable to find token or port")
-        LOG.trace("Found $DEBUG_SESSION_TOKEN $token and $DEBUG_SESSION_PORT $aspNetPort")
+        LOG.trace("Found $DEBUG_SESSION_TOKEN $debugSessionToken and $DEBUG_SESSION_PORT $debugSessionPort")
 
-        val otlpEndpointUrl =
-            dotnetProcessState.dotNetExecutable.environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
+        val dashboardUrl = environmentVariables[ASPNETCORE_URLS]
+        LOG.trace("Found $ASPNETCORE_URLS $dashboardUrl")
+        val otlpEndpointUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
         LOG.trace("Found $DOTNET_DASHBOARD_OTLP_ENDPOINT_URL $otlpEndpointUrl")
 
         val runProfileName = environment.runProfile.name
@@ -57,13 +61,14 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         val sessionHostLifetime = environment.project.lifetime.createNested()
 
         val sessionHostRunner = AspireSessionHostRunner.getInstance()
-        val otelPort = NetUtils.findFreePort(77800)
+        val openTelemetryPort = NetUtils.findFreePort(77800)
         val config = AspireSessionHostConfig(
-            token,
+            debugSessionToken,
             runProfileName,
             isDebug,
-            aspNetPort,
-            otelPort,
+            debugSessionPort,
+            openTelemetryPort,
+            dashboardUrl,
             otlpEndpointUrl
         )
         LOG.trace("Aspire session host config: $config")

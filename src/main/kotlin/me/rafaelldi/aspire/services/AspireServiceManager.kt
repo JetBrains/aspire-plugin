@@ -17,7 +17,8 @@ class AspireServiceManager(project: Project) {
         fun getInstance(project: Project) = project.service<AspireServiceManager>()
     }
 
-    private val hosts = ConcurrentHashMap<String, AspireSessionHostConfig>()
+    private val hosts = ConcurrentHashMap<String, HostServiceData>()
+    private val hostServices = ConcurrentHashMap<String, MutableList<String>>()
     private val notifier = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
     fun addHost(
@@ -25,10 +26,11 @@ class AspireServiceManager(project: Project) {
         hostModel: AspireSessionHostModel,
         hostLifetime: Lifetime
     ) {
-        hosts.addUnique(hostLifetime, hostConfig.id, hostConfig)
+        val hostDate = HostServiceData(hostConfig.id, hostConfig.hostName, hostConfig.dashboardUrl)
+        hosts.addUnique(hostLifetime, hostConfig.id, hostDate)
+        hostServices.addUnique(hostLifetime, hostConfig.id, mutableListOf())
 
         hostModel.sessions.view(hostLifetime) { sessionLifetime, sessionId, sessionModel ->
-
         }
 
         hostLifetime.bracketIfAlive(
@@ -43,7 +45,9 @@ class AspireServiceManager(project: Project) {
         )
     }
 
-    fun getHosts(): List<AspireSessionHostConfig> = hosts.values.toList()
+    fun getHosts(): List<HostServiceData> = hosts.values.toList()
+
+    data class HostServiceData(val id: String, val hostName: String, val dashboardUrl: String?)
 
     class HostLifecycleListener(val project: Project) : AspireSessionHostLifecycleListener {
         override fun sessionHostStarted(

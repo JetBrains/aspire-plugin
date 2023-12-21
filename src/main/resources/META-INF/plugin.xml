@@ -40,4 +40,12 @@
                   topic="me.rafaelldi.aspire.sessionHost.AspireSessionHostLifecycleListener"/>
     </projectListeners>
 
+    <actions>
+        <action id="Aspire.Settings"
+                class="me.rafaelldi.aspire.actions.AspireSettingsAction"
+                icon="AllIcons.General.Settings"/>
+        <action id="Aspire.Help"
+                class="me.rafaelldi.aspire.actions.AspireHelpAction"/>
+    </actions>
+
 </idea-plugin>

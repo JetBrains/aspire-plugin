@@ -73,8 +73,8 @@ class AspireSessionHostRunner {
             .withParameters(hostAssemblyPath.toString())
             .withEnvironment(
                 buildMap {
-                    put(ASPNETCORE_URLS, "http://localhost:${hostConfig.aspNetPort}/")
-                    put(RIDER_OTEL_PORT, hostConfig.otelPort.toString())
+                    put(ASPNETCORE_URLS, "http://localhost:${hostConfig.debugSessionPort}/")
+                    put(RIDER_OTEL_PORT, hostConfig.openTelemetryPort.toString())
                     put(RIDER_RD_PORT, "${protocol.wire.serverPort}")
                     put(RIDER_PARENT_PROCESS_PID, ProcessHandle.current().pid().toString())
                     if (hostConfig.otlpEndpointUrl != null)
@@ -157,9 +157,9 @@ class AspireSessionHostRunner {
                         sessionModel,
                         sessionLifetime,
                         sessionEvents,
-                        hostConfig.projectName,
+                        hostConfig.hostName,
                         hostConfig.isDebug,
-                        hostConfig.otelPort
+                        hostConfig.openTelemetryPort
                     )
                 )
             }
