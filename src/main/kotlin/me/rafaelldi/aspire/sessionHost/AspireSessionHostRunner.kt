@@ -77,8 +77,8 @@ class AspireSessionHostRunner {
                     put(RIDER_OTEL_PORT, hostConfig.openTelemetryPort.toString())
                     put(RIDER_RD_PORT, "${protocol.wire.serverPort}")
                     put(RIDER_PARENT_PROCESS_PID, ProcessHandle.current().pid().toString())
-                    if (hostConfig.otlpEndpointUrl != null)
-                        put(DOTNET_OTLP_ENDPOINT_URL, hostConfig.otlpEndpointUrl)
+                    if (hostConfig.openTelemetryProtocolUrl != null)
+                        put(DOTNET_OTLP_ENDPOINT_URL, hostConfig.openTelemetryProtocolUrl)
                 }
             )
         LOG.trace("Host command line: ${commandLine.commandLineString}")

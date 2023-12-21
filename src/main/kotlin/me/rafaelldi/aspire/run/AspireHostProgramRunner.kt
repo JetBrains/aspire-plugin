@@ -52,8 +52,8 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
 
         val dashboardUrl = environmentVariables[ASPNETCORE_URLS]
         LOG.trace("Found $ASPNETCORE_URLS $dashboardUrl")
-        val otlpEndpointUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
-        LOG.trace("Found $DOTNET_DASHBOARD_OTLP_ENDPOINT_URL $otlpEndpointUrl")
+        val openTelemetryProtocolUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
+        LOG.trace("Found $DOTNET_DASHBOARD_OTLP_ENDPOINT_URL $openTelemetryProtocolUrl")
 
         val runProfileName = environment.runProfile.name
         val isDebug = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
@@ -69,7 +69,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             debugSessionPort,
             openTelemetryPort,
             dashboardUrl,
-            otlpEndpointUrl
+            openTelemetryProtocolUrl
         )
         LOG.trace("Aspire session host config: $config")
 

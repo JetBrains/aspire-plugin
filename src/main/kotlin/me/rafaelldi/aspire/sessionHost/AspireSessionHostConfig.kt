@@ -7,5 +7,5 @@ data class AspireSessionHostConfig(
     val debugSessionPort: Int,
     val openTelemetryPort: Int,
     val dashboardUrl: String?,
-    val otlpEndpointUrl: String?
+    val openTelemetryProtocolUrl: String?
 )
