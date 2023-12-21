@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2023-12-21
+
 ### Added
 
 - Documentation: https://rafaelldi.github.io/aspire-plugin/starter-topic.html
@@ -29,6 +31,7 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/rafaelldi/aspire-plugin/commits/v0.1.0
