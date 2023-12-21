@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package me.rafaelldi.aspire.services
+package me.rafaelldi.aspire.workload
 
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.ProcessOutput

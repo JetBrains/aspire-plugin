@@ -1,8 +1,7 @@
-package me.rafaelldi.aspire
+package me.rafaelldi.aspire.workload
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
-import me.rafaelldi.aspire.services.AspireWorkloadService
 import me.rafaelldi.aspire.settings.AspireSettings
 
 class UpdateWorkloadActivity : ProjectActivity {

@@ -10,7 +10,7 @@
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity implementation="me.rafaelldi.aspire.UpdateWorkloadActivity"/>
+        <postStartupActivity implementation="me.rafaelldi.aspire.workload.UpdateWorkloadActivity"/>
 
         <configurationType implementation="me.rafaelldi.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="me.rafaelldi.aspire.run.AspireHostProgramRunner"/>
