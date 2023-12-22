@@ -36,6 +36,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
     }
 
     private val SessionModel = classdef {
+        field("id", string)
         field("projectPath", string)
         field("debug", bool)
         field("envs", array(EnvironmentVariableModel).nullable)

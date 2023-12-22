@@ -11,8 +11,10 @@ internal sealed class SessionService(Connection connection)
     internal async Task<Guid?> Create(Session session)
     {
         var id = Guid.NewGuid();
+        var stringId = id.ToString();
         var serviceName = session.Env?.FirstOrDefault(it => it.Name == TelemetryServiceName);
         var sessionModel = new SessionModel(
+            stringId,
             session.ProjectPath,
             session.Debug,
             session.Env?.Select(it => new EnvironmentVariableModel(it.Name, it.Value)).ToArray(),
@@ -20,7 +22,7 @@ internal sealed class SessionService(Connection connection)
             serviceName?.Value
         );
 
-        var result = await connection.DoWithModel(model => model.Sessions.TryAdd(id.ToString(), sessionModel));
+        var result = await connection.DoWithModel(model => model.Sessions.TryAdd(stringId, sessionModel));
 
         return result ? id : null;
     }

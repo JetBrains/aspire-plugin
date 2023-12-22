@@ -54,7 +54,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = 2649266713995469936L
+        const val serializationHash = -1608354409918350876L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -379,6 +379,7 @@ data class ProcessTerminated (
  * #### Generated from [AspireSessionHostModel.kt:38]
  */
 class SessionModel (
+    val id: String,
     val projectPath: String,
     val debug: Boolean,
     val envs: Array<EnvironmentVariableModel>?,
@@ -393,16 +394,18 @@ class SessionModel (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionModel  {
             val _id = RdId.read(buffer)
+            val id = buffer.readString()
             val projectPath = buffer.readString()
             val debug = buffer.readBool()
             val envs = buffer.readNullable { buffer.readArray {EnvironmentVariableModel.read(ctx, buffer)} }
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val telemetryServiceName = buffer.readNullable { buffer.readString() }
-            return SessionModel(projectPath, debug, envs, args, telemetryServiceName).withId(_id)
+            return SessionModel(id, projectPath, debug, envs, args, telemetryServiceName).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionModel)  {
             value.rdid.write(buffer)
+            buffer.writeString(value.id)
             buffer.writeString(value.projectPath)
             buffer.writeBool(value.debug)
             buffer.writeNullable(value.envs) { buffer.writeArray(it) { EnvironmentVariableModel.write(ctx, buffer, it) } }
@@ -422,6 +425,7 @@ class SessionModel (
     override fun print(printer: PrettyPrinter)  {
         printer.println("SessionModel (")
         printer.indent {
+            print("id = "); id.print(printer); println()
             print("projectPath = "); projectPath.print(printer); println()
             print("debug = "); debug.print(printer); println()
             print("envs = "); envs.print(printer); println()
@@ -433,6 +437,7 @@ class SessionModel (
     //deepClone
     override fun deepClone(): SessionModel   {
         return SessionModel(
+            id,
             projectPath,
             debug,
             envs,
