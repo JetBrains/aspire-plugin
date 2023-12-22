@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.settings.AspireSettings
+import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
@@ -49,7 +50,6 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
     }
 
     private val commandChannel = Channel<RunSessionCommand>(Channel.UNLIMITED)
-    private val ansiEscapeDecoder = AnsiEscapeDecoder()
 
     data class RunSessionCommand(
         val sessionId: String,
@@ -288,11 +288,5 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         LOG.trace("Created a run configuration $defaultConfiguration")
 
         return defaultConfiguration
-    }
-
-    private fun decodeAnsiCommandsToString(ansi: String, outputType: Key<*>): String {
-        val buffer = StringBuilder()
-        ansiEscapeDecoder.escapeText(ansi, outputType) { text, _ -> buffer.append(text) }
-        return buffer.toString()
     }
 }
