@@ -51,12 +51,12 @@ class AspireSessionHostRunner {
 
     suspend fun runSessionHost(
         project: Project,
-        hostConfig: AspireSessionHostConfig,
-        hostLifetime: LifetimeDefinition
+        sessionHostConfig: AspireSessionHostConfig,
+        sessionHostLifetime: LifetimeDefinition
     ) {
-        LOG.info("Starting Aspire session host: $hostConfig")
+        LOG.info("Starting Aspire session host: $sessionHostConfig")
 
-        if (hostLifetime.isNotAlive) {
+        if (sessionHostLifetime.isNotAlive) {
             LOG.warn("Unable to start Aspire host because lifetime is not alive")
             return
         }
@@ -64,8 +64,8 @@ class AspireSessionHostRunner {
         val dotnet = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Cannot find active .NET runtime")
 
-        val protocol = startProtocol(hostLifetime)
-        subscribe(hostConfig, protocol.aspireSessionHostModel, hostLifetime, project)
+        val protocol = startProtocol(sessionHostLifetime)
+        subscribe(sessionHostConfig, protocol.aspireSessionHostModel, sessionHostLifetime, project)
 
         val commandLine = GeneralCommandLine()
             .withExePath(dotnet.cliExePath)
@@ -73,17 +73,17 @@ class AspireSessionHostRunner {
             .withParameters(hostAssemblyPath.toString())
             .withEnvironment(
                 buildMap {
-                    put(ASPNETCORE_URLS, "http://localhost:${hostConfig.debugSessionPort}/")
-                    put(RIDER_OTEL_PORT, hostConfig.openTelemetryPort.toString())
+                    put(ASPNETCORE_URLS, "http://localhost:${sessionHostConfig.debugSessionPort}/")
+                    put(RIDER_OTEL_PORT, sessionHostConfig.openTelemetryPort.toString())
                     put(RIDER_RD_PORT, "${protocol.wire.serverPort}")
                     put(RIDER_PARENT_PROCESS_PID, ProcessHandle.current().pid().toString())
-                    if (hostConfig.openTelemetryProtocolUrl != null)
-                        put(DOTNET_OTLP_ENDPOINT_URL, hostConfig.openTelemetryProtocolUrl)
+                    if (sessionHostConfig.openTelemetryProtocolUrl != null)
+                        put(DOTNET_OTLP_ENDPOINT_URL, sessionHostConfig.openTelemetryProtocolUrl)
                 }
             )
         LOG.trace("Host command line: ${commandLine.commandLineString}")
         val processHandler = KillableColoredProcessHandler.Silent(commandLine)
-        hostLifetime.onTermination {
+        sessionHostLifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
                 LOG.trace("Killing Aspire host process")
                 processHandler.killProcess()
@@ -91,17 +91,17 @@ class AspireSessionHostRunner {
         }
         processHandler.addProcessListener(object : ProcessListener {
             override fun processTerminated(event: ProcessEvent) {
-                hostLifetime.executeIfAlive {
+                sessionHostLifetime.executeIfAlive {
                     LOG.trace("Terminating Aspire host lifetime")
-                    hostLifetime.terminate(true)
+                    sessionHostLifetime.terminate(true)
                 }
             }
-        }, hostLifetime.createNestedDisposable())
+        }, sessionHostLifetime.createNestedDisposable())
         processHandler.startNotify()
         LOG.trace("Aspire session host started")
 
         project.messageBus.syncPublisher(AspireSessionHostLifecycleListener.TOPIC)
-            .sessionHostStarted(hostConfig, protocol.aspireSessionHostModel, hostLifetime)
+            .sessionHostStarted(sessionHostConfig, protocol.aspireSessionHostModel, sessionHostLifetime)
     }
 
     private suspend fun startProtocol(lifetime: Lifetime) = withUiContext {

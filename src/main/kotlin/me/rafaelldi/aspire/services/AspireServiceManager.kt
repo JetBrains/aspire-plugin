@@ -17,23 +17,36 @@ class AspireServiceManager(project: Project) {
         fun getInstance(project: Project) = project.service<AspireServiceManager>()
     }
 
-    private val hosts = ConcurrentHashMap<String, HostServiceData>()
-    private val hostServices = ConcurrentHashMap<String, MutableList<String>>()
+    private val sessionHosts = ConcurrentHashMap<String, SessionHostServiceData>()
     private val notifier = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
-    fun addHost(
-        hostConfig: AspireSessionHostConfig,
-        hostModel: AspireSessionHostModel,
-        hostLifetime: Lifetime
+    fun addSessionHost(
+        sessionHostConfig: AspireSessionHostConfig,
+        sessionHostModel: AspireSessionHostModel,
+        sessionHostLifetime: Lifetime
     ) {
-        val hostDate = HostServiceData(hostConfig.id, hostConfig.hostName, hostConfig.dashboardUrl)
-        hosts.addUnique(hostLifetime, hostConfig.id, hostDate)
-        hostServices.addUnique(hostLifetime, hostConfig.id, mutableListOf())
+        val hostDate = SessionHostServiceData(
+            sessionHostConfig.id,
+            sessionHostConfig.hostName,
+            sessionHostConfig.dashboardUrl,
+            sessionHostModel
+        )
+        sessionHosts.addUnique(sessionHostLifetime, sessionHostConfig.id, hostDate)
 
-        hostModel.sessions.view(hostLifetime) { sessionLifetime, sessionId, sessionModel ->
+        sessionHostModel.sessions.view(sessionHostLifetime) { sessionLifetime, _, _ ->
+            sessionLifetime.bracketIfAlive(
+                {
+                    val event = ServiceEventListener.ServiceEvent.createResetEvent(AspireServiceContributor::class.java)
+                    notifier.handle(event)
+                },
+                {
+                    val event = ServiceEventListener.ServiceEvent.createResetEvent(AspireServiceContributor::class.java)
+                    notifier.handle(event)
+                }
+            )
         }
 
-        hostLifetime.bracketIfAlive(
+        sessionHostLifetime.bracketIfAlive(
             {
                 val event = ServiceEventListener.ServiceEvent.createResetEvent(AspireServiceContributor::class.java)
                 notifier.handle(event)
@@ -45,17 +58,15 @@ class AspireServiceManager(project: Project) {
         )
     }
 
-    fun getHosts(): List<HostServiceData> = hosts.values.toList()
+    fun getSessionHosts(): List<SessionHostServiceData> = sessionHosts.values.toList()
 
-    data class HostServiceData(val id: String, val hostName: String, val dashboardUrl: String?)
-
-    class HostLifecycleListener(val project: Project) : AspireSessionHostLifecycleListener {
+    class SessionHostLifecycleListener(val project: Project) : AspireSessionHostLifecycleListener {
         override fun sessionHostStarted(
-            hostConfig: AspireSessionHostConfig,
-            hostModel: AspireSessionHostModel,
-            hostLifetime: Lifetime
+            sessionHostConfig: AspireSessionHostConfig,
+            sessionHostModel: AspireSessionHostModel,
+            sessionHostLifetime: Lifetime
         ) {
-            getInstance(project).addHost(hostConfig, hostModel, hostLifetime)
+            getInstance(project).addSessionHost(sessionHostConfig, sessionHostModel, sessionHostLifetime)
         }
     }
 }

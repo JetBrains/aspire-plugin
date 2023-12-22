@@ -10,5 +10,9 @@ interface AspireSessionHostLifecycleListener {
         val TOPIC = Topic.create("Host Lifecycle Listener", AspireSessionHostLifecycleListener::class.java)
     }
 
-    fun sessionHostStarted(hostConfig: AspireSessionHostConfig, hostModel: AspireSessionHostModel, hostLifetime: Lifetime)
+    fun sessionHostStarted(
+        sessionHostConfig: AspireSessionHostConfig,
+        sessionHostModel: AspireSessionHostModel,
+        sessionHostLifetime: Lifetime
+    )
 }

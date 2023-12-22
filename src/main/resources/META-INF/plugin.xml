@@ -36,7 +36,7 @@
     </extensions>
 
     <projectListeners>
-        <listener class="me.rafaelldi.aspire.services.AspireServiceManager$HostLifecycleListener"
+        <listener class="me.rafaelldi.aspire.services.AspireServiceManager$SessionHostLifecycleListener"
                   topic="me.rafaelldi.aspire.sessionHost.AspireSessionHostLifecycleListener"/>
     </projectListeners>
 

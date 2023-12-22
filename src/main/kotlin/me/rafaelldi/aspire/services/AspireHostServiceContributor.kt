@@ -1,7 +1,7 @@
 package me.rafaelldi.aspire.services
 
-import com.intellij.execution.services.ServiceViewContributor
 import com.intellij.execution.services.ServiceViewDescriptor
+import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.execution.services.SimpleServiceViewDescriptor
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.DefaultActionGroup
@@ -10,12 +10,12 @@ import com.intellij.openapi.project.Project
 import me.rafaelldi.aspire.AspireIcons
 import me.rafaelldi.aspire.actions.OpenAspireDashboardAction
 
-class AspireHostServiceContributor(private val data: AspireServiceManager.HostServiceData) :
-    ServiceViewContributor<Unit> {
+class AspireHostServiceContributor(private val hostData: SessionHostServiceData) :
+    ServiceViewProvidingContributor<SessionServiceData, SessionHostServiceData> {
     override fun getViewDescriptor(project: Project): ServiceViewDescriptor =
-        object : SimpleServiceViewDescriptor(data.hostName, AspireIcons.Service) {
+        object : SimpleServiceViewDescriptor(hostData.hostName, AspireIcons.Service) {
             private val toolbarActions = DefaultActionGroup(
-                OpenAspireDashboardAction(data.dashboardUrl),
+                OpenAspireDashboardAction(hostData.dashboardUrl),
                 Separator(),
                 ActionManager.getInstance().getAction("Aspire.Settings"),
                 ActionManager.getInstance().getAction("Aspire.Help")
@@ -24,11 +24,16 @@ class AspireHostServiceContributor(private val data: AspireServiceManager.HostSe
             override fun getToolbarActions() = toolbarActions
         }
 
-    override fun getServices(project: Project): MutableList<Unit> {
-        return mutableListOf()
-    }
+    override fun asService() = hostData
 
-    override fun getServiceDescriptor(project: Project, service: Unit): ServiceViewDescriptor {
-        return SimpleServiceViewDescriptor("Service", AspireIcons.Service)
-    }
+    override fun getServices(project: Project) =
+        hostData.hostModel
+            .sessions
+            .map { SessionServiceData(it.value) }
+            .toMutableList()
+
+    override fun getServiceDescriptor(
+        project: Project,
+        service: SessionServiceData
+    ) = SessionServiceViewDescriptor(service)
 }
