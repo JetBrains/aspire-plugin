@@ -101,30 +101,31 @@ class AspireSessionHostManager(private val project: Project) {
         withUiContext {
             sessionHostModel.sessions.view(sessionHostLifetime) { sessionLifetime, sessionId, sessionModel ->
                 LOG.info("New session added $sessionId, $sessionModel")
-                sessionAdded(sessionId, sessionModel, sessionLifetime, sessionEvents, sessionHostConfig)
+                runSession(sessionId, sessionModel, sessionLifetime, sessionEvents, sessionHostConfig)
             }
         }
     }
 
-    private fun sessionAdded(
+    private fun runSession(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
         sessionEvents: Channel<AspireSessionEvent>,
         sessionHostConfig: AspireSessionHostConfig
     ) {
-        val runner = AspireSessionRunner.getInstance(project)
-        runner.runSession(
-            AspireSessionRunner.RunSessionCommand(
-                sessionId,
-                sessionModel,
-                sessionLifetime,
-                sessionEvents,
-                sessionHostConfig.hostName,
-                sessionHostConfig.isDebug,
-                sessionHostConfig.openTelemetryPort
-            )
+        val command = AspireSessionRunner.RunSessionCommand(
+            sessionId,
+            sessionModel,
+            sessionLifetime,
+            sessionEvents,
+            sessionHostConfig.hostName,
+            sessionHostConfig.isDebug,
+            sessionHostConfig.openTelemetryPort
         )
+
+        LOG.trace("Starting new session with runner (command $command)")
+        val runner = AspireSessionRunner.getInstance(project)
+        runner.runSession(command)
 
         sessionLifetime.bracketIfAlive(
             {
