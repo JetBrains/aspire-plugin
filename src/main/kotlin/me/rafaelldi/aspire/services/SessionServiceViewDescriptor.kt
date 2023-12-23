@@ -4,10 +4,12 @@ import com.intellij.execution.services.ServiceViewDescriptor
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
+import com.intellij.ui.dsl.builder.panel
 import icons.RiderIcons
 import me.rafaelldi.aspire.AspireBundle
 import me.rafaelldi.aspire.services.components.EnvironmentVariablePanel
 import me.rafaelldi.aspire.services.components.SessionDashboardPanel
+import me.rafaelldi.aspire.settings.AspireSettings
 import java.awt.BorderLayout
 import javax.swing.JPanel
 import kotlin.io.path.Path
@@ -26,6 +28,9 @@ class SessionServiceViewDescriptor(private val sessionData: SessionServiceData) 
         val tabs = JBTabbedPane()
         tabs.addTab(AspireBundle.getMessage("service.tab.Information"), SessionDashboardPanel(sessionData))
         tabs.addTab(AspireBundle.getMessage("service.tab.EnvironmentVariables"), EnvironmentVariablePanel(sessionData))
+        if (AspireSettings.getInstance().collectTelemetry) {
+            tabs.addTab(AspireBundle.getMessage("service.tab.Metrics"), panel { })
+        }
         return JPanel(BorderLayout()).apply {
             add(tabs, BorderLayout.CENTER)
         }

@@ -35,11 +35,6 @@
         <iconMapper mappingFile="AspireIconMappings.json"/>
     </extensions>
 
-    <projectListeners>
-        <listener class="me.rafaelldi.aspire.services.AspireServiceManager$SessionHostLifecycleListener"
-                  topic="me.rafaelldi.aspire.sessionHost.AspireSessionHostLifecycleListener"/>
-    </projectListeners>
-
     <actions>
         <action id="Aspire.Settings"
                 class="me.rafaelldi.aspire.actions.AspireSettingsAction"

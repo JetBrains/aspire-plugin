@@ -16,7 +16,7 @@ import com.jetbrains.rider.debugger.DotNetProgramRunner
 import com.jetbrains.rider.run.DotNetProcessRunProfileState
 import com.jetbrains.rider.util.NetUtils
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostConfig
-import me.rafaelldi.aspire.sessionHost.AspireSessionHostRunner
+import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import org.jetbrains.concurrency.Promise
 import org.jetbrains.concurrency.asPromise
 
@@ -60,7 +60,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
 
         val sessionHostLifetime = environment.project.lifetime.createNested()
 
-        val sessionHostRunner = AspireSessionHostRunner.getInstance()
+        val sessionHostManager = AspireSessionHostManager.getInstance(environment.project)
         val openTelemetryPort = NetUtils.findFreePort(77800)
         val config = AspireSessionHostConfig(
             debugSessionToken,
@@ -74,7 +74,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         LOG.trace("Aspire session host config: $config")
 
         val sessionHostPromise = sessionHostLifetime.startOnUiAsync {
-            sessionHostRunner.runSessionHost(environment.project, config, sessionHostLifetime)
+            sessionHostManager.runSessionHost(config, sessionHostLifetime)
         }.asPromise()
 
         return sessionHostPromise.then {
