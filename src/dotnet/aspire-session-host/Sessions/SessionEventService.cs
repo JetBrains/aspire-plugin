@@ -1,10 +1,11 @@
 ﻿using System.Threading.Channels;
 using JetBrains.Lifetimes;
+
 // ReSharper disable ReplaceAsyncWithTaskReturn
 
-namespace AspireSessionHost;
+namespace AspireSessionHost.Sessions;
 
-internal sealed class SessionEventService : IDisposable
+internal sealed class SessionEventService(Connection connection) : IDisposable
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
 
@@ -16,7 +17,7 @@ internal sealed class SessionEventService : IDisposable
             FullMode = BoundedChannelFullMode.DropOldest
         });
 
-    internal async Task Subscribe(Connection connection)
+    internal async Task Subscribe()
     {
         await connection.DoWithModel(model =>
         {

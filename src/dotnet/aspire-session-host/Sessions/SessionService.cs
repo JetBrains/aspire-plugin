@@ -2,7 +2,7 @@
 
 // ReSharper disable ReplaceAsyncWithTaskReturn
 
-namespace AspireSessionHost;
+namespace AspireSessionHost.Sessions;
 
 internal sealed class SessionService(Connection connection)
 {

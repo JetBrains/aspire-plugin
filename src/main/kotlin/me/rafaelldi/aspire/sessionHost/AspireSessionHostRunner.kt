@@ -13,16 +13,10 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
-import com.intellij.openapi.rd.util.withUiContext
 import com.intellij.openapi.util.Key
-import com.jetbrains.rd.framework.*
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
-import me.rafaelldi.aspire.generated.AspireSessionHostModel
-import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
@@ -50,25 +44,19 @@ class AspireSessionHostRunner(private val project: Project) {
         basePath / "aspire-session-host" / "aspire-session-host.dll"
     }
 
-    suspend fun runSessionHost(
+    fun runSessionHost(
         sessionHostConfig: AspireSessionHostConfig,
-        sessionHostLifetime: LifetimeDefinition,
-        subscribeToProtocol: suspend (
-            sessionHostConfig: AspireSessionHostConfig,
-            sessionHostModel: AspireSessionHostModel,
-            sessionHostLifetime: Lifetime
-        ) -> Unit
-    ): AspireSessionHostModel {
+        sessionHostRdPort: Int,
+        sessionHostLifetime: LifetimeDefinition
+    ) {
         LOG.info("Starting Aspire session host: $sessionHostConfig")
 
         val dotnet = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Cannot find active .NET runtime")
 
-        val protocol = startProtocol(sessionHostLifetime)
-        subscribeToProtocol(sessionHostConfig, protocol.aspireSessionHostModel, sessionHostLifetime)
-
-        val commandLine = getCommandLine(dotnet, sessionHostConfig, protocol.wire.serverPort)
+        val commandLine = getCommandLine(dotnet, sessionHostConfig, sessionHostRdPort)
         LOG.trace("Host command line: ${commandLine.commandLineString}")
+
         val processHandler = KillableColoredProcessHandler(commandLine)
         sessionHostLifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
@@ -96,22 +84,6 @@ class AspireSessionHostRunner(private val project: Project) {
 
         processHandler.startNotify()
         LOG.info("Aspire session host started")
-
-        return protocol.aspireSessionHostModel
-    }
-
-    private suspend fun startProtocol(lifetime: Lifetime) = withUiContext {
-        val dispatcher = RdDispatcher(lifetime)
-        val wire = SocketWire.Server(lifetime, dispatcher, null)
-        val protocol = Protocol(
-            "AspireSessionHost::protocol",
-            Serializers(),
-            Identities(IdKind.Server),
-            dispatcher,
-            wire,
-            lifetime
-        )
-        return@withUiContext protocol
     }
 
     private fun getCommandLine(

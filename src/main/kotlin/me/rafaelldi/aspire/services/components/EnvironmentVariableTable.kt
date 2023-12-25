@@ -7,11 +7,11 @@ import javax.swing.table.DefaultTableModel
 
 class EnvironmentVariableTable(variables: Array<EnvironmentVariableModel>) : JBTable() {
     companion object {
-        private val NAME_TITLE = AspireBundle.message("service.tab.EnvironmentVariables.Table.Name")
-        private val VALUE_TITLE = AspireBundle.message("service.tab.EnvironmentVariables.Table.Value")
+        private val NAME_COLUMN = AspireBundle.message("service.tab.EnvironmentVariables.Table.Name")
+        private val VALUE_COLUMN = AspireBundle.message("service.tab.EnvironmentVariables.Table.Value")
     }
 
-    private val tableModel = DefaultTableModel(arrayOf(NAME_TITLE, VALUE_TITLE), 0)
+    private val tableModel = DefaultTableModel(arrayOf(NAME_COLUMN, VALUE_COLUMN), 0)
 
     init {
         variables.asSequence().sortedBy { it.key }.forEach { variable ->

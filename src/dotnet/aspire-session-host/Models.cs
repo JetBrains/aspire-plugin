@@ -3,7 +3,7 @@
 namespace AspireSessionHost;
 
 [UsedImplicitly]
-internal record Session(
+internal sealed record Session(
     string ProjectPath,
     bool Debug,
     EnvironmentVariable[]? Env,
@@ -11,4 +11,4 @@ internal record Session(
 );
 
 [UsedImplicitly]
-internal record EnvironmentVariable(string Name, string Value);
+internal sealed record EnvironmentVariable(string Name, string Value);

@@ -46,34 +46,40 @@ namespace AspireSessionHost.Generated
     [NotNull] public ISource<AspireSessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
     [NotNull] public ISource<AspireSessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
     [NotNull] public ISource<AspireSessionHost.Generated.LogReceived> LogReceived => _LogReceived;
+    [NotNull] public void OtelMetricReceived(MetricBase value) => _OtelMetricReceived.Fire(value);
     
     //private fields
     [NotNull] private readonly RdMap<string, SessionModel> _Sessions;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessStarted> _ProcessStarted;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessTerminated> _ProcessTerminated;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.LogReceived> _LogReceived;
+    [NotNull] private readonly RdSignal<MetricBase> _OtelMetricReceived;
     
     //primary constructor
     private AspireSessionHostModel(
       [NotNull] RdMap<string, SessionModel> sessions,
       [NotNull] RdSignal<AspireSessionHost.Generated.ProcessStarted> processStarted,
       [NotNull] RdSignal<AspireSessionHost.Generated.ProcessTerminated> processTerminated,
-      [NotNull] RdSignal<AspireSessionHost.Generated.LogReceived> logReceived
+      [NotNull] RdSignal<AspireSessionHost.Generated.LogReceived> logReceived,
+      [NotNull] RdSignal<MetricBase> otelMetricReceived
     )
     {
       if (sessions == null) throw new ArgumentNullException("sessions");
       if (processStarted == null) throw new ArgumentNullException("processStarted");
       if (processTerminated == null) throw new ArgumentNullException("processTerminated");
       if (logReceived == null) throw new ArgumentNullException("logReceived");
+      if (otelMetricReceived == null) throw new ArgumentNullException("otelMetricReceived");
       
       _Sessions = sessions;
       _ProcessStarted = processStarted;
       _ProcessTerminated = processTerminated;
       _LogReceived = logReceived;
+      _OtelMetricReceived = otelMetricReceived;
       BindableChildren.Add(new KeyValuePair<string, object>("sessions", _Sessions));
       BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
       BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
       BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
+      BindableChildren.Add(new KeyValuePair<string, object>("otelMetricReceived", _OtelMetricReceived));
     }
     //secondary constructor
     private AspireSessionHostModel (
@@ -81,18 +87,22 @@ namespace AspireSessionHost.Generated
       new RdMap<string, SessionModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, SessionModel.Read, SessionModel.Write),
       new RdSignal<AspireSessionHost.Generated.ProcessStarted>(AspireSessionHost.Generated.ProcessStarted.Read, AspireSessionHost.Generated.ProcessStarted.Write),
       new RdSignal<AspireSessionHost.Generated.ProcessTerminated>(AspireSessionHost.Generated.ProcessTerminated.Read, AspireSessionHost.Generated.ProcessTerminated.Write),
-      new RdSignal<AspireSessionHost.Generated.LogReceived>(AspireSessionHost.Generated.LogReceived.Read, AspireSessionHost.Generated.LogReceived.Write)
+      new RdSignal<AspireSessionHost.Generated.LogReceived>(AspireSessionHost.Generated.LogReceived.Read, AspireSessionHost.Generated.LogReceived.Write),
+      new RdSignal<MetricBase>(MetricBase.Read, MetricBase.Write)
     ) {}
     //deconstruct trait
     //statics
     
     
     
-    protected override long SerializationHash => -1608354409918350876L;
+    protected override long SerializationHash => -4876594467394356105L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
     {
+      serializers.Register(MetricDouble.Read, MetricDouble.Write);
+      serializers.Register(MetricLong.Read, MetricLong.Write);
+      serializers.Register(MetricBase_Unknown.Read, MetricBase_Unknown.Write);
       
       serializers.RegisterToplevelOnce(typeof(AspireSessionHostRoot), AspireSessionHostRoot.RegisterDeclaredTypesSerializers);
     }
@@ -118,6 +128,7 @@ namespace AspireSessionHost.Generated
         printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
         printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
         printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
+        printer.Print("otelMetricReceived = "); _OtelMetricReceived.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -328,6 +339,404 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:38</p>
+  /// </summary>
+  public abstract class MetricBase{
+    //fields
+    //public fields
+    [NotNull] public string ServiceName {get; private set;}
+    [NotNull] public string Scope {get; private set;}
+    [NotNull] public string Name {get; private set;}
+    [CanBeNull] public string Description {get; private set;}
+    [CanBeNull] public string Unit {get; private set;}
+    public long TimeStamp {get; private set;}
+    
+    //private fields
+    //primary constructor
+    protected MetricBase(
+      [NotNull] string serviceName,
+      [NotNull] string scope,
+      [NotNull] string name,
+      [CanBeNull] string description,
+      [CanBeNull] string unit,
+      long timeStamp
+    )
+    {
+      if (serviceName == null) throw new ArgumentNullException("serviceName");
+      if (scope == null) throw new ArgumentNullException("scope");
+      if (name == null) throw new ArgumentNullException("name");
+      
+      ServiceName = serviceName;
+      Scope = scope;
+      Name = name;
+      Description = description;
+      Unit = unit;
+      TimeStamp = timeStamp;
+    }
+    //secondary constructor
+    //deconstruct trait
+    //statics
+    
+    public static CtxReadDelegate<MetricBase> Read = Polymorphic<MetricBase>.ReadAbstract(MetricBase_Unknown.Read);
+    
+    public static CtxWriteDelegate<MetricBase> Write = Polymorphic<MetricBase>.Write;
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    //hash code trait
+    //pretty print
+    //toString
+  }
+  
+  
+  public sealed class MetricBase_Unknown : MetricBase
+  {
+    //fields
+    //public fields
+    
+    //private fields
+    //primary constructor
+    public MetricBase_Unknown(
+      [NotNull] string serviceName,
+      [NotNull] string scope,
+      [NotNull] string name,
+      [CanBeNull] string description,
+      [CanBeNull] string unit,
+      long timeStamp
+    ) : base (
+      serviceName,
+      scope,
+      name,
+      description,
+      unit,
+      timeStamp
+     ) 
+    {
+    }
+    //secondary constructor
+    //deconstruct trait
+    //statics
+    
+    public static new CtxReadDelegate<MetricBase_Unknown> Read = (ctx, reader) => 
+    {
+      var serviceName = reader.ReadString();
+      var scope = reader.ReadString();
+      var name = reader.ReadString();
+      var description = ReadStringNullable(ctx, reader);
+      var unit = ReadStringNullable(ctx, reader);
+      var timeStamp = reader.ReadLong();
+      var _result = new MetricBase_Unknown(serviceName, scope, name, description, unit, timeStamp);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    
+    public static new CtxWriteDelegate<MetricBase_Unknown> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.ServiceName);
+      writer.Write(value.Scope);
+      writer.Write(value.Name);
+      WriteStringNullable(ctx, writer, value.Description);
+      WriteStringNullable(ctx, writer, value.Unit);
+      writer.Write(value.TimeStamp);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((MetricBase_Unknown) obj);
+    }
+    public bool Equals(MetricBase_Unknown other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return ServiceName == other.ServiceName && Scope == other.Scope && Name == other.Name && Equals(Description, other.Description) && Equals(Unit, other.Unit) && TimeStamp == other.TimeStamp;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + ServiceName.GetHashCode();
+        hash = hash * 31 + Scope.GetHashCode();
+        hash = hash * 31 + Name.GetHashCode();
+        hash = hash * 31 + (Description != null ? Description.GetHashCode() : 0);
+        hash = hash * 31 + (Unit != null ? Unit.GetHashCode() : 0);
+        hash = hash * 31 + TimeStamp.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("MetricBase_Unknown (");
+      using (printer.IndentCookie()) {
+        printer.Print("serviceName = "); ServiceName.PrintEx(printer); printer.Println();
+        printer.Print("scope = "); Scope.PrintEx(printer); printer.Println();
+        printer.Print("name = "); Name.PrintEx(printer); printer.Println();
+        printer.Print("description = "); Description.PrintEx(printer); printer.Println();
+        printer.Print("unit = "); Unit.PrintEx(printer); printer.Println();
+        printer.Print("timeStamp = "); TimeStamp.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:47</p>
+  /// </summary>
+  public sealed class MetricDouble : MetricBase
+  {
+    //fields
+    //public fields
+    public double Value {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public MetricDouble(
+      double value,
+      [NotNull] string serviceName,
+      [NotNull] string scope,
+      [NotNull] string name,
+      [CanBeNull] string description,
+      [CanBeNull] string unit,
+      long timeStamp
+    ) : base (
+      serviceName,
+      scope,
+      name,
+      description,
+      unit,
+      timeStamp
+     ) 
+    {
+      Value = value;
+    }
+    //secondary constructor
+    //deconstruct trait
+    //statics
+    
+    public static new CtxReadDelegate<MetricDouble> Read = (ctx, reader) => 
+    {
+      var serviceName = reader.ReadString();
+      var scope = reader.ReadString();
+      var name = reader.ReadString();
+      var description = ReadStringNullable(ctx, reader);
+      var unit = ReadStringNullable(ctx, reader);
+      var timeStamp = reader.ReadLong();
+      var value = reader.ReadDouble();
+      var _result = new MetricDouble(value, serviceName, scope, name, description, unit, timeStamp);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    
+    public static new CtxWriteDelegate<MetricDouble> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.ServiceName);
+      writer.Write(value.Scope);
+      writer.Write(value.Name);
+      WriteStringNullable(ctx, writer, value.Description);
+      WriteStringNullable(ctx, writer, value.Unit);
+      writer.Write(value.TimeStamp);
+      writer.Write(value.Value);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((MetricDouble) obj);
+    }
+    public bool Equals(MetricDouble other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Value == other.Value && ServiceName == other.ServiceName && Scope == other.Scope && Name == other.Name && Equals(Description, other.Description) && Equals(Unit, other.Unit) && TimeStamp == other.TimeStamp;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Value.GetHashCode();
+        hash = hash * 31 + ServiceName.GetHashCode();
+        hash = hash * 31 + Scope.GetHashCode();
+        hash = hash * 31 + Name.GetHashCode();
+        hash = hash * 31 + (Description != null ? Description.GetHashCode() : 0);
+        hash = hash * 31 + (Unit != null ? Unit.GetHashCode() : 0);
+        hash = hash * 31 + TimeStamp.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("MetricDouble (");
+      using (printer.IndentCookie()) {
+        printer.Print("value = "); Value.PrintEx(printer); printer.Println();
+        printer.Print("serviceName = "); ServiceName.PrintEx(printer); printer.Println();
+        printer.Print("scope = "); Scope.PrintEx(printer); printer.Println();
+        printer.Print("name = "); Name.PrintEx(printer); printer.Println();
+        printer.Print("description = "); Description.PrintEx(printer); printer.Println();
+        printer.Print("unit = "); Unit.PrintEx(printer); printer.Println();
+        printer.Print("timeStamp = "); TimeStamp.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:51</p>
+  /// </summary>
+  public sealed class MetricLong : MetricBase
+  {
+    //fields
+    //public fields
+    public long Value {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public MetricLong(
+      long value,
+      [NotNull] string serviceName,
+      [NotNull] string scope,
+      [NotNull] string name,
+      [CanBeNull] string description,
+      [CanBeNull] string unit,
+      long timeStamp
+    ) : base (
+      serviceName,
+      scope,
+      name,
+      description,
+      unit,
+      timeStamp
+     ) 
+    {
+      Value = value;
+    }
+    //secondary constructor
+    //deconstruct trait
+    //statics
+    
+    public static new CtxReadDelegate<MetricLong> Read = (ctx, reader) => 
+    {
+      var serviceName = reader.ReadString();
+      var scope = reader.ReadString();
+      var name = reader.ReadString();
+      var description = ReadStringNullable(ctx, reader);
+      var unit = ReadStringNullable(ctx, reader);
+      var timeStamp = reader.ReadLong();
+      var value = reader.ReadLong();
+      var _result = new MetricLong(value, serviceName, scope, name, description, unit, timeStamp);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    
+    public static new CtxWriteDelegate<MetricLong> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.ServiceName);
+      writer.Write(value.Scope);
+      writer.Write(value.Name);
+      WriteStringNullable(ctx, writer, value.Description);
+      WriteStringNullable(ctx, writer, value.Unit);
+      writer.Write(value.TimeStamp);
+      writer.Write(value.Value);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((MetricLong) obj);
+    }
+    public bool Equals(MetricLong other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Value == other.Value && ServiceName == other.ServiceName && Scope == other.Scope && Name == other.Name && Equals(Description, other.Description) && Equals(Unit, other.Unit) && TimeStamp == other.TimeStamp;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Value.GetHashCode();
+        hash = hash * 31 + ServiceName.GetHashCode();
+        hash = hash * 31 + Scope.GetHashCode();
+        hash = hash * 31 + Name.GetHashCode();
+        hash = hash * 31 + (Description != null ? Description.GetHashCode() : 0);
+        hash = hash * 31 + (Unit != null ? Unit.GetHashCode() : 0);
+        hash = hash * 31 + TimeStamp.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("MetricLong (");
+      using (printer.IndentCookie()) {
+        printer.Print("value = "); Value.PrintEx(printer); printer.Println();
+        printer.Print("serviceName = "); ServiceName.PrintEx(printer); printer.Println();
+        printer.Print("scope = "); Scope.PrintEx(printer); printer.Println();
+        printer.Print("name = "); Name.PrintEx(printer); printer.Println();
+        printer.Print("description = "); Description.PrintEx(printer); printer.Println();
+        printer.Print("unit = "); Unit.PrintEx(printer); printer.Println();
+        printer.Print("timeStamp = "); TimeStamp.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:22</p>
   /// </summary>
   public sealed class ProcessStarted : IPrintable, IEquatable<ProcessStarted>
@@ -514,7 +923,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:38</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:55</p>
   /// </summary>
   public sealed class SessionModel : RdBindableBase
   {

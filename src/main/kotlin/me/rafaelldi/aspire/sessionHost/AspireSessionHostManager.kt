@@ -7,13 +7,16 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.util.launchOnUi
 import com.intellij.openapi.rd.util.withUiContext
+import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isNotAlive
+import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import me.rafaelldi.aspire.generated.*
+import me.rafaelldi.aspire.otel.OtelMetricService
 import me.rafaelldi.aspire.services.AspireServiceContributor
 import me.rafaelldi.aspire.services.SessionHostServiceData
 import java.util.concurrent.ConcurrentHashMap
@@ -27,9 +30,10 @@ class AspireSessionHostManager(private val project: Project) {
     }
 
     private val sessionHosts = ConcurrentHashMap<String, SessionHostServiceData>()
-    private val notifier = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
+    private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
+    private val aspireSessionEventPublisher = project.messageBus.syncPublisher(AspireSessionListener.TOPIC)
 
-    fun getSessionHosts(): List<SessionHostServiceData> = sessionHosts.values.toList()
+    fun getSessionHosts() = sessionHosts.values.toList()
 
     suspend fun runSessionHost(
         sessionHostConfig: AspireSessionHostConfig,
@@ -42,19 +46,27 @@ class AspireSessionHostManager(private val project: Project) {
             return
         }
 
+        LOG.trace("Starting protocol")
+        val protocol = startProtocol(sessionHostLifetime)
+        val sessionHostModel = protocol.aspireSessionHostModel
+
+        LOG.trace("Subscribing to protocol model")
+        subscribe(sessionHostConfig, sessionHostModel, sessionHostLifetime)
+
         LOG.trace("Starting new session hosts with runner")
         val sessionHostRunner = AspireSessionHostRunner.getInstance(project)
-        val sessionHostModel = sessionHostRunner.runSessionHost(
+        sessionHostRunner.runSessionHost(
             sessionHostConfig,
-            sessionHostLifetime,
-            ::subscribe
+            protocol.wire.serverPort,
+            sessionHostLifetime
         )
 
         val sessionHostData = SessionHostServiceData(
             sessionHostConfig.id,
             sessionHostConfig.hostName,
             sessionHostConfig.dashboardUrl,
-            sessionHostModel
+            sessionHostModel,
+            sessionHostLifetime.lifetime
         )
         LOG.trace("Adding new session host data $sessionHostData")
         sessionHosts.addUnique(sessionHostLifetime, sessionHostConfig.id, sessionHostData)
@@ -62,13 +74,27 @@ class AspireSessionHostManager(private val project: Project) {
         sessionHostLifetime.bracketIfAlive(
             {
                 val event = ServiceEventListener.ServiceEvent.createResetEvent(AspireServiceContributor::class.java)
-                notifier.handle(event)
+                serviceEventPublisher.handle(event)
             },
             {
                 val event = ServiceEventListener.ServiceEvent.createResetEvent(AspireServiceContributor::class.java)
-                notifier.handle(event)
+                serviceEventPublisher.handle(event)
             }
         )
+    }
+
+    private suspend fun startProtocol(lifetime: Lifetime) = withUiContext {
+        val dispatcher = RdDispatcher(lifetime)
+        val wire = SocketWire.Server(lifetime, dispatcher, null)
+        val protocol = Protocol(
+            "AspireSessionHost::protocol",
+            Serializers(),
+            Identities(IdKind.Server),
+            dispatcher,
+            wire,
+            lifetime
+        )
+        return@withUiContext protocol
     }
 
     private suspend fun subscribe(
@@ -99,6 +125,11 @@ class AspireSessionHostManager(private val project: Project) {
         }
 
         withUiContext {
+            val service = OtelMetricService.getInstance(project)
+            sessionHostModel.otelMetricReceived.advise(sessionHostLifetime) {
+                service.metricReceived(it)
+            }
+
             sessionHostModel.sessions.view(sessionHostLifetime) { sessionLifetime, sessionId, sessionModel ->
                 LOG.info("New session added $sessionId, $sessionModel")
                 runSession(sessionId, sessionModel, sessionLifetime, sessionEvents, sessionHostConfig)
@@ -130,11 +161,17 @@ class AspireSessionHostManager(private val project: Project) {
         sessionLifetime.bracketIfAlive(
             {
                 val event = ServiceEventListener.ServiceEvent.createResetEvent(AspireServiceContributor::class.java)
-                notifier.handle(event)
+                serviceEventPublisher.handle(event)
+
+                if (sessionModel.telemetryServiceName != null)
+                    aspireSessionEventPublisher.sessionStarted(sessionModel.telemetryServiceName)
             },
             {
                 val event = ServiceEventListener.ServiceEvent.createResetEvent(AspireServiceContributor::class.java)
-                notifier.handle(event)
+                serviceEventPublisher.handle(event)
+
+                if (sessionModel.telemetryServiceName != null)
+                    aspireSessionEventPublisher.sessionTerminated(sessionModel.telemetryServiceName)
             }
         )
     }

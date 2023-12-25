@@ -30,6 +30,7 @@ import com.jetbrains.rider.run.configurations.project.DotNetProjectConfiguration
 import com.jetbrains.rider.run.pid
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
@@ -62,7 +63,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
     )
 
     init {
-        scope.launch {
+        scope.launch(Dispatchers.Default) {
             commandChannel.consumeAsFlow().collect {
                 runSession(
                     it.sessionId,

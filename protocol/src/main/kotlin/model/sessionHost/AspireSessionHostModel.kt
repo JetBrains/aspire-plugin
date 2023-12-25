@@ -35,6 +35,23 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("message", string)
     }
 
+    private val MetricBase = basestruct {
+        field("serviceName", string)
+        field("scope", string)
+        field("name", string)
+        field("description", string.nullable)
+        field("unit", string.nullable)
+        field("timeStamp", long)
+    }
+
+    private val MetricDouble = structdef extends MetricBase {
+        field("value", double)
+    }
+
+    private val MetricLong = structdef extends MetricBase {
+        field("value", long)
+    }
+
     private val SessionModel = classdef {
         field("id", string)
         field("projectPath", string)
@@ -46,8 +63,11 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
 
     init {
         map("sessions", string, SessionModel)
+
         source("processStarted", ProcessStarted)
         source("processTerminated", ProcessTerminated)
         source("logReceived", LogReceived)
+
+        sink("otelMetricReceived", MetricBase)
     }
 }

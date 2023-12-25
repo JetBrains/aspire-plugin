@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using AspireSessionHost;
 using AspireSessionHost.Otel;
+using AspireSessionHost.Sessions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 ParentProcessWatchdog.StartNewIfAvailable();
@@ -26,8 +27,9 @@ Uri? otlpEndpointUrl = null;
 if (otlpEndpointUrlValue != null) Uri.TryCreate(otlpEndpointUrlValue, UriKind.Absolute, out otlpEndpointUrl);
 
 var connection = new Connection(rdPort);
-var sessionEventService = new SessionEventService();
-await sessionEventService.Subscribe(connection);
+
+var sessionEventService = new SessionEventService(connection);
+await sessionEventService.Subscribe();
 
 var builder = WebApplication.CreateBuilder(args);
 

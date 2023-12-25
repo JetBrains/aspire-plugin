@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Threading.Channels;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace AspireSessionHost;
+namespace AspireSessionHost.Sessions;
 
 internal static class SessionEndpoints
 {
