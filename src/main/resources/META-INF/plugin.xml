@@ -35,11 +35,6 @@
         <iconMapper mappingFile="AspireIconMappings.json"/>
     </extensions>
 
-    <projectListeners>
-        <listener class="me.rafaelldi.aspire.otel.OtelMetricService$SessionListener"
-                  topic="me.rafaelldi.aspire.sessionHost.AspireSessionListener"/>
-    </projectListeners>
-
     <actions>
         <action id="Aspire.Settings"
                 class="me.rafaelldi.aspire.actions.AspireSettingsAction"

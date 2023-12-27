@@ -2,14 +2,14 @@ package me.rafaelldi.aspire.services
 
 import com.intellij.execution.services.ServiceViewDescriptor
 import com.intellij.ide.projectView.PresentationData
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.rd.util.withUiContext
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
+import com.jetbrains.rd.util.threading.coroutines.launch
 import icons.RiderIcons
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import me.rafaelldi.aspire.AspireBundle
-import me.rafaelldi.aspire.otel.OtelMetric
-import me.rafaelldi.aspire.otel.OtelMetricListener
 import me.rafaelldi.aspire.services.components.EnvironmentVariablePanel
 import me.rafaelldi.aspire.services.components.SessionDashboardPanel
 import me.rafaelldi.aspire.services.components.SessionMetricPanel
@@ -18,17 +18,25 @@ import java.awt.BorderLayout
 import javax.swing.JPanel
 import kotlin.io.path.Path
 import kotlin.io.path.nameWithoutExtension
+import kotlin.time.Duration.Companion.seconds
 
-class SessionServiceViewDescriptor(project: Project, private val sessionData: SessionServiceData) :
-    ServiceViewDescriptor, OtelMetricListener, Disposable {
+class SessionServiceViewDescriptor(private val sessionData: SessionServiceData) : ServiceViewDescriptor {
 
-    private val serviceName = sessionData.sessionModel.telemetryServiceName
     private val projectName = Path(sessionData.sessionModel.projectPath).nameWithoutExtension
 
     private val metricPanel = SessionMetricPanel()
 
     init {
-        project.messageBus.connect(this).subscribe(OtelMetricListener.TOPIC, this)
+        if (AspireSettings.getInstance().collectTelemetry) {
+            sessionData.sessionLifetime.launch(Dispatchers.Default) {
+                while (true) {
+                    delay(1.seconds)
+                    withUiContext {
+                        update()
+                    }
+                }
+            }
+        }
     }
 
     override fun getPresentation() = PresentationData().apply {
@@ -48,12 +56,8 @@ class SessionServiceViewDescriptor(project: Project, private val sessionData: Se
         }
     }
 
-    override fun onMetricsUpdated(metrics: Map<String, MutableMap<Pair<String, String>, OtelMetric>>) {
-        if (serviceName == null) return
-        val serviceMetrics = metrics[serviceName] ?: return
-        metricPanel.updateMetrics(serviceMetrics)
-    }
-
-    override fun dispose() {
+    private fun update() {
+        val metrics = sessionData.sessionModel.metrics.toMap()
+        metricPanel.updateMetrics(metrics)
     }
 }

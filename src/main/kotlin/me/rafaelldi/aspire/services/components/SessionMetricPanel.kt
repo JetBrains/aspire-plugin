@@ -5,7 +5,8 @@ import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SideBorder
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.util.ui.components.BorderLayoutPanel
-import me.rafaelldi.aspire.otel.OtelMetric
+import me.rafaelldi.aspire.generated.MetricKey
+import me.rafaelldi.aspire.generated.MetricValue
 
 class SessionMetricPanel : BorderLayoutPanel() {
 
@@ -19,7 +20,7 @@ class SessionMetricPanel : BorderLayoutPanel() {
         add(splitter)
     }
 
-    fun updateMetrics(metrics: Map<Pair<String, String>, OtelMetric>) {
+    fun updateMetrics(metrics: Map<MetricKey, MetricValue>) {
         table.addOrUpdate(metrics)
     }
 }

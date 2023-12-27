@@ -2,7 +2,8 @@ package me.rafaelldi.aspire.services.components
 
 import com.intellij.ui.table.JBTable
 import me.rafaelldi.aspire.AspireBundle
-import me.rafaelldi.aspire.otel.OtelMetric
+import me.rafaelldi.aspire.generated.MetricKey
+import me.rafaelldi.aspire.generated.MetricValue
 import javax.swing.table.DefaultTableModel
 
 class MetricTable : JBTable() {
@@ -11,7 +12,7 @@ class MetricTable : JBTable() {
         private val VALUE_COLUMN = AspireBundle.getMessage("service.tab.Metrics.Table.Value")
     }
 
-    private val metricRowMap: MutableMap<Pair<String, String>, Int> = mutableMapOf()
+    private val metricRowMap: MutableMap<MetricKey, Int> = mutableMapOf()
     private val tableModel = DefaultTableModel(arrayOf(NAME_COLUMN, VALUE_COLUMN), 0)
 
     init {
@@ -21,7 +22,7 @@ class MetricTable : JBTable() {
 
     override fun isCellEditable(row: Int, column: Int): Boolean = false
 
-    fun addOrUpdate(metrics: Map<Pair<String, String>, OtelMetric>) {
+    fun addOrUpdate(metrics: Map<MetricKey, MetricValue>) {
         for (metric in metrics) {
             val row = metricRowMap[metric.key]
             if (row != null) {

@@ -1,4 +1,4 @@
-using AspireSessionHost.Generated;
+using AspireSessionHost.Sessions;
 using Google.Protobuf.Collections;
 using Grpc.Core;
 using OpenTelemetry.Proto.Collector.Metrics.V1;
@@ -6,7 +6,7 @@ using OpenTelemetry.Proto.Metrics.V1;
 
 namespace AspireSessionHost.Otel;
 
-internal sealed class OtelMetricService(MetricsService.MetricsServiceClient client, Connection connection)
+internal sealed class OtelMetricService(MetricsService.MetricsServiceClient client, SessionMetricService metricService)
     : MetricsService.MetricsServiceBase
 {
     public override async Task<ExportMetricsServiceResponse> Export(
@@ -17,22 +17,22 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
         {
             var serviceName = resourceMetric.Resource.GetServiceName();
             if (serviceName is null) continue;
-            await ReportScopeMetrics(serviceName, resourceMetric.ScopeMetrics);
+            ReportScopeMetrics(serviceName, resourceMetric.ScopeMetrics);
         }
 
         return await client.ExportAsync(request, context.RequestHeaders, context.Deadline, context.CancellationToken);
     }
 
-    private async Task ReportScopeMetrics(string serviceName, RepeatedField<ScopeMetrics> scopeMetrics)
+    private void ReportScopeMetrics(string serviceName, RepeatedField<ScopeMetrics> scopeMetrics)
     {
         foreach (var scopeMetric in scopeMetrics)
         {
             if (scopeMetric.Scope.Name is null) continue;
-            await ReportMetrics(serviceName, scopeMetric.Scope.Name, scopeMetric.Metrics);
+            ReportMetrics(serviceName, scopeMetric.Scope.Name, scopeMetric.Metrics);
         }
     }
 
-    private async Task ReportMetrics(string serviceName, string scopeName, RepeatedField<Metric> metrics)
+    private void ReportMetrics(string serviceName, string scopeName, RepeatedField<Metric> metrics)
     {
         foreach (var metric in metrics)
         {
@@ -46,14 +46,14 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
                 case Metric.DataOneofCase.Gauge:
                     foreach (var dataPoint in metric.Gauge.DataPoints)
                     {
-                        await ReportValue(serviceName, scopeName, name, description, unit, dataPoint);
+                        ReportValue(serviceName, scopeName, name, description, unit, dataPoint);
                     }
 
                     break;
                 case Metric.DataOneofCase.Sum:
                     foreach (var dataPoint in metric.Sum.DataPoints)
                     {
-                        await ReportValue(serviceName, scopeName, name, description, unit, dataPoint);
+                        ReportValue(serviceName, scopeName, name, description, unit, dataPoint);
                     }
 
                     break;
@@ -63,7 +63,7 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
         }
     }
 
-    private async Task ReportValue(
+    private void ReportValue(
         string serviceName,
         string scopeName,
         string metricName,
@@ -72,24 +72,24 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
         NumberDataPoint dataPoint)
     {
         var timestamp = dataPoint.TimeUnixNano;
-        MetricBase? sessionMetric = dataPoint.ValueCase switch
+        var sessionMetric = dataPoint.ValueCase switch
         {
-            NumberDataPoint.ValueOneofCase.AsDouble => new MetricDouble(
-                dataPoint.AsDouble,
+            NumberDataPoint.ValueOneofCase.AsDouble => new SessionMetric(
                 serviceName,
                 scopeName,
                 metricName,
                 description,
                 unit,
+                dataPoint.AsDouble,
                 (long)timestamp
             ),
-            NumberDataPoint.ValueOneofCase.AsInt => new MetricLong(
-                dataPoint.AsInt,
+            NumberDataPoint.ValueOneofCase.AsInt => new SessionMetric(
                 serviceName,
                 scopeName,
                 metricName,
                 description,
                 unit,
+                dataPoint.AsInt,
                 (long)timestamp
             ),
             _ => null
@@ -97,6 +97,6 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
 
         if (sessionMetric is null) return;
 
-        await connection.DoWithModel(model => model.OtelMetricReceived(sessionMetric));
+        metricService.ReportMetric(sessionMetric);
     }
 }

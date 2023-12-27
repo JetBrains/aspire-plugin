@@ -16,7 +16,6 @@ class AspireServiceContributor : ServiceViewContributor<AspireHostServiceContrib
         return if (showServices)
             AspireSessionHostManager.getInstance(project)
                 .getSessionHosts()
-                .map { AspireHostServiceContributor(it) }
                 .toMutableList()
         else
             mutableListOf()

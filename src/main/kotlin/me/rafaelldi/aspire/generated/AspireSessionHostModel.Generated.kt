@@ -22,8 +22,7 @@ class AspireSessionHostModel private constructor(
     private val _sessions: RdMap<String, SessionModel>,
     private val _processStarted: RdSignal<ProcessStarted>,
     private val _processTerminated: RdSignal<ProcessTerminated>,
-    private val _logReceived: RdSignal<LogReceived>,
-    private val _otelMetricReceived: RdSignal<MetricBase>
+    private val _logReceived: RdSignal<LogReceived>
 ) : RdExtBase() {
     //companion
     
@@ -34,10 +33,9 @@ class AspireSessionHostModel private constructor(
             serializers.register(ProcessStarted)
             serializers.register(ProcessTerminated)
             serializers.register(LogReceived)
-            serializers.register(MetricDouble)
-            serializers.register(MetricLong)
+            serializers.register(MetricKey)
+            serializers.register(MetricValue)
             serializers.register(SessionModel)
-            serializers.register(MetricBase_Unknown)
         }
         
         
@@ -58,7 +56,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = -4876594467394356105L
+        const val serializationHash = -593333435547283410L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -69,7 +67,6 @@ class AspireSessionHostModel private constructor(
     val processStarted: ISignal<ProcessStarted> get() = _processStarted
     val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
     val logReceived: ISignal<LogReceived> get() = _logReceived
-    val otelMetricReceived: ISource<MetricBase> get() = _otelMetricReceived
     //methods
     //initializer
     init {
@@ -77,7 +74,6 @@ class AspireSessionHostModel private constructor(
         bindableChildren.add("processStarted" to _processStarted)
         bindableChildren.add("processTerminated" to _processTerminated)
         bindableChildren.add("logReceived" to _logReceived)
-        bindableChildren.add("otelMetricReceived" to _otelMetricReceived)
     }
     
     //secondary constructor
@@ -86,8 +82,7 @@ class AspireSessionHostModel private constructor(
         RdMap<String, SessionModel>(FrameworkMarshallers.String, SessionModel),
         RdSignal<ProcessStarted>(ProcessStarted),
         RdSignal<ProcessTerminated>(ProcessTerminated),
-        RdSignal<LogReceived>(LogReceived),
-        RdSignal<MetricBase>(AbstractPolymorphic(MetricBase))
+        RdSignal<LogReceived>(LogReceived)
     )
     
     //equals trait
@@ -100,7 +95,6 @@ class AspireSessionHostModel private constructor(
             print("processStarted = "); _processStarted.print(printer); println()
             print("processTerminated = "); _processTerminated.print(printer); println()
             print("logReceived = "); _logReceived.print(printer); println()
-            print("otelMetricReceived = "); _otelMetricReceived.print(printer); println()
         }
         printer.print(")")
     }
@@ -110,8 +104,7 @@ class AspireSessionHostModel private constructor(
             _sessions.deepClonePolymorphic(),
             _processStarted.deepClonePolymorphic(),
             _processTerminated.deepClonePolymorphic(),
-            _logReceived.deepClonePolymorphic(),
-            _otelMetricReceived.deepClonePolymorphic()
+            _logReceived.deepClonePolymorphic()
         )
     }
     //contexts
@@ -259,283 +252,104 @@ data class LogReceived (
 /**
  * #### Generated from [AspireSessionHostModel.kt:38]
  */
-abstract class MetricBase (
+data class MetricKey (
+    val scope: String,
+    val name: String
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<MetricKey> {
+        override val _type: KClass<MetricKey> = MetricKey::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MetricKey  {
+            val scope = buffer.readString()
+            val name = buffer.readString()
+            return MetricKey(scope, name)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MetricKey)  {
+            buffer.writeString(value.scope)
+            buffer.writeString(value.name)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as MetricKey
+        
+        if (scope != other.scope) return false
+        if (name != other.name) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + scope.hashCode()
+        __r = __r*31 + name.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("MetricKey (")
+        printer.indent {
+            print("scope = "); scope.print(printer); println()
+            print("name = "); name.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:43]
+ */
+data class MetricValue (
     val serviceName: String,
     val scope: String,
     val name: String,
     val description: String?,
     val unit: String?,
+    val value: Double,
     val timeStamp: Long
 ) : IPrintable {
     //companion
     
-    companion object : IAbstractDeclaration<MetricBase> {
-        override fun readUnknownInstance(ctx: SerializationCtx, buffer: AbstractBuffer, unknownId: RdId, size: Int): MetricBase  {
-            val objectStartPosition = buffer.position
+    companion object : IMarshaller<MetricValue> {
+        override val _type: KClass<MetricValue> = MetricValue::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MetricValue  {
             val serviceName = buffer.readString()
             val scope = buffer.readString()
             val name = buffer.readString()
             val description = buffer.readNullable { buffer.readString() }
             val unit = buffer.readNullable { buffer.readString() }
-            val timeStamp = buffer.readLong()
-            val unknownBytes = ByteArray(objectStartPosition + size - buffer.position)
-            buffer.readByteArrayRaw(unknownBytes)
-            return MetricBase_Unknown(serviceName, scope, name, description, unit, timeStamp, unknownId, unknownBytes)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    //hash code trait
-    //pretty print
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-class MetricBase_Unknown (
-    serviceName: String,
-    scope: String,
-    name: String,
-    description: String?,
-    unit: String?,
-    timeStamp: Long,
-    override val unknownId: RdId,
-    val unknownBytes: ByteArray
-) : MetricBase (
-    serviceName,
-    scope,
-    name,
-    description,
-    unit,
-    timeStamp
-), IUnknownInstance {
-    //companion
-    
-    companion object : IMarshaller<MetricBase_Unknown> {
-        override val _type: KClass<MetricBase_Unknown> = MetricBase_Unknown::class
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MetricBase_Unknown  {
-            throw NotImplementedError("Unknown instances should not be read via serializer")
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MetricBase_Unknown)  {
-            buffer.writeString(value.serviceName)
-            buffer.writeString(value.scope)
-            buffer.writeString(value.name)
-            buffer.writeNullable(value.description) { buffer.writeString(it) }
-            buffer.writeNullable(value.unit) { buffer.writeString(it) }
-            buffer.writeLong(value.timeStamp)
-            buffer.writeByteArrayRaw(value.unknownBytes)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as MetricBase_Unknown
-        
-        if (serviceName != other.serviceName) return false
-        if (scope != other.scope) return false
-        if (name != other.name) return false
-        if (description != other.description) return false
-        if (unit != other.unit) return false
-        if (timeStamp != other.timeStamp) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + serviceName.hashCode()
-        __r = __r*31 + scope.hashCode()
-        __r = __r*31 + name.hashCode()
-        __r = __r*31 + if (description != null) description.hashCode() else 0
-        __r = __r*31 + if (unit != null) unit.hashCode() else 0
-        __r = __r*31 + timeStamp.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("MetricBase_Unknown (")
-        printer.indent {
-            print("serviceName = "); serviceName.print(printer); println()
-            print("scope = "); scope.print(printer); println()
-            print("name = "); name.print(printer); println()
-            print("description = "); description.print(printer); println()
-            print("unit = "); unit.print(printer); println()
-            print("timeStamp = "); timeStamp.print(printer); println()
-        }
-        printer.print(")")
-    }
-    
-    override fun toString() = PrettyPrinter().singleLine().also { print(it) }.toString()
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspireSessionHostModel.kt:47]
- */
-class MetricDouble (
-    val value: Double,
-    serviceName: String,
-    scope: String,
-    name: String,
-    description: String?,
-    unit: String?,
-    timeStamp: Long
-) : MetricBase (
-    serviceName,
-    scope,
-    name,
-    description,
-    unit,
-    timeStamp
-) {
-    //companion
-    
-    companion object : IMarshaller<MetricDouble> {
-        override val _type: KClass<MetricDouble> = MetricDouble::class
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MetricDouble  {
-            val serviceName = buffer.readString()
-            val scope = buffer.readString()
-            val name = buffer.readString()
-            val description = buffer.readNullable { buffer.readString() }
-            val unit = buffer.readNullable { buffer.readString() }
-            val timeStamp = buffer.readLong()
             val value = buffer.readDouble()
-            return MetricDouble(value, serviceName, scope, name, description, unit, timeStamp)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MetricDouble)  {
-            buffer.writeString(value.serviceName)
-            buffer.writeString(value.scope)
-            buffer.writeString(value.name)
-            buffer.writeNullable(value.description) { buffer.writeString(it) }
-            buffer.writeNullable(value.unit) { buffer.writeString(it) }
-            buffer.writeLong(value.timeStamp)
-            buffer.writeDouble(value.value)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as MetricDouble
-        
-        if (value != other.value) return false
-        if (serviceName != other.serviceName) return false
-        if (scope != other.scope) return false
-        if (name != other.name) return false
-        if (description != other.description) return false
-        if (unit != other.unit) return false
-        if (timeStamp != other.timeStamp) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + value.hashCode()
-        __r = __r*31 + serviceName.hashCode()
-        __r = __r*31 + scope.hashCode()
-        __r = __r*31 + name.hashCode()
-        __r = __r*31 + if (description != null) description.hashCode() else 0
-        __r = __r*31 + if (unit != null) unit.hashCode() else 0
-        __r = __r*31 + timeStamp.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("MetricDouble (")
-        printer.indent {
-            print("value = "); value.print(printer); println()
-            print("serviceName = "); serviceName.print(printer); println()
-            print("scope = "); scope.print(printer); println()
-            print("name = "); name.print(printer); println()
-            print("description = "); description.print(printer); println()
-            print("unit = "); unit.print(printer); println()
-            print("timeStamp = "); timeStamp.print(printer); println()
-        }
-        printer.print(")")
-    }
-    
-    override fun toString() = PrettyPrinter().singleLine().also { print(it) }.toString()
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspireSessionHostModel.kt:51]
- */
-class MetricLong (
-    val value: Long,
-    serviceName: String,
-    scope: String,
-    name: String,
-    description: String?,
-    unit: String?,
-    timeStamp: Long
-) : MetricBase (
-    serviceName,
-    scope,
-    name,
-    description,
-    unit,
-    timeStamp
-) {
-    //companion
-    
-    companion object : IMarshaller<MetricLong> {
-        override val _type: KClass<MetricLong> = MetricLong::class
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MetricLong  {
-            val serviceName = buffer.readString()
-            val scope = buffer.readString()
-            val name = buffer.readString()
-            val description = buffer.readNullable { buffer.readString() }
-            val unit = buffer.readNullable { buffer.readString() }
             val timeStamp = buffer.readLong()
-            val value = buffer.readLong()
-            return MetricLong(value, serviceName, scope, name, description, unit, timeStamp)
+            return MetricValue(serviceName, scope, name, description, unit, value, timeStamp)
         }
         
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MetricLong)  {
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MetricValue)  {
             buffer.writeString(value.serviceName)
             buffer.writeString(value.scope)
             buffer.writeString(value.name)
             buffer.writeNullable(value.description) { buffer.writeString(it) }
             buffer.writeNullable(value.unit) { buffer.writeString(it) }
+            buffer.writeDouble(value.value)
             buffer.writeLong(value.timeStamp)
-            buffer.writeLong(value.value)
         }
         
         
@@ -549,14 +363,14 @@ class MetricLong (
         if (this === other) return true
         if (other == null || other::class != this::class) return false
         
-        other as MetricLong
+        other as MetricValue
         
-        if (value != other.value) return false
         if (serviceName != other.serviceName) return false
         if (scope != other.scope) return false
         if (name != other.name) return false
         if (description != other.description) return false
         if (unit != other.unit) return false
+        if (value != other.value) return false
         if (timeStamp != other.timeStamp) return false
         
         return true
@@ -564,31 +378,29 @@ class MetricLong (
     //hash code trait
     override fun hashCode(): Int  {
         var __r = 0
-        __r = __r*31 + value.hashCode()
         __r = __r*31 + serviceName.hashCode()
         __r = __r*31 + scope.hashCode()
         __r = __r*31 + name.hashCode()
         __r = __r*31 + if (description != null) description.hashCode() else 0
         __r = __r*31 + if (unit != null) unit.hashCode() else 0
+        __r = __r*31 + value.hashCode()
         __r = __r*31 + timeStamp.hashCode()
         return __r
     }
     //pretty print
     override fun print(printer: PrettyPrinter)  {
-        printer.println("MetricLong (")
+        printer.println("MetricValue (")
         printer.indent {
-            print("value = "); value.print(printer); println()
             print("serviceName = "); serviceName.print(printer); println()
             print("scope = "); scope.print(printer); println()
             print("name = "); name.print(printer); println()
             print("description = "); description.print(printer); println()
             print("unit = "); unit.print(printer); println()
+            print("value = "); value.print(printer); println()
             print("timeStamp = "); timeStamp.print(printer); println()
         }
         printer.print(")")
     }
-    
-    override fun toString() = PrettyPrinter().singleLine().also { print(it) }.toString()
     //deepClone
     //contexts
     //threading
@@ -724,15 +536,16 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:55]
+ * #### Generated from [AspireSessionHostModel.kt:53]
  */
-class SessionModel (
+class SessionModel private constructor(
     val id: String,
     val projectPath: String,
     val debug: Boolean,
     val envs: Array<EnvironmentVariableModel>?,
     val args: Array<String>?,
-    val telemetryServiceName: String?
+    val telemetryServiceName: String?,
+    private val _metrics: RdMap<MetricKey, MetricValue>
 ) : RdBindableBase() {
     //companion
     
@@ -748,7 +561,8 @@ class SessionModel (
             val envs = buffer.readNullable { buffer.readArray {EnvironmentVariableModel.read(ctx, buffer)} }
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val telemetryServiceName = buffer.readNullable { buffer.readString() }
-            return SessionModel(id, projectPath, debug, envs, args, telemetryServiceName).withId(_id)
+            val _metrics = RdMap.read(ctx, buffer, MetricKey, MetricValue)
+            return SessionModel(id, projectPath, debug, envs, args, telemetryServiceName, _metrics).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionModel)  {
@@ -759,14 +573,45 @@ class SessionModel (
             buffer.writeNullable(value.envs) { buffer.writeArray(it) { EnvironmentVariableModel.write(ctx, buffer, it) } }
             buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
             buffer.writeNullable(value.telemetryServiceName) { buffer.writeString(it) }
+            RdMap.write(ctx, buffer, value._metrics)
         }
         
         
     }
     //fields
+    val metrics: IMutableViewableMap<MetricKey, MetricValue> get() = _metrics
     //methods
     //initializer
+    init {
+        _metrics.optimizeNested = true
+    }
+    
+    init {
+        _metrics.async = true
+    }
+    
+    init {
+        bindableChildren.add("metrics" to _metrics)
+    }
+    
     //secondary constructor
+    constructor(
+        id: String,
+        projectPath: String,
+        debug: Boolean,
+        envs: Array<EnvironmentVariableModel>?,
+        args: Array<String>?,
+        telemetryServiceName: String?
+    ) : this(
+        id,
+        projectPath,
+        debug,
+        envs,
+        args,
+        telemetryServiceName,
+        RdMap<MetricKey, MetricValue>(MetricKey, MetricValue)
+    )
+    
     //equals trait
     //hash code trait
     //pretty print
@@ -779,6 +624,7 @@ class SessionModel (
             print("envs = "); envs.print(printer); println()
             print("args = "); args.print(printer); println()
             print("telemetryServiceName = "); telemetryServiceName.print(printer); println()
+            print("metrics = "); _metrics.print(printer); println()
         }
         printer.print(")")
     }
@@ -790,7 +636,8 @@ class SessionModel (
             debug,
             envs,
             args,
-            telemetryServiceName
+            telemetryServiceName,
+            _metrics.deepClonePolymorphic()
         )
     }
     //contexts

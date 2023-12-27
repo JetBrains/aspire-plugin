@@ -31,12 +31,16 @@ var connection = new Connection(rdPort);
 var sessionEventService = new SessionEventService(connection);
 await sessionEventService.Subscribe();
 
+var sessionMetricService = new SessionMetricService(connection);
+await sessionMetricService.Subscribe();
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGrpc();
 if (otlpEndpointUrl != null) builder.Services.AddOtelClients(otlpEndpointUrl);
 builder.Services.AddSingleton(connection);
 builder.Services.AddSingleton(sessionEventService);
+builder.Services.AddSingleton(sessionMetricService);
 builder.Services.AddSingleton<SessionService>();
 
 builder.Services.ConfigureHttpJsonOptions(it =>
