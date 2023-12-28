@@ -88,7 +88,7 @@ namespace AspireSessionHost.Generated
     
     
     
-    protected override long SerializationHash => -593333435547283410L;
+    protected override long SerializationHash => 5054565682784062478L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -434,7 +434,7 @@ namespace AspireSessionHost.Generated
     [CanBeNull] public string Description {get; private set;}
     [CanBeNull] public string Unit {get; private set;}
     public double Value {get; private set;}
-    public long TimeStamp {get; private set;}
+    public long Timestamp {get; private set;}
     
     //private fields
     //primary constructor
@@ -445,7 +445,7 @@ namespace AspireSessionHost.Generated
       [CanBeNull] string description,
       [CanBeNull] string unit,
       double value,
-      long timeStamp
+      long timestamp
     )
     {
       if (serviceName == null) throw new ArgumentNullException("serviceName");
@@ -458,11 +458,11 @@ namespace AspireSessionHost.Generated
       Description = description;
       Unit = unit;
       Value = value;
-      TimeStamp = timeStamp;
+      Timestamp = timestamp;
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string serviceName, [NotNull] out string scope, [NotNull] out string name, [CanBeNull] out string description, [CanBeNull] out string unit, out double value, out long timeStamp)
+    public void Deconstruct([NotNull] out string serviceName, [NotNull] out string scope, [NotNull] out string name, [CanBeNull] out string description, [CanBeNull] out string unit, out double value, out long timestamp)
     {
       serviceName = ServiceName;
       scope = Scope;
@@ -470,7 +470,7 @@ namespace AspireSessionHost.Generated
       description = Description;
       unit = Unit;
       value = Value;
-      timeStamp = TimeStamp;
+      timestamp = Timestamp;
     }
     //statics
     
@@ -482,8 +482,8 @@ namespace AspireSessionHost.Generated
       var description = ReadStringNullable(ctx, reader);
       var unit = ReadStringNullable(ctx, reader);
       var value = reader.ReadDouble();
-      var timeStamp = reader.ReadLong();
-      var _result = new MetricValue(serviceName, scope, name, description, unit, value, timeStamp);
+      var timestamp = reader.ReadLong();
+      var _result = new MetricValue(serviceName, scope, name, description, unit, value, timestamp);
       return _result;
     };
     public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
@@ -496,7 +496,7 @@ namespace AspireSessionHost.Generated
       WriteStringNullable(ctx, writer, value.Description);
       WriteStringNullable(ctx, writer, value.Unit);
       writer.Write(value.Value);
-      writer.Write(value.TimeStamp);
+      writer.Write(value.Timestamp);
     };
     public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
     
@@ -516,7 +516,7 @@ namespace AspireSessionHost.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return ServiceName == other.ServiceName && Scope == other.Scope && Name == other.Name && Equals(Description, other.Description) && Equals(Unit, other.Unit) && Value == other.Value && TimeStamp == other.TimeStamp;
+      return ServiceName == other.ServiceName && Scope == other.Scope && Name == other.Name && Equals(Description, other.Description) && Equals(Unit, other.Unit) && Value == other.Value && Timestamp == other.Timestamp;
     }
     //hash code trait
     public override int GetHashCode()
@@ -529,7 +529,7 @@ namespace AspireSessionHost.Generated
         hash = hash * 31 + (Description != null ? Description.GetHashCode() : 0);
         hash = hash * 31 + (Unit != null ? Unit.GetHashCode() : 0);
         hash = hash * 31 + Value.GetHashCode();
-        hash = hash * 31 + TimeStamp.GetHashCode();
+        hash = hash * 31 + Timestamp.GetHashCode();
         return hash;
       }
     }
@@ -544,7 +544,7 @@ namespace AspireSessionHost.Generated
         printer.Print("description = "); Description.PrintEx(printer); printer.Println();
         printer.Print("unit = "); Unit.PrintEx(printer); printer.Println();
         printer.Print("value = "); Value.PrintEx(printer); printer.Println();
-        printer.Print("timeStamp = "); TimeStamp.PrintEx(printer); printer.Println();
+        printer.Print("timestamp = "); Timestamp.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }

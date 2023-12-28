@@ -71,7 +71,7 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
         string unit,
         NumberDataPoint dataPoint)
     {
-        var timestamp = dataPoint.TimeUnixNano;
+        var timestamp = (long)(dataPoint.TimeUnixNano / 1_000_000_000);
         var sessionMetric = dataPoint.ValueCase switch
         {
             NumberDataPoint.ValueOneofCase.AsDouble => new SessionMetric(
@@ -81,7 +81,7 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
                 description,
                 unit,
                 dataPoint.AsDouble,
-                (long)timestamp
+                timestamp
             ),
             NumberDataPoint.ValueOneofCase.AsInt => new SessionMetric(
                 serviceName,
@@ -90,7 +90,7 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
                 description,
                 unit,
                 dataPoint.AsInt,
-                (long)timestamp
+                timestamp
             ),
             _ => null
         };

@@ -20,7 +20,7 @@ class SessionDashboardPanel(sessionData: SessionServiceData) : BorderLayoutPanel
         val panel = panel {
             row {
                 val projectName = sessionData.sessionModel.telemetryServiceName ?: "-"
-                label(AspireBundle.message("service.tab.Information.Name"))
+                label(AspireBundle.message("service.tab.information.name"))
                     .bold()
                 copyableLabel(projectName)
                     .gap(RightGap.SMALL)
@@ -34,7 +34,7 @@ class SessionDashboardPanel(sessionData: SessionServiceData) : BorderLayoutPanel
             }
             row {
                 val projectPath = sessionData.sessionModel.projectPath
-                label(AspireBundle.message("service.tab.Information.Project"))
+                label(AspireBundle.message("service.tab.information.project"))
                     .bold()
                 copyableLabel(projectPath)
                     .gap(RightGap.SMALL)
@@ -53,6 +53,21 @@ class SessionDashboardPanel(sessionData: SessionServiceData) : BorderLayoutPanel
                 ) {
                     RevealFileAction.openFile(Path(it))
                 }
+            }
+            row {
+                val args = sessionData.sessionModel.args?.joinToString() ?: "-"
+                label(AspireBundle.message("service.tab.information.arguments"))
+                    .bold()
+                copyableLabel(args)
+                    .gap(RightGap.SMALL)
+                inlineIconButton(
+                    AllIcons.General.InlineCopyHover,
+                    AllIcons.General.InlineCopy,
+                    args
+                ) {
+                    CopyPasteManager.getInstance().setContents(StringSelection(it))
+                }
+                    .gap(RightGap.SMALL)
             }
         }
 

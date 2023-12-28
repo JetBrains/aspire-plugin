@@ -56,7 +56,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = -593333435547283410L
+        const val serializationHash = 5054565682784062478L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -323,7 +323,7 @@ data class MetricValue (
     val description: String?,
     val unit: String?,
     val value: Double,
-    val timeStamp: Long
+    val timestamp: Long
 ) : IPrintable {
     //companion
     
@@ -338,8 +338,8 @@ data class MetricValue (
             val description = buffer.readNullable { buffer.readString() }
             val unit = buffer.readNullable { buffer.readString() }
             val value = buffer.readDouble()
-            val timeStamp = buffer.readLong()
-            return MetricValue(serviceName, scope, name, description, unit, value, timeStamp)
+            val timestamp = buffer.readLong()
+            return MetricValue(serviceName, scope, name, description, unit, value, timestamp)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MetricValue)  {
@@ -349,7 +349,7 @@ data class MetricValue (
             buffer.writeNullable(value.description) { buffer.writeString(it) }
             buffer.writeNullable(value.unit) { buffer.writeString(it) }
             buffer.writeDouble(value.value)
-            buffer.writeLong(value.timeStamp)
+            buffer.writeLong(value.timestamp)
         }
         
         
@@ -371,7 +371,7 @@ data class MetricValue (
         if (description != other.description) return false
         if (unit != other.unit) return false
         if (value != other.value) return false
-        if (timeStamp != other.timeStamp) return false
+        if (timestamp != other.timestamp) return false
         
         return true
     }
@@ -384,7 +384,7 @@ data class MetricValue (
         __r = __r*31 + if (description != null) description.hashCode() else 0
         __r = __r*31 + if (unit != null) unit.hashCode() else 0
         __r = __r*31 + value.hashCode()
-        __r = __r*31 + timeStamp.hashCode()
+        __r = __r*31 + timestamp.hashCode()
         return __r
     }
     //pretty print
@@ -397,7 +397,7 @@ data class MetricValue (
             print("description = "); description.print(printer); println()
             print("unit = "); unit.print(printer); println()
             print("value = "); value.print(printer); println()
-            print("timeStamp = "); timeStamp.print(printer); println()
+            print("timestamp = "); timestamp.print(printer); println()
         }
         printer.print(")")
     }

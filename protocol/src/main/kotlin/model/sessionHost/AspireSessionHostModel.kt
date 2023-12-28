@@ -47,7 +47,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("description", string.nullable)
         field("unit", string.nullable)
         field("value", double)
-        field("timeStamp", long)
+        field("timestamp", long)
     }
 
     private val SessionModel = classdef {

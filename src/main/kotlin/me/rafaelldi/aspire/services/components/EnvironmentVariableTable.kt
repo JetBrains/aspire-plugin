@@ -7,8 +7,8 @@ import javax.swing.table.DefaultTableModel
 
 class EnvironmentVariableTable(variables: Array<EnvironmentVariableModel>) : JBTable() {
     companion object {
-        private val NAME_COLUMN = AspireBundle.message("service.tab.EnvironmentVariables.Table.Name")
-        private val VALUE_COLUMN = AspireBundle.message("service.tab.EnvironmentVariables.Table.Value")
+        private val NAME_COLUMN = AspireBundle.message("service.tab.environmentVariables.table.name")
+        private val VALUE_COLUMN = AspireBundle.message("service.tab.environmentVariables.table.value")
     }
 
     private val tableModel = DefaultTableModel(arrayOf(NAME_COLUMN, VALUE_COLUMN), 0)

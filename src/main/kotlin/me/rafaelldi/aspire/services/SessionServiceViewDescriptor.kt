@@ -46,10 +46,10 @@ class SessionServiceViewDescriptor(private val sessionData: SessionServiceData) 
 
     override fun getContentComponent(): JPanel {
         val tabs = JBTabbedPane()
-        tabs.addTab(AspireBundle.getMessage("service.tab.Information"), SessionDashboardPanel(sessionData))
-        tabs.addTab(AspireBundle.getMessage("service.tab.EnvironmentVariables"), EnvironmentVariablePanel(sessionData))
+        tabs.addTab(AspireBundle.getMessage("service.tab.information"), SessionDashboardPanel(sessionData))
+        tabs.addTab(AspireBundle.getMessage("service.tab.environmentVariables"), EnvironmentVariablePanel(sessionData))
         if (AspireSettings.getInstance().collectTelemetry) {
-            tabs.addTab(AspireBundle.getMessage("service.tab.Metrics"), metricPanel)
+            tabs.addTab(AspireBundle.getMessage("service.tab.metrics"), metricPanel)
         }
         return JPanel(BorderLayout()).apply {
             add(tabs, BorderLayout.CENTER)
