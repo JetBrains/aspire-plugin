@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- Dashboard in the Services tool window
+- Metrics table and chart
+- Troubleshooting page in the docs
+
 ## [0.1.2] - 2023-12-21
 
 ### Added
