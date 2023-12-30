@@ -60,7 +60,7 @@ class AspireSessionHostRunner(private val project: Project) {
         val processHandler = KillableColoredProcessHandler(commandLine)
         sessionHostLifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
-                LOG.trace("Killing Aspire host process")
+                LOG.trace("Killing Aspire session host process")
                 processHandler.killProcess()
             }
         }
@@ -76,7 +76,7 @@ class AspireSessionHostRunner(private val project: Project) {
 
             override fun processTerminated(event: ProcessEvent) {
                 sessionHostLifetime.executeIfAlive {
-                    LOG.trace("Terminating Aspire host lifetime")
+                    LOG.trace("Terminating Aspire session host lifetime")
                     sessionHostLifetime.terminate(true)
                 }
             }
@@ -95,6 +95,7 @@ class AspireSessionHostRunner(private val project: Project) {
             .withExePath(dotnet.cliExePath)
             .withCharset(StandardCharsets.UTF_8)
             .withParameters(hostAssemblyPath.toString())
+            .withWorkDirectory(hostAssemblyPath.parent.toFile())
             .withEnvironment(
                 buildMap {
                     put(ASPNETCORE_URLS, "http://localhost:${sessionHostConfig.debugSessionPort}/")

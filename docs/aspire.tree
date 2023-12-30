@@ -8,4 +8,5 @@
 
     <toc-element topic="starter-topic.md"/>
     <toc-element topic="run-configuration.md"/>
+    <toc-element topic="troubleshooting.md"/>
 </instance-profile>

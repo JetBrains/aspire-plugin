@@ -4,7 +4,7 @@
 
 namespace AspireSessionHost.Sessions;
 
-internal sealed class SessionService(Connection connection)
+internal sealed class SessionService(Connection connection, ILogger<SessionService> logger)
 {
     private const string TelemetryServiceName = "OTEL_SERVICE_NAME";
 
@@ -21,6 +21,7 @@ internal sealed class SessionService(Connection connection)
             session.Args,
             serviceName?.Value
         );
+        logger.LogDebug("Starting a new session {session}", sessionModel);
 
         var result = await connection.DoWithModel(model => model.Sessions.TryAdd(stringId, sessionModel));
 
@@ -29,6 +30,7 @@ internal sealed class SessionService(Connection connection)
 
     internal async Task<bool> Delete(Guid id)
     {
+        logger.LogDebug("Deleting the new session {sessionId}", id);
         return await connection.DoWithModel(model => model.Sessions.Remove(id.ToString()));
     }
 }

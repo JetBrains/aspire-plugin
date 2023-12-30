@@ -63,8 +63,8 @@ class AspireSessionHostManager(private val project: Project) {
             sessionHostLifetime.lifetime
         )
 
-        LOG.trace("Adding new session host data $sessionHostData")
         sessionHostLifetime.bracketIfAlive({
+            LOG.trace("Adding a new session host data $sessionHostData")
             val sessionHost = AspireHostServiceContributor(sessionHostData)
             sessionHosts[sessionHostConfig.id] = sessionHost
             sessions[sessionHostConfig.id] = mutableMapOf()
@@ -75,8 +75,10 @@ class AspireSessionHostManager(private val project: Project) {
             )
             serviceEventPublisher.handle(event)
         }, {
-            val sessionHost = sessionHosts.remove(sessionHostConfig.id) ?: return@bracketIfAlive
+            LOG.trace("Removing the session host data ${sessionHostConfig.id}")
+            val sessionHost = sessionHosts.remove(sessionHostConfig.id)
             sessions.remove(sessionHostConfig.id)
+            if (sessionHost == null) return@bracketIfAlive
             val event = ServiceEventListener.ServiceEvent.createEvent(
                 ServiceEventListener.EventType.SERVICE_REMOVED,
                 sessionHost,
@@ -167,8 +169,8 @@ class AspireSessionHostManager(private val project: Project) {
             sessionLifetime
         )
 
-        LOG.trace("Adding new session data $sessionServiceData")
         sessionLifetime.bracketIfAlive({
+            LOG.trace("Adding a new session data $sessionServiceData")
             val sessionsByHost = sessions[sessionHostConfig.id] ?: return@bracketIfAlive
             sessionsByHost[sessionId] = sessionServiceData
             val event = ServiceEventListener.ServiceEvent.createEvent(
@@ -178,6 +180,7 @@ class AspireSessionHostManager(private val project: Project) {
             )
             project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
         }, {
+            LOG.trace("Removing the session data ${sessionHostConfig.id}")
             val sessionsByHost = sessions[sessionHostConfig.id] ?: return@bracketIfAlive
             sessionsByHost.remove(sessionId) ?: return@bracketIfAlive
             val event = ServiceEventListener.ServiceEvent.createEvent(

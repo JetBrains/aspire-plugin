@@ -2,7 +2,7 @@
 
 The plugin provides support for .NET Aspire projects in JetBrains Rider.
 
-To work with .NET Aspire you will need:
+To work with .NET Aspire, you will need:
 * [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 * .NET Aspire workload
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/)

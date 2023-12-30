@@ -6,8 +6,11 @@ using OpenTelemetry.Proto.Metrics.V1;
 
 namespace AspireSessionHost.Otel;
 
-internal sealed class OtelMetricService(MetricsService.MetricsServiceClient client, SessionMetricService metricService)
-    : MetricsService.MetricsServiceBase
+internal sealed class OtelMetricService(
+    MetricsService.MetricsServiceClient client,
+    SessionMetricService metricService,
+    ILogger<OtelMetricService> logger
+) : MetricsService.MetricsServiceBase
 {
     public override async Task<ExportMetricsServiceResponse> Export(
         ExportMetricsServiceRequest request,
@@ -36,6 +39,8 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
     {
         foreach (var metric in metrics)
         {
+            logger.LogTrace("Metric received {otelMetric}", metric);
+
             var name = metric.Name;
             if (name is null) continue;
             var description = metric.Description;
@@ -44,22 +49,28 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
             switch (metric.DataCase)
             {
                 case Metric.DataOneofCase.Gauge:
-                    foreach (var dataPoint in metric.Gauge.DataPoints)
-                    {
-                        ReportValue(serviceName, scopeName, name, description, unit, dataPoint);
-                    }
-
+                    ReportDataPoints(serviceName, scopeName, name, description, unit, metric.Gauge.DataPoints);
                     break;
                 case Metric.DataOneofCase.Sum:
-                    foreach (var dataPoint in metric.Sum.DataPoints)
-                    {
-                        ReportValue(serviceName, scopeName, name, description, unit, dataPoint);
-                    }
-
+                    ReportDataPoints(serviceName, scopeName, name, description, unit, metric.Sum.DataPoints);
                     break;
                 case Metric.DataOneofCase.Histogram:
                     break;
             }
+        }
+    }
+
+    private void ReportDataPoints(
+        string serviceName,
+        string scopeName,
+        string name,
+        string description,
+        string unit,
+        RepeatedField<NumberDataPoint> dataPoints)
+    {
+        foreach (var dataPoint in dataPoints)
+        {
+            ReportValue(serviceName, scopeName, name, description, unit, dataPoint);
         }
     }
 
@@ -97,6 +108,7 @@ internal sealed class OtelMetricService(MetricsService.MetricsServiceClient clie
 
         if (sessionMetric is null) return;
 
+        logger.LogTrace("Reporting a new metric {metric}", sessionMetric);
         metricService.ReportMetric(sessionMetric);
     }
 }

@@ -42,16 +42,19 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
     private val aspireActualVersion = WorkloadVersion(CURRENT_VERSION)
 
     fun checkForUpdate() {
+        LOG.trace("Checking Aspire workload for update")
         scope.launch(Dispatchers.Default) {
             val dotnetPath = getDotnetPath() ?: "dotnet"
 
             val isAspireInstalled = isAspireWorkloadInstalled(dotnetPath)
             if (!isAspireInstalled) {
+                LOG.info("Aspire workload isn't installed")
                 return@launch
             }
 
             val isCurrentVersionInstalled = isCurrentVersionInstalled(dotnetPath)
             if (!isCurrentVersionInstalled) {
+                LOG.trace("Current version $aspireActualVersion isn't installed")
                 withUiContext {
                     Notification(
                         "Aspire",
@@ -73,6 +76,7 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
     }
 
     fun updateWorkload() {
+        LOG.trace("Updating Aspire workload")
         scope.launch(Dispatchers.Default) {
             withBackgroundProgress(project, AspireBundle.message("progress.updating.aspire.workload")) {
                 val dotnetPath = getDotnetPath() ?: "dotnet"
@@ -117,7 +121,9 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
     }
 
     private fun getDotnetPath(): String? {
-        return RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value?.cliExePath
+        val cliExePath = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value?.cliExePath
+        LOG.trace("dotnet cli path: $cliExePath")
+        return cliExePath
     }
 
     private fun getListOfWorkloads(dotnetPath: String): ProcessOutput? {
