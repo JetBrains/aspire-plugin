@@ -23,7 +23,8 @@ host. To do this, go to
 the [plugin directory](https://www.jetbrains.com/help/rider/Directories_Used_by_the_IDE_to_Store_Settings_Caches_Plugins_and_Logs.html#plugins-directory).
 Then open the `aspire-plugin/aspire-session-host/appsettings.json` file. This is a default
 aspnetcore [configuration file](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-8.0#configure-logging).
-Then change the level of the **Default** and **AspireSessionHost** categories. 
+Then change the level of the **Default** and **AspireSessionHost** categories. The updated logs will be reported to the
+IDE logs.
 
 ```json
 {
