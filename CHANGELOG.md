@@ -10,6 +10,9 @@
 - Metrics table and chart
 - Troubleshooting page in the docs
 
+### Fixed
+- [#23](https://github.com/rafaelldi/aspire-plugin/issues/23): Aspire workload update on macOS and Linux
+
 ## [0.1.2] - 2023-12-21
 
 ### Added
