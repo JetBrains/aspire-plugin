@@ -15,6 +15,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.util.withUiContext
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.CoroutineScope
@@ -110,7 +111,7 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
                         Notification(
                             "Aspire",
                             AspireBundle.message("notifications.aspire.workload.update.failed"),
-                            "",
+                            output.stderr,
                             NotificationType.WARNING
                         )
                             .notify(project)
@@ -177,7 +178,12 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
             .withParameters("workload", "update")
 
         try {
-            return ExecUtil.execAndGetOutput(commandLine)
+            return if (SystemInfo.isWindows) {
+                ExecUtil.execAndGetOutput(commandLine, 30_000)
+            } else {
+                val sudoCommand = ExecUtil.sudoCommand(commandLine, AspireBundle.getMessage("notification.aspire.workload.update.elevated"))
+                ExecUtil.execAndGetOutput(sudoCommand, 30_000)
+            }
         } catch (e: Exception) {
             LOG.warn("Unable to update workload list")
             return null
