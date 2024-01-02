@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-01-02
+
 ### Added
 
 - Dashboard in the Services tool window
@@ -11,6 +13,7 @@
 - Troubleshooting page in the docs
 
 ### Fixed
+
 - [#23](https://github.com/rafaelldi/aspire-plugin/issues/23): Aspire workload update on macOS and Linux
 
 ## [0.1.2] - 2023-12-21
@@ -40,7 +43,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/rafaelldi/aspire-plugin/commits/v0.1.0
