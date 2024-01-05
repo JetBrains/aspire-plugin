@@ -13,11 +13,15 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
         var id = Guid.NewGuid();
         var stringId = id.ToString();
         var serviceName = session.Env?.FirstOrDefault(it => it.Name == TelemetryServiceName);
+        var envs = session.Env
+            ?.Where(it => it.Value is not null)
+            ?.Select(it => new EnvironmentVariableModel(it.Name, it.Value!))
+            ?.ToArray();
         var sessionModel = new SessionModel(
             stringId,
             session.ProjectPath,
             session.Debug,
-            session.Env?.Select(it => new EnvironmentVariableModel(it.Name, it.Value)).ToArray(),
+            envs,
             session.Args,
             serviceName?.Value
         );
