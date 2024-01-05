@@ -11,4 +11,4 @@ internal sealed record Session(
 );
 
 [UsedImplicitly]
-internal sealed record EnvironmentVariable(string Name, string Value);
+internal sealed record EnvironmentVariable(string Name, string? Value);
