@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- A possible NullReferenceException when calling API by Aspire host
+
 ## [0.2.0] - 2024-01-02
 
 ### Added
