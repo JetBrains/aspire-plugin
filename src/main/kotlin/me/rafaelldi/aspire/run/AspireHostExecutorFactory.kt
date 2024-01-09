@@ -13,6 +13,9 @@ import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
+import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
+import com.jetbrains.rider.run.environment.ExecutableRunParameters
+import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
@@ -20,6 +23,8 @@ import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_P
 import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_TOKEN
 import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
 import me.rafaelldi.aspire.settings.AspireSettings
+import org.jetbrains.concurrency.await
+import java.io.File
 import java.util.*
 
 class AspireHostExecutorFactory(
@@ -50,11 +55,11 @@ class AspireHostExecutorFactory(
         }
     }
 
-    private fun getDotNetExecutable(runnableProject: RunnableProject): DotNetExecutable {
+    private suspend fun getDotNetExecutable(runnableProject: RunnableProject): DotNetExecutable {
         val projectOutput = runnableProject.projectOutputs.firstOrNull()
             ?: throw CantRunException("Unable to find project output")
-        val envs = parameters.envs.toMutableMap()
 
+        val envs = parameters.envs.toMutableMap()
         val debugSessionToken = UUID.randomUUID().toString()
         val debugSessionPort = NetUtils.findFreePort(67800)
         val openTelemetryProtocolEndpointPort = NetUtils.findFreePort(87800)
@@ -63,14 +68,32 @@ class AspireHostExecutorFactory(
         if (AspireSettings.getInstance().collectTelemetry)
             envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] = "http://localhost:$openTelemetryProtocolEndpointPort"
 
-        return DotNetExecutable(
+        val processOptions = ProjectProcessOptions(
+            File(runnableProject.projectFilePath),
+            File(projectOutput.workingDirectory)
+        )
+        val runParameters = ExecutableRunParameters(
             projectOutput.exePath,
-            projectOutput.tfm,
             projectOutput.workingDirectory,
             ParametersListUtil.join(projectOutput.defaultArguments),
-            false,
-            false,
             envs,
+            true,
+            projectOutput.tfm
+        )
+
+        val params = ExecutableParameterProcessor
+            .getInstance(project)
+            .processEnvironment(runParameters, processOptions)
+            .await()
+
+        return DotNetExecutable(
+            params.executablePath ?: projectOutput.exePath,
+            params.tfm ?: projectOutput.tfm,
+            params.workingDirectoryPath ?: projectOutput.workingDirectory,
+            params.commandLineArgumentString ?: ParametersListUtil.join(projectOutput.defaultArguments),
+            false,
+            false,
+            params.environmentVariables,
             true,
             parameters.startBrowserAction,
             null,
