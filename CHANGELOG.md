@@ -6,7 +6,7 @@
 
 ### Changed
 
-- Improved handling of environment variables from Aspire host launchSettings file
+- [#24](https://github.com/rafaelldi/aspire-plugin/issues/24): Improved handling of environment variables from Aspire host launchSettings file
 
 ## [0.2.1] - 2024-01-05
 
