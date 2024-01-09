@@ -16,6 +16,7 @@ class AspireHostConfigurationViewModel(
     private val lifetime: Lifetime,
     private val runnableProjectsModel: RunnableProjectsModel?,
     val projectSelector: ProjectSelector,
+    val environmentVariablesEditor: EnvironmentVariablesEditor,
     separator: ViewSeparator,
     val urlEditor: TextEditor,
     val dotNetBrowserSettingsEditor: BrowserSettingsEditor
@@ -23,6 +24,7 @@ class AspireHostConfigurationViewModel(
     override val controls: List<ControlBase> =
         listOf(
             projectSelector,
+            environmentVariablesEditor,
             separator,
             urlEditor,
             dotNetBrowserSettingsEditor
@@ -53,6 +55,7 @@ class AspireHostConfigurationViewModel(
         }
 
         val runOptions = project.getRunOptions()
+        environmentVariablesEditor.envs.set(runOptions.environmentVariables)
         val startBrowserUrl = runOptions.startBrowserUrl
         if (startBrowserUrl.isNotEmpty()) {
             urlEditor.defaultValue.value = startBrowserUrl
@@ -68,7 +71,7 @@ class AspireHostConfigurationViewModel(
         }
     }
 
-    fun reset(projectFilePath: String, trackUrl: Boolean, dotNetStartBrowserParameters: DotNetStartBrowserParameters) {
+    fun reset(projectFilePath: String, envs: Map<String, String>, trackUrl: Boolean, dotNetStartBrowserParameters: DotNetStartBrowserParameters) {
         isLoaded = false
 
         this.trackUrl = trackUrl
@@ -115,6 +118,7 @@ class AspireHostConfigurationViewModel(
                     it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
                 }?.let { project ->
                     projectSelector.project.set(project)
+                    environmentVariablesEditor.envs.set(envs)
 
                     val runOptions = project.getRunOptions()
                     val effectiveUrl = if (trackUrl) runOptions.startBrowserUrl else dotNetStartBrowserParameters.url

@@ -53,9 +53,7 @@ class AspireHostExecutorFactory(
     private fun getDotNetExecutable(runnableProject: RunnableProject): DotNetExecutable {
         val projectOutput = runnableProject.projectOutputs.firstOrNull()
             ?: throw CantRunException("Unable to find project output")
-        val envs = runnableProject.environmentVariables
-            .associate { it.key to it.value }
-            .toMutableMap()
+        val envs = parameters.envs.toMutableMap()
 
         val debugSessionToken = UUID.randomUUID().toString()
         val debugSessionPort = NetUtils.findFreePort(67800)
