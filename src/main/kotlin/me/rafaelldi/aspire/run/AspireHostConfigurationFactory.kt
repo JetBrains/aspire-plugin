@@ -13,7 +13,7 @@ class AspireHostConfigurationFactory(type: AspireHostConfigurationType) :
         this,
         "Aspire Host",
         AspireHostConfigurationParameters(
-            project, "", hashMapOf(), true, DotNetStartBrowserParameters()
+            project, "", true, hashMapOf(), true, DotNetStartBrowserParameters()
         )
     )
 }

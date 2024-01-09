@@ -31,6 +31,7 @@ class AspireHostSettingsEditor(private val project: Project) :
         if (selectedProject != null) {
             configuration.parameters.apply {
                 projectFilePath = selectedProject.projectFilePath
+                trackEnvs = viewModel.trackEnvs
                 envs = viewModel.environmentVariablesEditor.envs.value
                 trackUrl = viewModel.trackUrl
                 startBrowserParameters.url = viewModel.urlEditor.text.value
@@ -47,6 +48,7 @@ class AspireHostSettingsEditor(private val project: Project) :
         configuration.parameters.apply {
             viewModel.reset(
                 projectFilePath,
+                trackEnvs,
                 envs,
                 trackUrl,
                 startBrowserParameters
