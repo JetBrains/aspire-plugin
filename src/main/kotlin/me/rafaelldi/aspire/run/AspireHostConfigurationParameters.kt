@@ -1,5 +1,6 @@
 package me.rafaelldi.aspire.run
 
+import com.intellij.execution.configuration.EnvironmentVariablesComponent
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.configurations.RuntimeConfigurationError
@@ -20,11 +21,14 @@ import org.jdom.Element
 class AspireHostConfigurationParameters(
     private val project: Project,
     var projectFilePath: String,
+    var trackEnvs: Boolean,
+    var envs: Map<String, String>,
     var trackUrl: Boolean,
     var startBrowserParameters: DotNetStartBrowserParameters
 ) {
     companion object {
         private const val PROJECT_FILE_PATH = "PROJECT_FILE_PATH"
+        private const val TRACK_ENVS = "TRACK_ENVS"
         private const val TRACK_URL = "TRACK_URL"
     }
 
@@ -56,6 +60,9 @@ class AspireHostConfigurationParameters(
 
     fun readExternal(element: Element) {
         projectFilePath = JDOMExternalizerUtil.readField(element, PROJECT_FILE_PATH) ?: ""
+        val trackEnvsString = JDOMExternalizerUtil.readField(element, TRACK_ENVS) ?: ""
+        trackEnvs = trackEnvsString != "0"
+        EnvironmentVariablesComponent.readExternal(element, envs)
         val trackUrlString = JDOMExternalizerUtil.readField(element, TRACK_URL) ?: ""
         trackUrl = trackUrlString != "0"
         startBrowserParameters = DotNetStartBrowserParameters.readExternal(element)
@@ -63,6 +70,8 @@ class AspireHostConfigurationParameters(
 
     fun writeExternal(element: Element) {
         JDOMExternalizerUtil.writeField(element, PROJECT_FILE_PATH, projectFilePath)
+        JDOMExternalizerUtil.writeField(element, TRACK_ENVS, if (trackEnvs) "1" else "0")
+        EnvironmentVariablesComponent.writeExternal(element, envs)
         JDOMExternalizerUtil.writeField(element, TRACK_URL, if (trackUrl) "1" else "0")
         startBrowserParameters.writeExternal(element)
     }
@@ -70,8 +79,10 @@ class AspireHostConfigurationParameters(
 
 fun AspireHostConfigurationParameters.setUpFromRunnableProject(project: RunnableProject) {
     projectFilePath = project.projectFilePath
-    trackUrl = true
     val runOptions = project.getRunOptions()
+    trackEnvs = true
+    envs = project.environmentVariables.associate { it.key to it.value }
+    trackUrl = true
     val startBrowserUrl = runOptions.startBrowserUrl
     if (startBrowserUrl.isNotEmpty()) {
         startBrowserParameters.apply {

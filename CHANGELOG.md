@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Improved handling of environment variables from Aspire host launchSettings file
+
 ## [0.2.1] - 2024-01-05
 
 ### Fixed
