@@ -7,6 +7,8 @@ private val ansiEscapeDecoder by lazy { AnsiEscapeDecoder() }
 
 fun decodeAnsiCommandsToString(ansi: String, outputType: Key<*>): String {
     val buffer = StringBuilder()
-    ansiEscapeDecoder.escapeText(ansi, outputType) { text, _ -> buffer.append(text) }
+    ansiEscapeDecoder.escapeText(ansi, outputType) { text, _ ->
+        buffer.append(text)
+    }
     return buffer.toString()
 }

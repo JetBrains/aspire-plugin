@@ -156,11 +156,13 @@ class AspireSessionHostManager(private val project: Project) {
         sessionEvents: Channel<AspireSessionEvent>,
         sessionHostConfig: AspireSessionHostConfig
     ) {
+        val sessionLogs = Channel<AspireSessionLog>(Channel.UNLIMITED)
         val command = AspireSessionRunner.RunSessionCommand(
             sessionId,
             sessionModel,
             sessionLifetime,
             sessionEvents,
+            sessionLogs,
             sessionHostConfig.hostName,
             sessionHostConfig.isDebug,
             sessionHostConfig.openTelemetryPort
@@ -170,7 +172,9 @@ class AspireSessionHostManager(private val project: Project) {
 
         val sessionServiceData = SessionServiceData(
             sessionModel,
-            sessionLifetime
+            sessionLifetime,
+            sessionLogs.consumeAsFlow(),
+            project
         )
 
         sessionLifetime.bracketIfAlive({
@@ -178,7 +182,7 @@ class AspireSessionHostManager(private val project: Project) {
             val sessionsByHost = sessions[sessionHostConfig.id] ?: return@bracketIfAlive
             sessionsByHost[sessionId] = sessionServiceData
             val event = ServiceEventListener.ServiceEvent.createEvent(
-                ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
+                ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
                 sessionHost,
                 AspireServiceContributor::class.java
             )
@@ -188,7 +192,7 @@ class AspireSessionHostManager(private val project: Project) {
             val sessionsByHost = sessions[sessionHostConfig.id] ?: return@bracketIfAlive
             sessionsByHost.remove(sessionId) ?: return@bracketIfAlive
             val event = ServiceEventListener.ServiceEvent.createEvent(
-                ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
+                ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
                 sessionHost,
                 AspireServiceContributor::class.java
             )

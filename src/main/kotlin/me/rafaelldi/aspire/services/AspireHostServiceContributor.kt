@@ -1,6 +1,5 @@
 package me.rafaelldi.aspire.services
 
-import com.intellij.execution.services.ServiceViewDescriptor
 import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.execution.services.SimpleServiceViewDescriptor
 import com.intellij.openapi.actionSystem.ActionManager
@@ -17,7 +16,7 @@ import me.rafaelldi.aspire.util.SESSION_HOST_ID
 class AspireHostServiceContributor(private val hostData: SessionHostServiceData) :
     ServiceViewProvidingContributor<SessionServiceData, SessionHostServiceData> {
 
-    override fun getViewDescriptor(project: Project): ServiceViewDescriptor =
+    private val viewDescriptor by lazy {
         object : SimpleServiceViewDescriptor(hostData.hostName, AspireIcons.Service), DataProvider {
             private val toolbarActions = DefaultActionGroup(
                 OpenAspireDashboardAction(hostData.dashboardUrl),
@@ -35,6 +34,9 @@ class AspireHostServiceContributor(private val hostData: SessionHostServiceData)
                 if (SESSION_HOST_ID.`is`(dataId)) hostData.id
                 else null
         }
+    }
+
+    override fun getViewDescriptor(project: Project) = viewDescriptor
 
     override fun asService() = hostData
 
@@ -43,8 +45,6 @@ class AspireHostServiceContributor(private val hostData: SessionHostServiceData)
             .getSessions(hostData.id)
             .toMutableList()
 
-    override fun getServiceDescriptor(
-        project: Project,
-        service: SessionServiceData
-    ) = SessionServiceViewDescriptor(service)
+    override fun getServiceDescriptor(project: Project, service: SessionServiceData) =
+        service.getViewDescriptor()
 }

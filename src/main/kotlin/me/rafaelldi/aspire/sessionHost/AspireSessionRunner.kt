@@ -57,6 +57,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         val sessionModel: SessionModel,
         val sessionLifetime: Lifetime,
         val sessionEvents: Channel<AspireSessionEvent>,
+        val sessionLogs: Channel<AspireSessionLog>,
         val hostName: String,
         val isHostDebug: Boolean,
         val openTelemetryPort: Int
@@ -70,6 +71,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                     it.sessionModel,
                     it.sessionLifetime,
                     it.sessionEvents,
+                    it.sessionLogs,
                     it.hostName,
                     it.isHostDebug,
                     it.openTelemetryPort
@@ -88,6 +90,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
         sessionEvents: Channel<AspireSessionEvent>,
+        sessionLogs: Channel<AspireSessionLog>,
         hostName: String,
         isHostDebug: Boolean,
         openTelemetryPort: Int
@@ -138,6 +141,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
                                 val text = decodeAnsiCommandsToString(event.text, outputType)
                                 val isStdErr = outputType == ProcessOutputType.STDERR
                                 sessionEvents.trySend(AspireSessionLogReceived(sessionId, isStdErr, text))
+                                sessionLogs.trySend(AspireSessionLog(isStdErr, text))
                             }
 
                             override fun processTerminated(event: ProcessEvent) {
