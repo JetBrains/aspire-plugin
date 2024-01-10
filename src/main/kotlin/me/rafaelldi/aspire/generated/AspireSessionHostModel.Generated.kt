@@ -36,6 +36,9 @@ class AspireSessionHostModel private constructor(
             serializers.register(MetricKey)
             serializers.register(MetricValue)
             serializers.register(SessionModel)
+            serializers.register(TraceNode)
+            serializers.register(TraceNodeAttribute)
+            serializers.register(TraceNodeChild)
         }
         
         
@@ -56,7 +59,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = 5054565682784062478L
+        const val serializationHash = -7617180274363272515L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -640,6 +643,216 @@ class SessionModel private constructor(
             _metrics.deepClonePolymorphic()
         )
     }
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:63]
+ */
+data class TraceNode (
+    val id: String,
+    val serviceName: String?,
+    val displayName: String,
+    val attributes: List<TraceNodeAttribute>,
+    val children: List<TraceNodeChild>
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<TraceNode> {
+        override val _type: KClass<TraceNode> = TraceNode::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): TraceNode  {
+            val id = buffer.readString()
+            val serviceName = buffer.readNullable { buffer.readString() }
+            val displayName = buffer.readString()
+            val attributes = buffer.readList { TraceNodeAttribute.read(ctx, buffer) }
+            val children = buffer.readList { TraceNodeChild.read(ctx, buffer) }
+            return TraceNode(id, serviceName, displayName, attributes, children)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: TraceNode)  {
+            buffer.writeString(value.id)
+            buffer.writeNullable(value.serviceName) { buffer.writeString(it) }
+            buffer.writeString(value.displayName)
+            buffer.writeList(value.attributes) { v -> TraceNodeAttribute.write(ctx, buffer, v) }
+            buffer.writeList(value.children) { v -> TraceNodeChild.write(ctx, buffer, v) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as TraceNode
+        
+        if (id != other.id) return false
+        if (serviceName != other.serviceName) return false
+        if (displayName != other.displayName) return false
+        if (attributes != other.attributes) return false
+        if (children != other.children) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + id.hashCode()
+        __r = __r*31 + if (serviceName != null) serviceName.hashCode() else 0
+        __r = __r*31 + displayName.hashCode()
+        __r = __r*31 + attributes.hashCode()
+        __r = __r*31 + children.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("TraceNode (")
+        printer.indent {
+            print("id = "); id.print(printer); println()
+            print("serviceName = "); serviceName.print(printer); println()
+            print("displayName = "); displayName.print(printer); println()
+            print("attributes = "); attributes.print(printer); println()
+            print("children = "); children.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:71]
+ */
+data class TraceNodeAttribute (
+    val key: String,
+    val value: String
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<TraceNodeAttribute> {
+        override val _type: KClass<TraceNodeAttribute> = TraceNodeAttribute::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): TraceNodeAttribute  {
+            val key = buffer.readString()
+            val value = buffer.readString()
+            return TraceNodeAttribute(key, value)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: TraceNodeAttribute)  {
+            buffer.writeString(value.key)
+            buffer.writeString(value.value)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as TraceNodeAttribute
+        
+        if (key != other.key) return false
+        if (value != other.value) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + key.hashCode()
+        __r = __r*31 + value.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("TraceNodeAttribute (")
+        printer.indent {
+            print("key = "); key.print(printer); println()
+            print("value = "); value.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:76]
+ */
+data class TraceNodeChild (
+    val id: String,
+    val connectionCount: Int
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<TraceNodeChild> {
+        override val _type: KClass<TraceNodeChild> = TraceNodeChild::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): TraceNodeChild  {
+            val id = buffer.readString()
+            val connectionCount = buffer.readInt()
+            return TraceNodeChild(id, connectionCount)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: TraceNodeChild)  {
+            buffer.writeString(value.id)
+            buffer.writeInt(value.connectionCount)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as TraceNodeChild
+        
+        if (id != other.id) return false
+        if (connectionCount != other.connectionCount) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + id.hashCode()
+        __r = __r*31 + connectionCount.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("TraceNodeChild (")
+        printer.indent {
+            print("id = "); id.print(printer); println()
+            print("connectionCount = "); connectionCount.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
     //contexts
     //threading
 }

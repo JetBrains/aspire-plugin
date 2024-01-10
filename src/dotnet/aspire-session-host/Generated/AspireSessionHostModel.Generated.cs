@@ -88,7 +88,7 @@ namespace AspireSessionHost.Generated
     
     
     
-    protected override long SerializationHash => 5054565682784062478L;
+    protected override long SerializationHash => -7617180274363272515L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -858,6 +858,319 @@ namespace AspireSessionHost.Generated
         printer.Print("args = "); Args.PrintEx(printer); printer.Println();
         printer.Print("telemetryServiceName = "); TelemetryServiceName.PrintEx(printer); printer.Println();
         printer.Print("metrics = "); _Metrics.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:63</p>
+  /// </summary>
+  public sealed class TraceNode : IPrintable, IEquatable<TraceNode>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Id {get; private set;}
+    [CanBeNull] public string ServiceName {get; private set;}
+    [NotNull] public string DisplayName {get; private set;}
+    [NotNull] public List<TraceNodeAttribute> Attributes {get; private set;}
+    [NotNull] public List<TraceNodeChild> Children {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public TraceNode(
+      [NotNull] string id,
+      [CanBeNull] string serviceName,
+      [NotNull] string displayName,
+      [NotNull] List<TraceNodeAttribute> attributes,
+      [NotNull] List<TraceNodeChild> children
+    )
+    {
+      if (id == null) throw new ArgumentNullException("id");
+      if (displayName == null) throw new ArgumentNullException("displayName");
+      if (attributes == null) throw new ArgumentNullException("attributes");
+      if (children == null) throw new ArgumentNullException("children");
+      
+      Id = id;
+      ServiceName = serviceName;
+      DisplayName = displayName;
+      Attributes = attributes;
+      Children = children;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string id, [CanBeNull] out string serviceName, [NotNull] out string displayName, [NotNull] out List<TraceNodeAttribute> attributes, [NotNull] out List<TraceNodeChild> children)
+    {
+      id = Id;
+      serviceName = ServiceName;
+      displayName = DisplayName;
+      attributes = Attributes;
+      children = Children;
+    }
+    //statics
+    
+    public static CtxReadDelegate<TraceNode> Read = (ctx, reader) => 
+    {
+      var id = reader.ReadString();
+      var serviceName = ReadStringNullable(ctx, reader);
+      var displayName = reader.ReadString();
+      var attributes = ReadTraceNodeAttributeList(ctx, reader);
+      var children = ReadTraceNodeChildList(ctx, reader);
+      var _result = new TraceNode(id, serviceName, displayName, attributes, children);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    public static CtxReadDelegate<List<TraceNodeAttribute>> ReadTraceNodeAttributeList = TraceNodeAttribute.Read.List();
+    public static CtxReadDelegate<List<TraceNodeChild>> ReadTraceNodeChildList = TraceNodeChild.Read.List();
+    
+    public static CtxWriteDelegate<TraceNode> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Id);
+      WriteStringNullable(ctx, writer, value.ServiceName);
+      writer.Write(value.DisplayName);
+      WriteTraceNodeAttributeList(ctx, writer, value.Attributes);
+      WriteTraceNodeChildList(ctx, writer, value.Children);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    public static  CtxWriteDelegate<List<TraceNodeAttribute>> WriteTraceNodeAttributeList = TraceNodeAttribute.Write.List();
+    public static  CtxWriteDelegate<List<TraceNodeChild>> WriteTraceNodeChildList = TraceNodeChild.Write.List();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((TraceNode) obj);
+    }
+    public bool Equals(TraceNode other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Id == other.Id && Equals(ServiceName, other.ServiceName) && DisplayName == other.DisplayName && Attributes.SequenceEqual(other.Attributes) && Children.SequenceEqual(other.Children);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Id.GetHashCode();
+        hash = hash * 31 + (ServiceName != null ? ServiceName.GetHashCode() : 0);
+        hash = hash * 31 + DisplayName.GetHashCode();
+        hash = hash * 31 + Attributes.ContentHashCode();
+        hash = hash * 31 + Children.ContentHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("TraceNode (");
+      using (printer.IndentCookie()) {
+        printer.Print("id = "); Id.PrintEx(printer); printer.Println();
+        printer.Print("serviceName = "); ServiceName.PrintEx(printer); printer.Println();
+        printer.Print("displayName = "); DisplayName.PrintEx(printer); printer.Println();
+        printer.Print("attributes = "); Attributes.PrintEx(printer); printer.Println();
+        printer.Print("children = "); Children.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:71</p>
+  /// </summary>
+  public sealed class TraceNodeAttribute : IPrintable, IEquatable<TraceNodeAttribute>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Key {get; private set;}
+    [NotNull] public string Value {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public TraceNodeAttribute(
+      [NotNull] string key,
+      [NotNull] string value
+    )
+    {
+      if (key == null) throw new ArgumentNullException("key");
+      if (value == null) throw new ArgumentNullException("value");
+      
+      Key = key;
+      Value = value;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string key, [NotNull] out string value)
+    {
+      key = Key;
+      value = Value;
+    }
+    //statics
+    
+    public static CtxReadDelegate<TraceNodeAttribute> Read = (ctx, reader) => 
+    {
+      var key = reader.ReadString();
+      var value = reader.ReadString();
+      var _result = new TraceNodeAttribute(key, value);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<TraceNodeAttribute> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Key);
+      writer.Write(value.Value);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((TraceNodeAttribute) obj);
+    }
+    public bool Equals(TraceNodeAttribute other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Key == other.Key && Value == other.Value;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Key.GetHashCode();
+        hash = hash * 31 + Value.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("TraceNodeAttribute (");
+      using (printer.IndentCookie()) {
+        printer.Print("key = "); Key.PrintEx(printer); printer.Println();
+        printer.Print("value = "); Value.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:76</p>
+  /// </summary>
+  public sealed class TraceNodeChild : IPrintable, IEquatable<TraceNodeChild>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Id {get; private set;}
+    public int ConnectionCount {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public TraceNodeChild(
+      [NotNull] string id,
+      int connectionCount
+    )
+    {
+      if (id == null) throw new ArgumentNullException("id");
+      
+      Id = id;
+      ConnectionCount = connectionCount;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string id, out int connectionCount)
+    {
+      id = Id;
+      connectionCount = ConnectionCount;
+    }
+    //statics
+    
+    public static CtxReadDelegate<TraceNodeChild> Read = (ctx, reader) => 
+    {
+      var id = reader.ReadString();
+      var connectionCount = reader.ReadInt();
+      var _result = new TraceNodeChild(id, connectionCount);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<TraceNodeChild> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Id);
+      writer.Write(value.ConnectionCount);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((TraceNodeChild) obj);
+    }
+    public bool Equals(TraceNodeChild other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Id == other.Id && ConnectionCount == other.ConnectionCount;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Id.GetHashCode();
+        hash = hash * 31 + ConnectionCount.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("TraceNodeChild (");
+      using (printer.IndentCookie()) {
+        printer.Print("id = "); Id.PrintEx(printer); printer.Println();
+        printer.Print("connectionCount = "); ConnectionCount.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
