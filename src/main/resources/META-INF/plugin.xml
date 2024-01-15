@@ -6,6 +6,7 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.rider</depends>
+    <depends>com.intellij.diagram</depends>
 
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
@@ -41,6 +42,9 @@
                 icon="AllIcons.General.Settings"/>
         <action id="Aspire.Help"
                 class="me.rafaelldi.aspire.actions.AspireHelpAction"/>
+        <action id="Aspire.Diagram"
+                class="me.rafaelldi.aspire.actions.ShowDiagramAction"
+                icon="AllIcons.FileTypes.Diagram"/>
     </actions>
 
 </idea-plugin>

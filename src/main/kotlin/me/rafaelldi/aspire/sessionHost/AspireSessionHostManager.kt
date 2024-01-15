@@ -30,11 +30,13 @@ class AspireSessionHostManager(private val project: Project) {
     }
 
     private val sessionHosts = ConcurrentHashMap<String, AspireHostServiceContributor>()
+    private val sessionHostModels = ConcurrentHashMap<String, Pair<AspireSessionHostModel, Lifetime>>()
     private val sessions = ConcurrentHashMap<String, MutableMap<String, SessionServiceData>>()
 
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
     fun getSessionHosts() = sessionHosts.values.toList()
+    fun getSessionHostModel(sessionHostId: String) = sessionHostModels[sessionHostId]
     fun getSessions(sessionHostId: String) = sessions[sessionHostId]?.values?.toList() ?: emptyList()
 
     suspend fun runSessionHost(
@@ -67,6 +69,7 @@ class AspireSessionHostManager(private val project: Project) {
             LOG.trace("Adding a new session host data $sessionHostData")
             val sessionHost = AspireHostServiceContributor(sessionHostData)
             sessionHosts[sessionHostConfig.id] = sessionHost
+            sessionHostModels[sessionHostConfig.id] = sessionHostModel to sessionHostLifetime.lifetime
             sessions[sessionHostConfig.id] = mutableMapOf()
             val event = ServiceEventListener.ServiceEvent.createEvent(
                 ServiceEventListener.EventType.SERVICE_ADDED,
@@ -77,6 +80,7 @@ class AspireSessionHostManager(private val project: Project) {
         }, {
             LOG.trace("Removing the session host data ${sessionHostConfig.id}")
             val sessionHost = sessionHosts.remove(sessionHostConfig.id)
+            sessionHostModels.remove(sessionHostConfig.id)
             sessions.remove(sessionHostConfig.id)
             if (sessionHost == null) return@bracketIfAlive
             val event = ServiceEventListener.ServiceEvent.createEvent(
