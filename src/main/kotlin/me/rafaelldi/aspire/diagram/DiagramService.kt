@@ -12,21 +12,40 @@ import com.intellij.diagram.v2.painting.GraphChartPainterService
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.rd.util.withUiContext
 import com.intellij.ui.JBColor
 import com.intellij.uml.v2.painting.edges.GraphChartEdgePainterEdgeLabelImpl
 import com.intellij.util.graph.GraphFactory
+import me.rafaelldi.aspire.actions.chart.PopupAction
+import me.rafaelldi.aspire.actions.chart.ShowHideGroupsAction
 import me.rafaelldi.aspire.generated.TraceNode
+import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import java.awt.Color
 
 @Service(Service.Level.PROJECT)
 class DiagramService(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<DiagramService>()
+
+        private const val TRACE_DIAGRAM = "Trace Diagram"
     }
 
     private val diagramStates = mutableMapOf<String, DiagramState>()
 
-    fun showDiagramAndStoreState(fqn: String, nodes: Collection<TraceNode>, onShowed: (DiagramState) -> Unit = {}) {
+    suspend fun showDiagram(sessionHostId: String) {
+        val manager = AspireSessionHostManager.getInstance(project)
+        val (model, lifetime) = manager.getSessionHostModel(sessionHostId) ?: return
+        val nodes = withUiContext {
+            model.getTraceNodes.startSuspending(lifetime, Unit)
+        }
+        showDiagramAndStoreState(TRACE_DIAGRAM, nodes.toList())
+    }
+
+    private fun showDiagramAndStoreState(
+        title: String,
+        nodes: Collection<TraceNode>,
+        onShowed: (DiagramState) -> Unit = {}
+    ) {
         val edges = generateEdges(nodes)
 
         val graph = GraphFactory.getInstance()
@@ -40,36 +59,37 @@ class DiagramService(private val project: Project) {
 
         GraphChartFactory.getInstance().apply {
             instantiateAndShowInEditor(graphChart(project, graph) {
-                chartTitle = fqn
+                chartTitle = title
                 initViewSettings()
                 initPainters()
-//                initSelectionListeners()
-//                initToolbarActions(fqn)
+                initSelectionListeners()
+                initToolbarActions(title)
             }).thenAccept {
-                val diagramState = DiagramState(fqn, it.first)
+                val diagramState = DiagramState(title, it.first)
                 diagramState.generateGroups()
                 diagramState.applyChanges()
 
-                diagramStates[fqn] = diagramState
+                diagramStates[title] = diagramState
                 onShowed(diagramState)
             }
         }
     }
 
-    fun generateEdges(nodes: Collection<TraceNode>): List<TraceEdge> {
+    private fun generateEdges(nodes: Collection<TraceNode>): List<TraceEdge> {
         val edges = mutableListOf<TraceEdge>()
         val nodeMap = nodes.associateBy { it.id }
 
         for (node in nodes) {
-            for (connection in node.children) {
-                edges.add(TraceEdge(node, nodeMap[connection.id]!!, connection.connectionCount))
+            for (child in node.children) {
+                val connection = nodeMap[child.id] ?: continue
+                edges.add(TraceEdge(node, connection, child.connectionCount))
             }
         }
 
         return edges
     }
 
-    fun getDiagramState(fqn: String): DiagramState? = diagramStates[fqn]
+    fun getDiagramState(title: String): DiagramState? = diagramStates[title]
 
     private fun GraphChartKtConfigurator<TraceNode, TraceEdge>.initViewSettings() {
         initialViewSettings {
@@ -93,7 +113,7 @@ class DiagramService(private val project: Project) {
 
                 GraphChartPainterService.LabelWithIconNodeStyleProvider.LabelWithIcon(
                     null,
-                    node.displayName,
+                    node.name,
                     backgroundColor
                 )
             }
@@ -110,11 +130,11 @@ class DiagramService(private val project: Project) {
         }
     }
 
-//    private fun GraphChartKtConfigurator<TraceNode, TraceEdge>.initSelectionListeners() {
-//        actionsForNodeRightClick.add(PopupAction())
-//    }
-//
-//    private fun GraphChartKtConfigurator<TraceNode, TraceEdge>.initToolbarActions(fqn: String) {
-//        toolbarActions.add(ShowHideGroupsAction(fqn))
-//    }
+    private fun GraphChartKtConfigurator<TraceNode, TraceEdge>.initSelectionListeners() {
+        actionsForNodeRightClick.add(PopupAction())
+    }
+
+    private fun GraphChartKtConfigurator<TraceNode, TraceEdge>.initToolbarActions(title: String) {
+        toolbarActions.add(ShowHideGroupsAction(title))
+    }
 }

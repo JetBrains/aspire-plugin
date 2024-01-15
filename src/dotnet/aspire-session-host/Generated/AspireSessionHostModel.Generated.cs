@@ -46,34 +46,40 @@ namespace AspireSessionHost.Generated
     [NotNull] public ISource<AspireSessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
     [NotNull] public ISource<AspireSessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
     [NotNull] public ISource<AspireSessionHost.Generated.LogReceived> LogReceived => _LogReceived;
+    [NotNull] public IRdEndpoint<Unit, TraceNode[]> GetTraceNodes => _GetTraceNodes;
     
     //private fields
     [NotNull] private readonly RdMap<string, SessionModel> _Sessions;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessStarted> _ProcessStarted;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessTerminated> _ProcessTerminated;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.LogReceived> _LogReceived;
+    [NotNull] private readonly RdCall<Unit, TraceNode[]> _GetTraceNodes;
     
     //primary constructor
     private AspireSessionHostModel(
       [NotNull] RdMap<string, SessionModel> sessions,
       [NotNull] RdSignal<AspireSessionHost.Generated.ProcessStarted> processStarted,
       [NotNull] RdSignal<AspireSessionHost.Generated.ProcessTerminated> processTerminated,
-      [NotNull] RdSignal<AspireSessionHost.Generated.LogReceived> logReceived
+      [NotNull] RdSignal<AspireSessionHost.Generated.LogReceived> logReceived,
+      [NotNull] RdCall<Unit, TraceNode[]> getTraceNodes
     )
     {
       if (sessions == null) throw new ArgumentNullException("sessions");
       if (processStarted == null) throw new ArgumentNullException("processStarted");
       if (processTerminated == null) throw new ArgumentNullException("processTerminated");
       if (logReceived == null) throw new ArgumentNullException("logReceived");
+      if (getTraceNodes == null) throw new ArgumentNullException("getTraceNodes");
       
       _Sessions = sessions;
       _ProcessStarted = processStarted;
       _ProcessTerminated = processTerminated;
       _LogReceived = logReceived;
+      _GetTraceNodes = getTraceNodes;
       BindableChildren.Add(new KeyValuePair<string, object>("sessions", _Sessions));
       BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
       BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
       BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
+      BindableChildren.Add(new KeyValuePair<string, object>("getTraceNodes", _GetTraceNodes));
     }
     //secondary constructor
     private AspireSessionHostModel (
@@ -81,14 +87,17 @@ namespace AspireSessionHost.Generated
       new RdMap<string, SessionModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, SessionModel.Read, SessionModel.Write),
       new RdSignal<AspireSessionHost.Generated.ProcessStarted>(AspireSessionHost.Generated.ProcessStarted.Read, AspireSessionHost.Generated.ProcessStarted.Write),
       new RdSignal<AspireSessionHost.Generated.ProcessTerminated>(AspireSessionHost.Generated.ProcessTerminated.Read, AspireSessionHost.Generated.ProcessTerminated.Write),
-      new RdSignal<AspireSessionHost.Generated.LogReceived>(AspireSessionHost.Generated.LogReceived.Read, AspireSessionHost.Generated.LogReceived.Write)
+      new RdSignal<AspireSessionHost.Generated.LogReceived>(AspireSessionHost.Generated.LogReceived.Read, AspireSessionHost.Generated.LogReceived.Write),
+      new RdCall<Unit, TraceNode[]>(JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid, ReadTraceNodeArray, WriteTraceNodeArray)
     ) {}
     //deconstruct trait
     //statics
     
+    public static CtxReadDelegate<TraceNode[]> ReadTraceNodeArray = TraceNode.Read.Array();
     
+    public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => -7617180274363272515L;
+    protected override long SerializationHash => -9018195661923713528L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -118,6 +127,7 @@ namespace AspireSessionHost.Generated
         printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
         printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
         printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
+        printer.Print("getTraceNodes = "); _GetTraceNodes.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -879,69 +889,69 @@ namespace AspireSessionHost.Generated
     //fields
     //public fields
     [NotNull] public string Id {get; private set;}
+    [NotNull] public string Name {get; private set;}
     [CanBeNull] public string ServiceName {get; private set;}
-    [NotNull] public string DisplayName {get; private set;}
-    [NotNull] public List<TraceNodeAttribute> Attributes {get; private set;}
     [NotNull] public List<TraceNodeChild> Children {get; private set;}
+    [NotNull] public List<TraceNodeAttribute> Attributes {get; private set;}
     
     //private fields
     //primary constructor
     public TraceNode(
       [NotNull] string id,
+      [NotNull] string name,
       [CanBeNull] string serviceName,
-      [NotNull] string displayName,
-      [NotNull] List<TraceNodeAttribute> attributes,
-      [NotNull] List<TraceNodeChild> children
+      [NotNull] List<TraceNodeChild> children,
+      [NotNull] List<TraceNodeAttribute> attributes
     )
     {
       if (id == null) throw new ArgumentNullException("id");
-      if (displayName == null) throw new ArgumentNullException("displayName");
-      if (attributes == null) throw new ArgumentNullException("attributes");
+      if (name == null) throw new ArgumentNullException("name");
       if (children == null) throw new ArgumentNullException("children");
+      if (attributes == null) throw new ArgumentNullException("attributes");
       
       Id = id;
+      Name = name;
       ServiceName = serviceName;
-      DisplayName = displayName;
-      Attributes = attributes;
       Children = children;
+      Attributes = attributes;
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string id, [CanBeNull] out string serviceName, [NotNull] out string displayName, [NotNull] out List<TraceNodeAttribute> attributes, [NotNull] out List<TraceNodeChild> children)
+    public void Deconstruct([NotNull] out string id, [NotNull] out string name, [CanBeNull] out string serviceName, [NotNull] out List<TraceNodeChild> children, [NotNull] out List<TraceNodeAttribute> attributes)
     {
       id = Id;
+      name = Name;
       serviceName = ServiceName;
-      displayName = DisplayName;
-      attributes = Attributes;
       children = Children;
+      attributes = Attributes;
     }
     //statics
     
     public static CtxReadDelegate<TraceNode> Read = (ctx, reader) => 
     {
       var id = reader.ReadString();
+      var name = reader.ReadString();
       var serviceName = ReadStringNullable(ctx, reader);
-      var displayName = reader.ReadString();
-      var attributes = ReadTraceNodeAttributeList(ctx, reader);
       var children = ReadTraceNodeChildList(ctx, reader);
-      var _result = new TraceNode(id, serviceName, displayName, attributes, children);
+      var attributes = ReadTraceNodeAttributeList(ctx, reader);
+      var _result = new TraceNode(id, name, serviceName, children, attributes);
       return _result;
     };
     public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
-    public static CtxReadDelegate<List<TraceNodeAttribute>> ReadTraceNodeAttributeList = TraceNodeAttribute.Read.List();
     public static CtxReadDelegate<List<TraceNodeChild>> ReadTraceNodeChildList = TraceNodeChild.Read.List();
+    public static CtxReadDelegate<List<TraceNodeAttribute>> ReadTraceNodeAttributeList = TraceNodeAttribute.Read.List();
     
     public static CtxWriteDelegate<TraceNode> Write = (ctx, writer, value) => 
     {
       writer.Write(value.Id);
+      writer.Write(value.Name);
       WriteStringNullable(ctx, writer, value.ServiceName);
-      writer.Write(value.DisplayName);
-      WriteTraceNodeAttributeList(ctx, writer, value.Attributes);
       WriteTraceNodeChildList(ctx, writer, value.Children);
+      WriteTraceNodeAttributeList(ctx, writer, value.Attributes);
     };
     public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
-    public static  CtxWriteDelegate<List<TraceNodeAttribute>> WriteTraceNodeAttributeList = TraceNodeAttribute.Write.List();
     public static  CtxWriteDelegate<List<TraceNodeChild>> WriteTraceNodeChildList = TraceNodeChild.Write.List();
+    public static  CtxWriteDelegate<List<TraceNodeAttribute>> WriteTraceNodeAttributeList = TraceNodeAttribute.Write.List();
     
     //constants
     
@@ -959,7 +969,7 @@ namespace AspireSessionHost.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Id == other.Id && Equals(ServiceName, other.ServiceName) && DisplayName == other.DisplayName && Attributes.SequenceEqual(other.Attributes) && Children.SequenceEqual(other.Children);
+      return Id == other.Id && Name == other.Name && Equals(ServiceName, other.ServiceName) && Children.SequenceEqual(other.Children) && Attributes.SequenceEqual(other.Attributes);
     }
     //hash code trait
     public override int GetHashCode()
@@ -967,10 +977,10 @@ namespace AspireSessionHost.Generated
       unchecked {
         var hash = 0;
         hash = hash * 31 + Id.GetHashCode();
+        hash = hash * 31 + Name.GetHashCode();
         hash = hash * 31 + (ServiceName != null ? ServiceName.GetHashCode() : 0);
-        hash = hash * 31 + DisplayName.GetHashCode();
-        hash = hash * 31 + Attributes.ContentHashCode();
         hash = hash * 31 + Children.ContentHashCode();
+        hash = hash * 31 + Attributes.ContentHashCode();
         return hash;
       }
     }
@@ -980,10 +990,10 @@ namespace AspireSessionHost.Generated
       printer.Println("TraceNode (");
       using (printer.IndentCookie()) {
         printer.Print("id = "); Id.PrintEx(printer); printer.Println();
+        printer.Print("name = "); Name.PrintEx(printer); printer.Println();
         printer.Print("serviceName = "); ServiceName.PrintEx(printer); printer.Println();
-        printer.Print("displayName = "); DisplayName.PrintEx(printer); printer.Println();
-        printer.Print("attributes = "); Attributes.PrintEx(printer); printer.Println();
         printer.Print("children = "); Children.PrintEx(printer); printer.Println();
+        printer.Print("attributes = "); Attributes.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -998,7 +1008,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:71</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:76</p>
   /// </summary>
   public sealed class TraceNodeAttribute : IPrintable, IEquatable<TraceNodeAttribute>
   {
@@ -1092,7 +1102,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:76</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:71</p>
   /// </summary>
   public sealed class TraceNodeChild : IPrintable, IEquatable<TraceNodeChild>
   {

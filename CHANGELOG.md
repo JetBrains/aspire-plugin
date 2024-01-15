@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Action to show a diagram based on distributed traces
+
 ### Changed
 
 - [#24](https://github.com/rafaelldi/aspire-plugin/issues/24): Improved handling of environment variables from Aspire host launchSettings file

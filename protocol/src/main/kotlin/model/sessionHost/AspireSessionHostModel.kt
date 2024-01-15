@@ -62,20 +62,20 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
 
     private val TraceNode = structdef {
         field("id", string)
+        field("name", string)
         field("serviceName", string.nullable)
-        field("displayName", string)
-        field("attributes", immutableList(TraceNodeAttribute))
         field("children", immutableList(TraceNodeChild))
+        field("attributes", immutableList(TraceNodeAttribute))
     }
 
-    private val TraceNodeAttribute = structdef{
-        field("key", string)
-        field("value", string)
-    }
-
-    private val TraceNodeChild = structdef{
+    private val TraceNodeChild = structdef {
         field("id", string)
         field("connectionCount", int)
+    }
+
+    private val TraceNodeAttribute = structdef {
+        field("key", string)
+        field("value", string)
     }
 
     init {
@@ -84,5 +84,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         source("processStarted", ProcessStarted)
         source("processTerminated", ProcessTerminated)
         source("logReceived", LogReceived)
+
+        call("getTraceNodes", void, array(TraceNode))
     }
 }

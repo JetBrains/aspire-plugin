@@ -22,7 +22,8 @@ class AspireSessionHostModel private constructor(
     private val _sessions: RdMap<String, SessionModel>,
     private val _processStarted: RdSignal<ProcessStarted>,
     private val _processTerminated: RdSignal<ProcessTerminated>,
-    private val _logReceived: RdSignal<LogReceived>
+    private val _logReceived: RdSignal<LogReceived>,
+    private val _getTraceNodes: RdCall<Unit, Array<TraceNode>>
 ) : RdExtBase() {
     //companion
     
@@ -37,8 +38,8 @@ class AspireSessionHostModel private constructor(
             serializers.register(MetricValue)
             serializers.register(SessionModel)
             serializers.register(TraceNode)
-            serializers.register(TraceNodeAttribute)
             serializers.register(TraceNodeChild)
+            serializers.register(TraceNodeAttribute)
         }
         
         
@@ -58,8 +59,9 @@ class AspireSessionHostModel private constructor(
             return AspireSessionHostModel()
         }
         
+        private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = -7617180274363272515L
+        const val serializationHash = -9018195661923713528L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -70,6 +72,7 @@ class AspireSessionHostModel private constructor(
     val processStarted: ISignal<ProcessStarted> get() = _processStarted
     val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
     val logReceived: ISignal<LogReceived> get() = _logReceived
+    val getTraceNodes: IRdCall<Unit, Array<TraceNode>> get() = _getTraceNodes
     //methods
     //initializer
     init {
@@ -77,6 +80,7 @@ class AspireSessionHostModel private constructor(
         bindableChildren.add("processStarted" to _processStarted)
         bindableChildren.add("processTerminated" to _processTerminated)
         bindableChildren.add("logReceived" to _logReceived)
+        bindableChildren.add("getTraceNodes" to _getTraceNodes)
     }
     
     //secondary constructor
@@ -85,7 +89,8 @@ class AspireSessionHostModel private constructor(
         RdMap<String, SessionModel>(FrameworkMarshallers.String, SessionModel),
         RdSignal<ProcessStarted>(ProcessStarted),
         RdSignal<ProcessTerminated>(ProcessTerminated),
-        RdSignal<LogReceived>(LogReceived)
+        RdSignal<LogReceived>(LogReceived),
+        RdCall<Unit, Array<TraceNode>>(FrameworkMarshallers.Void, __TraceNodeArraySerializer)
     )
     
     //equals trait
@@ -98,6 +103,7 @@ class AspireSessionHostModel private constructor(
             print("processStarted = "); _processStarted.print(printer); println()
             print("processTerminated = "); _processTerminated.print(printer); println()
             print("logReceived = "); _logReceived.print(printer); println()
+            print("getTraceNodes = "); _getTraceNodes.print(printer); println()
         }
         printer.print(")")
     }
@@ -107,7 +113,8 @@ class AspireSessionHostModel private constructor(
             _sessions.deepClonePolymorphic(),
             _processStarted.deepClonePolymorphic(),
             _processTerminated.deepClonePolymorphic(),
-            _logReceived.deepClonePolymorphic()
+            _logReceived.deepClonePolymorphic(),
+            _getTraceNodes.deepClonePolymorphic()
         )
     }
     //contexts
@@ -653,10 +660,10 @@ class SessionModel private constructor(
  */
 data class TraceNode (
     val id: String,
+    val name: String,
     val serviceName: String?,
-    val displayName: String,
-    val attributes: List<TraceNodeAttribute>,
-    val children: List<TraceNodeChild>
+    val children: List<TraceNodeChild>,
+    val attributes: List<TraceNodeAttribute>
 ) : IPrintable {
     //companion
     
@@ -666,19 +673,19 @@ data class TraceNode (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): TraceNode  {
             val id = buffer.readString()
+            val name = buffer.readString()
             val serviceName = buffer.readNullable { buffer.readString() }
-            val displayName = buffer.readString()
-            val attributes = buffer.readList { TraceNodeAttribute.read(ctx, buffer) }
             val children = buffer.readList { TraceNodeChild.read(ctx, buffer) }
-            return TraceNode(id, serviceName, displayName, attributes, children)
+            val attributes = buffer.readList { TraceNodeAttribute.read(ctx, buffer) }
+            return TraceNode(id, name, serviceName, children, attributes)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: TraceNode)  {
             buffer.writeString(value.id)
+            buffer.writeString(value.name)
             buffer.writeNullable(value.serviceName) { buffer.writeString(it) }
-            buffer.writeString(value.displayName)
-            buffer.writeList(value.attributes) { v -> TraceNodeAttribute.write(ctx, buffer, v) }
             buffer.writeList(value.children) { v -> TraceNodeChild.write(ctx, buffer, v) }
+            buffer.writeList(value.attributes) { v -> TraceNodeAttribute.write(ctx, buffer, v) }
         }
         
         
@@ -695,10 +702,10 @@ data class TraceNode (
         other as TraceNode
         
         if (id != other.id) return false
+        if (name != other.name) return false
         if (serviceName != other.serviceName) return false
-        if (displayName != other.displayName) return false
-        if (attributes != other.attributes) return false
         if (children != other.children) return false
+        if (attributes != other.attributes) return false
         
         return true
     }
@@ -706,10 +713,10 @@ data class TraceNode (
     override fun hashCode(): Int  {
         var __r = 0
         __r = __r*31 + id.hashCode()
+        __r = __r*31 + name.hashCode()
         __r = __r*31 + if (serviceName != null) serviceName.hashCode() else 0
-        __r = __r*31 + displayName.hashCode()
-        __r = __r*31 + attributes.hashCode()
         __r = __r*31 + children.hashCode()
+        __r = __r*31 + attributes.hashCode()
         return __r
     }
     //pretty print
@@ -717,10 +724,10 @@ data class TraceNode (
         printer.println("TraceNode (")
         printer.indent {
             print("id = "); id.print(printer); println()
+            print("name = "); name.print(printer); println()
             print("serviceName = "); serviceName.print(printer); println()
-            print("displayName = "); displayName.print(printer); println()
-            print("attributes = "); attributes.print(printer); println()
             print("children = "); children.print(printer); println()
+            print("attributes = "); attributes.print(printer); println()
         }
         printer.print(")")
     }
@@ -731,7 +738,7 @@ data class TraceNode (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:71]
+ * #### Generated from [AspireSessionHostModel.kt:76]
  */
 data class TraceNodeAttribute (
     val key: String,
@@ -795,7 +802,7 @@ data class TraceNodeAttribute (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:76]
+ * #### Generated from [AspireSessionHostModel.kt:71]
  */
 data class TraceNodeChild (
     val id: String,

@@ -1,10 +1,14 @@
 package me.rafaelldi.aspire.diagram
 
+import com.intellij.diagram.v2.elements.GraphChartGroupNode
 import com.intellij.diagram.v2.handles.GraphChartHandle
 import com.intellij.uml.v2.elements.GraphChartLeafNodeWrapper
 import me.rafaelldi.aspire.generated.TraceNode
 
-class DiagramState(val fqn: String, private val graphChartHandle: GraphChartHandle<TraceNode, TraceEdge>) {
+class DiagramState(
+    private val title: String,
+    private val graphChartHandle: GraphChartHandle<TraceNode, TraceEdge>
+) {
     fun applyChanges() {
         graphChartHandle.asUpdateHandle().reloadDataFromGraph()
     }
@@ -17,9 +21,8 @@ class DiagramState(val fqn: String, private val graphChartHandle: GraphChartHand
         graphChartHandle.graph.edges().add(edge)
     }
 
-    fun isGroupingEnabled(): Boolean {
-        return graphChartHandle.asHierarchyHandle().doesGraphContainGroups()
-    }
+    fun isGroupingEnabled(): Boolean =
+        graphChartHandle.asHierarchyHandle().doesGraphContainGroups()
 
     fun generateGroups() {
         val hierarchyHandle = graphChartHandle.asHierarchyHandle()
@@ -28,7 +31,10 @@ class DiagramState(val fqn: String, private val graphChartHandle: GraphChartHand
         nodes.forEach { (serviceName, nodes) ->
             hierarchyHandle.groupNodes(
                 nodes.map { GraphChartLeafNodeWrapper.of(it) },
-                { serviceName ?: "" },
+                object : GraphChartGroupNode.NodesGroupProperties {
+                    override fun getGroupId() = serviceName ?: ""
+                    override fun getGroupTitle() = serviceName ?: ""
+                },
                 true
             )
         }
