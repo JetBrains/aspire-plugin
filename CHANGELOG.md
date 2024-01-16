@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.2.2] - 2024-01-16
+
 ### Added
 
 - [#37](https://github.com/rafaelldi/aspire-plugin/issues/37): Action to show a diagram based on distributed traces
@@ -58,7 +60,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.1...v0.1.2
