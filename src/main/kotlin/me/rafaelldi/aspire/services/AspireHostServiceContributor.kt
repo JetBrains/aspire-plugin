@@ -36,7 +36,7 @@ class AspireHostServiceContributor(private val hostData: SessionHostServiceData)
         }
     }
 
-    override fun getViewDescriptor(project: Project) = viewDescriptor
+    override fun getViewDescriptor(project: Project): SimpleServiceViewDescriptor = viewDescriptor
 
     override fun asService() = hostData
 
