@@ -57,6 +57,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("envs", array(EnvironmentVariableModel).nullable)
         field("args", array(string).nullable)
         field("telemetryServiceName", string.nullable)
+        field("urls", string.nullable)
         map("metrics", MetricKey, MetricValue).async
     }
 

@@ -7,6 +7,7 @@
 ### Added
 
 - [#37](https://github.com/rafaelldi/aspire-plugin/issues/37): Action to show a diagram based on distributed traces
+- Added project urls to the Services view
 
 ### Changed
 

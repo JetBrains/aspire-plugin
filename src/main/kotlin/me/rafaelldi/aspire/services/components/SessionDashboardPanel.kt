@@ -1,6 +1,7 @@
 package me.rafaelldi.aspire.services.components
 
 import com.intellij.icons.AllIcons
+import com.intellij.ide.BrowserUtil
 import com.intellij.ide.actions.RevealFileAction
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.ui.ScrollPaneFactory
@@ -68,6 +69,27 @@ class SessionDashboardPanel(sessionData: SessionServiceData) : BorderLayoutPanel
                     CopyPasteManager.getInstance().setContents(StringSelection(it))
                 }
                     .gap(RightGap.SMALL)
+            }
+            row {
+                val urls = sessionData.sessionModel.urls
+                label(AspireBundle.message("service.tab.information.urls"))
+                    .bold()
+                if (urls.isNullOrEmpty()) {
+                    copyableLabel("-")
+                } else {
+                    for (url in urls.split(';')) {
+                        copyableLabel(url)
+                            .gap(RightGap.SMALL)
+                        inlineIconButton(
+                            AllIcons.Actions.InlayGlobe,
+                            AllIcons.Actions.InlayGlobe,
+                            url
+                        ) {
+                            BrowserUtil.browse(it)
+                        }
+                            .gap(RightGap.SMALL)
+                    }
+                }
             }
         }
 

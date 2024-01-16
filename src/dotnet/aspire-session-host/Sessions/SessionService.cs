@@ -17,13 +17,15 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
             ?.Where(it => it.Value is not null)
             ?.Select(it => new EnvironmentVariableModel(it.Name, it.Value!))
             ?.ToArray();
+        var urls = envs?.FirstOrDefault(it => it.Key == "ASPNETCORE_URLS")?.Value;
         var sessionModel = new SessionModel(
             stringId,
             session.ProjectPath,
             session.Debug,
             envs,
             session.Args,
-            serviceName?.Value
+            serviceName?.Value,
+            urls
         );
         logger.LogDebug("Starting a new session {session}", sessionModel);
 

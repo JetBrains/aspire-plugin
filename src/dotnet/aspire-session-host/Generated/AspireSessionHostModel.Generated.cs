@@ -97,7 +97,7 @@ namespace AspireSessionHost.Generated
     
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => -9018195661923713528L;
+    protected override long SerializationHash => 8898353207338877409L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -767,6 +767,7 @@ namespace AspireSessionHost.Generated
     [CanBeNull] public EnvironmentVariableModel[] Envs {get; private set;}
     [CanBeNull] public string[] Args {get; private set;}
     [CanBeNull] public string TelemetryServiceName {get; private set;}
+    [CanBeNull] public string Urls {get; private set;}
     [NotNull] public IViewableMap<MetricKey, MetricValue> Metrics => _Metrics;
     
     //private fields
@@ -780,6 +781,7 @@ namespace AspireSessionHost.Generated
       [CanBeNull] EnvironmentVariableModel[] envs,
       [CanBeNull] string[] args,
       [CanBeNull] string telemetryServiceName,
+      [CanBeNull] string urls,
       [NotNull] RdMap<MetricKey, MetricValue> metrics
     )
     {
@@ -793,6 +795,7 @@ namespace AspireSessionHost.Generated
       Envs = envs;
       Args = args;
       TelemetryServiceName = telemetryServiceName;
+      Urls = urls;
       _Metrics = metrics;
       _Metrics.OptimizeNested = true;
       _Metrics.Async = true;
@@ -805,7 +808,8 @@ namespace AspireSessionHost.Generated
       bool debug,
       [CanBeNull] EnvironmentVariableModel[] envs,
       [CanBeNull] string[] args,
-      [CanBeNull] string telemetryServiceName
+      [CanBeNull] string telemetryServiceName,
+      [CanBeNull] string urls
     ) : this (
       id,
       projectPath,
@@ -813,6 +817,7 @@ namespace AspireSessionHost.Generated
       envs,
       args,
       telemetryServiceName,
+      urls,
       new RdMap<MetricKey, MetricValue>(MetricKey.Read, MetricKey.Write, MetricValue.Read, MetricValue.Write)
     ) {}
     //deconstruct trait
@@ -827,8 +832,9 @@ namespace AspireSessionHost.Generated
       var envs = ReadEnvironmentVariableModelArrayNullable(ctx, reader);
       var args = ReadStringArrayNullable(ctx, reader);
       var telemetryServiceName = ReadStringNullable(ctx, reader);
+      var urls = ReadStringNullable(ctx, reader);
       var metrics = RdMap<MetricKey, MetricValue>.Read(ctx, reader, MetricKey.Read, MetricKey.Write, MetricValue.Read, MetricValue.Write);
-      var _result = new SessionModel(id, projectPath, debug, envs, args, telemetryServiceName, metrics).WithId(_id);
+      var _result = new SessionModel(id, projectPath, debug, envs, args, telemetryServiceName, urls, metrics).WithId(_id);
       return _result;
     };
     public static CtxReadDelegate<EnvironmentVariableModel[]> ReadEnvironmentVariableModelArrayNullable = EnvironmentVariableModel.Read.Array().NullableClass();
@@ -844,6 +850,7 @@ namespace AspireSessionHost.Generated
       WriteEnvironmentVariableModelArrayNullable(ctx, writer, value.Envs);
       WriteStringArrayNullable(ctx, writer, value.Args);
       WriteStringNullable(ctx, writer, value.TelemetryServiceName);
+      WriteStringNullable(ctx, writer, value.Urls);
       RdMap<MetricKey, MetricValue>.Write(ctx, writer, value._Metrics);
     };
     public static  CtxWriteDelegate<EnvironmentVariableModel[]> WriteEnvironmentVariableModelArrayNullable = EnvironmentVariableModel.Write.Array().NullableClass();
@@ -867,6 +874,7 @@ namespace AspireSessionHost.Generated
         printer.Print("envs = "); Envs.PrintEx(printer); printer.Println();
         printer.Print("args = "); Args.PrintEx(printer); printer.Println();
         printer.Print("telemetryServiceName = "); TelemetryServiceName.PrintEx(printer); printer.Println();
+        printer.Print("urls = "); Urls.PrintEx(printer); printer.Println();
         printer.Print("metrics = "); _Metrics.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
@@ -882,7 +890,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:63</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:64</p>
   /// </summary>
   public sealed class TraceNode : IPrintable, IEquatable<TraceNode>
   {
@@ -1008,7 +1016,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:76</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:77</p>
   /// </summary>
   public sealed class TraceNodeAttribute : IPrintable, IEquatable<TraceNodeAttribute>
   {
@@ -1102,7 +1110,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:71</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:72</p>
   /// </summary>
   public sealed class TraceNodeChild : IPrintable, IEquatable<TraceNodeChild>
   {

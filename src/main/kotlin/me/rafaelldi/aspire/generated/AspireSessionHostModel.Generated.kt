@@ -61,7 +61,7 @@ class AspireSessionHostModel private constructor(
         
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = -9018195661923713528L
+        const val serializationHash = 8898353207338877409L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -555,6 +555,7 @@ class SessionModel private constructor(
     val envs: Array<EnvironmentVariableModel>?,
     val args: Array<String>?,
     val telemetryServiceName: String?,
+    val urls: String?,
     private val _metrics: RdMap<MetricKey, MetricValue>
 ) : RdBindableBase() {
     //companion
@@ -571,8 +572,9 @@ class SessionModel private constructor(
             val envs = buffer.readNullable { buffer.readArray {EnvironmentVariableModel.read(ctx, buffer)} }
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val telemetryServiceName = buffer.readNullable { buffer.readString() }
+            val urls = buffer.readNullable { buffer.readString() }
             val _metrics = RdMap.read(ctx, buffer, MetricKey, MetricValue)
-            return SessionModel(id, projectPath, debug, envs, args, telemetryServiceName, _metrics).withId(_id)
+            return SessionModel(id, projectPath, debug, envs, args, telemetryServiceName, urls, _metrics).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionModel)  {
@@ -583,6 +585,7 @@ class SessionModel private constructor(
             buffer.writeNullable(value.envs) { buffer.writeArray(it) { EnvironmentVariableModel.write(ctx, buffer, it) } }
             buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
             buffer.writeNullable(value.telemetryServiceName) { buffer.writeString(it) }
+            buffer.writeNullable(value.urls) { buffer.writeString(it) }
             RdMap.write(ctx, buffer, value._metrics)
         }
         
@@ -611,7 +614,8 @@ class SessionModel private constructor(
         debug: Boolean,
         envs: Array<EnvironmentVariableModel>?,
         args: Array<String>?,
-        telemetryServiceName: String?
+        telemetryServiceName: String?,
+        urls: String?
     ) : this(
         id,
         projectPath,
@@ -619,6 +623,7 @@ class SessionModel private constructor(
         envs,
         args,
         telemetryServiceName,
+        urls,
         RdMap<MetricKey, MetricValue>(MetricKey, MetricValue)
     )
     
@@ -634,6 +639,7 @@ class SessionModel private constructor(
             print("envs = "); envs.print(printer); println()
             print("args = "); args.print(printer); println()
             print("telemetryServiceName = "); telemetryServiceName.print(printer); println()
+            print("urls = "); urls.print(printer); println()
             print("metrics = "); _metrics.print(printer); println()
         }
         printer.print(")")
@@ -647,6 +653,7 @@ class SessionModel private constructor(
             envs,
             args,
             telemetryServiceName,
+            urls,
             _metrics.deepClonePolymorphic()
         )
     }
@@ -656,7 +663,7 @@ class SessionModel private constructor(
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:63]
+ * #### Generated from [AspireSessionHostModel.kt:64]
  */
 data class TraceNode (
     val id: String,
@@ -738,7 +745,7 @@ data class TraceNode (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:76]
+ * #### Generated from [AspireSessionHostModel.kt:77]
  */
 data class TraceNodeAttribute (
     val key: String,
@@ -802,7 +809,7 @@ data class TraceNodeAttribute (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:71]
+ * #### Generated from [AspireSessionHostModel.kt:72]
  */
 data class TraceNodeChild (
     val id: String,
