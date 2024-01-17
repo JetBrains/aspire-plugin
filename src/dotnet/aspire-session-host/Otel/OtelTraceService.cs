@@ -46,39 +46,24 @@ internal sealed class OtelTraceService(
             logger.LogTrace("Span received ({otelSpanName}, {otelSpanId}, {otelParentSpanIdId})",
                 span.Name, spanId, parentSpanId);
 
-            string nodeId;
-            Dictionary<string, string> attributes;
-            switch (scopeName)
+            var nodeId = scopeName switch
             {
-                case "Microsoft.AspNetCore":
-                    var (aspNetMethod, aspNetTarget) = GetAspNetCoreMethodAndTarget(span.Attributes);
-                    nodeId = $"{aspNetMethod}-{aspNetTarget}";
-                    attributes = new Dictionary<string, string>
-                    {
-                        { "http.method", aspNetMethod ?? "" },
-                        { "http.target", aspNetTarget ?? "" }
-                    };
-                    break;
-                case "System.Net.Http":
-                    var (httpMethod, httpUrl) = GetNetHttpMethodAndUrl(span.Attributes);
-                    nodeId = $"{httpMethod}-{httpUrl}";
-                    attributes = new Dictionary<string, string>
-                    {
-                        { "http.method", httpMethod ?? "" },
-                        { "http.url", httpUrl ?? "" }
-                    };
-                    break;
-                default:
-                    nodeId = $"{serviceName}-{span.Name}";
-                    attributes = new Dictionary<string, string>();
-                    break;
+                "Microsoft.AspNetCore" => GetAspNetCoreNodeId(serviceName, span.Attributes),
+                "System.Net.Http" => GetNetHttpNodeId(serviceName, span.Attributes),
+                _ => $"{serviceName}-{span.Name}"
+            };
+
+            var attributes = new Dictionary<string, string>(span.Attributes.Count);
+            foreach (var attribute in span.Attributes)
+            {
+                attributes[attribute.Key] = attribute.Value.StringValue;
             }
 
             nodeService.ReportTrace(nodeId, span.Name, serviceName, spanId, parentSpanId, attributes);
         }
     }
 
-    private (string? Method, string? Target) GetAspNetCoreMethodAndTarget(RepeatedField<KeyValue> attributes)
+    private string GetAspNetCoreNodeId(string service, RepeatedField<KeyValue> attributes)
     {
         string? method = null;
         string? target = null;
@@ -89,12 +74,13 @@ internal sealed class OtelTraceService(
             if (attribute.Key == "http.target") target = attribute.Value.StringValue;
         }
 
-        logger.LogTrace("Span Microsoft.AspNetCore attributes {otelSpanHttpMethod} and {otelSpanHttpTarget}", method, target);
+        logger.LogTrace("Span Microsoft.AspNetCore attributes {otelSpanHttpMethod} and {otelSpanHttpTarget}",
+            method, target);
 
-        return (method, target);
+        return $"{service}-{method}-{target}";
     }
 
-    private (string? Method, string? Url) GetNetHttpMethodAndUrl(RepeatedField<KeyValue> attributes)
+    private string GetNetHttpNodeId(string service, RepeatedField<KeyValue> attributes)
     {
         string? method = null;
         string? url = null;
@@ -105,8 +91,9 @@ internal sealed class OtelTraceService(
             if (attribute.Key == "http.url") url = attribute.Value.StringValue;
         }
 
-        logger.LogTrace("Span System.Net.Http attributes {otelSpanHttpMethod} and {otelSpanHttpUrl}", method, url);
+        logger.LogTrace("Span System.Net.Http attributes {otelSpanHttpMethod} and {otelSpanHttpUrl}",
+            method, url);
 
-        return (method, url);
+        return $"{service}-{method}-{url}";
     }
 }
