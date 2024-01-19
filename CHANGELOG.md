@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#39](https://github.com/rafaelldi/aspire-plugin/issues/39): Trace diagram can be broken because of the deprecated span attributes
+
 ## [0.2.2] - 2024-01-16
 
 ### Added
