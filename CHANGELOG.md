@@ -7,6 +7,7 @@
 ### Fixed
 
 - [#39](https://github.com/rafaelldi/aspire-plugin/issues/39): Trace diagram can be broken because of the deprecated span attributes
+- Fixed show Aspire dashboard action.
 
 ### Changed
 

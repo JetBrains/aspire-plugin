@@ -42,6 +42,9 @@
                 icon="AllIcons.General.Settings"/>
         <action id="Aspire.Help"
                 class="me.rafaelldi.aspire.actions.AspireHelpAction"/>
+        <action id="Aspire.Dashboard"
+                class="me.rafaelldi.aspire.actions.OpenAspireDashboardAction"
+                icon="AllIcons.General.Web"/>
         <action id="Aspire.Diagram"
                 class="me.rafaelldi.aspire.actions.ShowDiagramAction"
                 icon="AllIcons.FileTypes.Diagram"/>

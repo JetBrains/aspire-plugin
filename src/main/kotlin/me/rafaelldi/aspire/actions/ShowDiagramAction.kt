@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.rd.util.lifetime
 import com.jetbrains.rd.util.threading.coroutines.launch
 import me.rafaelldi.aspire.diagram.DiagramService
+import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import me.rafaelldi.aspire.settings.AspireSettings
 import me.rafaelldi.aspire.util.SESSION_HOST_ID
 
@@ -21,7 +22,16 @@ class ShowDiagramAction : AnAction() {
 
     override fun update(event: AnActionEvent) {
         val project = event.project
-        if (project == null) {
+        val sessionHostId = event.getData(SESSION_HOST_ID)
+        if (project == null || sessionHostId == null) {
+            event.presentation.isEnabledAndVisible = false
+            return
+        }
+
+        val hostAvailable = AspireSessionHostManager
+            .getInstance(project)
+            .isSessionHostAvailable(sessionHostId)
+        if (!hostAvailable) {
             event.presentation.isEnabledAndVisible = false
             return
         }

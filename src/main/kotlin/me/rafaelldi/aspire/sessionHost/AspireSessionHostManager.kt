@@ -35,6 +35,8 @@ class AspireSessionHostManager(private val project: Project) {
 
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
+    fun isSessionHostAvailable(sessionHostId: String) = sessionHosts.containsKey(sessionHostId)
+    fun getSessionHost(sessionHostId: String) = sessionHosts[sessionHostId]
     fun getSessionHosts() = sessionHosts.values.toList()
     fun getSessionHostModel(sessionHostId: String) = sessionHostModels[sessionHostId]
     fun getSessions(sessionHostId: String) = sessions[sessionHostId]?.values?.toList() ?: emptyList()

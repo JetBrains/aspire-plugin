@@ -8,19 +8,17 @@ import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.SimpleToolWindowPanel
 import me.rafaelldi.aspire.AspireIcons
-import me.rafaelldi.aspire.actions.OpenAspireDashboardAction
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import me.rafaelldi.aspire.util.SESSION_HOST_ID
 
-class AspireHostServiceContributor(private val hostData: SessionHostServiceData) :
+class AspireHostServiceContributor(val hostData: SessionHostServiceData) :
     ServiceViewProvidingContributor<SessionServiceData, SessionHostServiceData> {
 
     override fun getViewDescriptor(project: Project): ServiceViewDescriptor =
         object : SimpleServiceViewDescriptor(hostData.hostName, AspireIcons.Service), DataProvider {
             private val toolbarActions = DefaultActionGroup(
-                OpenAspireDashboardAction(hostData.dashboardUrl),
+                ActionManager.getInstance().getAction("Aspire.Dashboard"),
                 ActionManager.getInstance().getAction("Aspire.Diagram"),
                 Separator(),
                 ActionManager.getInstance().getAction("Aspire.Settings"),
