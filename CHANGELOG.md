@@ -11,6 +11,7 @@
 ### Changed
 
 - Improve traces for gRPC and PostgreSQL
+- Support for Rider 2024.1
 
 ## [0.2.2] - 2024-01-16
 
