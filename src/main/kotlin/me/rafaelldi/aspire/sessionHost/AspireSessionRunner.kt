@@ -1,5 +1,6 @@
 package me.rafaelldi.aspire.sessionHost
 
+import com.intellij.execution.CantRunException
 import com.intellij.execution.ProgramRunnerUtil
 import com.intellij.execution.RunManager
 import com.intellij.execution.RunnerAndConfigurationSettings
@@ -27,6 +28,10 @@ import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.TerminalProcessHandler
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfiguration
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationType
+import com.jetbrains.rider.run.environment.ExecutableParameterProcessingResult
+import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
+import com.jetbrains.rider.run.environment.ExecutableRunParameters
+import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.run.pid
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -37,6 +42,8 @@ import kotlinx.coroutines.launch
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.settings.AspireSettings
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
+import org.jetbrains.concurrency.await
+import java.io.File
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
@@ -184,7 +191,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         }
     }
 
-    private fun getOrCreateConfiguration(
+    private suspend fun getOrCreateConfiguration(
         session: SessionModel,
         hostName: String,
         openTelemetryPort: Int
@@ -235,21 +242,21 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         }
     }
 
-    private fun updateConfiguration(
+    private suspend fun updateConfiguration(
         existingConfiguration: RunnerAndConfigurationSettings,
         runnableProject: RunnableProject,
         session: SessionModel,
         openTelemetryPort: Int
     ): RunnerAndConfigurationSettings {
+        val runParams = getRunParameters(runnableProject, session, openTelemetryPort)
         existingConfiguration.apply {
             (configuration as DotNetProjectConfiguration).apply {
                 parameters.projectFilePath = runnableProject.projectFilePath
                 parameters.projectKind = runnableProject.kind
-                parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
-                val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
-                if (AspireSettings.getInstance().collectTelemetry)
-                    envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$openTelemetryPort"
-                parameters.envs = envs
+                parameters.programParameters = runParams.commandLineArgumentString ?: ParametersListUtil.join(
+                    session.args?.toList() ?: emptyList()
+                )
+                parameters.envs = runParams.environmentVariables
             }
         }
 
@@ -258,7 +265,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         return existingConfiguration
     }
 
-    private fun createConfiguration(
+    private suspend fun createConfiguration(
         configurationType: DotNetProjectConfigurationType,
         configurationName: String,
         runManager: RunManager,
@@ -267,17 +274,17 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         hostName: String,
         openTelemetryPort: Int
     ): RunnerAndConfigurationSettings {
+        val runParams = getRunParameters(runnableProject, session, openTelemetryPort)
         val factory = configurationType.factory
         val defaultConfiguration =
             runManager.createConfiguration(configurationName, factory).apply {
                 (configuration as DotNetProjectConfiguration).apply {
                     parameters.projectFilePath = runnableProject.projectFilePath
                     parameters.projectKind = runnableProject.kind
-                    parameters.programParameters = ParametersListUtil.join(session.args?.toList() ?: emptyList())
-                    val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
-                    if (AspireSettings.getInstance().collectTelemetry)
-                        envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$openTelemetryPort"
-                    parameters.envs = envs
+                    parameters.programParameters = runParams.commandLineArgumentString ?: ParametersListUtil.join(
+                        session.args?.toList() ?: emptyList()
+                    )
+                    parameters.envs = runParams.environmentVariables
                 }
                 isActivateToolWindowBeforeRun = false
                 isFocusToolWindowBeforeRun = false
@@ -289,5 +296,36 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         LOG.trace("Created a run configuration $defaultConfiguration")
 
         return defaultConfiguration
+    }
+
+    private suspend fun getRunParameters(
+        runnableProject: RunnableProject,
+        session: SessionModel,
+        openTelemetryPort: Int
+    ): ExecutableParameterProcessingResult {
+        val projectOutput = runnableProject.projectOutputs.firstOrNull()
+            ?: throw CantRunException("Unable to find project output")
+        val processOptions = ProjectProcessOptions(
+            File(runnableProject.projectFilePath),
+            File(projectOutput.workingDirectory)
+        )
+        val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
+        if (AspireSettings.getInstance().collectTelemetry)
+            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$openTelemetryPort"
+        val runParameters = ExecutableRunParameters(
+            projectOutput.exePath,
+            projectOutput.workingDirectory,
+            ParametersListUtil.join(projectOutput.defaultArguments),
+            envs,
+            true,
+            projectOutput.tfm
+        )
+
+        val params = ExecutableParameterProcessor
+            .getInstance(project)
+            .processEnvironment(runParameters, processOptions)
+            .await()
+
+        return params
     }
 }
