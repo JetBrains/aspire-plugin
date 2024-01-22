@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.2.3] - 2024-01-22
+
 ### Fixed
 
 - [#39](https://github.com/rafaelldi/aspire-plugin/issues/39): Trace diagram can be broken because of the deprecated span attributes
@@ -70,7 +72,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.1.2...v0.2.0
