@@ -3,7 +3,7 @@
 The plugin provides a special run configuration for the .NET Aspire Host projects.
 It discovers such projects by the `<IsAspireHost>true</IsAspireHost>` MSBuild property.
 
-![Aspire Host run configuration](run-config.jpg){ width="700" }
+![Aspire Host run configuration](run-config.png){ width="700" }
 
 {style="narrow"}
 Project
