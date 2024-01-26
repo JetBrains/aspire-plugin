@@ -9,6 +9,10 @@ It discovers such projects by the `<IsAspireHost>true</IsAspireHost>` MSBuild pr
 Project
 : .NET Aspire host project (defined by the `IsAspireHost` property).
 
+Environment variables
+: List of environment variables. The list is defined by the `environmentVariables` property from
+the `launchSettings.json` file.
+
 URL
 : URL that will be opened after a successful launch.
 By default, this value is filled with the `applicationUrl` property from the `launchSettings.json` file.
