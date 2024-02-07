@@ -65,7 +65,7 @@ class DiagramService(private val project: Project) {
                 initSelectionListeners()
                 initToolbarActions(title)
             }).thenAccept {
-                val diagramState = DiagramState(title, it.first)
+                val diagramState = DiagramState(it.first)
                 diagramState.generateGroups()
                 diagramState.applyChanges()
 
