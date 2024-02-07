@@ -9,7 +9,6 @@ import com.intellij.openapi.util.text.HtmlBuilder
 import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import icons.RiderIcons
 import me.rafaelldi.aspire.diagram.TraceEdge
 import me.rafaelldi.aspire.generated.TraceNode
 import javax.swing.JEditorPane
@@ -33,7 +32,7 @@ class PopupAction : GraphChartNodeRightClickAction<TraceNode, TraceEdge> {
                 isEnabled = true
                 isEditable = false
                 font = JLabel().font
-                putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+                putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
             },
             null
         ).createPopup()

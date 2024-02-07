@@ -6,19 +6,10 @@ import com.intellij.uml.v2.elements.GraphChartLeafNodeWrapper
 import me.rafaelldi.aspire.generated.TraceNode
 
 class DiagramState(
-    private val title: String,
     private val graphChartHandle: GraphChartHandle<TraceNode, TraceEdge>
 ) {
     fun applyChanges() {
         graphChartHandle.asUpdateHandle().reloadDataFromGraph()
-    }
-
-    fun addNode(node: TraceNode) {
-        graphChartHandle.graph.nodes().add(node)
-    }
-
-    fun addEdge(edge: TraceEdge) {
-        graphChartHandle.graph.edges().add(edge)
     }
 
     fun isGroupingEnabled(): Boolean =
