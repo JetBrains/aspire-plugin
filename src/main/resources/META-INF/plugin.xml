@@ -48,6 +48,11 @@
         <action id="Aspire.Diagram"
                 class="me.rafaelldi.aspire.actions.ShowDiagramAction"
                 icon="AllIcons.FileTypes.Diagram"/>
+        <action id="Aspire.Manifest"
+                class="me.rafaelldi.aspire.actions.ManifestGenerationAction"
+                icon="AllIcons.Actions.PrettyPrint">
+            <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
+        </action>
     </actions>
 
 </idea-plugin>

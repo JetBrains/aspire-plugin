@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Generate Aspire manifest action
+
 ## [0.2.3] - 2024-01-22
 
 ### Fixed
