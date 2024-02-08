@@ -1,13 +1,13 @@
-package me.rafaelldi.aspire.actions
+package me.rafaelldi.aspire.actions.dashboard
 
-import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import me.rafaelldi.aspire.manifest.ManifestService
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import me.rafaelldi.aspire.util.SESSION_HOST_ID
 
-class OpenAspireDashboardAction : AnAction() {
+class AspireManifestAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val sessionHostId = event.getData(SESSION_HOST_ID) ?: return
@@ -15,10 +15,9 @@ class OpenAspireDashboardAction : AnAction() {
             .getInstance(project)
             .getSessionHost(sessionHostId)
             ?: return
-        val dashboardUrl = sessionHost.hostData.dashboardUrl
-        if (dashboardUrl.isNullOrEmpty()) return
+        val hostPath = sessionHost.hostData.hostPath ?: return
 
-        BrowserUtil.browse(dashboardUrl)
+        ManifestService.getInstance(project).generateManifest(hostPath)
     }
 
     override fun update(event: AnActionEvent) {

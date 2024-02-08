@@ -1,4 +1,4 @@
-package me.rafaelldi.aspire.actions
+package me.rafaelldi.aspire.actions.dashboard
 
 import com.intellij.ide.actions.ContextHelpAction
 import com.intellij.openapi.actionSystem.DataContext

@@ -19,6 +19,7 @@ class AspireHostServiceContributor(val hostData: SessionHostServiceData) :
         object : SimpleServiceViewDescriptor(hostData.hostName, AspireIcons.Service), DataProvider {
             private val toolbarActions = DefaultActionGroup(
                 ActionManager.getInstance().getAction("Aspire.Dashboard"),
+                ActionManager.getInstance().getAction("Aspire.Manifest"),
                 ActionManager.getInstance().getAction("Aspire.Diagram"),
                 Separator(),
                 ActionManager.getInstance().getAction("Aspire.Settings"),

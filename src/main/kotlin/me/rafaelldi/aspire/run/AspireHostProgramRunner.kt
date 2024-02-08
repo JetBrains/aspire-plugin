@@ -19,6 +19,7 @@ import me.rafaelldi.aspire.sessionHost.AspireSessionHostConfig
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import org.jetbrains.concurrency.Promise
 import org.jetbrains.concurrency.asPromise
+import kotlin.io.path.Path
 
 class AspireHostProgramRunner : DotNetProgramRunner() {
     companion object {
@@ -57,6 +58,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
 
         val parameters =
             (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)?.parameters
+        val hostPath = parameters?.projectFilePath?.let { Path(it) }
         val dashboardUrl = parameters?.startBrowserParameters?.url
 
         val aspireHostLifetime = environment.project.lifetime.createNested()
@@ -66,6 +68,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         val config = AspireSessionHostConfig(
             debugSessionToken,
             runProfileName,
+            hostPath,
             isDebug,
             debugSessionPort,
             openTelemetryPort,

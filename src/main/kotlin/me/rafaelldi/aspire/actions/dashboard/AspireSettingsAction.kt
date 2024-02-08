@@ -1,4 +1,4 @@
-package me.rafaelldi.aspire.actions
+package me.rafaelldi.aspire.actions.dashboard
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
