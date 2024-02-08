@@ -45,12 +45,15 @@
         <action id="Aspire.Dashboard"
                 class="me.rafaelldi.aspire.actions.dashboard.OpenAspireDashboardAction"
                 icon="AllIcons.General.Web"/>
+        <action id="Aspire.Manifest"
+                class="me.rafaelldi.aspire.actions.dashboard.AspireManifestAction"
+                icon="AllIcons.FileTypes.Json"/>
         <action id="Aspire.Diagram"
                 class="me.rafaelldi.aspire.actions.dashboard.ShowDiagramAction"
                 icon="AllIcons.FileTypes.Diagram"/>
-        <action id="Aspire.Manifest"
+        <action id="Aspire.Solution.Manifest"
                 class="me.rafaelldi.aspire.actions.ManifestGenerationAction"
-                icon="AllIcons.Actions.PrettyPrint">
+                icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
     </actions>

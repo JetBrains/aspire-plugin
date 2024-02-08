@@ -62,6 +62,7 @@ class AspireSessionHostManager(private val project: Project) {
         val sessionHostData = SessionHostServiceData(
             sessionHostConfig.id,
             sessionHostConfig.hostName,
+            sessionHostConfig.hostPath,
             sessionHostConfig.dashboardUrl,
             sessionHostModel,
             sessionHostLifetime.lifetime
