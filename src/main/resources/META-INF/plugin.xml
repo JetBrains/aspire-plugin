@@ -38,15 +38,15 @@
 
     <actions>
         <action id="Aspire.Settings"
-                class="me.rafaelldi.aspire.actions.AspireSettingsAction"
+                class="me.rafaelldi.aspire.actions.dashboard.AspireSettingsAction"
                 icon="AllIcons.General.Settings"/>
         <action id="Aspire.Help"
-                class="me.rafaelldi.aspire.actions.AspireHelpAction"/>
+                class="me.rafaelldi.aspire.actions.dashboard.AspireHelpAction"/>
         <action id="Aspire.Dashboard"
-                class="me.rafaelldi.aspire.actions.OpenAspireDashboardAction"
+                class="me.rafaelldi.aspire.actions.dashboard.OpenAspireDashboardAction"
                 icon="AllIcons.General.Web"/>
         <action id="Aspire.Diagram"
-                class="me.rafaelldi.aspire.actions.ShowDiagramAction"
+                class="me.rafaelldi.aspire.actions.dashboard.ShowDiagramAction"
                 icon="AllIcons.FileTypes.Diagram"/>
         <action id="Aspire.Manifest"
                 class="me.rafaelldi.aspire.actions.ManifestGenerationAction"
