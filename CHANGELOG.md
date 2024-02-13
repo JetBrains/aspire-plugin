@@ -7,6 +7,7 @@
 ### Added
 
 - Generate Aspire manifest action
+- Update Aspire version to 8.0.0-preview.3.24105.21
 
 ## [0.2.3] - 2024-01-22
 

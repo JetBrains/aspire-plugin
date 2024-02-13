@@ -5,6 +5,7 @@ package me.rafaelldi.aspire.workload
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.ProcessOutput
 import com.intellij.execution.util.ExecUtil
+import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
@@ -22,7 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rafaelldi.aspire.AspireBundle
-import me.rafaelldi.aspire.actions.notification.UpdateWorkloadAction
 import me.rafaelldi.aspire.settings.AspireConfigurable
 import me.rafaelldi.aspire.util.WorkloadVersion
 import java.nio.charset.StandardCharsets
@@ -34,7 +34,7 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
 
         private val LOG = logger<AspireWorkloadService>()
 
-        private const val CURRENT_VERSION = "8.0.0-preview.2.23619.3"
+        private const val CURRENT_VERSION = "8.0.0-preview.3.24105.21"
 
         private val aspireRegex = Regex("^aspire", RegexOption.MULTILINE)
         private val aspireVersionRegex = Regex("^aspire\\s+([\\w.\\-]+)", RegexOption.MULTILINE)
@@ -63,7 +63,12 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
                         "",
                         NotificationType.INFORMATION
                     )
-                        .addAction(UpdateWorkloadAction())
+                        .addAction(object :
+                            NotificationAction(AspireBundle.message("notifications.go.to.documentation")) {
+                            override fun actionPerformed(e: AnActionEvent, notification: Notification) {
+                                BrowserUtil.open("https://learn.microsoft.com/en-us/dotnet/aspire/whats-new/preview-3")
+                            }
+                        })
                         .addAction(object :
                             NotificationAction(AspireBundle.message("notifications.do.not.check.for.updates")) {
                             override fun actionPerformed(e: AnActionEvent, notification: Notification) {
