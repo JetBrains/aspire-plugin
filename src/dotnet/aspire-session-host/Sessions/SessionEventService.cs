@@ -17,7 +17,7 @@ internal sealed class SessionEventService(Connection connection) : IDisposable
             FullMode = BoundedChannelFullMode.DropOldest
         });
 
-    internal async Task Subscribe()
+    internal async Task Initialize()
     {
         await connection.DoWithModel(model =>
         {

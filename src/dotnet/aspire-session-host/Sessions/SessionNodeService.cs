@@ -10,7 +10,7 @@ internal sealed class SessionNodeService(Connection connection)
     private readonly Dictionary<string, string> _spanIdToNodeIdMap = new();
     private readonly Dictionary<string, List<string>> _orphanConnections = new();
 
-    internal async Task Subscribe()
+    internal async Task Initialize()
     {
         await connection.DoWithModel(model => { model.GetTraceNodes.SetSync(GetAllNodes); });
     }

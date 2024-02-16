@@ -62,23 +62,23 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
 
         val parameters =
             (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)?.parameters
-        val hostPath = parameters?.projectFilePath?.let { Path(it) }
-        val dashboardUrl = parameters?.startBrowserParameters?.url
+        val aspireHostProjectPath = parameters?.projectFilePath?.let { Path(it) }
+        val aspireHostProjectUrl = parameters?.startBrowserParameters?.url
 
         val aspireHostLifetime = environment.project.lifetime.createNested()
 
         val sessionHostManager = AspireSessionHostManager.getInstance(environment.project)
-        val openTelemetryPort = NetUtils.findFreePort(77800)
+        val openTelemetryProtocolServerPort = NetUtils.findFreePort(77800)
         val config = AspireSessionHostConfig(
             debugSessionToken,
-            runProfileName,
-            hostPath,
-            isDebug,
             debugSessionPort,
-            openTelemetryPort,
-            dashboardUrl,
+            runProfileName,
+            aspireHostProjectPath,
+            aspireHostProjectUrl,
+            isDebug,
             resourceServiceUrl,
-            openTelemetryProtocolUrl
+            openTelemetryProtocolUrl,
+            openTelemetryProtocolServerPort
         )
         LOG.trace("Aspire session host config: $config")
 

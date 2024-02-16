@@ -22,7 +22,7 @@ internal sealed class SessionMetricService(Connection connection) : IDisposable
             FullMode = BoundedChannelFullMode.DropOldest
         });
 
-    internal async Task Subscribe()
+    internal async Task Initialize()
     {
         await connection.DoWithModel(model =>
         {
@@ -36,7 +36,7 @@ internal sealed class SessionMetricService(Connection connection) : IDisposable
             });
         });
 
-        _lifetimeDef.Lifetime.StartAttachedAsync(TaskScheduler.Default, async () => await ConsumeMetricsAsync());
+        _lifetimeDef.Lifetime.StartAttachedAsync(TaskScheduler.Default, async () => await ConsumeMetrics());
     }
 
     internal void ReportMetric(SessionMetric metric)
@@ -44,7 +44,7 @@ internal sealed class SessionMetricService(Connection connection) : IDisposable
         _channel.Writer.TryWrite(metric);
     }
 
-    private async Task ConsumeMetricsAsync()
+    private async Task ConsumeMetrics()
     {
         try
         {

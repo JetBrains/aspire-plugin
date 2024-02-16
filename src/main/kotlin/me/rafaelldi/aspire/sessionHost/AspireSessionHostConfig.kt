@@ -3,13 +3,13 @@ package me.rafaelldi.aspire.sessionHost
 import java.nio.file.Path
 
 data class AspireSessionHostConfig(
-    val id: String,
-    val hostName: String,
-    val hostPath: Path?,
-    val isDebug: Boolean,
+    val debugSessionToken: String,
     val debugSessionPort: Int,
-    val openTelemetryPort: Int,
-    val dashboardUrl: String?,
+    val runProfileName: String,
+    val aspireHostProjectPath: Path?,
+    val aspireHostProjectUrl: String?,
+    val isDebug: Boolean,
     val resourceServiceUrl: String?,
-    val openTelemetryProtocolUrl: String?
+    val openTelemetryProtocolUrl: String?,
+    val openTelemetryProtocolServerPort: Int
 )
