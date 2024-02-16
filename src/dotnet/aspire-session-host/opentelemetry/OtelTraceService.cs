@@ -5,12 +5,12 @@ using OpenTelemetry.Proto.Collector.Trace.V1;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Trace.V1;
 
-namespace AspireSessionHost.Otel;
+namespace AspireSessionHost.OpenTelemetry;
 
-internal sealed class OtelTraceService(
+internal sealed class OTelTraceService(
     TraceService.TraceServiceClient client,
     SessionNodeService nodeService,
-    ILogger<OtelTraceService> logger
+    ILogger<OTelTraceService> logger
 ) : TraceService.TraceServiceBase
 {
     private const string HttpRequestMethod = "http.request.method";

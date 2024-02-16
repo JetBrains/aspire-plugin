@@ -4,12 +4,12 @@ using Grpc.Core;
 using OpenTelemetry.Proto.Collector.Metrics.V1;
 using OpenTelemetry.Proto.Metrics.V1;
 
-namespace AspireSessionHost.Otel;
+namespace AspireSessionHost.OpenTelemetry;
 
-internal sealed class OtelMetricService(
+internal sealed class OTelMetricService(
     MetricsService.MetricsServiceClient client,
     SessionMetricService metricService,
-    ILogger<OtelMetricService> logger
+    ILogger<OTelMetricService> logger
 ) : MetricsService.MetricsServiceBase
 {
     public override async Task<ExportMetricsServiceResponse> Export(

@@ -2,9 +2,9 @@ using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Metrics.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
 
-namespace AspireSessionHost.Otel;
+namespace AspireSessionHost.OpenTelemetry;
 
-internal static class OtelClients
+internal static class OTelClients
 {
     internal static void AddOtelClients(this IServiceCollection services, Uri uri)
     {

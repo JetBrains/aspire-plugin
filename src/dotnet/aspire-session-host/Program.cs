@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using AspireSessionHost;
-using AspireSessionHost.Otel;
+using AspireSessionHost.OpenTelemetry;
 using AspireSessionHost.Sessions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
@@ -67,6 +67,6 @@ var app = builder.Build();
 app.UseWebSockets();
 
 app.MapSessionEndpoints();
-app.MapOtelEndpoints();
+app.MapOTelEndpoints();
 
 app.Run();
