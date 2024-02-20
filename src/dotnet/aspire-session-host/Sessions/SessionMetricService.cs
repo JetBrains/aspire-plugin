@@ -26,14 +26,14 @@ internal sealed class SessionMetricService(Connection connection) : IDisposable
     {
         await connection.DoWithModel(model =>
         {
-            model.Sessions.View(_lifetimeDef.Lifetime, (lifetime, _, session) =>
-            {
-                var serviceName = session.TelemetryServiceName;
-                if (serviceName != null)
-                {
-                    _sessions.AddLifetimed(lifetime, new(serviceName, session));
-                }
-            });
+            // model.Sessions.View(_lifetimeDef.Lifetime, (lifetime, _, session) =>
+            // {
+            //     var serviceName = session.TelemetryServiceName;
+            //     if (serviceName != null)
+            //     {
+            //         _sessions.AddLifetimed(lifetime, new(serviceName, session));
+            //     }
+            // });
         });
 
         _lifetimeDef.Lifetime.StartAttachedAsync(TaskScheduler.Default, async () => await ConsumeMetrics());
@@ -76,7 +76,7 @@ internal sealed class SessionMetricService(Connection connection) : IDisposable
             metric.Value,
             metric.Timestamp
         );
-        session.Metrics[key] = value;
+        // session.Metrics[key] = value;
     }
 
     public void Dispose()

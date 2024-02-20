@@ -12,11 +12,11 @@ import me.rafaelldi.aspire.AspireIcons
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import me.rafaelldi.aspire.util.SESSION_HOST_ID
 
-class AspireHostServiceContributor(val hostData: SessionHostServiceData) :
-    ServiceViewProvidingContributor<SessionServiceData, SessionHostServiceData> {
+class AspireHostServiceContributor(val hostData: AspireHostServiceData) :
+    ServiceViewProvidingContributor<AspireResourceServiceData, AspireHostServiceData> {
 
     override fun getViewDescriptor(project: Project): ServiceViewDescriptor =
-        object : SimpleServiceViewDescriptor(hostData.hostName, AspireIcons.Service), DataProvider {
+        object : SimpleServiceViewDescriptor(hostData.name, AspireIcons.Service), DataProvider {
             private val toolbarActions = DefaultActionGroup(
                 ActionManager.getInstance().getAction("Aspire.Dashboard"),
                 ActionManager.getInstance().getAction("Aspire.Manifest"),
@@ -39,11 +39,11 @@ class AspireHostServiceContributor(val hostData: SessionHostServiceData) :
 
     override fun getServices(project: Project) =
         AspireSessionHostManager.getInstance(project)
-            .getSessions(hostData.id)
+            .getResources(hostData.id)
             .toMutableList()
 
     override fun getServiceDescriptor(
         project: Project,
-        service: SessionServiceData
-    ) = SessionServiceViewDescriptor(service)
+        service: AspireResourceServiceData
+    ) = AspireResourceServiceViewDescriptor(service)
 }

@@ -30,7 +30,7 @@ class ShowDiagramAction : AnAction() {
 
         val hostAvailable = AspireSessionHostManager
             .getInstance(project)
-            .isSessionHostAvailable(sessionHostId)
+            .isAspireHostAvailable(sessionHostId)
         if (!hostAvailable) {
             event.presentation.isEnabledAndVisible = false
             return

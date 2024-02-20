@@ -11,14 +11,14 @@ import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isNotAlive
+import com.jetbrains.rd.util.reactive.IViewableMap
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import me.rafaelldi.aspire.generated.*
-import me.rafaelldi.aspire.services.AspireHostServiceContributor
-import me.rafaelldi.aspire.services.AspireServiceContributor
-import me.rafaelldi.aspire.services.SessionHostServiceData
-import me.rafaelldi.aspire.services.SessionServiceData
+import me.rafaelldi.aspire.services.*
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
@@ -29,17 +29,18 @@ class AspireSessionHostManager(private val project: Project) {
         private val LOG = logger<AspireSessionHostManager>()
     }
 
-    private val sessionHosts = ConcurrentHashMap<String, AspireHostServiceContributor>()
+    private val aspireHosts = ConcurrentHashMap<String, AspireHostServiceContributor>()
     private val sessionHostModels = ConcurrentHashMap<String, Pair<AspireSessionHostModel, Lifetime>>()
-    private val sessions = ConcurrentHashMap<String, MutableMap<String, SessionServiceData>>()
+    private val resources = ConcurrentHashMap<String, MutableMap<String, AspireResourceServiceData>>()
+    private val resourceLogs = ConcurrentHashMap<String, MutableSharedFlow<Unit>>()
 
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
-    fun isSessionHostAvailable(sessionHostId: String) = sessionHosts.containsKey(sessionHostId)
-    fun getSessionHost(sessionHostId: String) = sessionHosts[sessionHostId]
-    fun getSessionHosts() = sessionHosts.values.toList()
+    fun isAspireHostAvailable(aspireHostId: String) = aspireHosts.containsKey(aspireHostId)
+    fun getAspireHost(aspireHostId: String) = aspireHosts[aspireHostId]
+    fun getAspireHosts() = aspireHosts.values.toList()
     fun getSessionHostModel(sessionHostId: String) = sessionHostModels[sessionHostId]
-    fun getSessions(sessionHostId: String) = sessions[sessionHostId]?.values?.toList() ?: emptyList()
+    fun getResources(aspireHostId: String) = resources[aspireHostId]?.values?.toList() ?: emptyList()
 
     suspend fun runSessionHost(
         sessionHostConfig: AspireSessionHostConfig,
@@ -59,7 +60,7 @@ class AspireSessionHostManager(private val project: Project) {
         LOG.trace("Subscribing to protocol model")
         subscribe(sessionHostConfig, sessionHostModel, sessionHostLifetime)
 
-        val sessionHostData = SessionHostServiceData(
+        val sessionHostData = AspireHostServiceData(
             sessionHostConfig.debugSessionToken,
             sessionHostConfig.runProfileName,
             sessionHostConfig.aspireHostProjectPath,
@@ -71,9 +72,9 @@ class AspireSessionHostManager(private val project: Project) {
         sessionHostLifetime.bracketIfAlive({
             LOG.trace("Adding a new session host data $sessionHostData")
             val sessionHost = AspireHostServiceContributor(sessionHostData)
-            sessionHosts[sessionHostConfig.debugSessionToken] = sessionHost
+            aspireHosts[sessionHostConfig.debugSessionToken] = sessionHost
             sessionHostModels[sessionHostConfig.debugSessionToken] = sessionHostModel to sessionHostLifetime.lifetime
-            sessions[sessionHostConfig.debugSessionToken] = mutableMapOf()
+            resources[sessionHostConfig.debugSessionToken] = mutableMapOf()
             val event = ServiceEventListener.ServiceEvent.createEvent(
                 ServiceEventListener.EventType.SERVICE_ADDED,
                 sessionHost,
@@ -82,9 +83,9 @@ class AspireSessionHostManager(private val project: Project) {
             serviceEventPublisher.handle(event)
         }, {
             LOG.trace("Removing the session host data ${sessionHostConfig.debugSessionToken}")
-            val sessionHost = sessionHosts.remove(sessionHostConfig.debugSessionToken)
+            val sessionHost = aspireHosts.remove(sessionHostConfig.debugSessionToken)
             sessionHostModels.remove(sessionHostConfig.debugSessionToken)
-            sessions.remove(sessionHostConfig.debugSessionToken)
+            resources.remove(sessionHostConfig.debugSessionToken)
             if (sessionHost == null) return@bracketIfAlive
             val event = ServiceEventListener.ServiceEvent.createEvent(
                 ServiceEventListener.EventType.SERVICE_REMOVED,
@@ -147,12 +148,14 @@ class AspireSessionHostManager(private val project: Project) {
         withUiContext {
             sessionHostModel.sessions.view(sessionHostLifetime) { sessionLifetime, sessionId, sessionModel ->
                 LOG.info("New session added $sessionId, $sessionModel")
-                viewSessions(sessionId, sessionModel, sessionLifetime, sessionEvents, sessionHostConfig)
+                viewSession(sessionId, sessionModel, sessionLifetime, sessionEvents, sessionHostConfig)
             }
+
+            sessionHostModel.resources.advise(sessionHostLifetime) { handleResourceEvent(it, sessionHostConfig) }
         }
     }
 
-    private fun viewSessions(
+    private fun viewSession(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
@@ -169,37 +172,56 @@ class AspireSessionHostManager(private val project: Project) {
             sessionHostConfig.openTelemetryProtocolServerPort
         )
 
-        val sessionHost = sessionHosts[sessionHostConfig.debugSessionToken] ?: return
-
-        val sessionServiceData = SessionServiceData(
-            sessionModel,
-            sessionLifetime
-        )
-
-        sessionLifetime.bracketIfAlive({
-            LOG.trace("Adding a new session data $sessionServiceData")
-            val sessionsByHost = sessions[sessionHostConfig.debugSessionToken] ?: return@bracketIfAlive
-            sessionsByHost[sessionId] = sessionServiceData
-            val event = ServiceEventListener.ServiceEvent.createEvent(
-                ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
-                sessionHost,
-                AspireServiceContributor::class.java
-            )
-            project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
-        }, {
-            LOG.trace("Removing the session data ${sessionHostConfig.debugSessionToken}")
-            val sessionsByHost = sessions[sessionHostConfig.debugSessionToken] ?: return@bracketIfAlive
-            sessionsByHost.remove(sessionId) ?: return@bracketIfAlive
-            val event = ServiceEventListener.ServiceEvent.createEvent(
-                ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
-                sessionHost,
-                AspireServiceContributor::class.java
-            )
-            project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
-        })
-
         LOG.trace("Starting new session with runner (command $command)")
         val runner = AspireSessionRunner.getInstance(project)
         runner.runSession(command)
+    }
+
+    private fun handleResourceEvent(
+        event: IViewableMap.Event<String, ResourceModel>,
+        sessionHostConfig: AspireSessionHostConfig
+    ) {
+        val aspireHost = aspireHosts[sessionHostConfig.debugSessionToken] ?: return
+        val resourcesByHost = resources[sessionHostConfig.debugSessionToken] ?: return
+
+        when (event) {
+            is IViewableMap.Event.Add -> {
+                val logFlow = MutableSharedFlow<Unit>()
+                resourceLogs[event.key] = logFlow
+                val resourceData = AspireResourceServiceData(
+                    event.newValue,
+                    logFlow.asSharedFlow()
+                )
+                resourcesByHost[event.key] = resourceData
+                val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
+                    ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
+                    aspireHost,
+                    AspireServiceContributor::class.java
+                )
+                project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
+            }
+
+            is IViewableMap.Event.Remove -> {
+                resourceLogs.remove(event.key)
+                resourcesByHost.remove(event.key)
+                val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
+                    ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
+                    aspireHost,
+                    AspireServiceContributor::class.java
+                )
+                project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
+            }
+
+            is IViewableMap.Event.Update -> {
+                val resource = resourcesByHost[event.key] ?: return
+                resource.resourceModel = event.newValue
+                val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
+                    ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
+                    aspireHost,
+                    AspireServiceContributor::class.java
+                )
+                project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
+            }
+        }
     }
 }

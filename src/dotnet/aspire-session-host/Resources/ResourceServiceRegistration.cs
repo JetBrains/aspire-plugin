@@ -16,10 +16,10 @@ internal static class ResourceServiceRegistration
         services.AddSingleton<SessionResourceService>();
     }
 
-    internal static async Task InitializeResourceServices(this IServiceProvider services)
+    internal static void InitializeResourceServices(this IServiceProvider services)
     {
         using var scope = services.CreateScope();
         var sessionResourceService = scope.ServiceProvider.GetRequiredService<SessionResourceService>();
-        await sessionResourceService.Initialize();
+        sessionResourceService.Initialize();
     }
 }

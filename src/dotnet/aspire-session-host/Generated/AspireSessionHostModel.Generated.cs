@@ -46,6 +46,7 @@ namespace AspireSessionHost.Generated
     [NotNull] public ISource<AspireSessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
     [NotNull] public ISource<AspireSessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
     [NotNull] public ISource<AspireSessionHost.Generated.LogReceived> LogReceived => _LogReceived;
+    [NotNull] public IViewableMap<string, ResourceModel> Resources => _Resources;
     [NotNull] public IRdEndpoint<Unit, TraceNode[]> GetTraceNodes => _GetTraceNodes;
     
     //private fields
@@ -53,6 +54,7 @@ namespace AspireSessionHost.Generated
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessStarted> _ProcessStarted;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessTerminated> _ProcessTerminated;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.LogReceived> _LogReceived;
+    [NotNull] private readonly RdMap<string, ResourceModel> _Resources;
     [NotNull] private readonly RdCall<Unit, TraceNode[]> _GetTraceNodes;
     
     //primary constructor
@@ -61,6 +63,7 @@ namespace AspireSessionHost.Generated
       [NotNull] RdSignal<AspireSessionHost.Generated.ProcessStarted> processStarted,
       [NotNull] RdSignal<AspireSessionHost.Generated.ProcessTerminated> processTerminated,
       [NotNull] RdSignal<AspireSessionHost.Generated.LogReceived> logReceived,
+      [NotNull] RdMap<string, ResourceModel> resources,
       [NotNull] RdCall<Unit, TraceNode[]> getTraceNodes
     )
     {
@@ -68,17 +71,21 @@ namespace AspireSessionHost.Generated
       if (processStarted == null) throw new ArgumentNullException("processStarted");
       if (processTerminated == null) throw new ArgumentNullException("processTerminated");
       if (logReceived == null) throw new ArgumentNullException("logReceived");
+      if (resources == null) throw new ArgumentNullException("resources");
       if (getTraceNodes == null) throw new ArgumentNullException("getTraceNodes");
       
       _Sessions = sessions;
       _ProcessStarted = processStarted;
       _ProcessTerminated = processTerminated;
       _LogReceived = logReceived;
+      _Resources = resources;
       _GetTraceNodes = getTraceNodes;
+      _Sessions.OptimizeNested = true;
       BindableChildren.Add(new KeyValuePair<string, object>("sessions", _Sessions));
       BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
       BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
       BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
+      BindableChildren.Add(new KeyValuePair<string, object>("resources", _Resources));
       BindableChildren.Add(new KeyValuePair<string, object>("getTraceNodes", _GetTraceNodes));
     }
     //secondary constructor
@@ -88,6 +95,7 @@ namespace AspireSessionHost.Generated
       new RdSignal<AspireSessionHost.Generated.ProcessStarted>(AspireSessionHost.Generated.ProcessStarted.Read, AspireSessionHost.Generated.ProcessStarted.Write),
       new RdSignal<AspireSessionHost.Generated.ProcessTerminated>(AspireSessionHost.Generated.ProcessTerminated.Read, AspireSessionHost.Generated.ProcessTerminated.Write),
       new RdSignal<AspireSessionHost.Generated.LogReceived>(AspireSessionHost.Generated.LogReceived.Read, AspireSessionHost.Generated.LogReceived.Write),
+      new RdMap<string, ResourceModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceModel.Read, ResourceModel.Write),
       new RdCall<Unit, TraceNode[]>(JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid, ReadTraceNodeArray, WriteTraceNodeArray)
     ) {}
     //deconstruct trait
@@ -97,7 +105,7 @@ namespace AspireSessionHost.Generated
     
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => 8898353207338877409L;
+    protected override long SerializationHash => -4003657515168368942L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -127,6 +135,7 @@ namespace AspireSessionHost.Generated
         printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
         printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
         printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
+        printer.Print("resources = "); _Resources.PrintEx(printer); printer.Println();
         printer.Print("getTraceNodes = "); _GetTraceNodes.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
@@ -142,101 +151,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:17</p>
-  /// </summary>
-  public sealed class EnvironmentVariableModel : IPrintable, IEquatable<EnvironmentVariableModel>
-  {
-    //fields
-    //public fields
-    [NotNull] public string Key {get; private set;}
-    [NotNull] public string Value {get; private set;}
-    
-    //private fields
-    //primary constructor
-    public EnvironmentVariableModel(
-      [NotNull] string key,
-      [NotNull] string value
-    )
-    {
-      if (key == null) throw new ArgumentNullException("key");
-      if (value == null) throw new ArgumentNullException("value");
-      
-      Key = key;
-      Value = value;
-    }
-    //secondary constructor
-    //deconstruct trait
-    public void Deconstruct([NotNull] out string key, [NotNull] out string value)
-    {
-      key = Key;
-      value = Value;
-    }
-    //statics
-    
-    public static CtxReadDelegate<EnvironmentVariableModel> Read = (ctx, reader) => 
-    {
-      var key = reader.ReadString();
-      var value = reader.ReadString();
-      var _result = new EnvironmentVariableModel(key, value);
-      return _result;
-    };
-    
-    public static CtxWriteDelegate<EnvironmentVariableModel> Write = (ctx, writer, value) => 
-    {
-      writer.Write(value.Key);
-      writer.Write(value.Value);
-    };
-    
-    //constants
-    
-    //custom body
-    //methods
-    //equals trait
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
-      return Equals((EnvironmentVariableModel) obj);
-    }
-    public bool Equals(EnvironmentVariableModel other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return Key == other.Key && Value == other.Value;
-    }
-    //hash code trait
-    public override int GetHashCode()
-    {
-      unchecked {
-        var hash = 0;
-        hash = hash * 31 + Key.GetHashCode();
-        hash = hash * 31 + Value.GetHashCode();
-        return hash;
-      }
-    }
-    //pretty print
-    public void Print(PrettyPrinter printer)
-    {
-      printer.Println("EnvironmentVariableModel (");
-      using (printer.IndentCookie()) {
-        printer.Print("key = "); Key.PrintEx(printer); printer.Println();
-        printer.Print("value = "); Value.PrintEx(printer); printer.Println();
-      }
-      printer.Print(")");
-    }
-    //toString
-    public override string ToString()
-    {
-      var printer = new SingleLinePrettyPrinter();
-      Print(printer);
-      return printer.ToString();
-    }
-  }
-  
-  
-  /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:32</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:27</p>
   /// </summary>
   public sealed class LogReceived : IPrintable, IEquatable<LogReceived>
   {
@@ -338,7 +253,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:38</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:87</p>
   /// </summary>
   public sealed class MetricKey : IPrintable, IEquatable<MetricKey>
   {
@@ -432,7 +347,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:43</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:92</p>
   /// </summary>
   public sealed class MetricValue : IPrintable, IEquatable<MetricValue>
   {
@@ -569,7 +484,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:22</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:17</p>
   /// </summary>
   public sealed class ProcessStarted : IPrintable, IEquatable<ProcessStarted>
   {
@@ -662,7 +577,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:27</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:22</p>
   /// </summary>
   public sealed class ProcessTerminated : IPrintable, IEquatable<ProcessTerminated>
   {
@@ -755,127 +670,86 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:53</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:76</p>
   /// </summary>
-  public sealed class SessionModel : RdBindableBase
+  public sealed class ResourceEndpoint : IPrintable, IEquatable<ResourceEndpoint>
   {
     //fields
     //public fields
-    [NotNull] public string Id {get; private set;}
-    [NotNull] public string ProjectPath {get; private set;}
-    public bool Debug {get; private set;}
-    [CanBeNull] public EnvironmentVariableModel[] Envs {get; private set;}
-    [CanBeNull] public string[] Args {get; private set;}
-    [CanBeNull] public string TelemetryServiceName {get; private set;}
-    [CanBeNull] public string Urls {get; private set;}
-    [NotNull] public IViewableMap<MetricKey, MetricValue> Metrics => _Metrics;
+    [NotNull] public string EndpointUrl {get; private set;}
+    [NotNull] public string ProxyUrl {get; private set;}
     
     //private fields
-    [NotNull] private readonly RdMap<MetricKey, MetricValue> _Metrics;
-    
     //primary constructor
-    private SessionModel(
-      [NotNull] string id,
-      [NotNull] string projectPath,
-      bool debug,
-      [CanBeNull] EnvironmentVariableModel[] envs,
-      [CanBeNull] string[] args,
-      [CanBeNull] string telemetryServiceName,
-      [CanBeNull] string urls,
-      [NotNull] RdMap<MetricKey, MetricValue> metrics
+    public ResourceEndpoint(
+      [NotNull] string endpointUrl,
+      [NotNull] string proxyUrl
     )
     {
-      if (id == null) throw new ArgumentNullException("id");
-      if (projectPath == null) throw new ArgumentNullException("projectPath");
-      if (metrics == null) throw new ArgumentNullException("metrics");
+      if (endpointUrl == null) throw new ArgumentNullException("endpointUrl");
+      if (proxyUrl == null) throw new ArgumentNullException("proxyUrl");
       
-      Id = id;
-      ProjectPath = projectPath;
-      Debug = debug;
-      Envs = envs;
-      Args = args;
-      TelemetryServiceName = telemetryServiceName;
-      Urls = urls;
-      _Metrics = metrics;
-      _Metrics.OptimizeNested = true;
-      _Metrics.Async = true;
-      BindableChildren.Add(new KeyValuePair<string, object>("metrics", _Metrics));
+      EndpointUrl = endpointUrl;
+      ProxyUrl = proxyUrl;
     }
     //secondary constructor
-    public SessionModel (
-      [NotNull] string id,
-      [NotNull] string projectPath,
-      bool debug,
-      [CanBeNull] EnvironmentVariableModel[] envs,
-      [CanBeNull] string[] args,
-      [CanBeNull] string telemetryServiceName,
-      [CanBeNull] string urls
-    ) : this (
-      id,
-      projectPath,
-      debug,
-      envs,
-      args,
-      telemetryServiceName,
-      urls,
-      new RdMap<MetricKey, MetricValue>(MetricKey.Read, MetricKey.Write, MetricValue.Read, MetricValue.Write)
-    ) {}
     //deconstruct trait
+    public void Deconstruct([NotNull] out string endpointUrl, [NotNull] out string proxyUrl)
+    {
+      endpointUrl = EndpointUrl;
+      proxyUrl = ProxyUrl;
+    }
     //statics
     
-    public static CtxReadDelegate<SessionModel> Read = (ctx, reader) => 
+    public static CtxReadDelegate<ResourceEndpoint> Read = (ctx, reader) => 
     {
-      var _id = RdId.Read(reader);
-      var id = reader.ReadString();
-      var projectPath = reader.ReadString();
-      var debug = reader.ReadBool();
-      var envs = ReadEnvironmentVariableModelArrayNullable(ctx, reader);
-      var args = ReadStringArrayNullable(ctx, reader);
-      var telemetryServiceName = ReadStringNullable(ctx, reader);
-      var urls = ReadStringNullable(ctx, reader);
-      var metrics = RdMap<MetricKey, MetricValue>.Read(ctx, reader, MetricKey.Read, MetricKey.Write, MetricValue.Read, MetricValue.Write);
-      var _result = new SessionModel(id, projectPath, debug, envs, args, telemetryServiceName, urls, metrics).WithId(_id);
+      var endpointUrl = reader.ReadString();
+      var proxyUrl = reader.ReadString();
+      var _result = new ResourceEndpoint(endpointUrl, proxyUrl);
       return _result;
     };
-    public static CtxReadDelegate<EnvironmentVariableModel[]> ReadEnvironmentVariableModelArrayNullable = EnvironmentVariableModel.Read.Array().NullableClass();
-    public static CtxReadDelegate<string[]> ReadStringArrayNullable = JetBrains.Rd.Impl.Serializers.ReadString.Array().NullableClass();
-    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
     
-    public static CtxWriteDelegate<SessionModel> Write = (ctx, writer, value) => 
+    public static CtxWriteDelegate<ResourceEndpoint> Write = (ctx, writer, value) => 
     {
-      value.RdId.Write(writer);
-      writer.Write(value.Id);
-      writer.Write(value.ProjectPath);
-      writer.Write(value.Debug);
-      WriteEnvironmentVariableModelArrayNullable(ctx, writer, value.Envs);
-      WriteStringArrayNullable(ctx, writer, value.Args);
-      WriteStringNullable(ctx, writer, value.TelemetryServiceName);
-      WriteStringNullable(ctx, writer, value.Urls);
-      RdMap<MetricKey, MetricValue>.Write(ctx, writer, value._Metrics);
+      writer.Write(value.EndpointUrl);
+      writer.Write(value.ProxyUrl);
     };
-    public static  CtxWriteDelegate<EnvironmentVariableModel[]> WriteEnvironmentVariableModelArrayNullable = EnvironmentVariableModel.Write.Array().NullableClass();
-    public static  CtxWriteDelegate<string[]> WriteStringArrayNullable = JetBrains.Rd.Impl.Serializers.WriteString.Array().NullableClass();
-    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
     
     //constants
     
     //custom body
     //methods
     //equals trait
-    //hash code trait
-    //pretty print
-    public override void Print(PrettyPrinter printer)
+    public override bool Equals(object obj)
     {
-      printer.Println("SessionModel (");
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((ResourceEndpoint) obj);
+    }
+    public bool Equals(ResourceEndpoint other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return EndpointUrl == other.EndpointUrl && ProxyUrl == other.ProxyUrl;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + EndpointUrl.GetHashCode();
+        hash = hash * 31 + ProxyUrl.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("ResourceEndpoint (");
       using (printer.IndentCookie()) {
-        printer.Print("id = "); Id.PrintEx(printer); printer.Println();
-        printer.Print("projectPath = "); ProjectPath.PrintEx(printer); printer.Println();
-        printer.Print("debug = "); Debug.PrintEx(printer); printer.Println();
-        printer.Print("envs = "); Envs.PrintEx(printer); printer.Println();
-        printer.Print("args = "); Args.PrintEx(printer); printer.Println();
-        printer.Print("telemetryServiceName = "); TelemetryServiceName.PrintEx(printer); printer.Println();
-        printer.Print("urls = "); Urls.PrintEx(printer); printer.Println();
-        printer.Print("metrics = "); _Metrics.PrintEx(printer); printer.Println();
+        printer.Print("endpointUrl = "); EndpointUrl.PrintEx(printer); printer.Println();
+        printer.Print("proxyUrl = "); ProxyUrl.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -890,7 +764,677 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:64</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:71</p>
+  /// </summary>
+  public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Key {get; private set;}
+    [CanBeNull] public string Value {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public ResourceEnvironmentVariable(
+      [NotNull] string key,
+      [CanBeNull] string value
+    )
+    {
+      if (key == null) throw new ArgumentNullException("key");
+      
+      Key = key;
+      Value = value;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string key, [CanBeNull] out string value)
+    {
+      key = Key;
+      value = Value;
+    }
+    //statics
+    
+    public static CtxReadDelegate<ResourceEnvironmentVariable> Read = (ctx, reader) => 
+    {
+      var key = reader.ReadString();
+      var value = ReadStringNullable(ctx, reader);
+      var _result = new ResourceEnvironmentVariable(key, value);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    
+    public static CtxWriteDelegate<ResourceEnvironmentVariable> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Key);
+      WriteStringNullable(ctx, writer, value.Value);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((ResourceEnvironmentVariable) obj);
+    }
+    public bool Equals(ResourceEnvironmentVariable other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Key == other.Key && Equals(Value, other.Value);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Key.GetHashCode();
+        hash = hash * 31 + (Value != null ? Value.GetHashCode() : 0);
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("ResourceEnvironmentVariable (");
+      using (printer.IndentCookie()) {
+        printer.Print("key = "); Key.PrintEx(printer); printer.Println();
+        printer.Print("value = "); Value.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:46</p>
+  /// </summary>
+  public sealed class ResourceModel : RdBindableBase
+  {
+    //fields
+    //public fields
+    [NotNull] public string Name {get; private set;}
+    public AspireSessionHost.Generated.ResourceType ResourceType {get; private set;}
+    [NotNull] public string DisplayName {get; private set;}
+    [NotNull] public string Uid {get; private set;}
+    [CanBeNull] public string State {get; private set;}
+    public DateTime CreatedAt {get; private set;}
+    [CanBeNull] public int? ExpectedEndpointsCount {get; private set;}
+    [NotNull] public ResourceProperty[] Properties {get; private set;}
+    [NotNull] public ResourceEnvironmentVariable[] Environment {get; private set;}
+    [NotNull] public ResourceEndpoint[] Endpoints {get; private set;}
+    [NotNull] public ResourceService[] Services {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public ResourceModel(
+      [NotNull] string name,
+      AspireSessionHost.Generated.ResourceType resourceType,
+      [NotNull] string displayName,
+      [NotNull] string uid,
+      [CanBeNull] string state,
+      DateTime createdAt,
+      [CanBeNull] int? expectedEndpointsCount,
+      [NotNull] ResourceProperty[] properties,
+      [NotNull] ResourceEnvironmentVariable[] environment,
+      [NotNull] ResourceEndpoint[] endpoints,
+      [NotNull] ResourceService[] services
+    )
+    {
+      if (name == null) throw new ArgumentNullException("name");
+      if (displayName == null) throw new ArgumentNullException("displayName");
+      if (uid == null) throw new ArgumentNullException("uid");
+      if (properties == null) throw new ArgumentNullException("properties");
+      if (environment == null) throw new ArgumentNullException("environment");
+      if (endpoints == null) throw new ArgumentNullException("endpoints");
+      if (services == null) throw new ArgumentNullException("services");
+      
+      Name = name;
+      ResourceType = resourceType;
+      DisplayName = displayName;
+      Uid = uid;
+      State = state;
+      CreatedAt = createdAt;
+      ExpectedEndpointsCount = expectedEndpointsCount;
+      Properties = properties;
+      Environment = environment;
+      Endpoints = endpoints;
+      Services = services;
+    }
+    //secondary constructor
+    //deconstruct trait
+    //statics
+    
+    public static CtxReadDelegate<ResourceModel> Read = (ctx, reader) => 
+    {
+      var _id = RdId.Read(reader);
+      var name = reader.ReadString();
+      var resourceType = (AspireSessionHost.Generated.ResourceType)reader.ReadInt();
+      var displayName = reader.ReadString();
+      var uid = reader.ReadString();
+      var state = ReadStringNullable(ctx, reader);
+      var createdAt = reader.ReadDateTime();
+      var expectedEndpointsCount = ReadIntNullable(ctx, reader);
+      var properties = ReadResourcePropertyArray(ctx, reader);
+      var environment = ReadResourceEnvironmentVariableArray(ctx, reader);
+      var endpoints = ReadResourceEndpointArray(ctx, reader);
+      var services = ReadResourceServiceArray(ctx, reader);
+      var _result = new ResourceModel(name, resourceType, displayName, uid, state, createdAt, expectedEndpointsCount, properties, environment, endpoints, services).WithId(_id);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    public static CtxReadDelegate<int?> ReadIntNullable = JetBrains.Rd.Impl.Serializers.ReadInt.NullableStruct();
+    public static CtxReadDelegate<ResourceProperty[]> ReadResourcePropertyArray = ResourceProperty.Read.Array();
+    public static CtxReadDelegate<ResourceEnvironmentVariable[]> ReadResourceEnvironmentVariableArray = ResourceEnvironmentVariable.Read.Array();
+    public static CtxReadDelegate<ResourceEndpoint[]> ReadResourceEndpointArray = ResourceEndpoint.Read.Array();
+    public static CtxReadDelegate<ResourceService[]> ReadResourceServiceArray = ResourceService.Read.Array();
+    
+    public static CtxWriteDelegate<ResourceModel> Write = (ctx, writer, value) => 
+    {
+      value.RdId.Write(writer);
+      writer.Write(value.Name);
+      writer.Write((int)value.ResourceType);
+      writer.Write(value.DisplayName);
+      writer.Write(value.Uid);
+      WriteStringNullable(ctx, writer, value.State);
+      writer.Write(value.CreatedAt);
+      WriteIntNullable(ctx, writer, value.ExpectedEndpointsCount);
+      WriteResourcePropertyArray(ctx, writer, value.Properties);
+      WriteResourceEnvironmentVariableArray(ctx, writer, value.Environment);
+      WriteResourceEndpointArray(ctx, writer, value.Endpoints);
+      WriteResourceServiceArray(ctx, writer, value.Services);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    public static  CtxWriteDelegate<int?> WriteIntNullable = JetBrains.Rd.Impl.Serializers.WriteInt.NullableStruct();
+    public static  CtxWriteDelegate<ResourceProperty[]> WriteResourcePropertyArray = ResourceProperty.Write.Array();
+    public static  CtxWriteDelegate<ResourceEnvironmentVariable[]> WriteResourceEnvironmentVariableArray = ResourceEnvironmentVariable.Write.Array();
+    public static  CtxWriteDelegate<ResourceEndpoint[]> WriteResourceEndpointArray = ResourceEndpoint.Write.Array();
+    public static  CtxWriteDelegate<ResourceService[]> WriteResourceServiceArray = ResourceService.Write.Array();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    //hash code trait
+    //pretty print
+    public override void Print(PrettyPrinter printer)
+    {
+      printer.Println("ResourceModel (");
+      using (printer.IndentCookie()) {
+        printer.Print("name = "); Name.PrintEx(printer); printer.Println();
+        printer.Print("resourceType = "); ResourceType.PrintEx(printer); printer.Println();
+        printer.Print("displayName = "); DisplayName.PrintEx(printer); printer.Println();
+        printer.Print("uid = "); Uid.PrintEx(printer); printer.Println();
+        printer.Print("state = "); State.PrintEx(printer); printer.Println();
+        printer.Print("createdAt = "); CreatedAt.PrintEx(printer); printer.Println();
+        printer.Print("expectedEndpointsCount = "); ExpectedEndpointsCount.PrintEx(printer); printer.Println();
+        printer.Print("properties = "); Properties.PrintEx(printer); printer.Println();
+        printer.Print("environment = "); Environment.PrintEx(printer); printer.Println();
+        printer.Print("endpoints = "); Endpoints.PrintEx(printer); printer.Println();
+        printer.Print("services = "); Services.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:65</p>
+  /// </summary>
+  public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Name {get; private set;}
+    [CanBeNull] public string DisplayName {get; private set;}
+    [CanBeNull] public string Value {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public ResourceProperty(
+      [NotNull] string name,
+      [CanBeNull] string displayName,
+      [CanBeNull] string value
+    )
+    {
+      if (name == null) throw new ArgumentNullException("name");
+      
+      Name = name;
+      DisplayName = displayName;
+      Value = value;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string name, [CanBeNull] out string displayName, [CanBeNull] out string value)
+    {
+      name = Name;
+      displayName = DisplayName;
+      value = Value;
+    }
+    //statics
+    
+    public static CtxReadDelegate<ResourceProperty> Read = (ctx, reader) => 
+    {
+      var name = reader.ReadString();
+      var displayName = ReadStringNullable(ctx, reader);
+      var value = ReadStringNullable(ctx, reader);
+      var _result = new ResourceProperty(name, displayName, value);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    
+    public static CtxWriteDelegate<ResourceProperty> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Name);
+      WriteStringNullable(ctx, writer, value.DisplayName);
+      WriteStringNullable(ctx, writer, value.Value);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((ResourceProperty) obj);
+    }
+    public bool Equals(ResourceProperty other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Name == other.Name && Equals(DisplayName, other.DisplayName) && Equals(Value, other.Value);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Name.GetHashCode();
+        hash = hash * 31 + (DisplayName != null ? DisplayName.GetHashCode() : 0);
+        hash = hash * 31 + (Value != null ? Value.GetHashCode() : 0);
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("ResourceProperty (");
+      using (printer.IndentCookie()) {
+        printer.Print("name = "); Name.PrintEx(printer); printer.Println();
+        printer.Print("displayName = "); DisplayName.PrintEx(printer); printer.Println();
+        printer.Print("value = "); Value.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:81</p>
+  /// </summary>
+  public sealed class ResourceService : IPrintable, IEquatable<ResourceService>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Name {get; private set;}
+    [CanBeNull] public string AllocatedAddress {get; private set;}
+    [CanBeNull] public int? AllocatedPort {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public ResourceService(
+      [NotNull] string name,
+      [CanBeNull] string allocatedAddress,
+      [CanBeNull] int? allocatedPort
+    )
+    {
+      if (name == null) throw new ArgumentNullException("name");
+      
+      Name = name;
+      AllocatedAddress = allocatedAddress;
+      AllocatedPort = allocatedPort;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string name, [CanBeNull] out string allocatedAddress, [CanBeNull] out int? allocatedPort)
+    {
+      name = Name;
+      allocatedAddress = AllocatedAddress;
+      allocatedPort = AllocatedPort;
+    }
+    //statics
+    
+    public static CtxReadDelegate<ResourceService> Read = (ctx, reader) => 
+    {
+      var name = reader.ReadString();
+      var allocatedAddress = ReadStringNullable(ctx, reader);
+      var allocatedPort = ReadIntNullable(ctx, reader);
+      var _result = new ResourceService(name, allocatedAddress, allocatedPort);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    public static CtxReadDelegate<int?> ReadIntNullable = JetBrains.Rd.Impl.Serializers.ReadInt.NullableStruct();
+    
+    public static CtxWriteDelegate<ResourceService> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Name);
+      WriteStringNullable(ctx, writer, value.AllocatedAddress);
+      WriteIntNullable(ctx, writer, value.AllocatedPort);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    public static  CtxWriteDelegate<int?> WriteIntNullable = JetBrains.Rd.Impl.Serializers.WriteInt.NullableStruct();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((ResourceService) obj);
+    }
+    public bool Equals(ResourceService other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Name == other.Name && Equals(AllocatedAddress, other.AllocatedAddress) && Equals(AllocatedPort, other.AllocatedPort);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Name.GetHashCode();
+        hash = hash * 31 + (AllocatedAddress != null ? AllocatedAddress.GetHashCode() : 0);
+        hash = hash * 31 + (AllocatedPort != null ? AllocatedPort.GetHashCode() : 0);
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("ResourceService (");
+      using (printer.IndentCookie()) {
+        printer.Print("name = "); Name.PrintEx(printer); printer.Println();
+        printer.Print("allocatedAddress = "); AllocatedAddress.PrintEx(printer); printer.Println();
+        printer.Print("allocatedPort = "); AllocatedPort.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:48</p>
+  /// </summary>
+  public enum ResourceType {
+    Project,
+    Container,
+    Executable,
+    Unknown
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:33</p>
+  /// </summary>
+  public sealed class SessionEnvironmentVariable : IPrintable, IEquatable<SessionEnvironmentVariable>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Key {get; private set;}
+    [NotNull] public string Value {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public SessionEnvironmentVariable(
+      [NotNull] string key,
+      [NotNull] string value
+    )
+    {
+      if (key == null) throw new ArgumentNullException("key");
+      if (value == null) throw new ArgumentNullException("value");
+      
+      Key = key;
+      Value = value;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string key, [NotNull] out string value)
+    {
+      key = Key;
+      value = Value;
+    }
+    //statics
+    
+    public static CtxReadDelegate<SessionEnvironmentVariable> Read = (ctx, reader) => 
+    {
+      var key = reader.ReadString();
+      var value = reader.ReadString();
+      var _result = new SessionEnvironmentVariable(key, value);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<SessionEnvironmentVariable> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Key);
+      writer.Write(value.Value);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((SessionEnvironmentVariable) obj);
+    }
+    public bool Equals(SessionEnvironmentVariable other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Key == other.Key && Value == other.Value;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Key.GetHashCode();
+        hash = hash * 31 + Value.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("SessionEnvironmentVariable (");
+      using (printer.IndentCookie()) {
+        printer.Print("key = "); Key.PrintEx(printer); printer.Println();
+        printer.Print("value = "); Value.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:38</p>
+  /// </summary>
+  public sealed class SessionModel : IPrintable, IEquatable<SessionModel>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Id {get; private set;}
+    [NotNull] public string ProjectPath {get; private set;}
+    public bool Debug {get; private set;}
+    [CanBeNull] public string[] Args {get; private set;}
+    [CanBeNull] public SessionEnvironmentVariable[] Envs {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public SessionModel(
+      [NotNull] string id,
+      [NotNull] string projectPath,
+      bool debug,
+      [CanBeNull] string[] args,
+      [CanBeNull] SessionEnvironmentVariable[] envs
+    )
+    {
+      if (id == null) throw new ArgumentNullException("id");
+      if (projectPath == null) throw new ArgumentNullException("projectPath");
+      
+      Id = id;
+      ProjectPath = projectPath;
+      Debug = debug;
+      Args = args;
+      Envs = envs;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string id, [NotNull] out string projectPath, out bool debug, [CanBeNull] out string[] args, [CanBeNull] out SessionEnvironmentVariable[] envs)
+    {
+      id = Id;
+      projectPath = ProjectPath;
+      debug = Debug;
+      args = Args;
+      envs = Envs;
+    }
+    //statics
+    
+    public static CtxReadDelegate<SessionModel> Read = (ctx, reader) => 
+    {
+      var id = reader.ReadString();
+      var projectPath = reader.ReadString();
+      var debug = reader.ReadBool();
+      var args = ReadStringArrayNullable(ctx, reader);
+      var envs = ReadSessionEnvironmentVariableArrayNullable(ctx, reader);
+      var _result = new SessionModel(id, projectPath, debug, args, envs);
+      return _result;
+    };
+    public static CtxReadDelegate<string[]> ReadStringArrayNullable = JetBrains.Rd.Impl.Serializers.ReadString.Array().NullableClass();
+    public static CtxReadDelegate<SessionEnvironmentVariable[]> ReadSessionEnvironmentVariableArrayNullable = SessionEnvironmentVariable.Read.Array().NullableClass();
+    
+    public static CtxWriteDelegate<SessionModel> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Id);
+      writer.Write(value.ProjectPath);
+      writer.Write(value.Debug);
+      WriteStringArrayNullable(ctx, writer, value.Args);
+      WriteSessionEnvironmentVariableArrayNullable(ctx, writer, value.Envs);
+    };
+    public static  CtxWriteDelegate<string[]> WriteStringArrayNullable = JetBrains.Rd.Impl.Serializers.WriteString.Array().NullableClass();
+    public static  CtxWriteDelegate<SessionEnvironmentVariable[]> WriteSessionEnvironmentVariableArrayNullable = SessionEnvironmentVariable.Write.Array().NullableClass();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((SessionModel) obj);
+    }
+    public bool Equals(SessionModel other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Id == other.Id && ProjectPath == other.ProjectPath && Debug == other.Debug && Equals(Args, other.Args) && Equals(Envs, other.Envs);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Id.GetHashCode();
+        hash = hash * 31 + ProjectPath.GetHashCode();
+        hash = hash * 31 + Debug.GetHashCode();
+        hash = hash * 31 + (Args != null ? Args.ContentHashCode() : 0);
+        hash = hash * 31 + (Envs != null ? Envs.ContentHashCode() : 0);
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("SessionModel (");
+      using (printer.IndentCookie()) {
+        printer.Print("id = "); Id.PrintEx(printer); printer.Println();
+        printer.Print("projectPath = "); ProjectPath.PrintEx(printer); printer.Println();
+        printer.Print("debug = "); Debug.PrintEx(printer); printer.Println();
+        printer.Print("args = "); Args.PrintEx(printer); printer.Println();
+        printer.Print("envs = "); Envs.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:102</p>
   /// </summary>
   public sealed class TraceNode : IPrintable, IEquatable<TraceNode>
   {
@@ -1016,7 +1560,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:77</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:115</p>
   /// </summary>
   public sealed class TraceNodeAttribute : IPrintable, IEquatable<TraceNodeAttribute>
   {
@@ -1110,7 +1654,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:72</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:110</p>
   /// </summary>
   public sealed class TraceNodeChild : IPrintable, IEquatable<TraceNodeChild>
   {

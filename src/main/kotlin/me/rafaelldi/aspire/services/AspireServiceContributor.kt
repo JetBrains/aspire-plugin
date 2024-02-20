@@ -15,7 +15,7 @@ class AspireServiceContributor : ServiceViewContributor<AspireHostServiceContrib
         val showServices = AspireSettings.getInstance().showServices
         return if (showServices)
             AspireSessionHostManager.getInstance(project)
-                .getSessionHosts()
+                .getAspireHosts()
                 .toMutableList()
         else
             mutableListOf()

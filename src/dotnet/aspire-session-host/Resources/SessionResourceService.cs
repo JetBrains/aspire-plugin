@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Aspire.V1;
+﻿using Aspire.V1;
 using Grpc.Core;
 using JetBrains.Lifetimes;
 
@@ -14,7 +13,7 @@ internal sealed class SessionResourceService(
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
 
-    internal async Task Initialize()
+    internal void Initialize()
     {
         _lifetimeDef.Lifetime.StartAttachedAsync(TaskScheduler.Default, async () => await WatchResources());
     }
@@ -25,6 +24,49 @@ internal sealed class SessionResourceService(
         var response = client.WatchResources(request, cancellationToken: Lifetime.AsyncLocal.Value);
         await foreach (var update in response.ResponseStream.ReadAllAsync(Lifetime.AsyncLocal.Value))
         {
+            switch (update.KindCase)
+            {
+                case WatchResourcesUpdate.KindOneofCase.InitialData:
+                    await HandleInitialData(update.InitialData, Lifetime.AsyncLocal.Value);
+                    break;
+                case WatchResourcesUpdate.KindOneofCase.Changes:
+                    await HandleChanges(update.Changes, Lifetime.AsyncLocal.Value);
+                    break;
+            }
+        }
+    }
+
+    private async Task HandleInitialData(InitialResourceData initialResourceData, CancellationToken ct)
+    {
+        await connection.DoWithModel(model => model.Resources.Clear());
+
+        foreach (var resource in initialResourceData.Resources)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var resourceModel = resource.ToModel();
+            await connection.DoWithModel(model => model.Resources[resourceModel.Name] = resourceModel);
+        }
+    }
+
+    private async Task HandleChanges(WatchResourcesChanges watchResourcesChanges, CancellationToken ct)
+    {
+        foreach (var change in watchResourcesChanges.Value)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            if (change is null) continue;
+
+            switch (change.KindCase)
+            {
+                case WatchResourcesChange.KindOneofCase.Upsert:
+                    var resourceModel = change.Upsert.ToModel();
+                    await connection.DoWithModel(model => model.Resources[resourceModel.Name] = resourceModel);
+                    break;
+                case WatchResourcesChange.KindOneofCase.Delete:
+                    await connection.DoWithModel(model => model.Resources.Remove(change.Delete.ResourceName));
+                    break;
+            }
         }
     }
 
