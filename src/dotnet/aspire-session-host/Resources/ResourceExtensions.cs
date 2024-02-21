@@ -1,5 +1,7 @@
+using System.Globalization;
 using Aspire.V1;
 using AspireSessionHost.Generated;
+using Google.Protobuf.WellKnownTypes;
 using ResourceProperty = AspireSessionHost.Generated.ResourceProperty;
 using ResourceType = AspireSessionHost.Generated.ResourceType;
 
@@ -32,8 +34,33 @@ internal static class ResourceExtensions
     private static ResourceProperty ToModel(this Aspire.V1.ResourceProperty property) => new(
         property.Name,
         property.HasDisplayName ? property.DisplayName : null,
-        property.Value.ToString()
+        GetStringValue(property.Value)
     );
+
+    private static string? GetStringValue(Value value)
+    {
+        if (value.HasStringValue)
+        {
+            return value.StringValue;
+        }
+
+        if (value.HasBoolValue)
+        {
+            return value.BoolValue.ToString();
+        }
+
+        if (value.HasNumberValue)
+        {
+            return value.NumberValue.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (value.HasNullValue)
+        {
+            return null;
+        }
+
+        return value.ToString();
+    }
 
     private static ResourceEnvironmentVariable ToModel(this Aspire.V1.EnvironmentVariable variable) => new(
         variable.Name,

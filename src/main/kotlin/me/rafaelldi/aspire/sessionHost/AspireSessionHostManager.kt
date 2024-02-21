@@ -14,11 +14,12 @@ import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rd.util.reactive.IViewableMap
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import me.rafaelldi.aspire.generated.*
-import me.rafaelldi.aspire.services.*
+import me.rafaelldi.aspire.services.AspireHostServiceContributor
+import me.rafaelldi.aspire.services.AspireHostServiceData
+import me.rafaelldi.aspire.services.AspireResourceServiceData
+import me.rafaelldi.aspire.services.AspireServiceContributor
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
@@ -32,7 +33,6 @@ class AspireSessionHostManager(private val project: Project) {
     private val aspireHosts = ConcurrentHashMap<String, AspireHostServiceContributor>()
     private val sessionHostModels = ConcurrentHashMap<String, Pair<AspireSessionHostModel, Lifetime>>()
     private val resources = ConcurrentHashMap<String, MutableMap<String, AspireResourceServiceData>>()
-    private val resourceLogs = ConcurrentHashMap<String, MutableSharedFlow<Unit>>()
 
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
@@ -40,7 +40,8 @@ class AspireSessionHostManager(private val project: Project) {
     fun getAspireHost(aspireHostId: String) = aspireHosts[aspireHostId]
     fun getAspireHosts() = aspireHosts.values.toList()
     fun getSessionHostModel(sessionHostId: String) = sessionHostModels[sessionHostId]
-    fun getResources(aspireHostId: String) = resources[aspireHostId]?.values?.toList() ?: emptyList()
+    fun getResources(aspireHostId: String) =
+        resources[aspireHostId]?.values?.sortedBy { it.resourceType }?.toList() ?: emptyList()
 
     suspend fun runSessionHost(
         sessionHostConfig: AspireSessionHostConfig,
@@ -186,12 +187,7 @@ class AspireSessionHostManager(private val project: Project) {
 
         when (event) {
             is IViewableMap.Event.Add -> {
-                val logFlow = MutableSharedFlow<Unit>()
-                resourceLogs[event.key] = logFlow
-                val resourceData = AspireResourceServiceData(
-                    event.newValue,
-                    logFlow.asSharedFlow()
-                )
+                val resourceData = AspireResourceServiceData(event.newValue)
                 resourcesByHost[event.key] = resourceData
                 val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
                     ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
@@ -202,7 +198,6 @@ class AspireSessionHostManager(private val project: Project) {
             }
 
             is IViewableMap.Event.Remove -> {
-                resourceLogs.remove(event.key)
                 resourcesByHost.remove(event.key)
                 val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
                     ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
@@ -214,7 +209,7 @@ class AspireSessionHostManager(private val project: Project) {
 
             is IViewableMap.Event.Update -> {
                 val resource = resourcesByHost[event.key] ?: return
-                resource.resourceModel = event.newValue
+                resource.update(event.newValue)
                 val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
                     ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
                     aspireHost,

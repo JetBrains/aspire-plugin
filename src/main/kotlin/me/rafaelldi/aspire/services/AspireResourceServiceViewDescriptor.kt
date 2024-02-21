@@ -18,7 +18,7 @@ class AspireResourceServiceViewDescriptor(private val resourceData: AspireResour
 
     private val mainPanel by lazy {
         val tabs = JBTabbedPane()
-        tabs.addTab(AspireBundle.getMessage("service.tab.dashboard"), SessionDashboardPanel(resourceData.resourceModel))
+        tabs.addTab(AspireBundle.getMessage("service.tab.dashboard"), SessionDashboardPanel(resourceData))
         JPanel(BorderLayout()).apply {
             add(tabs, BorderLayout.CENTER)
         }
@@ -42,9 +42,9 @@ class AspireResourceServiceViewDescriptor(private val resourceData: AspireResour
     }
 
     override fun getPresentation() = PresentationData().apply {
-        val icon = getIcon(resourceData.resourceModel.resourceType, resourceData.resourceModel.state)
+        val icon = getIcon(resourceData.resourceType, resourceData.isRunning)
         setIcon(icon)
-        addText(resourceData.resourceModel.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+        addText(resourceData.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
     }
 
     override fun getContentComponent() = mainPanel

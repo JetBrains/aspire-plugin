@@ -10,70 +10,121 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import me.rafaelldi.aspire.AspireBundle
-import me.rafaelldi.aspire.generated.ResourceModel
 import me.rafaelldi.aspire.generated.ResourceType
+import me.rafaelldi.aspire.services.AspireResourceServiceData
 import me.rafaelldi.aspire.util.getIcon
-import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
-class SessionDashboardPanel(resourceModel: ResourceModel) : BorderLayoutPanel() {
+class SessionDashboardPanel(resourceData: AspireResourceServiceData) : BorderLayoutPanel() {
     init {
         border = JBUI.Borders.empty(5, 10)
         val panel = panel {
             row {
-                val resourceIcon = getIcon(resourceModel.resourceType, resourceModel.state)
+                val resourceIcon = getIcon(resourceData.resourceType, resourceData.isRunning)
                 icon(resourceIcon)
                     .gap(RightGap.SMALL)
-                copyableLabel(resourceModel.displayName)
+                copyableLabel(resourceData.displayName)
                     .bold()
                     .gap(RightGap.SMALL)
 
-                if (resourceModel.resourceType == ResourceType.Project) {
-                    resourceModel.properties.find { it.name.equals("project.path", true) }?.value?.let {
-                        val path = Path(it.removeSurrounding("\""))
-                        copyableLabel(path.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
+                if (resourceData.resourceType == ResourceType.Project) {
+                    resourceData.projectPath?.let {
+                        copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                             .gap(RightGap.SMALL)
                     }
-                    if (resourceModel.state?.equals("running", true) == true) {
-                        resourceModel.properties.find { it.name.equals("executable.pid", true) }?.value?.let {
-                            copyableLabel(it.removeSurrounding("\""), color = UIUtil.FontColor.BRIGHTER)
-                                .gap(RightGap.SMALL)
-                        }
-                    } else {
-                        resourceModel.properties.find { it.name.equals("resource.exitCode", true) }?.value?.let {
-                            copyableLabel(it.removeSurrounding("\""), color = UIUtil.FontColor.BRIGHTER)
-                                .gap(RightGap.SMALL)
-                        }
+                }
+
+                if (resourceData.resourceType == ResourceType.Container) {
+                    resourceData.containerImage?.let {
+                        copyableLabel(it, color = UIUtil.FontColor.BRIGHTER)
+                            .gap(RightGap.SMALL)
                     }
+                }
+
+                if (resourceData.resourceType == ResourceType.Executable) {
+                    resourceData.executablePath?.let {
+                        copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
+                            .gap(RightGap.SMALL)
+                    }
+                }
+
+                val state = resourceData.state
+                if (!state.isNullOrEmpty()) {
+                    separator()
+                        .gap(RightGap.SMALL)
+                    copyableLabel(state, color = UIUtil.FontColor.BRIGHTER)
                 }
             }
             separator()
-            row {
-                label(AspireBundle.message("service.tab.dashboard.endpoints")).bold()
-            }.bottomGap(BottomGap.SMALL)
-            for (endpoint in resourceModel.endpoints) {
+
+            if (resourceData.endpoints.isNotEmpty()) {
                 row {
-                    link(endpoint.proxyUrl) {
-                        BrowserUtil.browse(endpoint.proxyUrl)
+                    label(AspireBundle.message("service.tab.dashboard.endpoints")).bold()
+                }.bottomGap(BottomGap.SMALL)
+                for (endpoint in resourceData.endpoints) {
+                    row {
+                        link(endpoint.proxyUrl) {
+                            BrowserUtil.browse(endpoint.proxyUrl)
+                        }
                     }
                 }
+                separator()
             }
-            separator()
+
             row {
                 label(AspireBundle.message("service.tab.dashboard.properties")).bold()
             }.bottomGap(BottomGap.SMALL)
-            for (property in resourceModel.properties) {
-                row {
-                    val value = property.value?.removeSurrounding("\"")
-                    copyableLabel("${property.displayName ?: property.name} = ${value ?: "-"}")
+            resourceData.state?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it) }
+            }
+            resourceData.startTime?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }
+            }
+            resourceData.pid?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.pid")) { copyableLabel(it.toString()) }
+            }
+            resourceData.exitCode?.let {
+                if (it != -1) {
+                    row(AspireBundle.message("service.tab.dashboard.properties.exit.code")) { copyableLabel(it.toString()) }
                 }
             }
+            resourceData.projectPath?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.project")) { copyableLabel(it.absolutePathString()) }
+            }
+            resourceData.executablePath?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.executable")) { copyableLabel(it.absolutePathString()) }
+            }
+            resourceData.executableWorkDir?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.working.dir")) { copyableLabel(it.absolutePathString()) }
+            }
+            resourceData.args?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.args")) { copyableLabel(it) }
+            }
+            resourceData.containerImage?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.container.image")) { copyableLabel(it) }
+            }
+            resourceData.containerId?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.container.id")) { copyableLabel(it) }
+            }
+            resourceData.containerPorts?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.container.ports")) { copyableLabel(it) }
+            }
+            resourceData.containerCommand?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.container.command")) { copyableLabel(it) }
+            }
+            resourceData.containerArgs?.let {
+                row(AspireBundle.message("service.tab.dashboard.properties.container.args")) { copyableLabel(it) }
+            }
             separator()
-            row {
-                label(AspireBundle.message("service.tab.dashboard.environment")).bold()
-            }.bottomGap(BottomGap.SMALL)
-            for (variable in resourceModel.environment) {
+
+            if (resourceData.environment.isNotEmpty()) {
                 row {
-                    copyableLabel("${variable.key} = ${variable.value ?: "-"}")
+                    label(AspireBundle.message("service.tab.dashboard.environment")).bold()
+                }.bottomGap(BottomGap.SMALL)
+                for (variable in resourceData.environment) {
+                    row {
+                        copyableLabel("${variable.key} = ${variable.value ?: "-"}")
+                    }
                 }
             }
         }
