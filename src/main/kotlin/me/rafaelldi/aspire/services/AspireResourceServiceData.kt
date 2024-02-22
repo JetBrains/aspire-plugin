@@ -61,6 +61,8 @@ class AspireResourceServiceData(
     var containerArgs: String? = null
         private set
 
+    fun getLifetime() = lifetimeDefinition.lifetime
+
     private val consoleView: ConsoleView = TextConsoleBuilderFactory
         .getInstance()
         .createBuilder(project)

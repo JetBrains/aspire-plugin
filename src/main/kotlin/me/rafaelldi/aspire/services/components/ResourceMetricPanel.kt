@@ -9,10 +9,10 @@ import me.rafaelldi.aspire.AspireBundle
 import me.rafaelldi.aspire.generated.MetricKey
 import me.rafaelldi.aspire.generated.MetricValue
 
-class SessionMetricPanel : BorderLayoutPanel() {
+class ResourceMetricPanel : BorderLayoutPanel() {
     private val table = MetricTable(this)
     private var chosenMetric: MetricKey? = null
-    private var chartPanel: MetricChartPanel? = null
+    private var chartPanel: ResourceMetricChartPanel? = null
 
     private val splitter = OnePixelSplitter(false).apply {
         firstComponent = ScrollPaneFactory.createScrollPane(table, SideBorder.NONE)
@@ -26,7 +26,7 @@ class SessionMetricPanel : BorderLayoutPanel() {
 
     fun metricSelected(scope: String, metric: String, value: Double, unit: String) {
         chosenMetric = MetricKey(scope, metric)
-        chartPanel = MetricChartPanel(metric, value, unit)
+        chartPanel = ResourceMetricChartPanel(metric, value, unit)
         splitter.secondComponent = chartPanel
     }
 

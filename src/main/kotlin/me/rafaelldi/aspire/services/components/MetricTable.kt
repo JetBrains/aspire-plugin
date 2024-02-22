@@ -9,7 +9,7 @@ import java.awt.event.MouseEvent
 import java.util.*
 import javax.swing.table.DefaultTableModel
 
-class MetricTable(private val parentPanel: SessionMetricPanel) : JBTable() {
+class MetricTable(private val parentPanel: ResourceMetricPanel) : JBTable() {
     companion object {
         private val SCOPE_COLUMN = AspireBundle.getMessage("service.tab.metrics.table.scope")
         private val NAME_COLUMN = AspireBundle.getMessage("service.tab.metrics.table.name")

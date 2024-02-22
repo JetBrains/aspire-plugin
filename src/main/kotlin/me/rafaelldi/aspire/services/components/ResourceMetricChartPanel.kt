@@ -14,7 +14,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class MetricChartPanel(
+class ResourceMetricChartPanel(
     private val metricName: String,
     private val initialValue: Double,
     private val unit: String
