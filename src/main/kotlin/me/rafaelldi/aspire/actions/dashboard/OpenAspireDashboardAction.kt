@@ -13,7 +13,7 @@ class OpenAspireDashboardAction : AnAction() {
         val sessionHostId = event.getData(SESSION_HOST_ID) ?: return
         val sessionHost = AspireSessionHostManager
             .getInstance(project)
-            .getAspireHost(sessionHostId)
+            .getSessionHost(sessionHostId)
             ?: return
         val dashboardUrl = sessionHost.hostData.dashboardUrl
         if (dashboardUrl.isNullOrEmpty()) return
@@ -31,7 +31,7 @@ class OpenAspireDashboardAction : AnAction() {
 
         val hostAvailable = AspireSessionHostManager
             .getInstance(project)
-            .isAspireHostAvailable(sessionHostId)
+            .isSessionHostAvailable(sessionHostId)
         if (!hostAvailable) {
             event.presentation.isEnabledAndVisible = false
             return

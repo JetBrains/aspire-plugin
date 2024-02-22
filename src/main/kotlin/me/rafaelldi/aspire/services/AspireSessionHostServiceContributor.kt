@@ -12,8 +12,8 @@ import me.rafaelldi.aspire.AspireIcons
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import me.rafaelldi.aspire.util.SESSION_HOST_ID
 
-class AspireHostServiceContributor(val hostData: AspireHostServiceData) :
-    ServiceViewProvidingContributor<AspireResourceServiceData, AspireHostServiceData> {
+class AspireSessionHostServiceContributor(val hostData: AspireSessionHostServiceData) :
+    ServiceViewProvidingContributor<AspireResourceServiceData, AspireSessionHostServiceData> {
 
     override fun getViewDescriptor(project: Project): ServiceViewDescriptor =
         object : SimpleServiceViewDescriptor(hostData.name, AspireIcons.Service), DataProvider {

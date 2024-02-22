@@ -13,7 +13,7 @@ class AspireManifestAction : AnAction() {
         val sessionHostId = event.getData(SESSION_HOST_ID) ?: return
         val sessionHost = AspireSessionHostManager
             .getInstance(project)
-            .getAspireHost(sessionHostId)
+            .getSessionHost(sessionHostId)
             ?: return
         val hostPath = sessionHost.hostData.hostProjectPath ?: return
 
@@ -30,7 +30,7 @@ class AspireManifestAction : AnAction() {
 
         val hostAvailable = AspireSessionHostManager
             .getInstance(project)
-            .isAspireHostAvailable(sessionHostId)
+            .isSessionHostAvailable(sessionHostId)
         if (!hostAvailable) {
             event.presentation.isEnabledAndVisible = false
             return

@@ -15,7 +15,7 @@ import me.rafaelldi.aspire.services.AspireResourceServiceData
 import me.rafaelldi.aspire.util.getIcon
 import kotlin.io.path.absolutePathString
 
-class SessionDashboardPanel(resourceData: AspireResourceServiceData) : BorderLayoutPanel() {
+class ResourceDashboardPanel(resourceData: AspireResourceServiceData) : BorderLayoutPanel() {
     init {
         border = JBUI.Borders.empty(5, 10)
         val panel = panel {

@@ -34,7 +34,7 @@ class DiagramService(private val project: Project) {
 
     suspend fun showDiagram(sessionHostId: String) {
         val manager = AspireSessionHostManager.getInstance(project)
-        val host = manager.getAspireHost(sessionHostId) ?: return
+        val host = manager.getSessionHost(sessionHostId) ?: return
         val nodes = withUiContext {
             host.hostData.sessionHostModel.getTraceNodes.startSuspending(host.hostData.sessionHostLifetime, Unit)
         }
