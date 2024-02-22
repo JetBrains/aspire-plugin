@@ -105,7 +105,7 @@ namespace AspireSessionHost.Generated
     
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => -3912791626157955055L;
+    protected override long SerializationHash => 5274666205799699772L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -866,13 +866,13 @@ namespace AspireSessionHost.Generated
     //fields
     //public fields
     [NotNull] public string Text {get; private set;}
-    [CanBeNull] public bool? IsError {get; private set;}
+    public bool IsError {get; private set;}
     
     //private fields
     //primary constructor
     public ResourceLog(
       [NotNull] string text,
-      [CanBeNull] bool? isError
+      bool isError
     )
     {
       if (text == null) throw new ArgumentNullException("text");
@@ -882,7 +882,7 @@ namespace AspireSessionHost.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string text, [CanBeNull] out bool? isError)
+    public void Deconstruct([NotNull] out string text, out bool isError)
     {
       text = Text;
       isError = IsError;
@@ -892,18 +892,16 @@ namespace AspireSessionHost.Generated
     public static CtxReadDelegate<ResourceLog> Read = (ctx, reader) => 
     {
       var text = reader.ReadString();
-      var isError = ReadBoolNullable(ctx, reader);
+      var isError = reader.ReadBool();
       var _result = new ResourceLog(text, isError);
       return _result;
     };
-    public static CtxReadDelegate<bool?> ReadBoolNullable = JetBrains.Rd.Impl.Serializers.ReadBool.NullableStruct();
     
     public static CtxWriteDelegate<ResourceLog> Write = (ctx, writer, value) => 
     {
       writer.Write(value.Text);
-      WriteBoolNullable(ctx, writer, value.IsError);
+      writer.Write(value.IsError);
     };
-    public static  CtxWriteDelegate<bool?> WriteBoolNullable = JetBrains.Rd.Impl.Serializers.WriteBool.NullableStruct();
     
     //constants
     
@@ -921,7 +919,7 @@ namespace AspireSessionHost.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Text == other.Text && Equals(IsError, other.IsError);
+      return Text == other.Text && IsError == other.IsError;
     }
     //hash code trait
     public override int GetHashCode()
@@ -929,7 +927,7 @@ namespace AspireSessionHost.Generated
       unchecked {
         var hash = 0;
         hash = hash * 31 + Text.GetHashCode();
-        hash = hash * 31 + (IsError != null ? IsError.GetHashCode() : 0);
+        hash = hash * 31 + IsError.GetHashCode();
         return hash;
       }
     }

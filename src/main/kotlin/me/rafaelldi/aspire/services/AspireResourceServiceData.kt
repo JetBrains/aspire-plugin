@@ -1,18 +1,26 @@
 package me.rafaelldi.aspire.services
 
+import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.execution.ui.ConsoleView
+import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import me.rafaelldi.aspire.AspireService
 import me.rafaelldi.aspire.generated.*
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.math.roundToInt
 
-class AspireResourceServiceData(resourceModel: ResourceModel, private val lifetime: LifetimeDefinition) {
+class AspireResourceServiceData(
+    resourceModel: ResourceModel,
+    project: Project,
+    private val lifetimeDefinition: LifetimeDefinition
+) {
     var name: String
         private set
     var resourceType: ResourceType
@@ -53,8 +61,12 @@ class AspireResourceServiceData(resourceModel: ResourceModel, private val lifeti
     var containerArgs: String? = null
         private set
 
-    private val myLogs = MutableSharedFlow<ResourceLog>()
-    val logs = myLogs.asSharedFlow()
+    private val consoleView: ConsoleView = TextConsoleBuilderFactory
+        .getInstance()
+        .createBuilder(project)
+        .apply { setViewer(true) }
+        .console
+    fun getConsole() = consoleView
 
     init {
         name = resourceModel.name
@@ -67,7 +79,9 @@ class AspireResourceServiceData(resourceModel: ResourceModel, private val lifeti
 
         fillFromProperties(resourceModel.properties)
 
-        resourceModel.logReceived.advise(lifetime, ::logReceived)
+        resourceModel.logReceived.advise(lifetimeDefinition, ::logReceived)
+
+        Disposer.register(AspireService.getInstance(project), consoleView)
     }
 
     private fun fillFromProperties(properties: Array<ResourceProperty>) {
@@ -139,10 +153,14 @@ class AspireResourceServiceData(resourceModel: ResourceModel, private val lifeti
     }
 
     fun unsubscribe() {
-        lifetime.terminate()
+        lifetimeDefinition.terminate()
     }
 
     private fun logReceived(log: ResourceLog) {
-        myLogs.tryEmit(log)
+        consoleView.print(
+            log.text + "\n",
+            if (!log.isError) ConsoleViewContentType.NORMAL_OUTPUT
+            else ConsoleViewContentType.ERROR_OUTPUT
+        )
     }
 }

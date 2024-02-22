@@ -7,18 +7,21 @@ import com.intellij.ide.projectView.PresentationData
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
 import me.rafaelldi.aspire.AspireBundle
+import me.rafaelldi.aspire.services.components.ResourceConsolePanel
 import me.rafaelldi.aspire.services.components.ResourceDashboardPanel
 import me.rafaelldi.aspire.util.getIcon
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class AspireResourceServiceViewDescriptor(private val resourceData: AspireResourceServiceData) : ServiceViewDescriptor {
-
-//    private val dashboardPanel by lazy { SessionDashboardPanel(resourceData) }
+class AspireResourceServiceViewDescriptor(
+    private val resourceData: AspireResourceServiceData
+) : ServiceViewDescriptor {
 
     private val mainPanel by lazy {
         val tabs = JBTabbedPane()
         tabs.addTab(AspireBundle.getMessage("service.tab.dashboard"), ResourceDashboardPanel(resourceData))
+        tabs.addTab(AspireBundle.getMessage("service.tab.console"), ResourceConsolePanel(resourceData))
+
         JPanel(BorderLayout()).apply {
             add(tabs, BorderLayout.CENTER)
         }
@@ -49,8 +52,8 @@ class AspireResourceServiceViewDescriptor(private val resourceData: AspireResour
 
     override fun getContentComponent() = mainPanel
 
-    private fun update() {
+//    private fun update() {
 //        val metrics = sessionData.sessionModel.metrics.toMap()
 //        metricPanel.updateMetrics(metrics)
-    }
+//    }
 }

@@ -88,7 +88,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
 
     private val ResourceLog = structdef {
         field("text", string)
-        field("isError", bool.nullable)
+        field("isError", bool)
     }
 
     private val MetricKey = structdef {

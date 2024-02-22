@@ -15,7 +15,7 @@ import me.rafaelldi.aspire.util.SESSION_HOST_ID
 class AspireSessionHostServiceContributor(val hostData: AspireSessionHostServiceData) :
     ServiceViewProvidingContributor<AspireResourceServiceData, AspireSessionHostServiceData> {
 
-    override fun getViewDescriptor(project: Project): ServiceViewDescriptor =
+    private val viewDescriptor by lazy {
         object : SimpleServiceViewDescriptor(hostData.name, AspireIcons.Service), DataProvider {
             private val toolbarActions = DefaultActionGroup(
                 ActionManager.getInstance().getAction("Aspire.Dashboard"),
@@ -34,6 +34,9 @@ class AspireSessionHostServiceContributor(val hostData: AspireSessionHostService
                 if (SESSION_HOST_ID.`is`(dataId)) hostData.id
                 else null
         }
+    }
+
+    override fun getViewDescriptor(project: Project): ServiceViewDescriptor = viewDescriptor
 
     override fun asService() = hostData
 

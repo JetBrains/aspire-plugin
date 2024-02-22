@@ -69,7 +69,7 @@ class AspireSessionHostModel private constructor(
         
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = -3912791626157955055L
+        const val serializationHash = 5274666205799699772L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -631,7 +631,7 @@ data class ResourceEnvironmentVariable (
  */
 data class ResourceLog (
     val text: String,
-    val isError: Boolean?
+    val isError: Boolean
 ) : IPrintable {
     //companion
     
@@ -641,13 +641,13 @@ data class ResourceLog (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceLog  {
             val text = buffer.readString()
-            val isError = buffer.readNullable { buffer.readBool() }
+            val isError = buffer.readBool()
             return ResourceLog(text, isError)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceLog)  {
             buffer.writeString(value.text)
-            buffer.writeNullable(value.isError) { buffer.writeBool(it) }
+            buffer.writeBool(value.isError)
         }
         
         
@@ -672,7 +672,7 @@ data class ResourceLog (
     override fun hashCode(): Int  {
         var __r = 0
         __r = __r*31 + text.hashCode()
-        __r = __r*31 + if (isError != null) isError.hashCode() else 0
+        __r = __r*31 + isError.hashCode()
         return __r
     }
     //pretty print

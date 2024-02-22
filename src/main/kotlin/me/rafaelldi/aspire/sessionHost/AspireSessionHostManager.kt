@@ -195,7 +195,7 @@ class AspireSessionHostManager(private val project: Project) {
 
         when (event) {
             is IViewableMap.Event.Add -> {
-                val resourceData = AspireResourceServiceData(event.newValue, sessionHostLifetime.createNested())
+                val resourceData = AspireResourceServiceData(event.newValue, project, sessionHostLifetime.createNested())
                 resourcesByHost[event.key] = resourceData
                 val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
                     ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
