@@ -157,7 +157,9 @@ class AspireSessionHostManager(private val project: Project) {
                 viewSession(sessionId, sessionModel, sessionLifetime, sessionEvents, sessionHostConfig)
             }
 
-            sessionHostModel.resources.advise(sessionHostLifetime) { handleResourceEvent(it, sessionHostConfig) }
+            sessionHostModel.resources.advise(sessionHostLifetime) {
+                handleResourceEvent(it, sessionHostConfig, sessionHostLifetime)
+            }
         }
     }
 
@@ -185,14 +187,15 @@ class AspireSessionHostManager(private val project: Project) {
 
     private fun handleResourceEvent(
         event: IViewableMap.Event<String, ResourceModel>,
-        sessionHostConfig: AspireSessionHostConfig
+        sessionHostConfig: AspireSessionHostConfig,
+        sessionHostLifetime: Lifetime
     ) {
         val aspireHost = sessionHosts[sessionHostConfig.debugSessionToken] ?: return
         val resourcesByHost = resources[sessionHostConfig.debugSessionToken] ?: return
 
         when (event) {
             is IViewableMap.Event.Add -> {
-                val resourceData = AspireResourceServiceData(event.newValue)
+                val resourceData = AspireResourceServiceData(event.newValue, sessionHostLifetime.createNested())
                 resourcesByHost[event.key] = resourceData
                 val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
                     ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
@@ -203,7 +206,8 @@ class AspireSessionHostManager(private val project: Project) {
             }
 
             is IViewableMap.Event.Remove -> {
-                resourcesByHost.remove(event.key)
+                val resource = resourcesByHost.remove(event.key)
+                resource?.unsubscribe()
                 val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
                     ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
                     aspireHost,

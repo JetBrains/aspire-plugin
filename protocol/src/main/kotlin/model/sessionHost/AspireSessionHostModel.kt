@@ -60,6 +60,8 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("environment", array(ResourceEnvironmentVariable))
         field("endpoints", array(ResourceEndpoint))
         field("services", array(ResourceService))
+
+        sink("logReceived", ResourceLog)
     }
 
     private val ResourceProperty = structdef {
@@ -82,6 +84,11 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("name", string)
         field("allocatedAddress", string.nullable)
         field("allocatedPort", int.nullable)
+    }
+
+    private val ResourceLog = structdef {
+        field("text", string)
+        field("isError", bool.nullable)
     }
 
     private val MetricKey = structdef {

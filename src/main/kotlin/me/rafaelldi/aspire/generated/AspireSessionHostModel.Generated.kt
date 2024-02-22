@@ -41,6 +41,7 @@ class AspireSessionHostModel private constructor(
             serializers.register(ResourceEnvironmentVariable)
             serializers.register(ResourceEndpoint)
             serializers.register(ResourceService)
+            serializers.register(ResourceLog)
             serializers.register(MetricKey)
             serializers.register(MetricValue)
             serializers.register(TraceNode)
@@ -68,7 +69,7 @@ class AspireSessionHostModel private constructor(
         
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = -4003657515168368942L
+        const val serializationHash = -3912791626157955055L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -212,7 +213,7 @@ data class LogReceived (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:87]
+ * #### Generated from [AspireSessionHostModel.kt:94]
  */
 data class MetricKey (
     val scope: String,
@@ -276,7 +277,7 @@ data class MetricKey (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:92]
+ * #### Generated from [AspireSessionHostModel.kt:99]
  */
 data class MetricValue (
     val serviceName: String,
@@ -498,7 +499,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:76]
+ * #### Generated from [AspireSessionHostModel.kt:78]
  */
 data class ResourceEndpoint (
     val endpointUrl: String,
@@ -562,7 +563,7 @@ data class ResourceEndpoint (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:71]
+ * #### Generated from [AspireSessionHostModel.kt:73]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -626,9 +627,73 @@ data class ResourceEnvironmentVariable (
 
 
 /**
+ * #### Generated from [AspireSessionHostModel.kt:89]
+ */
+data class ResourceLog (
+    val text: String,
+    val isError: Boolean?
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceLog> {
+        override val _type: KClass<ResourceLog> = ResourceLog::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceLog  {
+            val text = buffer.readString()
+            val isError = buffer.readNullable { buffer.readBool() }
+            return ResourceLog(text, isError)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceLog)  {
+            buffer.writeString(value.text)
+            buffer.writeNullable(value.isError) { buffer.writeBool(it) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceLog
+        
+        if (text != other.text) return false
+        if (isError != other.isError) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + text.hashCode()
+        __r = __r*31 + if (isError != null) isError.hashCode() else 0
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceLog (")
+        printer.indent {
+            print("text = "); text.print(printer); println()
+            print("isError = "); isError.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
  * #### Generated from [AspireSessionHostModel.kt:46]
  */
-class ResourceModel (
+class ResourceModel private constructor(
     val name: String,
     val resourceType: ResourceType,
     val displayName: String,
@@ -639,7 +704,8 @@ class ResourceModel (
     val properties: Array<ResourceProperty>,
     val environment: Array<ResourceEnvironmentVariable>,
     val endpoints: Array<ResourceEndpoint>,
-    val services: Array<ResourceService>
+    val services: Array<ResourceService>,
+    private val _logReceived: RdSignal<ResourceLog>
 ) : RdBindableBase() {
     //companion
     
@@ -660,7 +726,8 @@ class ResourceModel (
             val environment = buffer.readArray {ResourceEnvironmentVariable.read(ctx, buffer)}
             val endpoints = buffer.readArray {ResourceEndpoint.read(ctx, buffer)}
             val services = buffer.readArray {ResourceService.read(ctx, buffer)}
-            return ResourceModel(name, resourceType, displayName, uid, state, createdAt, expectedEndpointsCount, properties, environment, endpoints, services).withId(_id)
+            val _logReceived = RdSignal.read(ctx, buffer, ResourceLog)
+            return ResourceModel(name, resourceType, displayName, uid, state, createdAt, expectedEndpointsCount, properties, environment, endpoints, services, _logReceived).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceModel)  {
@@ -676,14 +743,47 @@ class ResourceModel (
             buffer.writeArray(value.environment) { ResourceEnvironmentVariable.write(ctx, buffer, it) }
             buffer.writeArray(value.endpoints) { ResourceEndpoint.write(ctx, buffer, it) }
             buffer.writeArray(value.services) { ResourceService.write(ctx, buffer, it) }
+            RdSignal.write(ctx, buffer, value._logReceived)
         }
         
         
     }
     //fields
+    val logReceived: ISource<ResourceLog> get() = _logReceived
     //methods
     //initializer
+    init {
+        bindableChildren.add("logReceived" to _logReceived)
+    }
+    
     //secondary constructor
+    constructor(
+        name: String,
+        resourceType: ResourceType,
+        displayName: String,
+        uid: String,
+        state: String?,
+        createdAt: Date,
+        expectedEndpointsCount: Int?,
+        properties: Array<ResourceProperty>,
+        environment: Array<ResourceEnvironmentVariable>,
+        endpoints: Array<ResourceEndpoint>,
+        services: Array<ResourceService>
+    ) : this(
+        name,
+        resourceType,
+        displayName,
+        uid,
+        state,
+        createdAt,
+        expectedEndpointsCount,
+        properties,
+        environment,
+        endpoints,
+        services,
+        RdSignal<ResourceLog>(ResourceLog)
+    )
+    
     //equals trait
     //hash code trait
     //pretty print
@@ -701,6 +801,7 @@ class ResourceModel (
             print("environment = "); environment.print(printer); println()
             print("endpoints = "); endpoints.print(printer); println()
             print("services = "); services.print(printer); println()
+            print("logReceived = "); _logReceived.print(printer); println()
         }
         printer.print(")")
     }
@@ -717,7 +818,8 @@ class ResourceModel (
             properties,
             environment,
             endpoints,
-            services
+            services,
+            _logReceived.deepClonePolymorphic()
         )
     }
     //contexts
@@ -726,7 +828,7 @@ class ResourceModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:65]
+ * #### Generated from [AspireSessionHostModel.kt:67]
  */
 data class ResourceProperty (
     val name: String,
@@ -796,7 +898,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:81]
+ * #### Generated from [AspireSessionHostModel.kt:83]
  */
 data class ResourceService (
     val name: String,
@@ -1028,7 +1130,7 @@ data class SessionModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:102]
+ * #### Generated from [AspireSessionHostModel.kt:109]
  */
 data class TraceNode (
     val id: String,
@@ -1110,7 +1212,7 @@ data class TraceNode (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:115]
+ * #### Generated from [AspireSessionHostModel.kt:122]
  */
 data class TraceNodeAttribute (
     val key: String,
@@ -1174,7 +1276,7 @@ data class TraceNodeAttribute (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:110]
+ * #### Generated from [AspireSessionHostModel.kt:117]
  */
 data class TraceNodeChild (
     val id: String,

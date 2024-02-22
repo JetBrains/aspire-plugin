@@ -1,5 +1,6 @@
 package me.rafaelldi.aspire.services
 
+import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.datetime.Instant
@@ -11,7 +12,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.math.roundToInt
 
-class AspireResourceServiceData(resourceModel: ResourceModel) {
+class AspireResourceServiceData(resourceModel: ResourceModel, private val lifetime: LifetimeDefinition) {
     var name: String
         private set
     var resourceType: ResourceType
@@ -52,7 +53,7 @@ class AspireResourceServiceData(resourceModel: ResourceModel) {
     var containerArgs: String? = null
         private set
 
-    private val myLogs = MutableSharedFlow<Unit>()
+    private val myLogs = MutableSharedFlow<ResourceLog>()
     val logs = myLogs.asSharedFlow()
 
     init {
@@ -65,6 +66,8 @@ class AspireResourceServiceData(resourceModel: ResourceModel) {
         environment = resourceModel.environment
 
         fillFromProperties(resourceModel.properties)
+
+        resourceModel.logReceived.advise(lifetime, ::logReceived)
     }
 
     private fun fillFromProperties(properties: Array<ResourceProperty>) {
@@ -133,5 +136,13 @@ class AspireResourceServiceData(resourceModel: ResourceModel) {
         environment = resourceModel.environment
 
         fillFromProperties(resourceModel.properties)
+    }
+
+    fun unsubscribe() {
+        lifetime.terminate()
+    }
+
+    private fun logReceived(log: ResourceLog) {
+        myLogs.tryEmit(log)
     }
 }

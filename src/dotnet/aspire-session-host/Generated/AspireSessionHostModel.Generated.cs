@@ -105,7 +105,7 @@ namespace AspireSessionHost.Generated
     
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => -4003657515168368942L;
+    protected override long SerializationHash => -3912791626157955055L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -253,7 +253,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:87</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:94</p>
   /// </summary>
   public sealed class MetricKey : IPrintable, IEquatable<MetricKey>
   {
@@ -347,7 +347,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:92</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:99</p>
   /// </summary>
   public sealed class MetricValue : IPrintable, IEquatable<MetricValue>
   {
@@ -670,7 +670,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:76</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:78</p>
   /// </summary>
   public sealed class ResourceEndpoint : IPrintable, IEquatable<ResourceEndpoint>
   {
@@ -764,7 +764,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:71</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:73</p>
   /// </summary>
   public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
   {
@@ -859,6 +859,101 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:89</p>
+  /// </summary>
+  public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
+  {
+    //fields
+    //public fields
+    [NotNull] public string Text {get; private set;}
+    [CanBeNull] public bool? IsError {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public ResourceLog(
+      [NotNull] string text,
+      [CanBeNull] bool? isError
+    )
+    {
+      if (text == null) throw new ArgumentNullException("text");
+      
+      Text = text;
+      IsError = isError;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string text, [CanBeNull] out bool? isError)
+    {
+      text = Text;
+      isError = IsError;
+    }
+    //statics
+    
+    public static CtxReadDelegate<ResourceLog> Read = (ctx, reader) => 
+    {
+      var text = reader.ReadString();
+      var isError = ReadBoolNullable(ctx, reader);
+      var _result = new ResourceLog(text, isError);
+      return _result;
+    };
+    public static CtxReadDelegate<bool?> ReadBoolNullable = JetBrains.Rd.Impl.Serializers.ReadBool.NullableStruct();
+    
+    public static CtxWriteDelegate<ResourceLog> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Text);
+      WriteBoolNullable(ctx, writer, value.IsError);
+    };
+    public static  CtxWriteDelegate<bool?> WriteBoolNullable = JetBrains.Rd.Impl.Serializers.WriteBool.NullableStruct();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((ResourceLog) obj);
+    }
+    public bool Equals(ResourceLog other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Text == other.Text && Equals(IsError, other.IsError);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Text.GetHashCode();
+        hash = hash * 31 + (IsError != null ? IsError.GetHashCode() : 0);
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("ResourceLog (");
+      using (printer.IndentCookie()) {
+        printer.Print("text = "); Text.PrintEx(printer); printer.Println();
+        printer.Print("isError = "); IsError.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:46</p>
   /// </summary>
   public sealed class ResourceModel : RdBindableBase
@@ -876,10 +971,13 @@ namespace AspireSessionHost.Generated
     [NotNull] public ResourceEnvironmentVariable[] Environment {get; private set;}
     [NotNull] public ResourceEndpoint[] Endpoints {get; private set;}
     [NotNull] public ResourceService[] Services {get; private set;}
+    [NotNull] public void LogReceived(ResourceLog value) => _LogReceived.Fire(value);
     
     //private fields
+    [NotNull] private readonly RdSignal<ResourceLog> _LogReceived;
+    
     //primary constructor
-    public ResourceModel(
+    private ResourceModel(
       [NotNull] string name,
       AspireSessionHost.Generated.ResourceType resourceType,
       [NotNull] string displayName,
@@ -890,7 +988,8 @@ namespace AspireSessionHost.Generated
       [NotNull] ResourceProperty[] properties,
       [NotNull] ResourceEnvironmentVariable[] environment,
       [NotNull] ResourceEndpoint[] endpoints,
-      [NotNull] ResourceService[] services
+      [NotNull] ResourceService[] services,
+      [NotNull] RdSignal<ResourceLog> logReceived
     )
     {
       if (name == null) throw new ArgumentNullException("name");
@@ -900,6 +999,7 @@ namespace AspireSessionHost.Generated
       if (environment == null) throw new ArgumentNullException("environment");
       if (endpoints == null) throw new ArgumentNullException("endpoints");
       if (services == null) throw new ArgumentNullException("services");
+      if (logReceived == null) throw new ArgumentNullException("logReceived");
       
       Name = name;
       ResourceType = resourceType;
@@ -912,8 +1012,36 @@ namespace AspireSessionHost.Generated
       Environment = environment;
       Endpoints = endpoints;
       Services = services;
+      _LogReceived = logReceived;
+      BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
     }
     //secondary constructor
+    public ResourceModel (
+      [NotNull] string name,
+      AspireSessionHost.Generated.ResourceType resourceType,
+      [NotNull] string displayName,
+      [NotNull] string uid,
+      [CanBeNull] string state,
+      DateTime createdAt,
+      [CanBeNull] int? expectedEndpointsCount,
+      [NotNull] ResourceProperty[] properties,
+      [NotNull] ResourceEnvironmentVariable[] environment,
+      [NotNull] ResourceEndpoint[] endpoints,
+      [NotNull] ResourceService[] services
+    ) : this (
+      name,
+      resourceType,
+      displayName,
+      uid,
+      state,
+      createdAt,
+      expectedEndpointsCount,
+      properties,
+      environment,
+      endpoints,
+      services,
+      new RdSignal<ResourceLog>(ResourceLog.Read, ResourceLog.Write)
+    ) {}
     //deconstruct trait
     //statics
     
@@ -931,7 +1059,8 @@ namespace AspireSessionHost.Generated
       var environment = ReadResourceEnvironmentVariableArray(ctx, reader);
       var endpoints = ReadResourceEndpointArray(ctx, reader);
       var services = ReadResourceServiceArray(ctx, reader);
-      var _result = new ResourceModel(name, resourceType, displayName, uid, state, createdAt, expectedEndpointsCount, properties, environment, endpoints, services).WithId(_id);
+      var logReceived = RdSignal<ResourceLog>.Read(ctx, reader, ResourceLog.Read, ResourceLog.Write);
+      var _result = new ResourceModel(name, resourceType, displayName, uid, state, createdAt, expectedEndpointsCount, properties, environment, endpoints, services, logReceived).WithId(_id);
       return _result;
     };
     public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
@@ -955,6 +1084,7 @@ namespace AspireSessionHost.Generated
       WriteResourceEnvironmentVariableArray(ctx, writer, value.Environment);
       WriteResourceEndpointArray(ctx, writer, value.Endpoints);
       WriteResourceServiceArray(ctx, writer, value.Services);
+      RdSignal<ResourceLog>.Write(ctx, writer, value._LogReceived);
     };
     public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
     public static  CtxWriteDelegate<int?> WriteIntNullable = JetBrains.Rd.Impl.Serializers.WriteInt.NullableStruct();
@@ -985,6 +1115,7 @@ namespace AspireSessionHost.Generated
         printer.Print("environment = "); Environment.PrintEx(printer); printer.Println();
         printer.Print("endpoints = "); Endpoints.PrintEx(printer); printer.Println();
         printer.Print("services = "); Services.PrintEx(printer); printer.Println();
+        printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -999,7 +1130,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:65</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:67</p>
   /// </summary>
   public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
   {
@@ -1102,7 +1233,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:81</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:83</p>
   /// </summary>
   public sealed class ResourceService : IPrintable, IEquatable<ResourceService>
   {
@@ -1434,7 +1565,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:102</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:109</p>
   /// </summary>
   public sealed class TraceNode : IPrintable, IEquatable<TraceNode>
   {
@@ -1560,7 +1691,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:115</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:122</p>
   /// </summary>
   public sealed class TraceNodeAttribute : IPrintable, IEquatable<TraceNodeAttribute>
   {
@@ -1654,7 +1785,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:110</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:117</p>
   /// </summary>
   public sealed class TraceNodeChild : IPrintable, IEquatable<TraceNodeChild>
   {
