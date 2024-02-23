@@ -2,9 +2,9 @@ using Google.Protobuf;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Resource.V1;
 
-namespace AspireSessionHost.Otel;
+namespace AspireSessionHost.OTel;
 
-internal static class OtelUtils
+internal static class OTelUtils
 {
     private const string ServiceName = "service.name";
 

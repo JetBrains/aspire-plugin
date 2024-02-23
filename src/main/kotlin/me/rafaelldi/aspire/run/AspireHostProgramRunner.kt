@@ -25,6 +25,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
     companion object {
         const val DEBUG_SESSION_TOKEN = "DEBUG_SESSION_TOKEN"
         const val DEBUG_SESSION_PORT = "DEBUG_SESSION_PORT"
+        const val DOTNET_RESOURCE_SERVICE_ENDPOINT_URL = "DOTNET_RESOURCE_SERVICE_ENDPOINT_URL"
         const val DOTNET_DASHBOARD_OTLP_ENDPOINT_URL = "DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"
         private const val RUNNER_ID = "aspire-runner"
 
@@ -50,6 +51,9 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             throw CantRunException("Unable to find token or port")
         LOG.trace("Found $DEBUG_SESSION_TOKEN $debugSessionToken and $DEBUG_SESSION_PORT $debugSessionPort")
 
+        val resourceServiceUrl = environmentVariables[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL]
+        LOG.trace("Found $DOTNET_RESOURCE_SERVICE_ENDPOINT_URL $resourceServiceUrl")
+
         val openTelemetryProtocolUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
         LOG.trace("Found $DOTNET_DASHBOARD_OTLP_ENDPOINT_URL $openTelemetryProtocolUrl")
 
@@ -58,22 +62,23 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
 
         val parameters =
             (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)?.parameters
-        val hostPath = parameters?.projectFilePath?.let { Path(it) }
-        val dashboardUrl = parameters?.startBrowserParameters?.url
+        val aspireHostProjectPath = parameters?.projectFilePath?.let { Path(it) }
+        val aspireHostProjectUrl = parameters?.startBrowserParameters?.url
 
         val aspireHostLifetime = environment.project.lifetime.createNested()
 
         val sessionHostManager = AspireSessionHostManager.getInstance(environment.project)
-        val openTelemetryPort = NetUtils.findFreePort(77800)
+        val openTelemetryProtocolServerPort = NetUtils.findFreePort(77800)
         val config = AspireSessionHostConfig(
             debugSessionToken,
-            runProfileName,
-            hostPath,
-            isDebug,
             debugSessionPort,
-            openTelemetryPort,
-            dashboardUrl,
-            openTelemetryProtocolUrl
+            runProfileName,
+            aspireHostProjectPath,
+            aspireHostProjectUrl,
+            isDebug,
+            resourceServiceUrl,
+            openTelemetryProtocolUrl,
+            openTelemetryProtocolServerPort
         )
         LOG.trace("Aspire session host config: $config")
 

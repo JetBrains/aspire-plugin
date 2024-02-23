@@ -1,15 +1,14 @@
-using AspireSessionHost.Sessions;
 using Google.Protobuf.Collections;
 using Grpc.Core;
 using OpenTelemetry.Proto.Collector.Metrics.V1;
 using OpenTelemetry.Proto.Metrics.V1;
 
-namespace AspireSessionHost.Otel;
+namespace AspireSessionHost.OTel;
 
-internal sealed class OtelMetricService(
+internal sealed class OTelMetricService(
     MetricsService.MetricsServiceClient client,
-    SessionMetricService metricService,
-    ILogger<OtelMetricService> logger
+    ResourceMetricService metricService,
+    ILogger<OTelMetricService> logger
 ) : MetricsService.MetricsServiceBase
 {
     public override async Task<ExportMetricsServiceResponse> Export(
@@ -85,7 +84,7 @@ internal sealed class OtelMetricService(
         var timestamp = (long)(dataPoint.TimeUnixNano / 1_000_000_000);
         var sessionMetric = dataPoint.ValueCase switch
         {
-            NumberDataPoint.ValueOneofCase.AsDouble => new SessionMetric(
+            NumberDataPoint.ValueOneofCase.AsDouble => new OTelMetric(
                 serviceName,
                 scopeName,
                 metricName,
@@ -94,7 +93,7 @@ internal sealed class OtelMetricService(
                 dataPoint.AsDouble,
                 timestamp
             ),
-            NumberDataPoint.ValueOneofCase.AsInt => new SessionMetric(
+            NumberDataPoint.ValueOneofCase.AsInt => new OTelMetric(
                 serviceName,
                 scopeName,
                 metricName,

@@ -1,7 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 using AspireSessionHost;
-using AspireSessionHost.Otel;
+using AspireSessionHost.OTel;
+using AspireSessionHost.Resources;
 using AspireSessionHost.Sessions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
@@ -17,35 +18,19 @@ if (rdPortValue == null) throw new ApplicationException("Unable to find RIDER_RD
 if (!int.TryParse(rdPortValue, CultureInfo.InvariantCulture, out var rdPort))
     throw new ApplicationException("RIDER_RD_PORT is not a valid port");
 
-var otelPortValue = Environment.GetEnvironmentVariable("RIDER_OTEL_PORT");
-if (otelPortValue == null) throw new ApplicationException("Unable to find RIDER_OTEL_PORT variable");
-if (!int.TryParse(otelPortValue, CultureInfo.InvariantCulture, out var otelPort))
-    throw new ApplicationException("RIDER_OTEL_PORT is not a valid port");
-
-var otlpEndpointUrlValue = Environment.GetEnvironmentVariable("DOTNET_OTLP_ENDPOINT_URL");
-Uri? otlpEndpointUrl = null;
-if (otlpEndpointUrlValue != null) Uri.TryCreate(otlpEndpointUrlValue, UriKind.Absolute, out otlpEndpointUrl);
-
-var connection = new Connection(rdPort);
-
-var sessionEventService = new SessionEventService(connection);
-await sessionEventService.Subscribe();
-
-var sessionMetricService = new SessionMetricService(connection);
-await sessionMetricService.Subscribe();
-
-var sessionNodeService = new SessionNodeService(connection);
-await sessionNodeService.Subscribe();
+var otlpServerPortValue = Environment.GetEnvironmentVariable("RIDER_OTLP_SERVER_PORT");
+int.TryParse(otlpServerPortValue, CultureInfo.InvariantCulture, out var otlpServerPort);
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGrpc();
-if (otlpEndpointUrl != null) builder.Services.AddOtelClients(otlpEndpointUrl);
+
+var connection = new Connection(rdPort);
 builder.Services.AddSingleton(connection);
-builder.Services.AddSingleton(sessionEventService);
-builder.Services.AddSingleton(sessionMetricService);
-builder.Services.AddSingleton(sessionNodeService);
-builder.Services.AddSingleton<SessionService>();
+
+builder.Services.AddSessionServices();
+builder.Services.AddResourceServices();
+builder.Services.AddOTelServices();
 
 builder.Services.ConfigureHttpJsonOptions(it =>
 {
@@ -55,18 +40,25 @@ builder.Services.ConfigureHttpJsonOptions(it =>
 builder.WebHost.ConfigureKestrel(it =>
 {
     it.ListenLocalhost(aspNetCoreUrl.Port);
-    it.ListenLocalhost(otelPort, options =>
+    if (otlpServerPort != 0)
     {
-        options.Protocols = HttpProtocols.Http2;
-        options.UseHttps();
-    });
+        it.ListenLocalhost(otlpServerPort, options =>
+        {
+            options.Protocols = HttpProtocols.Http2;
+            options.UseHttps();
+        });
+    }
 });
 
 var app = builder.Build();
 
+await app.Services.InitializeSessionServices();
+await app.Services.InitializeResourceServices();
+await app.Services.InitializeOTelServices();
+
 app.UseWebSockets();
 
 app.MapSessionEndpoints();
-app.MapOtelEndpoints();
+app.MapOTelEndpoints();
 
 app.Run();

@@ -7,6 +7,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.rider</depends>
     <depends>com.intellij.diagram</depends>
+    <depends>Docker</depends>
 
     <resource-bundle>messages.AspireBundle</resource-bundle>
 

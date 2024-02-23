@@ -23,6 +23,7 @@ class AspireSessionHostModel private constructor(
     private val _processStarted: RdSignal<ProcessStarted>,
     private val _processTerminated: RdSignal<ProcessTerminated>,
     private val _logReceived: RdSignal<LogReceived>,
+    private val _resources: RdMap<String, ResourceWrapper>,
     private val _getTraceNodes: RdCall<Unit, Array<TraceNode>>
 ) : RdExtBase() {
     //companion
@@ -30,16 +31,23 @@ class AspireSessionHostModel private constructor(
     companion object : ISerializersOwner {
         
         override fun registerSerializersCore(serializers: ISerializers)  {
-            serializers.register(EnvironmentVariableModel)
             serializers.register(ProcessStarted)
             serializers.register(ProcessTerminated)
             serializers.register(LogReceived)
-            serializers.register(MetricKey)
-            serializers.register(MetricValue)
+            serializers.register(SessionEnvironmentVariable)
             serializers.register(SessionModel)
+            serializers.register(ResourceWrapper)
+            serializers.register(ResourceModel)
+            serializers.register(ResourceProperty)
+            serializers.register(ResourceEnvironmentVariable)
+            serializers.register(ResourceEndpoint)
+            serializers.register(ResourceService)
+            serializers.register(ResourceLog)
+            serializers.register(ResourceMetric)
             serializers.register(TraceNode)
             serializers.register(TraceNodeChild)
             serializers.register(TraceNodeAttribute)
+            serializers.register(ResourceType.marshaller)
         }
         
         
@@ -61,7 +69,7 @@ class AspireSessionHostModel private constructor(
         
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = 8898353207338877409L
+        const val serializationHash = -8039202009390253453L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -72,14 +80,20 @@ class AspireSessionHostModel private constructor(
     val processStarted: ISignal<ProcessStarted> get() = _processStarted
     val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
     val logReceived: ISignal<LogReceived> get() = _logReceived
+    val resources: IMutableViewableMap<String, ResourceWrapper> get() = _resources
     val getTraceNodes: IRdCall<Unit, Array<TraceNode>> get() = _getTraceNodes
     //methods
     //initializer
+    init {
+        _sessions.optimizeNested = true
+    }
+    
     init {
         bindableChildren.add("sessions" to _sessions)
         bindableChildren.add("processStarted" to _processStarted)
         bindableChildren.add("processTerminated" to _processTerminated)
         bindableChildren.add("logReceived" to _logReceived)
+        bindableChildren.add("resources" to _resources)
         bindableChildren.add("getTraceNodes" to _getTraceNodes)
     }
     
@@ -90,6 +104,7 @@ class AspireSessionHostModel private constructor(
         RdSignal<ProcessStarted>(ProcessStarted),
         RdSignal<ProcessTerminated>(ProcessTerminated),
         RdSignal<LogReceived>(LogReceived),
+        RdMap<String, ResourceWrapper>(FrameworkMarshallers.String, ResourceWrapper),
         RdCall<Unit, Array<TraceNode>>(FrameworkMarshallers.Void, __TraceNodeArraySerializer)
     )
     
@@ -103,6 +118,7 @@ class AspireSessionHostModel private constructor(
             print("processStarted = "); _processStarted.print(printer); println()
             print("processTerminated = "); _processTerminated.print(printer); println()
             print("logReceived = "); _logReceived.print(printer); println()
+            print("resources = "); _resources.print(printer); println()
             print("getTraceNodes = "); _getTraceNodes.print(printer); println()
         }
         printer.print(")")
@@ -114,6 +130,7 @@ class AspireSessionHostModel private constructor(
             _processStarted.deepClonePolymorphic(),
             _processTerminated.deepClonePolymorphic(),
             _logReceived.deepClonePolymorphic(),
+            _resources.deepClonePolymorphic(),
             _getTraceNodes.deepClonePolymorphic()
         )
     }
@@ -126,71 +143,7 @@ val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionH
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:17]
- */
-data class EnvironmentVariableModel (
-    val key: String,
-    val value: String
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<EnvironmentVariableModel> {
-        override val _type: KClass<EnvironmentVariableModel> = EnvironmentVariableModel::class
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): EnvironmentVariableModel  {
-            val key = buffer.readString()
-            val value = buffer.readString()
-            return EnvironmentVariableModel(key, value)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: EnvironmentVariableModel)  {
-            buffer.writeString(value.key)
-            buffer.writeString(value.value)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as EnvironmentVariableModel
-        
-        if (key != other.key) return false
-        if (value != other.value) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + key.hashCode()
-        __r = __r*31 + value.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("EnvironmentVariableModel (")
-        printer.indent {
-            print("key = "); key.print(printer); println()
-            print("value = "); value.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspireSessionHostModel.kt:32]
+ * #### Generated from [AspireSessionHostModel.kt:27]
  */
 data class LogReceived (
     val id: String,
@@ -260,165 +213,7 @@ data class LogReceived (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:38]
- */
-data class MetricKey (
-    val scope: String,
-    val name: String
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<MetricKey> {
-        override val _type: KClass<MetricKey> = MetricKey::class
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MetricKey  {
-            val scope = buffer.readString()
-            val name = buffer.readString()
-            return MetricKey(scope, name)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MetricKey)  {
-            buffer.writeString(value.scope)
-            buffer.writeString(value.name)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as MetricKey
-        
-        if (scope != other.scope) return false
-        if (name != other.name) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + scope.hashCode()
-        __r = __r*31 + name.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("MetricKey (")
-        printer.indent {
-            print("scope = "); scope.print(printer); println()
-            print("name = "); name.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspireSessionHostModel.kt:43]
- */
-data class MetricValue (
-    val serviceName: String,
-    val scope: String,
-    val name: String,
-    val description: String?,
-    val unit: String?,
-    val value: Double,
-    val timestamp: Long
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<MetricValue> {
-        override val _type: KClass<MetricValue> = MetricValue::class
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MetricValue  {
-            val serviceName = buffer.readString()
-            val scope = buffer.readString()
-            val name = buffer.readString()
-            val description = buffer.readNullable { buffer.readString() }
-            val unit = buffer.readNullable { buffer.readString() }
-            val value = buffer.readDouble()
-            val timestamp = buffer.readLong()
-            return MetricValue(serviceName, scope, name, description, unit, value, timestamp)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MetricValue)  {
-            buffer.writeString(value.serviceName)
-            buffer.writeString(value.scope)
-            buffer.writeString(value.name)
-            buffer.writeNullable(value.description) { buffer.writeString(it) }
-            buffer.writeNullable(value.unit) { buffer.writeString(it) }
-            buffer.writeDouble(value.value)
-            buffer.writeLong(value.timestamp)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as MetricValue
-        
-        if (serviceName != other.serviceName) return false
-        if (scope != other.scope) return false
-        if (name != other.name) return false
-        if (description != other.description) return false
-        if (unit != other.unit) return false
-        if (value != other.value) return false
-        if (timestamp != other.timestamp) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + serviceName.hashCode()
-        __r = __r*31 + scope.hashCode()
-        __r = __r*31 + name.hashCode()
-        __r = __r*31 + if (description != null) description.hashCode() else 0
-        __r = __r*31 + if (unit != null) unit.hashCode() else 0
-        __r = __r*31 + value.hashCode()
-        __r = __r*31 + timestamp.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("MetricValue (")
-        printer.indent {
-            print("serviceName = "); serviceName.print(printer); println()
-            print("scope = "); scope.print(printer); println()
-            print("name = "); name.print(printer); println()
-            print("description = "); description.print(printer); println()
-            print("unit = "); unit.print(printer); println()
-            print("value = "); value.print(printer); println()
-            print("timestamp = "); timestamp.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspireSessionHostModel.kt:22]
+ * #### Generated from [AspireSessionHostModel.kt:17]
  */
 data class ProcessStarted (
     val id: String,
@@ -482,7 +277,7 @@ data class ProcessStarted (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:27]
+ * #### Generated from [AspireSessionHostModel.kt:22]
  */
 data class ProcessTerminated (
     val id: String,
@@ -546,115 +341,638 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:53]
+ * #### Generated from [AspireSessionHostModel.kt:82]
  */
-class SessionModel private constructor(
-    val id: String,
-    val projectPath: String,
-    val debug: Boolean,
-    val envs: Array<EnvironmentVariableModel>?,
-    val args: Array<String>?,
-    val telemetryServiceName: String?,
-    val urls: String?,
-    private val _metrics: RdMap<MetricKey, MetricValue>
-) : RdBindableBase() {
+data class ResourceEndpoint (
+    val endpointUrl: String,
+    val proxyUrl: String
+) : IPrintable {
     //companion
     
-    companion object : IMarshaller<SessionModel> {
-        override val _type: KClass<SessionModel> = SessionModel::class
+    companion object : IMarshaller<ResourceEndpoint> {
+        override val _type: KClass<ResourceEndpoint> = ResourceEndpoint::class
         
         @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionModel  {
-            val _id = RdId.read(buffer)
-            val id = buffer.readString()
-            val projectPath = buffer.readString()
-            val debug = buffer.readBool()
-            val envs = buffer.readNullable { buffer.readArray {EnvironmentVariableModel.read(ctx, buffer)} }
-            val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
-            val telemetryServiceName = buffer.readNullable { buffer.readString() }
-            val urls = buffer.readNullable { buffer.readString() }
-            val _metrics = RdMap.read(ctx, buffer, MetricKey, MetricValue)
-            return SessionModel(id, projectPath, debug, envs, args, telemetryServiceName, urls, _metrics).withId(_id)
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceEndpoint  {
+            val endpointUrl = buffer.readString()
+            val proxyUrl = buffer.readString()
+            return ResourceEndpoint(endpointUrl, proxyUrl)
         }
         
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionModel)  {
-            value.rdid.write(buffer)
-            buffer.writeString(value.id)
-            buffer.writeString(value.projectPath)
-            buffer.writeBool(value.debug)
-            buffer.writeNullable(value.envs) { buffer.writeArray(it) { EnvironmentVariableModel.write(ctx, buffer, it) } }
-            buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
-            buffer.writeNullable(value.telemetryServiceName) { buffer.writeString(it) }
-            buffer.writeNullable(value.urls) { buffer.writeString(it) }
-            RdMap.write(ctx, buffer, value._metrics)
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceEndpoint)  {
+            buffer.writeString(value.endpointUrl)
+            buffer.writeString(value.proxyUrl)
         }
         
         
     }
     //fields
-    val metrics: IMutableViewableMap<MetricKey, MetricValue> get() = _metrics
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceEndpoint
+        
+        if (endpointUrl != other.endpointUrl) return false
+        if (proxyUrl != other.proxyUrl) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + endpointUrl.hashCode()
+        __r = __r*31 + proxyUrl.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceEndpoint (")
+        printer.indent {
+            print("endpointUrl = "); endpointUrl.print(printer); println()
+            print("proxyUrl = "); proxyUrl.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:77]
+ */
+data class ResourceEnvironmentVariable (
+    val key: String,
+    val value: String?
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceEnvironmentVariable> {
+        override val _type: KClass<ResourceEnvironmentVariable> = ResourceEnvironmentVariable::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceEnvironmentVariable  {
+            val key = buffer.readString()
+            val value = buffer.readNullable { buffer.readString() }
+            return ResourceEnvironmentVariable(key, value)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceEnvironmentVariable)  {
+            buffer.writeString(value.key)
+            buffer.writeNullable(value.value) { buffer.writeString(it) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceEnvironmentVariable
+        
+        if (key != other.key) return false
+        if (value != other.value) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + key.hashCode()
+        __r = __r*31 + if (value != null) value.hashCode() else 0
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceEnvironmentVariable (")
+        printer.indent {
+            print("key = "); key.print(printer); println()
+            print("value = "); value.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:93]
+ */
+data class ResourceLog (
+    val text: String,
+    val isError: Boolean
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceLog> {
+        override val _type: KClass<ResourceLog> = ResourceLog::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceLog  {
+            val text = buffer.readString()
+            val isError = buffer.readBool()
+            return ResourceLog(text, isError)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceLog)  {
+            buffer.writeString(value.text)
+            buffer.writeBool(value.isError)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceLog
+        
+        if (text != other.text) return false
+        if (isError != other.isError) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + text.hashCode()
+        __r = __r*31 + isError.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceLog (")
+        printer.indent {
+            print("text = "); text.print(printer); println()
+            print("isError = "); isError.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:98]
+ */
+data class ResourceMetric (
+    val serviceName: String,
+    val scope: String,
+    val name: String,
+    val description: String?,
+    val unit: String?,
+    val value: Double,
+    val timestamp: Long
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceMetric> {
+        override val _type: KClass<ResourceMetric> = ResourceMetric::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceMetric  {
+            val serviceName = buffer.readString()
+            val scope = buffer.readString()
+            val name = buffer.readString()
+            val description = buffer.readNullable { buffer.readString() }
+            val unit = buffer.readNullable { buffer.readString() }
+            val value = buffer.readDouble()
+            val timestamp = buffer.readLong()
+            return ResourceMetric(serviceName, scope, name, description, unit, value, timestamp)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceMetric)  {
+            buffer.writeString(value.serviceName)
+            buffer.writeString(value.scope)
+            buffer.writeString(value.name)
+            buffer.writeNullable(value.description) { buffer.writeString(it) }
+            buffer.writeNullable(value.unit) { buffer.writeString(it) }
+            buffer.writeDouble(value.value)
+            buffer.writeLong(value.timestamp)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceMetric
+        
+        if (serviceName != other.serviceName) return false
+        if (scope != other.scope) return false
+        if (name != other.name) return false
+        if (description != other.description) return false
+        if (unit != other.unit) return false
+        if (value != other.value) return false
+        if (timestamp != other.timestamp) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + serviceName.hashCode()
+        __r = __r*31 + scope.hashCode()
+        __r = __r*31 + name.hashCode()
+        __r = __r*31 + if (description != null) description.hashCode() else 0
+        __r = __r*31 + if (unit != null) unit.hashCode() else 0
+        __r = __r*31 + value.hashCode()
+        __r = __r*31 + timestamp.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceMetric (")
+        printer.indent {
+            print("serviceName = "); serviceName.print(printer); println()
+            print("scope = "); scope.print(printer); println()
+            print("name = "); name.print(printer); println()
+            print("description = "); description.print(printer); println()
+            print("unit = "); unit.print(printer); println()
+            print("value = "); value.print(printer); println()
+            print("timestamp = "); timestamp.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:52]
+ */
+data class ResourceModel (
+    val name: String,
+    val resourceType: ResourceType,
+    val displayName: String,
+    val uid: String,
+    val state: String?,
+    val createdAt: Date,
+    val expectedEndpointsCount: Int?,
+    val properties: Array<ResourceProperty>,
+    val environment: Array<ResourceEnvironmentVariable>,
+    val endpoints: Array<ResourceEndpoint>,
+    val services: Array<ResourceService>
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceModel> {
+        override val _type: KClass<ResourceModel> = ResourceModel::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceModel  {
+            val name = buffer.readString()
+            val resourceType = buffer.readEnum<ResourceType>()
+            val displayName = buffer.readString()
+            val uid = buffer.readString()
+            val state = buffer.readNullable { buffer.readString() }
+            val createdAt = buffer.readDateTime()
+            val expectedEndpointsCount = buffer.readNullable { buffer.readInt() }
+            val properties = buffer.readArray {ResourceProperty.read(ctx, buffer)}
+            val environment = buffer.readArray {ResourceEnvironmentVariable.read(ctx, buffer)}
+            val endpoints = buffer.readArray {ResourceEndpoint.read(ctx, buffer)}
+            val services = buffer.readArray {ResourceService.read(ctx, buffer)}
+            return ResourceModel(name, resourceType, displayName, uid, state, createdAt, expectedEndpointsCount, properties, environment, endpoints, services)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceModel)  {
+            buffer.writeString(value.name)
+            buffer.writeEnum(value.resourceType)
+            buffer.writeString(value.displayName)
+            buffer.writeString(value.uid)
+            buffer.writeNullable(value.state) { buffer.writeString(it) }
+            buffer.writeDateTime(value.createdAt)
+            buffer.writeNullable(value.expectedEndpointsCount) { buffer.writeInt(it) }
+            buffer.writeArray(value.properties) { ResourceProperty.write(ctx, buffer, it) }
+            buffer.writeArray(value.environment) { ResourceEnvironmentVariable.write(ctx, buffer, it) }
+            buffer.writeArray(value.endpoints) { ResourceEndpoint.write(ctx, buffer, it) }
+            buffer.writeArray(value.services) { ResourceService.write(ctx, buffer, it) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceModel
+        
+        if (name != other.name) return false
+        if (resourceType != other.resourceType) return false
+        if (displayName != other.displayName) return false
+        if (uid != other.uid) return false
+        if (state != other.state) return false
+        if (createdAt != other.createdAt) return false
+        if (expectedEndpointsCount != other.expectedEndpointsCount) return false
+        if (!(properties contentDeepEquals other.properties)) return false
+        if (!(environment contentDeepEquals other.environment)) return false
+        if (!(endpoints contentDeepEquals other.endpoints)) return false
+        if (!(services contentDeepEquals other.services)) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + name.hashCode()
+        __r = __r*31 + resourceType.hashCode()
+        __r = __r*31 + displayName.hashCode()
+        __r = __r*31 + uid.hashCode()
+        __r = __r*31 + if (state != null) state.hashCode() else 0
+        __r = __r*31 + createdAt.hashCode()
+        __r = __r*31 + if (expectedEndpointsCount != null) expectedEndpointsCount.hashCode() else 0
+        __r = __r*31 + properties.contentDeepHashCode()
+        __r = __r*31 + environment.contentDeepHashCode()
+        __r = __r*31 + endpoints.contentDeepHashCode()
+        __r = __r*31 + services.contentDeepHashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceModel (")
+        printer.indent {
+            print("name = "); name.print(printer); println()
+            print("resourceType = "); resourceType.print(printer); println()
+            print("displayName = "); displayName.print(printer); println()
+            print("uid = "); uid.print(printer); println()
+            print("state = "); state.print(printer); println()
+            print("createdAt = "); createdAt.print(printer); println()
+            print("expectedEndpointsCount = "); expectedEndpointsCount.print(printer); println()
+            print("properties = "); properties.print(printer); println()
+            print("environment = "); environment.print(printer); println()
+            print("endpoints = "); endpoints.print(printer); println()
+            print("services = "); services.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:71]
+ */
+data class ResourceProperty (
+    val name: String,
+    val displayName: String?,
+    val value: String?
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceProperty> {
+        override val _type: KClass<ResourceProperty> = ResourceProperty::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceProperty  {
+            val name = buffer.readString()
+            val displayName = buffer.readNullable { buffer.readString() }
+            val value = buffer.readNullable { buffer.readString() }
+            return ResourceProperty(name, displayName, value)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceProperty)  {
+            buffer.writeString(value.name)
+            buffer.writeNullable(value.displayName) { buffer.writeString(it) }
+            buffer.writeNullable(value.value) { buffer.writeString(it) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceProperty
+        
+        if (name != other.name) return false
+        if (displayName != other.displayName) return false
+        if (value != other.value) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + name.hashCode()
+        __r = __r*31 + if (displayName != null) displayName.hashCode() else 0
+        __r = __r*31 + if (value != null) value.hashCode() else 0
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceProperty (")
+        printer.indent {
+            print("name = "); name.print(printer); println()
+            print("displayName = "); displayName.print(printer); println()
+            print("value = "); value.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:87]
+ */
+data class ResourceService (
+    val name: String,
+    val allocatedAddress: String?,
+    val allocatedPort: Int?
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceService> {
+        override val _type: KClass<ResourceService> = ResourceService::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceService  {
+            val name = buffer.readString()
+            val allocatedAddress = buffer.readNullable { buffer.readString() }
+            val allocatedPort = buffer.readNullable { buffer.readInt() }
+            return ResourceService(name, allocatedAddress, allocatedPort)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceService)  {
+            buffer.writeString(value.name)
+            buffer.writeNullable(value.allocatedAddress) { buffer.writeString(it) }
+            buffer.writeNullable(value.allocatedPort) { buffer.writeInt(it) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceService
+        
+        if (name != other.name) return false
+        if (allocatedAddress != other.allocatedAddress) return false
+        if (allocatedPort != other.allocatedPort) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + name.hashCode()
+        __r = __r*31 + if (allocatedAddress != null) allocatedAddress.hashCode() else 0
+        __r = __r*31 + if (allocatedPort != null) allocatedPort.hashCode() else 0
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceService (")
+        printer.indent {
+            print("name = "); name.print(printer); println()
+            print("allocatedAddress = "); allocatedAddress.print(printer); println()
+            print("allocatedPort = "); allocatedPort.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:54]
+ */
+enum class ResourceType {
+    Project, 
+    Container, 
+    Executable, 
+    Unknown;
+    
+    companion object {
+        val marshaller = FrameworkMarshallers.enum<ResourceType>()
+        
+    }
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:46]
+ */
+class ResourceWrapper private constructor(
+    private val _model: RdOptionalProperty<ResourceModel>,
+    private val _logReceived: RdSignal<ResourceLog>,
+    private val _metricReceived: RdSignal<ResourceMetric>
+) : RdBindableBase() {
+    //companion
+    
+    companion object : IMarshaller<ResourceWrapper> {
+        override val _type: KClass<ResourceWrapper> = ResourceWrapper::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceWrapper  {
+            val _id = RdId.read(buffer)
+            val _model = RdOptionalProperty.read(ctx, buffer, ResourceModel)
+            val _logReceived = RdSignal.read(ctx, buffer, ResourceLog)
+            val _metricReceived = RdSignal.read(ctx, buffer, ResourceMetric)
+            return ResourceWrapper(_model, _logReceived, _metricReceived).withId(_id)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceWrapper)  {
+            value.rdid.write(buffer)
+            RdOptionalProperty.write(ctx, buffer, value._model)
+            RdSignal.write(ctx, buffer, value._logReceived)
+            RdSignal.write(ctx, buffer, value._metricReceived)
+        }
+        
+        
+    }
+    //fields
+    val model: IOptProperty<ResourceModel> get() = _model
+    val logReceived: ISource<ResourceLog> get() = _logReceived
+    val metricReceived: ISource<ResourceMetric> get() = _metricReceived
     //methods
     //initializer
     init {
-        _metrics.optimizeNested = true
+        _model.optimizeNested = true
     }
     
     init {
-        _metrics.async = true
-    }
-    
-    init {
-        bindableChildren.add("metrics" to _metrics)
+        bindableChildren.add("model" to _model)
+        bindableChildren.add("logReceived" to _logReceived)
+        bindableChildren.add("metricReceived" to _metricReceived)
     }
     
     //secondary constructor
     constructor(
-        id: String,
-        projectPath: String,
-        debug: Boolean,
-        envs: Array<EnvironmentVariableModel>?,
-        args: Array<String>?,
-        telemetryServiceName: String?,
-        urls: String?
     ) : this(
-        id,
-        projectPath,
-        debug,
-        envs,
-        args,
-        telemetryServiceName,
-        urls,
-        RdMap<MetricKey, MetricValue>(MetricKey, MetricValue)
+        RdOptionalProperty<ResourceModel>(ResourceModel),
+        RdSignal<ResourceLog>(ResourceLog),
+        RdSignal<ResourceMetric>(ResourceMetric)
     )
     
     //equals trait
     //hash code trait
     //pretty print
     override fun print(printer: PrettyPrinter)  {
-        printer.println("SessionModel (")
+        printer.println("ResourceWrapper (")
         printer.indent {
-            print("id = "); id.print(printer); println()
-            print("projectPath = "); projectPath.print(printer); println()
-            print("debug = "); debug.print(printer); println()
-            print("envs = "); envs.print(printer); println()
-            print("args = "); args.print(printer); println()
-            print("telemetryServiceName = "); telemetryServiceName.print(printer); println()
-            print("urls = "); urls.print(printer); println()
-            print("metrics = "); _metrics.print(printer); println()
+            print("model = "); _model.print(printer); println()
+            print("logReceived = "); _logReceived.print(printer); println()
+            print("metricReceived = "); _metricReceived.print(printer); println()
         }
         printer.print(")")
     }
     //deepClone
-    override fun deepClone(): SessionModel   {
-        return SessionModel(
-            id,
-            projectPath,
-            debug,
-            envs,
-            args,
-            telemetryServiceName,
-            urls,
-            _metrics.deepClonePolymorphic()
+    override fun deepClone(): ResourceWrapper   {
+        return ResourceWrapper(
+            _model.deepClonePolymorphic(),
+            _logReceived.deepClonePolymorphic(),
+            _metricReceived.deepClonePolymorphic()
         )
     }
     //contexts
@@ -663,7 +981,153 @@ class SessionModel private constructor(
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:64]
+ * #### Generated from [AspireSessionHostModel.kt:33]
+ */
+data class SessionEnvironmentVariable (
+    val key: String,
+    val value: String
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<SessionEnvironmentVariable> {
+        override val _type: KClass<SessionEnvironmentVariable> = SessionEnvironmentVariable::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionEnvironmentVariable  {
+            val key = buffer.readString()
+            val value = buffer.readString()
+            return SessionEnvironmentVariable(key, value)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionEnvironmentVariable)  {
+            buffer.writeString(value.key)
+            buffer.writeString(value.value)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as SessionEnvironmentVariable
+        
+        if (key != other.key) return false
+        if (value != other.value) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + key.hashCode()
+        __r = __r*31 + value.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("SessionEnvironmentVariable (")
+        printer.indent {
+            print("key = "); key.print(printer); println()
+            print("value = "); value.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:38]
+ */
+data class SessionModel (
+    val id: String,
+    val projectPath: String,
+    val debug: Boolean,
+    val args: Array<String>?,
+    val envs: Array<SessionEnvironmentVariable>?
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<SessionModel> {
+        override val _type: KClass<SessionModel> = SessionModel::class
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionModel  {
+            val id = buffer.readString()
+            val projectPath = buffer.readString()
+            val debug = buffer.readBool()
+            val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
+            val envs = buffer.readNullable { buffer.readArray {SessionEnvironmentVariable.read(ctx, buffer)} }
+            return SessionModel(id, projectPath, debug, args, envs)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionModel)  {
+            buffer.writeString(value.id)
+            buffer.writeString(value.projectPath)
+            buffer.writeBool(value.debug)
+            buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
+            buffer.writeNullable(value.envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as SessionModel
+        
+        if (id != other.id) return false
+        if (projectPath != other.projectPath) return false
+        if (debug != other.debug) return false
+        if (args != other.args) return false
+        if (envs != other.envs) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + id.hashCode()
+        __r = __r*31 + projectPath.hashCode()
+        __r = __r*31 + debug.hashCode()
+        __r = __r*31 + if (args != null) args.contentDeepHashCode() else 0
+        __r = __r*31 + if (envs != null) envs.contentDeepHashCode() else 0
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("SessionModel (")
+        printer.indent {
+            print("id = "); id.print(printer); println()
+            print("projectPath = "); projectPath.print(printer); println()
+            print("debug = "); debug.print(printer); println()
+            print("args = "); args.print(printer); println()
+            print("envs = "); envs.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:108]
  */
 data class TraceNode (
     val id: String,
@@ -745,7 +1209,7 @@ data class TraceNode (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:77]
+ * #### Generated from [AspireSessionHostModel.kt:121]
  */
 data class TraceNodeAttribute (
     val key: String,
@@ -809,7 +1273,7 @@ data class TraceNodeAttribute (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:72]
+ * #### Generated from [AspireSessionHostModel.kt:116]
  */
 data class TraceNodeChild (
     val id: String,

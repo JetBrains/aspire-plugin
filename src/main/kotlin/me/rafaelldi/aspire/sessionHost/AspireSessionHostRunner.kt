@@ -30,10 +30,11 @@ class AspireSessionHostRunner(private val project: Project) {
         private val LOG = logger<AspireSessionHostRunner>()
 
         private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
-        private const val RIDER_OTEL_PORT = "RIDER_OTEL_PORT"
         private const val RIDER_RD_PORT = "RIDER_RD_PORT"
         private const val RIDER_PARENT_PROCESS_PID = "RIDER_PARENT_PROCESS_PID"
-        private const val DOTNET_OTLP_ENDPOINT_URL = "DOTNET_OTLP_ENDPOINT_URL"
+        private const val RIDER_RESOURCE_ENDPOINT_URL = "RIDER_RESOURCE_ENDPOINT_URL"
+        private const val RIDER_OTLP_SERVER_PORT = "RIDER_OTLP_SERVER_PORT"
+        private const val RIDER_OTLP_ENDPOINT_URL = "RIDER_OTLP_ENDPOINT_URL"
     }
 
     private val pluginId = PluginId.getId("me.rafaelldi.aspire")
@@ -99,11 +100,14 @@ class AspireSessionHostRunner(private val project: Project) {
             .withEnvironment(
                 buildMap {
                     put(ASPNETCORE_URLS, "http://localhost:${sessionHostConfig.debugSessionPort}/")
-                    put(RIDER_OTEL_PORT, sessionHostConfig.openTelemetryPort.toString())
                     put(RIDER_RD_PORT, "$rdPort")
                     put(RIDER_PARENT_PROCESS_PID, ProcessHandle.current().pid().toString())
-                    if (sessionHostConfig.openTelemetryProtocolUrl != null)
-                        put(DOTNET_OTLP_ENDPOINT_URL, sessionHostConfig.openTelemetryProtocolUrl)
+                    if (sessionHostConfig.resourceServiceUrl != null)
+                        put(RIDER_RESOURCE_ENDPOINT_URL, sessionHostConfig.resourceServiceUrl)
+                    if (sessionHostConfig.openTelemetryProtocolUrl != null) {
+                        put(RIDER_OTLP_SERVER_PORT, sessionHostConfig.openTelemetryProtocolServerPort.toString())
+                        put(RIDER_OTLP_ENDPOINT_URL, sessionHostConfig.openTelemetryProtocolUrl)
+                    }
                 }
             )
         return commandLine

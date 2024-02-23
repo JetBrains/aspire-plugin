@@ -1,9 +1,9 @@
 using Grpc.Core;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 
-namespace AspireSessionHost.Otel;
+namespace AspireSessionHost.OTel;
 
-internal sealed class OtelLogService(LogsService.LogsServiceClient client) : LogsService.LogsServiceBase
+internal sealed class OTelLogService(LogsService.LogsServiceClient client) : LogsService.LogsServiceBase
 {
     public override async Task<ExportLogsServiceResponse> Export(
         ExportLogsServiceRequest request,

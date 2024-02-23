@@ -6,13 +6,13 @@ import com.intellij.ui.SideBorder
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.components.BorderLayoutPanel
 import me.rafaelldi.aspire.AspireBundle
-import me.rafaelldi.aspire.generated.MetricKey
-import me.rafaelldi.aspire.generated.MetricValue
+import me.rafaelldi.aspire.services.AspireResourceMetricKey
+import me.rafaelldi.aspire.services.AspireResourceService
 
-class SessionMetricPanel : BorderLayoutPanel() {
+class ResourceMetricPanel(private val resourceService: AspireResourceService) : BorderLayoutPanel() {
     private val table = MetricTable(this)
-    private var chosenMetric: MetricKey? = null
-    private var chartPanel: MetricChartPanel? = null
+    private var chosenMetric: AspireResourceMetricKey? = null
+    private var chartPanel: ResourceMetricChartPanel? = null
 
     private val splitter = OnePixelSplitter(false).apply {
         firstComponent = ScrollPaneFactory.createScrollPane(table, SideBorder.NONE)
@@ -25,12 +25,13 @@ class SessionMetricPanel : BorderLayoutPanel() {
     }
 
     fun metricSelected(scope: String, metric: String, value: Double, unit: String) {
-        chosenMetric = MetricKey(scope, metric)
-        chartPanel = MetricChartPanel(metric, value, unit)
+        chosenMetric = AspireResourceMetricKey(scope, metric)
+        chartPanel = ResourceMetricChartPanel(metric, value, unit)
         splitter.secondComponent = chartPanel
     }
 
-    fun updateMetrics(metrics: Map<MetricKey, MetricValue>) {
+    fun update() {
+        val metrics = resourceService.getMetrics()
         table.addOrUpdate(metrics)
         chartPanel?.let {
             val key = chosenMetric ?: return@let

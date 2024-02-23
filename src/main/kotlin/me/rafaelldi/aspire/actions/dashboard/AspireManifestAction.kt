@@ -15,7 +15,7 @@ class AspireManifestAction : AnAction() {
             .getInstance(project)
             .getSessionHost(sessionHostId)
             ?: return
-        val hostPath = sessionHost.hostData.hostPath ?: return
+        val hostPath = sessionHost.hostData.hostProjectPath ?: return
 
         ManifestService.getInstance(project).generateManifest(hostPath)
     }

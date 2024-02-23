@@ -4,10 +4,10 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import me.rafaelldi.aspire.generated.AspireSessionHostModel
 import java.nio.file.Path
 
-data class SessionHostServiceData(
+data class AspireSessionHostServiceData(
     val id: String,
-    val hostName: String,
-    val hostPath: Path?,
+    val name: String,
+    val hostProjectPath: Path?,
     val dashboardUrl: String?,
     val sessionHostModel: AspireSessionHostModel,
     val sessionHostLifetime: Lifetime
