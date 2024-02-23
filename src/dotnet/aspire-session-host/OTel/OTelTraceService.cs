@@ -1,6 +1,9 @@
 using AspireSessionHost.Sessions;
 using Google.Protobuf.Collections;
 using Grpc.Core;
+using OpenTelemetry.Proto.Collector.Trace.V1;
+using OpenTelemetry.Proto.Common.V1;
+using OpenTelemetry.Proto.Trace.V1;
 
 namespace AspireSessionHost.OTel;
 

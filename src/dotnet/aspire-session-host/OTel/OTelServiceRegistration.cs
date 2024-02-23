@@ -1,4 +1,7 @@
 using AspireSessionHost.Sessions;
+using OpenTelemetry.Proto.Collector.Logs.V1;
+using OpenTelemetry.Proto.Collector.Metrics.V1;
+using OpenTelemetry.Proto.Collector.Trace.V1;
 
 namespace AspireSessionHost.OTel;
 
