@@ -1,9 +1,7 @@
 using Google.Protobuf.Collections;
 using Grpc.Core;
-using OpenTelemetry.Proto.Collector.Metrics.V1;
-using OpenTelemetry.Proto.Metrics.V1;
 
-namespace AspireSessionHost.OpenTelemetry;
+namespace AspireSessionHost.OTel;
 
 internal sealed class OTelMetricService(
     MetricsService.MetricsServiceClient client,

@@ -1,7 +1,6 @@
 using Grpc.Core;
-using OpenTelemetry.Proto.Collector.Logs.V1;
 
-namespace AspireSessionHost.OpenTelemetry;
+namespace AspireSessionHost.OTel;
 
 internal sealed class OTelLogService(LogsService.LogsServiceClient client) : LogsService.LogsServiceBase
 {

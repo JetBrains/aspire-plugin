@@ -1,8 +1,6 @@
 using Google.Protobuf;
-using OpenTelemetry.Proto.Common.V1;
-using OpenTelemetry.Proto.Resource.V1;
 
-namespace AspireSessionHost.OpenTelemetry;
+namespace AspireSessionHost.OTel;
 
 internal static class OTelUtils
 {

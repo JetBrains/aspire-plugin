@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using AspireSessionHost;
-using AspireSessionHost.OpenTelemetry;
+using AspireSessionHost.OTel;
 using AspireSessionHost.Resources;
 using AspireSessionHost.Sessions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;

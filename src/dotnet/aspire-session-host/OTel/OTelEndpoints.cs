@@ -1,4 +1,4 @@
-namespace AspireSessionHost.OpenTelemetry;
+namespace AspireSessionHost.OTel;
 
 internal static class OTelEndpoints
 {
