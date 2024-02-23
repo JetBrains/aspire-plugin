@@ -66,10 +66,8 @@ class AspireHostExecutorFactory(
         envs[DEBUG_SESSION_TOKEN] = debugSessionToken
         envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
         val settings = AspireSettings.getInstance()
-        if (settings.showServices) {
-            val resourceEndpointPort = NetUtils.findFreePort(77800)
-            envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] = "http://localhost:$resourceEndpointPort"
-        }
+        val resourceEndpointPort = NetUtils.findFreePort(77800)
+        envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] = "http://localhost:$resourceEndpointPort"
         if (settings.collectTelemetry) {
             val openTelemetryProtocolEndpointPort = NetUtils.findFreePort(87800)
             envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] = "http://localhost:$openTelemetryProtocolEndpointPort"

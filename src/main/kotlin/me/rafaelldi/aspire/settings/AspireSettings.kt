@@ -17,11 +17,6 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         set(value) {
             state.checkForNewVersions = value
         }
-    var showServices
-        get() = state.showServices
-        set(value) {
-            state.showServices = value
-        }
     var collectTelemetry
         get() = state.collectTelemetry
         set(value) {
