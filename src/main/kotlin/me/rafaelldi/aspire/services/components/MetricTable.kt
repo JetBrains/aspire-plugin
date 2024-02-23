@@ -3,8 +3,8 @@ package me.rafaelldi.aspire.services.components
 import com.intellij.ui.DoubleClickListener
 import com.intellij.ui.table.JBTable
 import me.rafaelldi.aspire.AspireBundle
-import me.rafaelldi.aspire.generated.MetricKey
-import me.rafaelldi.aspire.generated.MetricValue
+import me.rafaelldi.aspire.generated.ResourceMetric
+import me.rafaelldi.aspire.services.AspireResourceMetricKey
 import java.awt.event.MouseEvent
 import java.util.*
 import javax.swing.table.DefaultTableModel
@@ -17,7 +17,7 @@ class MetricTable(private val parentPanel: ResourceMetricPanel) : JBTable() {
         private val UNIT_COLUMN = AspireBundle.getMessage("service.tab.metrics.table.unit")
     }
 
-    private val metricRowMap: MutableMap<MetricKey, Int> = mutableMapOf()
+    private val metricRowMap: MutableMap<AspireResourceMetricKey, Int> = mutableMapOf()
     private val tableModel = DefaultTableModel(arrayOf(SCOPE_COLUMN, NAME_COLUMN, VALUE_COLUMN, UNIT_COLUMN), 0)
 
     init {
@@ -44,7 +44,7 @@ class MetricTable(private val parentPanel: ResourceMetricPanel) : JBTable() {
         parentPanel.metricSelected(scope, metric, value, unit)
     }
 
-    fun addOrUpdate(metrics: Map<MetricKey, MetricValue>) {
+    fun addOrUpdate(metrics: Map<AspireResourceMetricKey, ResourceMetric>) {
         for (metric in metrics) {
             val stringValue = String.format(Locale.ROOT, "%.2f", metric.value.value)
             val row = metricRowMap[metric.key]

@@ -2,11 +2,11 @@ package me.rafaelldi.aspire.services.components
 
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
-import me.rafaelldi.aspire.services.AspireResourceServiceData
+import me.rafaelldi.aspire.services.AspireResourceService
 
-class ResourceConsolePanel(resourceData: AspireResourceServiceData) : BorderLayoutPanel() {
+class ResourceConsolePanel(resourceService: AspireResourceService) : BorderLayoutPanel() {
     init {
         border = JBUI.Borders.empty()
-        add(resourceData.getConsole().component)
+        add(resourceService.getConsole().component)
     }
 }

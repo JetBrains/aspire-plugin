@@ -21,15 +21,16 @@ import javax.swing.JPanel
 import kotlin.time.Duration.Companion.seconds
 
 class AspireResourceServiceViewDescriptor(
-    private val resourceData: AspireResourceServiceData
+    private val resourceService: AspireResourceService
 ) : ServiceViewDescriptor {
 
-    private val metricPanel by lazy { ResourceMetricPanel() }
+    private val metricPanelDelegate = lazy { ResourceMetricPanel(resourceService) }
+    private val metricPanel by metricPanelDelegate
 
     private val mainPanel by lazy {
         val tabs = JBTabbedPane()
-        tabs.addTab(AspireBundle.getMessage("service.tab.dashboard"), ResourceDashboardPanel(resourceData))
-        tabs.addTab(AspireBundle.getMessage("service.tab.console"), ResourceConsolePanel(resourceData))
+        tabs.addTab(AspireBundle.getMessage("service.tab.dashboard"), ResourceDashboardPanel(resourceService))
+        tabs.addTab(AspireBundle.getMessage("service.tab.console"), ResourceConsolePanel(resourceService))
         if (AspireSettings.getInstance().collectTelemetry) {
             tabs.addTab(AspireBundle.getMessage("service.tab.metrics"), metricPanel)
         }
@@ -41,7 +42,7 @@ class AspireResourceServiceViewDescriptor(
 
     init {
         if (AspireSettings.getInstance().collectTelemetry) {
-            resourceData.getLifetime().launch(Dispatchers.Default) {
+            resourceService.lifetime.launch(Dispatchers.Default) {
                 while (true) {
                     delay(1.seconds)
                     withUiContext {
@@ -53,15 +54,16 @@ class AspireResourceServiceViewDescriptor(
     }
 
     override fun getPresentation() = PresentationData().apply {
-        val icon = getIcon(resourceData.resourceType, resourceData.isRunning)
+        val icon = getIcon(resourceService.resourceType, resourceService.isRunning)
         setIcon(icon)
-        addText(resourceData.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+        addText(resourceService.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
     }
 
     override fun getContentComponent() = mainPanel
 
     private fun update() {
-//        val metrics = sessionData.sessionModel.metrics.toMap()
-//        metricPanel.updateMetrics(metrics)
+        if (metricPanelDelegate.isInitialized()) {
+            metricPanel.update()
+        }
     }
 }

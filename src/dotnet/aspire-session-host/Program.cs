@@ -53,7 +53,7 @@ builder.WebHost.ConfigureKestrel(it =>
 var app = builder.Build();
 
 await app.Services.InitializeSessionServices();
-app.Services.InitializeResourceServices();
+await app.Services.InitializeResourceServices();
 await app.Services.InitializeOTelServices();
 
 app.UseWebSockets();

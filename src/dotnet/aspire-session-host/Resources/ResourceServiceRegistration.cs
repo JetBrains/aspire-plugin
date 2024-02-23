@@ -14,12 +14,15 @@ internal static class ResourceServiceRegistration
 
         services.AddGrpcClient<DashboardService.DashboardServiceClient>(o => { o.Address = resourceEndpointUrl; });
         services.AddSingleton<SessionResourceService>();
+        services.AddSingleton<SessionResourceLogService>();
     }
 
-    internal static void InitializeResourceServices(this IServiceProvider services)
+    internal static async Task InitializeResourceServices(this IServiceProvider services)
     {
         using var scope = services.CreateScope();
-        var sessionResourceService = scope.ServiceProvider.GetRequiredService<SessionResourceService>();
-        sessionResourceService.Initialize();
+        var resourceService = scope.ServiceProvider.GetRequiredService<SessionResourceService>();
+        resourceService.Initialize();
+        var resourceLogService = scope.ServiceProvider.GetRequiredService<SessionResourceLogService>();
+        await resourceLogService.Initialize();
     }
 }

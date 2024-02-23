@@ -1,6 +1,6 @@
-namespace AspireSessionHost.Sessions;
+namespace AspireSessionHost.OpenTelemetry;
 
-internal record SessionMetric(
+internal record OTelMetric(
     string ServiceName,
     string ScopeName,
     string MetricName,

@@ -1,11 +1,12 @@
 package me.rafaelldi.aspire.services
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.jetbrains.rd.util.lifetime.LifetimeDefinition
+import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -16,10 +17,11 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.math.roundToInt
 
-class AspireResourceServiceData(
-    resourceModel: ResourceModel,
-    project: Project,
-    private val lifetimeDefinition: LifetimeDefinition
+class AspireResourceService(
+    wrapper: ResourceWrapper,
+    val lifetime: Lifetime,
+    private val sessionHost: AspireSessionHostServiceContributor,
+    private val project: Project
 ) {
     var name: String
         private set
@@ -61,8 +63,6 @@ class AspireResourceServiceData(
     var containerArgs: String? = null
         private set
 
-    fun getLifetime() = lifetimeDefinition.lifetime
-
     private val consoleView: ConsoleView = TextConsoleBuilderFactory
         .getInstance()
         .createBuilder(project)
@@ -70,18 +70,24 @@ class AspireResourceServiceData(
         .console
     fun getConsole() = consoleView
 
+    private val metrics = mutableMapOf<AspireResourceMetricKey, ResourceMetric>()
+    fun getMetrics() = metrics.toMap()
+
     init {
-        name = resourceModel.name
-        resourceType = resourceModel.resourceType
-        displayName = resourceModel.displayName
-        state = resourceModel.state
-        isRunning = resourceModel.state?.equals("running", true) == true
-        endpoints = resourceModel.endpoints
-        environment = resourceModel.environment
+        val model = wrapper.model.valueOrNull
+        name = model?.name ?: ""
+        resourceType = model?.resourceType ?: ResourceType.Unknown
+        displayName = model?.displayName ?: ""
+        state = model?.state
+        isRunning = model?.state?.equals("running", true) == true
+        endpoints = model?.endpoints ?: emptyArray()
+        environment = model?.environment ?: emptyArray()
 
-        fillFromProperties(resourceModel.properties)
+        fillFromProperties(model?.properties ?: emptyArray())
 
-        resourceModel.logReceived.advise(lifetimeDefinition, ::logReceived)
+        wrapper.model.advise(lifetime, ::update)
+        wrapper.logReceived.advise(lifetime, ::logReceived)
+        wrapper.metricReceived.advise(lifetime, ::metricReceived)
 
         Disposer.register(AspireService.getInstance(project), consoleView)
     }
@@ -142,7 +148,7 @@ class AspireResourceServiceData(
         }
     }
 
-    fun update(resourceModel: ResourceModel) {
+    private fun update(resourceModel: ResourceModel) {
         name = resourceModel.name
         resourceType = resourceModel.resourceType
         displayName = resourceModel.displayName
@@ -152,10 +158,13 @@ class AspireResourceServiceData(
         environment = resourceModel.environment
 
         fillFromProperties(resourceModel.properties)
-    }
 
-    fun unsubscribe() {
-        lifetimeDefinition.terminate()
+        val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
+            sessionHost,
+            AspireServiceContributor::class.java
+        )
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
     }
 
     private fun logReceived(log: ResourceLog) {
@@ -164,5 +173,10 @@ class AspireResourceServiceData(
             if (!log.isError) ConsoleViewContentType.NORMAL_OUTPUT
             else ConsoleViewContentType.ERROR_OUTPUT
         )
+    }
+
+    private fun metricReceived(metric: ResourceMetric) {
+        val key = AspireResourceMetricKey(metric.scope, metric.name)
+        metrics[key] = metric
     }
 }

@@ -43,7 +43,13 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("envs", array(SessionEnvironmentVariable).nullable)
     }
 
-    private val ResourceModel = classdef {
+    private val ResourceWrapper = classdef {
+        property("model", ResourceModel)
+        sink("logReceived", ResourceLog)
+        sink("metricReceived", ResourceMetric)
+    }
+
+    private val ResourceModel = structdef {
         field("name", string)
         field("resourceType", enum("ResourceType") {
             +"Project"
@@ -60,8 +66,6 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("environment", array(ResourceEnvironmentVariable))
         field("endpoints", array(ResourceEndpoint))
         field("services", array(ResourceService))
-
-        sink("logReceived", ResourceLog)
     }
 
     private val ResourceProperty = structdef {
@@ -91,12 +95,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("isError", bool)
     }
 
-    private val MetricKey = structdef {
-        field("scope", string)
-        field("name", string)
-    }
-
-    private val MetricValue = structdef {
+    private val ResourceMetric = structdef {
         field("serviceName", string)
         field("scope", string)
         field("name", string)
@@ -131,7 +130,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         source("processTerminated", ProcessTerminated)
         source("logReceived", LogReceived)
 
-        map("resources", string, ResourceModel)
+        map("resources", string, ResourceWrapper)
 
         call("getTraceNodes", void, array(TraceNode))
     }

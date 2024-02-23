@@ -8,17 +8,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.util.launchOnUi
 import com.intellij.openapi.rd.util.withUiContext
 import com.jetbrains.rd.framework.*
+import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isNotAlive
-import com.jetbrains.rd.util.reactive.IViewableMap
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import me.rafaelldi.aspire.generated.*
 import me.rafaelldi.aspire.services.AspireSessionHostServiceContributor
 import me.rafaelldi.aspire.services.AspireSessionHostServiceData
-import me.rafaelldi.aspire.services.AspireResourceServiceData
+import me.rafaelldi.aspire.services.AspireResourceService
 import me.rafaelldi.aspire.services.AspireServiceContributor
 import java.util.concurrent.ConcurrentHashMap
 
@@ -31,7 +31,7 @@ class AspireSessionHostManager(private val project: Project) {
     }
 
     private val sessionHosts = ConcurrentHashMap<String, AspireSessionHostServiceContributor>()
-    private val resources = ConcurrentHashMap<String, MutableMap<String, AspireResourceServiceData>>()
+    private val resources = ConcurrentHashMap<String, MutableMap<String, AspireResourceService>>()
 
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
@@ -157,8 +157,8 @@ class AspireSessionHostManager(private val project: Project) {
                 viewSession(sessionId, sessionModel, sessionLifetime, sessionEvents, sessionHostConfig)
             }
 
-            sessionHostModel.resources.advise(sessionHostLifetime) {
-                handleResourceEvent(it, sessionHostConfig, sessionHostLifetime)
+            sessionHostModel.resources.view(sessionHostLifetime) { resourceLifetime, resourceId, resource ->
+                viewResource(resourceId, resource, resourceLifetime, sessionHostConfig)
             }
         }
     }
@@ -185,47 +185,32 @@ class AspireSessionHostManager(private val project: Project) {
         runner.runSession(command)
     }
 
-    private fun handleResourceEvent(
-        event: IViewableMap.Event<String, ResourceModel>,
-        sessionHostConfig: AspireSessionHostConfig,
-        sessionHostLifetime: Lifetime
+    private fun viewResource(
+        resourceId: String,
+        resource: ResourceWrapper,
+        resourceLifetime: Lifetime,
+        sessionHostConfig: AspireSessionHostConfig
     ) {
-        val aspireHost = sessionHosts[sessionHostConfig.debugSessionToken] ?: return
+        val sessionHost = sessionHosts[sessionHostConfig.debugSessionToken] ?: return
         val resourcesByHost = resources[sessionHostConfig.debugSessionToken] ?: return
 
-        when (event) {
-            is IViewableMap.Event.Add -> {
-                val resourceData = AspireResourceServiceData(event.newValue, project, sessionHostLifetime.createNested())
-                resourcesByHost[event.key] = resourceData
-                val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
-                    ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
-                    aspireHost,
-                    AspireServiceContributor::class.java
-                )
-                project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
-            }
+        val resourceService = AspireResourceService(resource, resourceLifetime, sessionHost, project)
+        resourcesByHost.addUnique(resourceLifetime, resourceId, resourceService)
 
-            is IViewableMap.Event.Remove -> {
-                val resource = resourcesByHost.remove(event.key)
-                resource?.unsubscribe()
-                val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
-                    ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
-                    aspireHost,
-                    AspireServiceContributor::class.java
-                )
-                project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
-            }
-
-            is IViewableMap.Event.Update -> {
-                val resource = resourcesByHost[event.key] ?: return
-                resource.update(event.newValue)
-                val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
-                    ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
-                    aspireHost,
-                    AspireServiceContributor::class.java
-                )
-                project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
-            }
-        }
+        resourceLifetime.bracketIfAlive({
+            val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
+                ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
+                sessionHost,
+                AspireServiceContributor::class.java
+            )
+            project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
+        }, {
+            val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
+                ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
+                sessionHost,
+                AspireServiceContributor::class.java
+            )
+            project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
+        })
     }
 }

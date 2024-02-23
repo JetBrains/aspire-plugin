@@ -19,7 +19,7 @@ internal static class OTelServiceRegistration
         services.AddGrpcClient<MetricsService.MetricsServiceClient>(o => { o.Address = otlpEndpointUrl; });
         services.AddGrpcClient<TraceService.TraceServiceClient>(o => { o.Address = otlpEndpointUrl; });
 
-        services.AddSingleton<SessionMetricService>();
+        services.AddSingleton<ResourceMetricService>();
         services.AddSingleton<SessionNodeService>();
     }
 
@@ -27,7 +27,7 @@ internal static class OTelServiceRegistration
     {
         using var scope = services.CreateScope();
 
-        var sessionMetricService = scope.ServiceProvider.GetRequiredService<SessionMetricService>();
+        var sessionMetricService = scope.ServiceProvider.GetRequiredService<ResourceMetricService>();
         await sessionMetricService.Initialize();
 
         var sessionNodeService = scope.ServiceProvider.GetRequiredService<SessionNodeService>();

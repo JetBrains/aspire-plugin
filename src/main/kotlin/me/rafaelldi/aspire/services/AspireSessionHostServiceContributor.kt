@@ -13,7 +13,7 @@ import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import me.rafaelldi.aspire.util.SESSION_HOST_ID
 
 class AspireSessionHostServiceContributor(val hostData: AspireSessionHostServiceData) :
-    ServiceViewProvidingContributor<AspireResourceServiceData, AspireSessionHostServiceData> {
+    ServiceViewProvidingContributor<AspireResourceService, AspireSessionHostServiceData> {
 
     private val viewDescriptor by lazy {
         object : SimpleServiceViewDescriptor(hostData.name, AspireIcons.Service), DataProvider {
@@ -47,6 +47,6 @@ class AspireSessionHostServiceContributor(val hostData: AspireSessionHostService
 
     override fun getServiceDescriptor(
         project: Project,
-        service: AspireResourceServiceData
+        service: AspireResourceService
     ) = AspireResourceServiceViewDescriptor(service)
 }

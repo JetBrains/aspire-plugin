@@ -2,8 +2,7 @@
 using AspireSessionHost.Generated;
 using Grpc.Core;
 using JetBrains.Lifetimes;
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+using JetBrains.Rd.Base;
 
 namespace AspireSessionHost.Resources;
 
@@ -13,7 +12,6 @@ internal sealed class SessionResourceService(
 ) : IDisposable
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
-    private readonly Dictionary<string, LifetimeDefinition> _logWatchingLifetimes = new();
 
     internal void Initialize()
     {
@@ -47,8 +45,12 @@ internal sealed class SessionResourceService(
             ct.ThrowIfCancellationRequested();
 
             var resourceModel = resource.ToModel();
-            await connection.DoWithModel(model => model.Resources[resourceModel.Name] = resourceModel);
-            AddResourceLogWatching(resourceModel.Name);
+            var resourceWrapper = new ResourceWrapper();
+            resourceWrapper.Model.SetValue(resourceModel);
+            await connection.DoWithModel(model =>
+            {
+                model.Resources.TryAdd(resourceModel.Name, resourceWrapper);
+            });
         }
     }
 
@@ -75,50 +77,24 @@ internal sealed class SessionResourceService(
     private async Task UpsertResource(WatchResourcesChange change)
     {
         var resourceModel = change.Upsert.ToModel();
-
-        await connection.DoWithModel(model => model.Resources[resourceModel.Name] = resourceModel);
-        AddResourceLogWatching(resourceModel.Name);
+        await connection.DoWithModel(model =>
+        {
+            if (model.Resources.ContainsKey(resourceModel.Name))
+            {
+                model.Resources[resourceModel.Name].Model.SetValue(resourceModel);
+            }
+            else
+            {
+                var resourceWrapper = new ResourceWrapper();
+                resourceWrapper.Model.SetValue(resourceModel);
+                model.Resources.TryAdd(resourceModel.Name, resourceWrapper);
+            }
+        });
     }
 
     private async Task DeleteResource(WatchResourcesChange change)
     {
-        if (_logWatchingLifetimes.Remove(change.Delete.ResourceName, out var resourceLogLifetime))
-        {
-            resourceLogLifetime.Terminate();
-        }
-
         await connection.DoWithModel(model => model.Resources.Remove(change.Delete.ResourceName));
-    }
-
-    private void AddResourceLogWatching(string resourceName)
-    {
-        if (_logWatchingLifetimes.ContainsKey(resourceName)) return;
-
-        var logWatchingLifetime = _lifetimeDef.Lifetime.CreateNested();
-        if (_logWatchingLifetimes.TryAdd(resourceName, logWatchingLifetime))
-        {
-            logWatchingLifetime.Lifetime.StartAttachedAsync(
-                TaskScheduler.Default,
-                async () => await WatchResourceLogs(resourceName)
-            );
-        }
-    }
-
-    private async Task WatchResourceLogs(string resourceName)
-    {
-        var request = new WatchResourceConsoleLogsRequest { ResourceName = resourceName };
-        var response = client.WatchResourceConsoleLogs(request, cancellationToken: Lifetime.AsyncLocal.Value);
-        await foreach (var update in response.ResponseStream.ReadAllAsync(Lifetime.AsyncLocal.Value))
-        {
-            foreach (var logLine in update.LogLines)
-            {
-                await connection.DoWithModel(model =>
-                    model.Resources[resourceName].LogReceived(
-                        new ResourceLog(logLine.Text, logLine.HasIsStdErr ? logLine.IsStdErr : false)
-                    )
-                );
-            }
-        }
     }
 
     public void Dispose()
