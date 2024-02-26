@@ -21,7 +21,7 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
             session.Args,
             envs
         );
-        logger.LogDebug("Starting a new session {session}", sessionModel);
+        logger.LogInformation("Starting a new session {session}", sessionModel);
 
         var result = await connection.DoWithModel(model => model.Sessions.TryAdd(stringId, sessionModel));
 
@@ -30,7 +30,7 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
 
     internal async Task<bool> Delete(Guid id)
     {
-        logger.LogDebug("Deleting the new session {sessionId}", id);
+        logger.LogInformation("Deleting the new session {sessionId}", id);
 
         return await connection.DoWithModel(model => model.Sessions.Remove(id.ToString()));
     }
