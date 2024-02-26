@@ -45,6 +45,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
 
     private val ResourceWrapper = classdef {
         property("model", ResourceModel)
+        property("isInitialized", bool)
         sink("logReceived", ResourceLog)
         sink("metricReceived", ResourceMetric)
     }

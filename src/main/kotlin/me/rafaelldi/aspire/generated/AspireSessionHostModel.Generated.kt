@@ -69,7 +69,7 @@ class AspireSessionHostModel private constructor(
         
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = -8039202009390253453L
+        const val serializationHash = 1270678957797202853L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -341,7 +341,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:82]
+ * #### Generated from [AspireSessionHostModel.kt:83]
  */
 data class ResourceEndpoint (
     val endpointUrl: String,
@@ -405,7 +405,7 @@ data class ResourceEndpoint (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:77]
+ * #### Generated from [AspireSessionHostModel.kt:78]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -469,7 +469,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:93]
+ * #### Generated from [AspireSessionHostModel.kt:94]
  */
 data class ResourceLog (
     val text: String,
@@ -533,7 +533,7 @@ data class ResourceLog (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:98]
+ * #### Generated from [AspireSessionHostModel.kt:99]
  */
 data class ResourceMetric (
     val serviceName: String,
@@ -627,7 +627,7 @@ data class ResourceMetric (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:52]
+ * #### Generated from [AspireSessionHostModel.kt:53]
  */
 data class ResourceModel (
     val name: String,
@@ -745,7 +745,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:71]
+ * #### Generated from [AspireSessionHostModel.kt:72]
  */
 data class ResourceProperty (
     val name: String,
@@ -815,7 +815,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:87]
+ * #### Generated from [AspireSessionHostModel.kt:88]
  */
 data class ResourceService (
     val name: String,
@@ -885,7 +885,7 @@ data class ResourceService (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:54]
+ * #### Generated from [AspireSessionHostModel.kt:55]
  */
 enum class ResourceType {
     Project, 
@@ -905,6 +905,7 @@ enum class ResourceType {
  */
 class ResourceWrapper private constructor(
     private val _model: RdOptionalProperty<ResourceModel>,
+    private val _isInitialized: RdOptionalProperty<Boolean>,
     private val _logReceived: RdSignal<ResourceLog>,
     private val _metricReceived: RdSignal<ResourceMetric>
 ) : RdBindableBase() {
@@ -917,14 +918,16 @@ class ResourceWrapper private constructor(
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceWrapper  {
             val _id = RdId.read(buffer)
             val _model = RdOptionalProperty.read(ctx, buffer, ResourceModel)
+            val _isInitialized = RdOptionalProperty.read(ctx, buffer, FrameworkMarshallers.Bool)
             val _logReceived = RdSignal.read(ctx, buffer, ResourceLog)
             val _metricReceived = RdSignal.read(ctx, buffer, ResourceMetric)
-            return ResourceWrapper(_model, _logReceived, _metricReceived).withId(_id)
+            return ResourceWrapper(_model, _isInitialized, _logReceived, _metricReceived).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceWrapper)  {
             value.rdid.write(buffer)
             RdOptionalProperty.write(ctx, buffer, value._model)
+            RdOptionalProperty.write(ctx, buffer, value._isInitialized)
             RdSignal.write(ctx, buffer, value._logReceived)
             RdSignal.write(ctx, buffer, value._metricReceived)
         }
@@ -933,16 +936,19 @@ class ResourceWrapper private constructor(
     }
     //fields
     val model: IOptProperty<ResourceModel> get() = _model
+    val isInitialized: IOptProperty<Boolean> get() = _isInitialized
     val logReceived: ISource<ResourceLog> get() = _logReceived
     val metricReceived: ISource<ResourceMetric> get() = _metricReceived
     //methods
     //initializer
     init {
         _model.optimizeNested = true
+        _isInitialized.optimizeNested = true
     }
     
     init {
         bindableChildren.add("model" to _model)
+        bindableChildren.add("isInitialized" to _isInitialized)
         bindableChildren.add("logReceived" to _logReceived)
         bindableChildren.add("metricReceived" to _metricReceived)
     }
@@ -951,6 +957,7 @@ class ResourceWrapper private constructor(
     constructor(
     ) : this(
         RdOptionalProperty<ResourceModel>(ResourceModel),
+        RdOptionalProperty<Boolean>(FrameworkMarshallers.Bool),
         RdSignal<ResourceLog>(ResourceLog),
         RdSignal<ResourceMetric>(ResourceMetric)
     )
@@ -962,6 +969,7 @@ class ResourceWrapper private constructor(
         printer.println("ResourceWrapper (")
         printer.indent {
             print("model = "); _model.print(printer); println()
+            print("isInitialized = "); _isInitialized.print(printer); println()
             print("logReceived = "); _logReceived.print(printer); println()
             print("metricReceived = "); _metricReceived.print(printer); println()
         }
@@ -971,6 +979,7 @@ class ResourceWrapper private constructor(
     override fun deepClone(): ResourceWrapper   {
         return ResourceWrapper(
             _model.deepClonePolymorphic(),
+            _isInitialized.deepClonePolymorphic(),
             _logReceived.deepClonePolymorphic(),
             _metricReceived.deepClonePolymorphic()
         )
@@ -1127,7 +1136,7 @@ data class SessionModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:108]
+ * #### Generated from [AspireSessionHostModel.kt:109]
  */
 data class TraceNode (
     val id: String,
@@ -1209,7 +1218,7 @@ data class TraceNode (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:121]
+ * #### Generated from [AspireSessionHostModel.kt:122]
  */
 data class TraceNodeAttribute (
     val key: String,
@@ -1273,7 +1282,7 @@ data class TraceNodeAttribute (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:116]
+ * #### Generated from [AspireSessionHostModel.kt:117]
  */
 data class TraceNodeChild (
     val id: String,

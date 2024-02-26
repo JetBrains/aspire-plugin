@@ -105,7 +105,7 @@ namespace AspireSessionHost.Generated
     
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => -8039202009390253453L;
+    protected override long SerializationHash => 1270678957797202853L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -439,7 +439,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:82</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:83</p>
   /// </summary>
   public sealed class ResourceEndpoint : IPrintable, IEquatable<ResourceEndpoint>
   {
@@ -533,7 +533,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:77</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:78</p>
   /// </summary>
   public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
   {
@@ -628,7 +628,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:93</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:94</p>
   /// </summary>
   public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
   {
@@ -721,7 +721,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:98</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:99</p>
   /// </summary>
   public sealed class ResourceMetric : IPrintable, IEquatable<ResourceMetric>
   {
@@ -858,7 +858,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:52</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:53</p>
   /// </summary>
   public sealed class ResourceModel : IPrintable, IEquatable<ResourceModel>
   {
@@ -1041,7 +1041,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:71</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:72</p>
   /// </summary>
   public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
   {
@@ -1144,7 +1144,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:87</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:88</p>
   /// </summary>
   public sealed class ResourceService : IPrintable, IEquatable<ResourceService>
   {
@@ -1249,7 +1249,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:54</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:55</p>
   /// </summary>
   public enum ResourceType {
     Project,
@@ -1267,30 +1267,37 @@ namespace AspireSessionHost.Generated
     //fields
     //public fields
     [NotNull] public IViewableProperty<ResourceModel> Model => _Model;
+    [NotNull] public IViewableProperty<bool> IsInitialized => _IsInitialized;
     [NotNull] public void LogReceived(ResourceLog value) => _LogReceived.Fire(value);
     [NotNull] public void MetricReceived(ResourceMetric value) => _MetricReceived.Fire(value);
     
     //private fields
     [NotNull] private readonly RdProperty<ResourceModel> _Model;
+    [NotNull] private readonly RdProperty<bool> _IsInitialized;
     [NotNull] private readonly RdSignal<ResourceLog> _LogReceived;
     [NotNull] private readonly RdSignal<ResourceMetric> _MetricReceived;
     
     //primary constructor
     private ResourceWrapper(
       [NotNull] RdProperty<ResourceModel> model,
+      [NotNull] RdProperty<bool> isInitialized,
       [NotNull] RdSignal<ResourceLog> logReceived,
       [NotNull] RdSignal<ResourceMetric> metricReceived
     )
     {
       if (model == null) throw new ArgumentNullException("model");
+      if (isInitialized == null) throw new ArgumentNullException("isInitialized");
       if (logReceived == null) throw new ArgumentNullException("logReceived");
       if (metricReceived == null) throw new ArgumentNullException("metricReceived");
       
       _Model = model;
+      _IsInitialized = isInitialized;
       _LogReceived = logReceived;
       _MetricReceived = metricReceived;
       _Model.OptimizeNested = true;
+      _IsInitialized.OptimizeNested = true;
       BindableChildren.Add(new KeyValuePair<string, object>("model", _Model));
+      BindableChildren.Add(new KeyValuePair<string, object>("isInitialized", _IsInitialized));
       BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
       BindableChildren.Add(new KeyValuePair<string, object>("metricReceived", _MetricReceived));
     }
@@ -1298,6 +1305,7 @@ namespace AspireSessionHost.Generated
     public ResourceWrapper (
     ) : this (
       new RdProperty<ResourceModel>(ResourceModel.Read, ResourceModel.Write),
+      new RdProperty<bool>(JetBrains.Rd.Impl.Serializers.ReadBool, JetBrains.Rd.Impl.Serializers.WriteBool),
       new RdSignal<ResourceLog>(ResourceLog.Read, ResourceLog.Write),
       new RdSignal<ResourceMetric>(ResourceMetric.Read, ResourceMetric.Write)
     ) {}
@@ -1308,9 +1316,10 @@ namespace AspireSessionHost.Generated
     {
       var _id = RdId.Read(reader);
       var model = RdProperty<ResourceModel>.Read(ctx, reader, ResourceModel.Read, ResourceModel.Write);
+      var isInitialized = RdProperty<bool>.Read(ctx, reader, JetBrains.Rd.Impl.Serializers.ReadBool, JetBrains.Rd.Impl.Serializers.WriteBool);
       var logReceived = RdSignal<ResourceLog>.Read(ctx, reader, ResourceLog.Read, ResourceLog.Write);
       var metricReceived = RdSignal<ResourceMetric>.Read(ctx, reader, ResourceMetric.Read, ResourceMetric.Write);
-      var _result = new ResourceWrapper(model, logReceived, metricReceived).WithId(_id);
+      var _result = new ResourceWrapper(model, isInitialized, logReceived, metricReceived).WithId(_id);
       return _result;
     };
     
@@ -1318,6 +1327,7 @@ namespace AspireSessionHost.Generated
     {
       value.RdId.Write(writer);
       RdProperty<ResourceModel>.Write(ctx, writer, value._Model);
+      RdProperty<bool>.Write(ctx, writer, value._IsInitialized);
       RdSignal<ResourceLog>.Write(ctx, writer, value._LogReceived);
       RdSignal<ResourceMetric>.Write(ctx, writer, value._MetricReceived);
     };
@@ -1334,6 +1344,7 @@ namespace AspireSessionHost.Generated
       printer.Println("ResourceWrapper (");
       using (printer.IndentCookie()) {
         printer.Print("model = "); _Model.PrintEx(printer); printer.Println();
+        printer.Print("isInitialized = "); _IsInitialized.PrintEx(printer); printer.Println();
         printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
         printer.Print("metricReceived = "); _MetricReceived.PrintEx(printer); printer.Println();
       }
@@ -1566,7 +1577,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:108</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:109</p>
   /// </summary>
   public sealed class TraceNode : IPrintable, IEquatable<TraceNode>
   {
@@ -1692,7 +1703,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:121</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:122</p>
   /// </summary>
   public sealed class TraceNodeAttribute : IPrintable, IEquatable<TraceNodeAttribute>
   {
@@ -1786,7 +1797,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:116</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:117</p>
   /// </summary>
   public sealed class TraceNodeChild : IPrintable, IEquatable<TraceNodeChild>
   {

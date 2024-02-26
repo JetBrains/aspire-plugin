@@ -196,6 +196,7 @@ class AspireSessionHostManager(private val project: Project) {
 
         val resourceService = AspireResourceService(resource, resourceLifetime, sessionHost, project)
         resourcesByHost.addUnique(resourceLifetime, resourceId, resourceService)
+        resource.isInitialized.set(true)
 
         resourceLifetime.bracketIfAlive({
             val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
