@@ -7,6 +7,7 @@
 ### Changed
 
 - Update Aspire dashboard
+- Support for Rider 2024.1
 
 ### Removed
 
