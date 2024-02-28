@@ -2,15 +2,17 @@ package me.rafaelldi.aspire.diagram
 
 import com.intellij.diagram.v2.elements.GraphChartGroupNode
 import com.intellij.diagram.v2.handles.GraphChartHandle
-import com.intellij.uml.v2.elements.GraphChartLeafNodeWrapper
 import com.intellij.uml.v2.elements.asLeafNode
+import com.intellij.util.application
 import me.rafaelldi.aspire.generated.TraceNode
 
 class DiagramState(
     private val graphChartHandle: GraphChartHandle<TraceNode, TraceEdge>
 ) {
     fun applyChanges() {
-        graphChartHandle.asUpdateHandle().reloadDataFromGraph()
+        application.runReadAction {
+            graphChartHandle.asUpdateHandle().reloadDataFromGraph()
+        }
     }
 
     fun isGroupingEnabled(): Boolean =
