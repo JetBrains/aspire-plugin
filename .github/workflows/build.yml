@@ -44,13 +44,6 @@ jobs:
       - name: Gradle Wrapper Validation
         uses: gradle/wrapper-validation-action@v2.1.1
 
-      # Set up Java environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: zulu
-          java-version: 17
-
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -114,13 +107,6 @@ jobs:
       - name: Fetch Sources
         uses: actions/checkout@v4
 
-      # Set up Java environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: zulu
-          java-version: 17
-
       # Setup .NET 8 environment for the next steps
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -167,13 +153,6 @@ jobs:
       - name: Fetch Sources
         uses: actions/checkout@v4
 
-      # Set up Java environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: zulu
-          java-version: 17
-
       # Setup .NET 8 environment for the next steps
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -203,13 +182,6 @@ jobs:
       # Check out current repository
       - name: Fetch Sources
         uses: actions/checkout@v4
-
-      # Set up Java environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: zulu
-          java-version: 17
 
       # Setup .NET 8 environment for the next steps
       - name: Setup .NET
@@ -256,13 +228,6 @@ jobs:
       # Check out current repository
       - name: Fetch Sources
         uses: actions/checkout@v4
-
-      # Set up Java environment for the next steps
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: zulu
-          java-version: 17
 
       # Setup .NET 8 environment for the next steps
       - name: Setup .NET
