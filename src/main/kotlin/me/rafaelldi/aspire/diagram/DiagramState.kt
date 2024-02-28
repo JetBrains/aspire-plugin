@@ -3,6 +3,7 @@ package me.rafaelldi.aspire.diagram
 import com.intellij.diagram.v2.elements.GraphChartGroupNode
 import com.intellij.diagram.v2.handles.GraphChartHandle
 import com.intellij.uml.v2.elements.GraphChartLeafNodeWrapper
+import com.intellij.uml.v2.elements.asLeafNode
 import me.rafaelldi.aspire.generated.TraceNode
 
 class DiagramState(
@@ -21,7 +22,7 @@ class DiagramState(
 
         nodes.forEach { (serviceName, nodes) ->
             hierarchyHandle.groupNodes(
-                nodes.map { GraphChartLeafNodeWrapper.of(it) },
+                nodes.map { it.asLeafNode() }.toSet(),
                 object : GraphChartGroupNode.NodesGroupProperties {
                     override fun getGroupId() = serviceName ?: ""
                     override fun getGroupTitle() = serviceName ?: ""
