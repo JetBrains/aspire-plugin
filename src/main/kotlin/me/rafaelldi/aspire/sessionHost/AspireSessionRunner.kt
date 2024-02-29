@@ -311,7 +311,7 @@ class AspireSessionRunner(private val project: Project, scope: CoroutineScope) {
         )
         val envs = session.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
         if (AspireSettings.getInstance().collectTelemetry)
-            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "https://localhost:$openTelemetryPort"
+            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = "http://localhost:$openTelemetryPort"
         val runParameters = ExecutableRunParameters(
             projectOutput.exePath,
             projectOutput.workingDirectory,

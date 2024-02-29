@@ -45,7 +45,6 @@ builder.WebHost.ConfigureKestrel(it =>
         it.ListenLocalhost(otlpServerPort, options =>
         {
             options.Protocols = HttpProtocols.Http2;
-            options.UseHttps();
         });
     }
 });
