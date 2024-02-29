@@ -67,6 +67,8 @@ internal sealed class SessionResourceLogService(
             {
                 ct.ThrowIfCancellationRequested();
 
+                if (string.IsNullOrEmpty(logLine.Text)) continue;
+
                 logger.LogTrace("Log line received {logLine}", logLine);
                 await connection.DoWithModel(_ =>
                     resource.LogReceived(new ResourceLog(logLine.Text, logLine.HasIsStdErr ? logLine.IsStdErr : false))
