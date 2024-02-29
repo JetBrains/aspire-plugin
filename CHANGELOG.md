@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-02-29
+
 ### Changed
 
 - Update Aspire dashboard
@@ -88,7 +90,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.1...v0.2.2
