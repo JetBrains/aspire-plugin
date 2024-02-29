@@ -44,6 +44,16 @@ internal static class ResourceServiceRegistration
                 ShouldHandle = new PredicateBuilder().HandleResult(result => result is bool boolResult && !boolResult)
             });
         });
+
+        services.AddResiliencePipeline(nameof(SessionResourceService), builder =>
+        {
+            builder.AddRetry(new RetryStrategyOptions
+            {
+                MaxRetryAttempts = 5,
+                Delay = TimeSpan.FromSeconds(2),
+                BackoffType = DelayBackoffType.Constant
+            });
+        });
     }
 
     internal static async Task InitializeResourceServices(this IServiceProvider services)

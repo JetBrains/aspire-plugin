@@ -3,16 +3,22 @@ using AspireSessionHost.Generated;
 using Grpc.Core;
 using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
+using Polly;
+using Polly.Registry;
 
 namespace AspireSessionHost.Resources;
 
 internal sealed class SessionResourceService(
     Connection connection,
     DashboardService.DashboardServiceClient client,
+    ResiliencePipelineProvider<string> resiliencePipelineProvider,
     ILogger<SessionResourceService> logger
 ) : IDisposable
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
+
+    private readonly ResiliencePipeline _pipeline =
+        resiliencePipelineProvider.GetPipeline(nameof(SessionResourceService));
 
     internal void Initialize()
     {
@@ -23,22 +29,35 @@ internal sealed class SessionResourceService(
     {
         logger.LogInformation("Start resource watching");
 
-        var request = new WatchResourcesRequest { IsReconnect = false };
-        var response = client.WatchResources(request, cancellationToken: Lifetime.AsyncLocal.Value);
-        await foreach (var update in response.ResponseStream.ReadAllAsync(Lifetime.AsyncLocal.Value))
+        await Task.Delay(TimeSpan.FromSeconds(5), Lifetime.AsyncLocal.Value);
+
+        var retryCout = 1;
+        await _pipeline.ExecuteAsync(
+            async token => await SendWatchResourcesRequest(retryCout++, token),
+            Lifetime.AsyncLocal.Value
+        );
+
+        logger.LogInformation("Stop resource watching, lifetime is alive {isAlive}", Lifetime.AsyncLocal.Value.IsAlive);
+    }
+
+    private async Task SendWatchResourcesRequest(
+        int retryCount,
+        CancellationToken ct)
+    {
+        var request = new WatchResourcesRequest { IsReconnect = retryCount > 1 };
+        var response = client.WatchResources(request, cancellationToken: ct);
+        await foreach (var update in response.ResponseStream.ReadAllAsync(ct))
         {
             switch (update.KindCase)
             {
                 case WatchResourcesUpdate.KindOneofCase.InitialData:
-                    await HandleInitialData(update.InitialData, Lifetime.AsyncLocal.Value);
+                    await HandleInitialData(update.InitialData, ct);
                     break;
                 case WatchResourcesUpdate.KindOneofCase.Changes:
-                    await HandleChanges(update.Changes, Lifetime.AsyncLocal.Value);
+                    await HandleChanges(update.Changes, ct);
                     break;
             }
         }
-
-        logger.LogInformation("Stop resource watching, lifetime is alive {isAlive}", Lifetime.AsyncLocal.Value.IsAlive);
     }
 
     private async Task HandleInitialData(InitialResourceData initialResourceData, CancellationToken ct)

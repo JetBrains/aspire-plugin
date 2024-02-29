@@ -43,6 +43,8 @@ internal sealed class SessionResourceLogService(
             await resource.IsInitialized.NextTrueValueAsync(Lifetime.AsyncLocal.Value);
         }
 
+        await Task.Delay(TimeSpan.FromSeconds(5), Lifetime.AsyncLocal.Value);
+
         await _pipeline.ExecuteAsync(
             async token => await SendWatchResourceLogsRequest(resourceName, resource, token),
             Lifetime.AsyncLocal.Value
