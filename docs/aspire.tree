@@ -9,7 +9,6 @@
     <toc-element topic="starter-topic.md"/>
     <toc-element topic="run-configuration.md"/>
     <toc-element topic="dashboard.md"/>
-    <toc-element topic="metrics.md"/>
-    <toc-element topic="trace-diagram.md"/>
+    <toc-element topic="open-telemetry.md"/>
     <toc-element topic="troubleshooting.md"/>
 </instance-profile>
