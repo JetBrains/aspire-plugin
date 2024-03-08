@@ -13,15 +13,20 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
             return null;
         }
 
+        var launchConfiguration = session.LaunchConfigurations
+            .FirstOrDefault(it => string.Equals(it.Type, "project", StringComparison.InvariantCultureIgnoreCase));
+        if (launchConfiguration is null) return null;
+
+        var id = Guid.NewGuid();
+        var stringId = id.ToString();
         var envs = session.Env
             ?.Where(it => it.Value is not null)
             ?.Select(it => new SessionEnvironmentVariable(it.Name, it.Value!))
             ?.ToArray();
         var sessionModel = new SessionModel(
-            session.ProjectPath,
-            session.Debug ?? false,
-            session.LaunchProfile,
-            session.DisableLaunchProfile ?? false,
+            stringId,
+            launchConfiguration.ProjectPath,
+            launchConfiguration.Mode == Mode.Debug,
             session.Args,
             envs
         );
