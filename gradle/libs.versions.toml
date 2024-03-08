@@ -3,10 +3,10 @@
 annotations = "24.1.0"
 
 # plugins
-kotlin = "1.9.22"
+kotlin = "1.9.23"
 changelog = "2.2.0"
 gradleIntelliJPlugin = "1.17.2"
-qodana = "0.1.13"
+qodana = "2023.3.1"
 rdgen = "2024.1.1"
 # https://search.maven.org/artifact/com.jetbrains.rd/rd-gen
 
