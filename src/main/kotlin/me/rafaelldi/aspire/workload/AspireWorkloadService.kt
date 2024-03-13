@@ -34,7 +34,7 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
 
         private val LOG = logger<AspireWorkloadService>()
 
-        private const val CURRENT_VERSION = "8.0.0-preview.3.24105.21"
+        private const val CURRENT_VERSION = "8.0.0-preview.4.24156.9"
 
         private val aspireRegex = Regex("^aspire", RegexOption.MULTILINE)
         private val aspireVersionRegex = Regex("^aspire\\s+([\\w.\\-]+)", RegexOption.MULTILINE)
@@ -66,7 +66,7 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
                         .addAction(object :
                             NotificationAction(AspireBundle.message("notifications.go.to.documentation")) {
                             override fun actionPerformed(e: AnActionEvent, notification: Notification) {
-                                BrowserUtil.open("https://learn.microsoft.com/en-us/dotnet/aspire/whats-new/preview-3")
+                                BrowserUtil.open("https://learn.microsoft.com/en-us/dotnet/aspire/whats-new/preview-4")
                             }
                         })
                         .addAction(object :
