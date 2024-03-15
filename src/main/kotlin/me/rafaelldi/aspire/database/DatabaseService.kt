@@ -13,9 +13,9 @@ import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.data
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.factories.ConnectionStringsFactory
 
 @Service(Service.Level.PROJECT)
-class DataBaseService(private val project: Project) {
+class DatabaseService(private val project: Project) {
     companion object {
-        fun getInstance(project: Project) = project.service<DataBaseService>()
+        fun getInstance(project: Project) = project.service<DatabaseService>()
     }
 
     suspend fun createConnection(connectionName: String, connectionString: String, lifetime: Lifetime) {

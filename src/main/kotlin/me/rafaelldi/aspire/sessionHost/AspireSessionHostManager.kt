@@ -16,12 +16,13 @@ import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
-import me.rafaelldi.aspire.database.DataBaseService
+import me.rafaelldi.aspire.database.DatabaseService
 import me.rafaelldi.aspire.generated.*
 import me.rafaelldi.aspire.services.AspireSessionHostServiceContributor
 import me.rafaelldi.aspire.services.AspireSessionHostServiceData
 import me.rafaelldi.aspire.services.AspireResourceService
 import me.rafaelldi.aspire.services.AspireServiceContributor
+import me.rafaelldi.aspire.settings.AspireSettings
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
@@ -216,15 +217,17 @@ class AspireSessionHostManager(private val project: Project) {
             project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
         })
 
-        createDataBaseConnection(resourceService)
+        if (AspireSettings.getInstance().connectToDatabase) {
+            createDatabaseConnection(resourceService)
+        }
     }
 
-    private fun createDataBaseConnection(resourceService: AspireResourceService) {
+    private fun createDatabaseConnection(resourceService: AspireResourceService) {
         if (resourceService.resourceType == ResourceType.Project) {
             resourceService.lifetime.coroutineScope.launch {
                 val connectionStrings = resourceService.environment.filter { it.key.startsWith("ConnectionStrings") }
 
-                val service = DataBaseService.getInstance(project)
+                val service = DatabaseService.getInstance(project)
                 connectionStrings.forEach {
                     if (it.value != null) {
                         val connectionName = it.key.substringAfter("ConnectionStrings__")
