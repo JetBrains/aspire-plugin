@@ -16,5 +16,5 @@ data class DatabaseResourceConnectionString(
 )
 
 enum class DatabaseResourceType {
-    POSTGRES, MYSQL, MSSQL, ORACLE, MONGO
+    POSTGRES, MYSQL, MSSQL, ORACLE, MONGO, REDIS
 }

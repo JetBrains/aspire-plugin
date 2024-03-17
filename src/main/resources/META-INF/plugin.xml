@@ -41,6 +41,7 @@
 
     <extensions defaultExtensionNs="com.intellij.rider.database">
         <dotnetDataProvider implementation="me.rafaelldi.aspire.database.DummyMongoDataProvider"/>
+        <dotnetDataProvider implementation="me.rafaelldi.aspire.database.DummyRedisDataProvider"/>
         <connectionStringsFactory implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConnectionStringsFactory"/>
         <connectionStringToJdbcUrlMapper implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConverter"/>
     </extensions>

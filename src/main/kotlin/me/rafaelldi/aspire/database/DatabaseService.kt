@@ -23,6 +23,9 @@ import me.rafaelldi.aspire.settings.AspireSettings
 class DatabaseService(private val project: Project, scope: CoroutineScope) {
     companion object {
         fun getInstance(project: Project) = project.service<DatabaseService>()
+
+        private const val REDIS_CONNECTION_STRING_PATTERN = "(?<host>\\w*):(?<port>\\d*)(,user=(?<user>\\w*))?(,password=(?<password>\\w*))?"
+        private val REDIS_REGEX = Regex(REDIS_CONNECTION_STRING_PATTERN)
     }
 
     private val rawConnectionStringTypes = listOf(
@@ -129,11 +132,14 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
             DatabaseResourceType.MSSQL -> SqlClientDataProvider.getInstance(project)
             DatabaseResourceType.ORACLE -> OracleClientDataProvider.getInstance(project)
             DatabaseResourceType.MONGO -> DummyMongoDataProvider.getInstance(project)
+            DatabaseResourceType.REDIS -> DummyRedisDataProvider.getInstance(project)
         }
         val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first()) ?: return
 
         val url =
-            if (rawConnectionStringTypes.contains(resource.type)) {
+            if (resource.type == DatabaseResourceType.REDIS) {
+                convertRedisConnectionString(connectionString.connectionString) ?: return
+            } else if (rawConnectionStringTypes.contains(resource.type)) {
                 connectionString.connectionString
             } else {
                 val factory = ConnectionStringsFactory.get(dataProvider, project) ?: return
@@ -164,6 +170,23 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
                 dataSourceManager.removeDataSource(dataSource)
             }
         })
+    }
+
+    private fun convertRedisConnectionString(connectionString: String): String? {
+        val matchResult = REDIS_REGEX.matchEntire(connectionString) ?: return null
+
+        val host = matchResult.groups["host"]?.value
+        val port = matchResult.groups["port"]?.value
+        val user = matchResult.groups["user"]?.value
+        val password = matchResult.groups["password"]?.value
+
+        val sb = StringBuilder("jdbc:redis://")
+        user?.let { sb.append(it).append(":") }
+        password?.let { sb.append(it).append("@") }
+        host?.let { sb.append(it) }
+        port?.let { sb.append(":").append(it) }
+
+        return sb.toString()
     }
 
     private fun handleRemoveConnectionStringCommand(command: RemoveConnectionStringCommand) {

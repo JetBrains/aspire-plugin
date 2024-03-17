@@ -14,6 +14,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
         private const val MSSQL = "mssql"
         private const val ORACLE = "oracle"
         private const val MONGO = "mongo"
+        private const val REDIS = "redis"
     }
 
     override fun resourceCreated(resource: AspireResourceService) {
@@ -66,6 +67,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
         if (image.contains(MSSQL)) return DatabaseResourceType.MSSQL
         if (image.contains(ORACLE)) return DatabaseResourceType.ORACLE
         if (image.contains(MONGO)) return DatabaseResourceType.MONGO
+        if (image.contains(REDIS)) return DatabaseResourceType.REDIS
         return null
     }
 }
