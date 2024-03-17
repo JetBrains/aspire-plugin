@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Automatic connection to the database 
+
 ## [0.4.0] - 2024-03-13
 
 ### Changed

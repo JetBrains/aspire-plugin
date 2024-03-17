@@ -17,6 +17,11 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         set(value) {
             state.checkForNewVersions = value
         }
+    var connectToDatabase
+        get() = state.connectToDatabase
+        set(value) {
+            state.connectToDatabase = value
+        }
     var collectTelemetry
         get() = state.collectTelemetry
         set(value) {

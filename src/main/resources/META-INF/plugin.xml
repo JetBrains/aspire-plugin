@@ -7,6 +7,8 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.rider</depends>
     <depends>com.intellij.diagram</depends>
+    <depends>com.intellij.database</depends>
+    <depends>rider.intellij.plugin.appender</depends>
     <depends>Docker</depends>
 
     <resource-bundle>messages.AspireBundle</resource-bundle>
@@ -36,6 +38,18 @@
 
         <iconMapper mappingFile="AspireIconMappings.json"/>
     </extensions>
+
+    <extensions defaultExtensionNs="com.intellij.rider.database">
+        <dotnetDataProvider implementation="me.rafaelldi.aspire.database.DummyMongoDataProvider"/>
+        <dotnetDataProvider implementation="me.rafaelldi.aspire.database.DummyRedisDataProvider"/>
+        <connectionStringsFactory implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConnectionStringsFactory"/>
+        <connectionStringToJdbcUrlMapper implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConverter"/>
+    </extensions>
+
+    <projectListeners>
+        <listener class="me.rafaelldi.aspire.database.DatabaseResourceListener"
+                  topic="me.rafaelldi.aspire.services.ResourceListener" />
+    </projectListeners>
 
     <actions>
         <action id="Aspire.Settings"

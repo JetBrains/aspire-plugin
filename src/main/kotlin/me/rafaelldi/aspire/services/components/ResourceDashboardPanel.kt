@@ -67,7 +67,7 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
             row {
                 label(AspireBundle.message("service.tab.dashboard.endpoints")).bold()
             }.bottomGap(BottomGap.SMALL)
-            for (endpoint in resourceData.endpoints) {
+            resourceData.endpoints.forEach { endpoint ->
                 row {
                     link(endpoint.proxyUrl) {
                         BrowserUtil.browse(endpoint.proxyUrl)
@@ -127,7 +127,7 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
             row {
                 label(AspireBundle.message("service.tab.dashboard.environment")).bold()
             }.bottomGap(BottomGap.SMALL)
-            for (variable in resourceData.environment) {
+            resourceData.environment.forEach { variable ->
                 row {
                     copyableLabel("${variable.key} = ${variable.value ?: "-"}")
                 }

@@ -16,10 +16,10 @@ import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import me.rafaelldi.aspire.generated.*
-import me.rafaelldi.aspire.services.AspireSessionHostServiceContributor
-import me.rafaelldi.aspire.services.AspireSessionHostServiceData
 import me.rafaelldi.aspire.services.AspireResourceService
 import me.rafaelldi.aspire.services.AspireServiceContributor
+import me.rafaelldi.aspire.services.AspireSessionHostServiceContributor
+import me.rafaelldi.aspire.services.AspireSessionHostServiceData
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
