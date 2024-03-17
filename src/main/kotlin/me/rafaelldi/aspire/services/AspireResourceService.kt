@@ -35,6 +35,8 @@ class AspireResourceService(
         private set
     var endpoints: Array<ResourceEndpoint>
         private set
+    var services: Array<ResourceService>
+        private set
     var environment: Array<ResourceEnvironmentVariable>
         private set
 
@@ -81,6 +83,7 @@ class AspireResourceService(
         state = model?.state
         isRunning = model?.state?.equals("running", true) == true
         endpoints = model?.endpoints ?: emptyArray()
+        services = model?.services ?: emptyArray()
         environment = model?.environment ?: emptyArray()
 
         fillFromProperties(model?.properties ?: emptyArray())
@@ -90,6 +93,8 @@ class AspireResourceService(
         wrapper.metricReceived.advise(lifetime, ::metricReceived)
 
         Disposer.register(AspireService.getInstance(project), consoleView)
+
+        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(this)
     }
 
     private fun fillFromProperties(properties: Array<ResourceProperty>) {
@@ -155,9 +160,12 @@ class AspireResourceService(
         state = resourceModel.state
         isRunning = resourceModel.state?.equals("running", true) == true
         endpoints = resourceModel.endpoints
+        services = resourceModel.services
         environment = resourceModel.environment
 
         fillFromProperties(resourceModel.properties)
+
+        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
         val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,

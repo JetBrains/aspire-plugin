@@ -15,14 +15,11 @@ import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.launch
-import me.rafaelldi.aspire.database.DatabaseService
 import me.rafaelldi.aspire.generated.*
-import me.rafaelldi.aspire.services.AspireSessionHostServiceContributor
-import me.rafaelldi.aspire.services.AspireSessionHostServiceData
 import me.rafaelldi.aspire.services.AspireResourceService
 import me.rafaelldi.aspire.services.AspireServiceContributor
-import me.rafaelldi.aspire.settings.AspireSettings
+import me.rafaelldi.aspire.services.AspireSessionHostServiceContributor
+import me.rafaelldi.aspire.services.AspireSessionHostServiceData
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
@@ -216,25 +213,5 @@ class AspireSessionHostManager(private val project: Project) {
             )
             project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
         })
-
-        if (AspireSettings.getInstance().connectToDatabase) {
-            createDatabaseConnection(resourceService)
-        }
-    }
-
-    private fun createDatabaseConnection(resourceService: AspireResourceService) {
-        if (resourceService.resourceType == ResourceType.Project) {
-            resourceService.lifetime.coroutineScope.launch {
-                val connectionStrings = resourceService.environment.filter { it.key.startsWith("ConnectionStrings") }
-
-                val service = DatabaseService.getInstance(project)
-                connectionStrings.forEach {
-                    if (it.value != null) {
-                        val connectionName = it.key.substringAfter("ConnectionStrings__")
-                        service.createConnection(connectionName, it.value, resourceService.lifetime)
-                    }
-                }
-            }
-        }
     }
 }

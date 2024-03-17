@@ -39,6 +39,11 @@
         <iconMapper mappingFile="AspireIconMappings.json"/>
     </extensions>
 
+    <projectListeners>
+        <listener class="me.rafaelldi.aspire.database.DatabaseResourceListener"
+                  topic="me.rafaelldi.aspire.services.ResourceListener" />
+    </projectListeners>
+
     <actions>
         <action id="Aspire.Settings"
                 class="me.rafaelldi.aspire.actions.dashboard.AspireSettingsAction"
