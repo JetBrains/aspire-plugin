@@ -8,9 +8,10 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.converters.ConnectionStringToJdbcUrlConverter
-import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.MicrosoftSqlClientDataProvider
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.MySqlClientDataProvider
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.NpgsqlDataProvider
+import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.OracleClientDataProvider
+import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.SqlClientDataProvider
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.factories.ConnectionStringsFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
@@ -23,6 +24,11 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
     companion object {
         fun getInstance(project: Project) = project.service<DatabaseService>()
     }
+
+    private val rawConnectionStringTypes = listOf(
+        DatabaseResourceType.MSSQL,
+        DatabaseResourceType.MONGO
+    )
 
     private val connectionStrings = mutableSetOf<DatabaseResourceConnectionString>()
     private val databaseResources = mutableSetOf<DatabaseResource>()
@@ -120,12 +126,14 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
         val dataProvider = when (resource.type) {
             DatabaseResourceType.POSTGRES -> NpgsqlDataProvider.getInstance(project)
             DatabaseResourceType.MYSQL -> MySqlClientDataProvider.getInstance(project)
-            DatabaseResourceType.MSSQL -> MicrosoftSqlClientDataProvider.getInstance(project)
+            DatabaseResourceType.MSSQL -> SqlClientDataProvider.getInstance(project)
+            DatabaseResourceType.ORACLE -> OracleClientDataProvider.getInstance(project)
+            DatabaseResourceType.MONGO -> DummyMongoDataProvider.getInstance(project)
         }
         val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first()) ?: return
 
         val url =
-            if (resource.type == DatabaseResourceType.MSSQL) {
+            if (rawConnectionStringTypes.contains(resource.type)) {
                 connectionString.connectionString
             } else {
                 val factory = ConnectionStringsFactory.get(dataProvider, project) ?: return

@@ -39,6 +39,12 @@
         <iconMapper mappingFile="AspireIconMappings.json"/>
     </extensions>
 
+    <extensions defaultExtensionNs="com.intellij.rider.database">
+        <dotnetDataProvider implementation="me.rafaelldi.aspire.database.DummyMongoDataProvider"/>
+        <connectionStringsFactory implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConnectionStringsFactory"/>
+        <connectionStringToJdbcUrlMapper implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConverter"/>
+    </extensions>
+
     <projectListeners>
         <listener class="me.rafaelldi.aspire.database.DatabaseResourceListener"
                   topic="me.rafaelldi.aspire.services.ResourceListener" />

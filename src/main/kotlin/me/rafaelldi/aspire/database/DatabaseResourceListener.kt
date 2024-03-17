@@ -12,6 +12,8 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
         private const val POSTGRES = "postgres"
         private const val MYSQL = "mysql"
         private const val MSSQL = "mssql"
+        private const val ORACLE = "oracle"
+        private const val MONGO = "mongo"
     }
 
     override fun resourceCreated(resource: AspireResourceService) {
@@ -62,6 +64,8 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
         if (image.contains(POSTGRES)) return DatabaseResourceType.POSTGRES
         if (image.contains(MYSQL)) return DatabaseResourceType.MYSQL
         if (image.contains(MSSQL)) return DatabaseResourceType.MSSQL
+        if (image.contains(ORACLE)) return DatabaseResourceType.ORACLE
+        if (image.contains(MONGO)) return DatabaseResourceType.MONGO
         return null
     }
 }
