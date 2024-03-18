@@ -4,9 +4,11 @@
 
 ## [Unreleased]
 
+## [0.4.1] - 2024-03-18
+
 ### Added
 
-- Automatic connection to the database 
+- Automatic connection to the database
 
 ## [0.4.0] - 2024-03-13
 
@@ -100,7 +102,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.3...v0.2.4
