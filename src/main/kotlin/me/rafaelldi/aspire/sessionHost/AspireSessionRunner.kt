@@ -1,10 +1,8 @@
 package me.rafaelldi.aspire.sessionHost
 
+import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.execution.process.KillableProcessHandler
-import com.intellij.execution.process.ProcessAdapter
-import com.intellij.execution.process.ProcessEvent
-import com.intellij.execution.process.ProcessOutputType
+import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -12,21 +10,24 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.io.systemIndependentPath
+import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
+import com.jetbrains.rd.util.put
+import com.jetbrains.rd.util.threading.coroutines.nextTrueValueAsync
+import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.RiderEnvironment.createRunCmdForLauncherInfo
-import com.jetbrains.rider.debugger.NotifiableDebuggerWorkerProcessHandler
-import com.jetbrains.rider.debugger.attach.RiderDebuggerWorkerConnector
+import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
+import com.jetbrains.rider.debugger.RiderDebuggerWorkerModelManager
+import com.jetbrains.rider.debugger.createAndStartSession
 import com.jetbrains.rider.debugger.targets.DEBUGGER_WORKER_LAUNCHER
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.debuggerWorker.*
+import com.jetbrains.rider.model.debuggerWorkerConnectionHelperModel
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.run.ConsoleKind
-import com.jetbrains.rider.run.FormatPreservingCommandLine
+import com.jetbrains.rider.run.*
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
-import com.jetbrains.rider.run.createConsole
-import com.jetbrains.rider.run.pid
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
 import icons.RiderIcons
@@ -38,7 +39,7 @@ import me.rafaelldi.aspire.generated.SessionUpsertResult
 import me.rafaelldi.aspire.settings.AspireSettings
 import me.rafaelldi.aspire.util.MSBuildPropertyService
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
-import java.io.OutputStream
+import org.jetbrains.annotations.Nls
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -127,37 +128,7 @@ class AspireSessionRunner(private val project: Project) {
         val commandLine = getRunningCommandLine(executablePath, sessionModel, openTelemetryPort)
 
         val handler = KillableProcessHandler(commandLine)
-        handler.addProcessListener(object : ProcessAdapter() {
-            override fun startNotified(event: ProcessEvent) {
-                LOG.info("Aspire session process started (id: $sessionId)")
-                val pid = when (event.processHandler) {
-                    is KillableProcessHandler -> event.processHandler.pid()
-                    else -> null
-                }
-                if (pid == null) {
-                    LOG.warn("Unable to determine process id for the session $sessionId")
-                    sessionEvents.trySend(AspireSessionTerminated(sessionId, -1))
-                } else {
-                    sessionEvents.trySend(AspireSessionStarted(sessionId, pid))
-                }
-            }
-
-            override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                val text = decodeAnsiCommandsToString(event.text, outputType)
-                val isStdErr = outputType == ProcessOutputType.STDERR
-                sessionEvents.trySend(AspireSessionLogReceived(sessionId, isStdErr, text))
-            }
-
-            override fun processTerminated(event: ProcessEvent) {
-                LOG.info("Aspire session process terminated (id: $sessionId)")
-                sessionEvents.trySend(AspireSessionTerminated(sessionId, event.exitCode))
-            }
-
-            override fun processNotStarted() {
-                LOG.warn("Aspire session process is not started")
-                sessionEvents.trySend(AspireSessionTerminated(sessionId, -1))
-            }
-        })
+        subscribeToSessionEvents(sessionId, handler, sessionEvents)
 
         sessionLifetime.onTermination {
             if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
@@ -201,11 +172,6 @@ class AspireSessionRunner(private val project: Project) {
         sessionEvents: Channel<AspireSessionEvent>,
         openTelemetryPort: Int
     ) {
-        val frontendToDebuggerPort = NetUtils.findFreePort(67700)
-        val backendToDebuggerPort = NetUtils.findFreePort(87700)
-
-        startDebuggerWorker(sessionId, frontendToDebuggerPort, backendToDebuggerPort, sessionLifetime)
-
         val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
         if (runtime == null) {
             LOG.warn("Unable to find dotnet runtime")
@@ -230,59 +196,176 @@ class AspireSessionRunner(private val project: Project) {
             true,
             false
         )
-        val processHandlerFactory = { workerModel: DebuggerWorkerModel ->
-            object : NotifiableDebuggerWorkerProcessHandler(workerModel) {
-                override fun detachIsDefault(): Boolean {
-                    return true
-                }
-
-                override fun getProcessInput(): OutputStream? {
-                    return null
-                }
-            }
-        }
-        val executionConsoleFactory = { handler: NotifiableDebuggerWorkerProcessHandler ->
-            createConsole(ConsoleKind.Normal, handler, project)
-        }
 
         val projectPath = Path(sessionModel.projectPath)
-        val connector = RiderDebuggerWorkerConnector.getInstance(project)
         withContext(Dispatchers.Main) {
-            connector.startDebugSession(
-                frontendToDebuggerPort,
-                backendToDebuggerPort,
-                ExecutionEnvironment.getNextUnusedExecutionId(),
+            startDebugSession(
+                sessionId,
                 projectPath.nameWithoutExtension,
-                RiderIcons.RunConfigurations.DotNetProject,
                 startInfo,
-                processHandlerFactory,
-                executionConsoleFactory,
-                null,
+                sessionEvents,
                 sessionLifetime
             )
         }
     }
 
-    private fun startDebuggerWorker(
+    private suspend fun startDebugSession(
+        sessionId: String,
+        @Nls sessionName: String,
+        startInfo: DebuggerStartInfoBase,
+        sessionEvents: Channel<AspireSessionEvent>,
+        lifetime: Lifetime
+    ) {
+        val frontendToDebuggerPort = NetUtils.findFreePort(67700)
+        val backendToDebuggerPort = NetUtils.findFreePort(87700)
+        val lifetimeDefinition = lifetime.createNested()
+
+        val dispatcher = RdDispatcher(lifetimeDefinition)
+        val wire = SocketWire.Server(
+            lifetimeDefinition,
+            dispatcher,
+            port = frontendToDebuggerPort,
+            optId = "FrontendToDebugWorker"
+        )
+        val protocol = Protocol(
+            "FrontendToDebuggerWorker",
+            Serializers(),
+            Identities(IdKind.Client),
+            dispatcher,
+            wire,
+            lifetimeDefinition
+        )
+
+        val workerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(lifetimeDefinition, protocol)
+
+        val debuggerWorkerProcessHandler = createDebuggerWorkerProcessHandler(
+            sessionId,
+            frontendToDebuggerPort,
+            backendToDebuggerPort,
+            workerModel,
+            lifetimeDefinition.lifetime
+        )
+        subscribeToSessionEvents(
+            sessionId,
+            debuggerWorkerProcessHandler.debuggerWorkerRealHandler,
+            sessionEvents
+        )
+
+        val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
+        project.solution.debuggerWorkerConnectionHelperModel.ports.put(
+            lifetimeDefinition,
+            debuggerSessionId,
+            backendToDebuggerPort
+        )
+
+        wire.connected.nextTrueValueAsync(lifetimeDefinition.lifetime).await()
+
+        val sessionModel = DotNetDebuggerSessionModel(startInfo)
+        sessionModel.sessionProperties.bindToSettings(lifetimeDefinition, project).apply {
+            debugKind.set(DebugKind.Live)
+            remoteDebug.set(false)
+            enableHeuristicPathResolve.set(false)
+            editAndContinueEnabled.set(true)
+        }
+        workerModel.activeSession.set(sessionModel)
+
+        val console = createConsole(
+            ConsoleKind.Normal,
+            debuggerWorkerProcessHandler.debuggerWorkerRealHandler,
+            project
+        )
+        val executionResult = DefaultExecutionResult(console, debuggerWorkerProcessHandler)
+
+        createAndStartSession(
+            executionResult.executionConsole,
+            null,
+            project,
+            lifetimeDefinition.lifetime,
+            executionResult.processHandler,
+            protocol,
+            sessionModel,
+            object : IDebuggerOutputListener {},
+            debuggerSessionId
+        ) { xDebuggerManager, xDebugProcessStarter ->
+            xDebuggerManager.startSessionAndShowTab(
+                sessionName,
+                RiderIcons.RunConfigurations.DotNetProject,
+                null,
+                false,
+                xDebugProcessStarter
+            )
+        }
+    }
+
+    private fun createDebuggerWorkerProcessHandler(
         sessionId: String,
         frontendToDebuggerPort: Int,
         backendToDebuggerPort: Int,
+        workerModel: DebuggerWorkerModel,
         sessionLifetime: Lifetime
-    ) {
+    ): DebuggerWorkerProcessHandler {
         val launcher = DEBUGGER_WORKER_LAUNCHER.getLauncher()
         val commandLine = createRunCmdForLauncherInfo(
             launcher,
-            "--mode=server",
+            "--mode=client",
             "--frontend-port=${frontendToDebuggerPort}",
             "--backend-port=${backendToDebuggerPort}"
         )
-        val handler = KillableProcessHandler(commandLine)
+        val handler = TerminalProcessHandler(project, commandLine, commandLine.commandLineString, false)
+
         sessionLifetime.onTermination {
             if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
                 LOG.trace("Killing session process (id: $sessionId)")
                 handler.killProcess()
             }
         }
-        handler.startNotify()
+
+        val debuggerWorkerProcessHandler = DebuggerWorkerProcessHandler(
+            handler,
+            workerModel,
+            false,
+            commandLine.commandLineString,
+            sessionLifetime
+        )
+
+        return debuggerWorkerProcessHandler
+    }
+
+    private fun subscribeToSessionEvents(
+        sessionId: String,
+        handler: ProcessHandler,
+        sessionEvents: Channel<AspireSessionEvent>
+    ) {
+        handler.addProcessListener(object : ProcessAdapter() {
+            override fun startNotified(event: ProcessEvent) {
+                LOG.info("Aspire session process started (id: $sessionId)")
+                val pid = when (event.processHandler) {
+                    is KillableProcessHandler -> event.processHandler.pid()
+                    else -> null
+                }
+                if (pid == null) {
+                    LOG.warn("Unable to determine process id for the session $sessionId")
+                    sessionEvents.trySend(AspireSessionTerminated(sessionId, -1))
+                } else {
+                    sessionEvents.trySend(AspireSessionStarted(sessionId, pid))
+                }
+            }
+
+            override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
+                val text = decodeAnsiCommandsToString(event.text, outputType)
+                val isStdErr = outputType == ProcessOutputType.STDERR
+                sessionEvents.trySend(AspireSessionLogReceived(sessionId, isStdErr, text))
+            }
+
+            override fun processTerminated(event: ProcessEvent) {
+                LOG.info("Aspire session process terminated (id: $sessionId)")
+                sessionEvents.trySend(AspireSessionTerminated(sessionId, event.exitCode))
+            }
+
+            override fun processNotStarted() {
+                LOG.warn("Aspire session process is not started")
+                sessionEvents.trySend(AspireSessionTerminated(sessionId, -1))
+            }
+        })
     }
 }

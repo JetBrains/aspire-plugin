@@ -7,6 +7,7 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.runners.RunContentBuilder
 import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.application.EDT
@@ -108,8 +109,8 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         return sessionHostPromise.then {
             val executionResult = state.execute(environment.executor, this)
 
-            AspireServiceManager.getInstance(environment.project)
-                .updateAspireHostService(config.aspireHostProjectPath, executionResult)
+//            AspireServiceManager.getInstance(environment.project)
+//                .updateAspireHostService(config.aspireHostProjectPath, executionResult)
 
             val processHandler = executionResult.processHandler
             aspireHostLifetime.onTermination {
