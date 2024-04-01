@@ -7,13 +7,13 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.execution.runners.RunContentBuilder
 import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.rd.util.lifetime
 import com.intellij.openapi.rd.util.startOnUiAsync
+import com.intellij.util.application
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rdclient.protocol.RdDispatcher
@@ -109,8 +109,8 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         return sessionHostPromise.then {
             val executionResult = state.execute(environment.executor, this)
 
-//            AspireServiceManager.getInstance(environment.project)
-//                .updateAspireHostService(config.aspireHostProjectPath, executionResult)
+            AspireServiceManager.getInstance(environment.project)
+                .updateAspireHostService(config.aspireHostProjectPath, executionResult)
 
             val processHandler = executionResult.processHandler
             aspireHostLifetime.onTermination {
@@ -123,7 +123,9 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
                 override fun processTerminated(event: ProcessEvent) {
                     LOG.trace("Aspire host process is terminated")
                     aspireHostLifetime.executeIfAlive {
-                        aspireHostLifetime.terminate(true)
+                        application.invokeLater {
+                            aspireHostLifetime.terminate(true)
+                        }
                     }
                 }
             })

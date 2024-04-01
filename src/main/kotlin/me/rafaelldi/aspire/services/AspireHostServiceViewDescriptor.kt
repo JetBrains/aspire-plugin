@@ -40,7 +40,7 @@ class AspireHostServiceViewDescriptor(
     }
 
     override fun getContentComponent(): JPanel {
-        val console = hostService.executionConsole
+        val console = hostService.consoleView
         val panel = if (console == null) {
             JBPanelWithEmptyText()
         } else {

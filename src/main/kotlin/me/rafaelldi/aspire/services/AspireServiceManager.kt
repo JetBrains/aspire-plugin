@@ -84,7 +84,7 @@ class AspireServiceManager(private val project: Project) {
         LOG.trace("Setting the execution result to the Aspire host $hostPathString")
 
         val host = hostServices[hostPathString] ?: return
-        host.update(executionResult)
+        host.update(executionResult, project)
 
         sendServiceChangedEvent(host)
     }

@@ -2,9 +2,13 @@ package me.rafaelldi.aspire.services
 
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.services.ServiceViewProvidingContributor
-import com.intellij.execution.ui.ExecutionConsole
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.run.ConsoleKind
+import com.jetbrains.rider.run.createConsole
+import me.rafaelldi.aspire.AspireService
 import me.rafaelldi.aspire.generated.AspireSessionHostModel
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -29,9 +33,8 @@ class AspireHostService(
     var lifetime: Lifetime? = null
         private set
 
-    var executionConsole: ExecutionConsole? = null
+    var consoleView: ConsoleView? = null
         private set
-
 
     fun startHost(
         aspireHostDashboardUrl: String,
@@ -55,8 +58,14 @@ class AspireHostService(
         displayName = name
     }
 
-    fun update(executionResult: ExecutionResult) {
-        executionConsole = executionResult.executionConsole
+    fun update(executionResult: ExecutionResult, project: Project) {
+        val console = createConsole(
+            ConsoleKind.Normal,
+            executionResult.processHandler,
+            project
+        )
+        Disposer.register(AspireService.getInstance(project), console)
+        consoleView = console
     }
 
     override fun getViewDescriptor(project: Project) = viewDescriptor
