@@ -49,9 +49,6 @@
     <projectListeners>
         <listener class="me.rafaelldi.aspire.database.DatabaseResourceListener"
                   topic="me.rafaelldi.aspire.services.ResourceListener" />
-    </projectListeners>
-
-    <projectListeners>
         <listener class="me.rafaelldi.aspire.services.AspireServiceManager$Listener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
