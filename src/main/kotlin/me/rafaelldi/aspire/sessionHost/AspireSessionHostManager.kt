@@ -1,25 +1,24 @@
 package me.rafaelldi.aspire.sessionHost
 
-import com.intellij.execution.services.ServiceEventListener
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.rd.util.launchOnUi
-import com.intellij.openapi.rd.util.withUiContext
-import com.jetbrains.rd.framework.*
-import com.jetbrains.rd.util.addUnique
+import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import com.jetbrains.rd.util.lifetime.isNotAlive
-import com.jetbrains.rdclient.protocol.RdDispatcher
+import com.jetbrains.rd.util.lifetime.SequentialLifetimes
+import com.jetbrains.rd.util.threading.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.*
-import me.rafaelldi.aspire.services.AspireResourceService
-import me.rafaelldi.aspire.services.AspireServiceContributor
-import me.rafaelldi.aspire.services.AspireSessionHostServiceContributor
-import me.rafaelldi.aspire.services.AspireSessionHostServiceData
+import me.rafaelldi.aspire.run.AspireHostProjectConfig
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
@@ -30,107 +29,43 @@ class AspireSessionHostManager(private val project: Project) {
         private val LOG = logger<AspireSessionHostManager>()
     }
 
-    private val sessionHosts = ConcurrentHashMap<String, AspireSessionHostServiceContributor>()
-    private val resources = ConcurrentHashMap<String, MutableMap<String, AspireResourceService>>()
+    private val mutex = Mutex()
 
-    private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
-
-    fun isSessionHostAvailable(sessionHostId: String) = sessionHosts.containsKey(sessionHostId)
-    fun getSessionHost(sessionHostId: String) = sessionHosts[sessionHostId]
-    fun getSessionHosts() = sessionHosts.values.toList()
-
-    fun getResources(sessionHostId: String) =
-        resources[sessionHostId]?.values?.sortedBy { it.resourceType }?.toList() ?: emptyList()
+    private val sessions = ConcurrentHashMap<String, MutableMap<String, Pair<String, SequentialLifetimes>>>()
 
     suspend fun runSessionHost(
-        sessionHostConfig: AspireSessionHostConfig,
-        sessionHostLifetime: LifetimeDefinition
+        aspireHostConfig: AspireHostProjectConfig,
+        protocolServerPort: Int,
+        sessionHostModel: AspireSessionHostModel,
+        aspireHostLifetime: LifetimeDefinition
     ) {
-        LOG.info("Starting Aspire session host: $sessionHostConfig")
+        LOG.info("Starting Aspire session host: $aspireHostConfig")
 
-        if (sessionHostLifetime.isNotAlive) {
-            LOG.warn("Unable to start Aspire host because lifetime is not alive")
-            return
-        }
+        subscribe(aspireHostConfig, sessionHostModel, aspireHostLifetime)
 
-        LOG.trace("Starting protocol")
-        val protocol = startProtocol(sessionHostLifetime)
-        val sessionHostModel = protocol.aspireSessionHostModel
-
-        LOG.trace("Subscribing to protocol model")
-        subscribe(sessionHostConfig, sessionHostModel, sessionHostLifetime)
-
-        val sessionHostData = AspireSessionHostServiceData(
-            sessionHostConfig.debugSessionToken,
-            sessionHostConfig.runProfileName,
-            sessionHostConfig.aspireHostProjectPath,
-            sessionHostConfig.aspireHostProjectUrl,
-            sessionHostModel,
-            sessionHostLifetime.lifetime
-        )
-
-        sessionHostLifetime.bracketIfAlive({
-            addSessionHost(sessionHostData)
+        aspireHostLifetime.bracketIfAlive({
+            sessions[aspireHostConfig.debugSessionToken] = mutableMapOf()
         }, {
-            removeSessionHost(sessionHostData)
+            sessions.remove(aspireHostConfig.debugSessionToken)
         })
 
         LOG.trace("Starting new session hosts with runner")
         val sessionHostRunner = AspireSessionHostRunner.getInstance(project)
         sessionHostRunner.runSessionHost(
-            sessionHostConfig,
-            protocol.wire.serverPort,
-            sessionHostLifetime
+            aspireHostConfig,
+            protocolServerPort,
+            aspireHostLifetime
         )
-    }
-
-    private fun addSessionHost(sessionHostData: AspireSessionHostServiceData) {
-        LOG.trace("Adding a new Aspire host $sessionHostData")
-        val aspireHost = AspireSessionHostServiceContributor(sessionHostData)
-        sessionHosts[sessionHostData.id] = aspireHost
-        resources[sessionHostData.id] = mutableMapOf()
-        val event = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_ADDED,
-            aspireHost,
-            AspireServiceContributor::class.java
-        )
-        serviceEventPublisher.handle(event)
-    }
-
-    private fun removeSessionHost(sessionHostData: AspireSessionHostServiceData) {
-        LOG.trace("Removing the Aspire host ${sessionHostData.id}")
-        val aspireHost = sessionHosts.remove(sessionHostData.id)
-        resources.remove(sessionHostData.id)
-        if (aspireHost == null) return
-        val event = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_REMOVED,
-            aspireHost,
-            AspireServiceContributor::class.java
-        )
-        serviceEventPublisher.handle(event)
-    }
-
-    private suspend fun startProtocol(lifetime: Lifetime) = withUiContext {
-        val dispatcher = RdDispatcher(lifetime)
-        val wire = SocketWire.Server(lifetime, dispatcher, null)
-        val protocol = Protocol(
-            "AspireSessionHost::protocol",
-            Serializers(),
-            Identities(IdKind.Server),
-            dispatcher,
-            wire,
-            lifetime
-        )
-        return@withUiContext protocol
     }
 
     private suspend fun subscribe(
-        sessionHostConfig: AspireSessionHostConfig,
+        aspireHostConfig: AspireHostProjectConfig,
         sessionHostModel: AspireSessionHostModel,
-        sessionHostLifetime: Lifetime
+        aspireHostLifetime: Lifetime
     ) {
+        LOG.trace("Subscribing to protocol model")
         val sessionEvents = Channel<AspireSessionEvent>(Channel.UNLIMITED)
-        sessionHostLifetime.launchOnUi {
+        aspireHostLifetime.launch(Dispatchers.EDT) {
             sessionEvents.consumeAsFlow().collect {
                 when (it) {
                     is AspireSessionStarted -> {
@@ -151,67 +86,65 @@ class AspireSessionHostManager(private val project: Project) {
             }
         }
 
-        withUiContext {
-            sessionHostModel.sessions.view(sessionHostLifetime) { sessionLifetime, sessionId, sessionModel ->
-                LOG.info("New session added $sessionId, $sessionModel")
-                viewSession(sessionId, sessionModel, sessionLifetime, sessionEvents, sessionHostConfig)
+        withContext(Dispatchers.EDT) {
+            sessionHostModel.upsertSession.setSuspend { _, model ->
+                upsertSession(model, sessionEvents, aspireHostConfig, aspireHostLifetime)
             }
 
-            sessionHostModel.resources.view(sessionHostLifetime) { resourceLifetime, resourceId, resource ->
-                viewResource(resourceId, resource, resourceLifetime, sessionHostConfig)
+            sessionHostModel.deleteSession.setSuspend { _, sessionId ->
+                deleteSession(sessionId, aspireHostConfig.debugSessionToken)
             }
         }
     }
 
-    private fun viewSession(
-        sessionId: String,
+    private suspend fun upsertSession(
         sessionModel: SessionModel,
-        sessionLifetime: Lifetime,
         sessionEvents: Channel<AspireSessionEvent>,
-        sessionHostConfig: AspireSessionHostConfig
-    ) {
-        val command = AspireSessionRunner.RunSessionCommand(
+        aspireHostConfig: AspireHostProjectConfig,
+        aspireHostLifetime: Lifetime
+    ): SessionUpsertResult? {
+        LOG.trace("Upserting a session ${sessionModel.projectPath}")
+
+        val (sessionId, lifetimes) = mutex.withLock {
+            val sessionByHost = sessions[aspireHostConfig.debugSessionToken] ?: return null
+            val previousValue = sessionByHost[sessionModel.projectPath]
+            if (previousValue != null) {
+                previousValue
+            } else {
+                val newSessionId = UUID.randomUUID().toString()
+                val lifetimes = SequentialLifetimes(aspireHostLifetime)
+                val pair = newSessionId to lifetimes
+                sessionByHost[sessionModel.projectPath] = pair
+                pair
+            }
+        }
+
+        val lifetime = lifetimes.next()
+
+        LOG.trace("Starting new session with runner (project $sessionModel)")
+        val runner = AspireSessionRunner.getInstance(project)
+        return runner.runSession(
             sessionId,
             sessionModel,
-            sessionLifetime,
+            lifetime,
             sessionEvents,
-            sessionHostConfig.runProfileName,
-            sessionHostConfig.isDebug,
-            sessionHostConfig.openTelemetryProtocolServerPort
+            aspireHostConfig.isDebug,
+            aspireHostConfig.openTelemetryProtocolServerPort
         )
-
-        LOG.trace("Starting new session with runner (command $command)")
-        val runner = AspireSessionRunner.getInstance(project)
-        runner.runSession(command)
     }
 
-    private fun viewResource(
-        resourceId: String,
-        resource: ResourceWrapper,
-        resourceLifetime: Lifetime,
-        sessionHostConfig: AspireSessionHostConfig
-    ) {
-        val sessionHost = sessionHosts[sessionHostConfig.debugSessionToken] ?: return
-        val resourcesByHost = resources[sessionHostConfig.debugSessionToken] ?: return
+    private suspend fun deleteSession(sessionId: String, sessionHostId: String): Boolean {
+        LOG.trace("Deleting session $sessionId")
 
-        val resourceService = AspireResourceService(resource, resourceLifetime, sessionHost, project)
-        resourcesByHost.addUnique(resourceLifetime, resourceId, resourceService)
-        resource.isInitialized.set(true)
+        val lifetimes = mutex.withLock {
+            val sessionByHost = sessions[sessionHostId] ?: return false
+            val entry = sessionByHost.entries.firstOrNull { it.value.first == sessionId } ?: return false
+            sessionByHost.remove(entry.key)
+            entry.value.second
+        }
 
-        resourceLifetime.bracketIfAlive({
-            val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
-                ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
-                sessionHost,
-                AspireServiceContributor::class.java
-            )
-            project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
-        }, {
-            val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
-                ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
-                sessionHost,
-                AspireServiceContributor::class.java
-            )
-            project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
-        })
+        lifetimes.terminateCurrent()
+
+        return true
     }
 }

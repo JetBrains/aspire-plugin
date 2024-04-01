@@ -9,13 +9,21 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.rd.util.lifetime
 import com.intellij.openapi.rd.util.startOnUiAsync
+import com.intellij.util.application
+import com.jetbrains.rd.framework.*
+import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.debugger.DotNetProgramRunner
 import com.jetbrains.rider.run.DotNetProcessRunProfileState
 import com.jetbrains.rider.util.NetUtils
-import me.rafaelldi.aspire.sessionHost.AspireSessionHostConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import me.rafaelldi.aspire.generated.aspireSessionHostModel
+import me.rafaelldi.aspire.services.AspireServiceManager
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
 import org.jetbrains.concurrency.Promise
 import org.jetbrains.concurrency.asPromise
@@ -57,22 +65,20 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         val openTelemetryProtocolUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
         LOG.trace("Found $DOTNET_DASHBOARD_OTLP_ENDPOINT_URL $openTelemetryProtocolUrl")
 
-        val runProfileName = environment.runProfile.name
         val isDebug = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
         val parameters =
             (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)?.parameters
-        val aspireHostProjectPath = parameters?.projectFilePath?.let { Path(it) }
-        val aspireHostProjectUrl = parameters?.startBrowserParameters?.url
+                ?: throw CantRunException("Unable to find AspireHostConfiguration parameters")
+        val aspireHostProjectPath = Path(parameters.projectFilePath)
+        val aspireHostProjectUrl = parameters.startBrowserParameters.url
 
         val aspireHostLifetime = environment.project.lifetime.createNested()
 
-        val sessionHostManager = AspireSessionHostManager.getInstance(environment.project)
         val openTelemetryProtocolServerPort = NetUtils.findFreePort(77800)
-        val config = AspireSessionHostConfig(
+        val config = AspireHostProjectConfig(
             debugSessionToken,
             debugSessionPort,
-            runProfileName,
             aspireHostProjectPath,
             aspireHostProjectUrl,
             isDebug,
@@ -83,11 +89,28 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         LOG.trace("Aspire session host config: $config")
 
         val sessionHostPromise = aspireHostLifetime.startOnUiAsync {
-            sessionHostManager.runSessionHost(config, aspireHostLifetime)
+            val protocol = startProtocol(aspireHostLifetime)
+            val sessionHostModel = protocol.aspireSessionHostModel
+
+            AspireServiceManager.getInstance(environment.project).startAspireHostService(
+                config,
+                sessionHostModel,
+                aspireHostLifetime.createNested()
+            )
+
+            AspireSessionHostManager.getInstance(environment.project).runSessionHost(
+                config,
+                protocol.wire.serverPort,
+                sessionHostModel,
+                aspireHostLifetime.createNested()
+            )
         }.asPromise()
 
         return sessionHostPromise.then {
             val executionResult = state.execute(environment.executor, this)
+
+            AspireServiceManager.getInstance(environment.project)
+                .updateAspireHostService(config.aspireHostProjectPath, executionResult)
 
             val processHandler = executionResult.processHandler
             aspireHostLifetime.onTermination {
@@ -100,12 +123,28 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
                 override fun processTerminated(event: ProcessEvent) {
                     LOG.trace("Aspire host process is terminated")
                     aspireHostLifetime.executeIfAlive {
-                        aspireHostLifetime.terminate(true)
+                        application.invokeLater {
+                            aspireHostLifetime.terminate(true)
+                        }
                     }
                 }
             })
 
             return@then showRunContent(executionResult, environment)
         }
+    }
+
+    private suspend fun startProtocol(lifetime: Lifetime) = withContext(Dispatchers.EDT) {
+        val dispatcher = RdDispatcher(lifetime)
+        val wire = SocketWire.Server(lifetime, dispatcher, null)
+        val protocol = Protocol(
+            "AspireSessionHost::protocol",
+            Serializers(),
+            Identities(IdKind.Server),
+            dispatcher,
+            wire,
+            lifetime
+        )
+        return@withContext protocol
     }
 }

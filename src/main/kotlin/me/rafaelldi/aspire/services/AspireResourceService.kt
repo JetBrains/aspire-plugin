@@ -20,7 +20,7 @@ import kotlin.math.roundToInt
 class AspireResourceService(
     wrapper: ResourceWrapper,
     val lifetime: Lifetime,
-    private val sessionHost: AspireSessionHostServiceContributor,
+    private val hostService: AspireHostService,
     private val project: Project
 ) {
     var name: String
@@ -65,12 +65,11 @@ class AspireResourceService(
     var containerArgs: String? = null
         private set
 
-    private val consoleView: ConsoleView = TextConsoleBuilderFactory
+    val consoleView: ConsoleView = TextConsoleBuilderFactory
         .getInstance()
         .createBuilder(project)
         .apply { setViewer(true) }
         .console
-    fun getConsole() = consoleView
 
     private val metrics = mutableMapOf<AspireResourceMetricKey, ResourceMetric>()
     fun getMetrics() = metrics.toMap()
@@ -169,7 +168,7 @@ class AspireResourceService(
 
         val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
-            sessionHost,
+            hostService,
             AspireServiceContributor::class.java
         )
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
