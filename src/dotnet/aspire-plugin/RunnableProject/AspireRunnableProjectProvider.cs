@@ -6,7 +6,7 @@ using JetBrains.ProjectModel.Properties;
 using JetBrains.ReSharper.Features.Running;
 using JetBrains.Rider.Model;
 using JetBrains.Util;
-using static AspirePlugin.RunnableProject.AspireProjectPropertyRequest;
+using static AspirePlugin.Project.AspireHostProjectPropertyRequest;
 using Key = JetBrains.Rider.Model.Key;
 
 namespace AspirePlugin.RunnableProject;
