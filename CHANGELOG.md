@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.4.2] - 2024-04-02
+
 ### Changed
 
 - Run configurations are no longer used to launch child projects
@@ -107,7 +109,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.2.4...v0.3.0
