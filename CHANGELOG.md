@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Run configurations are no longer used to launch child projects
+- Aspire host logs are displayed in the services tree node
+
 ## [0.4.1] - 2024-03-18
 
 ### Added
