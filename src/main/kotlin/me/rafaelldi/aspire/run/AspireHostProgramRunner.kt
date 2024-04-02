@@ -13,6 +13,8 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.rd.util.lifetime
 import com.intellij.openapi.rd.util.startOnUiAsync
+import com.intellij.openapi.wm.ToolWindowId
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.application
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -89,6 +91,10 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         LOG.trace("Aspire session host config: $config")
 
         val sessionHostPromise = aspireHostLifetime.startOnUiAsync {
+            val serviceToolWindow =
+                ToolWindowManager.getInstance(environment.project).getToolWindow(ToolWindowId.SERVICES)
+            serviceToolWindow?.activate {}
+
             val protocol = startProtocol(aspireHostLifetime)
             val sessionHostModel = protocol.aspireSessionHostModel
 

@@ -15,6 +15,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="me.rafaelldi.aspire.workload.UpdateWorkloadActivity"/>
+        <postStartupActivity implementation="me.rafaelldi.aspire.run.DisableToolWindowActivity"/>
 
         <configurationType implementation="me.rafaelldi.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="me.rafaelldi.aspire.run.AspireHostProgramRunner"/>
