@@ -7,7 +7,7 @@ kotlin = "1.9.23"
 serialization = "1.9.23"
 changelog = "2.2.0"
 gradleIntelliJPlugin = "1.17.3"
-qodana = "2023.3.1"
+qodana = "2023.3.2"
 rdgen = "2024.1.1"
 # https://search.maven.org/artifact/com.jetbrains.rd/rd-gen
 
