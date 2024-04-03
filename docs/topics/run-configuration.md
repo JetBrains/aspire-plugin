@@ -21,11 +21,12 @@ This run configuration allows you to run or debug multiple projects registered i
 
 ![Debugging multiple Aspire projects](debugging.jpg){ width="700" }
 
-The plugin will generate a separate `.NET Project` run configuration for each of your projects and start them.
-By viewing these configurations, you will be able to find out the exact parameters and environment variables that were
-used for launching.
+A separate node will also be created in the Services tool window. 
+It allows you to monitor resources while Aspire Host is running.
+For example, you can find resource properties, endpoints, environment variables, and read logs there.
+In addition, the resource tree provides OpenTelemetry information if this feature is enabled.
 
-![Generated run configurations](generated-run-config.jpg){ width="500" }
+
 
 <seealso>
   <category ref="ext">

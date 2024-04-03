@@ -1,7 +1,7 @@
 # OpenTelemetry (experimental)
 
 OpenTelemetry support is in an experimental state. To enable it, go to **Settings | Tools | Aspire** and enable
-**Collect OpenTelemetry data** options.
+**Collect OpenTelemetry data** option.
 
 ## Metrics
 
