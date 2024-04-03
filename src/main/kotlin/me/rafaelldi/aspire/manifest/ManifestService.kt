@@ -27,7 +27,8 @@ class ManifestService(private val project: Project, private val scope: Coroutine
         fun getInstance(project: Project) = project.service<ManifestService>()
         private val LOG = logger<ManifestService>()
 
-        private const val MANIFEST_FILE_NAME = "aspire-manifest.json"
+        private const val MANIFEST_FOLDER = "aspire-manifest"
+        private const val MANIFEST_FILE_NAME = "manifest.json"
     }
 
     fun generateManifest(hostProjectPath: Path) {
@@ -43,7 +44,7 @@ class ManifestService(private val project: Project, private val scope: Coroutine
                     listOf(
                         "msbuild",
                         "/t:GenerateAspireManifest",
-                        "/p:AspireManifestPublishOutputPath=$MANIFEST_FILE_NAME"
+                        "/p:AspireManifestPublishOutputPath=$MANIFEST_FOLDER"
                     )
                 )
                 val directoryPath = hostProjectPath.parent
@@ -52,7 +53,7 @@ class ManifestService(private val project: Project, private val scope: Coroutine
 
                 val output = ExecUtil.execAndGetOutput(commandLine)
                 if (output.checkSuccess(LOG)) {
-                    val manifestPath = directoryPath.resolve(MANIFEST_FILE_NAME)
+                    val manifestPath = directoryPath.resolve(MANIFEST_FOLDER).resolve(MANIFEST_FILE_NAME)
                     val file = LocalFileSystem.getInstance().refreshAndFindFileByPath(manifestPath.absolutePathString())
                     if (file != null && file.isValid) {
                         withUiContext {

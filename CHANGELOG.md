@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Manifest generation action
+
 ## [0.4.2] - 2024-04-02
 
 ### Changed
