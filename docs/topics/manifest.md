@@ -8,12 +8,12 @@ or [Kubernetes](https://github.com/prom3theu5/aspirational-manifests).
 To do this, you can select the Aspire Host node in the Services tool window and run the **Generate Aspire Manifest**
 action.
 
+![Generate manifest action](manifest-action.png){ width="400" }
 
-
-Otherwise, select the Aspire Host project in the Solution view and run this action from the **Tools | Generate Aspire
+Otherwise, select the Aspire Host project in the Solution view and run this action from the **Project | Tools | Generate Aspire
 Manifest** menu.
 
-
+![Generate manifest project action](project-manifest-action.png){ width="600" }
 
 The manifest will be generated under the Aspire Host project in the `aspire-manifest` folder.
 

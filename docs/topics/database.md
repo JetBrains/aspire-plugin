@@ -15,7 +15,7 @@ Partially supported:
 * MongoDB
 * Redis
 
-
+![Database list](databases.png){ width="450" }
 
 To disable this behavior, go to **Settings | Tools | Aspire** and disable the **Automatically connect to a created
 database** option.
