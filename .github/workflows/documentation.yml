@@ -9,7 +9,7 @@ permissions:
 env:
   INSTANCE: docs/aspire
   ARTIFACT: webHelpASPIRE2-all.zip
-  DOCKER_VERSION: 232.10275
+  DOCKER_VERSION: 233.14938
 
 jobs:
   build:
