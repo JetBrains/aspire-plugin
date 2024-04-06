@@ -9,10 +9,12 @@ import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
-import com.jetbrains.rd.util.threading.coroutines.launch
+import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -22,7 +24,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
-class AspireSessionHostManager(private val project: Project) {
+class AspireSessionHostManager(private val project: Project, private val scope: CoroutineScope) {
     companion object {
         fun getInstance(project: Project) = project.service<AspireSessionHostManager>()
 
@@ -33,7 +35,7 @@ class AspireSessionHostManager(private val project: Project) {
 
     private val sessions = ConcurrentHashMap<String, MutableMap<String, Pair<String, SequentialLifetimes>>>()
 
-    suspend fun runSessionHost(
+    suspend fun launchSessionHost(
         aspireHostConfig: AspireHostProjectConfig,
         protocolServerPort: Int,
         sessionHostModel: AspireSessionHostModel,
@@ -49,9 +51,9 @@ class AspireSessionHostManager(private val project: Project) {
             sessions.remove(aspireHostConfig.debugSessionToken)
         })
 
-        LOG.trace("Starting new session hosts with runner")
-        val sessionHostRunner = AspireSessionHostRunner.getInstance(project)
-        sessionHostRunner.runSessionHost(
+        LOG.trace("Starting new session hosts with launcher")
+        val sessionHostLauncher = AspireSessionHostLauncher.getInstance(project)
+        sessionHostLauncher.launchSessionHost(
             aspireHostConfig,
             protocolServerPort,
             aspireHostLifetime
@@ -65,22 +67,24 @@ class AspireSessionHostManager(private val project: Project) {
     ) {
         LOG.trace("Subscribing to protocol model")
         val sessionEvents = Channel<AspireSessionEvent>(Channel.UNLIMITED)
-        aspireHostLifetime.launch(Dispatchers.EDT) {
-            sessionEvents.consumeAsFlow().collect {
-                when (it) {
-                    is AspireSessionStarted -> {
-                        LOG.trace("Aspire session started (${it.id}, ${it.pid})")
-                        sessionHostModel.processStarted.fire(ProcessStarted(it.id, it.pid))
-                    }
+        scope.launch(Dispatchers.EDT) {
+            lifetimedCoroutineScope(aspireHostLifetime) {
+                sessionEvents.consumeAsFlow().collect {
+                    when (it) {
+                        is AspireSessionStarted -> {
+                            LOG.trace("Aspire session started (${it.id}, ${it.pid})")
+                            sessionHostModel.processStarted.fire(ProcessStarted(it.id, it.pid))
+                        }
 
-                    is AspireSessionTerminated -> {
-                        LOG.trace("Aspire session terminated (${it.id}, ${it.exitCode})")
-                        sessionHostModel.processTerminated.fire(ProcessTerminated(it.id, it.exitCode))
-                    }
+                        is AspireSessionTerminated -> {
+                            LOG.trace("Aspire session terminated (${it.id}, ${it.exitCode})")
+                            sessionHostModel.processTerminated.fire(ProcessTerminated(it.id, it.exitCode))
+                        }
 
-                    is AspireSessionLogReceived -> {
-                        LOG.trace("Aspire session log received (${it.id}, ${it.isStdErr}, ${it.message})")
-                        sessionHostModel.logReceived.fire(LogReceived(it.id, it.isStdErr, it.message))
+                        is AspireSessionLogReceived -> {
+                            LOG.trace("Aspire session log received (${it.id}, ${it.isStdErr}, ${it.message})")
+                            sessionHostModel.logReceived.fire(LogReceived(it.id, it.isStdErr, it.message))
+                        }
                     }
                 }
             }
@@ -122,8 +126,8 @@ class AspireSessionHostManager(private val project: Project) {
         val lifetime = lifetimes.next()
 
         LOG.trace("Starting new session with runner (project $sessionModel)")
-        val runner = AspireSessionRunner.getInstance(project)
-        return runner.runSession(
+        val launcher = AspireSessionLauncher.getInstance(project)
+        return launcher.launchSession(
             sessionId,
             sessionModel,
             lifetime,

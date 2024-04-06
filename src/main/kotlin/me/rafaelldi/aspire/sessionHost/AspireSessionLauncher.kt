@@ -4,6 +4,7 @@ import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -46,17 +47,17 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.nameWithoutExtension
 
 @Service(Service.Level.PROJECT)
-class AspireSessionRunner(private val project: Project) {
+class AspireSessionLauncher(private val project: Project) {
     companion object {
-        fun getInstance(project: Project) = project.service<AspireSessionRunner>()
+        fun getInstance(project: Project) = project.service<AspireSessionLauncher>()
 
-        private val LOG = logger<AspireSessionRunner>()
+        private val LOG = logger<AspireSessionLauncher>()
 
         private const val OTEL_EXPORTER_OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
         private fun getOtlpEndpoint(port: Int) = "http://localhost:$port"
     }
 
-    suspend fun runSession(
+    suspend fun launchSession(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
@@ -198,7 +199,7 @@ class AspireSessionRunner(private val project: Project) {
         )
 
         val projectPath = Path(sessionModel.projectPath)
-        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.EDT) {
             startDebugSession(
                 sessionId,
                 projectPath.nameWithoutExtension,

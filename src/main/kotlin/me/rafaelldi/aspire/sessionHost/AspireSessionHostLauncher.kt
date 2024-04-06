@@ -24,11 +24,11 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 @Service(Service.Level.PROJECT)
-class AspireSessionHostRunner(private val project: Project) {
+class AspireSessionHostLauncher(private val project: Project) {
     companion object {
-        fun getInstance(project: Project) = project.service<AspireSessionHostRunner>()
+        fun getInstance(project: Project) = project.service<AspireSessionHostLauncher>()
 
-        private val LOG = logger<AspireSessionHostRunner>()
+        private val LOG = logger<AspireSessionHostLauncher>()
 
         private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
         private const val RIDER_RD_PORT = "RIDER_RD_PORT"
@@ -46,7 +46,7 @@ class AspireSessionHostRunner(private val project: Project) {
         basePath / "aspire-session-host" / "aspire-session-host.dll"
     }
 
-    fun runSessionHost(
+    fun launchSessionHost(
         aspireHostConfig: AspireHostProjectConfig,
         sessionHostRdPort: Int,
         aspireHostLifetime: LifetimeDefinition
