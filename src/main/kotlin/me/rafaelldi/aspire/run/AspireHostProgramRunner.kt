@@ -104,7 +104,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
                 aspireHostLifetime.createNested()
             )
 
-            AspireSessionHostManager.getInstance(environment.project).launchSessionHost(
+            AspireSessionHostManager.getInstance(environment.project).addSessionHost(
                 config,
                 protocol.wire.serverPort,
                 sessionHostModel,

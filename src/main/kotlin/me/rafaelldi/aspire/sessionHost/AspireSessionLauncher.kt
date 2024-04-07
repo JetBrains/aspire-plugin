@@ -33,7 +33,7 @@ import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
 import icons.RiderIcons
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.generated.SessionUpsertResult
@@ -61,7 +61,7 @@ class AspireSessionLauncher(private val project: Project) {
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
-        sessionEvents: Channel<AspireSessionEvent>,
+        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
         isHostDebug: Boolean,
         openTelemetryPort: Int
     ): SessionUpsertResult? {
@@ -80,7 +80,7 @@ class AspireSessionLauncher(private val project: Project) {
 
         val isDebug = isHostDebug || sessionModel.debug
         if (isDebug) {
-            startDebugSession(
+            launchDebugSession(
                 sessionId,
                 executable,
                 sessionModel,
@@ -89,7 +89,7 @@ class AspireSessionLauncher(private val project: Project) {
                 openTelemetryPort
             )
         } else {
-            startRunSession(
+            launchRunSession(
                 sessionId,
                 executable.first,
                 sessionModel,
@@ -118,12 +118,12 @@ class AspireSessionLauncher(private val project: Project) {
         }
     }
 
-    private fun startRunSession(
+    private fun launchRunSession(
         sessionId: String,
         executablePath: Path,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
-        sessionEvents: Channel<AspireSessionEvent>,
+        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
         openTelemetryPort: Int
     ) {
         val commandLine = getRunningCommandLine(executablePath, sessionModel, openTelemetryPort)
@@ -165,12 +165,12 @@ class AspireSessionLauncher(private val project: Project) {
         return commandLine
     }
 
-    private suspend fun startDebugSession(
+    private suspend fun launchDebugSession(
         sessionId: String,
         executable: Pair<Path, RdTargetFrameworkId?>,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
-        sessionEvents: Channel<AspireSessionEvent>,
+        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
         openTelemetryPort: Int
     ) {
         val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
@@ -200,7 +200,7 @@ class AspireSessionLauncher(private val project: Project) {
 
         val projectPath = Path(sessionModel.projectPath)
         withContext(Dispatchers.EDT) {
-            startDebugSession(
+            createAndStartDebugSession(
                 sessionId,
                 projectPath.nameWithoutExtension,
                 startInfo,
@@ -210,11 +210,11 @@ class AspireSessionLauncher(private val project: Project) {
         }
     }
 
-    private suspend fun startDebugSession(
+    private suspend fun createAndStartDebugSession(
         sessionId: String,
         @Nls sessionName: String,
         startInfo: DebuggerStartInfoBase,
-        sessionEvents: Channel<AspireSessionEvent>,
+        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
         lifetime: Lifetime
     ) {
         val frontendToDebuggerPort = NetUtils.findFreePort(67700)
@@ -335,7 +335,7 @@ class AspireSessionLauncher(private val project: Project) {
     private fun subscribeToSessionEvents(
         sessionId: String,
         handler: ProcessHandler,
-        sessionEvents: Channel<AspireSessionEvent>
+        sessionEvents: MutableSharedFlow<AspireSessionEvent>
     ) {
         handler.addProcessListener(object : ProcessAdapter() {
             override fun startNotified(event: ProcessEvent) {
@@ -346,26 +346,26 @@ class AspireSessionLauncher(private val project: Project) {
                 }
                 if (pid == null) {
                     LOG.warn("Unable to determine process id for the session $sessionId")
-                    sessionEvents.trySend(AspireSessionTerminated(sessionId, -1))
+                    sessionEvents.tryEmit(AspireSessionTerminated(sessionId, -1))
                 } else {
-                    sessionEvents.trySend(AspireSessionStarted(sessionId, pid))
+                    sessionEvents.tryEmit(AspireSessionStarted(sessionId, pid))
                 }
             }
 
             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
                 val text = decodeAnsiCommandsToString(event.text, outputType)
                 val isStdErr = outputType == ProcessOutputType.STDERR
-                sessionEvents.trySend(AspireSessionLogReceived(sessionId, isStdErr, text))
+                sessionEvents.tryEmit(AspireSessionLogReceived(sessionId, isStdErr, text))
             }
 
             override fun processTerminated(event: ProcessEvent) {
                 LOG.info("Aspire session process terminated (id: $sessionId)")
-                sessionEvents.trySend(AspireSessionTerminated(sessionId, event.exitCode))
+                sessionEvents.tryEmit(AspireSessionTerminated(sessionId, event.exitCode))
             }
 
             override fun processNotStarted() {
                 LOG.warn("Aspire session process is not started")
-                sessionEvents.trySend(AspireSessionTerminated(sessionId, -1))
+                sessionEvents.tryEmit(AspireSessionTerminated(sessionId, -1))
             }
         })
     }
