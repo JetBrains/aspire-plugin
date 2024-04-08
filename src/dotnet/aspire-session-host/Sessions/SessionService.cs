@@ -8,6 +8,11 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
 {
     internal async Task<SessionUpsertResult?> Upsert(Session session)
     {
+        if (!File.Exists(session.ProjectPath))
+        {
+            return null;
+        }
+
         var envs = session.Env
             ?.Where(it => it.Value is not null)
             ?.Select(it => new SessionEnvironmentVariable(it.Name, it.Value!))
