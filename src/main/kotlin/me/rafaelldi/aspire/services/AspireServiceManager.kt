@@ -161,7 +161,8 @@ class AspireServiceManager(private val project: Project) {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
             val name = configuration.name
-            val projectPath = Path(configuration.getProjectFilePath())
+            val params = configuration.parameters
+            val projectPath = Path(params.projectFilePath)
             val host = AspireHostService(name, projectPath)
             getInstance(project).addAspireHostService(host)
         }
@@ -170,14 +171,16 @@ class AspireServiceManager(private val project: Project) {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
             val name = configuration.name
-            val projectPath = Path(configuration.getProjectFilePath())
+            val params = configuration.parameters
+            val projectPath = Path(params.projectFilePath)
             getInstance(project).updateAspireHostService(projectPath, name)
         }
 
         override fun runConfigurationRemoved(settings: RunnerAndConfigurationSettings) {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
-            val projectPath = Path(configuration.getProjectFilePath())
+            val params = configuration.parameters
+            val projectPath = Path(params.projectFilePath)
             getInstance(project).removeAspireHostService(projectPath)
         }
     }
