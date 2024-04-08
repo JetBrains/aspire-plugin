@@ -16,8 +16,9 @@ internal static class SessionEndpoints
 
         group.MapPut(
             "/",
-            async Task<Results<Created<Session>, BadRequest<ErrorResponse>>> (Session session,
-                SessionService service) =>
+            async Task<Results<Created<Session>, BadRequest<ErrorResponse>>> (
+                Session session, SessionService service
+            ) =>
             {
                 var result = await service.Create(session);
                 return result != null

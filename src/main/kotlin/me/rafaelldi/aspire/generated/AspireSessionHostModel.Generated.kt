@@ -458,7 +458,7 @@ data class ResourceLog (
         if (text != other.text) return false
         if (isError != other.isError) return false
         if (lineNumber != other.lineNumber) return false
-        
+
         return true
     }
     //hash code trait
@@ -768,25 +768,25 @@ data class ResourceProperty (
  * #### Generated from [AspireSessionHostModel.kt:68]
  */
 enum class ResourceState {
-    Finished, 
-    Exited, 
-    FailedToStart, 
-    Starting, 
-    Running, 
-    Hidden, 
+    Finished,
+    Exited,
+    FailedToStart,
+    Starting,
+    Running,
+    Hidden,
     Unknown;
-    
+
     companion object : IMarshaller<ResourceState> {
         val marshaller = FrameworkMarshallers.enum<ResourceState>()
-        
-        
+
+
         override val _type: KClass<ResourceState> = ResourceState::class
         override val id: RdId get() = RdId(-3770298982336589872)
-        
+
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceState {
             return marshaller.read(ctx, buffer)
         }
-        
+
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceState)  {
             marshaller.write(ctx, buffer, value)
         }
@@ -798,23 +798,23 @@ enum class ResourceState {
  * #### Generated from [AspireSessionHostModel.kt:77]
  */
 enum class ResourceStateStyle {
-    Success, 
-    Info, 
-    Warning, 
-    Error, 
+    Success,
+    Info,
+    Warning,
+    Error,
     Unknown;
-    
+
     companion object : IMarshaller<ResourceStateStyle> {
         val marshaller = FrameworkMarshallers.enum<ResourceStateStyle>()
-        
-        
+
+
         override val _type: KClass<ResourceStateStyle> = ResourceStateStyle::class
         override val id: RdId get() = RdId(-15935776453165119)
-        
+
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceStateStyle {
             return marshaller.read(ctx, buffer)
         }
-        
+
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceStateStyle)  {
             marshaller.write(ctx, buffer, value)
         }
@@ -826,22 +826,22 @@ enum class ResourceStateStyle {
  * #### Generated from [AspireSessionHostModel.kt:60]
  */
 enum class ResourceType {
-    Project, 
-    Container, 
-    Executable, 
+    Project,
+    Container,
+    Executable,
     Unknown;
-    
+
     companion object : IMarshaller<ResourceType> {
         val marshaller = FrameworkMarshallers.enum<ResourceType>()
-        
-        
+
+
         override val _type: KClass<ResourceType> = ResourceType::class
         override val id: RdId get() = RdId(-1311735068701761509)
-        
+
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceType {
             return marshaller.read(ctx, buffer)
         }
-        
+
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceType)  {
             marshaller.write(ctx, buffer, value)
         }
@@ -1144,7 +1144,7 @@ data class SessionEnvironmentVariable (
 data class SessionModel (
     val projectPath: String,
     val debug: Boolean,
-    val launchProfile: String?,
+    val launchProfile: Array<String>?,
     val disableLaunchProfile: Boolean,
     val args: Array<String>?,
     val envs: Array<SessionEnvironmentVariable>?
@@ -1159,7 +1159,7 @@ data class SessionModel (
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionModel  {
             val projectPath = buffer.readString()
             val debug = buffer.readBool()
-            val launchProfile = buffer.readNullable { buffer.readString() }
+            val launchProfile = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val disableLaunchProfile = buffer.readBool()
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val envs = buffer.readNullable { buffer.readArray {SessionEnvironmentVariable.read(ctx, buffer)} }
@@ -1169,7 +1169,7 @@ data class SessionModel (
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionModel)  {
             buffer.writeString(value.projectPath)
             buffer.writeBool(value.debug)
-            buffer.writeNullable(value.launchProfile) { buffer.writeString(it) }
+            buffer.writeNullable(value.launchProfile) { buffer.writeArray(it) { buffer.writeString(it) } }
             buffer.writeBool(value.disableLaunchProfile)
             buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
             buffer.writeNullable(value.envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
@@ -1202,7 +1202,7 @@ data class SessionModel (
         var __r = 0
         __r = __r*31 + projectPath.hashCode()
         __r = __r*31 + debug.hashCode()
-        __r = __r*31 + if (launchProfile != null) launchProfile.hashCode() else 0
+        __r = __r*31 + if (launchProfile != null) launchProfile.contentDeepHashCode() else 0
         __r = __r*31 + disableLaunchProfile.hashCode()
         __r = __r*31 + if (args != null) args.contentDeepHashCode() else 0
         __r = __r*31 + if (envs != null) envs.contentDeepHashCode() else 0

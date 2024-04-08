@@ -38,7 +38,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
     private val SessionModel = structdef {
         field("projectPath", string)
         field("debug", bool)
-        field("launchProfile", string.nullable)
+        field("launchProfile", array(string).nullable)
         field("disableLaunchProfile", bool)
         field("args", array(string).nullable)
         field("envs", array(SessionEnvironmentVariable).nullable)

@@ -8,25 +8,31 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
 {
     internal async Task<SessionCreationResult?> Create(Session session)
     {
-        if (!File.Exists(session.ProjectPath))
+        if (session.LaunchConfigurations.Length != 1)
         {
             return null;
         }
 
-        var launchConfiguration = session.LaunchConfigurations
-            .FirstOrDefault(it => string.Equals(it.Type, "project", StringComparison.InvariantCultureIgnoreCase));
-        if (launchConfiguration is null) return null;
+        var launchConfig = session.LaunchConfigurations.Single();
+        if (!File.Exists(launchConfig.ProjectPath))
+        {
+            return null;
+        }
 
-        var id = Guid.NewGuid();
-        var stringId = id.ToString();
+        if (!string.Equals(launchConfig.Type, "project", StringComparison.InvariantCultureIgnoreCase))
+        {
+            return null;
+        }
+
         var envs = session.Env
             ?.Where(it => it.Value is not null)
             ?.Select(it => new SessionEnvironmentVariable(it.Name, it.Value!))
             ?.ToArray();
         var sessionModel = new SessionModel(
-            stringId,
-            launchConfiguration.ProjectPath,
-            launchConfiguration.Mode == Mode.Debug,
+            launchConfig.ProjectPath,
+            launchConfig.Mode == Mode.Debug,
+            launchConfig.LaunchProfile,
+            launchConfig.DisableLaunchProfile == true,
             session.Args,
             envs
         );
