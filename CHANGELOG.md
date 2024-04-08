@@ -7,6 +7,7 @@
 ### Fixed
 
 - Manifest generation action
+- [#102](https://github.com/rafaelldi/aspire-plugin/issues/102): Timeout from DCP
 
 ## [0.4.2] - 2024-04-02
 
