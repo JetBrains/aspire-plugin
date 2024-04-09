@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Support for Rider 2024.1
+
 ### Fixed
 
 - Manifest generation action
