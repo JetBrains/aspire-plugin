@@ -18,7 +18,7 @@ public class AspireRunnableProjectProvider(
     ILogger logger
 ) : IRunnableProjectProvider
 {
-    private const string DefaultDashboardUrl = "http://localhost:18888";
+    private const string DefaultDashboardUrl = "https://localhost:18888";
     private const string AspnetcoreUrlsEnvVar = "ASPNETCORE_URLS";
 
     public JetBrains.Rider.Model.RunnableProject? CreateRunnableProject(
@@ -52,14 +52,16 @@ public class AspireRunnableProjectProvider(
         var profileContent = GetProfileContent(project);
         if (profileContent is not null)
         {
-            applicationUrl = profileContent.ApplicationUrl?.FirstOrDefault() ?? DefaultDashboardUrl;
+            applicationUrl = profileContent.ApplicationUrl?.FirstOrDefault(it => it.StartsWith("https"))
+                             ?? profileContent.ApplicationUrl?.FirstOrDefault()
+                             ?? DefaultDashboardUrl;
             launchBrowser = profileContent.LaunchBrowser;
 
             environmentVariables.AddRange(
                 profileContent
                     .EnvironmentVariables
                     .Select(env => new EnvironmentVariable(env.Key, env.Value))
-                );
+            );
 
             if (!profileContent.EnvironmentVariables.ContainsKey(AspnetcoreUrlsEnvVar))
             {
@@ -91,9 +93,14 @@ public class AspireRunnableProjectProvider(
         if (!hasLaunchSettings) return null;
 
         var profiles = launchSettingsProvider.TryGetLaunchJsonSettingsProfiles(project);
-        return profiles
-            ?.Profiles
-            ?.FirstOrDefault(it => it.CommandName == LaunchSettingsJson.ProjectCommand);
+        var projectProfiles = profiles
+                                  ?.Profiles
+                                  ?.Where(it => it.CommandName == LaunchSettingsJson.ProjectCommand)
+                                  ?.ToList()
+                              ?? EmptyList<LaunchSettingsJson.ProfileContent>.InstanceList;
+        var targetProfile = projectProfiles.FirstOrDefault(it => it.ApplicationUrl.Contains("https"))
+                            ?? projectProfiles.FirstOrDefault();
+        return targetProfile;
     }
 
     public IEnumerable<RunnableProjectKind> HiddenRunnableProjectKinds => EmptyList<RunnableProjectKind>.Instance;
