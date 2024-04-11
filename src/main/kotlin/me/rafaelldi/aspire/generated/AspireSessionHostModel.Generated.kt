@@ -43,14 +43,14 @@ class AspireSessionHostModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(-3770298982342277528), classLoader, "me.rafaelldi.aspire.generated.ResourceModel"))
             serializers.register(LazyCompanionMarshaller(RdId(1247681944195290678), classLoader, "me.rafaelldi.aspire.generated.ResourceProperty"))
             serializers.register(LazyCompanionMarshaller(RdId(-1423436662766610770), classLoader, "me.rafaelldi.aspire.generated.ResourceEnvironmentVariable"))
-            serializers.register(LazyCompanionMarshaller(RdId(1247681637691889142), classLoader, "me.rafaelldi.aspire.generated.ResourceEndpoint"))
-            serializers.register(LazyCompanionMarshaller(RdId(-7695483578804421068), classLoader, "me.rafaelldi.aspire.generated.ResourceService"))
+            serializers.register(LazyCompanionMarshaller(RdId(552742225967993966), classLoader, "me.rafaelldi.aspire.generated.ResourceUrl"))
             serializers.register(LazyCompanionMarshaller(RdId(552742225967985219), classLoader, "me.rafaelldi.aspire.generated.ResourceLog"))
             serializers.register(LazyCompanionMarshaller(RdId(-6198804010362039727), classLoader, "me.rafaelldi.aspire.generated.ResourceMetric"))
             serializers.register(LazyCompanionMarshaller(RdId(577221124058644), classLoader, "me.rafaelldi.aspire.generated.TraceNode"))
             serializers.register(LazyCompanionMarshaller(RdId(-2931968979041238168), classLoader, "me.rafaelldi.aspire.generated.TraceNodeChild"))
             serializers.register(LazyCompanionMarshaller(RdId(7298853094950171368), classLoader, "me.rafaelldi.aspire.generated.TraceNodeAttribute"))
             serializers.register(LazyCompanionMarshaller(RdId(-1311735068701761509), classLoader, "me.rafaelldi.aspire.generated.ResourceType"))
+            serializers.register(LazyCompanionMarshaller(RdId(-15935776453165119), classLoader, "me.rafaelldi.aspire.generated.ResourceStateStyle"))
         }
         
         
@@ -73,7 +73,7 @@ class AspireSessionHostModel private constructor(
         private val __SessionUpsertResultNullableSerializer = SessionUpsertResult.nullable()
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = 9195607196802562937L
+        const val serializationHash = 3010179937465585574L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -351,71 +351,6 @@ data class ProcessTerminated (
 /**
  * #### Generated from [AspireSessionHostModel.kt:88]
  */
-data class ResourceEndpoint (
-    val endpointUrl: String,
-    val proxyUrl: String
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<ResourceEndpoint> {
-        override val _type: KClass<ResourceEndpoint> = ResourceEndpoint::class
-        override val id: RdId get() = RdId(1247681637691889142)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceEndpoint  {
-            val endpointUrl = buffer.readString()
-            val proxyUrl = buffer.readString()
-            return ResourceEndpoint(endpointUrl, proxyUrl)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceEndpoint)  {
-            buffer.writeString(value.endpointUrl)
-            buffer.writeString(value.proxyUrl)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as ResourceEndpoint
-        
-        if (endpointUrl != other.endpointUrl) return false
-        if (proxyUrl != other.proxyUrl) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + endpointUrl.hashCode()
-        __r = __r*31 + proxyUrl.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("ResourceEndpoint (")
-        printer.indent {
-            print("endpointUrl = "); endpointUrl.print(printer); println()
-            print("proxyUrl = "); proxyUrl.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspireSessionHostModel.kt:83]
- */
 data class ResourceEnvironmentVariable (
     val key: String,
     val value: String?
@@ -483,7 +418,8 @@ data class ResourceEnvironmentVariable (
  */
 data class ResourceLog (
     val text: String,
-    val isError: Boolean
+    val isError: Boolean,
+    val lineNumber: Int
 ) : IPrintable {
     //companion
     
@@ -495,12 +431,14 @@ data class ResourceLog (
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceLog  {
             val text = buffer.readString()
             val isError = buffer.readBool()
-            return ResourceLog(text, isError)
+            val lineNumber = buffer.readInt()
+            return ResourceLog(text, isError, lineNumber)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceLog)  {
             buffer.writeString(value.text)
             buffer.writeBool(value.isError)
+            buffer.writeInt(value.lineNumber)
         }
         
         
@@ -518,6 +456,7 @@ data class ResourceLog (
         
         if (text != other.text) return false
         if (isError != other.isError) return false
+        if (lineNumber != other.lineNumber) return false
         
         return true
     }
@@ -526,6 +465,7 @@ data class ResourceLog (
         var __r = 0
         __r = __r*31 + text.hashCode()
         __r = __r*31 + isError.hashCode()
+        __r = __r*31 + lineNumber.hashCode()
         return __r
     }
     //pretty print
@@ -534,6 +474,7 @@ data class ResourceLog (
         printer.indent {
             print("text = "); text.print(printer); println()
             print("isError = "); isError.print(printer); println()
+            print("lineNumber = "); lineNumber.print(printer); println()
         }
         printer.print(")")
     }
@@ -544,7 +485,7 @@ data class ResourceLog (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:104]
+ * #### Generated from [AspireSessionHostModel.kt:105]
  */
 data class ResourceMetric (
     val serviceName: String,
@@ -643,16 +584,15 @@ data class ResourceMetric (
  */
 data class ResourceModel (
     val name: String,
-    val resourceType: ResourceType,
+    val type: ResourceType,
     val displayName: String,
     val uid: String,
     val state: String?,
+    val stateStyle: ResourceStateStyle?,
     val createdAt: Date,
-    val expectedEndpointsCount: Int?,
     val properties: Array<ResourceProperty>,
     val environment: Array<ResourceEnvironmentVariable>,
-    val endpoints: Array<ResourceEndpoint>,
-    val services: Array<ResourceService>
+    val urls: Array<ResourceUrl>
 ) : IPrintable {
     //companion
     
@@ -663,31 +603,29 @@ data class ResourceModel (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceModel  {
             val name = buffer.readString()
-            val resourceType = buffer.readEnum<ResourceType>()
+            val type = buffer.readEnum<ResourceType>()
             val displayName = buffer.readString()
             val uid = buffer.readString()
             val state = buffer.readNullable { buffer.readString() }
+            val stateStyle = buffer.readNullable { buffer.readEnum<ResourceStateStyle>() }
             val createdAt = buffer.readDateTime()
-            val expectedEndpointsCount = buffer.readNullable { buffer.readInt() }
             val properties = buffer.readArray {ResourceProperty.read(ctx, buffer)}
             val environment = buffer.readArray {ResourceEnvironmentVariable.read(ctx, buffer)}
-            val endpoints = buffer.readArray {ResourceEndpoint.read(ctx, buffer)}
-            val services = buffer.readArray {ResourceService.read(ctx, buffer)}
-            return ResourceModel(name, resourceType, displayName, uid, state, createdAt, expectedEndpointsCount, properties, environment, endpoints, services)
+            val urls = buffer.readArray {ResourceUrl.read(ctx, buffer)}
+            return ResourceModel(name, type, displayName, uid, state, stateStyle, createdAt, properties, environment, urls)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceModel)  {
             buffer.writeString(value.name)
-            buffer.writeEnum(value.resourceType)
+            buffer.writeEnum(value.type)
             buffer.writeString(value.displayName)
             buffer.writeString(value.uid)
             buffer.writeNullable(value.state) { buffer.writeString(it) }
+            buffer.writeNullable(value.stateStyle) { buffer.writeEnum(it) }
             buffer.writeDateTime(value.createdAt)
-            buffer.writeNullable(value.expectedEndpointsCount) { buffer.writeInt(it) }
             buffer.writeArray(value.properties) { ResourceProperty.write(ctx, buffer, it) }
             buffer.writeArray(value.environment) { ResourceEnvironmentVariable.write(ctx, buffer, it) }
-            buffer.writeArray(value.endpoints) { ResourceEndpoint.write(ctx, buffer, it) }
-            buffer.writeArray(value.services) { ResourceService.write(ctx, buffer, it) }
+            buffer.writeArray(value.urls) { ResourceUrl.write(ctx, buffer, it) }
         }
         
         
@@ -704,16 +642,15 @@ data class ResourceModel (
         other as ResourceModel
         
         if (name != other.name) return false
-        if (resourceType != other.resourceType) return false
+        if (type != other.type) return false
         if (displayName != other.displayName) return false
         if (uid != other.uid) return false
         if (state != other.state) return false
+        if (stateStyle != other.stateStyle) return false
         if (createdAt != other.createdAt) return false
-        if (expectedEndpointsCount != other.expectedEndpointsCount) return false
         if (!(properties contentDeepEquals other.properties)) return false
         if (!(environment contentDeepEquals other.environment)) return false
-        if (!(endpoints contentDeepEquals other.endpoints)) return false
-        if (!(services contentDeepEquals other.services)) return false
+        if (!(urls contentDeepEquals other.urls)) return false
         
         return true
     }
@@ -721,16 +658,15 @@ data class ResourceModel (
     override fun hashCode(): Int  {
         var __r = 0
         __r = __r*31 + name.hashCode()
-        __r = __r*31 + resourceType.hashCode()
+        __r = __r*31 + type.hashCode()
         __r = __r*31 + displayName.hashCode()
         __r = __r*31 + uid.hashCode()
         __r = __r*31 + if (state != null) state.hashCode() else 0
+        __r = __r*31 + if (stateStyle != null) stateStyle.hashCode() else 0
         __r = __r*31 + createdAt.hashCode()
-        __r = __r*31 + if (expectedEndpointsCount != null) expectedEndpointsCount.hashCode() else 0
         __r = __r*31 + properties.contentDeepHashCode()
         __r = __r*31 + environment.contentDeepHashCode()
-        __r = __r*31 + endpoints.contentDeepHashCode()
-        __r = __r*31 + services.contentDeepHashCode()
+        __r = __r*31 + urls.contentDeepHashCode()
         return __r
     }
     //pretty print
@@ -738,16 +674,15 @@ data class ResourceModel (
         printer.println("ResourceModel (")
         printer.indent {
             print("name = "); name.print(printer); println()
-            print("resourceType = "); resourceType.print(printer); println()
+            print("type = "); type.print(printer); println()
             print("displayName = "); displayName.print(printer); println()
             print("uid = "); uid.print(printer); println()
             print("state = "); state.print(printer); println()
+            print("stateStyle = "); stateStyle.print(printer); println()
             print("createdAt = "); createdAt.print(printer); println()
-            print("expectedEndpointsCount = "); expectedEndpointsCount.print(printer); println()
             print("properties = "); properties.print(printer); println()
             print("environment = "); environment.print(printer); println()
-            print("endpoints = "); endpoints.print(printer); println()
-            print("services = "); services.print(printer); println()
+            print("urls = "); urls.print(printer); println()
         }
         printer.print(")")
     }
@@ -758,7 +693,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:77]
+ * #### Generated from [AspireSessionHostModel.kt:82]
  */
 data class ResourceProperty (
     val name: String,
@@ -829,73 +764,30 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:93]
+ * #### Generated from [AspireSessionHostModel.kt:69]
  */
-data class ResourceService (
-    val name: String,
-    val allocatedAddress: String?,
-    val allocatedPort: Int?
-) : IPrintable {
-    //companion
+enum class ResourceStateStyle {
+    Success, 
+    Info, 
+    Warning, 
+    Error, 
+    Unknown;
     
-    companion object : IMarshaller<ResourceService> {
-        override val _type: KClass<ResourceService> = ResourceService::class
-        override val id: RdId get() = RdId(-7695483578804421068)
+    companion object : IMarshaller<ResourceStateStyle> {
+        val marshaller = FrameworkMarshallers.enum<ResourceStateStyle>()
         
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceService  {
-            val name = buffer.readString()
-            val allocatedAddress = buffer.readNullable { buffer.readString() }
-            val allocatedPort = buffer.readNullable { buffer.readInt() }
-            return ResourceService(name, allocatedAddress, allocatedPort)
+        
+        override val _type: KClass<ResourceStateStyle> = ResourceStateStyle::class
+        override val id: RdId get() = RdId(-15935776453165119)
+        
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceStateStyle {
+            return marshaller.read(ctx, buffer)
         }
         
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceService)  {
-            buffer.writeString(value.name)
-            buffer.writeNullable(value.allocatedAddress) { buffer.writeString(it) }
-            buffer.writeNullable(value.allocatedPort) { buffer.writeInt(it) }
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceStateStyle)  {
+            marshaller.write(ctx, buffer, value)
         }
-        
-        
     }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as ResourceService
-        
-        if (name != other.name) return false
-        if (allocatedAddress != other.allocatedAddress) return false
-        if (allocatedPort != other.allocatedPort) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + name.hashCode()
-        __r = __r*31 + if (allocatedAddress != null) allocatedAddress.hashCode() else 0
-        __r = __r*31 + if (allocatedPort != null) allocatedPort.hashCode() else 0
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("ResourceService (")
-        printer.indent {
-            print("name = "); name.print(printer); println()
-            print("allocatedAddress = "); allocatedAddress.print(printer); println()
-            print("allocatedPort = "); allocatedPort.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
 }
 
 
@@ -923,6 +815,77 @@ enum class ResourceType {
             marshaller.write(ctx, buffer, value)
         }
     }
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:93]
+ */
+data class ResourceUrl (
+    val name: String,
+    val fullUrls: String,
+    val isInternal: Boolean
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceUrl> {
+        override val _type: KClass<ResourceUrl> = ResourceUrl::class
+        override val id: RdId get() = RdId(552742225967993966)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceUrl  {
+            val name = buffer.readString()
+            val fullUrls = buffer.readString()
+            val isInternal = buffer.readBool()
+            return ResourceUrl(name, fullUrls, isInternal)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceUrl)  {
+            buffer.writeString(value.name)
+            buffer.writeString(value.fullUrls)
+            buffer.writeBool(value.isInternal)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceUrl
+        
+        if (name != other.name) return false
+        if (fullUrls != other.fullUrls) return false
+        if (isInternal != other.isInternal) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + name.hashCode()
+        __r = __r*31 + fullUrls.hashCode()
+        __r = __r*31 + isInternal.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceUrl (")
+        printer.indent {
+            print("name = "); name.print(printer); println()
+            print("fullUrls = "); fullUrls.print(printer); println()
+            print("isInternal = "); isInternal.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
 }
 
 
@@ -1234,7 +1197,7 @@ data class SessionUpsertResult (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:114]
+ * #### Generated from [AspireSessionHostModel.kt:115]
  */
 data class TraceNode (
     val id: String,
@@ -1317,7 +1280,7 @@ data class TraceNode (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:127]
+ * #### Generated from [AspireSessionHostModel.kt:128]
  */
 data class TraceNodeAttribute (
     val key: String,
@@ -1382,7 +1345,7 @@ data class TraceNodeAttribute (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:122]
+ * #### Generated from [AspireSessionHostModel.kt:123]
  */
 data class TraceNodeChild (
     val id: String,

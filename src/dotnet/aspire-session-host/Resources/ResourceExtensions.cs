@@ -11,24 +11,32 @@ internal static class ResourceExtensions
 {
     internal static ResourceModel ToModel(this Resource resource) => new(
         resource.Name,
-        Map(resource.ResourceType),
+        MapType(resource.ResourceType),
         resource.DisplayName,
         resource.Uid,
         resource.HasState ? resource.State : null,
+        resource.HasStateStyle ? MapStyle(resource.StateStyle) : null,
         resource.CreatedAt.ToDateTime(),
-        resource.HasExpectedEndpointsCount ? resource.ExpectedEndpointsCount : null,
         resource.Properties.Select(it => it.ToModel()).ToArray(),
         resource.Environment.Select(it => it.ToModel()).ToArray(),
-        resource.Endpoints.Select(it => it.ToModel()).ToArray(),
-        resource.Services.Select(it => it.ToModel()).ToArray()
+        resource.Urls.Select(it => it.ToModel()).ToArray()
     );
 
-    private static ResourceType Map(string type) => type switch
+    private static ResourceType MapType(string type) => type switch
     {
         "Project" => ResourceType.Project,
         "Container" => ResourceType.Container,
         "Executable" => ResourceType.Executable,
         _ => ResourceType.Unknown
+    };
+
+    private static ResourceStateStyle MapStyle(string style) => style switch
+    {
+        "success" => ResourceStateStyle.Success,
+        "info" => ResourceStateStyle.Info,
+        "warning" => ResourceStateStyle.Warning,
+        "error" => ResourceStateStyle.Error,
+        _ => ResourceStateStyle.Unknown
     };
 
     private static ResourceProperty ToModel(this Aspire.V1.ResourceProperty property) => new(
@@ -67,15 +75,9 @@ internal static class ResourceExtensions
         variable.HasValue ? variable.Value : null
     );
 
-    private static ResourceEndpoint ToModel(this Aspire.V1.Endpoint endpoint) => new(
-        endpoint.EndpointUrl,
-        endpoint.ProxyUrl
-    );
-
-    // ReSharper disable once RedundantNameQualifier
-    private static ResourceService ToModel(this Aspire.V1.Service service) => new(
-        service.Name,
-        service.HasAllocatedAddress ? service.AllocatedAddress : null,
-        service.HasAllocatedPort ? service.AllocatedPort : null
+    private static ResourceUrl ToModel(this Url url) => new(
+        url.Name,
+        url.FullUrl,
+        url.IsInternal
     );
 }
