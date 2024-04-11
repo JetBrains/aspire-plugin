@@ -1295,8 +1295,8 @@ namespace AspireSessionHost.Generated
       return printer.ToString();
     }
   }
-  
-  
+
+
   /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:47</p>
   /// </summary>
@@ -1305,7 +1305,7 @@ namespace AspireSessionHost.Generated
     //fields
     //public fields
     [NotNull] public string SessionId {get; private set;}
-    
+
     //private fields
     //primary constructor
     public SessionCreationResult(
@@ -1313,7 +1313,7 @@ namespace AspireSessionHost.Generated
     )
     {
       if (sessionId == null) throw new ArgumentNullException("sessionId");
-      
+
       SessionId = sessionId;
     }
     //secondary constructor
@@ -1323,21 +1323,21 @@ namespace AspireSessionHost.Generated
       sessionId = SessionId;
     }
     //statics
-    
-    public static CtxReadDelegate<SessionCreationResult> Read = (ctx, reader) => 
+
+    public static CtxReadDelegate<SessionCreationResult> Read = (ctx, reader) =>
     {
       var sessionId = reader.ReadString();
       var _result = new SessionCreationResult(sessionId);
       return _result;
     };
-    
-    public static CtxWriteDelegate<SessionCreationResult> Write = (ctx, writer, value) => 
+
+    public static CtxWriteDelegate<SessionCreationResult> Write = (ctx, writer, value) =>
     {
       writer.Write(value.SessionId);
     };
-    
+
     //constants
-    
+
     //custom body
     //methods
     //equals trait
@@ -1380,7 +1380,7 @@ namespace AspireSessionHost.Generated
       return printer.ToString();
     }
   }
-  
+
   
   /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:33</p>

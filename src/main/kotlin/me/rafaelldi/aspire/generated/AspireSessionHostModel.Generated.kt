@@ -1021,22 +1021,22 @@ data class SessionCreationResult (
     val sessionId: String
 ) : IPrintable {
     //companion
-    
+
     companion object : IMarshaller<SessionCreationResult> {
         override val _type: KClass<SessionCreationResult> = SessionCreationResult::class
         override val id: RdId get() = RdId(-5594530824153105985)
-        
+
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionCreationResult  {
             val sessionId = buffer.readString()
             return SessionCreationResult(sessionId)
         }
-        
+
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionCreationResult)  {
             buffer.writeString(value.sessionId)
         }
-        
-        
+
+
     }
     //fields
     //methods
@@ -1046,11 +1046,11 @@ data class SessionCreationResult (
     override fun equals(other: Any?): Boolean  {
         if (this === other) return true
         if (other == null || other::class != this::class) return false
-        
+
         other as SessionCreationResult
-        
+
         if (sessionId != other.sessionId) return false
-        
+
         return true
     }
     //hash code trait
