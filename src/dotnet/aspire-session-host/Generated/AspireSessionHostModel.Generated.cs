@@ -114,7 +114,7 @@ namespace AspireSessionHost.Generated
     public static  CtxWriteDelegate<SessionUpsertResult> WriteSessionUpsertResultNullable = SessionUpsertResult.Write.NullableClass();
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => 3010179937465585574L;
+    protected override long SerializationHash => -649439899921946047L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -1087,30 +1087,30 @@ namespace AspireSessionHost.Generated
     //fields
     //public fields
     [NotNull] public string Name {get; private set;}
-    [NotNull] public string FullUrls {get; private set;}
+    [NotNull] public string FullUrl {get; private set;}
     public bool IsInternal {get; private set;}
     
     //private fields
     //primary constructor
     public ResourceUrl(
       [NotNull] string name,
-      [NotNull] string fullUrls,
+      [NotNull] string fullUrl,
       bool isInternal
     )
     {
       if (name == null) throw new ArgumentNullException("name");
-      if (fullUrls == null) throw new ArgumentNullException("fullUrls");
+      if (fullUrl == null) throw new ArgumentNullException("fullUrl");
       
       Name = name;
-      FullUrls = fullUrls;
+      FullUrl = fullUrl;
       IsInternal = isInternal;
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string name, [NotNull] out string fullUrls, out bool isInternal)
+    public void Deconstruct([NotNull] out string name, [NotNull] out string fullUrl, out bool isInternal)
     {
       name = Name;
-      fullUrls = FullUrls;
+      fullUrl = FullUrl;
       isInternal = IsInternal;
     }
     //statics
@@ -1118,16 +1118,16 @@ namespace AspireSessionHost.Generated
     public static CtxReadDelegate<ResourceUrl> Read = (ctx, reader) => 
     {
       var name = reader.ReadString();
-      var fullUrls = reader.ReadString();
+      var fullUrl = reader.ReadString();
       var isInternal = reader.ReadBool();
-      var _result = new ResourceUrl(name, fullUrls, isInternal);
+      var _result = new ResourceUrl(name, fullUrl, isInternal);
       return _result;
     };
     
     public static CtxWriteDelegate<ResourceUrl> Write = (ctx, writer, value) => 
     {
       writer.Write(value.Name);
-      writer.Write(value.FullUrls);
+      writer.Write(value.FullUrl);
       writer.Write(value.IsInternal);
     };
     
@@ -1147,7 +1147,7 @@ namespace AspireSessionHost.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Name == other.Name && FullUrls == other.FullUrls && IsInternal == other.IsInternal;
+      return Name == other.Name && FullUrl == other.FullUrl && IsInternal == other.IsInternal;
     }
     //hash code trait
     public override int GetHashCode()
@@ -1155,7 +1155,7 @@ namespace AspireSessionHost.Generated
       unchecked {
         var hash = 0;
         hash = hash * 31 + Name.GetHashCode();
-        hash = hash * 31 + FullUrls.GetHashCode();
+        hash = hash * 31 + FullUrl.GetHashCode();
         hash = hash * 31 + IsInternal.GetHashCode();
         return hash;
       }
@@ -1166,7 +1166,7 @@ namespace AspireSessionHost.Generated
       printer.Println("ResourceUrl (");
       using (printer.IndentCookie()) {
         printer.Print("name = "); Name.PrintEx(printer); printer.Println();
-        printer.Print("fullUrls = "); FullUrls.PrintEx(printer); printer.Println();
+        printer.Print("fullUrl = "); FullUrl.PrintEx(printer); printer.Println();
         printer.Print("isInternal = "); IsInternal.PrintEx(printer); printer.Println();
       }
       printer.Print(")");

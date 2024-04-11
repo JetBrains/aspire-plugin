@@ -73,7 +73,7 @@ class AspireSessionHostModel private constructor(
         private val __SessionUpsertResultNullableSerializer = SessionUpsertResult.nullable()
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = 3010179937465585574L
+        const val serializationHash = -649439899921946047L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -823,7 +823,7 @@ enum class ResourceType {
  */
 data class ResourceUrl (
     val name: String,
-    val fullUrls: String,
+    val fullUrl: String,
     val isInternal: Boolean
 ) : IPrintable {
     //companion
@@ -835,14 +835,14 @@ data class ResourceUrl (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceUrl  {
             val name = buffer.readString()
-            val fullUrls = buffer.readString()
+            val fullUrl = buffer.readString()
             val isInternal = buffer.readBool()
-            return ResourceUrl(name, fullUrls, isInternal)
+            return ResourceUrl(name, fullUrl, isInternal)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceUrl)  {
             buffer.writeString(value.name)
-            buffer.writeString(value.fullUrls)
+            buffer.writeString(value.fullUrl)
             buffer.writeBool(value.isInternal)
         }
         
@@ -860,7 +860,7 @@ data class ResourceUrl (
         other as ResourceUrl
         
         if (name != other.name) return false
-        if (fullUrls != other.fullUrls) return false
+        if (fullUrl != other.fullUrl) return false
         if (isInternal != other.isInternal) return false
         
         return true
@@ -869,7 +869,7 @@ data class ResourceUrl (
     override fun hashCode(): Int  {
         var __r = 0
         __r = __r*31 + name.hashCode()
-        __r = __r*31 + fullUrls.hashCode()
+        __r = __r*31 + fullUrl.hashCode()
         __r = __r*31 + isInternal.hashCode()
         return __r
     }
@@ -878,7 +878,7 @@ data class ResourceUrl (
         printer.println("ResourceUrl (")
         printer.indent {
             print("name = "); name.print(printer); println()
-            print("fullUrls = "); fullUrls.print(printer); println()
+            print("fullUrl = "); fullUrl.print(printer); println()
             print("isInternal = "); isInternal.print(printer); println()
         }
         printer.print(")")

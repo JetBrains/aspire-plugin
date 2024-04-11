@@ -92,7 +92,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
 
     private val ResourceUrl = structdef {
         field("name", string)
-        field("fullUrls", string)
+        field("fullUrl", string)
         field("isInternal", bool)
     }
 

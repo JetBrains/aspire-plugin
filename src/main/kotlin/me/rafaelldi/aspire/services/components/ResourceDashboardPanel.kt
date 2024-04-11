@@ -26,28 +26,28 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
 
     private fun setUpPanel(resourceData: AspireResourceService): DialogPanel = panel {
         row {
-            val resourceIcon = getIcon(resourceData.resourceType, resourceData.isRunning)
+            val resourceIcon = getIcon(resourceData.type, resourceData.isRunning)
             icon(resourceIcon)
                 .gap(RightGap.SMALL)
             copyableLabel(resourceData.displayName)
                 .bold()
                 .gap(RightGap.SMALL)
 
-            if (resourceData.resourceType == ResourceType.Project) {
+            if (resourceData.type == ResourceType.Project) {
                 resourceData.projectPath?.let {
                     copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
             }
 
-            if (resourceData.resourceType == ResourceType.Container) {
+            if (resourceData.type == ResourceType.Container) {
                 resourceData.containerImage?.let {
                     copyableLabel(it, color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
             }
 
-            if (resourceData.resourceType == ResourceType.Executable) {
+            if (resourceData.type == ResourceType.Executable) {
                 resourceData.executablePath?.let {
                     copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
@@ -63,14 +63,16 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
         }
         separator()
 
-        if (resourceData.endpoints.isNotEmpty()) {
+        if (resourceData.urls.isNotEmpty()) {
             row {
                 label(AspireBundle.message("service.tab.dashboard.endpoints")).bold()
             }.bottomGap(BottomGap.SMALL)
-            resourceData.endpoints.forEach { endpoint ->
-                row {
-                    link(endpoint.proxyUrl) {
-                        BrowserUtil.browse(endpoint.proxyUrl)
+            resourceData.urls.forEach { url ->
+                if (!url.isInternal) {
+                    row(url.name) {
+                        link(url.fullUrl) {
+                            BrowserUtil.browse(url.fullUrl)
+                        }
                     }
                 }
             }

@@ -36,7 +36,7 @@ class AspireServiceManager(private val project: Project) {
     fun getHostServices() = hostServices.values.toList()
     fun getHostService(hostPath: String) = hostServices[hostPath]
     fun getResourceServices(hostPath: String) =
-        resourceServices[hostPath]?.values?.sortedBy { it.resourceType }?.toList() ?: emptyList()
+        resourceServices[hostPath]?.values?.sortedBy { it.type }?.toList() ?: emptyList()
 
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 

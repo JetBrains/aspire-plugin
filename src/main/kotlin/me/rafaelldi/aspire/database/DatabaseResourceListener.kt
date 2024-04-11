@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project
 import me.rafaelldi.aspire.generated.ResourceType
 import me.rafaelldi.aspire.services.AspireResourceService
 import me.rafaelldi.aspire.services.ResourceListener
+import java.net.URI
 
 class DatabaseResourceListener(private val project: Project) : ResourceListener {
     companion object {
@@ -27,7 +28,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
 
     private fun applyChanges(resource: AspireResourceService) {
         val service = DatabaseService.getInstance(project)
-        if (resource.resourceType == ResourceType.Project) {
+        if (resource.type == ResourceType.Project) {
             resource.environment
                 .filter { it.key.startsWith(CONNECTION_STRINGS) && it.value != null }
                 .forEach {
@@ -42,12 +43,19 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
                         service.addConnectionString(connectionString)
                     }
                 }
-        } else if (resource.resourceType == ResourceType.Container) {
-            if (resource.services.isEmpty()) return
+        } else if (resource.type == ResourceType.Container) {
+            if (resource.urls.isEmpty()) return
             val resourceType = getType(resource.containerImage) ?: return
-            val ports = resource.services.asSequence()
-                .filter { it.allocatedPort != null }
-                .map { it.allocatedPort?.toString() ?: "" }
+            val ports = resource.urls
+                .asSequence()
+                .mapNotNull {
+                    try {
+                        val url = URI(it.fullUrl)
+                        url.port.toString()
+                    } catch (_: Exception) {
+                        return@mapNotNull null
+                    }
+                }
                 .toList()
 
             val databaseResource = DatabaseResource(
