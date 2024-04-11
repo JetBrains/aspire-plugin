@@ -18,7 +18,7 @@ public class AspireRunnableProjectProvider(
     ILogger logger
 ) : IRunnableProjectProvider
 {
-    private const string DefaultDashboardUrl = "https://localhost:18888";
+    private const string DefaultDashboardUrl = "http://localhost:18888";
     private const string AspnetcoreUrlsEnvVar = "ASPNETCORE_URLS";
 
     public JetBrains.Rider.Model.RunnableProject? CreateRunnableProject(
