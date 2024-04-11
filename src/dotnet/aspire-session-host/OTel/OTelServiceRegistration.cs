@@ -2,6 +2,7 @@ using AspireSessionHost.Sessions;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Metrics.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
+using static AspireSessionHost.EnvironmentVariables;
 
 namespace AspireSessionHost.OTel;
 
@@ -9,10 +10,7 @@ internal static class OTelServiceRegistration
 {
     internal static void AddOTelServices(this IServiceCollection services)
     {
-        var otlpEndpointUrlValue = Environment.GetEnvironmentVariable("RIDER_OTLP_ENDPOINT_URL");
-        if (string.IsNullOrEmpty(otlpEndpointUrlValue)) return;
-
-        Uri.TryCreate(otlpEndpointUrlValue, UriKind.Absolute, out var otlpEndpointUrl);
+        var otlpEndpointUrl = GetOtlpEndpointUrl();
         if (otlpEndpointUrl == null) return;
 
         services.AddGrpcClient<LogsService.LogsServiceClient>(o => { o.Address = otlpEndpointUrl; });
