@@ -10,6 +10,8 @@ internal static class SessionEndpoints
 {
     internal static void MapSessionEndpoints(this IEndpointRouteBuilder routes)
     {
+        routes.MapGet("/info", () => new Info([]));
+
         var group = routes.MapGroup("/run_session");
 
         group.MapPut(
