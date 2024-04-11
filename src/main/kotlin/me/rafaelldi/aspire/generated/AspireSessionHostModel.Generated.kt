@@ -50,6 +50,7 @@ class AspireSessionHostModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(-2931968979041238168), classLoader, "me.rafaelldi.aspire.generated.TraceNodeChild"))
             serializers.register(LazyCompanionMarshaller(RdId(7298853094950171368), classLoader, "me.rafaelldi.aspire.generated.TraceNodeAttribute"))
             serializers.register(LazyCompanionMarshaller(RdId(-1311735068701761509), classLoader, "me.rafaelldi.aspire.generated.ResourceType"))
+            serializers.register(LazyCompanionMarshaller(RdId(-3770298982336589872), classLoader, "me.rafaelldi.aspire.generated.ResourceState"))
             serializers.register(LazyCompanionMarshaller(RdId(-15935776453165119), classLoader, "me.rafaelldi.aspire.generated.ResourceStateStyle"))
         }
         
@@ -73,7 +74,7 @@ class AspireSessionHostModel private constructor(
         private val __SessionUpsertResultNullableSerializer = SessionUpsertResult.nullable()
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = -649439899921946047L
+        const val serializationHash = 3257864832560855371L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -349,7 +350,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:88]
+ * #### Generated from [AspireSessionHostModel.kt:96]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -414,7 +415,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:99]
+ * #### Generated from [AspireSessionHostModel.kt:107]
  */
 data class ResourceLog (
     val text: String,
@@ -485,7 +486,7 @@ data class ResourceLog (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:105]
+ * #### Generated from [AspireSessionHostModel.kt:113]
  */
 data class ResourceMetric (
     val serviceName: String,
@@ -587,7 +588,7 @@ data class ResourceModel (
     val type: ResourceType,
     val displayName: String,
     val uid: String,
-    val state: String?,
+    val state: ResourceState?,
     val stateStyle: ResourceStateStyle?,
     val createdAt: Date,
     val properties: Array<ResourceProperty>,
@@ -606,7 +607,7 @@ data class ResourceModel (
             val type = buffer.readEnum<ResourceType>()
             val displayName = buffer.readString()
             val uid = buffer.readString()
-            val state = buffer.readNullable { buffer.readString() }
+            val state = buffer.readNullable { buffer.readEnum<ResourceState>() }
             val stateStyle = buffer.readNullable { buffer.readEnum<ResourceStateStyle>() }
             val createdAt = buffer.readDateTime()
             val properties = buffer.readArray {ResourceProperty.read(ctx, buffer)}
@@ -620,7 +621,7 @@ data class ResourceModel (
             buffer.writeEnum(value.type)
             buffer.writeString(value.displayName)
             buffer.writeString(value.uid)
-            buffer.writeNullable(value.state) { buffer.writeString(it) }
+            buffer.writeNullable(value.state) { buffer.writeEnum(it) }
             buffer.writeNullable(value.stateStyle) { buffer.writeEnum(it) }
             buffer.writeDateTime(value.createdAt)
             buffer.writeArray(value.properties) { ResourceProperty.write(ctx, buffer, it) }
@@ -693,7 +694,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:82]
+ * #### Generated from [AspireSessionHostModel.kt:90]
  */
 data class ResourceProperty (
     val name: String,
@@ -764,7 +765,37 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:69]
+ * #### Generated from [AspireSessionHostModel.kt:68]
+ */
+enum class ResourceState {
+    Finished, 
+    Exited, 
+    FailedToStart, 
+    Starting, 
+    Running, 
+    Hidden, 
+    Unknown;
+    
+    companion object : IMarshaller<ResourceState> {
+        val marshaller = FrameworkMarshallers.enum<ResourceState>()
+        
+        
+        override val _type: KClass<ResourceState> = ResourceState::class
+        override val id: RdId get() = RdId(-3770298982336589872)
+        
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceState {
+            return marshaller.read(ctx, buffer)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceState)  {
+            marshaller.write(ctx, buffer, value)
+        }
+    }
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:77]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -819,7 +850,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:93]
+ * #### Generated from [AspireSessionHostModel.kt:101]
  */
 data class ResourceUrl (
     val name: String,
@@ -1197,7 +1228,7 @@ data class SessionUpsertResult (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:115]
+ * #### Generated from [AspireSessionHostModel.kt:123]
  */
 data class TraceNode (
     val id: String,
@@ -1280,7 +1311,7 @@ data class TraceNode (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:128]
+ * #### Generated from [AspireSessionHostModel.kt:136]
  */
 data class TraceNodeAttribute (
     val key: String,
@@ -1345,7 +1376,7 @@ data class TraceNodeAttribute (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:123]
+ * #### Generated from [AspireSessionHostModel.kt:131]
  */
 data class TraceNodeChild (
     val id: String,

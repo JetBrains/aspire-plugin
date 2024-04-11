@@ -29,9 +29,7 @@ class AspireResourceService(
         private set
     var displayName: String
         private set
-    var state: String?
-        private set
-    var isRunning: Boolean
+    var state: ResourceState?
         private set
     var stateStyle: ResourceStateStyle?
         private set
@@ -80,7 +78,6 @@ class AspireResourceService(
         type = model?.type ?: ResourceType.Unknown
         displayName = model?.displayName ?: ""
         state = model?.state
-        isRunning = model?.state?.equals("running", true) == true
         stateStyle = model?.stateStyle
         urls = model?.urls ?: emptyArray()
         environment = model?.environment ?: emptyArray()
@@ -157,7 +154,6 @@ class AspireResourceService(
         type = resourceModel.type
         displayName = resourceModel.displayName
         state = resourceModel.state
-        isRunning = resourceModel.state?.equals("running", true) == true
         stateStyle = resourceModel.stateStyle
         urls = resourceModel.urls
         environment = resourceModel.environment

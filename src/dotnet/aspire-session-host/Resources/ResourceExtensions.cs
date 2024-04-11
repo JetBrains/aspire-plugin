@@ -14,7 +14,7 @@ internal static class ResourceExtensions
         MapType(resource.ResourceType),
         resource.DisplayName,
         resource.Uid,
-        resource.HasState ? resource.State : null,
+        resource.HasState ? MapState(resource.State) : null,
         resource.HasStateStyle ? MapStyle(resource.StateStyle) : null,
         resource.CreatedAt.ToDateTime(),
         resource.Properties.Select(it => it.ToModel()).ToArray(),
@@ -28,6 +28,17 @@ internal static class ResourceExtensions
         "Container" => ResourceType.Container,
         "Executable" => ResourceType.Executable,
         _ => ResourceType.Unknown
+    };
+
+    private static ResourceState MapState(string state) => state switch
+    {
+        "Finished" => ResourceState.Finished,
+        "Exited" => ResourceState.Exited,
+        "FailedToStart" => ResourceState.FailedToStart,
+        "Starting" => ResourceState.Starting,
+        "Running" => ResourceState.Running,
+        "Hidden" => ResourceState.Hidden,
+        _ => ResourceState.Unknown
     };
 
     private static ResourceStateStyle MapStyle(string style) => style switch

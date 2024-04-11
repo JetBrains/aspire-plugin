@@ -65,7 +65,15 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         })
         field("displayName", string)
         field("uid", string)
-        field("state", string.nullable)
+        field("state",  enum("ResourceState") {
+            +"Finished"
+            +"Exited"
+            +"FailedToStart"
+            +"Starting"
+            +"Running"
+            +"Hidden"
+            +"Unknown"
+        }.nullable)
         field("stateStyle", enum("ResourceStateStyle") {
             +"Success"
             +"Info"

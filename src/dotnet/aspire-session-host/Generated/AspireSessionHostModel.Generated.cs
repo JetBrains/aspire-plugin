@@ -114,7 +114,7 @@ namespace AspireSessionHost.Generated
     public static  CtxWriteDelegate<SessionUpsertResult> WriteSessionUpsertResultNullable = SessionUpsertResult.Write.NullableClass();
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => -649439899921946047L;
+    protected override long SerializationHash => 3257864832560855371L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -449,7 +449,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:88</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:96</p>
   /// </summary>
   public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
   {
@@ -544,7 +544,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:99</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:107</p>
   /// </summary>
   public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
   {
@@ -645,7 +645,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:105</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:113</p>
   /// </summary>
   public sealed class ResourceMetric : IPrintable, IEquatable<ResourceMetric>
   {
@@ -792,7 +792,7 @@ namespace AspireSessionHost.Generated
     public ResourceType Type {get; private set;}
     [NotNull] public string DisplayName {get; private set;}
     [NotNull] public string Uid {get; private set;}
-    [CanBeNull] public string State {get; private set;}
+    [CanBeNull] public ResourceState? State {get; private set;}
     [CanBeNull] public ResourceStateStyle? StateStyle {get; private set;}
     public DateTime CreatedAt {get; private set;}
     [NotNull] public ResourceProperty[] Properties {get; private set;}
@@ -806,7 +806,7 @@ namespace AspireSessionHost.Generated
       ResourceType type,
       [NotNull] string displayName,
       [NotNull] string uid,
-      [CanBeNull] string state,
+      [CanBeNull] ResourceState? state,
       [CanBeNull] ResourceStateStyle? stateStyle,
       DateTime createdAt,
       [NotNull] ResourceProperty[] properties,
@@ -834,7 +834,7 @@ namespace AspireSessionHost.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string name, out ResourceType type, [NotNull] out string displayName, [NotNull] out string uid, [CanBeNull] out string state, [CanBeNull] out ResourceStateStyle? stateStyle, out DateTime createdAt, [NotNull] out ResourceProperty[] properties, [NotNull] out ResourceEnvironmentVariable[] environment, [NotNull] out ResourceUrl[] urls)
+    public void Deconstruct([NotNull] out string name, out ResourceType type, [NotNull] out string displayName, [NotNull] out string uid, [CanBeNull] out ResourceState? state, [CanBeNull] out ResourceStateStyle? stateStyle, out DateTime createdAt, [NotNull] out ResourceProperty[] properties, [NotNull] out ResourceEnvironmentVariable[] environment, [NotNull] out ResourceUrl[] urls)
     {
       name = Name;
       type = Type;
@@ -855,7 +855,7 @@ namespace AspireSessionHost.Generated
       var type = (ResourceType)reader.ReadInt();
       var displayName = reader.ReadString();
       var uid = reader.ReadString();
-      var state = ReadStringNullable(ctx, reader);
+      var state = ReadResourceStateNullable(ctx, reader);
       var stateStyle = ReadResourceStateStyleNullable(ctx, reader);
       var createdAt = reader.ReadDateTime();
       var properties = ReadResourcePropertyArray(ctx, reader);
@@ -864,7 +864,7 @@ namespace AspireSessionHost.Generated
       var _result = new ResourceModel(name, type, displayName, uid, state, stateStyle, createdAt, properties, environment, urls);
       return _result;
     };
-    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    public static CtxReadDelegate<ResourceState?> ReadResourceStateNullable = new CtxReadDelegate<ResourceState>(JetBrains.Rd.Impl.Serializers.ReadEnum<ResourceState>).NullableStruct();
     public static CtxReadDelegate<ResourceStateStyle?> ReadResourceStateStyleNullable = new CtxReadDelegate<ResourceStateStyle>(JetBrains.Rd.Impl.Serializers.ReadEnum<ResourceStateStyle>).NullableStruct();
     public static CtxReadDelegate<ResourceProperty[]> ReadResourcePropertyArray = ResourceProperty.Read.Array();
     public static CtxReadDelegate<ResourceEnvironmentVariable[]> ReadResourceEnvironmentVariableArray = ResourceEnvironmentVariable.Read.Array();
@@ -876,14 +876,14 @@ namespace AspireSessionHost.Generated
       writer.Write((int)value.Type);
       writer.Write(value.DisplayName);
       writer.Write(value.Uid);
-      WriteStringNullable(ctx, writer, value.State);
+      WriteResourceStateNullable(ctx, writer, value.State);
       WriteResourceStateStyleNullable(ctx, writer, value.StateStyle);
       writer.Write(value.CreatedAt);
       WriteResourcePropertyArray(ctx, writer, value.Properties);
       WriteResourceEnvironmentVariableArray(ctx, writer, value.Environment);
       WriteResourceUrlArray(ctx, writer, value.Urls);
     };
-    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    public static  CtxWriteDelegate<ResourceState?> WriteResourceStateNullable = new CtxWriteDelegate<ResourceState>(JetBrains.Rd.Impl.Serializers.WriteEnum<ResourceState>).NullableStruct();
     public static  CtxWriteDelegate<ResourceStateStyle?> WriteResourceStateStyleNullable = new CtxWriteDelegate<ResourceStateStyle>(JetBrains.Rd.Impl.Serializers.WriteEnum<ResourceStateStyle>).NullableStruct();
     public static  CtxWriteDelegate<ResourceProperty[]> WriteResourcePropertyArray = ResourceProperty.Write.Array();
     public static  CtxWriteDelegate<ResourceEnvironmentVariable[]> WriteResourceEnvironmentVariableArray = ResourceEnvironmentVariable.Write.Array();
@@ -916,7 +916,7 @@ namespace AspireSessionHost.Generated
         hash = hash * 31 + (int) Type;
         hash = hash * 31 + DisplayName.GetHashCode();
         hash = hash * 31 + Uid.GetHashCode();
-        hash = hash * 31 + (State != null ? State.GetHashCode() : 0);
+        hash = hash * 31 + (State != null ? (int) State : 0);
         hash = hash * 31 + (StateStyle != null ? (int) StateStyle : 0);
         hash = hash * 31 + CreatedAt.GetHashCode();
         hash = hash * 31 + Properties.ContentHashCode();
@@ -954,7 +954,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:82</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:90</p>
   /// </summary>
   public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
   {
@@ -1057,7 +1057,21 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:69</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:68</p>
+  /// </summary>
+  public enum ResourceState {
+    Finished,
+    Exited,
+    FailedToStart,
+    Starting,
+    Running,
+    Hidden,
+    Unknown
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:77</p>
   /// </summary>
   public enum ResourceStateStyle {
     Success,
@@ -1080,7 +1094,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:93</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:101</p>
   /// </summary>
   public sealed class ResourceUrl : IPrintable, IEquatable<ResourceUrl>
   {
@@ -1594,7 +1608,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:115</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:123</p>
   /// </summary>
   public sealed class TraceNode : IPrintable, IEquatable<TraceNode>
   {
@@ -1720,7 +1734,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:128</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:136</p>
   /// </summary>
   public sealed class TraceNodeAttribute : IPrintable, IEquatable<TraceNodeAttribute>
   {
@@ -1814,7 +1828,7 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:123</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:131</p>
   /// </summary>
   public sealed class TraceNodeChild : IPrintable, IEquatable<TraceNodeChild>
   {

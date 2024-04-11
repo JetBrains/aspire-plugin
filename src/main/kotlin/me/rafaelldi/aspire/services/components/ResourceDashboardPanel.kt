@@ -26,7 +26,7 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
 
     private fun setUpPanel(resourceData: AspireResourceService): DialogPanel = panel {
         row {
-            val resourceIcon = getIcon(resourceData.type, resourceData.isRunning)
+            val resourceIcon = getIcon(resourceData.type, resourceData.state)
             icon(resourceIcon)
                 .gap(RightGap.SMALL)
             copyableLabel(resourceData.displayName)
@@ -55,10 +55,10 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
             }
 
             val state = resourceData.state
-            if (!state.isNullOrEmpty()) {
+            if (state != null) {
                 separator()
                     .gap(RightGap.SMALL)
-                copyableLabel(state, color = UIUtil.FontColor.BRIGHTER)
+                copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
             }
         }
         separator()
@@ -83,7 +83,7 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
             label(AspireBundle.message("service.tab.dashboard.properties")).bold()
         }.bottomGap(BottomGap.SMALL)
         resourceData.state?.let {
-            row(AspireBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it) }
+            row(AspireBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
         }
         resourceData.startTime?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }
