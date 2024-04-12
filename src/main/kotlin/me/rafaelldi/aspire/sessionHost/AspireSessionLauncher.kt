@@ -1,7 +1,6 @@
 package me.rafaelldi.aspire.sessionHost
 
 import com.intellij.execution.DefaultExecutionResult
-import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.application.EDT
@@ -10,7 +9,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
@@ -22,14 +20,15 @@ import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.RiderDebuggerWorkerModelManager
 import com.jetbrains.rider.debugger.createAndStartSession
 import com.jetbrains.rider.debugger.targets.DEBUGGER_WORKER_LAUNCHER
-import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.debuggerWorker.*
 import com.jetbrains.rider.model.debuggerWorkerConnectionHelperModel
-import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.*
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
+import com.jetbrains.rider.runtime.DotNetExecutable
+import com.jetbrains.rider.runtime.DotNetRuntime
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
+import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import com.jetbrains.rider.util.NetUtils
 import icons.RiderIcons
 import kotlinx.coroutines.Dispatchers
@@ -37,13 +36,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.generated.SessionUpsertResult
-import me.rafaelldi.aspire.settings.AspireSettings
-import me.rafaelldi.aspire.util.MSBuildPropertyService
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
 import org.jetbrains.annotations.Nls
-import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.nameWithoutExtension
 
 @Service(Service.Level.PROJECT)
@@ -52,9 +47,6 @@ class AspireSessionLauncher(private val project: Project) {
         fun getInstance(project: Project) = project.service<AspireSessionLauncher>()
 
         private val LOG = logger<AspireSessionLauncher>()
-
-        private const val OTEL_EXPORTER_OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
-        private fun getOtlpEndpoint(port: Int) = "http://localhost:$port"
     }
 
     suspend fun launchSession(
@@ -72,9 +64,22 @@ class AspireSessionLauncher(private val project: Project) {
             return null
         }
 
-        val executable = getExecutable(sessionModel)
+        val factory = SessionExecutableFactory.getInstance(project)
+        val executable = factory.createExecutable(sessionModel, openTelemetryPort)
         if (executable == null) {
-            LOG.warn("Unable to find executable for $sessionId (project: ${sessionModel.projectPath})")
+            LOG.warn("Unable to create executable for $sessionId (project: ${sessionModel.projectPath})")
+            return null
+        }
+        val runtime = DotNetRuntime.detectRuntimeForProject(
+            project,
+            RunnableProjectKinds.DotNetCore,
+            RiderDotNetActiveRuntimeHost.getInstance(project),
+            executable.runtimeType,
+            executable.exePath,
+            executable.projectTfm
+        )?.runtime as? DotNetCoreRuntime
+        if (runtime == null) {
+            LOG.warn("Unable to detect runtime for $sessionId (project: ${sessionModel.projectPath})")
             return null
         }
 
@@ -82,52 +87,33 @@ class AspireSessionLauncher(private val project: Project) {
         if (isDebug) {
             launchDebugSession(
                 sessionId,
+                Path(sessionModel.projectPath).nameWithoutExtension,
                 executable,
-                sessionModel,
+                runtime,
                 sessionLifetime,
-                sessionEvents,
-                openTelemetryPort
+                sessionEvents
             )
         } else {
             launchRunSession(
                 sessionId,
-                executable.first,
-                sessionModel,
+                executable,
+                runtime,
                 sessionLifetime,
-                sessionEvents,
-                openTelemetryPort
+                sessionEvents
             )
         }
 
         return SessionUpsertResult(sessionId)
     }
 
-    private suspend fun getExecutable(sessionModel: SessionModel): Pair<Path, RdTargetFrameworkId?>? {
-        val runnableProjects = project.solution.runnableProjectsModel.projects.valueOrNull ?: return null
-        val sessionProjectPath = Path(sessionModel.projectPath)
-        val sessionProjectPathString = sessionProjectPath.systemIndependentPath
-        val runnableProject = runnableProjects.singleOrNull {
-            it.projectFilePath == sessionProjectPathString && it.kind == RunnableProjectKinds.DotNetCore
-        }
-        if (runnableProject != null) {
-            val output = runnableProject.projectOutputs.firstOrNull() ?: return null
-            return Path(output.exePath) to output.tfm
-        } else {
-            val propertyService = MSBuildPropertyService.getInstance(project)
-            return propertyService.getExecutableFromMSBuildProperties(sessionProjectPath)
-        }
-    }
-
     private fun launchRunSession(
         sessionId: String,
-        executablePath: Path,
-        sessionModel: SessionModel,
+        executable: DotNetExecutable,
+        runtime: DotNetCoreRuntime,
         sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
-        openTelemetryPort: Int
+        sessionEvents: MutableSharedFlow<AspireSessionEvent>
     ) {
-        val commandLine = getRunningCommandLine(executablePath, sessionModel, openTelemetryPort)
-
+        val commandLine = executable.createRunCommandLine(runtime)
         val handler = KillableProcessHandler(commandLine)
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
 
@@ -141,68 +127,30 @@ class AspireSessionLauncher(private val project: Project) {
         handler.startNotify()
     }
 
-    private fun getRunningCommandLine(
-        executablePath: Path,
-        sessionModel: SessionModel,
-        openTelemetryPort: Int
-    ): GeneralCommandLine {
-        val commandLine = FormatPreservingCommandLine()
-            .withExePath(executablePath.absolutePathString())
-            .withWorkDirectory(executablePath.parent.absolutePathString())
-
-        if (sessionModel.args?.isNotEmpty() == true) {
-            commandLine.withParameters(*sessionModel.args)
-        }
-
-        if (sessionModel.envs?.isNotEmpty() == true) {
-            commandLine.withEnvironment(sessionModel.envs.associate { it.key to it.value })
-        }
-
-        if (AspireSettings.getInstance().collectTelemetry) {
-            commandLine.withEnvironment(OTEL_EXPORTER_OTLP_ENDPOINT, getOtlpEndpoint(openTelemetryPort))
-        }
-
-        return commandLine
-    }
-
     private suspend fun launchDebugSession(
         sessionId: String,
-        executable: Pair<Path, RdTargetFrameworkId?>,
-        sessionModel: SessionModel,
+        @Nls sessionName: String,
+        executable: DotNetExecutable,
+        runtime: DotNetCoreRuntime,
         sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
-        openTelemetryPort: Int
+        sessionEvents: MutableSharedFlow<AspireSessionEvent>
     ) {
-        val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
-        if (runtime == null) {
-            LOG.warn("Unable to find dotnet runtime")
-            return
-        }
-
-        val (executablePath, projectTfm) = executable
-        val args = sessionModel.args?.joinToString(" ") ?: ""
-        val envs = sessionModel.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
-        if (AspireSettings.getInstance().collectTelemetry) {
-            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = getOtlpEndpoint(openTelemetryPort)
-        }
-
         val startInfo = DotNetCoreExeStartInfo(
             DotNetCoreInfo(runtime.cliExePath),
-            projectTfm?.let { EncInfo(it) },
-            executablePath.absolutePathString(),
-            executablePath.parent.absolutePathString(),
-            args,
-            envs.map { StringPair(it.key, it.value) }.toList(),
-            null,
+            executable.projectTfm?.let { EncInfo(it) },
+            executable.exePath,
+            executable.workingDirectory,
+            executable.programParameterString,
+            executable.environmentVariables.toModelMap,
+            executable.runtimeArguments,
             true,
-            false
+            executable.useExternalConsole
         )
 
-        val projectPath = Path(sessionModel.projectPath)
         withContext(Dispatchers.EDT) {
             createAndStartDebugSession(
                 sessionId,
-                projectPath.nameWithoutExtension,
+                sessionName,
                 startInfo,
                 sessionEvents,
                 sessionLifetime
