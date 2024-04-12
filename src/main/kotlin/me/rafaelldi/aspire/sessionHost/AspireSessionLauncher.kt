@@ -143,7 +143,7 @@ class AspireSessionLauncher(private val project: Project) {
             executable.programParameterString,
             executable.environmentVariables.toModelMap,
             executable.runtimeArguments,
-            true,
+            executable.executeAsIs,
             executable.useExternalConsole
         )
 
