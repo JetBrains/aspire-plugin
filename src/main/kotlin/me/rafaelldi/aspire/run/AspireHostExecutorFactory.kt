@@ -23,7 +23,6 @@ import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_P
 import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_TOKEN
 import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
 import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
-import me.rafaelldi.aspire.settings.AspireSettings
 import org.jetbrains.concurrency.await
 import java.io.File
 import java.util.*
@@ -72,20 +71,26 @@ class AspireHostExecutorFactory(
         envs[DEBUG_SESSION_TOKEN] = debugSessionToken
         envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
 
+        val urls = envs[ASPNETCORE_URLS]
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/whats-new/preview-5?tabs=dotnet-cli#allow-unsecure-transport-for-http-endpoints
+        val useHttp = (urls != null && !urls.contains("https")) || envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)
+
+        if (useHttp && !envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)) {
+            envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT] = "true"
+        }
+
         if (!envs.containsKey(DOTNET_RESOURCE_SERVICE_ENDPOINT_URL)) {
             val resourceEndpointPort = NetUtils.findFreePort(77800)
-            envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] = "https://localhost:$resourceEndpointPort"
+            envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] =
+                if (useHttp) "http://localhost:$resourceEndpointPort"
+                else "https://localhost:$resourceEndpointPort"
         }
 
-        val settings = AspireSettings.getInstance()
-        if (settings.collectTelemetry && !envs.containsKey(DOTNET_DASHBOARD_OTLP_ENDPOINT_URL)) {
+        if (!envs.containsKey(DOTNET_DASHBOARD_OTLP_ENDPOINT_URL)) {
             val openTelemetryProtocolEndpointPort = NetUtils.findFreePort(87800)
-            envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] = "https://localhost:$openTelemetryProtocolEndpointPort"
-        }
-
-        val urls = envs[ASPNETCORE_URLS]
-        if (urls != null && !urls.contains("https") && !envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)) {
-            envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT] = "true"
+            envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] =
+                if (useHttp) "http://localhost:$openTelemetryProtocolEndpointPort"
+                else "https://localhost:$openTelemetryProtocolEndpointPort"
         }
 
         val processOptions = ProjectProcessOptions(

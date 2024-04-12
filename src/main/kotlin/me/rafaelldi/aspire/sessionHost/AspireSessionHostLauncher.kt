@@ -18,6 +18,7 @@ import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import me.rafaelldi.aspire.run.AspireHostProjectConfig
+import me.rafaelldi.aspire.settings.AspireSettings
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
@@ -93,6 +94,7 @@ class AspireSessionHostLauncher(private val project: Project) {
         aspireHostConfig: AspireHostProjectConfig,
         rdPort: Int
     ): GeneralCommandLine {
+        val settings = AspireSettings.getInstance()
         val commandLine = GeneralCommandLine()
             .withExePath(dotnet.cliExePath)
             .withCharset(StandardCharsets.UTF_8)
@@ -105,7 +107,7 @@ class AspireSessionHostLauncher(private val project: Project) {
                     put(RIDER_PARENT_PROCESS_PID, ProcessHandle.current().pid().toString())
                     if (aspireHostConfig.resourceServiceUrl != null)
                         put(RIDER_RESOURCE_ENDPOINT_URL, aspireHostConfig.resourceServiceUrl)
-                    if (aspireHostConfig.openTelemetryProtocolUrl != null) {
+                    if (settings.collectTelemetry && aspireHostConfig.openTelemetryProtocolUrl != null) {
                         put(RIDER_OTLP_SERVER_PORT, aspireHostConfig.openTelemetryProtocolServerPort.toString())
                         put(RIDER_OTLP_ENDPOINT_URL, aspireHostConfig.openTelemetryProtocolUrl)
                     }

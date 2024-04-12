@@ -54,7 +54,7 @@ class SessionExecutableFactory(private val project: Project) {
         val params = ParametersListUtil.join(arguments)
         val envs = sessionModel.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
         if (AspireSettings.getInstance().collectTelemetry) {
-            envs.put(OTEL_EXPORTER_OTLP_ENDPOINT, getOtlpEndpoint(openTelemetryPort))
+            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = getOtlpEndpoint(openTelemetryPort)
         }
 
         return DotNetExecutable(
@@ -88,7 +88,7 @@ class SessionExecutableFactory(private val project: Project) {
         val params = ParametersListUtil.join(arguments)
         val envs = sessionModel.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
         if (AspireSettings.getInstance().collectTelemetry) {
-            envs.put(OTEL_EXPORTER_OTLP_ENDPOINT, getOtlpEndpoint(openTelemetryPort))
+            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = getOtlpEndpoint(openTelemetryPort)
         }
 
         return DotNetExecutable(
