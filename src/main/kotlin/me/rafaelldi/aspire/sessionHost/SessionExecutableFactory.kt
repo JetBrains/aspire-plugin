@@ -13,6 +13,8 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.settings.AspireSettings
+import me.rafaelldi.aspire.util.MSBuildPropertyService
+import java.nio.file.Path
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
@@ -24,7 +26,7 @@ class SessionExecutableFactory(private val project: Project) {
         private fun getOtlpEndpoint(port: Int) = "http://localhost:$port"
     }
 
-    fun createExecutable(sessionModel: SessionModel, openTelemetryPort: Int): DotNetExecutable? {
+    suspend fun createExecutable(sessionModel: SessionModel, openTelemetryPort: Int): DotNetExecutable? {
         val runnableProjects = project.solution.runnableProjectsModel.projects.valueOrNull
         val sessionProjectPath = Path(sessionModel.projectPath)
         val sessionProjectPathString = sessionProjectPath.systemIndependentPath
@@ -35,7 +37,7 @@ class SessionExecutableFactory(private val project: Project) {
         return if (runnableProject != null) {
             getExecutableForRunnableProject(runnableProject, sessionModel, openTelemetryPort)
         } else {
-            null
+            getExecutableForExternalProject(sessionProjectPath, sessionModel, openTelemetryPort)
         }
     }
 
@@ -46,7 +48,6 @@ class SessionExecutableFactory(private val project: Project) {
     ): DotNetExecutable? {
         val output = runnableProject.projectOutputs.firstOrNull() ?: return null
         val executablePath = output.exePath
-        val workingDirectory = output.workingDirectory
         val arguments =
             if (sessionModel.args?.isNotEmpty() == true) sessionModel.args.toList()
             else output.defaultArguments
@@ -59,7 +60,41 @@ class SessionExecutableFactory(private val project: Project) {
         return DotNetExecutable(
             executablePath,
             output.tfm,
-            workingDirectory,
+            output.workingDirectory,
+            params,
+            false,
+            false,
+            envs,
+            false,
+            { _, _, _ -> },
+            null,
+            "",
+            !executablePath.endsWith(".dll", true),
+            DotNetCoreRuntimeType
+        )
+    }
+
+    private suspend fun getExecutableForExternalProject(
+        sessionProjectPath: Path,
+        sessionModel: SessionModel,
+        openTelemetryPort: Int
+    ): DotNetExecutable? {
+        val propertyService = MSBuildPropertyService.getInstance(project)
+        val properties = propertyService.getProjectRunProperties(sessionProjectPath) ?: return null
+        val executablePath = properties.executablePath.systemIndependentPath
+        val arguments =
+            if (sessionModel.args?.isNotEmpty() == true) sessionModel.args.toList()
+            else properties.arguments
+        val params = ParametersListUtil.join(arguments)
+        val envs = sessionModel.envs?.associate { it.key to it.value }?.toMutableMap() ?: mutableMapOf()
+        if (AspireSettings.getInstance().collectTelemetry) {
+            envs.put(OTEL_EXPORTER_OTLP_ENDPOINT, getOtlpEndpoint(openTelemetryPort))
+        }
+
+        return DotNetExecutable(
+            executablePath,
+            properties.targetFramework,
+            properties.workingDirectory.systemIndependentPath,
             params,
             false,
             false,
