@@ -66,7 +66,7 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
                         .addAction(object :
                             NotificationAction(AspireBundle.message("notifications.go.to.documentation")) {
                             override fun actionPerformed(e: AnActionEvent, notification: Notification) {
-                                BrowserUtil.open("https://learn.microsoft.com/ru-ru/dotnet/aspire/whats-new/preview-5")
+                                BrowserUtil.open("https://learn.microsoft.com/en-us/dotnet/aspire/whats-new/preview-5")
                             }
                         })
                         .addAction(object :
