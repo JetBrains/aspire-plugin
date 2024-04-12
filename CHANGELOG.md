@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2024-04-12
+
 ### Changed
 
 - [#109](https://github.com/rafaelldi/aspire-plugin/issues/109): Support for .NET Aspire preview 5
@@ -128,7 +130,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.3...v0.5.0
 [0.4.3]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.4.0...v0.4.1
