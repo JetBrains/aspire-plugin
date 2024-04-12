@@ -2,17 +2,13 @@ using AspireSessionHost.Sessions;
 using OpenTelemetry.Proto.Collector.Logs.V1;
 using OpenTelemetry.Proto.Collector.Metrics.V1;
 using OpenTelemetry.Proto.Collector.Trace.V1;
-using static AspireSessionHost.EnvironmentVariables;
 
 namespace AspireSessionHost.OTel;
 
 internal static class OTelServiceRegistration
 {
-    internal static void AddOTelServices(this IServiceCollection services)
+    internal static void AddOTelServices(this IServiceCollection services, Uri otlpEndpointUrl)
     {
-        var otlpEndpointUrl = GetOtlpEndpointUrl();
-        if (otlpEndpointUrl == null) return;
-
         services.AddGrpcClient<LogsService.LogsServiceClient>(o => { o.Address = otlpEndpointUrl; });
         services.AddGrpcClient<MetricsService.MetricsServiceClient>(o => { o.Address = otlpEndpointUrl; });
         services.AddGrpcClient<TraceService.TraceServiceClient>(o => { o.Address = otlpEndpointUrl; });

@@ -5,6 +5,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import com.intellij.util.application
 import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
@@ -141,7 +142,9 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
 
         val lifetimes = sessions.remove(command.sessionId) ?: return
 
-        lifetimes.terminateCurrent()
+        application.invokeLater {
+            lifetimes.terminateCurrent()
+        }
     }
 
     interface LaunchSessionCommand
