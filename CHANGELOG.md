@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- [#109](https://github.com/rafaelldi/aspire-plugin/issues/109): Support for .NET Aspire preview 4
+
+### Fixed
+
+- [111](https://github.com/rafaelldi/aspire-plugin/issues/111): After starting the Aspire configuration, nothing happens
+
 ## [0.4.3] - 2024-04-09
 
 ### Changed
