@@ -6,7 +6,7 @@
 
 ### Changed
 
-- [#109](https://github.com/rafaelldi/aspire-plugin/issues/109): Support for .NET Aspire preview 4
+- [#109](https://github.com/rafaelldi/aspire-plugin/issues/109): Support for .NET Aspire preview 5
 
 ### Fixed
 
