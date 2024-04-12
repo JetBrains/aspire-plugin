@@ -3,6 +3,7 @@ using Grpc.Core;
 using Grpc.Net.Client.Configuration;
 using Polly;
 using Polly.Retry;
+using static AspireSessionHost.EnvironmentVariables;
 
 namespace AspireSessionHost.Resources;
 
@@ -10,10 +11,7 @@ internal static class ResourceServiceRegistration
 {
     internal static void AddResourceServices(this IServiceCollection services)
     {
-        var resourceEndpointUrlValue = Environment.GetEnvironmentVariable("RIDER_RESOURCE_ENDPOINT_URL");
-        if (string.IsNullOrEmpty(resourceEndpointUrlValue)) return;
-
-        Uri.TryCreate(resourceEndpointUrlValue, UriKind.Absolute, out var resourceEndpointUrl);
+        var resourceEndpointUrl = GetResourceEndpointUrl();
         if (resourceEndpointUrl is null) return;
 
         var retryPolicy = new MethodConfig
@@ -21,7 +19,7 @@ internal static class ResourceServiceRegistration
             Names = { MethodName.Default },
             RetryPolicy = new RetryPolicy
             {
-                MaxAttempts = 5,
+                MaxAttempts = 10,
                 InitialBackoff = TimeSpan.FromSeconds(1),
                 MaxBackoff = TimeSpan.FromSeconds(5),
                 BackoffMultiplier = 1.5,
@@ -38,7 +36,7 @@ internal static class ResourceServiceRegistration
         {
             builder.AddRetry(new RetryStrategyOptions
             {
-                MaxRetryAttempts = 5,
+                MaxRetryAttempts = 10,
                 Delay = TimeSpan.FromSeconds(2),
                 BackoffType = DelayBackoffType.Constant,
                 ShouldHandle = new PredicateBuilder().HandleResult(result => result is bool boolResult && !boolResult)
@@ -49,7 +47,7 @@ internal static class ResourceServiceRegistration
         {
             builder.AddRetry(new RetryStrategyOptions
             {
-                MaxRetryAttempts = 5,
+                MaxRetryAttempts = 10,
                 Delay = TimeSpan.FromSeconds(2),
                 BackoffType = DelayBackoffType.Constant
             });

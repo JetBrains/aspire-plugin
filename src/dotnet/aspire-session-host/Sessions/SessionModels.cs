@@ -1,6 +1,11 @@
 ﻿using JetBrains.Annotations;
 
-namespace AspireSessionHost;
+namespace AspireSessionHost.Sessions;
+
+[UsedImplicitly]
+internal sealed record Info(
+    List<string> ProtocolsSupported
+);
 
 [UsedImplicitly]
 internal sealed record Session(

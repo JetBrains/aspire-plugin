@@ -8,8 +8,8 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.SystemInfo
 import com.intellij.platform.ide.progress.withBackgroundProgress
+import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RdVersionInfo
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
@@ -33,68 +33,133 @@ class MSBuildPropertyService(private val project: Project) {
         }
     }
 
-    suspend fun getExecutableFromMSBuildProperties(projectPath: Path): Pair<Path, RdTargetFrameworkId?>? {
+    suspend fun getProjectRunProperties(projectPath: Path): ProjectRunProperties? {
         val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
         if (runtime == null) {
             LOG.warn("Unable to find dotnet runtime")
             return null
         }
 
-        val commandLine = GeneralCommandLine()
+        val buildCommandLine = GeneralCommandLine()
+            .withExePath(runtime.cliExePath)
+            .withParameters(listOf("build", projectPath.absolutePathString()))
+        val buildOutput = withContext(Dispatchers.IO) {
+            withBackgroundProgress(project, "Building ${projectPath.nameWithoutExtension}") {
+                ExecUtil.execAndGetOutput(buildCommandLine)
+            }
+        }
+        if (!buildOutput.checkSuccess(LOG)) {
+            LOG.warn("Unable to build project ${projectPath.absolutePathString()}")
+            return null
+        }
+
+        val propertyCommandLine = GeneralCommandLine()
             .withExePath(runtime.cliExePath)
             .withParameters(
                 listOf(
                     "build",
                     projectPath.absolutePathString(),
-                    "-getTargetResult:Build"
+                    "-getProperty:TargetFramework,RunCommand,RunArguments,RunWorkingDirectory"
                 )
             )
-
-        return withContext(Dispatchers.IO) {
-            withBackgroundProgress(project, "Building ${projectPath.nameWithoutExtension}") {
-                val output = ExecUtil.execAndGetOutput(commandLine)
-                if (!output.checkSuccess(LOG)) {
-                    return@withBackgroundProgress null
-                }
-
-                val buildTargetResult = json.decodeFromString<BuildTargetResultOutput>(output.stdout)
-                if (!buildTargetResult.targetResults.build.result.equals("Success", true)) {
-                    LOG.warn("Unable to get build target result")
-                    return@withBackgroundProgress null
-                }
-                val buildItem = buildTargetResult.targetResults.build.items.firstOrNull()
-                if (buildItem == null) {
-                    LOG.warn("Unable to get build target result")
-                    return@withBackgroundProgress null
-                }
-
-                val fullPath = Path(buildItem.fullPath)
-                val executablePath =
-                    if (SystemInfo.isWindows) fullPath.resolveSibling(fullPath.nameWithoutExtension + ".exe")
-                    else fullPath.resolveSibling(fullPath.fileName)
-                val targetFrameworkId = getTargetFrameworkId(buildItem.targetFrameworkVersion)
-
-                return@withBackgroundProgress executablePath to targetFrameworkId
-            }
+        val propertyOutput = withContext(Dispatchers.IO) {
+            ExecUtil.execAndGetOutput(propertyCommandLine)
         }
+        if (!propertyOutput.checkSuccess(LOG)) {
+            LOG.warn("Unable to get properties for project ${projectPath.absolutePathString()}")
+            return null
+        }
+
+        val projectProperties = json.decodeFromString<ProjectRunPropertiesOutput>(propertyOutput.stdout)
+
+        val targetFramework = getTargetFrameworkId(projectProperties.properties.targetFramework)
+            ?: return null
+        val executable = getExecutablePath(projectProperties.properties.runCommand)
+            ?: return null
+        val args = ParametersListUtil.parse(projectProperties.properties.runArguments)
+        val workingDirectory = getWorkingDirectoryPath(projectProperties.properties.runWorkingDirectory)
+            ?: return null
+
+        return ProjectRunProperties(
+            targetFramework,
+            executable,
+            args,
+            workingDirectory
+        )
     }
 
-    private fun getTargetFrameworkId(targetFrameworkVersion: String): RdTargetFrameworkId {
-        val versionParts = targetFrameworkVersion.split('.').map { it.toInt() }
+    private fun getTargetFrameworkId(targetFramework: String): RdTargetFrameworkId? {
+        val targetFrameworkVersion = targetFramework.removePrefix("net")
+        val versionParts = targetFrameworkVersion.split('.').map { it.toIntOrNull() }
+
+        if (versionParts.any { it == null }) {
+            LOG.warn("Unable to parse target framework $targetFramework")
+            return null
+        }
+
         val versionInfo = when (versionParts.size) {
             1 -> {
-                RdVersionInfo(versionParts[0], 0, 0)
+                RdVersionInfo(versionParts[0]!!, 0, 0)
             }
 
             2 -> {
-                RdVersionInfo(versionParts[0], versionParts[1], 0)
+                RdVersionInfo(versionParts[0]!!, versionParts[1]!!, 0)
+            }
+
+            3 -> {
+                RdVersionInfo(versionParts[0]!!, versionParts[1]!!, versionParts[2]!!)
             }
 
             else -> {
-                RdVersionInfo(versionParts[0], versionParts[1], versionParts[2])
+                LOG.warn("Unable to parse target framework $targetFramework")
+                return null
             }
         }
 
-        return RdTargetFrameworkId(versionInfo, ".NETCoreApp", targetFrameworkVersion, true, false)
+        return RdTargetFrameworkId(versionInfo, ".NETCoreApp", targetFramework, true, false)
     }
+
+    private fun getExecutablePath(runCommand: String): Path? {
+        if (runCommand.isEmpty()) {
+            LOG.warn("MSBuild RunCommand is empty")
+            return null
+        }
+
+        val runCommandPath = Path(runCommand)
+        val runCommandExecutable = runCommandPath.nameWithoutExtension
+
+        if (runCommandExecutable.equals("dotnet", true)) {
+            LOG.warn("Unable to execute MSBuild RunCommand with .NET CLI")
+            return null
+        }
+
+        if (!runCommandPath.isAbsolute) {
+            LOG.warn("MSBuild RunCommand is not absolute path: $runCommandPath")
+            return null
+        }
+
+        return runCommandPath
+    }
+
+    private fun getWorkingDirectoryPath(runWorkingDirectory: String): Path? {
+        if (runWorkingDirectory.isEmpty()) {
+            LOG.warn("MSBuild RunWorkingDirectory is empty")
+            return null
+        }
+
+        val runWorkingDirectoryPath = Path(runWorkingDirectory)
+        if (!runWorkingDirectoryPath.isAbsolute) {
+            LOG.warn("MSBuild RunWorkingDirectory is not absolute path: $runWorkingDirectory")
+            return null
+        }
+
+        return runWorkingDirectoryPath
+    }
+
+    data class ProjectRunProperties(
+        val targetFramework: RdTargetFrameworkId,
+        val executablePath: Path,
+        val arguments: List<String>,
+        val workingDirectory: Path
+    )
 }

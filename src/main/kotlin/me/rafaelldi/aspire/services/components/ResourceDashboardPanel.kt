@@ -26,28 +26,28 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
 
     private fun setUpPanel(resourceData: AspireResourceService): DialogPanel = panel {
         row {
-            val resourceIcon = getIcon(resourceData.resourceType, resourceData.isRunning)
+            val resourceIcon = getIcon(resourceData.type, resourceData.state)
             icon(resourceIcon)
                 .gap(RightGap.SMALL)
             copyableLabel(resourceData.displayName)
                 .bold()
                 .gap(RightGap.SMALL)
 
-            if (resourceData.resourceType == ResourceType.Project) {
+            if (resourceData.type == ResourceType.Project) {
                 resourceData.projectPath?.let {
                     copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
             }
 
-            if (resourceData.resourceType == ResourceType.Container) {
+            if (resourceData.type == ResourceType.Container) {
                 resourceData.containerImage?.let {
                     copyableLabel(it, color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
             }
 
-            if (resourceData.resourceType == ResourceType.Executable) {
+            if (resourceData.type == ResourceType.Executable) {
                 resourceData.executablePath?.let {
                     copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
@@ -55,22 +55,24 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
             }
 
             val state = resourceData.state
-            if (!state.isNullOrEmpty()) {
+            if (state != null) {
                 separator()
                     .gap(RightGap.SMALL)
-                copyableLabel(state, color = UIUtil.FontColor.BRIGHTER)
+                copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
             }
         }
         separator()
 
-        if (resourceData.endpoints.isNotEmpty()) {
+        if (resourceData.urls.isNotEmpty()) {
             row {
                 label(AspireBundle.message("service.tab.dashboard.endpoints")).bold()
             }.bottomGap(BottomGap.SMALL)
-            resourceData.endpoints.forEach { endpoint ->
-                row {
-                    link(endpoint.proxyUrl) {
-                        BrowserUtil.browse(endpoint.proxyUrl)
+            resourceData.urls.forEach { url ->
+                if (!url.isInternal) {
+                    row(url.name) {
+                        link(url.fullUrl) {
+                            BrowserUtil.browse(url.fullUrl)
+                        }
                     }
                 }
             }
@@ -81,7 +83,7 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
             label(AspireBundle.message("service.tab.dashboard.properties")).bold()
         }.bottomGap(BottomGap.SMALL)
         resourceData.state?.let {
-            row(AspireBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it) }
+            row(AspireBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
         }
         resourceData.startTime?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }

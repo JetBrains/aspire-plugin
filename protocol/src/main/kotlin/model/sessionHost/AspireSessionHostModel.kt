@@ -57,7 +57,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
 
     private val ResourceModel = structdef {
         field("name", string)
-        field("resourceType", enum("ResourceType") {
+        field("type", enum("ResourceType") {
             +"Project"
             +"Container"
             +"Executable"
@@ -65,13 +65,26 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         })
         field("displayName", string)
         field("uid", string)
-        field("state", string.nullable)
+        field("state",  enum("ResourceState") {
+            +"Finished"
+            +"Exited"
+            +"FailedToStart"
+            +"Starting"
+            +"Running"
+            +"Hidden"
+            +"Unknown"
+        }.nullable)
+        field("stateStyle", enum("ResourceStateStyle") {
+            +"Success"
+            +"Info"
+            +"Warning"
+            +"Error"
+            +"Unknown"
+        }.nullable)
         field("createdAt", dateTime)
-        field("expectedEndpointsCount", int.nullable)
         field("properties", array(ResourceProperty))
         field("environment", array(ResourceEnvironmentVariable))
-        field("endpoints", array(ResourceEndpoint))
-        field("services", array(ResourceService))
+        field("urls", array(ResourceUrl))
     }
 
     private val ResourceProperty = structdef {
@@ -85,20 +98,16 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("value", string.nullable)
     }
 
-    private val ResourceEndpoint = structdef {
-        field("endpointUrl", string)
-        field("proxyUrl", string)
-    }
-
-    private val ResourceService = structdef {
+    private val ResourceUrl = structdef {
         field("name", string)
-        field("allocatedAddress", string.nullable)
-        field("allocatedPort", int.nullable)
+        field("fullUrl", string)
+        field("isInternal", bool)
     }
 
     private val ResourceLog = structdef {
         field("text", string)
         field("isError", bool)
+        field("lineNumber", int)
     }
 
     private val ResourceMetric = structdef {

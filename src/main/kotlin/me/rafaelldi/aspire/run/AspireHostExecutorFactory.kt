@@ -32,6 +32,11 @@ class AspireHostExecutorFactory(
     private val project: Project,
     private val parameters: AspireHostConfigurationParameters
 ) : AsyncExecutorFactory {
+    companion object {
+        private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
+        private const val ASPIRE_ALLOW_UNSECURED_TRANSPORT = "ASPIRE_ALLOW_UNSECURED_TRANSPORT"
+    }
+
     override suspend fun create(
         executorId: String,
         environment: ExecutionEnvironment,
@@ -61,16 +66,26 @@ class AspireHostExecutorFactory(
             ?: throw CantRunException("Unable to find project output")
 
         val envs = parameters.envs.toMutableMap()
+
         val debugSessionToken = UUID.randomUUID().toString()
         val debugSessionPort = NetUtils.findFreePort(67800)
         envs[DEBUG_SESSION_TOKEN] = debugSessionToken
         envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
+
+        if (!envs.containsKey(DOTNET_RESOURCE_SERVICE_ENDPOINT_URL)) {
+            val resourceEndpointPort = NetUtils.findFreePort(77800)
+            envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] = "https://localhost:$resourceEndpointPort"
+        }
+
         val settings = AspireSettings.getInstance()
-        val resourceEndpointPort = NetUtils.findFreePort(77800)
-        envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] = "http://localhost:$resourceEndpointPort"
-        if (settings.collectTelemetry) {
+        if (settings.collectTelemetry && !envs.containsKey(DOTNET_DASHBOARD_OTLP_ENDPOINT_URL)) {
             val openTelemetryProtocolEndpointPort = NetUtils.findFreePort(87800)
-            envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] = "http://localhost:$openTelemetryProtocolEndpointPort"
+            envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] = "https://localhost:$openTelemetryProtocolEndpointPort"
+        }
+
+        val urls = envs[ASPNETCORE_URLS]
+        if (urls != null && !urls.contains("https") && !envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)) {
+            envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT] = "true"
         }
 
         val processOptions = ProjectProcessOptions(

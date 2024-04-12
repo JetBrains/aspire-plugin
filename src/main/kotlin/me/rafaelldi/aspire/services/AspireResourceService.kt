@@ -25,17 +25,15 @@ class AspireResourceService(
 ) {
     var name: String
         private set
-    var resourceType: ResourceType
+    var type: ResourceType
         private set
     var displayName: String
         private set
-    var state: String?
+    var state: ResourceState?
         private set
-    var isRunning: Boolean
+    var stateStyle: ResourceStateStyle?
         private set
-    var endpoints: Array<ResourceEndpoint>
-        private set
-    var services: Array<ResourceService>
+    var urls: Array<ResourceUrl>
         private set
     var environment: Array<ResourceEnvironmentVariable>
         private set
@@ -77,12 +75,11 @@ class AspireResourceService(
     init {
         val model = wrapper.model.valueOrNull
         name = model?.name ?: ""
-        resourceType = model?.resourceType ?: ResourceType.Unknown
+        type = model?.type ?: ResourceType.Unknown
         displayName = model?.displayName ?: ""
         state = model?.state
-        isRunning = model?.state?.equals("running", true) == true
-        endpoints = model?.endpoints ?: emptyArray()
-        services = model?.services ?: emptyArray()
+        stateStyle = model?.stateStyle
+        urls = model?.urls ?: emptyArray()
         environment = model?.environment ?: emptyArray()
 
         fillFromProperties(model?.properties ?: emptyArray())
@@ -154,12 +151,11 @@ class AspireResourceService(
 
     private fun update(resourceModel: ResourceModel) {
         name = resourceModel.name
-        resourceType = resourceModel.resourceType
+        type = resourceModel.type
         displayName = resourceModel.displayName
         state = resourceModel.state
-        isRunning = resourceModel.state?.equals("running", true) == true
-        endpoints = resourceModel.endpoints
-        services = resourceModel.services
+        stateStyle = resourceModel.stateStyle
+        urls = resourceModel.urls
         environment = resourceModel.environment
 
         fillFromProperties(resourceModel.properties)

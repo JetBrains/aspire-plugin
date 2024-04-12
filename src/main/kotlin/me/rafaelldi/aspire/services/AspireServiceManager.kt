@@ -14,6 +14,8 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.AspireSessionHostModel
+import me.rafaelldi.aspire.generated.ResourceState
+import me.rafaelldi.aspire.generated.ResourceType
 import me.rafaelldi.aspire.generated.ResourceWrapper
 import me.rafaelldi.aspire.run.AspireHostConfiguration
 import me.rafaelldi.aspire.run.AspireHostProjectConfig
@@ -36,7 +38,13 @@ class AspireServiceManager(private val project: Project) {
     fun getHostServices() = hostServices.values.toList()
     fun getHostService(hostPath: String) = hostServices[hostPath]
     fun getResourceServices(hostPath: String) =
-        resourceServices[hostPath]?.values?.sortedBy { it.resourceType }?.toList() ?: emptyList()
+        resourceServices[hostPath]?.values
+            ?.asSequence()
+            ?.filter { it.type != ResourceType.Unknown }
+            ?.filter { it.state != ResourceState.Hidden }
+            ?.sortedBy { it.type }
+            ?.toList()
+            ?: emptyList()
 
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
