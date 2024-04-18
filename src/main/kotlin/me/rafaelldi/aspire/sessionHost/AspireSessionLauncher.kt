@@ -1,6 +1,5 @@
 package me.rafaelldi.aspire.sessionHost
 
-import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.application.EDT
@@ -165,8 +164,10 @@ class AspireSessionLauncher(private val project: Project) {
         sessionEvents: MutableSharedFlow<AspireSessionEvent>,
         lifetime: Lifetime
     ) {
+        val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
         val frontendToDebuggerPort = NetUtils.findFreePort(67700)
         val backendToDebuggerPort = NetUtils.findFreePort(87700)
+
         val lifetimeDefinition = lifetime.createNested()
 
         val dispatcher = RdDispatcher(lifetimeDefinition)
@@ -176,38 +177,6 @@ class AspireSessionLauncher(private val project: Project) {
             port = frontendToDebuggerPort,
             optId = "FrontendToDebugWorker"
         )
-        val protocol = Protocol(
-            "FrontendToDebuggerWorker",
-            Serializers(),
-            Identities(IdKind.Client),
-            dispatcher,
-            wire,
-            lifetimeDefinition
-        )
-
-        val workerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(lifetimeDefinition, protocol)
-
-        val debuggerWorkerProcessHandler = createDebuggerWorkerProcessHandler(
-            sessionId,
-            frontendToDebuggerPort,
-            backendToDebuggerPort,
-            workerModel,
-            lifetimeDefinition.lifetime
-        )
-        subscribeToSessionEvents(
-            sessionId,
-            debuggerWorkerProcessHandler.debuggerWorkerRealHandler,
-            sessionEvents
-        )
-
-        val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
-        project.solution.debuggerWorkerConnectionHelperModel.ports.put(
-            lifetimeDefinition,
-            debuggerSessionId,
-            backendToDebuggerPort
-        )
-
-        wire.connected.nextTrueValueAsync(lifetimeDefinition.lifetime).await()
 
         val sessionModel = DotNetDebuggerSessionModel(startInfo)
         sessionModel.sessionProperties.bindToSettings(lifetimeDefinition, project).apply {
@@ -216,21 +185,46 @@ class AspireSessionLauncher(private val project: Project) {
             enableHeuristicPathResolve.set(false)
             editAndContinueEnabled.set(true)
         }
+
+        val protocol = Protocol(
+            "FrontendToDebuggerWorker",
+            Serializers(),
+            Identities(IdKind.Server),
+            dispatcher,
+            wire,
+            lifetimeDefinition
+        )
+
+        val workerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(lifetimeDefinition, protocol)
         workerModel.activeSession.set(sessionModel)
 
+        val debuggerWorkerProcessHandler = createDebuggerWorkerProcessHandler(
+            sessionId,
+            frontendToDebuggerPort,
+            backendToDebuggerPort,
+            workerModel,
+            lifetimeDefinition.lifetime,
+            sessionEvents
+        )
         val console = createConsole(
             ConsoleKind.Normal,
             debuggerWorkerProcessHandler.debuggerWorkerRealHandler,
             project
         )
-        val executionResult = DefaultExecutionResult(console, debuggerWorkerProcessHandler)
+
+        wire.connected.nextTrueValueAsync(lifetimeDefinition.lifetime).await()
+        project.solution.debuggerWorkerConnectionHelperModel.ports.put(
+            lifetimeDefinition,
+            debuggerSessionId,
+            backendToDebuggerPort
+        )
 
         createAndStartSession(
-            executionResult.executionConsole,
+            console,
             null,
             project,
             lifetimeDefinition.lifetime,
-            executionResult.processHandler,
+            debuggerWorkerProcessHandler,
             protocol,
             sessionModel,
             object : IDebuggerOutputListener {},
@@ -251,7 +245,8 @@ class AspireSessionLauncher(private val project: Project) {
         frontendToDebuggerPort: Int,
         backendToDebuggerPort: Int,
         workerModel: DebuggerWorkerModel,
-        sessionLifetime: Lifetime
+        sessionLifetime: Lifetime,
+        sessionEvents: MutableSharedFlow<AspireSessionEvent>
     ): DebuggerWorkerProcessHandler {
         val launcher = DEBUGGER_WORKER_LAUNCHER.getLauncher()
         val commandLine = createRunCmdForLauncherInfo(
@@ -275,6 +270,12 @@ class AspireSessionLauncher(private val project: Project) {
             false,
             commandLine.commandLineString,
             sessionLifetime
+        )
+
+        subscribeToSessionEvents(
+            sessionId,
+            debuggerWorkerProcessHandler.debuggerWorkerRealHandler,
+            sessionEvents
         )
 
         return debuggerWorkerProcessHandler
