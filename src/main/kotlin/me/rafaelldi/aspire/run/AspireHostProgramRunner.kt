@@ -67,7 +67,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         val openTelemetryProtocolUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
         LOG.trace("Found $DOTNET_DASHBOARD_OTLP_ENDPOINT_URL $openTelemetryProtocolUrl")
 
-        val openTelemetryProtocolServerPort = NetUtils.findFreePort(77800)
+        val openTelemetryProtocolServerPort = NetUtils.findFreePort(57100)
         LOG.trace("Created OTLP Server port $openTelemetryProtocolServerPort")
 
         val isDebug = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID

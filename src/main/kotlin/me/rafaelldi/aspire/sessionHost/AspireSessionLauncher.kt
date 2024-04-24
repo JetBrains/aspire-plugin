@@ -165,8 +165,8 @@ class AspireSessionLauncher(private val project: Project) {
         lifetime: Lifetime
     ) {
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
-        val frontendToDebuggerPort = NetUtils.findFreePort(67700)
-        val backendToDebuggerPort = NetUtils.findFreePort(87700)
+        val frontendToDebuggerPort = NetUtils.findFreePort(57200)
+        val backendToDebuggerPort = NetUtils.findFreePort(57300)
 
         val lifetimeDefinition = lifetime.createNested()
 

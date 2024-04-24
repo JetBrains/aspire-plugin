@@ -67,7 +67,7 @@ class AspireHostExecutorFactory(
         val envs = parameters.envs.toMutableMap()
 
         val debugSessionToken = UUID.randomUUID().toString()
-        val debugSessionPort = NetUtils.findFreePort(67800)
+        val debugSessionPort = NetUtils.findFreePort(47100)
         envs[DEBUG_SESSION_TOKEN] = debugSessionToken
         envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
 
@@ -80,14 +80,14 @@ class AspireHostExecutorFactory(
         }
 
         if (!envs.containsKey(DOTNET_RESOURCE_SERVICE_ENDPOINT_URL)) {
-            val resourceEndpointPort = NetUtils.findFreePort(77800)
+            val resourceEndpointPort = NetUtils.findFreePort(47200)
             envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] =
                 if (useHttp) "http://localhost:$resourceEndpointPort"
                 else "https://localhost:$resourceEndpointPort"
         }
 
         if (!envs.containsKey(DOTNET_DASHBOARD_OTLP_ENDPOINT_URL)) {
-            val openTelemetryProtocolEndpointPort = NetUtils.findFreePort(87800)
+            val openTelemetryProtocolEndpointPort = NetUtils.findFreePort(47300)
             envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] =
                 if (useHttp) "http://localhost:$openTelemetryProtocolEndpointPort"
                 else "https://localhost:$openTelemetryProtocolEndpointPort"
