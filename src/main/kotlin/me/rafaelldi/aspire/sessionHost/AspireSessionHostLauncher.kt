@@ -33,7 +33,7 @@ class AspireSessionHostLauncher(private val project: Project) {
 
         private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
         private const val RIDER_RD_PORT = "RIDER_RD_PORT"
-        private const val RIDER_PARENT_PROCESS_PID = "RIDER_PARENT_PROCESS_PID"
+        private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
         private const val RIDER_RESOURCE_ENDPOINT_URL = "RIDER_RESOURCE_ENDPOINT_URL"
         private const val RIDER_OTLP_SERVER_PORT = "RIDER_OTLP_SERVER_PORT"
         private const val RIDER_OTLP_ENDPOINT_URL = "RIDER_OTLP_ENDPOINT_URL"
@@ -104,7 +104,7 @@ class AspireSessionHostLauncher(private val project: Project) {
                 buildMap {
                     put(ASPNETCORE_URLS, "http://localhost:${aspireHostConfig.debugSessionPort}/")
                     put(RIDER_RD_PORT, "$rdPort")
-                    put(RIDER_PARENT_PROCESS_PID, ProcessHandle.current().pid().toString())
+                    put(RIDER_PARENT_PROCESS_ID, ProcessHandle.current().pid().toString())
                     if (aspireHostConfig.resourceServiceUrl != null)
                         put(RIDER_RESOURCE_ENDPOINT_URL, aspireHostConfig.resourceServiceUrl)
                     if (settings.collectTelemetry && aspireHostConfig.openTelemetryProtocolUrl != null) {
