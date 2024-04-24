@@ -70,7 +70,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         val openTelemetryProtocolServerPort = NetUtils.findFreePort(57100)
         LOG.trace("Created OTLP Server port $openTelemetryProtocolServerPort")
 
-        val isDebug = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
+        val debuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
         val parameters =
             (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)?.parameters
@@ -85,7 +85,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             debugSessionPort,
             aspireHostProjectPath,
             aspireHostProjectUrl,
-            isDebug,
+            debuggingMode,
             resourceServiceUrl,
             openTelemetryProtocolUrl,
             openTelemetryProtocolServerPort

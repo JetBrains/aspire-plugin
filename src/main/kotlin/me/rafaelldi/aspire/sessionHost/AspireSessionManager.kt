@@ -132,7 +132,7 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
             command.sessionModel,
             lifetime,
             command.sessionEvents,
-            command.aspireHostConfig.isDebug,
+            command.aspireHostConfig.debuggingMode,
             command.aspireHostConfig.openTelemetryProtocolServerPort
         )
     }

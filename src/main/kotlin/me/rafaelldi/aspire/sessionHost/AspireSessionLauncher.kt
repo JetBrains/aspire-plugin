@@ -53,7 +53,7 @@ class AspireSessionLauncher(private val project: Project) {
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<AspireSessionEvent>,
-        isHostDebug: Boolean,
+        debuggingMode: Boolean,
         openTelemetryPort: Int
     ): SessionUpsertResult? {
         LOG.info("Starting a session for the project ${sessionModel.projectPath}")
@@ -82,8 +82,7 @@ class AspireSessionLauncher(private val project: Project) {
             return null
         }
 
-        val isDebug = isHostDebug || sessionModel.debug
-        if (isDebug) {
+        if (debuggingMode || sessionModel.debug) {
             launchDebugSession(
                 sessionId,
                 Path(sessionModel.projectPath).nameWithoutExtension,
