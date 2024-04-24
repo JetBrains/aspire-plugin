@@ -19,23 +19,24 @@ import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
-import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_PORT
-import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DEBUG_SESSION_TOKEN
-import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
-import me.rafaelldi.aspire.run.AspireHostProgramRunner.Companion.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
+import me.rafaelldi.aspire.util.ASPIRE_ALLOW_UNSECURED_TRANSPORT
+import me.rafaelldi.aspire.util.ASPNETCORE_URLS
+import me.rafaelldi.aspire.util.BROWSER_TOKEN
+import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
+import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
+import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_FRONTEND_AUTHMODE
+import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN
+import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
+import me.rafaelldi.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
 import org.jetbrains.concurrency.await
 import java.io.File
+import java.net.URI
 import java.util.*
 
 class AspireHostExecutorFactory(
     private val project: Project,
     private val parameters: AspireHostConfigurationParameters
 ) : AsyncExecutorFactory {
-    companion object {
-        private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
-        private const val ASPIRE_ALLOW_UNSECURED_TRANSPORT = "ASPIRE_ALLOW_UNSECURED_TRANSPORT"
-    }
-
     override suspend fun create(
         executorId: String,
         environment: ExecutionEnvironment,
@@ -65,32 +66,20 @@ class AspireHostExecutorFactory(
             ?: throw CantRunException("Unable to find project output")
 
         val envs = parameters.envs.toMutableMap()
+        val environmentVariableValues = configureEnvironmentVariables(envs)
 
-        val debugSessionToken = UUID.randomUUID().toString()
-        val debugSessionPort = NetUtils.findFreePort(47100)
-        envs[DEBUG_SESSION_TOKEN] = debugSessionToken
-        envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
-
-        val urls = envs[ASPNETCORE_URLS]
-        //see: https://learn.microsoft.com/en-us/dotnet/aspire/whats-new/preview-5?tabs=dotnet-cli#allow-unsecure-transport-for-http-endpoints
-        val useHttp = (urls != null && !urls.contains("https")) || envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)
-
-        if (useHttp && !envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)) {
-            envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT] = "true"
-        }
-
-        if (!envs.containsKey(DOTNET_RESOURCE_SERVICE_ENDPOINT_URL)) {
-            val resourceEndpointPort = NetUtils.findFreePort(47200)
-            envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] =
-                if (useHttp) "http://localhost:$resourceEndpointPort"
-                else "https://localhost:$resourceEndpointPort"
-        }
-
-        if (!envs.containsKey(DOTNET_DASHBOARD_OTLP_ENDPOINT_URL)) {
-            val openTelemetryProtocolEndpointPort = NetUtils.findFreePort(47300)
-            envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] =
-                if (useHttp) "http://localhost:$openTelemetryProtocolEndpointPort"
-                else "https://localhost:$openTelemetryProtocolEndpointPort"
+        if (environmentVariableValues.browserToken != null) {
+            val url = URI(parameters.startBrowserParameters.url)
+            val updatedUrl = URI(
+                url.scheme,
+                null,
+                url.host,
+                url.port,
+                "/login",
+                "t=${environmentVariableValues.browserToken}",
+                null
+            )
+            parameters.startBrowserParameters.url = updatedUrl.toString()
         }
 
         val processOptions = ProjectProcessOptions(
@@ -126,4 +115,55 @@ class AspireHostExecutorFactory(
             true
         )
     }
+
+    private fun configureEnvironmentVariables(envs: MutableMap<String, String>): EnvironmentVariableValues {
+        //Switch DCP to the IDE mode
+        //see: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#enabling-ide-execution
+        val debugSessionToken = UUID.randomUUID().toString()
+        val debugSessionPort = NetUtils.findFreePort(47100)
+        envs[DEBUG_SESSION_TOKEN] = debugSessionToken
+        envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
+
+        //Configure Dashboard frontend authentication
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#frontend-authentication
+        val dashboardFrontendAuthMode = envs[DOTNET_DASHBOARD_FRONTEND_AUTHMODE]
+        var browserToken: String? = null
+        if (dashboardFrontendAuthMode == null || dashboardFrontendAuthMode.equals(BROWSER_TOKEN, true)) {
+            browserToken = UUID.randomUUID().toString()
+            envs[DOTNET_DASHBOARD_FRONTEND_AUTHMODE] = BROWSER_TOKEN
+            envs[DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN] = browserToken
+        }
+
+        val urls = envs[ASPNETCORE_URLS]
+        //Check if the use of the `http` protocol is enabled
+        val useHttp = (urls != null && !urls.contains("https")) || envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)
+
+        //Automatically set the `ASPIRE_ALLOW_UNSECURED_TRANSPORT` environment variable if the `http` protocol is used
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/troubleshooting/allow-unsecure-transport
+        if (useHttp && !envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)) {
+            envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT] = "true"
+        }
+
+        //Set the DOTNET_RESOURCE_SERVICE_ENDPOINT_URL environment variable if not specified
+        if (!envs.containsKey(DOTNET_RESOURCE_SERVICE_ENDPOINT_URL)) {
+            val resourceEndpointPort = NetUtils.findFreePort(47200)
+            envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] =
+                if (useHttp) "http://localhost:$resourceEndpointPort"
+                else "https://localhost:$resourceEndpointPort"
+        }
+
+        //Set the DOTNET_DASHBOARD_OTLP_ENDPOINT_URL environment variable if not specified
+        if (!envs.containsKey(DOTNET_DASHBOARD_OTLP_ENDPOINT_URL)) {
+            val openTelemetryProtocolEndpointPort = NetUtils.findFreePort(47300)
+            envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] =
+                if (useHttp) "http://localhost:$openTelemetryProtocolEndpointPort"
+                else "https://localhost:$openTelemetryProtocolEndpointPort"
+        }
+
+        return EnvironmentVariableValues(browserToken)
+    }
+
+    private data class EnvironmentVariableValues(
+        val browserToken: String?
+    )
 }

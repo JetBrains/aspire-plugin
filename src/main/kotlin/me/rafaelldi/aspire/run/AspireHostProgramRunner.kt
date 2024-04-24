@@ -27,16 +27,16 @@ import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import me.rafaelldi.aspire.services.AspireServiceManager
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
+import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
+import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
+import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
+import me.rafaelldi.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
 import org.jetbrains.concurrency.Promise
 import org.jetbrains.concurrency.asPromise
 import kotlin.io.path.Path
 
 class AspireHostProgramRunner : DotNetProgramRunner() {
     companion object {
-        const val DEBUG_SESSION_TOKEN = "DEBUG_SESSION_TOKEN"
-        const val DEBUG_SESSION_PORT = "DEBUG_SESSION_PORT"
-        const val DOTNET_RESOURCE_SERVICE_ENDPOINT_URL = "DOTNET_RESOURCE_SERVICE_ENDPOINT_URL"
-        const val DOTNET_DASHBOARD_OTLP_ENDPOINT_URL = "DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"
         private const val RUNNER_ID = "aspire-runner"
 
         private val LOG = logger<AspireHostProgramRunner>()
