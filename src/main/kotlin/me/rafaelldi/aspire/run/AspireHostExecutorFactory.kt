@@ -134,22 +134,6 @@ class AspireHostExecutorFactory(
             envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT] = "true"
         }
 
-        val allowAnonymousDashboard = envs[DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS]?.equals("true", true) == true
-
-        //Configure Dashboard frontend authentication
-        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#frontend-authentication
-        var browserToken: String? = null
-        if (!allowAnonymousDashboard) {
-            browserToken = UUID.randomUUID().toString()
-            envs[DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN] = browserToken
-        }
-
-        //Configure ApiKey for the Resource service
-        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#resources
-        if (!allowAnonymousDashboard) {
-            envs[DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY] = UUID.randomUUID().toString()
-        }
-
         val useHttp = isHttpUrl || allowUnsecuredTransport
 
         //Set the DOTNET_RESOURCE_SERVICE_ENDPOINT_URL environment variable if not specified
@@ -166,6 +150,22 @@ class AspireHostExecutorFactory(
             envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] =
                 if (useHttp) "http://localhost:$openTelemetryProtocolEndpointPort"
                 else "https://localhost:$openTelemetryProtocolEndpointPort"
+        }
+
+        val allowAnonymousDashboard = envs[DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS]?.equals("true", true) == true
+
+        //Configure Dashboard frontend authentication
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#frontend-authentication
+        var browserToken: String? = null
+        if (!allowAnonymousDashboard) {
+            browserToken = UUID.randomUUID().toString()
+            envs[DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN] = browserToken
+        }
+
+        //Configure ApiKey for the Resource service
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#resources
+        if (!allowAnonymousDashboard) {
+            envs[DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY] = UUID.randomUUID().toString()
         }
 
         return EnvironmentVariableValues(browserToken)
