@@ -3,25 +3,35 @@ using AspireSessionHost.Generated;
 using Grpc.Core;
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Registry;
 
 namespace AspireSessionHost.Resources;
 
-internal sealed class SessionResourceLogService(
+internal sealed class ResourceLogService(
     Connection connection,
     DashboardService.DashboardServiceClient client,
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
-    ILogger<SessionResourceLogService> logger
+    IOptions<ResourceServiceOptions> options,
+    ILogger<ResourceLogService> logger
 ) : IDisposable
 {
+    private const string ApiKeyHeader = "x-resource-service-api-key";
+    private readonly Metadata _headers = [];
+    private readonly ResourceServiceOptions _optionValue = options.Value;
     private readonly LifetimeDefinition _lifetimeDef = new();
 
     private readonly ResiliencePipeline _pipeline =
-        resiliencePipelineProvider.GetPipeline(nameof(SessionResourceLogService));
+        resiliencePipelineProvider.GetPipeline(nameof(ResourceLogService));
 
     internal async Task Initialize()
     {
+        if (_optionValue.ApiKey is not null)
+        {
+            _headers.Add(ApiKeyHeader, _optionValue.ApiKey);
+        }
+
         await connection.DoWithModel(model =>
         {
             model.Resources.View(_lifetimeDef.Lifetime, (lifetime, resourceId, resource) =>
@@ -62,7 +72,7 @@ internal sealed class SessionResourceLogService(
         logger.LogTrace("Sending log watching request for the resource {resourceName}", resourceName);
 
         var request = new WatchResourceConsoleLogsRequest { ResourceName = resourceName };
-        var response = client.WatchResourceConsoleLogs(request, cancellationToken: ct);
+        var response = client.WatchResourceConsoleLogs(request, headers: _headers, cancellationToken: ct);
         await foreach (var update in response.ResponseStream.ReadAllAsync(ct))
         {
             foreach (var logLine in update.LogLines)

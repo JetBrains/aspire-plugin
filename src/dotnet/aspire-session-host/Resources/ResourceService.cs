@@ -3,25 +3,35 @@ using AspireSessionHost.Generated;
 using Grpc.Core;
 using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
+using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Registry;
 
 namespace AspireSessionHost.Resources;
 
-internal sealed class SessionResourceService(
+internal sealed class ResourceService(
     Connection connection,
     DashboardService.DashboardServiceClient client,
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
-    ILogger<SessionResourceService> logger
+    IOptions<ResourceServiceOptions> options,
+    ILogger<ResourceService> logger
 ) : IDisposable
 {
+    private const string ApiKeyHeader = "x-resource-service-api-key";
+    private readonly Metadata _headers = [];
+    private readonly ResourceServiceOptions _optionValue = options.Value;
     private readonly LifetimeDefinition _lifetimeDef = new();
 
     private readonly ResiliencePipeline _pipeline =
-        resiliencePipelineProvider.GetPipeline(nameof(SessionResourceService));
+        resiliencePipelineProvider.GetPipeline(nameof(ResourceService));
 
     internal void Initialize()
     {
+        if (_optionValue.ApiKey is not null)
+        {
+            _headers.Add(ApiKeyHeader, _optionValue.ApiKey);
+        }
+
         _lifetimeDef.Lifetime.StartAttachedAsync(TaskScheduler.Default, async () => await WatchResources());
     }
 
@@ -45,7 +55,7 @@ internal sealed class SessionResourceService(
         CancellationToken ct)
     {
         var request = new WatchResourcesRequest { IsReconnect = retryCount > 1 };
-        var response = client.WatchResources(request, cancellationToken: ct);
+        var response = client.WatchResources(request, headers: _headers, cancellationToken: ct);
         await foreach (var update in response.ResponseStream.ReadAllAsync(ct))
         {
             switch (update.KindCase)

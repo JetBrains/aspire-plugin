@@ -14,6 +14,8 @@ internal static class ResourceServiceRegistration
         var resourceEndpointUrl = GetResourceEndpointUrl();
         if (resourceEndpointUrl is null) return;
 
+        services.ConfigureOptions<ResourceServiceOptionSetup>();
+
         var retryPolicy = new MethodConfig
         {
             Names = { MethodName.Default },
@@ -29,10 +31,10 @@ internal static class ResourceServiceRegistration
         services
             .AddGrpcClient<DashboardService.DashboardServiceClient>(o => { o.Address = resourceEndpointUrl; })
             .ConfigureChannel(o => { o.ServiceConfig = new ServiceConfig { MethodConfigs = { retryPolicy } }; });
-        services.AddSingleton<SessionResourceService>();
-        services.AddSingleton<SessionResourceLogService>();
+        services.AddSingleton<ResourceService>();
+        services.AddSingleton<ResourceLogService>();
 
-        services.AddResiliencePipeline(nameof(SessionResourceLogService), builder =>
+        services.AddResiliencePipeline(nameof(ResourceLogService), builder =>
         {
             builder.AddRetry(new RetryStrategyOptions
             {
@@ -43,7 +45,7 @@ internal static class ResourceServiceRegistration
             });
         });
 
-        services.AddResiliencePipeline(nameof(SessionResourceService), builder =>
+        services.AddResiliencePipeline(nameof(ResourceService), builder =>
         {
             builder.AddRetry(new RetryStrategyOptions
             {
@@ -57,9 +59,9 @@ internal static class ResourceServiceRegistration
     internal static async Task InitializeResourceServices(this IServiceProvider services)
     {
         using var scope = services.CreateScope();
-        var resourceService = scope.ServiceProvider.GetRequiredService<SessionResourceService>();
+        var resourceService = scope.ServiceProvider.GetRequiredService<ResourceService>();
         resourceService.Initialize();
-        var resourceLogService = scope.ServiceProvider.GetRequiredService<SessionResourceLogService>();
+        var resourceLogService = scope.ServiceProvider.GetRequiredService<ResourceLogService>();
         await resourceLogService.Initialize();
     }
 }

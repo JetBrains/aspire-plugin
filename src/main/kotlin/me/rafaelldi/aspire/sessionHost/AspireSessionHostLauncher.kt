@@ -34,7 +34,8 @@ class AspireSessionHostLauncher(private val project: Project) {
         private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
         private const val RIDER_RD_PORT = "RIDER_RD_PORT"
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
-        private const val RIDER_RESOURCE_ENDPOINT_URL = "RIDER_RESOURCE_ENDPOINT_URL"
+        private const val RIDER_RESOURCE_SERVICE_ENDPOINT_URL = "RIDER_RESOURCE_ENDPOINT_URL"
+        private const val RIDER_RESOURCE_SERVICE_API_KEY = "Rider_ResourceService__ApiKey"
         private const val RIDER_OTLP_SERVER_PORT = "RIDER_OTLP_SERVER_PORT"
         private const val RIDER_OTLP_ENDPOINT_URL = "RIDER_OTLP_ENDPOINT_URL"
     }
@@ -106,7 +107,9 @@ class AspireSessionHostLauncher(private val project: Project) {
                     put(RIDER_RD_PORT, "$rdPort")
                     put(RIDER_PARENT_PROCESS_ID, ProcessHandle.current().pid().toString())
                     if (aspireHostConfig.resourceServiceUrl != null)
-                        put(RIDER_RESOURCE_ENDPOINT_URL, aspireHostConfig.resourceServiceUrl)
+                        put(RIDER_RESOURCE_SERVICE_ENDPOINT_URL, aspireHostConfig.resourceServiceUrl)
+                    if (aspireHostConfig.resourceServiceApiKey != null)
+                        put(RIDER_RESOURCE_SERVICE_API_KEY, aspireHostConfig.resourceServiceApiKey)
                     if (settings.collectTelemetry && aspireHostConfig.openTelemetryProtocolUrl != null) {
                         put(RIDER_OTLP_SERVER_PORT, aspireHostConfig.openTelemetryProtocolServerPort.toString())
                         put(RIDER_OTLP_ENDPOINT_URL, aspireHostConfig.openTelemetryProtocolUrl)

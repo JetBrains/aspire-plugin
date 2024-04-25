@@ -21,12 +21,12 @@ import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
 import me.rafaelldi.aspire.util.ASPIRE_ALLOW_UNSECURED_TRANSPORT
 import me.rafaelldi.aspire.util.ASPNETCORE_URLS
-import me.rafaelldi.aspire.util.BROWSER_TOKEN
 import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
 import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
-import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_FRONTEND_AUTHMODE
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
+import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
+import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS
 import me.rafaelldi.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
 import org.jetbrains.concurrency.await
 import java.io.File
@@ -124,25 +124,33 @@ class AspireHostExecutorFactory(
         envs[DEBUG_SESSION_TOKEN] = debugSessionToken
         envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
 
-        //Configure Dashboard frontend authentication
-        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#frontend-authentication
-        val dashboardFrontendAuthMode = envs[DOTNET_DASHBOARD_FRONTEND_AUTHMODE]
-        var browserToken: String? = null
-        if (dashboardFrontendAuthMode == null || dashboardFrontendAuthMode.equals(BROWSER_TOKEN, true)) {
-            browserToken = UUID.randomUUID().toString()
-            envs[DOTNET_DASHBOARD_FRONTEND_AUTHMODE] = BROWSER_TOKEN
-            envs[DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN] = browserToken
-        }
-
-        val urls = envs[ASPNETCORE_URLS]
-        //Check if the use of the `http` protocol is enabled
-        val useHttp = (urls != null && !urls.contains("https")) || envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)
+        val urls = requireNotNull(envs[ASPNETCORE_URLS])
+        val isHttpUrl = !urls.contains("https")
+        val allowUnsecuredTransport = envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT]?.equals("true", true) == true
 
         //Automatically set the `ASPIRE_ALLOW_UNSECURED_TRANSPORT` environment variable if the `http` protocol is used
         //see: https://learn.microsoft.com/en-us/dotnet/aspire/troubleshooting/allow-unsecure-transport
-        if (useHttp && !envs.containsKey(ASPIRE_ALLOW_UNSECURED_TRANSPORT)) {
+        if (isHttpUrl && !allowUnsecuredTransport) {
             envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT] = "true"
         }
+
+        val allowAnonymousDashboard = envs[DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS]?.equals("true", true) == true
+
+        //Configure Dashboard frontend authentication
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#frontend-authentication
+        var browserToken: String? = null
+        if (!allowAnonymousDashboard) {
+            browserToken = UUID.randomUUID().toString()
+            envs[DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN] = browserToken
+        }
+
+        //Configure ApiKey for the Resource service
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#resources
+        if (!allowAnonymousDashboard) {
+            envs[DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY] = UUID.randomUUID().toString()
+        }
+
+        val useHttp = isHttpUrl || allowUnsecuredTransport
 
         //Set the DOTNET_RESOURCE_SERVICE_ENDPOINT_URL environment variable if not specified
         if (!envs.containsKey(DOTNET_RESOURCE_SERVICE_ENDPOINT_URL)) {
