@@ -19,6 +19,8 @@ var otlpEndpointUrl = GetOtlpEndpointUrl();
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddEnvironmentVariables("Rider_");
+
 builder.Services.AddGrpc();
 
 var connection = new Connection(rdPort.Value);

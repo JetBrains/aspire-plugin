@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Support for .NET Aspire preview 6
+
 ## [0.5.0] - 2024-04-12
 
 ### Changed

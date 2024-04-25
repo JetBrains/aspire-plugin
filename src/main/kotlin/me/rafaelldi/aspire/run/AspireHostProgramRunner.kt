@@ -27,16 +27,17 @@ import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import me.rafaelldi.aspire.services.AspireServiceManager
 import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
+import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
+import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
+import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
+import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
+import me.rafaelldi.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
 import org.jetbrains.concurrency.Promise
 import org.jetbrains.concurrency.asPromise
 import kotlin.io.path.Path
 
 class AspireHostProgramRunner : DotNetProgramRunner() {
     companion object {
-        const val DEBUG_SESSION_TOKEN = "DEBUG_SESSION_TOKEN"
-        const val DEBUG_SESSION_PORT = "DEBUG_SESSION_PORT"
-        const val DOTNET_RESOURCE_SERVICE_ENDPOINT_URL = "DOTNET_RESOURCE_SERVICE_ENDPOINT_URL"
-        const val DOTNET_DASHBOARD_OTLP_ENDPOINT_URL = "DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"
         private const val RUNNER_ID = "aspire-runner"
 
         private val LOG = logger<AspireHostProgramRunner>()
@@ -59,18 +60,14 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             ?.toInt()
         if (debugSessionToken == null || debugSessionPort == null)
             throw CantRunException("Unable to find token or port")
-        LOG.trace("Found $DEBUG_SESSION_TOKEN $debugSessionToken and $DEBUG_SESSION_PORT $debugSessionPort")
 
         val resourceServiceUrl = environmentVariables[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL]
-        LOG.trace("Found $DOTNET_RESOURCE_SERVICE_ENDPOINT_URL $resourceServiceUrl")
+        val resourceServiceApiKey = environmentVariables[DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY]
 
         val openTelemetryProtocolUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
-        LOG.trace("Found $DOTNET_DASHBOARD_OTLP_ENDPOINT_URL $openTelemetryProtocolUrl")
+        val openTelemetryProtocolServerPort = NetUtils.findFreePort(57100)
 
-        val openTelemetryProtocolServerPort = NetUtils.findFreePort(77800)
-        LOG.trace("Created OTLP Server port $openTelemetryProtocolServerPort")
-
-        val isDebug = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
+        val debuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
         val parameters =
             (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)?.parameters
@@ -85,8 +82,9 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             debugSessionPort,
             aspireHostProjectPath,
             aspireHostProjectUrl,
-            isDebug,
+            debuggingMode,
             resourceServiceUrl,
+            resourceServiceApiKey,
             openTelemetryProtocolUrl,
             openTelemetryProtocolServerPort
         )
