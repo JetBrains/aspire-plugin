@@ -3,18 +3,19 @@ using Grpc.Core;
 using Grpc.Net.Client.Configuration;
 using Polly;
 using Polly.Retry;
-using static AspireSessionHost.EnvironmentVariables;
 
 namespace AspireSessionHost.Resources;
 
 internal static class ResourceServiceRegistration
 {
-    internal static void AddResourceServices(this IServiceCollection services)
+    internal static void AddResourceServices(this IServiceCollection services, ConfigurationManager configuration)
     {
-        var resourceEndpointUrl = GetResourceEndpointUrl();
-        if (resourceEndpointUrl is null) return;
+        var resourceServiceOptions = configuration
+            .GetSection(ConfigureResourceServiceOptions.SectionName)
+            .Get<ResourceServiceOptions>();
+        if (resourceServiceOptions?.EndpointUrl is null) return;
 
-        services.ConfigureOptions<ResourceServiceOptionSetup>();
+        if (!Uri.TryCreate(resourceServiceOptions.EndpointUrl, UriKind.Absolute, out var resourceEndpointUrl)) return;
 
         var retryPolicy = new MethodConfig
         {

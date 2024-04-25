@@ -12,20 +12,10 @@ internal static class EnvironmentVariables
     internal const string RdPort = "RIDER_RD_PORT";
     internal static int? GetRdPort() => GetPortFromEnvironment(RdPort);
 
-    //This variable is used to configure the Resource service gRPC client to retrieve resources and display them
-    //on the IDE dashboard (originally DOTNET_RESOURCE_SERVICE_ENDPOINT_URL).
-    private const string ResourceEndpointUrl = "RIDER_RESOURCE_ENDPOINT_URL";
-    internal static Uri? GetResourceEndpointUrl() => GetUrlFromEnvironment(ResourceEndpointUrl);
-
     //This variable is used to configure OpenTelemetry Protocol gRPC endpoint to receive telemetry data from the child
     //projects.
     private const string OtlpServerPort = "RIDER_OTLP_SERVER_PORT";
     internal static int? GetOtlpServerPort() => GetPortFromEnvironment(OtlpServerPort);
-
-    //This variable is used to configure OpenTelemetry Protocol gRPC client to send telemetry data from the child
-    //projects to the Dashboard service after it has been processed (originally DOTNET_DASHBOARD_OTLP_ENDPOINT_URL).
-    private const string OtlpEndpointUrl = "RIDER_OTLP_ENDPOINT_URL";
-    internal static Uri? GetOtlpEndpointUrl() => GetUrlFromEnvironment(OtlpEndpointUrl);
 
     private static Uri? GetUrlFromEnvironment(string variableName)
     {

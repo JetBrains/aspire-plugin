@@ -61,10 +61,10 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         if (debugSessionToken == null || debugSessionPort == null)
             throw CantRunException("Unable to find token or port")
 
-        val resourceServiceUrl = environmentVariables[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL]
+        val resourceServiceEndpointUrl = environmentVariables[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL]
         val resourceServiceApiKey = environmentVariables[DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY]
 
-        val openTelemetryProtocolUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
+        val openTelemetryProtocolEndpointUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
         val openTelemetryProtocolServerPort = NetUtils.findFreePort(57100)
 
         val debuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
@@ -83,9 +83,9 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             aspireHostProjectPath,
             aspireHostProjectUrl,
             debuggingMode,
-            resourceServiceUrl,
+            resourceServiceEndpointUrl,
             resourceServiceApiKey,
-            openTelemetryProtocolUrl,
+            openTelemetryProtocolEndpointUrl,
             openTelemetryProtocolServerPort
         )
         LOG.trace("Aspire session host config: $config")

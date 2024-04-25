@@ -4,12 +4,13 @@ namespace AspireSessionHost.Resources;
 
 public sealed class ResourceServiceOptions
 {
+    public string? EndpointUrl { get; set; }
     public string? ApiKey { get; set; }
 };
 
-internal sealed class ResourceServiceOptionSetup(IConfiguration configuration) : IConfigureOptions<ResourceServiceOptions>
+internal sealed class ConfigureResourceServiceOptions(IConfiguration configuration) : IConfigureOptions<ResourceServiceOptions>
 {
-    private const string SectionName = "ResourceService";
+    public const string SectionName = "ResourceService";
 
     public void Configure(ResourceServiceOptions options)
     {

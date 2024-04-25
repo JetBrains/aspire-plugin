@@ -15,11 +15,12 @@ var rdPort = GetRdPort();
 if(!rdPort.HasValue) throw new ApplicationException($"Unable to find {RdPort} variable");
 
 var otlpServerPort = GetOtlpServerPort();
-var otlpEndpointUrl = GetOtlpEndpointUrl();
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables("Rider_");
+builder.Services.ConfigureOptions<ConfigureResourceServiceOptions>();
+builder.Services.ConfigureOptions<ConfigureOTelServiceOptions>();
 
 builder.Services.AddGrpc();
 
@@ -27,11 +28,8 @@ var connection = new Connection(rdPort.Value);
 builder.Services.AddSingleton(connection);
 
 builder.Services.AddSessionServices();
-builder.Services.AddResourceServices();
-if (otlpEndpointUrl != null)
-{
-    builder.Services.AddOTelServices(otlpEndpointUrl);
-}
+builder.Services.AddResourceServices(builder.Configuration);
+builder.Services.AddOTelServices(builder.Configuration);
 
 builder.Services.ConfigureHttpJsonOptions(it =>
 {
@@ -54,17 +52,11 @@ var app = builder.Build();
 
 await app.Services.InitializeSessionServices();
 await app.Services.InitializeResourceServices();
-if (otlpEndpointUrl != null)
-{
-    await app.Services.InitializeOTelServices();
-}
+await app.Services.InitializeOTelServices();
 
 app.UseWebSockets();
 
 app.MapSessionEndpoints();
-if (otlpEndpointUrl != null)
-{
-    app.MapOTelEndpoints();
-}
+app.MapOTelEndpoints();
 
 app.Run();
