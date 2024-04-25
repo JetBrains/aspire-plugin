@@ -14,11 +14,17 @@ internal sealed class Connection : IDisposable
     private readonly IProtocol _protocol;
     private readonly Task<AspireSessionHostModel> _model;
 
-    internal Connection(int port)
+    internal Connection(ConfigurationManager configuration)
     {
+        var connectionOptions = configuration
+            .GetSection(ConnectionOptions.SectionName)
+            .Get<ConnectionOptions>();
+        if (connectionOptions?.RdPort == null)
+            throw new ApplicationException("Unable to find RD port environment variable");
+
         _lifetime = _lifetimeDef.Lifetime;
         _scheduler = SingleThreadScheduler.RunOnSeparateThread(_lifetime, "AspireSessionHost Protocol Connection");
-        var wire = new SocketWire.Client(_lifetime, _scheduler, port);
+        var wire = new SocketWire.Client(_lifetime, _scheduler, connectionOptions.RdPort.Value);
         _protocol = new Protocol(
             "AspireSessionHost Protocol",
             new Serializers(),

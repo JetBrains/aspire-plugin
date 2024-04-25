@@ -11,9 +11,6 @@ ParentProcessWatchdog.StartNewIfAvailable();
 var aspNetCoreUrl = GetAspNetCoreUrls();
 if (aspNetCoreUrl is null) throw new ApplicationException($"Unable to find {AspNetCoreUrls} variable");
 
-var rdPort = GetRdPort();
-if(!rdPort.HasValue) throw new ApplicationException($"Unable to find {RdPort} variable");
-
 var otlpServerPort = GetOtlpServerPort();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +21,7 @@ builder.Services.ConfigureOptions<ConfigureOTelServiceOptions>();
 
 builder.Services.AddGrpc();
 
-var connection = new Connection(rdPort.Value);
+var connection = new Connection(builder.Configuration);
 builder.Services.AddSingleton(connection);
 
 builder.Services.AddSessionServices();

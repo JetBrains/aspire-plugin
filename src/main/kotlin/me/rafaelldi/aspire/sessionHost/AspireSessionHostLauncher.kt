@@ -32,7 +32,7 @@ class AspireSessionHostLauncher(private val project: Project) {
         private val LOG = logger<AspireSessionHostLauncher>()
 
         private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
-        private const val RIDER_RD_PORT = "RIDER_RD_PORT"
+        private const val RIDER_RD_PORT = "Rider_Connection__RdPort"
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
         private const val RIDER_RESOURCE_SERVICE_ENDPOINT_URL = "Rider_ResourceService__EndpointUrl"
         private const val RIDER_RESOURCE_SERVICE_API_KEY = "Rider_ResourceService__ApiKey"
