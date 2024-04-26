@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#125](https://github.com/rafaelldi/aspire-plugin/issues/125): Start session request handling
+
 ## [0.6.0] - 2024-04-25
 
 ### Changed
