@@ -4,6 +4,7 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
@@ -31,23 +32,24 @@ class AspireSessionHostManager(private val project: Project, private val scope: 
     suspend fun addSessionHost(
         aspireHostConfig: AspireHostProjectConfig,
         protocolServerPort: Int,
-        sessionHostModel: AspireSessionHostModel,
-        aspireHostLifetime: LifetimeDefinition
+        sessionHostModel: AspireSessionHostModel
     ) {
-        LOG.info("Adding Aspire session host: $aspireHostConfig")
+        LOG.trace("Adding Aspire session host: $aspireHostConfig")
+
+        val sessionHostLifetime = aspireHostConfig.aspireHostLifetime.createNested()
 
         val sessionEvents = MutableSharedFlow<AspireSessionEvent>(
             onBufferOverflow = BufferOverflow.DROP_OLDEST,
             extraBufferCapacity = 100
         )
-        subscribe(sessionHostModel, sessionEvents, aspireHostLifetime)
+        subscribe(sessionHostModel, sessionEvents, sessionHostLifetime)
 
         val sessionManager = AspireSessionManager.getInstance(project)
         sessionManager.addSessionHost(
             aspireHostConfig,
             sessionHostModel,
             sessionEvents,
-            aspireHostLifetime
+            sessionHostLifetime
         )
 
         LOG.trace("Starting new session hosts with launcher")
@@ -55,7 +57,7 @@ class AspireSessionHostManager(private val project: Project, private val scope: 
         sessionHostLauncher.launchSessionHost(
             aspireHostConfig,
             protocolServerPort,
-            aspireHostLifetime
+            sessionHostLifetime
         )
     }
 

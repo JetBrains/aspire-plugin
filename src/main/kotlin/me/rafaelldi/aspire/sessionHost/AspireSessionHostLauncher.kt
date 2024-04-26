@@ -51,7 +51,7 @@ class AspireSessionHostLauncher(private val project: Project) {
         sessionHostRdPort: Int,
         aspireHostLifetime: LifetimeDefinition
     ) {
-        LOG.info("Starting Aspire session host: $aspireHostConfig")
+        LOG.info("Starting Aspire session host")
 
         val dotnet = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Cannot find active .NET runtime")
@@ -85,7 +85,7 @@ class AspireSessionHostLauncher(private val project: Project) {
         }, aspireHostLifetime.createNestedDisposable())
 
         processHandler.startNotify()
-        LOG.info("Aspire session host started")
+        LOG.trace("Aspire session host started")
     }
 
     private fun getCommandLine(

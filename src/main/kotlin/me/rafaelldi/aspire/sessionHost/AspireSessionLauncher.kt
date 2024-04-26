@@ -68,6 +68,7 @@ class AspireSessionLauncher(private val project: Project) {
             LOG.warn("Unable to create executable for $sessionId (project: ${sessionModel.projectPath})")
             return
         }
+
         val runtime = DotNetRuntime.detectRuntimeForProject(
             project,
             RunnableProjectKinds.DotNetCore,
@@ -108,6 +109,7 @@ class AspireSessionLauncher(private val project: Project) {
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<AspireSessionEvent>
     ) {
+        LOG.trace("Starting the session in the run mode")
         val commandLine = executable.createRunCommandLine(runtime)
         val handler = KillableProcessHandler(commandLine)
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
@@ -130,6 +132,7 @@ class AspireSessionLauncher(private val project: Project) {
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<AspireSessionEvent>
     ) {
+        LOG.trace("Starting the session in the debug mode")
         val startInfo = DotNetCoreExeStartInfo(
             DotNetCoreInfo(runtime.cliExePath),
             executable.projectTfm?.let { EncInfo(it) },
@@ -284,7 +287,7 @@ class AspireSessionLauncher(private val project: Project) {
     ) {
         handler.addProcessListener(object : ProcessAdapter() {
             override fun startNotified(event: ProcessEvent) {
-                LOG.info("Aspire session process started (id: $sessionId)")
+                LOG.trace("Aspire session process started (id: $sessionId)")
                 val pid = when (event.processHandler) {
                     is KillableProcessHandler -> event.processHandler.pid()
                     else -> null
@@ -304,7 +307,7 @@ class AspireSessionLauncher(private val project: Project) {
             }
 
             override fun processTerminated(event: ProcessEvent) {
-                LOG.info("Aspire session process terminated (id: $sessionId)")
+                LOG.trace("Aspire session process terminated (id: $sessionId)")
                 sessionEvents.tryEmit(AspireSessionTerminated(sessionId, event.exitCode))
             }
 

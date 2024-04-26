@@ -99,18 +99,19 @@ class AspireServiceManager(private val project: Project) {
 
     suspend fun startAspireHostService(
         aspireHostConfig: AspireHostProjectConfig,
-        sessionHostModel: AspireSessionHostModel,
-        aspireHostLifetime: Lifetime
+        sessionHostModel: AspireSessionHostModel
     ) {
         val hostPathString = aspireHostConfig.aspireHostProjectPath.absolutePathString()
         LOG.trace("Starting the Aspire Host $hostPathString")
 
+        val aspireHostServiceLifetime = aspireHostConfig.aspireHostLifetime.createNested()
+
         val hostService = hostServices[hostPathString] ?: return
-        aspireHostLifetime.bracketIfAlive({
+        aspireHostServiceLifetime.bracketIfAlive({
             hostService.startHost(
                 aspireHostConfig.aspireHostProjectUrl,
                 sessionHostModel,
-                aspireHostLifetime
+                aspireHostServiceLifetime
             )
             sendServiceChangedEvent(hostService)
         }, {
@@ -119,7 +120,7 @@ class AspireServiceManager(private val project: Project) {
         })
 
         withContext(Dispatchers.EDT) {
-            sessionHostModel.resources.view(aspireHostLifetime) { resourceLifetime, resourceId, resource ->
+            sessionHostModel.resources.view(aspireHostServiceLifetime) { resourceLifetime, resourceId, resource ->
                 viewResource(resourceId, resource, resourceLifetime, hostService)
             }
         }

@@ -48,7 +48,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
     override fun canRun(executorId: String, runConfiguration: RunProfile) = runConfiguration is AspireHostConfiguration
 
     override fun execute(environment: ExecutionEnvironment, state: RunProfileState): Promise<RunContentDescriptor?> {
-        LOG.trace("Executing Aspire run profile state")
+        LOG.info("Executing Aspire run profile state")
 
         val dotnetProcessState = state as? DotNetProcessRunProfileState
             ?: throw CantRunException("Unable to execute RunProfileState: $state")
@@ -86,7 +86,8 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             resourceServiceEndpointUrl,
             resourceServiceApiKey,
             openTelemetryProtocolEndpointUrl,
-            openTelemetryProtocolServerPort
+            openTelemetryProtocolServerPort,
+            aspireHostLifetime
         )
         LOG.trace("Aspire session host config: $config")
 
@@ -98,18 +99,11 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             val protocol = startProtocol(aspireHostLifetime)
             val sessionHostModel = protocol.aspireSessionHostModel
 
-            AspireServiceManager.getInstance(environment.project).startAspireHostService(
-                config,
-                sessionHostModel,
-                aspireHostLifetime.createNested()
-            )
+            AspireServiceManager.getInstance(environment.project)
+                .startAspireHostService(config, sessionHostModel)
 
-            AspireSessionHostManager.getInstance(environment.project).addSessionHost(
-                config,
-                protocol.wire.serverPort,
-                sessionHostModel,
-                aspireHostLifetime.createNested()
-            )
+            AspireSessionHostManager.getInstance(environment.project)
+                .addSessionHost(config, protocol.wire.serverPort, sessionHostModel)
         }.asPromise()
 
         return sessionHostPromise.then {

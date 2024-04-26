@@ -46,17 +46,17 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
         aspireHostConfig: AspireHostProjectConfig,
         sessionHostModel: AspireSessionHostModel,
         sessionEvents: MutableSharedFlow<AspireSessionEvent>,
-        aspireHostLifetime: Lifetime
+        sessionHostLifetime: Lifetime
     ) {
-        LOG.trace("Adding session host for ${aspireHostConfig.debugSessionToken}")
+        LOG.trace("Adding Aspire session host")
 
         withContext(Dispatchers.EDT) {
             sessionHostModel.createSession.setSuspend { _, model ->
-                createSession(model, sessionEvents, aspireHostConfig, aspireHostLifetime)
+                createSession(model, sessionEvents, aspireHostConfig, sessionHostLifetime)
             }
 
             sessionHostModel.deleteSession.setSuspend { _, sessionId ->
-                deleteSession(sessionId, aspireHostConfig)
+                deleteSession(sessionId)
             }
         }
     }
@@ -65,7 +65,7 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
         sessionModel: SessionModel,
         sessionEvents: MutableSharedFlow<AspireSessionEvent>,
         aspireHostConfig: AspireHostProjectConfig,
-        aspireHostLifetime: Lifetime
+        sessionHostLifetime: Lifetime
     ): SessionCreationResult {
         val sessionId = UUID.randomUUID().toString()
 
@@ -74,15 +74,15 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
             sessionModel,
             sessionEvents,
             aspireHostConfig,
-            aspireHostLifetime
+            sessionHostLifetime
         )
         commands.emit(command)
 
         return SessionCreationResult(sessionId)
     }
 
-    private suspend fun deleteSession(sessionId: String, aspireHostConfig: AspireHostProjectConfig): Boolean {
-        val command = DeleteSessionCommand(sessionId, aspireHostConfig.debugSessionToken)
+    private suspend fun deleteSession(sessionId: String): Boolean {
+        val command = DeleteSessionCommand(sessionId)
         commands.emit(command)
 
         return true
@@ -98,7 +98,7 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
     private suspend fun handleCreateCommand(command: CreateSessionCommand) {
         LOG.trace("Creating session ${command.sessionId}, ${command.sessionModel}")
 
-        val sessionLifetimeDef = command.aspireHostLifetime.createNested()
+        val sessionLifetimeDef = command.sessionHostLifetime.createNested()
         sessions[command.sessionId] = sessionLifetimeDef
 
         val launcher = AspireSessionLauncher.getInstance(project)
@@ -129,11 +129,10 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
         val sessionModel: SessionModel,
         val sessionEvents: MutableSharedFlow<AspireSessionEvent>,
         val aspireHostConfig: AspireHostProjectConfig,
-        val aspireHostLifetime: Lifetime
+        val sessionHostLifetime: Lifetime
     ) : LaunchSessionCommand
 
     data class DeleteSessionCommand(
-        val sessionId: String,
-        val sessionHostId: String
+        val sessionId: String
     ) : LaunchSessionCommand
 }
