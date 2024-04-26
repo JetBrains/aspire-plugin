@@ -31,12 +31,10 @@ class AspireSessionHostLauncher(private val project: Project) {
 
         private val LOG = logger<AspireSessionHostLauncher>()
 
-        private const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
         private const val RIDER_RD_PORT = "Rider_Connection__RdPort"
         private const val RIDER_RESOURCE_SERVICE_ENDPOINT_URL = "Rider_ResourceService__EndpointUrl"
         private const val RIDER_RESOURCE_SERVICE_API_KEY = "Rider_ResourceService__ApiKey"
-        private const val RIDER_OTEL_SERVICE_SERVER_PORT = "Rider_OtelService__ServerPort"
         private const val RIDER_OTEL_SERVICE_ENDPOINT_URL = "Rider_OtelService__EndpointUrl"
     }
 
@@ -103,7 +101,7 @@ class AspireSessionHostLauncher(private val project: Project) {
             .withWorkDirectory(hostAssemblyPath.parent.toFile())
             .withEnvironment(
                 buildMap {
-                    put(ASPNETCORE_URLS, "http://localhost:${aspireHostConfig.debugSessionPort}/")
+                    put("Kestrel__Endpoints__Http__Url", "http://localhost:${aspireHostConfig.debugSessionPort}/")
                     put(RIDER_RD_PORT, "$rdPort")
                     put(RIDER_PARENT_PROCESS_ID, ProcessHandle.current().pid().toString())
                     if (aspireHostConfig.resourceServiceEndpointUrl != null)
@@ -111,8 +109,9 @@ class AspireSessionHostLauncher(private val project: Project) {
                     if (aspireHostConfig.resourceServiceApiKey != null)
                         put(RIDER_RESOURCE_SERVICE_API_KEY, aspireHostConfig.resourceServiceApiKey)
                     if (settings.collectTelemetry && aspireHostConfig.openTelemetryProtocolEndpointUrl != null) {
-                        put(RIDER_OTEL_SERVICE_SERVER_PORT, aspireHostConfig.openTelemetryProtocolServerPort.toString())
                         put(RIDER_OTEL_SERVICE_ENDPOINT_URL, aspireHostConfig.openTelemetryProtocolEndpointUrl)
+                        put("Kestrel__Endpoints__Otlp__Url", "http://localhost:${aspireHostConfig.openTelemetryProtocolServerPort}")
+                        put("Kestrel__Endpoints__Otlp__Protocols", "Http2")
                     }
                 }
             )

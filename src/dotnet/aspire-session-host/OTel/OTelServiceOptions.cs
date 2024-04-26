@@ -5,7 +5,6 @@ namespace AspireSessionHost.OTel;
 public class OTelServiceOptions
 {
     public string? EndpointUrl { get; set; }
-    public int? ServerPort { get; set; }
 }
 
 internal sealed class ConfigureOTelServiceOptions(IConfiguration configuration) : IConfigureOptions<OTelServiceOptions>
