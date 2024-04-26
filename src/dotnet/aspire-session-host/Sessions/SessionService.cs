@@ -6,7 +6,7 @@ namespace AspireSessionHost.Sessions;
 
 internal sealed class SessionService(Connection connection, ILogger<SessionService> logger)
 {
-    internal async Task<SessionUpsertResult?> Upsert(Session session)
+    internal async Task<SessionCreationResult?> Create(Session session)
     {
         if (!File.Exists(session.ProjectPath))
         {
@@ -27,7 +27,7 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
         );
         logger.LogInformation("Starting a new session {session}", sessionModel);
 
-        return await connection.DoWithModel(model => model.UpsertSession.Sync(sessionModel));
+        return await connection.DoWithModel(model => model.CreateSession.Sync(sessionModel));
     }
 
     internal async Task<bool> Delete(string id)

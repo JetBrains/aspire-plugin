@@ -34,7 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.SessionModel
-import me.rafaelldi.aspire.generated.SessionUpsertResult
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
 import org.jetbrains.annotations.Nls
 import kotlin.io.path.Path
@@ -55,19 +54,19 @@ class AspireSessionLauncher(private val project: Project) {
         sessionEvents: MutableSharedFlow<AspireSessionEvent>,
         debuggingMode: Boolean,
         openTelemetryPort: Int
-    ): SessionUpsertResult? {
+    ) {
         LOG.info("Starting a session for the project ${sessionModel.projectPath}")
 
         if (sessionLifetime.isNotAlive) {
             LOG.warn("Unable to run project ${sessionModel.projectPath} because lifetimes are not alive")
-            return null
+            return
         }
 
         val factory = SessionExecutableFactory.getInstance(project)
         val executable = factory.createExecutable(sessionModel, openTelemetryPort)
         if (executable == null) {
             LOG.warn("Unable to create executable for $sessionId (project: ${sessionModel.projectPath})")
-            return null
+            return
         }
         val runtime = DotNetRuntime.detectRuntimeForProject(
             project,
@@ -79,7 +78,7 @@ class AspireSessionLauncher(private val project: Project) {
         )?.runtime as? DotNetCoreRuntime
         if (runtime == null) {
             LOG.warn("Unable to detect runtime for $sessionId (project: ${sessionModel.projectPath})")
-            return null
+            return
         }
 
         if (debuggingMode || sessionModel.debug) {
@@ -100,8 +99,6 @@ class AspireSessionLauncher(private val project: Project) {
                 sessionEvents
             )
         }
-
-        return SessionUpsertResult(sessionId)
     }
 
     private fun launchRunSession(

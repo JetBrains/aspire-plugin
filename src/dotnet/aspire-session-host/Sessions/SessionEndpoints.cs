@@ -18,7 +18,7 @@ internal static class SessionEndpoints
             "/",
             async Task<Results<Created<Session>, BadRequest<string>>> (Session session, SessionService service) =>
             {
-                var result = await service.Upsert(session);
+                var result = await service.Create(session);
                 return result != null
                     ? TypedResults.Created($"/run_session/{result.SessionId}", session)
                     : TypedResults.BadRequest("Unable to create a session");

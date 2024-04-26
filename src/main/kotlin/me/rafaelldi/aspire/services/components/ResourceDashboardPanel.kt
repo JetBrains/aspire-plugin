@@ -67,15 +67,17 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
             row {
                 label(AspireBundle.message("service.tab.dashboard.endpoints")).bold()
             }.bottomGap(BottomGap.SMALL)
-            resourceData.urls.forEach { url ->
-                if (!url.isInternal) {
-                    row(url.name) {
-                        link(url.fullUrl) {
-                            BrowserUtil.browse(url.fullUrl)
+            resourceData.urls
+                .sortedBy { it.name }
+                .forEach { url ->
+                    if (!url.isInternal) {
+                        row(url.name) {
+                            link(url.fullUrl) {
+                                BrowserUtil.browse(url.fullUrl)
+                            }
                         }
                     }
                 }
-            }
             separator()
         }
 

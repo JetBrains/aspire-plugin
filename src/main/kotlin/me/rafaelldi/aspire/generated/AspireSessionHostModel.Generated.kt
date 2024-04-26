@@ -19,7 +19,7 @@ import kotlin.jvm.JvmStatic
  * #### Generated from [AspireSessionHostModel.kt:16]
  */
 class AspireSessionHostModel private constructor(
-    private val _upsertSession: RdCall<SessionModel, SessionUpsertResult?>,
+    private val _createSession: RdCall<SessionModel, SessionCreationResult?>,
     private val _deleteSession: RdCall<String, Boolean>,
     private val _processStarted: RdSignal<ProcessStarted>,
     private val _processTerminated: RdSignal<ProcessTerminated>,
@@ -38,7 +38,7 @@ class AspireSessionHostModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(548077805281958706), classLoader, "me.rafaelldi.aspire.generated.LogReceived"))
             serializers.register(LazyCompanionMarshaller(RdId(-5369615389742325332), classLoader, "me.rafaelldi.aspire.generated.SessionEnvironmentVariable"))
             serializers.register(LazyCompanionMarshaller(RdId(-1286323512761547290), classLoader, "me.rafaelldi.aspire.generated.SessionModel"))
-            serializers.register(LazyCompanionMarshaller(RdId(-1200535963048262449), classLoader, "me.rafaelldi.aspire.generated.SessionUpsertResult"))
+            serializers.register(LazyCompanionMarshaller(RdId(-5594530824153105985), classLoader, "me.rafaelldi.aspire.generated.SessionCreationResult"))
             serializers.register(LazyCompanionMarshaller(RdId(-7695483574898099182), classLoader, "me.rafaelldi.aspire.generated.ResourceWrapper"))
             serializers.register(LazyCompanionMarshaller(RdId(-3770298982342277528), classLoader, "me.rafaelldi.aspire.generated.ResourceModel"))
             serializers.register(LazyCompanionMarshaller(RdId(1247681944195290678), classLoader, "me.rafaelldi.aspire.generated.ResourceProperty"))
@@ -71,17 +71,17 @@ class AspireSessionHostModel private constructor(
             return AspireSessionHostModel()
         }
         
-        private val __SessionUpsertResultNullableSerializer = SessionUpsertResult.nullable()
+        private val __SessionCreationResultNullableSerializer = SessionCreationResult.nullable()
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = 3257864832560855371L
+        const val serializationHash = 7665665775754562140L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
     override val serializationHash: Long get() = AspireSessionHostModel.serializationHash
     
     //fields
-    val upsertSession: IRdEndpoint<SessionModel, SessionUpsertResult?> get() = _upsertSession
+    val createSession: IRdEndpoint<SessionModel, SessionCreationResult?> get() = _createSession
     val deleteSession: IRdEndpoint<String, Boolean> get() = _deleteSession
     val processStarted: ISignal<ProcessStarted> get() = _processStarted
     val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
@@ -91,7 +91,7 @@ class AspireSessionHostModel private constructor(
     //methods
     //initializer
     init {
-        bindableChildren.add("upsertSession" to _upsertSession)
+        bindableChildren.add("createSession" to _createSession)
         bindableChildren.add("deleteSession" to _deleteSession)
         bindableChildren.add("processStarted" to _processStarted)
         bindableChildren.add("processTerminated" to _processTerminated)
@@ -103,7 +103,7 @@ class AspireSessionHostModel private constructor(
     //secondary constructor
     private constructor(
     ) : this(
-        RdCall<SessionModel, SessionUpsertResult?>(SessionModel, __SessionUpsertResultNullableSerializer),
+        RdCall<SessionModel, SessionCreationResult?>(SessionModel, __SessionCreationResultNullableSerializer),
         RdCall<String, Boolean>(FrameworkMarshallers.String, FrameworkMarshallers.Bool),
         RdSignal<ProcessStarted>(ProcessStarted),
         RdSignal<ProcessTerminated>(ProcessTerminated),
@@ -118,7 +118,7 @@ class AspireSessionHostModel private constructor(
     override fun print(printer: PrettyPrinter)  {
         printer.println("AspireSessionHostModel (")
         printer.indent {
-            print("upsertSession = "); _upsertSession.print(printer); println()
+            print("createSession = "); _createSession.print(printer); println()
             print("deleteSession = "); _deleteSession.print(printer); println()
             print("processStarted = "); _processStarted.print(printer); println()
             print("processTerminated = "); _processTerminated.print(printer); println()
@@ -131,7 +131,7 @@ class AspireSessionHostModel private constructor(
     //deepClone
     override fun deepClone(): AspireSessionHostModel   {
         return AspireSessionHostModel(
-            _upsertSession.deepClonePolymorphic(),
+            _createSession.deepClonePolymorphic(),
             _deleteSession.deepClonePolymorphic(),
             _processStarted.deepClonePolymorphic(),
             _processTerminated.deepClonePolymorphic(),
@@ -1015,6 +1015,65 @@ class ResourceWrapper private constructor(
 
 
 /**
+ * #### Generated from [AspireSessionHostModel.kt:47]
+ */
+data class SessionCreationResult (
+    val sessionId: String
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<SessionCreationResult> {
+        override val _type: KClass<SessionCreationResult> = SessionCreationResult::class
+        override val id: RdId get() = RdId(-5594530824153105985)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionCreationResult  {
+            val sessionId = buffer.readString()
+            return SessionCreationResult(sessionId)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionCreationResult)  {
+            buffer.writeString(value.sessionId)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as SessionCreationResult
+        
+        if (sessionId != other.sessionId) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + sessionId.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("SessionCreationResult (")
+        printer.indent {
+            print("sessionId = "); sessionId.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
  * #### Generated from [AspireSessionHostModel.kt:33]
  */
 data class SessionEnvironmentVariable (
@@ -1159,65 +1218,6 @@ data class SessionModel (
             print("disableLaunchProfile = "); disableLaunchProfile.print(printer); println()
             print("args = "); args.print(printer); println()
             print("envs = "); envs.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspireSessionHostModel.kt:47]
- */
-data class SessionUpsertResult (
-    val sessionId: String
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<SessionUpsertResult> {
-        override val _type: KClass<SessionUpsertResult> = SessionUpsertResult::class
-        override val id: RdId get() = RdId(-1200535963048262449)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionUpsertResult  {
-            val sessionId = buffer.readString()
-            return SessionUpsertResult(sessionId)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionUpsertResult)  {
-            buffer.writeString(value.sessionId)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as SessionUpsertResult
-        
-        if (sessionId != other.sessionId) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + sessionId.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("SessionUpsertResult (")
-        printer.indent {
-            print("sessionId = "); sessionId.print(printer); println()
         }
         printer.print(")")
     }

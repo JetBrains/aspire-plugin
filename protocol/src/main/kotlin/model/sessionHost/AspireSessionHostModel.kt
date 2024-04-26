@@ -44,7 +44,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("envs", array(SessionEnvironmentVariable).nullable)
     }
 
-    private val SessionUpsertResult = structdef {
+    private val SessionCreationResult = structdef {
         field("sessionId", string)
     }
 
@@ -139,7 +139,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
     }
 
     init {
-        callback("upsertSession", SessionModel, SessionUpsertResult.nullable)
+        callback("createSession", SessionModel, SessionCreationResult.nullable)
         callback("deleteSession", string, bool)
 
         source("processStarted", ProcessStarted)
