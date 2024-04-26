@@ -42,7 +42,7 @@ namespace AspireSessionHost.Generated
   {
     //fields
     //public fields
-    [NotNull] public IRdCall<SessionModel, SessionUpsertResult> UpsertSession => _UpsertSession;
+    [NotNull] public IRdCall<SessionModel, SessionCreationResult> CreateSession => _CreateSession;
     [NotNull] public IRdCall<string, bool> DeleteSession => _DeleteSession;
     [NotNull] public ISource<AspireSessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
     [NotNull] public ISource<AspireSessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
@@ -51,7 +51,7 @@ namespace AspireSessionHost.Generated
     [NotNull] public IRdEndpoint<Unit, TraceNode[]> GetTraceNodes => _GetTraceNodes;
     
     //private fields
-    [NotNull] private readonly RdCall<SessionModel, SessionUpsertResult> _UpsertSession;
+    [NotNull] private readonly RdCall<SessionModel, SessionCreationResult> _CreateSession;
     [NotNull] private readonly RdCall<string, bool> _DeleteSession;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessStarted> _ProcessStarted;
     [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessTerminated> _ProcessTerminated;
@@ -61,7 +61,7 @@ namespace AspireSessionHost.Generated
     
     //primary constructor
     private AspireSessionHostModel(
-      [NotNull] RdCall<SessionModel, SessionUpsertResult> upsertSession,
+      [NotNull] RdCall<SessionModel, SessionCreationResult> createSession,
       [NotNull] RdCall<string, bool> deleteSession,
       [NotNull] RdSignal<AspireSessionHost.Generated.ProcessStarted> processStarted,
       [NotNull] RdSignal<AspireSessionHost.Generated.ProcessTerminated> processTerminated,
@@ -70,7 +70,7 @@ namespace AspireSessionHost.Generated
       [NotNull] RdCall<Unit, TraceNode[]> getTraceNodes
     )
     {
-      if (upsertSession == null) throw new ArgumentNullException("upsertSession");
+      if (createSession == null) throw new ArgumentNullException("createSession");
       if (deleteSession == null) throw new ArgumentNullException("deleteSession");
       if (processStarted == null) throw new ArgumentNullException("processStarted");
       if (processTerminated == null) throw new ArgumentNullException("processTerminated");
@@ -78,15 +78,15 @@ namespace AspireSessionHost.Generated
       if (resources == null) throw new ArgumentNullException("resources");
       if (getTraceNodes == null) throw new ArgumentNullException("getTraceNodes");
       
-      _UpsertSession = upsertSession;
+      _CreateSession = createSession;
       _DeleteSession = deleteSession;
       _ProcessStarted = processStarted;
       _ProcessTerminated = processTerminated;
       _LogReceived = logReceived;
       _Resources = resources;
       _GetTraceNodes = getTraceNodes;
-      _UpsertSession.ValueCanBeNull = true;
-      BindableChildren.Add(new KeyValuePair<string, object>("upsertSession", _UpsertSession));
+      _CreateSession.ValueCanBeNull = true;
+      BindableChildren.Add(new KeyValuePair<string, object>("createSession", _CreateSession));
       BindableChildren.Add(new KeyValuePair<string, object>("deleteSession", _DeleteSession));
       BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
       BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
@@ -97,7 +97,7 @@ namespace AspireSessionHost.Generated
     //secondary constructor
     private AspireSessionHostModel (
     ) : this (
-      new RdCall<SessionModel, SessionUpsertResult>(SessionModel.Read, SessionModel.Write, ReadSessionUpsertResultNullable, WriteSessionUpsertResultNullable),
+      new RdCall<SessionModel, SessionCreationResult>(SessionModel.Read, SessionModel.Write, ReadSessionCreationResultNullable, WriteSessionCreationResultNullable),
       new RdCall<string, bool>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, JetBrains.Rd.Impl.Serializers.ReadBool, JetBrains.Rd.Impl.Serializers.WriteBool),
       new RdSignal<AspireSessionHost.Generated.ProcessStarted>(AspireSessionHost.Generated.ProcessStarted.Read, AspireSessionHost.Generated.ProcessStarted.Write),
       new RdSignal<AspireSessionHost.Generated.ProcessTerminated>(AspireSessionHost.Generated.ProcessTerminated.Read, AspireSessionHost.Generated.ProcessTerminated.Write),
@@ -108,13 +108,13 @@ namespace AspireSessionHost.Generated
     //deconstruct trait
     //statics
     
-    public static CtxReadDelegate<SessionUpsertResult> ReadSessionUpsertResultNullable = SessionUpsertResult.Read.NullableClass();
+    public static CtxReadDelegate<SessionCreationResult> ReadSessionCreationResultNullable = SessionCreationResult.Read.NullableClass();
     public static CtxReadDelegate<TraceNode[]> ReadTraceNodeArray = TraceNode.Read.Array();
     
-    public static  CtxWriteDelegate<SessionUpsertResult> WriteSessionUpsertResultNullable = SessionUpsertResult.Write.NullableClass();
+    public static  CtxWriteDelegate<SessionCreationResult> WriteSessionCreationResultNullable = SessionCreationResult.Write.NullableClass();
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => 3257864832560855371L;
+    protected override long SerializationHash => 7665665775754562140L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -140,7 +140,7 @@ namespace AspireSessionHost.Generated
     {
       printer.Println("AspireSessionHostModel (");
       using (printer.IndentCookie()) {
-        printer.Print("upsertSession = "); _UpsertSession.PrintEx(printer); printer.Println();
+        printer.Print("createSession = "); _CreateSession.PrintEx(printer); printer.Println();
         printer.Print("deleteSession = "); _DeleteSession.PrintEx(printer); printer.Println();
         printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
         printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
@@ -1298,6 +1298,91 @@ namespace AspireSessionHost.Generated
   
   
   /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:47</p>
+  /// </summary>
+  public sealed class SessionCreationResult : IPrintable, IEquatable<SessionCreationResult>
+  {
+    //fields
+    //public fields
+    [NotNull] public string SessionId {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public SessionCreationResult(
+      [NotNull] string sessionId
+    )
+    {
+      if (sessionId == null) throw new ArgumentNullException("sessionId");
+      
+      SessionId = sessionId;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string sessionId)
+    {
+      sessionId = SessionId;
+    }
+    //statics
+    
+    public static CtxReadDelegate<SessionCreationResult> Read = (ctx, reader) => 
+    {
+      var sessionId = reader.ReadString();
+      var _result = new SessionCreationResult(sessionId);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<SessionCreationResult> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.SessionId);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((SessionCreationResult) obj);
+    }
+    public bool Equals(SessionCreationResult other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return SessionId == other.SessionId;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + SessionId.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("SessionCreationResult (");
+      using (printer.IndentCookie()) {
+        printer.Print("sessionId = "); SessionId.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:33</p>
   /// </summary>
   public sealed class SessionEnvironmentVariable : IPrintable, IEquatable<SessionEnvironmentVariable>
@@ -1509,91 +1594,6 @@ namespace AspireSessionHost.Generated
         printer.Print("disableLaunchProfile = "); DisableLaunchProfile.PrintEx(printer); printer.Println();
         printer.Print("args = "); Args.PrintEx(printer); printer.Println();
         printer.Print("envs = "); Envs.PrintEx(printer); printer.Println();
-      }
-      printer.Print(")");
-    }
-    //toString
-    public override string ToString()
-    {
-      var printer = new SingleLinePrettyPrinter();
-      Print(printer);
-      return printer.ToString();
-    }
-  }
-  
-  
-  /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:47</p>
-  /// </summary>
-  public sealed class SessionUpsertResult : IPrintable, IEquatable<SessionUpsertResult>
-  {
-    //fields
-    //public fields
-    [NotNull] public string SessionId {get; private set;}
-    
-    //private fields
-    //primary constructor
-    public SessionUpsertResult(
-      [NotNull] string sessionId
-    )
-    {
-      if (sessionId == null) throw new ArgumentNullException("sessionId");
-      
-      SessionId = sessionId;
-    }
-    //secondary constructor
-    //deconstruct trait
-    public void Deconstruct([NotNull] out string sessionId)
-    {
-      sessionId = SessionId;
-    }
-    //statics
-    
-    public static CtxReadDelegate<SessionUpsertResult> Read = (ctx, reader) => 
-    {
-      var sessionId = reader.ReadString();
-      var _result = new SessionUpsertResult(sessionId);
-      return _result;
-    };
-    
-    public static CtxWriteDelegate<SessionUpsertResult> Write = (ctx, writer, value) => 
-    {
-      writer.Write(value.SessionId);
-    };
-    
-    //constants
-    
-    //custom body
-    //methods
-    //equals trait
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
-      return Equals((SessionUpsertResult) obj);
-    }
-    public bool Equals(SessionUpsertResult other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return SessionId == other.SessionId;
-    }
-    //hash code trait
-    public override int GetHashCode()
-    {
-      unchecked {
-        var hash = 0;
-        hash = hash * 31 + SessionId.GetHashCode();
-        return hash;
-      }
-    }
-    //pretty print
-    public void Print(PrettyPrinter printer)
-    {
-      printer.Println("SessionUpsertResult (");
-      using (printer.IndentCookie()) {
-        printer.Print("sessionId = "); SessionId.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }

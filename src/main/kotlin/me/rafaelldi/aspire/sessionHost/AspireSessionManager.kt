@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rd.util.lifetime.SequentialLifetimes
+import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -16,11 +16,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.AspireSessionHostModel
+import me.rafaelldi.aspire.generated.SessionCreationResult
 import me.rafaelldi.aspire.generated.SessionModel
-import me.rafaelldi.aspire.generated.SessionUpsertResult
 import me.rafaelldi.aspire.run.AspireHostProjectConfig
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
 class AspireSessionManager(private val project: Project, scope: CoroutineScope) {
@@ -30,8 +29,7 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
         private val LOG = logger<AspireSessionManager>()
     }
 
-    private val sessionIds = ConcurrentHashMap<String, MutableMap<String, String>>()
-    private val sessions = mutableMapOf<String, SequentialLifetimes>()
+    private val sessions = mutableMapOf<String, LifetimeDefinition>()
 
     private val commands = MutableSharedFlow<LaunchSessionCommand>(
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
@@ -52,15 +50,9 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
     ) {
         LOG.trace("Adding session host for ${aspireHostConfig.debugSessionToken}")
 
-        aspireHostLifetime.bracketIfAlive({
-            sessionIds[aspireHostConfig.debugSessionToken] = mutableMapOf()
-        }, {
-            sessionIds.remove(aspireHostConfig.debugSessionToken)
-        })
-
         withContext(Dispatchers.EDT) {
-            sessionHostModel.upsertSession.setSuspend { _, model ->
-                upsertSession(model, sessionEvents, aspireHostConfig, aspireHostLifetime)
+            sessionHostModel.createSession.setSuspend { _, model ->
+                createSession(model, sessionEvents, aspireHostConfig, aspireHostLifetime)
             }
 
             sessionHostModel.deleteSession.setSuspend { _, sessionId ->
@@ -69,17 +61,15 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
         }
     }
 
-    private suspend fun upsertSession(
+    private suspend fun createSession(
         sessionModel: SessionModel,
         sessionEvents: MutableSharedFlow<AspireSessionEvent>,
         aspireHostConfig: AspireHostProjectConfig,
         aspireHostLifetime: Lifetime
-    ): SessionUpsertResult {
-        val sessionIdsByHost = requireNotNull(sessionIds[aspireHostConfig.debugSessionToken])
-        val newSessionId = UUID.randomUUID().toString()
-        val sessionId = sessionIdsByHost.putIfAbsent(sessionModel.projectPath, newSessionId) ?: newSessionId
+    ): SessionCreationResult {
+        val sessionId = UUID.randomUUID().toString()
 
-        val command = UpsertSessionCommand(
+        val command = CreateSessionCommand(
             sessionId,
             sessionModel,
             sessionEvents,
@@ -88,14 +78,10 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
         )
         commands.emit(command)
 
-        return SessionUpsertResult(sessionId)
+        return SessionCreationResult(sessionId)
     }
 
     private suspend fun deleteSession(sessionId: String, aspireHostConfig: AspireHostProjectConfig): Boolean {
-        val sessionIdsByHost = requireNotNull(sessionIds[aspireHostConfig.debugSessionToken])
-        val sessionIdPair = sessionIdsByHost.entries.firstOrNull { it.value == sessionId } ?: return false
-        sessionIdsByHost.remove(sessionIdPair.key) ?: return false
-
         val command = DeleteSessionCommand(sessionId, aspireHostConfig.debugSessionToken)
         commands.emit(command)
 
@@ -104,33 +90,22 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
 
     private suspend fun handleCommand(command: LaunchSessionCommand) {
         when (command) {
-            is UpsertSessionCommand -> handleUpsertCommand(command)
+            is CreateSessionCommand -> handleCreateCommand(command)
             is DeleteSessionCommand -> handleDeleteCommand(command)
         }
     }
 
-    private suspend fun handleUpsertCommand(command: UpsertSessionCommand) {
-        LOG.trace("Upserting session ${command.sessionId}")
+    private suspend fun handleCreateCommand(command: CreateSessionCommand) {
+        LOG.trace("Creating session ${command.sessionId}, ${command.sessionModel}")
 
-        val previousValue = sessions[command.sessionId]
-        val lifetimes =
-            if (previousValue != null) {
-                previousValue
-            } else {
-                val lifetimes = SequentialLifetimes(command.aspireHostLifetime)
-                sessions[command.sessionId] = lifetimes
-                lifetimes
-            }
-
-        val lifetime = lifetimes.next()
-
-        LOG.trace("Starting new session with runner (project ${command.sessionModel})")
+        val sessionLifetimeDef = command.aspireHostLifetime.createNested()
+        sessions[command.sessionId] = sessionLifetimeDef
 
         val launcher = AspireSessionLauncher.getInstance(project)
         launcher.launchSession(
             command.sessionId,
             command.sessionModel,
-            lifetime,
+            sessionLifetimeDef.lifetime,
             command.sessionEvents,
             command.aspireHostConfig.debuggingMode,
             command.aspireHostConfig.openTelemetryProtocolServerPort
@@ -143,13 +118,13 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
         val lifetimes = sessions.remove(command.sessionId) ?: return
 
         application.invokeLater {
-            lifetimes.terminateCurrent()
+            lifetimes.terminate()
         }
     }
 
     interface LaunchSessionCommand
 
-    data class UpsertSessionCommand(
+    data class CreateSessionCommand(
         val sessionId: String,
         val sessionModel: SessionModel,
         val sessionEvents: MutableSharedFlow<AspireSessionEvent>,
