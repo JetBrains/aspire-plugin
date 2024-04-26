@@ -10,12 +10,10 @@ import com.intellij.ide.browsers.BrowserStarter
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
-import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
-import com.jetbrains.rider.run.configurations.project.getRunOptions
 import org.jdom.Element
 
 class AspireHostConfigurationParameters(
@@ -74,20 +72,5 @@ class AspireHostConfigurationParameters(
         EnvironmentVariablesComponent.writeExternal(element, envs)
         JDOMExternalizerUtil.writeField(element, TRACK_URL, if (trackUrl) "1" else "0")
         startBrowserParameters.writeExternal(element)
-    }
-}
-
-fun AspireHostConfigurationParameters.setUpFromRunnableProject(project: RunnableProject) {
-    projectFilePath = project.projectFilePath
-    val runOptions = project.getRunOptions()
-    trackEnvs = true
-    envs = project.environmentVariables.associate { it.key to it.value }
-    trackUrl = true
-    val startBrowserUrl = runOptions.startBrowserUrl
-    if (startBrowserUrl.isNotEmpty()) {
-        startBrowserParameters.apply {
-            url = startBrowserUrl
-            startAfterLaunch = runOptions.launchBrowser
-        }
     }
 }
