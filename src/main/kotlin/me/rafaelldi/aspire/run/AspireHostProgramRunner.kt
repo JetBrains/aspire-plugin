@@ -26,7 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import me.rafaelldi.aspire.services.AspireServiceManager
-import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
+import me.rafaelldi.aspire.sessionHost.SessionHostManager
 import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
 import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
@@ -102,7 +102,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             AspireServiceManager.getInstance(environment.project)
                 .startAspireHostService(config, sessionHostModel)
 
-            AspireSessionHostManager.getInstance(environment.project)
+            SessionHostManager.getInstance(environment.project)
                 .addSessionHost(config, protocol.wire.serverPort, sessionHostModel)
         }.asPromise()
 

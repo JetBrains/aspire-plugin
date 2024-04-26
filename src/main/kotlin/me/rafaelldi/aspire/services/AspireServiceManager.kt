@@ -23,6 +23,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.nameWithoutExtension
 
 @Service(Service.Level.PROJECT)
 class AspireServiceManager(private val project: Project) {
@@ -169,9 +170,9 @@ class AspireServiceManager(private val project: Project) {
         override fun runConfigurationAdded(settings: RunnerAndConfigurationSettings) {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
-            val name = configuration.name
             val params = configuration.parameters
             val projectPath = Path(params.projectFilePath)
+            val name = projectPath.nameWithoutExtension
             val host = AspireHostService(name, projectPath)
             getInstance(project).addAspireHostService(host)
         }
@@ -179,9 +180,9 @@ class AspireServiceManager(private val project: Project) {
         override fun runConfigurationChanged(settings: RunnerAndConfigurationSettings) {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
-            val name = configuration.name
             val params = configuration.parameters
             val projectPath = Path(params.projectFilePath)
+            val name = projectPath.nameWithoutExtension
             getInstance(project).updateAspireHostService(projectPath, name)
         }
 

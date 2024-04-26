@@ -4,10 +4,8 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,11 +20,11 @@ import me.rafaelldi.aspire.generated.ProcessTerminated
 import me.rafaelldi.aspire.run.AspireHostProjectConfig
 
 @Service(Service.Level.PROJECT)
-class AspireSessionHostManager(private val project: Project, private val scope: CoroutineScope) {
+class SessionHostManager(private val project: Project, private val scope: CoroutineScope) {
     companion object {
-        fun getInstance(project: Project) = project.service<AspireSessionHostManager>()
+        fun getInstance(project: Project) = project.service<SessionHostManager>()
 
-        private val LOG = logger<AspireSessionHostManager>()
+        private val LOG = logger<SessionHostManager>()
     }
 
     suspend fun addSessionHost(
@@ -38,13 +36,13 @@ class AspireSessionHostManager(private val project: Project, private val scope: 
 
         val sessionHostLifetime = aspireHostConfig.aspireHostLifetime.createNested()
 
-        val sessionEvents = MutableSharedFlow<AspireSessionEvent>(
+        val sessionEvents = MutableSharedFlow<SessionEvent>(
             onBufferOverflow = BufferOverflow.DROP_OLDEST,
             extraBufferCapacity = 100
         )
         subscribe(sessionHostModel, sessionEvents, sessionHostLifetime)
 
-        val sessionManager = AspireSessionManager.getInstance(project)
+        val sessionManager = SessionManager.getInstance(project)
         sessionManager.addSessionHost(
             aspireHostConfig,
             sessionHostModel,
@@ -53,7 +51,7 @@ class AspireSessionHostManager(private val project: Project, private val scope: 
         )
 
         LOG.trace("Starting new session hosts with launcher")
-        val sessionHostLauncher = AspireSessionHostLauncher.getInstance(project)
+        val sessionHostLauncher = SessionHostLauncher.getInstance(project)
         sessionHostLauncher.launchSessionHost(
             aspireHostConfig,
             protocolServerPort,
@@ -63,7 +61,7 @@ class AspireSessionHostManager(private val project: Project, private val scope: 
 
     private suspend fun subscribe(
         sessionHostModel: AspireSessionHostModel,
-        sessionEvents: SharedFlow<AspireSessionEvent>,
+        sessionEvents: SharedFlow<SessionEvent>,
         aspireHostLifetime: Lifetime
     ) {
         LOG.trace("Subscribing to protocol model")
@@ -71,17 +69,17 @@ class AspireSessionHostManager(private val project: Project, private val scope: 
             lifetimedCoroutineScope(aspireHostLifetime) {
                 sessionEvents.collect {
                     when (it) {
-                        is AspireSessionStarted -> {
+                        is SessionStarted -> {
                             LOG.trace("Aspire session started (${it.id}, ${it.pid})")
                             sessionHostModel.processStarted.fire(ProcessStarted(it.id, it.pid))
                         }
 
-                        is AspireSessionTerminated -> {
+                        is SessionTerminated -> {
                             LOG.trace("Aspire session terminated (${it.id}, ${it.exitCode})")
                             sessionHostModel.processTerminated.fire(ProcessTerminated(it.id, it.exitCode))
                         }
 
-                        is AspireSessionLogReceived -> {
+                        is SessionLogReceived -> {
                             LOG.trace("Aspire session log received (${it.id}, ${it.isStdErr}, ${it.message})")
                             sessionHostModel.logReceived.fire(LogReceived(it.id, it.isStdErr, it.message))
                         }

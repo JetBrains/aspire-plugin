@@ -22,11 +22,11 @@ import me.rafaelldi.aspire.run.AspireHostProjectConfig
 import java.util.*
 
 @Service(Service.Level.PROJECT)
-class AspireSessionManager(private val project: Project, scope: CoroutineScope) {
+class SessionManager(private val project: Project, scope: CoroutineScope) {
     companion object {
-        fun getInstance(project: Project) = project.service<AspireSessionManager>()
+        fun getInstance(project: Project) = project.service<SessionManager>()
 
-        private val LOG = logger<AspireSessionManager>()
+        private val LOG = logger<SessionManager>()
     }
 
     private val sessions = mutableMapOf<String, LifetimeDefinition>()
@@ -45,7 +45,7 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
     suspend fun addSessionHost(
         aspireHostConfig: AspireHostProjectConfig,
         sessionHostModel: AspireSessionHostModel,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
+        sessionEvents: MutableSharedFlow<SessionEvent>,
         sessionHostLifetime: Lifetime
     ) {
         LOG.trace("Adding Aspire session host")
@@ -63,7 +63,7 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
 
     private suspend fun createSession(
         sessionModel: SessionModel,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
+        sessionEvents: MutableSharedFlow<SessionEvent>,
         aspireHostConfig: AspireHostProjectConfig,
         sessionHostLifetime: Lifetime
     ): SessionCreationResult {
@@ -101,7 +101,7 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
         val sessionLifetimeDef = command.sessionHostLifetime.createNested()
         sessions[command.sessionId] = sessionLifetimeDef
 
-        val launcher = AspireSessionLauncher.getInstance(project)
+        val launcher = SessionLauncher.getInstance(project)
         launcher.launchSession(
             command.sessionId,
             command.sessionModel,
@@ -127,7 +127,7 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
     data class CreateSessionCommand(
         val sessionId: String,
         val sessionModel: SessionModel,
-        val sessionEvents: MutableSharedFlow<AspireSessionEvent>,
+        val sessionEvents: MutableSharedFlow<SessionEvent>,
         val aspireHostConfig: AspireHostProjectConfig,
         val sessionHostLifetime: Lifetime
     ) : LaunchSessionCommand
