@@ -40,18 +40,18 @@ import kotlin.io.path.Path
 import kotlin.io.path.nameWithoutExtension
 
 @Service(Service.Level.PROJECT)
-class AspireSessionLauncher(private val project: Project) {
+class SessionLauncher(private val project: Project) {
     companion object {
-        fun getInstance(project: Project) = project.service<AspireSessionLauncher>()
+        fun getInstance(project: Project) = project.service<SessionLauncher>()
 
-        private val LOG = logger<AspireSessionLauncher>()
+        private val LOG = logger<SessionLauncher>()
     }
 
     suspend fun launchSession(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
+        sessionEvents: MutableSharedFlow<SessionEvent>,
         debuggingMode: Boolean,
         openTelemetryPort: Int
     ) {
@@ -68,6 +68,7 @@ class AspireSessionLauncher(private val project: Project) {
             LOG.warn("Unable to create executable for $sessionId (project: ${sessionModel.projectPath})")
             return
         }
+
         val runtime = DotNetRuntime.detectRuntimeForProject(
             project,
             RunnableProjectKinds.DotNetCore,
@@ -106,8 +107,9 @@ class AspireSessionLauncher(private val project: Project) {
         executable: DotNetExecutable,
         runtime: DotNetCoreRuntime,
         sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
+        LOG.trace("Starting the session in the run mode")
         val commandLine = executable.createRunCommandLine(runtime)
         val handler = KillableProcessHandler(commandLine)
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
@@ -128,8 +130,9 @@ class AspireSessionLauncher(private val project: Project) {
         executable: DotNetExecutable,
         runtime: DotNetCoreRuntime,
         sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
+        LOG.trace("Starting the session in the debug mode")
         val startInfo = DotNetCoreExeStartInfo(
             DotNetCoreInfo(runtime.cliExePath),
             executable.projectTfm?.let { EncInfo(it) },
@@ -157,7 +160,7 @@ class AspireSessionLauncher(private val project: Project) {
         sessionId: String,
         @Nls sessionName: String,
         startInfo: DebuggerStartInfoBase,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
+        sessionEvents: MutableSharedFlow<SessionEvent>,
         lifetime: Lifetime
     ) {
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
@@ -242,7 +245,7 @@ class AspireSessionLauncher(private val project: Project) {
         backendToDebuggerPort: Int,
         workerModel: DebuggerWorkerModel,
         sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>
     ): DebuggerWorkerProcessHandler {
         val launcher = DEBUGGER_WORKER_LAUNCHER.getLauncher()
         val commandLine = createRunCmdForLauncherInfo(
@@ -280,37 +283,37 @@ class AspireSessionLauncher(private val project: Project) {
     private fun subscribeToSessionEvents(
         sessionId: String,
         handler: ProcessHandler,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
         handler.addProcessListener(object : ProcessAdapter() {
             override fun startNotified(event: ProcessEvent) {
-                LOG.info("Aspire session process started (id: $sessionId)")
+                LOG.trace("Aspire session process started (id: $sessionId)")
                 val pid = when (event.processHandler) {
                     is KillableProcessHandler -> event.processHandler.pid()
                     else -> null
                 }
                 if (pid == null) {
                     LOG.warn("Unable to determine process id for the session $sessionId")
-                    sessionEvents.tryEmit(AspireSessionTerminated(sessionId, -1))
+                    sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
                 } else {
-                    sessionEvents.tryEmit(AspireSessionStarted(sessionId, pid))
+                    sessionEvents.tryEmit(SessionStarted(sessionId, pid))
                 }
             }
 
             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
                 val text = decodeAnsiCommandsToString(event.text, outputType)
                 val isStdErr = outputType == ProcessOutputType.STDERR
-                sessionEvents.tryEmit(AspireSessionLogReceived(sessionId, isStdErr, text))
+                sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
             }
 
             override fun processTerminated(event: ProcessEvent) {
-                LOG.info("Aspire session process terminated (id: $sessionId)")
-                sessionEvents.tryEmit(AspireSessionTerminated(sessionId, event.exitCode))
+                LOG.trace("Aspire session process terminated (id: $sessionId)")
+                sessionEvents.tryEmit(SessionTerminated(sessionId, event.exitCode))
             }
 
             override fun processNotStarted() {
                 LOG.warn("Aspire session process is not started")
-                sessionEvents.tryEmit(AspireSessionTerminated(sessionId, -1))
+                sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
             }
         })
     }

@@ -25,11 +25,11 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 @Service(Service.Level.PROJECT)
-class AspireSessionHostLauncher(private val project: Project) {
+class SessionHostLauncher(private val project: Project) {
     companion object {
-        fun getInstance(project: Project) = project.service<AspireSessionHostLauncher>()
+        fun getInstance(project: Project) = project.service<SessionHostLauncher>()
 
-        private val LOG = logger<AspireSessionHostLauncher>()
+        private val LOG = logger<SessionHostLauncher>()
 
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
         private const val RIDER_RD_PORT = "Rider_Connection__RdPort"
@@ -51,7 +51,7 @@ class AspireSessionHostLauncher(private val project: Project) {
         sessionHostRdPort: Int,
         aspireHostLifetime: LifetimeDefinition
     ) {
-        LOG.info("Starting Aspire session host: $aspireHostConfig")
+        LOG.info("Starting Aspire session host")
 
         val dotnet = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Cannot find active .NET runtime")
@@ -85,7 +85,7 @@ class AspireSessionHostLauncher(private val project: Project) {
         }, aspireHostLifetime.createNestedDisposable())
 
         processHandler.startNotify()
-        LOG.info("Aspire session host started")
+        LOG.trace("Aspire session host started")
     }
 
     private fun getCommandLine(

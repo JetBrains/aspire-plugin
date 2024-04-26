@@ -22,11 +22,11 @@ import me.rafaelldi.aspire.run.AspireHostProjectConfig
 import java.util.*
 
 @Service(Service.Level.PROJECT)
-class AspireSessionManager(private val project: Project, scope: CoroutineScope) {
+class SessionManager(private val project: Project, scope: CoroutineScope) {
     companion object {
-        fun getInstance(project: Project) = project.service<AspireSessionManager>()
+        fun getInstance(project: Project) = project.service<SessionManager>()
 
-        private val LOG = logger<AspireSessionManager>()
+        private val LOG = logger<SessionManager>()
     }
 
     private val sessions = mutableMapOf<String, LifetimeDefinition>()
@@ -45,27 +45,27 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
     suspend fun addSessionHost(
         aspireHostConfig: AspireHostProjectConfig,
         sessionHostModel: AspireSessionHostModel,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
-        aspireHostLifetime: Lifetime
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        sessionHostLifetime: Lifetime
     ) {
-        LOG.trace("Adding session host for ${aspireHostConfig.debugSessionToken}")
+        LOG.trace("Adding Aspire session host")
 
         withContext(Dispatchers.EDT) {
             sessionHostModel.createSession.setSuspend { _, model ->
-                createSession(model, sessionEvents, aspireHostConfig, aspireHostLifetime)
+                createSession(model, sessionEvents, aspireHostConfig, sessionHostLifetime)
             }
 
             sessionHostModel.deleteSession.setSuspend { _, sessionId ->
-                deleteSession(sessionId, aspireHostConfig)
+                deleteSession(sessionId)
             }
         }
     }
 
     private suspend fun createSession(
         sessionModel: SessionModel,
-        sessionEvents: MutableSharedFlow<AspireSessionEvent>,
+        sessionEvents: MutableSharedFlow<SessionEvent>,
         aspireHostConfig: AspireHostProjectConfig,
-        aspireHostLifetime: Lifetime
+        sessionHostLifetime: Lifetime
     ): SessionCreationResult {
         val sessionId = UUID.randomUUID().toString()
 
@@ -74,15 +74,15 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
             sessionModel,
             sessionEvents,
             aspireHostConfig,
-            aspireHostLifetime
+            sessionHostLifetime
         )
         commands.emit(command)
 
         return SessionCreationResult(sessionId)
     }
 
-    private suspend fun deleteSession(sessionId: String, aspireHostConfig: AspireHostProjectConfig): Boolean {
-        val command = DeleteSessionCommand(sessionId, aspireHostConfig.debugSessionToken)
+    private suspend fun deleteSession(sessionId: String): Boolean {
+        val command = DeleteSessionCommand(sessionId)
         commands.emit(command)
 
         return true
@@ -98,10 +98,10 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
     private suspend fun handleCreateCommand(command: CreateSessionCommand) {
         LOG.trace("Creating session ${command.sessionId}, ${command.sessionModel}")
 
-        val sessionLifetimeDef = command.aspireHostLifetime.createNested()
+        val sessionLifetimeDef = command.sessionHostLifetime.createNested()
         sessions[command.sessionId] = sessionLifetimeDef
 
-        val launcher = AspireSessionLauncher.getInstance(project)
+        val launcher = SessionLauncher.getInstance(project)
         launcher.launchSession(
             command.sessionId,
             command.sessionModel,
@@ -127,13 +127,12 @@ class AspireSessionManager(private val project: Project, scope: CoroutineScope) 
     data class CreateSessionCommand(
         val sessionId: String,
         val sessionModel: SessionModel,
-        val sessionEvents: MutableSharedFlow<AspireSessionEvent>,
+        val sessionEvents: MutableSharedFlow<SessionEvent>,
         val aspireHostConfig: AspireHostProjectConfig,
-        val aspireHostLifetime: Lifetime
+        val sessionHostLifetime: Lifetime
     ) : LaunchSessionCommand
 
     data class DeleteSessionCommand(
-        val sessionId: String,
-        val sessionHostId: String
+        val sessionId: String
     ) : LaunchSessionCommand
 }

@@ -23,6 +23,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.nameWithoutExtension
 
 @Service(Service.Level.PROJECT)
 class AspireServiceManager(private val project: Project) {
@@ -99,18 +100,19 @@ class AspireServiceManager(private val project: Project) {
 
     suspend fun startAspireHostService(
         aspireHostConfig: AspireHostProjectConfig,
-        sessionHostModel: AspireSessionHostModel,
-        aspireHostLifetime: Lifetime
+        sessionHostModel: AspireSessionHostModel
     ) {
         val hostPathString = aspireHostConfig.aspireHostProjectPath.absolutePathString()
         LOG.trace("Starting the Aspire Host $hostPathString")
 
+        val aspireHostServiceLifetime = aspireHostConfig.aspireHostLifetime.createNested()
+
         val hostService = hostServices[hostPathString] ?: return
-        aspireHostLifetime.bracketIfAlive({
+        aspireHostServiceLifetime.bracketIfAlive({
             hostService.startHost(
                 aspireHostConfig.aspireHostProjectUrl,
                 sessionHostModel,
-                aspireHostLifetime
+                aspireHostServiceLifetime
             )
             sendServiceChangedEvent(hostService)
         }, {
@@ -119,7 +121,7 @@ class AspireServiceManager(private val project: Project) {
         })
 
         withContext(Dispatchers.EDT) {
-            sessionHostModel.resources.view(aspireHostLifetime) { resourceLifetime, resourceId, resource ->
+            sessionHostModel.resources.view(aspireHostServiceLifetime) { resourceLifetime, resourceId, resource ->
                 viewResource(resourceId, resource, resourceLifetime, hostService)
             }
         }
@@ -168,9 +170,9 @@ class AspireServiceManager(private val project: Project) {
         override fun runConfigurationAdded(settings: RunnerAndConfigurationSettings) {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
-            val name = configuration.name
             val params = configuration.parameters
             val projectPath = Path(params.projectFilePath)
+            val name = projectPath.nameWithoutExtension
             val host = AspireHostService(name, projectPath)
             getInstance(project).addAspireHostService(host)
         }
@@ -178,9 +180,9 @@ class AspireServiceManager(private val project: Project) {
         override fun runConfigurationChanged(settings: RunnerAndConfigurationSettings) {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
-            val name = configuration.name
             val params = configuration.parameters
             val projectPath = Path(params.projectFilePath)
+            val name = projectPath.nameWithoutExtension
             getInstance(project).updateAspireHostService(projectPath, name)
         }
 

@@ -39,12 +39,12 @@ class AspireHostService(
     fun startHost(
         aspireHostDashboardUrl: String,
         sessionHostModel: AspireSessionHostModel,
-        aspireHostLifetime: Lifetime
+        aspireHostServiceLifetime: Lifetime
     ) {
         isActive = true
         dashboardUrl = aspireHostDashboardUrl
         model = sessionHostModel
-        lifetime = aspireHostLifetime
+        lifetime = aspireHostServiceLifetime
     }
 
     fun stopHost() {

@@ -26,7 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import me.rafaelldi.aspire.services.AspireServiceManager
-import me.rafaelldi.aspire.sessionHost.AspireSessionHostManager
+import me.rafaelldi.aspire.sessionHost.SessionHostManager
 import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
 import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
@@ -48,7 +48,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
     override fun canRun(executorId: String, runConfiguration: RunProfile) = runConfiguration is AspireHostConfiguration
 
     override fun execute(environment: ExecutionEnvironment, state: RunProfileState): Promise<RunContentDescriptor?> {
-        LOG.trace("Executing Aspire run profile state")
+        LOG.info("Executing Aspire run profile state")
 
         val dotnetProcessState = state as? DotNetProcessRunProfileState
             ?: throw CantRunException("Unable to execute RunProfileState: $state")
@@ -86,7 +86,8 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             resourceServiceEndpointUrl,
             resourceServiceApiKey,
             openTelemetryProtocolEndpointUrl,
-            openTelemetryProtocolServerPort
+            openTelemetryProtocolServerPort,
+            aspireHostLifetime
         )
         LOG.trace("Aspire session host config: $config")
 
@@ -98,18 +99,11 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             val protocol = startProtocol(aspireHostLifetime)
             val sessionHostModel = protocol.aspireSessionHostModel
 
-            AspireServiceManager.getInstance(environment.project).startAspireHostService(
-                config,
-                sessionHostModel,
-                aspireHostLifetime.createNested()
-            )
+            AspireServiceManager.getInstance(environment.project)
+                .startAspireHostService(config, sessionHostModel)
 
-            AspireSessionHostManager.getInstance(environment.project).addSessionHost(
-                config,
-                protocol.wire.serverPort,
-                sessionHostModel,
-                aspireHostLifetime.createNested()
-            )
+            SessionHostManager.getInstance(environment.project)
+                .addSessionHost(config, protocol.wire.serverPort, sessionHostModel)
         }.asPromise()
 
         return sessionHostPromise.then {
