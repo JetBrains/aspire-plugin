@@ -16,9 +16,7 @@ internal sealed class Connection : IDisposable
 
     internal Connection(ConfigurationManager configuration)
     {
-        var connectionOptions = configuration
-            .GetSection(ConnectionOptions.SectionName)
-            .Get<ConnectionOptions>();
+        var connectionOptions = configuration.GetSection(ConnectionOptions.SectionName).Get<ConnectionOptions>();
         if (connectionOptions?.RdPort == null)
             throw new ApplicationException("Unable to find RD port environment variable");
 

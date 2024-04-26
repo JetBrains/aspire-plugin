@@ -6,12 +6,10 @@ using AspireSessionHost.Sessions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using static AspireSessionHost.EnvironmentVariables;
 
-ParentProcessWatchdog.StartNewIfAvailable();
-
 var aspNetCoreUrl = GetAspNetCoreUrls();
 if (aspNetCoreUrl is null) throw new ApplicationException($"Unable to find {AspNetCoreUrls} variable");
 
-var otlpServerPort = GetOtlpServerPort();
+ParentProcessWatchdog.StartNewIfAvailable();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,15 +31,15 @@ builder.Services.ConfigureHttpJsonOptions(it =>
     it.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
 });
 
+var otelServiceOptions =
+    builder.Configuration.GetSection(ConfigureOTelServiceOptions.SectionName).Get<OTelServiceOptions>();
+var otlpServerPort = otelServiceOptions?.ServerPort;
 builder.WebHost.ConfigureKestrel(it =>
 {
     it.ListenLocalhost(aspNetCoreUrl.Port);
-    if (otlpServerPort.HasValue && otlpServerPort != 0)
+    if (otlpServerPort != null && otlpServerPort != 0)
     {
-        it.ListenLocalhost(otlpServerPort.Value, options =>
-        {
-            options.Protocols = HttpProtocols.Http2;
-        });
+        it.ListenLocalhost(otlpServerPort.Value, options => { options.Protocols = HttpProtocols.Http2; });
     }
 });
 
