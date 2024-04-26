@@ -1,0 +1,10 @@
+﻿## Address from DEBUG_SESSION_PORT environment variable
+@debugSessionPort = localhost:47100
+## Token from DEBUG_SESSION_TOKEN environment variable
+@debugSessionToken = 7ba53d25-bcd7-40b7-ac7d-bac3d0797168
+
+### IDE endpoint information request
+GET http://{{debugSessionPort}}/info
+Accept: application/json
+Authorization: Bearer {{debugSessionToken}}
+

@@ -8,8 +8,8 @@ data class AspireHostProjectConfig(
     val aspireHostProjectPath: Path,
     val aspireHostProjectUrl: String,
     val debuggingMode: Boolean,
-    val resourceServiceUrl: String?,
+    val resourceServiceEndpointUrl: String?,
     val resourceServiceApiKey: String?,
-    val openTelemetryProtocolUrl: String?,
+    val openTelemetryProtocolEndpointUrl: String?,
     val openTelemetryProtocolServerPort: Int
 )
