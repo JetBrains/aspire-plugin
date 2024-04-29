@@ -19,9 +19,6 @@
         <configurationType implementation="me.rafaelldi.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="me.rafaelldi.aspire.run.AspireHostProgramRunner"/>
 
-        <rider.run.configurations.externalRunConfigurationGenerator
-            implementation="me.rafaelldi.aspire.run.AspireHostRunConfigurationGenerator"/>
-
         <serviceViewContributor implementation="me.rafaelldi.aspire.services.AspireServiceContributor"/>
 
         <applicationConfigurable

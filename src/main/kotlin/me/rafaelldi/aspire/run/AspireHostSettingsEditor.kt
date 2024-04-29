@@ -27,20 +27,18 @@ class AspireHostSettingsEditor(private val project: Project) :
     }
 
     override fun applyEditorTo(configuration: AspireHostConfiguration) {
-        val selectedProject = viewModel.projectSelector.project.valueOrNull
-        if (selectedProject != null) {
-            configuration.parameters.apply {
-                projectFilePath = selectedProject.projectFilePath
-                trackEnvs = viewModel.trackEnvs
-                envs = viewModel.environmentVariablesEditor.envs.value
-                trackUrl = viewModel.trackUrl
-                startBrowserParameters.url = viewModel.urlEditor.text.value
-                startBrowserParameters.browser = viewModel.dotNetBrowserSettingsEditor.settings.value.myBrowser
-                startBrowserParameters.startAfterLaunch =
-                    viewModel.dotNetBrowserSettingsEditor.settings.value.startAfterLaunch
-                startBrowserParameters.withJavaScriptDebugger =
-                    viewModel.dotNetBrowserSettingsEditor.settings.value.withJavaScriptDebugger
-            }
+        configuration.parameters.apply {
+            projectFilePath = viewModel.projectSelector.project.valueOrNull?.projectFilePath ?: ""
+            profileName = viewModel.profileName ?: ""
+            trackEnvs = viewModel.trackEnvs
+            envs = viewModel.environmentVariablesEditor.envs.value
+            trackUrl = viewModel.trackUrl
+            startBrowserParameters.url = viewModel.urlEditor.text.value
+            startBrowserParameters.browser = viewModel.dotNetBrowserSettingsEditor.settings.value.myBrowser
+            startBrowserParameters.startAfterLaunch =
+                viewModel.dotNetBrowserSettingsEditor.settings.value.startAfterLaunch
+            startBrowserParameters.withJavaScriptDebugger =
+                viewModel.dotNetBrowserSettingsEditor.settings.value.withJavaScriptDebugger
         }
     }
 
@@ -48,6 +46,7 @@ class AspireHostSettingsEditor(private val project: Project) :
         configuration.parameters.apply {
             viewModel.reset(
                 projectFilePath,
+                profileName,
                 trackEnvs,
                 envs,
                 trackUrl,
