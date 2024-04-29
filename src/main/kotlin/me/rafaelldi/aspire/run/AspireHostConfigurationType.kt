@@ -56,12 +56,11 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
                 ) return@forEach
 
                 val configurationName =
-                    if (project.name == profile.key) profile.key
+                    if (runnableProject.name == profile.key) profile.key
                     else "${runnableProject.name}: ${profile.key}"
 
-                if (runManager.hasConfigurationForNameAndTypeId(configurationName, ID) ||
-                    runManager.hasConfigurationForNameAndTypeId(project.name, ID)
-                ) return@forEach
+                if (runManager.hasConfigurationForNameAndTypeId(configurationName, ID))
+                    return@forEach
 
                 val configuration = generateConfigurationForProfile(
                     configurationName,
