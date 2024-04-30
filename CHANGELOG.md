@@ -7,6 +7,7 @@
 ### Added
 
 - Selector for launch profile in the run configuration
+- Generate Aspire Host run configuration for each launchSettings profile
 
 ### Fixed
 
