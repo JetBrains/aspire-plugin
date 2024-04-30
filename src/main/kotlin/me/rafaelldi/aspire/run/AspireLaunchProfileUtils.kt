@@ -23,10 +23,10 @@ internal fun getEnvironmentVariables(launchProfileName: String, launchProfileCon
         ?.toMap()
         ?.toMutableMap()
         ?: mutableMapOf()
-    environmentVariables.put("DOTNET_LAUNCH_PROFILE", launchProfileName)
+    environmentVariables["DOTNET_LAUNCH_PROFILE"] = launchProfileName
     val applicationUrl = launchProfileContent.applicationUrl
     if (!applicationUrl.isNullOrEmpty()) {
-        environmentVariables.put("ASPNETCORE_URLS", applicationUrl)
+        environmentVariables["ASPNETCORE_URLS"] = applicationUrl
     }
 
     return environmentVariables

@@ -1,4 +1,4 @@
-@file:Suppress("UnstableApiUsage")
+@file:Suppress("UnstableApiUsage", "LoggingSimilarMessage")
 
 package me.rafaelldi.aspire.workload
 
@@ -16,8 +16,6 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.util.withUiContext
-import com.intellij.openapi.util.SystemInfo
-import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -81,51 +79,6 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
         }
     }
 
-    fun updateWorkload() {
-        LOG.trace("Updating Aspire workload")
-        scope.launch(Dispatchers.Default) {
-            withBackgroundProgress(project, AspireBundle.message("progress.updating.aspire.workload")) {
-                val dotnetPath = getDotnetPath() ?: "dotnet"
-
-                val output = updateListOfWorkload(dotnetPath)
-                if (output == null) {
-                    withUiContext {
-                        Notification(
-                            "Aspire",
-                            AspireBundle.message("notifications.aspire.workload.update.failed"),
-                            "",
-                            NotificationType.WARNING
-                        )
-                            .notify(project)
-                    }
-                    return@withBackgroundProgress
-                }
-
-                if (output.checkSuccess(LOG)) {
-                    withUiContext {
-                        Notification(
-                            "Aspire",
-                            AspireBundle.message("notifications.aspire.workload.updated"),
-                            "",
-                            NotificationType.INFORMATION
-                        )
-                            .notify(project)
-                    }
-                } else {
-                    withUiContext {
-                        Notification(
-                            "Aspire",
-                            AspireBundle.message("notifications.aspire.workload.update.failed"),
-                            output.stderr,
-                            NotificationType.WARNING
-                        )
-                            .notify(project)
-                    }
-                }
-            }
-        }
-    }
-
     private fun getDotnetPath(): String? {
         val cliExePath = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value?.cliExePath
         LOG.trace("dotnet cli path: $cliExePath")
@@ -141,7 +94,7 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
 
         try {
             return ExecUtil.execAndGetOutput(commandLine)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             LOG.warn("Unable to get workload list")
             return null
         }
@@ -172,26 +125,6 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
             return WorkloadVersion(versionString)
         } else {
             null
-        }
-    }
-
-    private fun updateListOfWorkload(dotnetPath: String): ProcessOutput? {
-        val commandLine = GeneralCommandLine()
-            .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
-            .withExePath(dotnetPath)
-            .withCharset(StandardCharsets.UTF_8)
-            .withParameters("workload", "update")
-
-        try {
-            return if (SystemInfo.isWindows) {
-                ExecUtil.execAndGetOutput(commandLine, 30_000)
-            } else {
-                val sudoCommand = ExecUtil.sudoCommand(commandLine, AspireBundle.getMessage("notification.aspire.workload.update.elevated"))
-                ExecUtil.execAndGetOutput(sudoCommand, 30_000)
-            }
-        } catch (e: Exception) {
-            LOG.warn("Unable to update workload list")
-            return null
         }
     }
 }

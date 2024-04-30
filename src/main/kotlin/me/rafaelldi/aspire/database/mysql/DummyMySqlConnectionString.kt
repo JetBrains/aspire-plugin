@@ -8,7 +8,6 @@ import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shar
 
 class DummyMySqlConnectionString(project: Project, properties: List<RdConnectionStringKeyValuePair>) :
     ConnectionString(project, properties) {
-    constructor(project: Project) : this(project, emptyList())
 
     companion object {
         suspend fun parse(project: Project, connectionString: String): Result<DummyMySqlConnectionString> {
@@ -25,14 +24,6 @@ class DummyMySqlConnectionString(project: Project, properties: List<RdConnection
         if (password.isNotNullOrEmpty) return true
         return false
     }
-
-    var server: String?
-        get() = get(Property.Server)
-        set(value) = set(Property.Server, value)
-
-    var port: Int?
-        get() = get(Property.Port)?.toInt()
-        set(value) = set(Property.Port, value?.toString())
 
     var database: String?
         get() = get(Property.Database)

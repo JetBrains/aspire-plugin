@@ -1,3 +1,5 @@
+@file:Suppress("LoggingSimilarMessage")
+
 package me.rafaelldi.aspire.sessionHost
 
 import com.intellij.execution.process.*
