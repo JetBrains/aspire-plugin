@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- Selector for launch profile in the run configuration
+- Generate Aspire Host run configuration for each launchSettings profile
+
 ### Fixed
 
 - [#125](https://github.com/rafaelldi/aspire-plugin/issues/125): Start session request handling

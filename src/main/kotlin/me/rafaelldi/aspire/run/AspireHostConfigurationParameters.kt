@@ -10,17 +10,17 @@ import com.intellij.ide.browsers.BrowserStarter
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
-import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.run.RiderRunBundle
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
-import com.jetbrains.rider.run.configurations.project.getRunOptions
 import org.jdom.Element
 
 class AspireHostConfigurationParameters(
     private val project: Project,
     var projectFilePath: String,
+    var profileName: String,
     var trackEnvs: Boolean,
     var envs: Map<String, String>,
     var trackUrl: Boolean,
@@ -28,6 +28,7 @@ class AspireHostConfigurationParameters(
 ) {
     companion object {
         private const val PROJECT_FILE_PATH = "PROJECT_FILE_PATH"
+        private const val LAUNCH_PROFILE_NAME = "LAUNCH_PROFILE_NAME"
         private const val TRACK_ENVS = "TRACK_ENVS"
         private const val TRACK_URL = "TRACK_URL"
     }
@@ -53,6 +54,9 @@ class AspireHostConfigurationParameters(
         val project = runnableProjects.singleOrNull {
             it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
         } ?: throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
+        if (profileName.isEmpty()) {
+            throw RuntimeConfigurationError(RiderRunBundle.message("launch.profile.is.not.specified"))
+        }
         if (!project.problems.isNullOrEmpty()) {
             throw RuntimeConfigurationError(project.problems)
         }
@@ -60,6 +64,7 @@ class AspireHostConfigurationParameters(
 
     fun readExternal(element: Element) {
         projectFilePath = JDOMExternalizerUtil.readField(element, PROJECT_FILE_PATH) ?: ""
+        profileName = JDOMExternalizerUtil.readField(element, LAUNCH_PROFILE_NAME) ?: ""
         val trackEnvsString = JDOMExternalizerUtil.readField(element, TRACK_ENVS) ?: ""
         trackEnvs = trackEnvsString != "0"
         EnvironmentVariablesComponent.readExternal(element, envs)
@@ -70,24 +75,20 @@ class AspireHostConfigurationParameters(
 
     fun writeExternal(element: Element) {
         JDOMExternalizerUtil.writeField(element, PROJECT_FILE_PATH, projectFilePath)
+        JDOMExternalizerUtil.writeField(element, LAUNCH_PROFILE_NAME, profileName)
         JDOMExternalizerUtil.writeField(element, TRACK_ENVS, if (trackEnvs) "1" else "0")
         EnvironmentVariablesComponent.writeExternal(element, envs)
         JDOMExternalizerUtil.writeField(element, TRACK_URL, if (trackUrl) "1" else "0")
         startBrowserParameters.writeExternal(element)
     }
-}
 
-fun AspireHostConfigurationParameters.setUpFromRunnableProject(project: RunnableProject) {
-    projectFilePath = project.projectFilePath
-    val runOptions = project.getRunOptions()
-    trackEnvs = true
-    envs = project.environmentVariables.associate { it.key to it.value }
-    trackUrl = true
-    val startBrowserUrl = runOptions.startBrowserUrl
-    if (startBrowserUrl.isNotEmpty()) {
-        startBrowserParameters.apply {
-            url = startBrowserUrl
-            startAfterLaunch = runOptions.launchBrowser
-        }
-    }
+    fun copy() = AspireHostConfigurationParameters(
+        project,
+        projectFilePath,
+        profileName,
+        trackEnvs,
+        envs,
+        trackUrl,
+        startBrowserParameters.copy()
+    )
 }

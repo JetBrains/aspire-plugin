@@ -10,14 +10,14 @@ class AspireHostConfigurationFactory(type: AspireHostConfigurationType) :
     DotNetConfigurationFactoryBase<AspireHostConfiguration>(type) {
     override fun getId() = "Aspire Host"
 
-    override fun getSingletonPolicy() = RunConfigurationSingletonPolicy.SINGLE_INSTANCE_ONLY
+    override fun getSingletonPolicy() = RunConfigurationSingletonPolicy.SINGLE_INSTANCE
 
     override fun createTemplateConfiguration(project: Project) = AspireHostConfiguration(
         project,
         this,
         "Aspire Host",
         AspireHostConfigurationParameters(
-            project, "", true, hashMapOf(), true, DotNetStartBrowserParameters()
+            project, "", "", true, hashMapOf(), true, DotNetStartBrowserParameters()
         )
     )
 

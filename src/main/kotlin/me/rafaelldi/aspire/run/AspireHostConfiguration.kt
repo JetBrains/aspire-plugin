@@ -1,6 +1,7 @@
 package me.rafaelldi.aspire.run
 
 import com.intellij.execution.configurations.ConfigurationFactory
+import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.build.tasks.SolutionRunConfiguration
 import com.jetbrains.rider.run.configurations.RiderAsyncRunConfiguration
@@ -23,10 +24,23 @@ class AspireHostConfiguration(
     }
 
     override fun readExternal(element: Element) {
+        super.readExternal(element)
         parameters.readExternal(element)
     }
 
     override fun writeExternal(element: Element) {
+        super.writeExternal(element)
         parameters.writeExternal(element)
+    }
+
+    override fun clone(): RunConfiguration {
+        val newConfiguration = AspireHostConfiguration(
+            project,
+            requireNotNull(factory),
+            name,
+            parameters.copy()
+        )
+        newConfiguration.doCopyOptionsFrom(this)
+        return newConfiguration
     }
 }

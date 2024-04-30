@@ -50,6 +50,8 @@ class AspireServiceManager(private val project: Project) {
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
     fun addAspireHostService(host: AspireHostService) {
+        if (hostServices.containsKey(host.projectPathString)) return
+
         LOG.trace("Adding a new Aspire host ${host.projectPathString}")
         hostServices[host.projectPathString] = host
         resourceServices[host.projectPathString] = mutableMapOf()

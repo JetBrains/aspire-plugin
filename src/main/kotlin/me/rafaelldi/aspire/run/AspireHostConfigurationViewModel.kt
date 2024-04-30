@@ -8,14 +8,16 @@ import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.controls.*
 import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSettings
 import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSettingsEditor
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
-import com.jetbrains.rider.run.configurations.project.getRunOptions
 import java.io.File
 
 class AspireHostConfigurationViewModel(
     private val lifetime: Lifetime,
     private val runnableProjectsModel: RunnableProjectsModel?,
     val projectSelector: ProjectSelector,
+    val launchProfileSelector: LaunchProfileSelector,
     val environmentVariablesEditor: EnvironmentVariablesEditor,
     separator: ViewSeparator,
     val urlEditor: TextEditor,
@@ -24,6 +26,7 @@ class AspireHostConfigurationViewModel(
     override val controls: List<ControlBase> =
         listOf(
             projectSelector,
+            launchProfileSelector,
             environmentVariablesEditor,
             separator,
             urlEditor,
@@ -48,42 +51,71 @@ class AspireHostConfigurationViewModel(
             )
         }
 
+        launchProfileSelector.profile.advise(lifetime) { handleProfileSelection() }
         environmentVariablesEditor.envs.advise(lifetime) { handleEnvValueChange() }
         urlEditor.text.advise(lifetime) { handleUrlValueChange() }
     }
 
-    private fun handleProjectSelection(project: RunnableProject) {
-        if (!isLoaded) {
-            return
+    private fun handleProjectSelection(runnableProject: RunnableProject) {
+        if (!isLoaded) return
+
+        val launchProfiles = getLaunchProfiles(runnableProject)
+        launchProfileSelector.profileList.apply {
+            clear()
+            addAll(launchProfiles)
+        }
+        if (launchProfiles.any()) {
+            launchProfileSelector.profile.set(launchProfiles.first())
         }
 
-        val runOptions = project.getRunOptions()
-        environmentVariablesEditor.envs.set(runOptions.environmentVariables)
-        val startBrowserUrl = runOptions.startBrowserUrl
-        if (startBrowserUrl.isNotEmpty()) {
-            urlEditor.defaultValue.value = startBrowserUrl
-            urlEditor.text.value = startBrowserUrl
-            dotNetBrowserSettingsEditor.settings.value = BrowserSettings(runOptions.launchBrowser, false, null)
+        handleProfileSelection()
+    }
+
+    private fun handleProfileSelection() {
+        if (!isLoaded) return
+
+        val launchProfile = launchProfileSelector.profile.valueOrNull ?: return
+
+        val environmentVariables = getEnvironmentVariables(launchProfile.name, launchProfile.content)
+        environmentVariablesEditor.envs.set(environmentVariables)
+
+        val applicationUrl = getApplicationUrl(launchProfile.content)
+        if (!applicationUrl.isNullOrEmpty()) {
+            urlEditor.defaultValue.value = applicationUrl
+            urlEditor.text.value = applicationUrl
+            dotNetBrowserSettingsEditor.settings.value =
+                BrowserSettings(launchProfile.content.launchBrowser, false, null)
         }
     }
 
     private fun handleEnvValueChange() {
-        projectSelector.project.valueOrNull?.let {
-            val envs = it.environmentVariables.associate { pair -> pair.key to pair.value }.toSortedMap()
-            val editorEnvs = environmentVariablesEditor.envs.value.toSortedMap()
-            trackEnvs = envs == editorEnvs
+        if (!isLoaded) return
+
+        val launchProfile = launchProfileSelector.profile.valueOrNull
+        if (launchProfile == null) {
+            trackEnvs = false
+            return
         }
+        val envs = getEnvironmentVariables(launchProfile.name, launchProfile.content).toSortedMap()
+        val editorEnvs = environmentVariablesEditor.envs.value.toSortedMap()
+        trackEnvs = envs == editorEnvs
     }
 
     private fun handleUrlValueChange() {
-        projectSelector.project.valueOrNull?.let {
-            val runOptions = it.getRunOptions()
-            trackUrl = urlEditor.text.value == runOptions.startBrowserUrl
+        if (!isLoaded) return
+
+        val launchProfile = launchProfileSelector.profile.valueOrNull
+        if (launchProfile == null) {
+            trackUrl = false
+            return
         }
+        val applicationUrl = getApplicationUrl(launchProfile.content)
+        trackUrl = urlEditor.text.value == applicationUrl
     }
 
     fun reset(
         projectFilePath: String,
+        launchProfileName: String,
         trackEnvs: Boolean,
         envs: Map<String, String>,
         trackUrl: Boolean,
@@ -108,10 +140,10 @@ class AspireHostConfigurationViewModel(
                 }) {
                 if (projectFilePath.isEmpty()) {
                     projectList.firstOrNull { it.kind == AspireRunnableProjectKinds.AspireHost }
-                        ?.let { project ->
-                            projectSelector.project.set(project)
+                        ?.let { runnableProject ->
+                            projectSelector.project.set(runnableProject)
                             isLoaded = true
-                            handleProjectSelection(project)
+                            handleProjectSelection(runnableProject)
                         }
                 } else {
                     val fakeProjectName = File(projectFilePath).name
@@ -134,21 +166,53 @@ class AspireHostConfigurationViewModel(
             } else {
                 projectList.singleOrNull {
                     it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
-                }?.let { project ->
-                    projectSelector.project.set(project)
+                }?.let { runnableProject ->
+                    projectSelector.project.set(runnableProject)
 
-                    val effectiveEnvs =
-                        if (trackEnvs) project.environmentVariables.associate { it.key to it.value } else envs
-                    environmentVariablesEditor.envs.set(effectiveEnvs)
+                    val launchProfiles = getLaunchProfiles(runnableProject)
+                    launchProfileSelector.profileList.apply {
+                        clear()
+                        addAll(launchProfiles)
+                    }
 
-                    val runOptions = project.getRunOptions()
-                    val effectiveUrl = if (trackUrl) runOptions.startBrowserUrl else dotNetStartBrowserParameters.url
-                    urlEditor.defaultValue.value = effectiveUrl
-                    urlEditor.text.value = effectiveUrl
+                    val launchProfile = launchProfileSelector.profileList.firstOrNull { it.name == launchProfileName }
+                    if (launchProfile != null) {
+                        launchProfileSelector.profile.set(launchProfile)
+                    } else {
+                        val fakeLaunchProfile = LaunchProfile(launchProfileName, LaunchSettingsJson.Profile.UNKNOWN)
+                        launchProfileSelector.profileList.add(fakeLaunchProfile)
+                        launchProfileSelector.profile.set(fakeLaunchProfile)
+                    }
+
+                    isLoaded = true
+
+                    if (launchProfile != null) {
+                        val effectiveEnvs =
+                            if (trackEnvs) getEnvironmentVariables(launchProfile.name, launchProfile.content)
+                            else envs
+                        environmentVariablesEditor.envs.set(effectiveEnvs)
+
+                        val effectiveUrl =
+                            if (trackUrl) getApplicationUrl(launchProfile.content)
+                            else dotNetStartBrowserParameters.url
+                        urlEditor.defaultValue.value = effectiveUrl ?: ""
+                        urlEditor.text.value = effectiveUrl ?: ""
+                    }
                 }
             }
 
             isLoaded = true
         }
+    }
+
+    private fun getLaunchProfiles(runnableProject: RunnableProject): List<LaunchProfile>{
+        val launchSettings = LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
+        return launchSettings?.profiles
+            .orEmpty()
+            .asSequence()
+            .filter { it.value.commandName.equals("Project", true) }
+            .map { (name, content) -> LaunchProfile(name, content) }
+            .sortedBy { it.name }
+            .toList()
     }
 }
