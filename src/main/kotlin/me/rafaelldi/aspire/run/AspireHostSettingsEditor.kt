@@ -18,6 +18,7 @@ class AspireHostSettingsEditor(private val project: Project) :
             lifetime,
             project.runnableProjectsModelIfAvailable,
             ProjectSelector(AspireBundle.message("run.editor.project"), "Project"),
+            LaunchProfileSelector(AspireBundle.message("run.editor.launch.profile"), "Launch_profile"),
             EnvironmentVariablesEditor(AspireBundle.message("run.editor.environment.variables"), "Environment_variables"),
             ViewSeparator(AspireBundle.message("run.editor.open.browser")),
             TextEditor(AspireBundle.message("run.editor.url"), "URL", lifetime),
@@ -29,7 +30,7 @@ class AspireHostSettingsEditor(private val project: Project) :
     override fun applyEditorTo(configuration: AspireHostConfiguration) {
         configuration.parameters.apply {
             projectFilePath = viewModel.projectSelector.project.valueOrNull?.projectFilePath ?: ""
-            profileName = viewModel.profileName ?: ""
+            profileName = viewModel.launchProfileSelector.profile.valueOrNull?.name ?: ""
             trackEnvs = viewModel.trackEnvs
             envs = viewModel.environmentVariablesEditor.envs.value
             trackUrl = viewModel.trackUrl

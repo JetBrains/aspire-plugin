@@ -59,7 +59,8 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
                     if (runnableProject.name == profile.key) profile.key
                     else "${runnableProject.name}: ${profile.key}"
 
-                if (runManager.hasConfigurationForNameAndTypeId(configurationName, ID))
+                if (runManager.hasConfigurationForNameAndTypeId(configurationName, ID) ||
+                    runManager.hasConfigurationForNameAndTypeId(runnableProject.name, ID))
                     return@forEach
 
                 val configuration = generateConfigurationForProfile(
@@ -121,10 +122,10 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
             profileName = profile
             val launchProfile = getLaunchProfileByName(runnableProject, profile)
             if (launchProfile != null) {
-                val environmentVariables = getEnvironmentVariables(launchProfile)
+                val environmentVariables = getEnvironmentVariables(launchProfile.first, launchProfile.second)
                 envs = environmentVariables
                 trackEnvs = true
-                val applicationUrl = getApplicationUrl(launchProfile)
+                val applicationUrl = getApplicationUrl(launchProfile.second)
                 startBrowserParameters.apply {
                     url = applicationUrl ?: ""
                     startAfterLaunch = launchProfile.second.launchBrowser
