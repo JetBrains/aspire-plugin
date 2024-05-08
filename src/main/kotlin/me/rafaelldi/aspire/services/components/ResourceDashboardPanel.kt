@@ -1,6 +1,8 @@
 package me.rafaelldi.aspire.services.components
 
+import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SideBorder
@@ -59,7 +61,13 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
                 separator()
                     .gap(RightGap.SMALL)
                 copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
+                    .gap(RightGap.COLUMNS)
             }
+
+            val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
+            button(AspireBundle.message("service.tab.dashboard.stop.resource"), stopAction)
+                .applyToComponent { icon = AllIcons.Actions.Suspend }
+                .gap(RightGap.SMALL)
         }
         separator()
 
