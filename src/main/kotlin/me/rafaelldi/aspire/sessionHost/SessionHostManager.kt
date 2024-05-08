@@ -17,7 +17,7 @@ import me.rafaelldi.aspire.generated.AspireSessionHostModel
 import me.rafaelldi.aspire.generated.LogReceived
 import me.rafaelldi.aspire.generated.ProcessStarted
 import me.rafaelldi.aspire.generated.ProcessTerminated
-import me.rafaelldi.aspire.run.AspireHostProjectConfig
+import me.rafaelldi.aspire.run.AspireHostConfig
 
 @Service(Service.Level.PROJECT)
 class SessionHostManager(private val project: Project, private val scope: CoroutineScope) {
@@ -27,8 +27,8 @@ class SessionHostManager(private val project: Project, private val scope: Corout
         private val LOG = logger<SessionHostManager>()
     }
 
-    suspend fun addSessionHost(
-        aspireHostConfig: AspireHostProjectConfig,
+    suspend fun startSessionHost(
+        aspireHostConfig: AspireHostConfig,
         protocolServerPort: Int,
         sessionHostModel: AspireSessionHostModel
     ) {

@@ -77,7 +77,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
 
         val aspireHostLifetime = environment.project.lifetime.createNested()
 
-        val config = AspireHostProjectConfig(
+        val config = AspireHostConfig(
             debugSessionToken,
             debugSessionPort,
             aspireHostProjectPath,
@@ -103,7 +103,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
                 .startAspireHostService(config, sessionHostModel)
 
             SessionHostManager.getInstance(environment.project)
-                .addSessionHost(config, protocol.wire.serverPort, sessionHostModel)
+                .startSessionHost(config, protocol.wire.serverPort, sessionHostModel)
         }.asPromise()
 
         return sessionHostPromise.then {

@@ -23,6 +23,8 @@ class AspireResourceService(
     private val hostService: AspireHostService,
     private val project: Project
 ) {
+    var uid: String
+        private set
     var name: String
         private set
     var type: ResourceType
@@ -74,6 +76,7 @@ class AspireResourceService(
 
     init {
         val model = wrapper.model.valueOrNull
+        uid = model?.uid ?: ""
         name = model?.name ?: ""
         type = model?.type ?: ResourceType.Unknown
         displayName = model?.displayName ?: ""
@@ -150,6 +153,7 @@ class AspireResourceService(
     }
 
     private fun update(resourceModel: ResourceModel) {
+        uid = resourceModel.uid
         name = resourceModel.name
         type = resourceModel.type
         displayName = resourceModel.displayName

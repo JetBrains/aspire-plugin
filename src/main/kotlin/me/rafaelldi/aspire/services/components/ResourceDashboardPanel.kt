@@ -1,11 +1,14 @@
 package me.rafaelldi.aspire.services.components
 
+import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SideBorder
 import com.intellij.ui.dsl.builder.BottomGap
 import com.intellij.ui.dsl.builder.RightGap
+import com.intellij.ui.dsl.builder.actionButton
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
@@ -59,6 +62,12 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
                 separator()
                     .gap(RightGap.SMALL)
                 copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
+                    .gap(RightGap.COLUMNS)
+            }
+
+            if (resourceData.type == ResourceType.Project) {
+                val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
+                actionButton(stopAction)
             }
         }
         separator()
