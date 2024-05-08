@@ -3,6 +3,8 @@ package me.rafaelldi.aspire.actions.dashboard
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import kotlinx.coroutines.launch
+import me.rafaelldi.aspire.AspireService
 import me.rafaelldi.aspire.generated.ResourceState
 import me.rafaelldi.aspire.generated.ResourceType
 import me.rafaelldi.aspire.sessionHost.SessionManager
@@ -21,7 +23,9 @@ class StartResourceAction : AnAction() {
             return
         }
 
-        SessionManager.getInstance(project).startResource(resourceUid)
+        AspireService.getInstance(project).scope.launch {
+            SessionManager.getInstance(project).startResource(resourceUid)
+        }
     }
 
     override fun update(event: AnActionEvent) {
@@ -52,5 +56,5 @@ class StartResourceAction : AnAction() {
         event.presentation.isEnabledAndVisible = true
     }
 
-    override fun getActionUpdateThread() = ActionUpdateThread.BGT
+    override fun getActionUpdateThread() = ActionUpdateThread.EDT
 }

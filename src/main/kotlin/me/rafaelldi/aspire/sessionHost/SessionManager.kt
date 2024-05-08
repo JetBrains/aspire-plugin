@@ -30,7 +30,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         private val LOG = logger<SessionManager>()
     }
 
-    private val sessions = mutableMapOf<String, SequentialLifetimes>()
+    private val sessions = mutableMapOf<String, Session>()
     private val resourceToSessionMap = mutableMapOf<String, String>()
 
     private val commands = MutableSharedFlow<LaunchSessionCommand>(
@@ -92,29 +92,47 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
     fun isResourceRunning(resourceId: String): Boolean {
         val sessionId = resourceToSessionMap[resourceId] ?: return false
-        val sessionLifetimes = sessions[sessionId] ?: return false
-        return !sessionLifetimes.isTerminated
+        val session = sessions[sessionId] ?: return false
+        return !session.lifetimes.isTerminated
     }
 
     fun isResourceStopped(resourceId: String): Boolean {
         val sessionId = resourceToSessionMap[resourceId] ?: return false
-        val sessionLifetimes = sessions[sessionId] ?: return false
-        return sessionLifetimes.isTerminated
+        val session = sessions[sessionId] ?: return false
+        return session.lifetimes.isTerminated
     }
 
-    fun startResource(resourceId: String) {
+    suspend fun startResource(resourceId: String) {
         val sessionId = resourceToSessionMap[resourceId] ?: return
+        val session = sessions[sessionId] ?: return
+        if (!session.lifetimes.isTerminated) return
+        launchSession(session, false)
     }
 
-    fun debugResource(resourceId: String) {
+    suspend fun debugResource(resourceId: String) {
         val sessionId = resourceToSessionMap[resourceId] ?: return
+        val session = sessions[sessionId] ?: return
+        if (!session.lifetimes.isTerminated) return
+        launchSession(session, true)
+    }
+
+    private suspend fun launchSession(session: Session, debuggingMode: Boolean) {
+        val launcher = SessionLauncher.getInstance(project)
+        launcher.launchSession(
+            session.id,
+            session.model,
+            session.lifetimes.next(),
+            session.events,
+            debuggingMode,
+            session.openTelemetryProtocolServerPort
+        )
     }
 
     fun stopResource(resourceId: String) {
         val sessionId = resourceToSessionMap[resourceId] ?: return
-        val sessionLifetimes = sessions[sessionId] ?: return
-        if (sessionLifetimes.isTerminated) return
-        sessionLifetimes.terminateCurrent()
+        val session = sessions[sessionId] ?: return
+        if (session.lifetimes.isTerminated) return
+        session.lifetimes.terminateCurrent()
     }
 
     private suspend fun handleCommand(command: LaunchSessionCommand) {
@@ -127,21 +145,25 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     private suspend fun handleCreateCommand(command: CreateSessionCommand) {
         LOG.trace("Creating session ${command.sessionId}, ${command.sessionModel}")
 
-        val lifetimes = SequentialLifetimes(command.sessionHostLifetime)
-        val lifetime = lifetimes.next()
-
-        sessions[command.sessionId] = lifetimes
+        val session = Session(
+            command.sessionId,
+            command.sessionModel,
+            SequentialLifetimes(command.sessionHostLifetime),
+            command.sessionEvents,
+            command.aspireHostConfig.openTelemetryProtocolServerPort
+        )
+        sessions[command.sessionId] = session
 
         saveConnectionToResource(command)
 
         val launcher = SessionLauncher.getInstance(project)
         launcher.launchSession(
-            command.sessionId,
-            command.sessionModel,
-            lifetime,
-            command.sessionEvents,
+            session.id,
+            session.model,
+            session.lifetimes.next(),
+            session.events,
             command.aspireHostConfig.debuggingMode,
-            command.aspireHostConfig.openTelemetryProtocolServerPort
+            session.openTelemetryProtocolServerPort
         )
     }
 
@@ -153,19 +175,27 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val idValue = serviceInstanceId.removePrefix("service.instance.id=")
         if (idValue.isEmpty()) return
 
-        resourceToSessionMap.put(idValue, command.sessionId)
+        resourceToSessionMap[idValue] = command.sessionId
     }
 
     private fun handleDeleteCommand(command: DeleteSessionCommand) {
         LOG.trace("Deleting session ${command.sessionId}")
 
         resourceToSessionMap.removeIf { it.value == command.sessionId }
-        val lifetimes = sessions.remove(command.sessionId) ?: return
+        val session = sessions.remove(command.sessionId) ?: return
 
         application.invokeLater {
-            lifetimes.terminateCurrent()
+            session.lifetimes.terminateCurrent()
         }
     }
+
+    data class Session(
+        val id: String,
+        val model: SessionModel,
+        val lifetimes: SequentialLifetimes,
+        val events: MutableSharedFlow<SessionEvent>,
+        val openTelemetryProtocolServerPort: Int
+    )
 
     interface LaunchSessionCommand
 

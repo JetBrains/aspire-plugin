@@ -52,5 +52,5 @@ class StopResourceAction : AnAction() {
         event.presentation.isEnabledAndVisible = true
     }
 
-    override fun getActionUpdateThread() = ActionUpdateThread.BGT
+    override fun getActionUpdateThread() = ActionUpdateThread.EDT
 }
