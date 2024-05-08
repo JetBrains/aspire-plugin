@@ -65,12 +65,10 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
                     .gap(RightGap.COLUMNS)
             }
 
-            val startAction = ActionManager.getInstance().getAction("Aspire.Resource.Start")
-            actionButton(startAction)
-            val debugAction = ActionManager.getInstance().getAction("Aspire.Resource.Debug")
-            actionButton(debugAction)
-            val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
-            actionButton(stopAction)
+            if (resourceData.type == ResourceType.Project) {
+                val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
+                actionButton(stopAction)
+            }
         }
         separator()
 
