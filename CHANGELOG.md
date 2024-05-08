@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Support for .NET Aspire preview 7
+
 ## [0.6.1] - 2024-04-30
 
 ### Added
