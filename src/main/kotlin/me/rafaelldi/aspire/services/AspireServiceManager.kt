@@ -18,7 +18,7 @@ import me.rafaelldi.aspire.generated.ResourceState
 import me.rafaelldi.aspire.generated.ResourceType
 import me.rafaelldi.aspire.generated.ResourceWrapper
 import me.rafaelldi.aspire.run.AspireHostConfiguration
-import me.rafaelldi.aspire.run.AspireHostProjectConfig
+import me.rafaelldi.aspire.run.AspireHostConfig
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
@@ -101,7 +101,7 @@ class AspireServiceManager(private val project: Project) {
     }
 
     suspend fun startAspireHostService(
-        aspireHostConfig: AspireHostProjectConfig,
+        aspireHostConfig: AspireHostConfig,
         sessionHostModel: AspireSessionHostModel
     ) {
         val hostPathString = aspireHostConfig.aspireHostProjectPath.absolutePathString()

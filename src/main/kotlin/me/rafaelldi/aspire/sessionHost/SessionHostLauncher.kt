@@ -17,7 +17,7 @@ import com.intellij.openapi.util.Key
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
-import me.rafaelldi.aspire.run.AspireHostProjectConfig
+import me.rafaelldi.aspire.run.AspireHostConfig
 import me.rafaelldi.aspire.settings.AspireSettings
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
 import java.nio.charset.StandardCharsets
@@ -47,7 +47,7 @@ class SessionHostLauncher(private val project: Project) {
     }
 
     fun launchSessionHost(
-        aspireHostConfig: AspireHostProjectConfig,
+        aspireHostConfig: AspireHostConfig,
         sessionHostRdPort: Int,
         aspireHostLifetime: LifetimeDefinition
     ) {
@@ -90,7 +90,7 @@ class SessionHostLauncher(private val project: Project) {
 
     private fun getCommandLine(
         dotnet: DotNetCoreRuntime,
-        aspireHostConfig: AspireHostProjectConfig,
+        aspireHostConfig: AspireHostConfig,
         rdPort: Int
     ): GeneralCommandLine {
         val settings = AspireSettings.getInstance()

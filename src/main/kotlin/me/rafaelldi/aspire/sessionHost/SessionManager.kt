@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.AspireSessionHostModel
 import me.rafaelldi.aspire.generated.SessionCreationResult
 import me.rafaelldi.aspire.generated.SessionModel
-import me.rafaelldi.aspire.run.AspireHostProjectConfig
+import me.rafaelldi.aspire.run.AspireHostConfig
 import java.util.*
 
 @Service(Service.Level.PROJECT)
@@ -45,7 +45,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     }
 
     suspend fun addSessionHost(
-        aspireHostConfig: AspireHostProjectConfig,
+        aspireHostConfig: AspireHostConfig,
         sessionHostModel: AspireSessionHostModel,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         sessionHostLifetime: Lifetime
@@ -66,7 +66,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     private suspend fun createSession(
         sessionModel: SessionModel,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        aspireHostConfig: AspireHostProjectConfig,
+        aspireHostConfig: AspireHostConfig,
         sessionHostLifetime: Lifetime
     ): SessionCreationResult {
         val sessionId = UUID.randomUUID().toString()
@@ -90,11 +90,24 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         return true
     }
 
-
-    fun hasResource(resourceId: String): Boolean {
+    fun isResourceRunning(resourceId: String): Boolean {
         val sessionId = resourceToSessionMap[resourceId] ?: return false
         val sessionLifetimes = sessions[sessionId] ?: return false
         return !sessionLifetimes.isTerminated
+    }
+
+    fun isResourceStopped(resourceId: String): Boolean {
+        val sessionId = resourceToSessionMap[resourceId] ?: return false
+        val sessionLifetimes = sessions[sessionId] ?: return false
+        return sessionLifetimes.isTerminated
+    }
+
+    fun startResource(resourceId: String) {
+        val sessionId = resourceToSessionMap[resourceId] ?: return
+    }
+
+    fun debugResource(resourceId: String) {
+        val sessionId = resourceToSessionMap[resourceId] ?: return
     }
 
     fun stopResource(resourceId: String) {
@@ -160,7 +173,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val sessionId: String,
         val sessionModel: SessionModel,
         val sessionEvents: MutableSharedFlow<SessionEvent>,
-        val aspireHostConfig: AspireHostProjectConfig,
+        val aspireHostConfig: AspireHostConfig,
         val sessionHostLifetime: Lifetime
     ) : LaunchSessionCommand
 

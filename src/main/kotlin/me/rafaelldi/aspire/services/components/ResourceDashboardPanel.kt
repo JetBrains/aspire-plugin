@@ -8,6 +8,7 @@ import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SideBorder
 import com.intellij.ui.dsl.builder.BottomGap
 import com.intellij.ui.dsl.builder.RightGap
+import com.intellij.ui.dsl.builder.actionButton
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
@@ -64,10 +65,12 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
                     .gap(RightGap.COLUMNS)
             }
 
+            val startAction = ActionManager.getInstance().getAction("Aspire.Resource.Start")
+            actionButton(startAction)
+            val debugAction = ActionManager.getInstance().getAction("Aspire.Resource.Debug")
+            actionButton(debugAction)
             val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
-            button(AspireBundle.message("service.tab.dashboard.stop.resource"), stopAction)
-                .applyToComponent { icon = AllIcons.Actions.Suspend }
-                .gap(RightGap.SMALL)
+            actionButton(stopAction)
         }
         separator()
 

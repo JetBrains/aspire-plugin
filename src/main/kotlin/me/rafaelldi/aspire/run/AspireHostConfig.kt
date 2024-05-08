@@ -3,7 +3,7 @@ package me.rafaelldi.aspire.run
 import com.jetbrains.rd.util.lifetime.Lifetime
 import java.nio.file.Path
 
-data class AspireHostProjectConfig(
+data class AspireHostConfig(
     val debugSessionToken: String,
     val debugSessionPort: Int,
     val aspireHostProjectPath: Path,
