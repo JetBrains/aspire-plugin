@@ -194,7 +194,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val model: SessionModel,
         val lifetimes: SequentialLifetimes,
         val events: MutableSharedFlow<SessionEvent>,
-        val openTelemetryProtocolServerPort: Int
+        val openTelemetryProtocolServerPort: Int?
     )
 
     interface LaunchSessionCommand

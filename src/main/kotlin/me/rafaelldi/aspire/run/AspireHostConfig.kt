@@ -12,6 +12,6 @@ data class AspireHostConfig(
     val resourceServiceEndpointUrl: String?,
     val resourceServiceApiKey: String?,
     val openTelemetryProtocolEndpointUrl: String?,
-    val openTelemetryProtocolServerPort: Int,
+    val openTelemetryProtocolServerPort: Int?,
     val aspireHostLifetime: Lifetime
 )
