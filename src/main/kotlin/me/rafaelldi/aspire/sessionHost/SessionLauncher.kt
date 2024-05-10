@@ -14,18 +14,26 @@ import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rd.util.put
+import com.jetbrains.rd.util.reactive.hasTrueValue
 import com.jetbrains.rd.util.threading.coroutines.nextTrueValueAsync
 import com.jetbrains.rdclient.protocol.RdDispatcher
+import com.jetbrains.rider.RiderEnvironment
 import com.jetbrains.rider.RiderEnvironment.createRunCmdForLauncherInfo
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.RiderDebuggerWorkerModelManager
 import com.jetbrains.rider.debugger.createAndStartSession
+import com.jetbrains.rider.debugger.editAndContinue.DotNetRunHotReloadProcess
+import com.jetbrains.rider.debugger.editAndContinue.hotReloadManager
 import com.jetbrains.rider.debugger.targets.DEBUGGER_WORKER_LAUNCHER
+import com.jetbrains.rider.hotReload.HotReloadHost
+import com.jetbrains.rider.model.HotReloadSupportedInfo
 import com.jetbrains.rider.model.debuggerWorker.*
 import com.jetbrains.rider.model.debuggerWorkerConnectionHelperModel
+import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.*
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
@@ -38,6 +46,8 @@ import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
 import org.jetbrains.annotations.Nls
+import java.nio.file.Path
+import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.nameWithoutExtension
 
@@ -47,6 +57,13 @@ class SessionLauncher(private val project: Project) {
         fun getInstance(project: Project) = project.service<SessionLauncher>()
 
         private val LOG = logger<SessionLauncher>()
+
+        private const val DOTNET_MODIFIABLE_ASSEMBLIES = "DOTNET_MODIFIABLE_ASSEMBLIES"
+        private const val DOTNET_HOTRELOAD_NAMEDPIPE_NAME = "DOTNET_HOTRELOAD_NAMEDPIPE_NAME"
+        private const val DOTNET_STARTUP_HOOKS = "DOTNET_STARTUP_HOOKS"
+        private const val OTEL_EXPORTER_OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
+
+        private fun getOtlpEndpoint(port: Int) = "http://localhost:$port"
     }
 
     suspend fun launchSession(
@@ -55,7 +72,7 @@ class SessionLauncher(private val project: Project) {
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         debuggingMode: Boolean,
-        openTelemetryPort: Int
+        openTelemetryPort: Int?
     ) {
         LOG.info("Starting a session for the project ${sessionModel.projectPath}")
 
@@ -65,7 +82,7 @@ class SessionLauncher(private val project: Project) {
         }
 
         val factory = SessionExecutableFactory.getInstance(project)
-        val executable = factory.createExecutable(sessionModel, openTelemetryPort)
+        val executable = factory.createExecutable(sessionModel)
         if (executable == null) {
             LOG.warn("Unable to create executable for $sessionId (project: ${sessionModel.projectPath})")
             return
@@ -84,37 +101,51 @@ class SessionLauncher(private val project: Project) {
             return
         }
 
+        val sessionProjectPath = Path(sessionModel.projectPath)
         if (debuggingMode || sessionModel.debug) {
             launchDebugSession(
                 sessionId,
-                Path(sessionModel.projectPath).nameWithoutExtension,
+                sessionProjectPath.nameWithoutExtension,
                 executable,
                 runtime,
+                openTelemetryPort,
                 sessionLifetime,
                 sessionEvents
             )
         } else {
             launchRunSession(
                 sessionId,
+                sessionProjectPath,
                 executable,
                 runtime,
+                sessionModel.launchProfile,
+                openTelemetryPort,
                 sessionLifetime,
                 sessionEvents
             )
         }
     }
 
-    private fun launchRunSession(
+    private suspend fun launchRunSession(
         sessionId: String,
+        sessionProjectPath: Path,
         executable: DotNetExecutable,
         runtime: DotNetCoreRuntime,
+        launchProfile: String?,
+        openTelemetryPort: Int?,
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
         LOG.trace("Starting the session in the run mode")
-        val commandLine = executable.createRunCommandLine(runtime)
+
+        val executableToRun =
+            modifyExecutableToRun(executable, sessionProjectPath, launchProfile, openTelemetryPort, sessionLifetime)
+
+        val commandLine = executableToRun.createRunCommandLine(runtime)
         val handler = KillableProcessHandler(commandLine)
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
+
+        addHotReloadListener(handler, sessionLifetime, commandLine.environment)
 
         sessionLifetime.onTermination {
             if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
@@ -126,25 +157,100 @@ class SessionLauncher(private val project: Project) {
         handler.startNotify()
     }
 
+    private suspend fun modifyExecutableToRun(
+        executable: DotNetExecutable,
+        sessionProjectPath: Path,
+        launchProfile: String?,
+        openTelemetryPort: Int?,
+        lifetime: Lifetime
+    ): DotNetExecutable {
+        val envs = executable.environmentVariables.toMutableMap()
+
+        val isHotReloadAvailable = isHotReloadAvailable(executable, sessionProjectPath, launchProfile, lifetime)
+        if (isHotReloadAvailable) {
+            val pipeName = UUID.randomUUID().toString()
+            envs[DOTNET_MODIFIABLE_ASSEMBLIES] = "debug"
+            envs[DOTNET_HOTRELOAD_NAMEDPIPE_NAME] = pipeName
+            val deltaApplierPath =
+                RiderEnvironment.getBundledFile("JetBrains.Microsoft.Extensions.DotNetDeltaApplier.dll").absolutePath
+            envs[DOTNET_STARTUP_HOOKS] = deltaApplierPath
+        }
+
+        val isOpenTelemetryAvailable = openTelemetryPort != null
+        if (isOpenTelemetryAvailable) {
+            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = getOtlpEndpoint(requireNotNull(openTelemetryPort))
+        }
+
+        return if (isHotReloadAvailable || isOpenTelemetryAvailable) {
+            executable.copy(environmentVariables = envs)
+        } else {
+            executable
+        }
+    }
+
+    private suspend fun isHotReloadAvailable(
+        executable: DotNetExecutable,
+        sessionProjectPath: Path,
+        launchProfile: String?,
+        lifetime: Lifetime
+    ): Boolean {
+        if (executable.projectTfm == null) return false
+
+        val hotReloadHost = HotReloadHost.getInstance(project)
+        if (!hotReloadHost.runtimeHotReloadEnabled.hasTrueValue) return false
+
+        val runnableProject =
+            project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) ?: return false
+
+        if (launchProfile != null) {
+            val launchSettings = LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
+            if (launchSettings != null) {
+                val profile = launchSettings.profiles?.get(launchProfile)
+                if (profile?.hotReloadEnabled == false) return false
+            }
+        }
+
+        val info = HotReloadSupportedInfo(runnableProject.name, requireNotNull(executable.projectTfm).presentableName)
+        return withContext(Dispatchers.EDT) {
+            hotReloadHost.checkProjectConfigRuntimeHotReload(lifetime, info)
+        }
+    }
+
+    private fun addHotReloadListener(handler: KillableProcessHandler, lifetime: Lifetime, envs: Map<String, String>) {
+        val pipeName = envs[DOTNET_HOTRELOAD_NAMEDPIPE_NAME]
+        if (pipeName.isNullOrEmpty()) return
+
+        handler.addProcessListener(object : ProcessAdapter() {
+            override fun startNotified(event: ProcessEvent) {
+                val runSession = DotNetRunHotReloadProcess(lifetime, pipeName)
+                project.hotReloadManager.addProcess(runSession)
+            }
+        })
+    }
+
     private suspend fun launchDebugSession(
         sessionId: String,
         @Nls sessionName: String,
         executable: DotNetExecutable,
         runtime: DotNetCoreRuntime,
+        openTelemetryPort: Int?,
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
         LOG.trace("Starting the session in the debug mode")
+
+        val executableToDebug = modifyExecutableToDebug(executable, openTelemetryPort)
+
         val startInfo = DotNetCoreExeStartInfo(
             DotNetCoreInfo(runtime.cliExePath),
-            executable.projectTfm?.let { EncInfo(it) },
-            executable.exePath,
-            executable.workingDirectory,
-            executable.programParameterString,
-            executable.environmentVariables.toModelMap,
-            executable.runtimeArguments,
-            executable.executeAsIs,
-            executable.useExternalConsole
+            executableToDebug.projectTfm?.let { EncInfo(it) },
+            executableToDebug.exePath,
+            executableToDebug.workingDirectory,
+            executableToDebug.programParameterString,
+            executableToDebug.environmentVariables.toModelMap,
+            executableToDebug.runtimeArguments,
+            executableToDebug.executeAsIs,
+            executableToDebug.useExternalConsole
         )
 
         withContext(Dispatchers.EDT) {
@@ -155,6 +261,24 @@ class SessionLauncher(private val project: Project) {
                 sessionEvents,
                 sessionLifetime
             )
+        }
+    }
+
+    private suspend fun modifyExecutableToDebug(
+        executable: DotNetExecutable,
+        openTelemetryPort: Int?
+    ): DotNetExecutable {
+        val envs = executable.environmentVariables.toMutableMap()
+
+        val isOpenTelemetryAvailable = openTelemetryPort != null
+        if (isOpenTelemetryAvailable) {
+            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = getOtlpEndpoint(requireNotNull(openTelemetryPort))
+        }
+
+        return if (isOpenTelemetryAvailable) {
+            executable.copy(environmentVariables = envs)
+        } else {
+            executable
         }
     }
 

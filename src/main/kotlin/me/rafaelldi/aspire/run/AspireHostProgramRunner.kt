@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import me.rafaelldi.aspire.services.AspireServiceManager
 import me.rafaelldi.aspire.sessionHost.SessionHostManager
+import me.rafaelldi.aspire.settings.AspireSettings
 import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
 import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
@@ -65,7 +66,9 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         val resourceServiceApiKey = environmentVariables[DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY]
 
         val openTelemetryProtocolEndpointUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
-        val openTelemetryProtocolServerPort = NetUtils.findFreePort(57100)
+        val openTelemetryProtocolServerPort =
+            if (AspireSettings.getInstance().collectTelemetry) NetUtils.findFreePort(57100)
+            else null
 
         val debuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
