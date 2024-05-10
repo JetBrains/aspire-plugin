@@ -8,7 +8,6 @@ import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
 import me.rafaelldi.aspire.generated.SessionModel
@@ -27,12 +26,8 @@ class SessionExecutableFactory(private val project: Project) {
     }
 
     suspend fun createExecutable(sessionModel: SessionModel, openTelemetryPort: Int): DotNetExecutable? {
-        val runnableProjects = project.solution.runnableProjectsModel.projects.valueOrNull
         val sessionProjectPath = Path(sessionModel.projectPath)
-        val sessionProjectPathString = sessionProjectPath.systemIndependentPath
-        val runnableProject = runnableProjects?.singleOrNull {
-            it.projectFilePath == sessionProjectPathString && it.kind == RunnableProjectKinds.DotNetCore
-        }
+        val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
 
         return if (runnableProject != null) {
             getExecutableForRunnableProject(runnableProject, sessionModel, openTelemetryPort)
