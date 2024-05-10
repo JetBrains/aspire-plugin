@@ -14,13 +14,18 @@ import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rd.util.put
+import com.jetbrains.rd.util.reactive.hasTrueValue
 import com.jetbrains.rd.util.threading.coroutines.nextTrueValueAsync
 import com.jetbrains.rdclient.protocol.RdDispatcher
+import com.jetbrains.rider.RiderEnvironment
 import com.jetbrains.rider.RiderEnvironment.createRunCmdForLauncherInfo
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.RiderDebuggerWorkerModelManager
 import com.jetbrains.rider.debugger.createAndStartSession
+import com.jetbrains.rider.debugger.editAndContinue.DotNetRunHotReloadProcess
+import com.jetbrains.rider.debugger.editAndContinue.hotReloadManager
 import com.jetbrains.rider.debugger.targets.DEBUGGER_WORKER_LAUNCHER
+import com.jetbrains.rider.hotReload.HotReloadHost
 import com.jetbrains.rider.model.debuggerWorker.*
 import com.jetbrains.rider.model.debuggerWorkerConnectionHelperModel
 import com.jetbrains.rider.projectView.solution
@@ -38,6 +43,7 @@ import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
 import org.jetbrains.annotations.Nls
+import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.nameWithoutExtension
 
@@ -112,9 +118,33 @@ class SessionLauncher(private val project: Project) {
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
         LOG.trace("Starting the session in the run mode")
-        val commandLine = executable.createRunCommandLine(runtime)
+
+        val hotReloadHost = HotReloadHost.getInstance(project)
+        val pipeName = UUID.randomUUID().toString()
+        val isHotReloadAvailable = hotReloadHost.runtimeHotReloadEnabled.hasTrueValue
+        val resultExecutable = if (isHotReloadAvailable) {
+            val envs = executable.environmentVariables.toMutableMap()
+            envs["DOTNET_MODIFIABLE_ASSEMBLIES"] = "debug"
+            envs["DOTNET_HOTRELOAD_NAMEDPIPE_NAME"] = pipeName
+            val deltaApplierPath = RiderEnvironment.getBundledFile("JetBrains.Microsoft.Extensions.DotNetDeltaApplier.dll").absolutePath
+            envs["DOTNET_STARTUP_HOOKS"] = deltaApplierPath
+            executable.copy(environmentVariables = envs)
+        } else {
+            executable
+        }
+
+        val commandLine = resultExecutable.createRunCommandLine(runtime)
         val handler = KillableProcessHandler(commandLine)
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
+
+        handler.addProcessListener(object : ProcessAdapter() {
+            override fun startNotified(event: ProcessEvent) {
+                if (isHotReloadAvailable) {
+                    val runSession = DotNetRunHotReloadProcess(sessionLifetime, pipeName)
+                    project.hotReloadManager.addProcess(runSession)
+                }
+            }
+        })
 
         sessionLifetime.onTermination {
             if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
