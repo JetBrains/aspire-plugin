@@ -1,6 +1,5 @@
 package me.rafaelldi.aspire.services.components
 
-import com.intellij.icons.AllIcons
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.ui.DialogPanel

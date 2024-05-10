@@ -7,6 +7,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
@@ -67,11 +68,11 @@ class SessionHostManager(private val project: Project, private val scope: Corout
         )
 
         scope.launch(Dispatchers.EDT) {
-            sessionHostModel.createSession.set { model ->
+            sessionHostModel.createSession.setSuspend { _, model ->
                 createSession(model, sessionEvents, aspireHostConfig, sessionHostLifetime)
             }
 
-            sessionHostModel.deleteSession.set { sessionId ->
+            sessionHostModel.deleteSession.setSuspend { _, sessionId ->
                 deleteSession(sessionId)
             }
 
@@ -98,7 +99,7 @@ class SessionHostManager(private val project: Project, private val scope: Corout
         }
     }
 
-    private fun createSession(
+    private suspend fun createSession(
         sessionModel: SessionModel,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         aspireHostConfig: AspireHostConfig,
@@ -114,15 +115,15 @@ class SessionHostManager(private val project: Project, private val scope: Corout
             SequentialLifetimes(sessionHostLifetime)
         )
 
-        SessionManager.getInstance(project).commands.tryEmit(command)
+        SessionManager.getInstance(project).submitCommand(command)
 
         return SessionCreationResult(sessionId)
     }
 
-    private fun deleteSession(sessionId: String): Boolean {
+    private suspend fun deleteSession(sessionId: String): Boolean {
         val command = DeleteSessionCommand(sessionId)
 
-        SessionManager.getInstance(project).commands.tryEmit(command)
+        SessionManager.getInstance(project).submitCommand(command)
 
         return true
     }

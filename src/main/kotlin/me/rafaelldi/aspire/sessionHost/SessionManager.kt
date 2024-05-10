@@ -1,6 +1,7 @@
 package me.rafaelldi.aspire.sessionHost
 
 import com.intellij.database.util.common.removeIf
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -8,9 +9,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.run.AspireHostConfig
 
@@ -25,9 +28,10 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     private val sessions = mutableMapOf<String, Session>()
     private val resourceToSessionMap = mutableMapOf<String, String>()
 
-    val commands = MutableSharedFlow<LaunchSessionCommand>(
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-        extraBufferCapacity = 100
+    private val commands = MutableSharedFlow<LaunchSessionCommand>(
+        onBufferOverflow = BufferOverflow.SUSPEND,
+        extraBufferCapacity = 100,
+        replay = 100
     )
 
     init {
@@ -90,49 +94,23 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         }
     }
 
+    suspend fun submitCommand(command: LaunchSessionCommand) {
+        commands.emit(command)
+    }
+
     fun isResourceRunning(resourceId: String): Boolean {
         val sessionId = resourceToSessionMap[resourceId] ?: return false
         val session = sessions[sessionId] ?: return false
         return !session.lifetimes.isTerminated
     }
 
-    fun isResourceStopped(resourceId: String): Boolean {
-        val sessionId = resourceToSessionMap[resourceId] ?: return false
-        val session = sessions[sessionId] ?: return false
-        return session.lifetimes.isTerminated
-    }
-
-    suspend fun startResource(resourceId: String) {
-        val sessionId = resourceToSessionMap[resourceId] ?: return
-        val session = sessions[sessionId] ?: return
-        if (!session.lifetimes.isTerminated) return
-        launchSession(session, false)
-    }
-
-    suspend fun debugResource(resourceId: String) {
-        val sessionId = resourceToSessionMap[resourceId] ?: return
-        val session = sessions[sessionId] ?: return
-        if (!session.lifetimes.isTerminated) return
-        launchSession(session, true)
-    }
-
-    private suspend fun launchSession(session: Session, debuggingMode: Boolean) {
-        val launcher = SessionLauncher.getInstance(project)
-        launcher.launchSession(
-            session.id,
-            session.model,
-            session.lifetimes.next(),
-            session.events,
-            debuggingMode,
-            session.openTelemetryProtocolServerPort
-        )
-    }
-
-    fun stopResource(resourceId: String) {
+    suspend fun stopResource(resourceId: String) {
         val sessionId = resourceToSessionMap[resourceId] ?: return
         val session = sessions[sessionId] ?: return
         if (session.lifetimes.isTerminated) return
-        session.lifetimes.terminateCurrent()
+        withContext(Dispatchers.EDT) {
+            session.lifetimes.terminateCurrent()
+        }
     }
 
     data class Session(

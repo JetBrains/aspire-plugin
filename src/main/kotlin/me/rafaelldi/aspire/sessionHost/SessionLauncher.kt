@@ -375,7 +375,7 @@ class SessionLauncher(private val project: Project) {
         processLifetimeDef.lifetime.onTermination {
             if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
                 LOG.trace("Killing session process handler (id: $sessionId)")
-                debuggerWorkerProcessHandler.killProcess()
+                debuggerWorkerProcessHandler.destroyProcess()
             }
         }
 
@@ -405,7 +405,7 @@ class SessionLauncher(private val project: Project) {
         frontendToDebuggerPort: Int,
         backendToDebuggerPort: Int,
         workerModel: DebuggerWorkerModel,
-        sessionLifetime: Lifetime,
+        processLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ): DebuggerWorkerProcessHandler {
         val launcher = DEBUGGER_WORKER_LAUNCHER.getLauncher()
@@ -422,7 +422,7 @@ class SessionLauncher(private val project: Project) {
             workerModel,
             false,
             commandLine.commandLineString,
-            sessionLifetime
+            processLifetime
         )
 
         subscribeToSessionEvents(
