@@ -1,5 +1,3 @@
-@file:OptIn(DelicateCoroutinesApi::class)
-
 package me.rafaelldi.aspire.sessionHost
 
 import com.intellij.openapi.application.EDT
@@ -9,24 +7,17 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import me.rafaelldi.aspire.generated.AspireSessionHostModel
-import me.rafaelldi.aspire.generated.LogReceived
-import me.rafaelldi.aspire.generated.ProcessStarted
-import me.rafaelldi.aspire.generated.ProcessTerminated
-import me.rafaelldi.aspire.generated.SessionCreationResult
-import me.rafaelldi.aspire.generated.SessionModel
+import me.rafaelldi.aspire.generated.*
 import me.rafaelldi.aspire.run.AspireHostConfig
 import me.rafaelldi.aspire.sessionHost.SessionManager.CreateSessionCommand
 import me.rafaelldi.aspire.sessionHost.SessionManager.DeleteSessionCommand
-import java.util.UUID
+import java.util.*
 
 @Service(Service.Level.PROJECT)
 class SessionHostManager(private val project: Project, private val scope: CoroutineScope) {
@@ -112,7 +103,7 @@ class SessionHostManager(private val project: Project, private val scope: Corout
             sessionModel,
             sessionEvents,
             aspireHostConfig,
-            SequentialLifetimes(sessionHostLifetime)
+            sessionHostLifetime.createNested()
         )
 
         SessionManager.getInstance(project).submitCommand(command)

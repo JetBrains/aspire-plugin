@@ -65,6 +65,10 @@ class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLay
             }
 
             if (resourceData.type == ResourceType.Project) {
+                val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
+                actionButton(restartAction)
+                val restartDebugAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart.Debug")
+                actionButton(restartDebugAction)
                 val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
                 actionButton(stopAction)
             }

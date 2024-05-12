@@ -10,7 +10,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.util.application
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
@@ -139,36 +138,35 @@ class SessionLauncher(private val project: Project) {
     ) {
         LOG.trace("Starting the session in the run mode")
 
-        val processLifetimeDef = sessionLifetime.createNested()
         val executableToRun = modifyExecutableToRun(
             executable,
             sessionProjectPath,
             launchProfile,
             openTelemetryPort,
-            processLifetimeDef.lifetime
+            sessionLifetime
         )
 
         val commandLine = executableToRun.createRunCommandLine(runtime)
         val handler = KillableProcessHandler(commandLine)
 
-        handler.addProcessListener(object : ProcessAdapter() {
-            override fun processTerminated(event: ProcessEvent) {
-                application.invokeLater {
-                    processLifetimeDef.executeIfAlive {
-                        processLifetimeDef.terminate(true)
-                    }
-                }
-            }
-        })
+//        handler.addProcessListener(object : ProcessAdapter() {
+//            override fun processTerminated(event: ProcessEvent) {
+//                application.invokeLater {
+//                    processLifetimeDef.executeIfAlive {
+//                        processLifetimeDef.terminate(true)
+//                    }
+//                }
+//            }
+//        })
 
-        processLifetimeDef.lifetime.onTermination {
+        sessionLifetime.onTermination {
             if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
                 LOG.trace("Killing session process handler (id: $sessionId)")
                 handler.killProcess()
             }
         }
 
-        addHotReloadListener(handler, processLifetimeDef.lifetime, commandLine.environment)
+        addHotReloadListener(handler, sessionLifetime, commandLine.environment)
 
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
 
@@ -282,7 +280,7 @@ class SessionLauncher(private val project: Project) {
         }
     }
 
-    private suspend fun modifyExecutableToDebug(
+    private fun modifyExecutableToDebug(
         executable: DotNetExecutable,
         openTelemetryPort: Int?
     ): DotNetExecutable {
@@ -305,24 +303,22 @@ class SessionLauncher(private val project: Project) {
         @Nls sessionName: String,
         startInfo: DebuggerStartInfoBase,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        lifetime: Lifetime
+        sessionLifetime: Lifetime
     ) {
-        val processLifetimeDef = lifetime.createNested()
-
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
         val frontendToDebuggerPort = NetUtils.findFreePort(57200)
         val backendToDebuggerPort = NetUtils.findFreePort(57300)
 
-        val dispatcher = RdDispatcher(processLifetimeDef)
+        val dispatcher = RdDispatcher(sessionLifetime)
         val wire = SocketWire.Server(
-            processLifetimeDef,
+            sessionLifetime,
             dispatcher,
             port = frontendToDebuggerPort,
             optId = "FrontendToDebugWorker"
         )
 
         val sessionModel = DotNetDebuggerSessionModel(startInfo)
-        sessionModel.sessionProperties.bindToSettings(processLifetimeDef, project).apply {
+        sessionModel.sessionProperties.bindToSettings(sessionLifetime, project).apply {
             debugKind.set(DebugKind.Live)
             remoteDebug.set(false)
             enableHeuristicPathResolve.set(false)
@@ -335,10 +331,10 @@ class SessionLauncher(private val project: Project) {
             Identities(IdKind.Server),
             dispatcher,
             wire,
-            processLifetimeDef
+            sessionLifetime
         )
 
-        val workerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(processLifetimeDef, protocol)
+        val workerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(sessionLifetime, protocol)
         workerModel.activeSession.set(sessionModel)
 
         val debuggerWorkerProcessHandler = createDebuggerWorkerProcessHandler(
@@ -346,7 +342,7 @@ class SessionLauncher(private val project: Project) {
             frontendToDebuggerPort,
             backendToDebuggerPort,
             workerModel,
-            processLifetimeDef.lifetime,
+            sessionLifetime,
             sessionEvents
         )
         val console = createConsole(
@@ -355,24 +351,24 @@ class SessionLauncher(private val project: Project) {
             project
         )
 
-        wire.connected.nextTrueValueAsync(processLifetimeDef.lifetime).await()
+        wire.connected.nextTrueValueAsync(sessionLifetime).await()
         project.solution.debuggerWorkerConnectionHelperModel.ports.put(
-            processLifetimeDef,
+            sessionLifetime,
             debuggerSessionId,
             backendToDebuggerPort
         )
 
-        debuggerWorkerProcessHandler.addProcessListener(object : ProcessAdapter() {
-            override fun processTerminated(event: ProcessEvent) {
-                application.invokeLater {
-                    processLifetimeDef.executeIfAlive {
-                        processLifetimeDef.terminate(true)
-                    }
-                }
-            }
-        })
+//        debuggerWorkerProcessHandler.addProcessListener(object : ProcessAdapter() {
+//            override fun processTerminated(event: ProcessEvent) {
+//                application.invokeLater {
+//                    processLifetimeDef.executeIfAlive {
+//                        processLifetimeDef.terminate(true)
+//                    }
+//                }
+//            }
+//        })
 
-        processLifetimeDef.lifetime.onTermination {
+        sessionLifetime.onTermination {
             if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
                 LOG.trace("Killing session process handler (id: $sessionId)")
                 debuggerWorkerProcessHandler.destroyProcess()
@@ -383,7 +379,7 @@ class SessionLauncher(private val project: Project) {
             console,
             null,
             project,
-            processLifetimeDef.lifetime,
+            sessionLifetime,
             debuggerWorkerProcessHandler,
             protocol,
             sessionModel,
