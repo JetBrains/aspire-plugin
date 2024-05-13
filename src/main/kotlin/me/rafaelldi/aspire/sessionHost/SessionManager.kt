@@ -6,6 +6,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import kotlinx.coroutines.CoroutineScope
@@ -94,6 +95,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         withContext(Dispatchers.EDT) {
             session.lifetimeDefinition.terminate()
         }
+
+        session.events.tryEmit(SessionTerminated(command.sessionId, 0))
     }
 
     suspend fun submitCommand(command: LaunchSessionCommand) {
@@ -121,6 +124,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     }
 
     suspend fun stopResource(resourceId: String) {
+        LOG.trace("Stopping resource $resourceId")
+
         val sessionId = resourceToSessionMap.remove(resourceId) ?: return
         val session = sessions.remove(sessionId) ?: return
         if (session.lifetimeDefinition.isNotAlive) return
@@ -130,6 +135,22 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         withContext(Dispatchers.EDT) {
             session.lifetimeDefinition.terminate()
         }
+
+        session.events.tryEmit(SessionTerminated(sessionId, 0))
+    }
+
+    fun sessionProcessWasTerminated(sessionId: String, exitCode: Int, text: String?) {
+        LOG.trace("Stopping session $sessionId ($exitCode, $text)")
+
+        resourceToSessionMap.removeIf { it.value == sessionId }
+        val session = sessions.remove(sessionId) ?: return
+        if (session.lifetimeDefinition.isNotAlive) return
+
+        application.invokeLater {
+            session.lifetimeDefinition.terminate()
+        }
+
+        session.events.tryEmit(SessionTerminated(sessionId, exitCode))
     }
 
     data class Session(

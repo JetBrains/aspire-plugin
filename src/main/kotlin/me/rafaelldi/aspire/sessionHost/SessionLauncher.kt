@@ -149,15 +149,11 @@ class SessionLauncher(private val project: Project) {
         val commandLine = executableToRun.createRunCommandLine(runtime)
         val handler = KillableProcessHandler(commandLine)
 
-//        handler.addProcessListener(object : ProcessAdapter() {
-//            override fun processTerminated(event: ProcessEvent) {
-//                application.invokeLater {
-//                    processLifetimeDef.executeIfAlive {
-//                        processLifetimeDef.terminate(true)
-//                    }
-//                }
-//            }
-//        })
+        handler.addProcessListener(object : ProcessAdapter() {
+            override fun processTerminated(event: ProcessEvent) {
+                SessionManager.getInstance(project).sessionProcessWasTerminated(sessionId, event.exitCode, event.text)
+            }
+        })
 
         sessionLifetime.onTermination {
             if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
@@ -358,15 +354,11 @@ class SessionLauncher(private val project: Project) {
             backendToDebuggerPort
         )
 
-//        debuggerWorkerProcessHandler.addProcessListener(object : ProcessAdapter() {
-//            override fun processTerminated(event: ProcessEvent) {
-//                application.invokeLater {
-//                    processLifetimeDef.executeIfAlive {
-//                        processLifetimeDef.terminate(true)
-//                    }
-//                }
-//            }
-//        })
+        debuggerWorkerProcessHandler.addProcessListener(object : ProcessAdapter() {
+            override fun processTerminated(event: ProcessEvent) {
+                SessionManager.getInstance(project).sessionProcessWasTerminated(sessionId, event.exitCode, event.text)
+            }
+        })
 
         sessionLifetime.onTermination {
             if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
@@ -454,11 +446,6 @@ class SessionLauncher(private val project: Project) {
                 val text = decodeAnsiCommandsToString(event.text, outputType)
                 val isStdErr = outputType == ProcessOutputType.STDERR
                 sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
-            }
-
-            override fun processTerminated(event: ProcessEvent) {
-                LOG.trace("Aspire session process terminated (id: $sessionId)")
-                sessionEvents.tryEmit(SessionTerminated(sessionId, event.exitCode))
             }
 
             override fun processNotStarted() {
