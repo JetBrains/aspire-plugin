@@ -5,19 +5,19 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import me.rafaelldi.aspire.generated.AspireSessionHostModel
-import me.rafaelldi.aspire.generated.LogReceived
-import me.rafaelldi.aspire.generated.ProcessStarted
-import me.rafaelldi.aspire.generated.ProcessTerminated
+import me.rafaelldi.aspire.generated.*
 import me.rafaelldi.aspire.run.AspireHostConfig
+import me.rafaelldi.aspire.sessionHost.SessionManager.CreateSessionCommand
+import me.rafaelldi.aspire.sessionHost.SessionManager.DeleteSessionCommand
+import java.util.*
 
 @Service(Service.Level.PROJECT)
 class SessionHostManager(private val project: Project, private val scope: CoroutineScope) {
@@ -36,19 +36,7 @@ class SessionHostManager(private val project: Project, private val scope: Corout
 
         val sessionHostLifetime = aspireHostConfig.aspireHostLifetime.createNested()
 
-        val sessionEvents = MutableSharedFlow<SessionEvent>(
-            onBufferOverflow = BufferOverflow.DROP_OLDEST,
-            extraBufferCapacity = 100
-        )
-        subscribe(sessionHostModel, sessionEvents, sessionHostLifetime)
-
-        val sessionManager = SessionManager.getInstance(project)
-        sessionManager.addSessionHost(
-            aspireHostConfig,
-            sessionHostModel,
-            sessionEvents,
-            sessionHostLifetime
-        )
+        subscribe(aspireHostConfig, sessionHostModel, sessionHostLifetime)
 
         LOG.trace("Starting new session hosts with launcher")
         val sessionHostLauncher = SessionHostLauncher.getInstance(project)
@@ -60,13 +48,26 @@ class SessionHostManager(private val project: Project, private val scope: Corout
     }
 
     private suspend fun subscribe(
+        aspireHostConfig: AspireHostConfig,
         sessionHostModel: AspireSessionHostModel,
-        sessionEvents: SharedFlow<SessionEvent>,
-        aspireHostLifetime: Lifetime
+        sessionHostLifetime: Lifetime
     ) {
         LOG.trace("Subscribing to protocol model")
+        val sessionEvents = MutableSharedFlow<SessionEvent>(
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+            extraBufferCapacity = 100
+        )
+
         scope.launch(Dispatchers.EDT) {
-            lifetimedCoroutineScope(aspireHostLifetime) {
+            sessionHostModel.createSession.setSuspend { _, model ->
+                createSession(model, sessionEvents, aspireHostConfig, sessionHostLifetime)
+            }
+
+            sessionHostModel.deleteSession.setSuspend { _, sessionId ->
+                deleteSession(sessionId)
+            }
+
+            lifetimedCoroutineScope(sessionHostLifetime) {
                 sessionEvents.collect {
                     when (it) {
                         is SessionStarted -> {
@@ -87,5 +88,34 @@ class SessionHostManager(private val project: Project, private val scope: Corout
                 }
             }
         }
+    }
+
+    private suspend fun createSession(
+        sessionModel: SessionModel,
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        aspireHostConfig: AspireHostConfig,
+        sessionHostLifetime: Lifetime
+    ): SessionCreationResult {
+        val sessionId = UUID.randomUUID().toString()
+
+        val command = CreateSessionCommand(
+            sessionId,
+            sessionModel,
+            sessionEvents,
+            aspireHostConfig,
+            sessionHostLifetime.createNested()
+        )
+
+        SessionManager.getInstance(project).submitCommand(command)
+
+        return SessionCreationResult(sessionId)
+    }
+
+    private suspend fun deleteSession(sessionId: String): Boolean {
+        val command = DeleteSessionCommand(sessionId)
+
+        SessionManager.getInstance(project).submitCommand(command)
+
+        return true
     }
 }

@@ -12,19 +12,19 @@ import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_STATE
 import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_TYPE
 import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_UID
 
-class StartResourceAction : AnAction() {
+class RestartResourceAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val resourceUid = event.getData(ASPIRE_RESOURCE_UID) ?: return
         val resourceType = event.getData(ASPIRE_RESOURCE_TYPE) ?: return
         val resourceState = event.getData(ASPIRE_RESOURCE_STATE) ?: return
 
-        if (resourceType != ResourceType.Project || resourceState != ResourceState.Finished) {
+        if (resourceType != ResourceType.Project || resourceState != ResourceState.Running) {
             return
         }
 
         AspireService.getInstance(project).scope.launch {
-            SessionManager.getInstance(project).startResource(resourceUid)
+            SessionManager.getInstance(project).restartResource(resourceUid, false)
         }
     }
 
@@ -43,12 +43,12 @@ class StartResourceAction : AnAction() {
             return
         }
 
-        if (resourceType != ResourceType.Project || resourceState != ResourceState.Finished) {
+        if (resourceType != ResourceType.Project || resourceState != ResourceState.Running) {
             event.presentation.isEnabledAndVisible = false
             return
         }
 
-        if (!SessionManager.getInstance(project).isResourceStopped(resourceUid)) {
+        if (!SessionManager.getInstance(project).isResourceRunning(resourceUid)) {
             event.presentation.isEnabledAndVisible = false
             return
         }

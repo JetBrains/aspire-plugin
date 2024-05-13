@@ -6,7 +6,7 @@
 
 ### Added
 
-- Stop Resource action to the dashboard
+- Stop and Restart Resource actions to the dashboard
 - Hot reload while running
 
 ## [0.7.0] - 2024-05-08

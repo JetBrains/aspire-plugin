@@ -73,12 +73,12 @@
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
-        <action id="Aspire.Resource.Start"
-                class="me.rafaelldi.aspire.actions.dashboard.StartResourceAction"
-                icon="AllIcons.Actions.Execute"/>
-        <action id="Aspire.Resource.Debug"
-                class="me.rafaelldi.aspire.actions.dashboard.DebugResourceAction"
-                icon="AllIcons.Actions.StartDebugger"/>
+        <action id="Aspire.Resource.Restart"
+                class="me.rafaelldi.aspire.actions.dashboard.RestartResourceAction"
+                icon="AllIcons.Actions.Restart"/>
+        <action id="Aspire.Resource.Restart.Debug"
+                class="me.rafaelldi.aspire.actions.dashboard.RestartDebugResourceAction"
+                icon="AllIcons.Actions.RestartDebugger"/>
         <action id="Aspire.Resource.Stop"
                 class="me.rafaelldi.aspire.actions.dashboard.StopResourceAction"
                 icon="AllIcons.Actions.Suspend"/>
