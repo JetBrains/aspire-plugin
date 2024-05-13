@@ -74,7 +74,7 @@ class AspireSessionHostModel private constructor(
         private val __SessionCreationResultNullableSerializer = SessionCreationResult.nullable()
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = 7665665775754562140L
+        const val serializationHash = 8268564294824979657L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -458,7 +458,7 @@ data class ResourceLog (
         if (text != other.text) return false
         if (isError != other.isError) return false
         if (lineNumber != other.lineNumber) return false
-
+        
         return true
     }
     //hash code trait
@@ -768,25 +768,25 @@ data class ResourceProperty (
  * #### Generated from [AspireSessionHostModel.kt:68]
  */
 enum class ResourceState {
-    Finished,
-    Exited,
-    FailedToStart,
-    Starting,
-    Running,
-    Hidden,
+    Finished, 
+    Exited, 
+    FailedToStart, 
+    Starting, 
+    Running, 
+    Hidden, 
     Unknown;
-
+    
     companion object : IMarshaller<ResourceState> {
         val marshaller = FrameworkMarshallers.enum<ResourceState>()
-
-
+        
+        
         override val _type: KClass<ResourceState> = ResourceState::class
         override val id: RdId get() = RdId(-3770298982336589872)
-
+        
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceState {
             return marshaller.read(ctx, buffer)
         }
-
+        
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceState)  {
             marshaller.write(ctx, buffer, value)
         }
@@ -798,23 +798,23 @@ enum class ResourceState {
  * #### Generated from [AspireSessionHostModel.kt:77]
  */
 enum class ResourceStateStyle {
-    Success,
-    Info,
-    Warning,
-    Error,
+    Success, 
+    Info, 
+    Warning, 
+    Error, 
     Unknown;
-
+    
     companion object : IMarshaller<ResourceStateStyle> {
         val marshaller = FrameworkMarshallers.enum<ResourceStateStyle>()
-
-
+        
+        
         override val _type: KClass<ResourceStateStyle> = ResourceStateStyle::class
         override val id: RdId get() = RdId(-15935776453165119)
-
+        
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceStateStyle {
             return marshaller.read(ctx, buffer)
         }
-
+        
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceStateStyle)  {
             marshaller.write(ctx, buffer, value)
         }
@@ -826,22 +826,22 @@ enum class ResourceStateStyle {
  * #### Generated from [AspireSessionHostModel.kt:60]
  */
 enum class ResourceType {
-    Project,
-    Container,
-    Executable,
+    Project, 
+    Container, 
+    Executable, 
     Unknown;
-
+    
     companion object : IMarshaller<ResourceType> {
         val marshaller = FrameworkMarshallers.enum<ResourceType>()
-
-
+        
+        
         override val _type: KClass<ResourceType> = ResourceType::class
         override val id: RdId get() = RdId(-1311735068701761509)
-
+        
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceType {
             return marshaller.read(ctx, buffer)
         }
-
+        
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceType)  {
             marshaller.write(ctx, buffer, value)
         }
@@ -1021,22 +1021,22 @@ data class SessionCreationResult (
     val sessionId: String
 ) : IPrintable {
     //companion
-
+    
     companion object : IMarshaller<SessionCreationResult> {
         override val _type: KClass<SessionCreationResult> = SessionCreationResult::class
         override val id: RdId get() = RdId(-5594530824153105985)
-
+        
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionCreationResult  {
             val sessionId = buffer.readString()
             return SessionCreationResult(sessionId)
         }
-
+        
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionCreationResult)  {
             buffer.writeString(value.sessionId)
         }
-
-
+        
+        
     }
     //fields
     //methods
@@ -1046,11 +1046,11 @@ data class SessionCreationResult (
     override fun equals(other: Any?): Boolean  {
         if (this === other) return true
         if (other == null || other::class != this::class) return false
-
+        
         other as SessionCreationResult
-
+        
         if (sessionId != other.sessionId) return false
-
+        
         return true
     }
     //hash code trait

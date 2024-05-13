@@ -114,7 +114,7 @@ namespace AspireSessionHost.Generated
     public static  CtxWriteDelegate<SessionCreationResult> WriteSessionCreationResultNullable = SessionCreationResult.Write.NullableClass();
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => 7665665775754562140L;
+    protected override long SerializationHash => 8268564294824979657L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -553,7 +553,7 @@ namespace AspireSessionHost.Generated
     [NotNull] public string Text {get; private set;}
     public bool IsError {get; private set;}
     public int LineNumber {get; private set;}
-
+    
     //private fields
     //primary constructor
     public ResourceLog(
@@ -1068,8 +1068,8 @@ namespace AspireSessionHost.Generated
     Hidden,
     Unknown
   }
-
-
+  
+  
   /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:77</p>
   /// </summary>
@@ -1080,8 +1080,8 @@ namespace AspireSessionHost.Generated
     Error,
     Unknown
   }
-
-
+  
+  
   /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:60</p>
   /// </summary>
@@ -1091,8 +1091,8 @@ namespace AspireSessionHost.Generated
     Executable,
     Unknown
   }
-
-
+  
+  
   /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:101</p>
   /// </summary>
@@ -1114,7 +1114,7 @@ namespace AspireSessionHost.Generated
     {
       if (name == null) throw new ArgumentNullException("name");
       if (fullUrl == null) throw new ArgumentNullException("fullUrl");
-
+      
       Name = name;
       FullUrl = fullUrl;
       IsInternal = isInternal;
@@ -1129,7 +1129,7 @@ namespace AspireSessionHost.Generated
     }
     //statics
     
-    public static CtxReadDelegate<ResourceUrl> Read = (ctx, reader) =>
+    public static CtxReadDelegate<ResourceUrl> Read = (ctx, reader) => 
     {
       var name = reader.ReadString();
       var fullUrl = reader.ReadString();
@@ -1138,7 +1138,7 @@ namespace AspireSessionHost.Generated
       return _result;
     };
     
-    public static CtxWriteDelegate<ResourceUrl> Write = (ctx, writer, value) =>
+    public static CtxWriteDelegate<ResourceUrl> Write = (ctx, writer, value) => 
     {
       writer.Write(value.Name);
       writer.Write(value.FullUrl);
@@ -1194,7 +1194,7 @@ namespace AspireSessionHost.Generated
     }
   }
   
-
+  
   /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:51</p>
   /// </summary>
@@ -1295,8 +1295,8 @@ namespace AspireSessionHost.Generated
       return printer.ToString();
     }
   }
-
-
+  
+  
   /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:47</p>
   /// </summary>
@@ -1305,7 +1305,7 @@ namespace AspireSessionHost.Generated
     //fields
     //public fields
     [NotNull] public string SessionId {get; private set;}
-
+    
     //private fields
     //primary constructor
     public SessionCreationResult(
@@ -1313,7 +1313,7 @@ namespace AspireSessionHost.Generated
     )
     {
       if (sessionId == null) throw new ArgumentNullException("sessionId");
-
+      
       SessionId = sessionId;
     }
     //secondary constructor
@@ -1323,21 +1323,21 @@ namespace AspireSessionHost.Generated
       sessionId = SessionId;
     }
     //statics
-
-    public static CtxReadDelegate<SessionCreationResult> Read = (ctx, reader) =>
+    
+    public static CtxReadDelegate<SessionCreationResult> Read = (ctx, reader) => 
     {
       var sessionId = reader.ReadString();
       var _result = new SessionCreationResult(sessionId);
       return _result;
     };
-
-    public static CtxWriteDelegate<SessionCreationResult> Write = (ctx, writer, value) =>
+    
+    public static CtxWriteDelegate<SessionCreationResult> Write = (ctx, writer, value) => 
     {
       writer.Write(value.SessionId);
     };
-
+    
     //constants
-
+    
     //custom body
     //methods
     //equals trait
@@ -1380,7 +1380,7 @@ namespace AspireSessionHost.Generated
       return printer.ToString();
     }
   }
-
+  
   
   /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:33</p>
