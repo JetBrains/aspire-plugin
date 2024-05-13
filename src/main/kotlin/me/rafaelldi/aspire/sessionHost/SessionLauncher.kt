@@ -69,14 +69,14 @@ class SessionLauncher(private val project: Project) {
     suspend fun launchSession(
         sessionId: String,
         sessionModel: SessionModel,
-        sessionLifetime: Lifetime,
+        processLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         debuggingMode: Boolean,
         openTelemetryPort: Int?
     ) {
         LOG.info("Starting a session for the project ${sessionModel.projectPath}")
 
-        if (sessionLifetime.isNotAlive) {
+        if (processLifetime.isNotAlive) {
             LOG.warn("Unable to run project ${sessionModel.projectPath} because lifetimes are not alive")
             return
         }
@@ -109,7 +109,7 @@ class SessionLauncher(private val project: Project) {
                 executable,
                 runtime,
                 openTelemetryPort,
-                sessionLifetime,
+                processLifetime,
                 sessionEvents
             )
         } else {
@@ -120,7 +120,7 @@ class SessionLauncher(private val project: Project) {
                 runtime,
                 sessionModel.launchProfile,
                 openTelemetryPort,
-                sessionLifetime,
+                processLifetime,
                 sessionEvents
             )
         }
@@ -133,7 +133,7 @@ class SessionLauncher(private val project: Project) {
         runtime: DotNetCoreRuntime,
         launchProfile: String?,
         openTelemetryPort: Int?,
-        sessionLifetime: Lifetime,
+        processLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
         LOG.trace("Starting the session in the run mode")
@@ -143,7 +143,7 @@ class SessionLauncher(private val project: Project) {
             sessionProjectPath,
             launchProfile,
             openTelemetryPort,
-            sessionLifetime
+            processLifetime
         )
 
         val commandLine = executableToRun.createRunCommandLine(runtime)
@@ -155,14 +155,14 @@ class SessionLauncher(private val project: Project) {
             }
         })
 
-        sessionLifetime.onTermination {
+        processLifetime.onTermination {
             if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
                 LOG.trace("Killing session process handler (id: $sessionId)")
                 handler.killProcess()
             }
         }
 
-        addHotReloadListener(handler, sessionLifetime, commandLine.environment)
+        addHotReloadListener(handler, processLifetime, commandLine.environment)
 
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
 
@@ -246,7 +246,7 @@ class SessionLauncher(private val project: Project) {
         executable: DotNetExecutable,
         runtime: DotNetCoreRuntime,
         openTelemetryPort: Int?,
-        sessionLifetime: Lifetime,
+        processLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
         LOG.trace("Starting the session in the debug mode")
@@ -271,7 +271,7 @@ class SessionLauncher(private val project: Project) {
                 sessionName,
                 startInfo,
                 sessionEvents,
-                sessionLifetime
+                processLifetime
             )
         }
     }
@@ -299,22 +299,22 @@ class SessionLauncher(private val project: Project) {
         @Nls sessionName: String,
         startInfo: DebuggerStartInfoBase,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        sessionLifetime: Lifetime
+        processLifetime: Lifetime
     ) {
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
         val frontendToDebuggerPort = NetUtils.findFreePort(57200)
         val backendToDebuggerPort = NetUtils.findFreePort(57300)
 
-        val dispatcher = RdDispatcher(sessionLifetime)
+        val dispatcher = RdDispatcher(processLifetime)
         val wire = SocketWire.Server(
-            sessionLifetime,
+            processLifetime,
             dispatcher,
             port = frontendToDebuggerPort,
             optId = "FrontendToDebugWorker"
         )
 
         val sessionModel = DotNetDebuggerSessionModel(startInfo)
-        sessionModel.sessionProperties.bindToSettings(sessionLifetime, project).apply {
+        sessionModel.sessionProperties.bindToSettings(processLifetime, project).apply {
             debugKind.set(DebugKind.Live)
             remoteDebug.set(false)
             enableHeuristicPathResolve.set(false)
@@ -327,10 +327,10 @@ class SessionLauncher(private val project: Project) {
             Identities(IdKind.Server),
             dispatcher,
             wire,
-            sessionLifetime
+            processLifetime
         )
 
-        val workerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(sessionLifetime, protocol)
+        val workerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(processLifetime, protocol)
         workerModel.activeSession.set(sessionModel)
 
         val debuggerWorkerProcessHandler = createDebuggerWorkerProcessHandler(
@@ -338,7 +338,7 @@ class SessionLauncher(private val project: Project) {
             frontendToDebuggerPort,
             backendToDebuggerPort,
             workerModel,
-            sessionLifetime,
+            processLifetime,
             sessionEvents
         )
         val console = createConsole(
@@ -347,9 +347,9 @@ class SessionLauncher(private val project: Project) {
             project
         )
 
-        wire.connected.nextTrueValueAsync(sessionLifetime).await()
+        wire.connected.nextTrueValueAsync(processLifetime).await()
         project.solution.debuggerWorkerConnectionHelperModel.ports.put(
-            sessionLifetime,
+            processLifetime,
             debuggerSessionId,
             backendToDebuggerPort
         )
@@ -360,7 +360,7 @@ class SessionLauncher(private val project: Project) {
             }
         })
 
-        sessionLifetime.onTermination {
+        processLifetime.onTermination {
             if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
                 LOG.trace("Killing session process handler (id: $sessionId)")
                 debuggerWorkerProcessHandler.destroyProcess()
@@ -371,7 +371,7 @@ class SessionLauncher(private val project: Project) {
             console,
             null,
             project,
-            sessionLifetime,
+            processLifetime,
             debuggerWorkerProcessHandler,
             protocol,
             sessionModel,
