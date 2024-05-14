@@ -3,7 +3,9 @@ package me.rafaelldi.aspire.actions.dashboard
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.platform.ide.progress.withBackgroundProgress
 import kotlinx.coroutines.launch
+import me.rafaelldi.aspire.AspireBundle
 import me.rafaelldi.aspire.AspireService
 import me.rafaelldi.aspire.generated.ResourceState
 import me.rafaelldi.aspire.generated.ResourceType
@@ -24,7 +26,9 @@ class RestartDebugResourceAction : AnAction() {
         }
 
         AspireService.getInstance(project).scope.launch {
-            SessionManager.getInstance(project).restartResource(resourceUid, true)
+            withBackgroundProgress(project, AspireBundle.message("progress.restart.resource")) {
+                SessionManager.getInstance(project).restartResource(resourceUid, true)
+            }
         }
     }
 
