@@ -4,11 +4,13 @@ import com.intellij.execution.ExecutionResult
 import com.intellij.execution.RunManagerListener
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.services.ServiceEventListener
+import com.intellij.execution.services.ServiceViewManager
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import com.intellij.util.application
 import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.Dispatchers
@@ -110,6 +112,12 @@ class AspireServiceManager(private val project: Project) {
         val aspireHostServiceLifetime = aspireHostConfig.aspireHostLifetime.createNested()
 
         val hostService = hostServices[hostPathString] ?: return
+
+        val serviceViewManager = ServiceViewManager.getInstance(project)
+        withContext(Dispatchers.EDT) {
+            serviceViewManager.select(hostService, AspireServiceContributor::class.java, true, true)
+        }
+
         aspireHostServiceLifetime.bracketIfAlive({
             hostService.startHost(
                 aspireHostConfig.aspireHostProjectUrl,
@@ -150,6 +158,12 @@ class AspireServiceManager(private val project: Project) {
 
         val resourceService = AspireResourceService(resource, resourceLifetime, hostService, project)
         resourcesByHost.addUnique(resourceLifetime, resourceId, resourceService)
+
+        val serviceViewManager = ServiceViewManager.getInstance(project)
+        application.invokeLater {
+            serviceViewManager.expand(hostService, AspireServiceContributor::class.java)
+        }
+
         resource.isInitialized.set(true)
 
         resourceLifetime.bracketIfAlive({

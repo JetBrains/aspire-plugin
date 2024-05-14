@@ -13,8 +13,6 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.rd.util.lifetime
 import com.intellij.openapi.rd.util.startOnUiAsync
-import com.intellij.openapi.wm.ToolWindowId
-import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.util.application
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -28,11 +26,7 @@ import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import me.rafaelldi.aspire.services.AspireServiceManager
 import me.rafaelldi.aspire.sessionHost.SessionHostManager
 import me.rafaelldi.aspire.settings.AspireSettings
-import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
-import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
-import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
-import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
-import me.rafaelldi.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
+import me.rafaelldi.aspire.util.*
 import org.jetbrains.concurrency.Promise
 import org.jetbrains.concurrency.asPromise
 import kotlin.io.path.Path
@@ -95,10 +89,6 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
         LOG.trace("Aspire session host config: $config")
 
         val sessionHostPromise = aspireHostLifetime.startOnUiAsync {
-            val serviceToolWindow =
-                ToolWindowManager.getInstance(environment.project).getToolWindow(ToolWindowId.SERVICES)
-            serviceToolWindow?.activate {}
-
             val protocol = startProtocol(aspireHostLifetime)
             val sessionHostModel = protocol.aspireSessionHostModel
 
