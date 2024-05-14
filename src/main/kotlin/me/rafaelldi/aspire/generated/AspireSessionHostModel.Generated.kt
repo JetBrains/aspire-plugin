@@ -74,7 +74,7 @@ class AspireSessionHostModel private constructor(
         private val __SessionCreationResultNullableSerializer = SessionCreationResult.nullable()
         private val __TraceNodeArraySerializer = TraceNode.array()
         
-        const val serializationHash = 7665665775754562140L
+        const val serializationHash = 8268564294824979657L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -1144,7 +1144,7 @@ data class SessionEnvironmentVariable (
 data class SessionModel (
     val projectPath: String,
     val debug: Boolean,
-    val launchProfile: String?,
+    val launchProfile: Array<String>?,
     val disableLaunchProfile: Boolean,
     val args: Array<String>?,
     val envs: Array<SessionEnvironmentVariable>?
@@ -1159,7 +1159,7 @@ data class SessionModel (
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionModel  {
             val projectPath = buffer.readString()
             val debug = buffer.readBool()
-            val launchProfile = buffer.readNullable { buffer.readString() }
+            val launchProfile = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val disableLaunchProfile = buffer.readBool()
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val envs = buffer.readNullable { buffer.readArray {SessionEnvironmentVariable.read(ctx, buffer)} }
@@ -1169,7 +1169,7 @@ data class SessionModel (
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionModel)  {
             buffer.writeString(value.projectPath)
             buffer.writeBool(value.debug)
-            buffer.writeNullable(value.launchProfile) { buffer.writeString(it) }
+            buffer.writeNullable(value.launchProfile) { buffer.writeArray(it) { buffer.writeString(it) } }
             buffer.writeBool(value.disableLaunchProfile)
             buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
             buffer.writeNullable(value.envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
@@ -1202,7 +1202,7 @@ data class SessionModel (
         var __r = 0
         __r = __r*31 + projectPath.hashCode()
         __r = __r*31 + debug.hashCode()
-        __r = __r*31 + if (launchProfile != null) launchProfile.hashCode() else 0
+        __r = __r*31 + if (launchProfile != null) launchProfile.contentDeepHashCode() else 0
         __r = __r*31 + disableLaunchProfile.hashCode()
         __r = __r*31 + if (args != null) args.contentDeepHashCode() else 0
         __r = __r*31 + if (envs != null) envs.contentDeepHashCode() else 0

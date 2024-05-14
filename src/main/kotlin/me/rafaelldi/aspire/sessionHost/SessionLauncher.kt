@@ -118,7 +118,7 @@ class SessionLauncher(private val project: Project) {
                 sessionProjectPath,
                 executable,
                 runtime,
-                sessionModel.launchProfile,
+                sessionModel.launchProfile?.firstOrNull(),
                 openTelemetryPort,
                 processLifetime,
                 sessionEvents
