@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using AspireSessionHost.Generated;
+﻿using AspireSessionHost.Generated;
 
 // ReSharper disable ReplaceAsyncWithTaskReturn
 
