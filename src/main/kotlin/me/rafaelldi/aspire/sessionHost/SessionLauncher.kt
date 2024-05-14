@@ -147,7 +147,7 @@ class SessionLauncher(private val project: Project) {
         )
 
         val commandLine = executableToRun.createRunCommandLine(runtime)
-        val handler = KillableProcessHandler(commandLine)
+        val handler = TerminalProcessHandler(project, commandLine, commandLine.commandLineString)
 
         handler.addProcessListener(object : ProcessAdapter() {
             override fun processTerminated(event: ProcessEvent) {
