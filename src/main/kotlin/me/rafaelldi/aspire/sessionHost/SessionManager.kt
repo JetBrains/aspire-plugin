@@ -10,6 +10,9 @@ import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.lifetime.isNotAlive
+import com.jetbrains.rider.build.BuildParameters
+import com.jetbrains.rider.build.tasks.BuildTaskThrottler
+import com.jetbrains.rider.model.BuildTarget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -129,6 +132,14 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val processLifetime = withContext(Dispatchers.EDT) {
             session.processLifetimes.next()
         }
+
+        val buildParameters = BuildParameters(
+            BuildTarget(),
+            listOf(session.model.projectPath),
+            silentMode = true
+        )
+        BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
+
         launcher.launchSession(
             session.id,
             session.model,
