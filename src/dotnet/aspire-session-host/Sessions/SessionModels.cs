@@ -9,7 +9,11 @@ internal sealed record Info(
 
 [UsedImplicitly]
 internal sealed record Session(
-    LaunchConfiguration[] LaunchConfigurations,
+    LaunchConfiguration[]? LaunchConfigurations,
+    string? ProjectPath,
+    bool? Debug,
+    string? LaunchProfile,
+    bool? DisableLaunchProfile,
     EnvironmentVariable[]? Env,
     string[]? Args
 );
