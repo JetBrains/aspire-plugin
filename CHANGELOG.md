@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Support for .NET Aspire 8.0.1
+
 ## [0.7.1] - 2024-05-14
 
 ### Added
