@@ -114,7 +114,7 @@ namespace AspireSessionHost.Generated
     public static  CtxWriteDelegate<SessionCreationResult> WriteSessionCreationResultNullable = SessionCreationResult.Write.NullableClass();
     public static  CtxWriteDelegate<TraceNode[]> WriteTraceNodeArray = TraceNode.Write.Array();
     
-    protected override long SerializationHash => 8268564294824979657L;
+    protected override long SerializationHash => 7665665775754562140L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -1485,7 +1485,7 @@ namespace AspireSessionHost.Generated
     //public fields
     [NotNull] public string ProjectPath {get; private set;}
     public bool Debug {get; private set;}
-    [CanBeNull] public string[] LaunchProfile {get; private set;}
+    [CanBeNull] public string LaunchProfile {get; private set;}
     public bool DisableLaunchProfile {get; private set;}
     [CanBeNull] public string[] Args {get; private set;}
     [CanBeNull] public SessionEnvironmentVariable[] Envs {get; private set;}
@@ -1495,7 +1495,7 @@ namespace AspireSessionHost.Generated
     public SessionModel(
       [NotNull] string projectPath,
       bool debug,
-      [CanBeNull] string[] launchProfile,
+      [CanBeNull] string launchProfile,
       bool disableLaunchProfile,
       [CanBeNull] string[] args,
       [CanBeNull] SessionEnvironmentVariable[] envs
@@ -1512,7 +1512,7 @@ namespace AspireSessionHost.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string projectPath, out bool debug, [CanBeNull] out string[] launchProfile, out bool disableLaunchProfile, [CanBeNull] out string[] args, [CanBeNull] out SessionEnvironmentVariable[] envs)
+    public void Deconstruct([NotNull] out string projectPath, out bool debug, [CanBeNull] out string launchProfile, out bool disableLaunchProfile, [CanBeNull] out string[] args, [CanBeNull] out SessionEnvironmentVariable[] envs)
     {
       projectPath = ProjectPath;
       debug = Debug;
@@ -1527,13 +1527,14 @@ namespace AspireSessionHost.Generated
     {
       var projectPath = reader.ReadString();
       var debug = reader.ReadBool();
-      var launchProfile = ReadStringArrayNullable(ctx, reader);
+      var launchProfile = ReadStringNullable(ctx, reader);
       var disableLaunchProfile = reader.ReadBool();
       var args = ReadStringArrayNullable(ctx, reader);
       var envs = ReadSessionEnvironmentVariableArrayNullable(ctx, reader);
       var _result = new SessionModel(projectPath, debug, launchProfile, disableLaunchProfile, args, envs);
       return _result;
     };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
     public static CtxReadDelegate<string[]> ReadStringArrayNullable = JetBrains.Rd.Impl.Serializers.ReadString.Array().NullableClass();
     public static CtxReadDelegate<SessionEnvironmentVariable[]> ReadSessionEnvironmentVariableArrayNullable = SessionEnvironmentVariable.Read.Array().NullableClass();
     
@@ -1541,11 +1542,12 @@ namespace AspireSessionHost.Generated
     {
       writer.Write(value.ProjectPath);
       writer.Write(value.Debug);
-      WriteStringArrayNullable(ctx, writer, value.LaunchProfile);
+      WriteStringNullable(ctx, writer, value.LaunchProfile);
       writer.Write(value.DisableLaunchProfile);
       WriteStringArrayNullable(ctx, writer, value.Args);
       WriteSessionEnvironmentVariableArrayNullable(ctx, writer, value.Envs);
     };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
     public static  CtxWriteDelegate<string[]> WriteStringArrayNullable = JetBrains.Rd.Impl.Serializers.WriteString.Array().NullableClass();
     public static  CtxWriteDelegate<SessionEnvironmentVariable[]> WriteSessionEnvironmentVariableArrayNullable = SessionEnvironmentVariable.Write.Array().NullableClass();
     
@@ -1574,7 +1576,7 @@ namespace AspireSessionHost.Generated
         var hash = 0;
         hash = hash * 31 + ProjectPath.GetHashCode();
         hash = hash * 31 + Debug.GetHashCode();
-        hash = hash * 31 + (LaunchProfile != null ? LaunchProfile.ContentHashCode() : 0);
+        hash = hash * 31 + (LaunchProfile != null ? LaunchProfile.GetHashCode() : 0);
         hash = hash * 31 + DisableLaunchProfile.GetHashCode();
         hash = hash * 31 + (Args != null ? Args.ContentHashCode() : 0);
         hash = hash * 31 + (Envs != null ? Envs.ContentHashCode() : 0);
