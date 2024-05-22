@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace AspireSessionHost.Sessions;
 
@@ -9,11 +10,7 @@ internal sealed record Info(
 
 [UsedImplicitly]
 internal sealed record Session(
-    LaunchConfiguration[]? LaunchConfigurations,
-    string? ProjectPath,
-    bool? Debug,
-    string? LaunchProfile,
-    bool? DisableLaunchProfile,
+    LaunchConfiguration[] LaunchConfigurations,
     EnvironmentVariable[]? Env,
     string[]? Args
 );
@@ -23,10 +20,11 @@ internal sealed record LaunchConfiguration(
     string Type,
     string ProjectPath,
     Mode? Mode,
-    string[]? LaunchProfile,
+    string? LaunchProfile,
     bool? DisableLaunchProfile
 );
 
+[JsonConverter(typeof(JsonStringEnumConverter<Mode>))]
 internal enum Mode
 {
     Debug,

@@ -6,102 +6,56 @@ namespace AspireSessionHost.Sessions;
 
 internal sealed class SessionService(Connection connection, ILogger<SessionService> logger)
 {
-    internal async Task<SessionCreationResult?> Create(Session session)
+    private readonly ErrorResponse _multipleProjectLaunchConfigurations = new(new ErrorDetail(
+        "BadRequest",
+        "Only a single launch configuration instance, of type project, can be used as part of a run session request."
+    ));
+
+    private readonly ErrorResponse _projectNotFound = new(new ErrorDetail(
+        "NotFound",
+        "A project file is not found."
+    ));
+
+    internal async Task<(SessionCreationResult?, ErrorResponse?)> Create(Session session)
     {
+        var launchConfiguration = session.LaunchConfigurations.SingleOrDefault(it =>
+            string.Equals(it.Type, "project", StringComparison.InvariantCultureIgnoreCase)
+        );
+        if (launchConfiguration == null)
+        {
+            return (null, _multipleProjectLaunchConfigurations);
+        }
+
+        if (!File.Exists(launchConfiguration.ProjectPath))
+        {
+            return (null, _projectNotFound);
+        }
+
         var envs = session.Env
             ?.Where(it => it.Value is not null)
             ?.Select(it => new SessionEnvironmentVariable(it.Name, it.Value!))
             ?.ToArray();
 
-        SessionModel? sessionModel;
-        if (session.ProjectPath != null)
-        {
-            sessionModel = CreateFromProject(
-                session.ProjectPath,
-                session.Debug,
-                session.LaunchProfile,
-                session.DisableLaunchProfile,
-                envs,
-                session.Args
-            );
-        }
-        else if (session.LaunchConfigurations != null)
-        {
-            if (session.LaunchConfigurations.Length != 1) return null;
-            var launchConfig = session.LaunchConfigurations.Single();
-            sessionModel = CreateFromLaunchConfiguration(
-                launchConfig,
-                envs,
-                session.Args
-            );
-        }
-        else
-        {
-            return null;
-        }
-
-        if (sessionModel is null)
-        {
-            return null;
-        }
-
-        logger.LogInformation("Starting a new session {session}", sessionModel);
-
-        return await connection.DoWithModel(model => model.CreateSession.Sync(sessionModel));
-    }
-
-    private SessionModel? CreateFromProject(
-        string projectPath,
-        bool? debug,
-        string? launchProfile,
-        bool? disableLaunchProfile,
-        SessionEnvironmentVariable[]? envs,
-        string[]? args)
-    {
-        if (!File.Exists(projectPath))
-        {
-            return null;
-        }
-
-        return new SessionModel(
-            projectPath,
-            debug ?? false,
-            launchProfile is not null ? [launchProfile] : [],
-            disableLaunchProfile ?? false,
-            args,
-            envs
-        );
-    }
-
-    private SessionModel? CreateFromLaunchConfiguration(
-        LaunchConfiguration launchConfiguration,
-        SessionEnvironmentVariable[]? envs,
-        string[]? args)
-    {
-        if (!File.Exists(launchConfiguration.ProjectPath))
-        {
-            return null;
-        }
-
-        if (!string.Equals(launchConfiguration.Type, "project", StringComparison.InvariantCultureIgnoreCase))
-        {
-            return null;
-        }
-
-        return new SessionModel(
+        var sessionModel = new SessionModel(
             launchConfiguration.ProjectPath,
             launchConfiguration.Mode == Mode.Debug,
             launchConfiguration.LaunchProfile,
             launchConfiguration.DisableLaunchProfile == true,
-            args,
+            session.Args,
             envs
         );
+
+        logger.LogInformation("Starting a new session {session}", sessionModel);
+
+        var result = await connection.DoWithModel(model => model.CreateSession.Sync(sessionModel));
+        return (result, null);
     }
 
     internal async Task<bool> Delete(string id)
     {
-        logger.LogInformation("Deleting the new session {sessionId}", id);
+        logger.LogInformation("Deleting the session {sessionId}", id);
 
-        return await connection.DoWithModel(model => model.DeleteSession.Sync(id));
+        var result = await connection.DoWithModel(model => model.DeleteSession.Sync(id));
+        return result;
     }
 }

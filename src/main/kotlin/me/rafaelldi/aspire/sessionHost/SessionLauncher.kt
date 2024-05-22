@@ -5,6 +5,7 @@ package me.rafaelldi.aspire.sessionHost
 import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -118,7 +119,7 @@ class SessionLauncher(private val project: Project) {
                 sessionProjectPath,
                 executable,
                 runtime,
-                sessionModel.launchProfile?.firstOrNull(),
+                sessionModel.launchProfile,
                 openTelemetryPort,
                 processLifetime,
                 sessionEvents
@@ -214,8 +215,10 @@ class SessionLauncher(private val project: Project) {
         val runnableProject =
             project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) ?: return false
 
-        if (launchProfile != null) {
-            val launchSettings = LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
+        if (!launchProfile.isNullOrEmpty()) {
+            val launchSettings = readAction {
+                LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
+            }
             if (launchSettings != null) {
                 val profile = launchSettings.profiles?.get(launchProfile)
                 if (profile?.hotReloadEnabled == false) return false
