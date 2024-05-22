@@ -19,7 +19,6 @@ import com.jetbrains.rd.util.reactive.hasTrueValue
 import com.jetbrains.rd.util.threading.coroutines.nextTrueValueAsync
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.RiderEnvironment
-import com.jetbrains.rider.RiderEnvironment.createRunCmdForLauncherInfo
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.RiderDebuggerWorkerModelManager
 import com.jetbrains.rider.debugger.createAndStartSession
@@ -35,6 +34,7 @@ import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.*
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
+import com.jetbrains.rider.run.environment.ExecutableType
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
@@ -267,11 +267,13 @@ class SessionLauncher(private val project: Project) {
             executableToDebug.executeAsIs,
             executableToDebug.useExternalConsole
         )
+        val presentableCommandLine = createPresentableCommandLine(executable)
 
         withContext(Dispatchers.EDT) {
             createAndStartDebugSession(
                 sessionId,
                 sessionName,
+                presentableCommandLine,
                 startInfo,
                 sessionEvents,
                 processLifetime
@@ -300,6 +302,7 @@ class SessionLauncher(private val project: Project) {
     private suspend fun createAndStartDebugSession(
         sessionId: String,
         @Nls sessionName: String,
+        presentableCommandLine: String,
         startInfo: DebuggerStartInfoBase,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         processLifetime: Lifetime
@@ -338,6 +341,7 @@ class SessionLauncher(private val project: Project) {
 
         val debuggerWorkerProcessHandler = createDebuggerWorkerProcessHandler(
             sessionId,
+            presentableCommandLine,
             frontendToDebuggerPort,
             backendToDebuggerPort,
             workerModel,
@@ -391,8 +395,14 @@ class SessionLauncher(private val project: Project) {
         }
     }
 
+    private fun createPresentableCommandLine(executable: DotNetExecutable): String {
+        return if (executable.programParameterString.isEmpty()) executable.exePath
+        else "${executable.exePath} ${executable.programParameterString}"
+    }
+
     private fun createDebuggerWorkerProcessHandler(
         sessionId: String,
+        presentableCommandLine: String,
         frontendToDebuggerPort: Int,
         backendToDebuggerPort: Int,
         workerModel: DebuggerWorkerModel,
@@ -400,19 +410,23 @@ class SessionLauncher(private val project: Project) {
         sessionEvents: MutableSharedFlow<SessionEvent>
     ): DebuggerWorkerProcessHandler {
         val launcher = DEBUGGER_WORKER_LAUNCHER.getLauncher()
-        val commandLine = createRunCmdForLauncherInfo(
+        val launcherCmd = DebugProfileStateBase.createWorkerCmdForLauncherInfo(
+            ConsoleKind.Normal,
+            frontendToDebuggerPort,
             launcher,
-            "--mode=client",
-            "--frontend-port=${frontendToDebuggerPort}",
+            ExecutableType.Console,
+            true,
+            false,
             "--backend-port=${backendToDebuggerPort}"
         )
-        val handler = TerminalProcessHandler(project, commandLine, commandLine.commandLineString, false)
+
+        val handler = TerminalProcessHandler(project, launcherCmd, presentableCommandLine, false)
 
         val debuggerWorkerProcessHandler = DebuggerWorkerProcessHandler(
             handler,
             workerModel,
             false,
-            commandLine.commandLineString,
+            "",
             processLifetime
         )
 
