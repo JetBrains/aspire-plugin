@@ -8,6 +8,10 @@
 
 - Support for .NET Aspire 8.0.1
 
+### Fixed
+
+- [#140](https://github.com/rafaelldi/aspire-plugin/issues/140): Console output is incorrectly formatted when debugging code
+
 ## [0.7.1] - 2024-05-14
 
 ### Added
