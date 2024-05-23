@@ -267,7 +267,7 @@ class SessionLauncher(private val project: Project) {
             executableToDebug.executeAsIs,
             executableToDebug.useExternalConsole
         )
-        val presentableCommandLine = createPresentableCommandLine(executable)
+        val presentableCommandLine = createPresentableCommandLine(runtime, executable)
 
         withContext(Dispatchers.EDT) {
             createAndStartDebugSession(
@@ -395,9 +395,21 @@ class SessionLauncher(private val project: Project) {
         }
     }
 
-    private fun createPresentableCommandLine(executable: DotNetExecutable): String {
-        return if (executable.programParameterString.isEmpty()) executable.exePath
-        else "${executable.exePath} ${executable.programParameterString}"
+    private fun createPresentableCommandLine(runtime: DotNetCoreRuntime, executable: DotNetExecutable): String {
+        val sb = StringBuilder()
+        if (executable.executeAsIs) {
+            sb.append(executable.exePath)
+        } else {
+            sb.append(runtime.cliExePath)
+            sb.append(" ")
+            sb.append(executable.exePath)
+        }
+        if (executable.programParameterString.isNotEmpty()) {
+            sb.append(" ")
+            sb.append(executable.programParameterString)
+        }
+
+        return sb.toString()
     }
 
     private fun createDebuggerWorkerProcessHandler(
