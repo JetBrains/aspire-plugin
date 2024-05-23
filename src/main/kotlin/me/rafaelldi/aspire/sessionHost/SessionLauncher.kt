@@ -395,21 +395,18 @@ class SessionLauncher(private val project: Project) {
         }
     }
 
-    private fun createPresentableCommandLine(runtime: DotNetCoreRuntime, executable: DotNetExecutable): String {
-        val sb = StringBuilder()
+    private fun createPresentableCommandLine(runtime: DotNetCoreRuntime, executable: DotNetExecutable) = buildString {
         if (executable.executeAsIs) {
-            sb.append(executable.exePath)
+            append(executable.exePath)
         } else {
-            sb.append(runtime.cliExePath)
-            sb.append(" ")
-            sb.append(executable.exePath)
+            append(runtime.cliExePath)
+            append(" ")
+            append(executable.exePath)
         }
         if (executable.programParameterString.isNotEmpty()) {
-            sb.append(" ")
-            sb.append(executable.programParameterString)
+            append(" ")
+            append(executable.programParameterString)
         }
-
-        return sb.toString()
     }
 
     private fun createDebuggerWorkerProcessHandler(

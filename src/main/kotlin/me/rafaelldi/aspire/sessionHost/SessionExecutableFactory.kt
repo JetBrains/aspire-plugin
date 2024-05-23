@@ -1,5 +1,6 @@
 package me.rafaelldi.aspire.sessionHost
 
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -8,8 +9,11 @@ import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
+import me.rafaelldi.aspire.generated.SessionEnvironmentVariable
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.util.MSBuildPropertyService
 import java.nio.file.Path
@@ -32,23 +36,22 @@ class SessionExecutableFactory(private val project: Project) {
         }
     }
 
-    private fun getExecutableForRunnableProject(
+    private suspend fun getExecutableForRunnableProject(
         runnableProject: RunnableProject,
         sessionModel: SessionModel
     ): DotNetExecutable? {
         val output = runnableProject.projectOutputs.firstOrNull() ?: return null
+        val launchProfile = sessionModel.launchProfile?.let { getLaunchProfile(it, runnableProject) }
         val executablePath = output.exePath
-        val arguments =
-            if (sessionModel.args?.isNotEmpty() == true) sessionModel.args.toList()
-            else output.defaultArguments
-        val params = ParametersListUtil.join(arguments)
-        val envs = sessionModel.envs?.associate { it.key to it.value } ?: mapOf()
+        val workingDirectory = output.workingDirectory
+        val arguments = mergeArguments(sessionModel.args, output.defaultArguments, launchProfile?.commandLineArgs)
+        val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
 
         return DotNetExecutable(
             executablePath,
             output.tfm,
-            output.workingDirectory,
-            params,
+            workingDirectory,
+            arguments,
             false,
             false,
             envs,
@@ -61,24 +64,36 @@ class SessionExecutableFactory(private val project: Project) {
         )
     }
 
+    private suspend fun getLaunchProfile(
+        launchProfile: String,
+        runnableProject: RunnableProject
+    ): LaunchSettingsJson.Profile? {
+        if (launchProfile.isEmpty()) return null
+
+        val launchSettings = readAction {
+            LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
+        } ?: return null
+
+        return launchSettings.profiles?.get(launchProfile)
+    }
+
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
         sessionModel: SessionModel
     ): DotNetExecutable? {
         val propertyService = MSBuildPropertyService.getInstance(project)
         val properties = propertyService.getProjectRunProperties(sessionProjectPath) ?: return null
+        val launchProfile = sessionModel.launchProfile?.let { getLaunchProfile(it, sessionProjectPath) }
         val executablePath = properties.executablePath.systemIndependentPath
-        val arguments =
-            if (sessionModel.args?.isNotEmpty() == true) sessionModel.args.toList()
-            else properties.arguments
-        val params = ParametersListUtil.join(arguments)
-        val envs = sessionModel.envs?.associate { it.key to it.value } ?: mapOf()
+        val workingDirectory = properties.workingDirectory.systemIndependentPath
+        val arguments = mergeArguments(sessionModel.args, properties.arguments, launchProfile?.commandLineArgs)
+        val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
 
         return DotNetExecutable(
             executablePath,
             properties.targetFramework,
-            properties.workingDirectory.systemIndependentPath,
-            params,
+            workingDirectory,
+            arguments,
             false,
             false,
             envs,
@@ -89,5 +104,52 @@ class SessionExecutableFactory(private val project: Project) {
             !executablePath.endsWith(".dll", true),
             DotNetCoreRuntimeType
         )
+    }
+
+    private suspend fun getLaunchProfile(launchProfile: String, sessionProjectPath: Path): LaunchSettingsJson.Profile? {
+        if (launchProfile.isEmpty()) return null
+
+        val launchSettingsFile =
+            LaunchSettingsJsonService.getLaunchSettingsFileForProject(sessionProjectPath.toFile()) ?: return null
+        val launchSettings = readAction {
+            LaunchSettingsJsonService.loadLaunchSettings(launchSettingsFile)
+        } ?: return null
+
+        return launchSettings.profiles?.get(launchProfile)
+    }
+
+    private fun mergeArguments(
+        sessionArguments: Array<String>?,
+        defaultArguments: List<String>,
+        launchProfileArguments: String?
+    ) = buildString {
+        if (sessionArguments?.isNotEmpty() == true) {
+            append(ParametersListUtil.join(sessionArguments.toList()))
+            append(" ")
+        }
+
+        if (defaultArguments.isNotEmpty()) {
+            append(ParametersListUtil.join(defaultArguments))
+            append(" ")
+        }
+
+        if (!launchProfileArguments.isNullOrEmpty()) {
+            append(launchProfileArguments)
+        }
+    }
+
+    private fun mergeEnvironmentVariables(
+        sessionEnvironmentVariables: Array<SessionEnvironmentVariable>?,
+        launchProfileEnvironmentVariables: Map<String, String?>?
+    ) = buildMap {
+        if (launchProfileEnvironmentVariables?.isNotEmpty() == true) {
+            launchProfileEnvironmentVariables.forEach {
+                it.value?.let { value -> put(it.key, value) }
+            }
+        }
+
+        if (sessionEnvironmentVariables?.isNotEmpty() == true) {
+            sessionEnvironmentVariables.associateTo(this) { it.key to it.value }
+        }
     }
 }
