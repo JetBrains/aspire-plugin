@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.0.0] - 2024-05-24
+
 ### Changed
 
 - Support for .NET Aspire 8.0.1
@@ -168,7 +170,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.7.1...v1.0.0
 [0.7.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.6.0...v0.6.1
