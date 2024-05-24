@@ -55,8 +55,8 @@ class AspireHostExecutorFactory(
         val executable = getDotNetExecutable(runnableProject)
 
         return when (executorId) {
-            DefaultDebugExecutor.EXECUTOR_ID -> activeRuntime.createRunState(executable, environment)
-            DefaultRunExecutor.EXECUTOR_ID -> activeRuntime.createRunState(executable, environment)
+            DefaultDebugExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
+            DefaultRunExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
             else -> throw CantRunException("Unable to execute Aspire host with $executorId executor")
         }
     }
