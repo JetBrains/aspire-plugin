@@ -3,6 +3,7 @@ package me.rafaelldi.aspire.run
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.configurations.RunProfileState
+import com.intellij.execution.configurations.RunnerSettings
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
@@ -17,8 +18,8 @@ import com.intellij.util.application
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rdclient.protocol.RdDispatcher
-import com.jetbrains.rider.debugger.DotNetProgramRunner
-import com.jetbrains.rider.run.DotNetProcessRunProfileState
+import com.jetbrains.rider.debugger.DotNetRunnerBase
+import com.jetbrains.rider.run.RiderAsyncProgramRunner
 import com.jetbrains.rider.util.NetUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,7 +32,7 @@ import org.jetbrains.concurrency.Promise
 import org.jetbrains.concurrency.asPromise
 import kotlin.io.path.Path
 
-class AspireHostProgramRunner : DotNetProgramRunner() {
+class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNetRunnerBase {
     companion object {
         private const val RUNNER_ID = "aspire-runner"
 
@@ -45,10 +46,10 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
     override fun execute(environment: ExecutionEnvironment, state: RunProfileState): Promise<RunContentDescriptor?> {
         LOG.info("Executing Aspire run profile state")
 
-        val dotnetProcessState = state as? DotNetProcessRunProfileState
+        val dotnetProcessState = state as? AspireHostRunProfileState
             ?: throw CantRunException("Unable to execute RunProfileState: $state")
 
-        val environmentVariables = dotnetProcessState.dotNetExecutable.environmentVariables
+        val environmentVariables = dotnetProcessState.environmentVariables
         val debugSessionToken = environmentVariables[DEBUG_SESSION_TOKEN]
         val debugSessionPort = environmentVariables[DEBUG_SESSION_PORT]
             ?.substringAfter(':')
