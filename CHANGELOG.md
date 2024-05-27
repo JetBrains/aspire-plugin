@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#168](https://github.com/rafaelldi/aspire-plugin/issues/168): Aspire plugin does not boot dashboard
+
 ## [1.0.0] - 2024-05-24
 
 ### Changed

@@ -42,6 +42,8 @@ class AspireHostRunProfileState(
             environment.project
         )
 
+        dotNetExecutable.onBeforeProcessStarted(environment, environment.runProfile, processHandler)
+
         return DefaultExecutionResult(console, processHandler)
     }
 }
