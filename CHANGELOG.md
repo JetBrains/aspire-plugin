@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [#177](https://github.com/rafaelldi/aspire-plugin/issues/177): Support `commandLineArgs` for the host projects from `launchSettings.json`
+
 ## [1.0.1] - 2024-05-27
 
 ### Fixed
