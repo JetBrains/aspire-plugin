@@ -5,6 +5,7 @@ import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -12,6 +13,8 @@ import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
 import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
 import com.jetbrains.rider.run.environment.ExecutableRunParameters
@@ -52,7 +55,10 @@ class AspireHostExecutorFactory(
             it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath == parameters.projectFilePath
         } ?: throw CantRunException(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
 
-        val executable = getDotNetExecutable(runnableProject)
+        val profile = getLaunchSettingsProfile(runnableProject)
+            ?: throw CantRunException("Profile ${parameters.profileName} not found")
+
+        val executable = getDotNetExecutable(runnableProject, profile)
 
         return when (executorId) {
             DefaultDebugExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
@@ -61,9 +67,16 @@ class AspireHostExecutorFactory(
         }
     }
 
-    private suspend fun getDotNetExecutable(runnableProject: RunnableProject): DotNetExecutable {
+    private suspend fun getDotNetExecutable(
+        runnableProject: RunnableProject,
+        profile: LaunchSettingsJson.Profile
+    ): DotNetExecutable {
         val projectOutput = runnableProject.projectOutputs.firstOrNull()
             ?: throw CantRunException("Unable to find project output")
+
+        val commandLineArguments =
+            if (projectOutput.defaultArguments.isEmpty()) profile.commandLineArgs
+            else ParametersListUtil.join(projectOutput.defaultArguments) + " " + profile.commandLineArgs.orEmpty()
 
         val envs = parameters.envs.toMutableMap()
         val environmentVariableValues = configureEnvironmentVariables(envs)
@@ -89,7 +102,7 @@ class AspireHostExecutorFactory(
         val runParameters = ExecutableRunParameters(
             projectOutput.exePath,
             projectOutput.workingDirectory,
-            ParametersListUtil.join(projectOutput.defaultArguments),
+            commandLineArguments,
             envs,
             true,
             projectOutput.tfm
@@ -169,6 +182,13 @@ class AspireHostExecutorFactory(
         }
 
         return EnvironmentVariableValues(browserToken)
+    }
+
+    private suspend fun getLaunchSettingsProfile(runnableProject: RunnableProject): LaunchSettingsJson.Profile? {
+        val launchSettings = readAction {
+            LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
+        }
+        return launchSettings?.profiles?.get(parameters.profileName)
     }
 
     private data class EnvironmentVariableValues(
