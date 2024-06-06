@@ -67,9 +67,9 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
 
         val debuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
-        val parameters =
-            (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)?.parameters
-                ?: throw CantRunException("Unable to find AspireHostConfiguration parameters")
+        val configuration = (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)
+                ?: throw CantRunException("Requested configuration is not an AspireHostConfiguration")
+        val parameters = configuration.parameters
         val aspireHostProjectPath = Path(parameters.projectFilePath)
         val aspireHostProjectUrl = parameters.startBrowserParameters.url
 
@@ -92,6 +92,9 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
         val sessionHostPromise = aspireHostLifetime.startOnUiAsync {
             val protocol = startProtocol(aspireHostLifetime)
             val sessionHostModel = protocol.aspireSessionHostModel
+
+            AspireHostRunManager.getInstance(environment.project)
+                .saveRunConfiguration(aspireHostProjectPath, aspireHostLifetime, configuration.name)
 
             AspireServiceManager.getInstance(environment.project)
                 .startAspireHostService(config, sessionHostModel)
