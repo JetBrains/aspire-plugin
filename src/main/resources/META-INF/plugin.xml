@@ -82,6 +82,12 @@
         <action id="Aspire.Resource.Stop"
                 class="me.rafaelldi.aspire.actions.dashboard.StopResourceAction"
                 icon="AllIcons.Actions.Suspend"/>
+        <action id="Aspire.Host.Run"
+                class="me.rafaelldi.aspire.actions.dashboard.RunHostAction"
+                icon="AllIcons.Actions.Execute"/>
+        <action id="Aspire.Host.Debug"
+                class="me.rafaelldi.aspire.actions.dashboard.DebugHostAction"
+                icon="AllIcons.Actions.StartDebugger"/>
     </actions>
 
 </idea-plugin>

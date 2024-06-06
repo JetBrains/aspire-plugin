@@ -22,6 +22,9 @@ class AspireHostServiceViewDescriptor(
 ) : ServiceViewDescriptor, DataProvider {
 
     private val toolbarActions = DefaultActionGroup(
+        ActionManager.getInstance().getAction("Aspire.Host.Run"),
+        ActionManager.getInstance().getAction("Aspire.Host.Debug"),
+        Separator(),
         ActionManager.getInstance().getAction("Aspire.Manifest"),
         ActionManager.getInstance().getAction("Aspire.Dashboard"),
         ActionManager.getInstance().getAction("Aspire.Diagram"),
