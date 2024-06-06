@@ -3,7 +3,7 @@
 
 # plugins
 kotlin = "2.0.0"
-serialization = "1.9.24"
+serialization = "2.0.0"
 changelog = "2.2.0"
 gradleIntelliJPlugin = "1.17.3"
 qodana = "2024.1.5"
