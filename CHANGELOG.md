@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2024-06-06
+
 ### Added
 
 - [#177](https://github.com/rafaelldi/aspire-plugin/issues/177): Support `commandLineArgs` for the host projects from `launchSettings.json`
@@ -181,7 +183,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/rafaelldi/aspire-plugin/compare/v1.0.1...v1.2.0
 [1.0.1]: https://github.com/rafaelldi/aspire-plugin/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.7.1...v1.0.0
 [0.7.1]: https://github.com/rafaelldi/aspire-plugin/compare/v0.7.0...v0.7.1
