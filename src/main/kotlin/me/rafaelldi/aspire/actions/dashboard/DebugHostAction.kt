@@ -23,11 +23,11 @@ class DebugHostAction : AnAction() {
     override fun update(event: AnActionEvent) {
         val project = event.project
         val hostPath = event.getData(ASPIRE_HOST_PATH)
-        if (project == null  || hostPath == null) {
+        if (project == null || hostPath == null) {
             event.presentation.isEnabledAndVisible = false
             return
         }
-        
+
         val hostService = AspireServiceManager
             .getInstance(project)
             .getHostService(hostPath)

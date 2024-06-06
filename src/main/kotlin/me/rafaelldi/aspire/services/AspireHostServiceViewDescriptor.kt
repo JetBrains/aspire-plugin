@@ -24,6 +24,7 @@ class AspireHostServiceViewDescriptor(
     private val toolbarActions = DefaultActionGroup(
         ActionManager.getInstance().getAction("Aspire.Host.Run"),
         ActionManager.getInstance().getAction("Aspire.Host.Debug"),
+        ActionManager.getInstance().getAction("Aspire.Host.Stop"),
         Separator(),
         ActionManager.getInstance().getAction("Aspire.Manifest"),
         ActionManager.getInstance().getAction("Aspire.Dashboard"),

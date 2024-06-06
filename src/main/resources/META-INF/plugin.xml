@@ -88,6 +88,9 @@
         <action id="Aspire.Host.Debug"
                 class="me.rafaelldi.aspire.actions.dashboard.DebugHostAction"
                 icon="AllIcons.Actions.StartDebugger"/>
+        <action id="Aspire.Host.Stop"
+                class="me.rafaelldi.aspire.actions.dashboard.StopHostAction"
+                icon="AllIcons.Actions.Suspend"/>
     </actions>
 
 </idea-plugin>

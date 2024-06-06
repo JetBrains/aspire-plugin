@@ -3,11 +3,13 @@ package me.rafaelldi.aspire.actions.dashboard
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import kotlinx.coroutines.launch
+import me.rafaelldi.aspire.AspireService
 import me.rafaelldi.aspire.run.AspireHostRunManager
 import me.rafaelldi.aspire.services.AspireServiceManager
 import me.rafaelldi.aspire.util.ASPIRE_HOST_PATH
 
-class RunHostAction : AnAction() {
+class StopHostAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val hostPath = event.getData(ASPIRE_HOST_PATH) ?: return
@@ -16,8 +18,10 @@ class RunHostAction : AnAction() {
             .getHostService(hostPath)
             ?: return
 
-        AspireHostRunManager.getInstance(project)
-            .executeConfigurationForHost(hostService, false)
+        AspireService.getInstance(project).scope.launch {
+            AspireHostRunManager.getInstance(project)
+                .stopConfigurationForHost(hostService)
+        }
     }
 
     override fun update(event: AnActionEvent) {
@@ -37,7 +41,7 @@ class RunHostAction : AnAction() {
         }
 
         event.presentation.isVisible = true
-        event.presentation.isEnabled = !hostService.isActive
+        event.presentation.isEnabled = hostService.isActive
     }
 
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
