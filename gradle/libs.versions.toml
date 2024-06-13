@@ -1,21 +1,22 @@
 [versions]
 # libraries
+# https://search.maven.org/artifact/com.jetbrains.rd/rd-gen
+rdGen = "2024.1.1"
 
 # plugins
 kotlin = "2.0.0"
 serialization = "2.0.0"
 changelog = "2.2.0"
-gradleIntelliJPlugin = "1.17.3"
+intelliJPlatform = "2.0.0-beta6"
 qodana = "2024.1.5"
-rdgen = "2024.1.1"
-# https://search.maven.org/artifact/com.jetbrains.rd/rd-gen
 
 [libraries]
+rdGen = { group = "com.jetbrains.rd", name = "rd-gen", version.ref = "rdGen" }
+kotlinStdLib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
-gradleIntelliJPlugin = { id = "org.jetbrains.intellij", version.ref = "gradleIntelliJPlugin" }
+intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
 qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
-rdgen = { id = "com.jetbrains.rdgen", version.ref = "rdgen" }

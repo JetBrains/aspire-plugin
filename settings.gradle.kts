@@ -1,13 +1,12 @@
 pluginManagement {
     repositories {
-        maven { setUrl("https://cache-redirector.jetbrains.com/plugins.gradle.org") }
+        gradlePluginPortal()
+        mavenCentral()
     }
     resolutionStrategy {
         eachPlugin {
-            when(requested.id.name) {
-                "rdgen" -> {
-                    useModule("com.jetbrains.rd:rd-gen:${requested.version}")
-                }
+            if (requested.id.id == "com.jetbrains.rdgen") {
+                useModule("com.jetbrains.rd:rd-gen:${requested.version}")
             }
         }
     }

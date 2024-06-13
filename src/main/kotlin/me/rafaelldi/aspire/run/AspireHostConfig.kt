@@ -4,6 +4,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import java.nio.file.Path
 
 data class AspireHostConfig(
+    val name: String,
     val debugSessionToken: String,
     val debugSessionPort: Int,
     val aspireHostProjectPath: Path,

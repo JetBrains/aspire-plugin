@@ -426,6 +426,7 @@ class SessionLauncher(private val project: Project) {
             ExecutableType.Console,
             true,
             false,
+            true,
             "--backend-port=${backendToDebuggerPort}"
         )
 
