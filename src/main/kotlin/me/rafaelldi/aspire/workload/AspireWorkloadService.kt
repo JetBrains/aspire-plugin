@@ -10,16 +10,17 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.rd.util.withUiContext
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.AspireBundle
 import me.rafaelldi.aspire.settings.AspireConfigurable
 import me.rafaelldi.aspire.util.WorkloadVersion
@@ -54,7 +55,7 @@ class AspireWorkloadService(private val project: Project, private val scope: Cor
             val isCurrentVersionInstalled = isCurrentVersionInstalled(dotnetPath)
             if (!isCurrentVersionInstalled) {
                 LOG.trace("Current version $aspireActualVersion isn't installed")
-                withUiContext {
+                withContext(Dispatchers.EDT) {
                     Notification(
                         "Aspire",
                         AspireBundle.message("notification.new.version.is.available"),
