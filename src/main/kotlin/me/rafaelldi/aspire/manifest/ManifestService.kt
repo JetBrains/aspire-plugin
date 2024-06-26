@@ -6,17 +6,18 @@ import com.intellij.execution.util.ExecUtil
 import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.rd.util.withUiContext
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.AspireBundle
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -56,12 +57,12 @@ class ManifestService(private val project: Project, private val scope: Coroutine
                     val manifestPath = directoryPath.resolve(MANIFEST_FOLDER).resolve(MANIFEST_FILE_NAME)
                     val file = LocalFileSystem.getInstance().refreshAndFindFileByPath(manifestPath.absolutePathString())
                     if (file != null && file.isValid) {
-                        withUiContext {
+                        withContext(Dispatchers.EDT) {
                             PsiNavigationSupport.getInstance().createNavigatable(project, file, -1).navigate(true)
                         }
                     }
                 } else {
-                    withUiContext {
+                    withContext(Dispatchers.EDT) {
                         Notification(
                             "Aspire",
                             AspireBundle.message("notification.manifest.unable.to.generate"),

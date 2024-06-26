@@ -7,12 +7,13 @@ import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.rd.util.withUiContext
+import com.intellij.openapi.application.EDT
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
 import com.jetbrains.rd.util.threading.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.AspireBundle
 import me.rafaelldi.aspire.services.components.ResourceConsolePanel
 import me.rafaelldi.aspire.services.components.ResourceDashboardPanel
@@ -55,7 +56,7 @@ class AspireResourceServiceViewDescriptor(
             resourceService.lifetime.launch(Dispatchers.Default) {
                 while (true) {
                     delay(1.seconds)
-                    withUiContext {
+                    withContext(Dispatchers.EDT) {
                         update()
                     }
                 }

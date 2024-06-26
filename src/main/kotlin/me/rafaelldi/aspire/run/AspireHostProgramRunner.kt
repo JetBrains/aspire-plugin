@@ -12,11 +12,12 @@ import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.util.lifetime
-import com.intellij.openapi.rd.util.startOnUiAsync
 import com.intellij.util.application
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.debugger.DotNetRunnerBase
 import com.jetbrains.rider.run.RiderAsyncProgramRunner
@@ -28,8 +29,6 @@ import me.rafaelldi.aspire.services.AspireServiceManager
 import me.rafaelldi.aspire.sessionHost.SessionHostManager
 import me.rafaelldi.aspire.settings.AspireSettings
 import me.rafaelldi.aspire.util.*
-import org.jetbrains.concurrency.Promise
-import org.jetbrains.concurrency.asPromise
 import kotlin.io.path.Path
 
 class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNetRunnerBase {
@@ -43,9 +42,58 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
 
     override fun canRun(executorId: String, runConfiguration: RunProfile) = runConfiguration is AspireHostConfiguration
 
-    override fun execute(environment: ExecutionEnvironment, state: RunProfileState): Promise<RunContentDescriptor?> {
+    override suspend fun executeAsync(
+        environment: ExecutionEnvironment,
+        state: RunProfileState
+    ): RunContentDescriptor? {
         LOG.info("Executing Aspire run profile state")
 
+        val aspireHostLifetimeDefinition = environment.project.lifetime.createNested()
+        val config = createConfig(environment, state, aspireHostLifetimeDefinition.lifetime)
+
+        LOG.trace("Aspire session host config: $config")
+
+        startProtocolAndSubscribe(
+            environment.project,
+            config,
+            aspireHostLifetimeDefinition
+        )
+
+        val executionResult = state.execute(environment.executor, this)
+        if (executionResult == null) {
+            LOG.warn("Unable to start Aspire run profile state")
+            return null
+        }
+
+        AspireServiceManager.getInstance(environment.project)
+            .updateAspireHostService(config.aspireHostProjectPath, executionResult)
+
+        val processHandler = executionResult.processHandler
+        aspireHostLifetimeDefinition.onTermination {
+            LOG.trace("Aspire host lifetime is terminated")
+            if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
+                processHandler.destroyProcess()
+            }
+        }
+        processHandler.addProcessListener(object : ProcessListener {
+            override fun processTerminated(event: ProcessEvent) {
+                LOG.trace("Aspire host process is terminated")
+                aspireHostLifetimeDefinition.executeIfAlive {
+                    application.invokeLater {
+                        aspireHostLifetimeDefinition.terminate(true)
+                    }
+                }
+            }
+        })
+
+        return showRunContent(executionResult, environment)
+    }
+
+    private fun createConfig(
+        environment: ExecutionEnvironment,
+        state: RunProfileState,
+        aspireHostLifetime: Lifetime
+    ): AspireHostConfig {
         val dotnetProcessState = state as? AspireHostRunProfileState
             ?: throw CantRunException("Unable to execute RunProfileState: $state")
 
@@ -68,14 +116,14 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
         val debuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
         val configuration = (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)
-                ?: throw CantRunException("Requested configuration is not an AspireHostConfiguration")
+            ?: throw CantRunException("Requested configuration is not an AspireHostConfiguration")
+
         val parameters = configuration.parameters
         val aspireHostProjectPath = Path(parameters.projectFilePath)
         val aspireHostProjectUrl = parameters.startBrowserParameters.url
 
-        val aspireHostLifetime = environment.project.lifetime.createNested()
-
-        val config = AspireHostConfig(
+        return AspireHostConfig(
+            configuration.name,
             debugSessionToken,
             debugSessionPort,
             aspireHostProjectPath,
@@ -87,48 +135,24 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
             openTelemetryProtocolServerPort,
             aspireHostLifetime
         )
-        LOG.trace("Aspire session host config: $config")
+    }
 
-        val sessionHostPromise = aspireHostLifetime.startOnUiAsync {
-            val protocol = startProtocol(aspireHostLifetime)
-            val sessionHostModel = protocol.aspireSessionHostModel
+    private suspend fun startProtocolAndSubscribe(
+        project: Project,
+        config: AspireHostConfig,
+        aspireHostLifetimeDefinition: LifetimeDefinition
+    ) = withContext(Dispatchers.EDT) {
+        val protocol = startProtocol(config.aspireHostLifetime)
+        val sessionHostModel = protocol.aspireSessionHostModel
 
-            AspireHostRunManager.getInstance(environment.project)
-                .saveRunConfiguration(aspireHostProjectPath, aspireHostLifetime, configuration.name)
+        AspireHostRunManager.getInstance(project)
+            .saveRunConfiguration(config.aspireHostProjectPath, aspireHostLifetimeDefinition, config.name)
 
-            AspireServiceManager.getInstance(environment.project)
-                .startAspireHostService(config, sessionHostModel)
+        AspireServiceManager.getInstance(project)
+            .startAspireHostService(config, sessionHostModel)
 
-            SessionHostManager.getInstance(environment.project)
-                .startSessionHost(config, protocol.wire.serverPort, sessionHostModel)
-        }.asPromise()
-
-        return sessionHostPromise.then {
-            val executionResult = state.execute(environment.executor, this)
-
-            AspireServiceManager.getInstance(environment.project)
-                .updateAspireHostService(config.aspireHostProjectPath, executionResult)
-
-            val processHandler = executionResult.processHandler
-            aspireHostLifetime.onTermination {
-                LOG.trace("Aspire host lifetime is terminated")
-                if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
-                    processHandler.destroyProcess()
-                }
-            }
-            processHandler.addProcessListener(object : ProcessListener {
-                override fun processTerminated(event: ProcessEvent) {
-                    LOG.trace("Aspire host process is terminated")
-                    aspireHostLifetime.executeIfAlive {
-                        application.invokeLater {
-                            aspireHostLifetime.terminate(true)
-                        }
-                    }
-                }
-            })
-
-            return@then showRunContent(executionResult, environment)
-        }
+        SessionHostManager.getInstance(project)
+            .startSessionHost(config, protocol.wire.serverPort, sessionHostModel)
     }
 
     private suspend fun startProtocol(lifetime: Lifetime) = withContext(Dispatchers.EDT) {

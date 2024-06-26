@@ -1,5 +1,10 @@
+import com.jetbrains.plugin.structure.base.utils.isFile
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.platform.gradle.Constants
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
@@ -7,149 +12,63 @@ fun environment(key: String) = providers.environmentVariable(key)
 plugins {
     alias(libs.plugins.kotlin) // Kotlin support
     alias(libs.plugins.serialization)
-    alias(libs.plugins.gradleIntelliJPlugin) // Gradle IntelliJ Plugin
+    alias(libs.plugins.intelliJPlatform) // IntelliJ Platform Gradle Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
-    alias(libs.plugins.rdgen)
 }
 
 group = properties("pluginGroup").get()
 version = properties("pluginVersion").get()
 
-val rdLibDirectory: () -> File = { file("${tasks.setupDependencies.get().idea.get().classes}/lib/rd") }
-extra["rdLibDirectory"] = rdLibDirectory
+// Set the JVM language level used to build the project.
+kotlin {
+    jvmToolchain(17)
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
 
 // Configure project's dependencies
 repositories {
-    mavenCentral()
-    maven { setUrl("https://cache-redirector.jetbrains.com/maven-central") }
+    // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
+    intellijPlatform {
+        defaultRepositories()
+        jetbrainsRuntime()
+    }
 }
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+
+    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
+    intellijPlatform {
+        rider(properties("platformVersion"))
+
+        jetbrainsRuntime()
+
+        // Plugin Dependencies. Uses `platformBundledPlugins` property from the gradle.properties file for bundled IntelliJ Platform plugins.
+        bundledPlugins(properties("platformBundledPlugins").map { it.split(',') })
+
+        // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
+        plugins(properties("platformPlugins").map { it.split(',') })
+
+        instrumentationTools()
+        pluginVerifier()
+        testFramework(TestFrameworkType.Bundled)
+    }
 }
 
-// Set the JVM language level used to build the project. Use Java 11 for 2020.3+, and Java 17 for 2022.2+.
-kotlin {
-    jvmToolchain(17)
-}
-
-// Configure Gradle IntelliJ Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    pluginName = properties("pluginName")
-    version = properties("platformVersion")
-    type = properties("platformType")
-
-    // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
-    plugins = properties("platformPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
-}
-
-// Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
-changelog {
-    groups.empty()
-    repositoryUrl = properties("pluginRepositoryUrl")
-}
-
-tasks {
-    wrapper {
-        gradleVersion = properties("gradleVersion").get()
-    }
-
-    configure<com.jetbrains.rd.generator.gradle.RdGenExtension> {
-        val modelDir = projectDir.resolve("protocol/src/main/kotlin/model/sessionHost")
-        val pluginSourcePath = projectDir.resolve("src")
-        val ktOutput = pluginSourcePath.resolve("main/kotlin/me/rafaelldi/aspire/generated")
-        val csOutput = pluginSourcePath.resolve("dotnet/aspire-session-host/Generated")
-
-        verbose = true
-        classpath({
-            rdLibDirectory().resolve("rider-model.jar").canonicalPath
-        })
-        sources(modelDir)
-        hashFolder = "$rootDir/build/rdgen/rider"
-        packages = "model.sessionHost"
-
-        generator {
-            language = "kotlin"
-            transform = "asis"
-            root = "model.sessionHost.AspireSessionHostRoot"
-            directory = ktOutput.canonicalPath
-        }
-
-        generator {
-            language = "csharp"
-            transform = "reversed"
-            root = "model.sessionHost.AspireSessionHostRoot"
-            directory = csOutput.canonicalPath
-        }
-    }
-
-    val dotnetBuildConfiguration = properties("dotnetBuildConfiguration").get()
-    val compileDotNet by registering {
-        doLast {
-            exec {
-                executable("dotnet")
-                args("build", "-c", dotnetBuildConfiguration, "/clp:ErrorsOnly", "aspire-plugin.sln")
-            }
-        }
-    }
-    val publishSessionHost by registering {
-        dependsOn(compileDotNet)
-        doLast {
-            exec {
-                executable("dotnet")
-                args(
-                    "publish",
-                    "src/dotnet/aspire-session-host/aspire-session-host.csproj",
-                    "--configuration", dotnetBuildConfiguration
-                )
-            }
-        }
-    }
-
-    buildPlugin {
-        dependsOn(publishSessionHost)
-    }
-
-    prepareSandbox {
-        dependsOn(publishSessionHost)
-
-        val outputFolder = file("$projectDir/src/dotnet/aspire-plugin/bin/$dotnetBuildConfiguration")
-        val dllFiles = listOf(
-            "$outputFolder/aspire-plugin.dll",
-            "$outputFolder/aspire-plugin.pdb"
-        )
-
-        for (f in dllFiles) {
-            from(f) { into("${rootProject.name}/dotnet") }
-        }
-
-        doLast {
-            for (f in dllFiles) {
-                val file = file(f)
-                if (!file.exists()) throw RuntimeException("File \"$file\" does not exist")
-            }
-        }
-
-        from("$projectDir/src/dotnet/aspire-session-host/bin/$dotnetBuildConfiguration/publish") {
-            into("${rootProject.name}/aspire-session-host")
-        }
-    }
-
-    runPluginVerifier {
-        ideVersions.set(
-            properties("pluginVerifierIdeVersions").get().split(',').map(String::trim).filter(String::isNotEmpty)
-        )
-    }
-
-    patchPluginXml {
+// Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
+intellijPlatform {
+    pluginConfiguration {
         version = properties("pluginVersion")
-        sinceBuild = properties("pluginSinceBuild")
-        untilBuild = properties("pluginUntilBuild")
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
-        pluginDescription = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
+        description = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
             val start = "<!-- Plugin description -->"
             val end = "<!-- Plugin description end -->"
 
@@ -173,32 +92,132 @@ tasks {
                 )
             }
         }
+
+        ideaVersion {
+            sinceBuild = properties("pluginSinceBuild")
+            untilBuild = properties("pluginUntilBuild")
+        }
+    }
+
+    signing {
+        certificateChain = environment("CERTIFICATE_CHAIN")
+        privateKey = environment("PRIVATE_KEY")
+        password = environment("PRIVATE_KEY_PASSWORD")
+    }
+
+    publishing {
+        token = environment("PUBLISH_TOKEN")
+        // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
+        // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
+        // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
+        channels = properties("pluginVersion").map { listOf(it.substringAfter('-', "").substringBefore('.').ifEmpty { "default" }) }
+    }
+
+    verifyPlugin {
+        ides {
+            recommended()
+        }
+    }
+}
+
+// Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
+changelog {
+    groups.empty()
+    repositoryUrl = properties("pluginRepositoryUrl")
+}
+
+tasks {
+    wrapper {
+        gradleVersion = properties("gradleVersion").get()
+    }
+
+    val rdGen = ":protocol:rdgen"
+
+    val dotnetBuildConfiguration = properties("dotnetBuildConfiguration").get()
+    val compileDotNet by registering {
+        dependsOn(rdGen)
+        doLast {
+            exec {
+                executable("dotnet")
+                args("build", "-c", dotnetBuildConfiguration, "/clp:ErrorsOnly", "aspire-plugin.sln")
+            }
+        }
+    }
+
+    withType<KotlinCompile> {
+        dependsOn(rdGen)
+    }
+
+    val publishSessionHost by registering {
+        dependsOn(compileDotNet)
+        doLast {
+            exec {
+                executable("dotnet")
+                args(
+                    "publish",
+                    "src/dotnet/aspire-session-host/aspire-session-host.csproj",
+                    "--configuration", dotnetBuildConfiguration
+                )
+            }
+        }
+    }
+
+    buildPlugin {
+        dependsOn(publishSessionHost)
+    }
+
+    withType<PrepareSandboxTask> {
+        dependsOn(publishSessionHost)
+
+        val outputFolder = file("$projectDir/src/dotnet/aspire-plugin/bin/$dotnetBuildConfiguration")
+        val pluginFiles = listOf(
+            "$outputFolder/aspire-plugin.dll",
+            "$outputFolder/aspire-plugin.pdb"
+        )
+
+        for (f in pluginFiles) {
+            from(f) { into("${rootProject.name}/dotnet") }
+        }
+
+        doLast {
+            for (f in pluginFiles) {
+                val file = file(f)
+                if (!file.exists()) throw RuntimeException("File \"$file\" does not exist")
+            }
+        }
+
+        from("$projectDir/src/dotnet/aspire-session-host/bin/$dotnetBuildConfiguration/publish") {
+            into("${rootProject.name}/aspire-session-host")
+        }
     }
 
     // Configure UI tests plugin
     // Read more: https://github.com/JetBrains/intellij-ui-test-robot
-    runIdeForUiTests {
+    testIdeUi  {
         systemProperty("robot-server.port", "8082")
         systemProperty("ide.mac.message.dialogs.as.sheets", "false")
         systemProperty("jb.privacy.policy.text", "<!--999.999-->")
         systemProperty("jb.consents.confirmation.enabled", "false")
     }
 
-    signPlugin {
-        certificateChain = environment("CERTIFICATE_CHAIN")
-        privateKey = environment("PRIVATE_KEY")
-        password = environment("PRIVATE_KEY_PASSWORD")
-    }
-
     publishPlugin {
-        dependsOn("patchChangelog")
-        token = environment("PUBLISH_TOKEN")
-        // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
-        // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
-        // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
-        channels = properties("pluginVersion").map {
-            listOf(
-                it.substringAfter('-', "").substringBefore('.').ifEmpty { "default" })
+        dependsOn(patchChangelog)
+    }
+}
+
+val riderModel: Configuration by configurations.creating {
+    isCanBeConsumed = true
+    isCanBeResolved = false
+}
+
+artifacts {
+    add(riderModel.name, provider {
+        intellijPlatform.platformPath.resolve("lib/rd/rider-model.jar").also {
+            check(it.isFile) {
+                "rider-model.jar is not found at $riderModel"
+            }
         }
+    }) {
+        builtBy(Constants.Tasks.INITIALIZE_INTELLIJ_PLATFORM_PLUGIN)
     }
 }
