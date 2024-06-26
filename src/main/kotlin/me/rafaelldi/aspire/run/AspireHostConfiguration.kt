@@ -4,6 +4,7 @@ import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.build.tasks.SolutionRunConfiguration
+import com.jetbrains.rider.run.configurations.IAutoSelectableRunConfiguration
 import com.jetbrains.rider.run.configurations.RiderAsyncRunConfiguration
 import org.jdom.Element
 
@@ -18,7 +19,7 @@ class AspireHostConfiguration(
     factory,
     { AspireHostSettingsEditor(it) },
     AspireHostExecutorFactory(project, parameters)
-), SolutionRunConfiguration {
+), SolutionRunConfiguration, IAutoSelectableRunConfiguration {
     override fun checkConfiguration() {
         parameters.validate()
     }
@@ -43,4 +44,6 @@ class AspireHostConfiguration(
         newConfiguration.doCopyOptionsFrom(this)
         return newConfiguration
     }
+
+    override fun getAutoSelectPriority() = 10
 }
