@@ -27,7 +27,6 @@ import me.rafaelldi.aspire.util.ASPNETCORE_URLS
 import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
 import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN
-import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_OTLP_ENDPOINT_URL
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS
 import me.rafaelldi.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
@@ -155,14 +154,6 @@ class AspireHostExecutorFactory(
             envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] =
                 if (useHttp) "http://localhost:$resourceEndpointPort"
                 else "https://localhost:$resourceEndpointPort"
-        }
-
-        //Set the DOTNET_DASHBOARD_OTLP_ENDPOINT_URL environment variable if not specified
-        if (!envs.containsKey(DOTNET_DASHBOARD_OTLP_ENDPOINT_URL)) {
-            val openTelemetryProtocolEndpointPort = NetUtils.findFreePort(47300)
-            envs[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL] =
-                if (useHttp) "http://localhost:$openTelemetryProtocolEndpointPort"
-                else "https://localhost:$openTelemetryProtocolEndpointPort"
         }
 
         val allowAnonymousDashboard = envs[DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS]?.equals("true", true) == true

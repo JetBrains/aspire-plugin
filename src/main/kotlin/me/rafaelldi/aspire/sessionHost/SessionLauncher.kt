@@ -62,9 +62,6 @@ class SessionLauncher(private val project: Project) {
         private const val DOTNET_MODIFIABLE_ASSEMBLIES = "DOTNET_MODIFIABLE_ASSEMBLIES"
         private const val DOTNET_HOTRELOAD_NAMEDPIPE_NAME = "DOTNET_HOTRELOAD_NAMEDPIPE_NAME"
         private const val DOTNET_STARTUP_HOOKS = "DOTNET_STARTUP_HOOKS"
-        private const val OTEL_EXPORTER_OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
-
-        private fun getOtlpEndpoint(port: Int) = "http://localhost:$port"
     }
 
     suspend fun launchSession(
@@ -72,8 +69,7 @@ class SessionLauncher(private val project: Project) {
         sessionModel: SessionModel,
         processLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        debuggingMode: Boolean,
-        openTelemetryPort: Int?
+        debuggingMode: Boolean
     ) {
         LOG.info("Starting a session for the project ${sessionModel.projectPath}")
 
@@ -109,7 +105,6 @@ class SessionLauncher(private val project: Project) {
                 sessionProjectPath.nameWithoutExtension,
                 executable,
                 runtime,
-                openTelemetryPort,
                 processLifetime,
                 sessionEvents
             )
@@ -120,7 +115,6 @@ class SessionLauncher(private val project: Project) {
                 executable,
                 runtime,
                 sessionModel.launchProfile,
-                openTelemetryPort,
                 processLifetime,
                 sessionEvents
             )
@@ -133,7 +127,6 @@ class SessionLauncher(private val project: Project) {
         executable: DotNetExecutable,
         runtime: DotNetCoreRuntime,
         launchProfile: String?,
-        openTelemetryPort: Int?,
         processLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
@@ -143,7 +136,6 @@ class SessionLauncher(private val project: Project) {
             executable,
             sessionProjectPath,
             launchProfile,
-            openTelemetryPort,
             processLifetime
         )
 
@@ -174,7 +166,6 @@ class SessionLauncher(private val project: Project) {
         executable: DotNetExecutable,
         sessionProjectPath: Path,
         launchProfile: String?,
-        openTelemetryPort: Int?,
         lifetime: Lifetime
     ): DotNetExecutable {
         val envs = executable.environmentVariables.toMutableMap()
@@ -189,12 +180,7 @@ class SessionLauncher(private val project: Project) {
             envs[DOTNET_STARTUP_HOOKS] = deltaApplierPath
         }
 
-        val isOpenTelemetryAvailable = openTelemetryPort != null
-        if (isOpenTelemetryAvailable) {
-            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = getOtlpEndpoint(requireNotNull(openTelemetryPort))
-        }
-
-        return if (isHotReloadAvailable || isOpenTelemetryAvailable) {
+        return if (isHotReloadAvailable) {
             executable.copy(environmentVariables = envs)
         } else {
             executable
@@ -248,24 +234,21 @@ class SessionLauncher(private val project: Project) {
         @Nls sessionName: String,
         executable: DotNetExecutable,
         runtime: DotNetCoreRuntime,
-        openTelemetryPort: Int?,
         processLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
         LOG.trace("Starting the session in the debug mode")
 
-        val executableToDebug = modifyExecutableToDebug(executable, openTelemetryPort)
-
         val startInfo = DotNetCoreExeStartInfo(
             DotNetCoreInfo(runtime.cliExePath),
-            executableToDebug.projectTfm?.let { EncInfo(it) },
-            executableToDebug.exePath,
-            executableToDebug.workingDirectory,
-            executableToDebug.programParameterString,
-            executableToDebug.environmentVariables.toModelMap,
-            executableToDebug.runtimeArguments,
-            executableToDebug.executeAsIs,
-            executableToDebug.useExternalConsole
+            executable.projectTfm?.let { EncInfo(it) },
+            executable.exePath,
+            executable.workingDirectory,
+            executable.programParameterString,
+            executable.environmentVariables.toModelMap,
+            executable.runtimeArguments,
+            executable.executeAsIs,
+            executable.useExternalConsole
         )
         val presentableCommandLine = createPresentableCommandLine(runtime, executable)
 
@@ -278,24 +261,6 @@ class SessionLauncher(private val project: Project) {
                 sessionEvents,
                 processLifetime
             )
-        }
-    }
-
-    private fun modifyExecutableToDebug(
-        executable: DotNetExecutable,
-        openTelemetryPort: Int?
-    ): DotNetExecutable {
-        val envs = executable.environmentVariables.toMutableMap()
-
-        val isOpenTelemetryAvailable = openTelemetryPort != null
-        if (isOpenTelemetryAvailable) {
-            envs[OTEL_EXPORTER_OTLP_ENDPOINT] = getOtlpEndpoint(requireNotNull(openTelemetryPort))
-        }
-
-        return if (isOpenTelemetryAvailable) {
-            executable.copy(environmentVariables = envs)
-        } else {
-            executable
         }
     }
 

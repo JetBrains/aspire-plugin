@@ -5,5 +5,4 @@ import com.intellij.openapi.components.BaseState
 class AspireSettingsState : BaseState() {
     var checkForNewVersions by property(true)
     var connectToDatabase by property(true)
-    var collectTelemetry by property(false)
 }

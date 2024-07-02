@@ -52,7 +52,6 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         property("model", ResourceModel)
         property("isInitialized", bool).async
         sink("logReceived", ResourceLog)
-        sink("metricReceived", ResourceMetric)
     }
 
     private val ResourceModel = structdef {
@@ -110,34 +109,6 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("lineNumber", int)
     }
 
-    private val ResourceMetric = structdef {
-        field("serviceName", string)
-        field("scope", string)
-        field("name", string)
-        field("description", string.nullable)
-        field("unit", string.nullable)
-        field("value", double)
-        field("timestamp", long)
-    }
-
-    private val TraceNode = structdef {
-        field("id", string)
-        field("name", string)
-        field("serviceName", string.nullable)
-        field("children", immutableList(TraceNodeChild))
-        field("attributes", immutableList(TraceNodeAttribute))
-    }
-
-    private val TraceNodeChild = structdef {
-        field("id", string)
-        field("connectionCount", int)
-    }
-
-    private val TraceNodeAttribute = structdef {
-        field("key", string)
-        field("value", string)
-    }
-
     init {
         callback("createSession", SessionModel, SessionCreationResult.nullable)
         callback("deleteSession", string, bool)
@@ -147,7 +118,5 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         source("logReceived", LogReceived)
 
         map("resources", string, ResourceWrapper)
-
-        call("getTraceNodes", void, array(TraceNode))
     }
 }

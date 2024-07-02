@@ -12,7 +12,5 @@ data class AspireHostConfig(
     val debuggingMode: Boolean,
     val resourceServiceEndpointUrl: String?,
     val resourceServiceApiKey: String?,
-    val openTelemetryProtocolEndpointUrl: String?,
-    val openTelemetryProtocolServerPort: Int?,
     val aspireHostLifetime: Lifetime
 )

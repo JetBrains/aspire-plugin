@@ -18,7 +18,6 @@ import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import me.rafaelldi.aspire.run.AspireHostConfig
-import me.rafaelldi.aspire.settings.AspireSettings
 import me.rafaelldi.aspire.util.decodeAnsiCommandsToString
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
@@ -35,7 +34,6 @@ class SessionHostLauncher(private val project: Project) {
         private const val RIDER_RD_PORT = "Rider_Connection__RdPort"
         private const val RIDER_RESOURCE_SERVICE_ENDPOINT_URL = "Rider_ResourceService__EndpointUrl"
         private const val RIDER_RESOURCE_SERVICE_API_KEY = "Rider_ResourceService__ApiKey"
-        private const val RIDER_OTEL_SERVICE_ENDPOINT_URL = "Rider_OtelService__EndpointUrl"
     }
 
     private val pluginId = PluginId.getId("me.rafaelldi.aspire")
@@ -93,7 +91,6 @@ class SessionHostLauncher(private val project: Project) {
         aspireHostConfig: AspireHostConfig,
         rdPort: Int
     ): GeneralCommandLine {
-        val settings = AspireSettings.getInstance()
         val commandLine = GeneralCommandLine()
             .withExePath(dotnet.cliExePath)
             .withCharset(StandardCharsets.UTF_8)
@@ -108,11 +105,6 @@ class SessionHostLauncher(private val project: Project) {
                         put(RIDER_RESOURCE_SERVICE_ENDPOINT_URL, aspireHostConfig.resourceServiceEndpointUrl)
                     if (aspireHostConfig.resourceServiceApiKey != null)
                         put(RIDER_RESOURCE_SERVICE_API_KEY, aspireHostConfig.resourceServiceApiKey)
-                    if (settings.collectTelemetry && aspireHostConfig.openTelemetryProtocolEndpointUrl != null) {
-                        put(RIDER_OTEL_SERVICE_ENDPOINT_URL, aspireHostConfig.openTelemetryProtocolEndpointUrl)
-                        put("Kestrel__Endpoints__Otlp__Url", "http://localhost:${aspireHostConfig.openTelemetryProtocolServerPort}")
-                        put("Kestrel__Endpoints__Otlp__Protocols", "Http2")
-                    }
                 }
             )
         return commandLine

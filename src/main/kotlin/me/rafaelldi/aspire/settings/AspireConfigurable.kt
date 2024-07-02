@@ -17,9 +17,5 @@ class AspireConfigurable: BoundConfigurable(AspireBundle.message("configurable.A
             checkBox(AspireBundle.message("configurable.Aspire.connect.to.database"))
                 .bindSelected(settings::connectToDatabase)
         }
-        row {
-            checkBox(AspireBundle.message("configurable.Aspire.collect.telemetry"))
-                .bindSelected(settings::collectTelemetry)
-        }
     }
 }
