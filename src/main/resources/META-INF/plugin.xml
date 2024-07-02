@@ -63,9 +63,6 @@
         <action id="Aspire.Manifest"
                 class="me.rafaelldi.aspire.actions.dashboard.AspireManifestAction"
                 icon="AllIcons.FileTypes.Json"/>
-        <action id="Aspire.Diagram"
-                class="me.rafaelldi.aspire.actions.dashboard.AspireShowDiagramAction"
-                icon="AllIcons.FileTypes.Diagram"/>
         <action id="Aspire.Solution.Manifest"
                 class="me.rafaelldi.aspire.actions.ManifestGenerationAction"
                 icon="AllIcons.FileTypes.Json">

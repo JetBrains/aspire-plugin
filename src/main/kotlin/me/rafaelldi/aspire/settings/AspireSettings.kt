@@ -22,9 +22,4 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         set(value) {
             state.connectToDatabase = value
         }
-    var collectTelemetry
-        get() = state.collectTelemetry
-        set(value) {
-            state.collectTelemetry = value
-        }
 }

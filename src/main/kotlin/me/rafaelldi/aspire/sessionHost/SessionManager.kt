@@ -62,8 +62,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.sessionModel,
             command.sessionLifetimeDefinition,
             SequentialLifetimes(command.sessionLifetimeDefinition),
-            command.sessionEvents,
-            command.aspireHostConfig.openTelemetryProtocolServerPort
+            command.sessionEvents
         )
         sessions[command.sessionId] = session
 
@@ -76,8 +75,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             session.model,
             processLifetime,
             session.events,
-            command.aspireHostConfig.debuggingMode,
-            session.openTelemetryProtocolServerPort
+            command.aspireHostConfig.debuggingMode
         )
     }
 
@@ -145,8 +143,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             session.model,
             processLifetime,
             session.events,
-            withDebugger,
-            session.openTelemetryProtocolServerPort
+            withDebugger
         )
     }
 
@@ -189,8 +186,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val model: SessionModel,
         val lifetimeDefinition: LifetimeDefinition,
         val processLifetimes: SequentialLifetimes,
-        val events: MutableSharedFlow<SessionEvent>,
-        val openTelemetryProtocolServerPort: Int?
+        val events: MutableSharedFlow<SessionEvent>
     )
 
     interface LaunchSessionCommand

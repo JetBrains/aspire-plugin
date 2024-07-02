@@ -71,9 +71,6 @@ class AspireResourceService(
         .apply { setViewer(true) }
         .console
 
-    private val metrics = mutableMapOf<AspireResourceMetricKey, ResourceMetric>()
-    fun getMetrics() = metrics.toMap()
-
     init {
         val model = wrapper.model.valueOrNull
         uid = model?.uid ?: ""
@@ -89,7 +86,6 @@ class AspireResourceService(
 
         wrapper.model.advise(lifetime, ::update)
         wrapper.logReceived.advise(lifetime, ::logReceived)
-        wrapper.metricReceived.advise(lifetime, ::metricReceived)
 
         Disposer.register(AspireService.getInstance(project), consoleView)
 
@@ -180,10 +176,5 @@ class AspireResourceService(
             if (!log.isError) ConsoleViewContentType.NORMAL_OUTPUT
             else ConsoleViewContentType.ERROR_OUTPUT
         )
-    }
-
-    private fun metricReceived(metric: ResourceMetric) {
-        val key = AspireResourceMetricKey(metric.scope, metric.name)
-        metrics[key] = metric
     }
 }

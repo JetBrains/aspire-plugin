@@ -37,7 +37,6 @@ This run configuration allows you to run or debug multiple projects registered i
 A separate node will also be created in the Services tool window.
 It allows you to monitor resources while Aspire Host is running.
 For example, you can find resource properties, endpoints, environment variables, and read logs there.
-In addition, the resource tree provides [OpenTelemetry information](open-telemetry.md) if this feature is enabled.
 
 ![Services tool window integration](services.png){ width="700" }
 

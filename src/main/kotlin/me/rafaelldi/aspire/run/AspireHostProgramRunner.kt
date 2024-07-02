@@ -21,14 +21,15 @@ import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.debugger.DotNetRunnerBase
 import com.jetbrains.rider.run.RiderAsyncProgramRunner
-import com.jetbrains.rider.util.NetUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.aspireSessionHostModel
 import me.rafaelldi.aspire.services.AspireServiceManager
 import me.rafaelldi.aspire.sessionHost.SessionHostManager
-import me.rafaelldi.aspire.settings.AspireSettings
-import me.rafaelldi.aspire.util.*
+import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
+import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
+import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
+import me.rafaelldi.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
 import kotlin.io.path.Path
 
 class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNetRunnerBase {
@@ -108,11 +109,6 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
         val resourceServiceEndpointUrl = environmentVariables[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL]
         val resourceServiceApiKey = environmentVariables[DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY]
 
-        val openTelemetryProtocolEndpointUrl = environmentVariables[DOTNET_DASHBOARD_OTLP_ENDPOINT_URL]
-        val openTelemetryProtocolServerPort =
-            if (AspireSettings.getInstance().collectTelemetry) NetUtils.findFreePort(57100)
-            else null
-
         val debuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
         val configuration = (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)
@@ -131,8 +127,6 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
             debuggingMode,
             resourceServiceEndpointUrl,
             resourceServiceApiKey,
-            openTelemetryProtocolEndpointUrl,
-            openTelemetryProtocolServerPort,
             aspireHostLifetime
         )
     }
