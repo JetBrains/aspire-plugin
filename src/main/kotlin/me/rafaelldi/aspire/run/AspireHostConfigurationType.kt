@@ -32,7 +32,7 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
 
     override fun isApplicable(kind: RunnableProjectKind) = kind == AspireRunnableProjectKinds.AspireHost
 
-    override fun tryCreateDefault(
+    override suspend fun tryCreateDefault(
         project: Project,
         lifetime: Lifetime,
         projects: List<RunnableProject>,

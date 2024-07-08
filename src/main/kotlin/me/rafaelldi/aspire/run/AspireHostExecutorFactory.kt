@@ -30,7 +30,6 @@ import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
 import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS
 import me.rafaelldi.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
-import org.jetbrains.concurrency.await
 import java.io.File
 import java.net.URI
 import java.util.*
@@ -110,7 +109,6 @@ class AspireHostExecutorFactory(
         val params = ExecutableParameterProcessor
             .getInstance(project)
             .processEnvironment(runParameters, processOptions)
-            .await()
 
         return DotNetExecutable(
             params.executablePath ?: projectOutput.exePath,
