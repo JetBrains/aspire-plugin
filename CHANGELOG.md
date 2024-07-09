@@ -8,6 +8,10 @@
 
 - Support for Rider 2024.2
 
+### Removed
+
+- Experimental OpenTelemetry support
+
 ## [1.2.0] - 2024-06-06
 
 ### Added
