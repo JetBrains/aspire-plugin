@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.3.0] - 2024-07-10
+
 ### Changed
 
 - Support for Rider 2024.2
@@ -191,7 +193,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/rafaelldi/aspire-plugin/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/rafaelldi/aspire-plugin/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/rafaelldi/aspire-plugin/compare/v1.0.1...v1.2.0
 [1.0.1]: https://github.com/rafaelldi/aspire-plugin/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/rafaelldi/aspire-plugin/compare/v0.7.1...v1.0.0
