@@ -46,7 +46,7 @@ dependencies {
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
-        rider(properties("platformVersion"))
+        rider(properties("platformVersion"), false)
 
         jetbrainsRuntime()
 
