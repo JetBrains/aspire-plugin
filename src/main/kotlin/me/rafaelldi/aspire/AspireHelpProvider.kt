@@ -5,9 +5,9 @@ import com.intellij.openapi.help.WebHelpProvider
 class AspireHelpProvider : WebHelpProvider() {
     companion object {
         const val HELP_ID_PREFIX = "me.rafaelldi.aspire."
-        private const val HELP_DOCS = "https://rafaelldi.github.io/aspire-plugin"
-        private const val MAIN = "starter-topic.html"
-        private const val RUN_CONFIGURATION = "run-configuration.html"
+        private const val HELP_DOCS = "https://www.jetbrains.com/help/rider/2024.2"
+        private const val MAIN = "NET_Aspire.html"
+        private const val RUN_CONFIGURATION = "NET_Aspire_run_configuration.html"
     }
     override fun getHelpPageUrl(helpTopicId: String): String? {
         if (!helpTopicId.startsWith(HELP_ID_PREFIX)) {
