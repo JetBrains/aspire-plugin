@@ -2,7 +2,7 @@
 <idea-plugin url="https://github.com/rafaelldi/aspire-plugin" require-restart="true">
     <id>me.rafaelldi.aspire</id>
     <name>.NET Aspire</name>
-    <vendor url="https://github.com/rafaelldi">Rival Abdrakhmanov</vendor>
+    <vendor>JetBrains</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.rider</depends>
