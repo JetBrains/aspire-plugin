@@ -16,11 +16,10 @@ The plugin provides support for .NET Aspire projects in JetBrains Rider.
 * Resource dashboard
 * Manifest generation
 * Automatic database connection
-* OpenTelemetry support
 
 <!-- Plugin description end -->
 
-[Plugin documentation](https://rafaelldi.github.io/aspire-plugin)
+[Plugin documentation](https://www.jetbrains.com/help/rider/2024.2/NET_Aspire.html)
 
 [.NET Aspire documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
 
