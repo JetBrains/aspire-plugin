@@ -1,5 +1,5 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin url="https://github.com/rafaelldi/aspire-plugin" require-restart="true">
+<idea-plugin url="https://github.com/JetBrains/aspire-plugin" require-restart="true">
     <id>me.rafaelldi.aspire</id>
     <name>.NET Aspire</name>
     <vendor>JetBrains</vendor>
