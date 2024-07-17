@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Plugin repository and vendor
+
 ## [1.3.0] - 2024-07-10
 
 ### Changed
