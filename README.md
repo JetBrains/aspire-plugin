@@ -3,7 +3,7 @@
   <img alt="Logo" src="./src/main/resources/META-INF/pluginIcon_dark.svg#gh-dark-mode-only" width="100">
   <h2>.NET Aspire Plugin for JetBrains Rider</h2>
 
-  <a href="https://github.com/rafaelldi/aspire-plugin/actions/workflows/build.yml"><img src="https://github.com/rafaelldi/aspire-plugin/workflows/Build/badge.svg" alt="Build"></a>
+  <a href="https://github.com/JetBrains"><img src="https://jb.gg/badges/official.svg" alt="Official JetBrains project"></a>
   <a href="https://plugins.jetbrains.com/plugin/23289-aspire"><img src="https://img.shields.io/jetbrains/plugin/v/23289-aspire.svg?label=plugin&logo=rider" alt="Version"></a>
   <a href="https://plugins.jetbrains.com/plugin/23289-aspire"><img src="https://img.shields.io/jetbrains/plugin/d/23289-aspire.svg" alt="Downloads"></a>
 </div>
