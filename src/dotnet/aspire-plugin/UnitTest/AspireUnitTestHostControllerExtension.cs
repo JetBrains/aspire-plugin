@@ -1,10 +1,14 @@
 using System;
 using System.Threading.Tasks;
+using AspirePlugin.Generated;
 using AspirePlugin.Project;
 using JetBrains.Application.Parts;
+using JetBrains.Core;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Assemblies.Interfaces;
 using JetBrains.ProjectModel.Properties;
+using JetBrains.Rd.Tasks;
+using JetBrains.ReSharper.Feature.Services.Protocol;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Hosting;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Launch;
 using JetBrains.ReSharper.UnitTestFramework.Execution.TestRunner;
@@ -15,7 +19,7 @@ using JetBrains.Util.Dotnet.TargetFrameworkIds;
 namespace AspirePlugin.UnitTest;
 
 [SolutionComponent(Instantiation.DemandAnyThreadSafe)]
-public class AspireUnitTestHostControllerExtension : ITaskRunnerHostControllerExtension
+public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRunnerHostControllerExtension
 {
     private readonly NugetId _aspireHostingTesting = new("Aspire.Hosting.Testing");
 
@@ -49,6 +53,10 @@ public class AspireUnitTestHostControllerExtension : ITaskRunnerHostControllerEx
             if (aspireHostProject is not null)
             {
                 var isDebugging = run.Launch.HostProvider is DebugHostProvider;
+                var sessionHostModel = new SessionHostModel(isDebugging);
+                var model = solution.GetProtocolSolution().GetAspirePluginModel();
+                var task = model.StartSessionHost.Start(run.Lifetime, sessionHostModel) as RdTask<Unit>;
+                await task.AsTask();
             }
         }
 

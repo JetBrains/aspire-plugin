@@ -36,26 +36,38 @@ namespace AspirePlugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:10</p>
+  /// <p>Generated from: AspirePluginModel.kt:13</p>
   /// </summary>
   public class AspirePluginModel : RdExtBase
   {
     //fields
     //public fields
+    [NotNull] public IRdCall<SessionHostModel, Unit> StartSessionHost => _StartSessionHost;
     
     //private fields
+    [NotNull] private readonly RdCall<SessionHostModel, Unit> _StartSessionHost;
+    
     //primary constructor
-    internal AspirePluginModel(
+    private AspirePluginModel(
+      [NotNull] RdCall<SessionHostModel, Unit> startSessionHost
     )
     {
+      if (startSessionHost == null) throw new ArgumentNullException("startSessionHost");
+      
+      _StartSessionHost = startSessionHost;
+      BindableChildren.Add(new KeyValuePair<string, object>("startSessionHost", _StartSessionHost));
     }
     //secondary constructor
+    internal AspirePluginModel (
+    ) : this (
+      new RdCall<SessionHostModel, Unit>(SessionHostModel.Read, SessionHostModel.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid)
+    ) {}
     //deconstruct trait
     //statics
     
     
     
-    protected override long SerializationHash => 7970125302178080493L;
+    protected override long SerializationHash => -5031649830046048687L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -75,6 +87,9 @@ namespace AspirePlugin.Generated
     public override void Print(PrettyPrinter printer)
     {
       printer.Println("AspirePluginModel (");
+      using (printer.IndentCookie()) {
+        printer.Print("startSessionHost = "); _StartSessionHost.PrintEx(printer); printer.Println();
+      }
       printer.Print(")");
     }
     //toString
@@ -90,6 +105,89 @@ namespace AspirePlugin.Generated
     public static AspirePluginModel GetAspirePluginModel(this JetBrains.Rider.Model.Solution solution)
     {
       return solution.GetOrCreateExtension("aspirePluginModel", () => new AspirePluginModel());
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspirePluginModel.kt:14</p>
+  /// </summary>
+  public sealed class SessionHostModel : IPrintable, IEquatable<SessionHostModel>
+  {
+    //fields
+    //public fields
+    public bool UnderDebugger {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public SessionHostModel(
+      bool underDebugger
+    )
+    {
+      UnderDebugger = underDebugger;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct(out bool underDebugger)
+    {
+      underDebugger = UnderDebugger;
+    }
+    //statics
+    
+    public static CtxReadDelegate<SessionHostModel> Read = (ctx, reader) => 
+    {
+      var underDebugger = reader.ReadBool();
+      var _result = new SessionHostModel(underDebugger);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<SessionHostModel> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.UnderDebugger);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((SessionHostModel) obj);
+    }
+    public bool Equals(SessionHostModel other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return UnderDebugger == other.UnderDebugger;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + UnderDebugger.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("SessionHostModel (");
+      using (printer.IndentCookie()) {
+        printer.Print("underDebugger = "); UnderDebugger.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
     }
   }
 }
