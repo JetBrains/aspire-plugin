@@ -21,7 +21,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.run.AspireHostConfig
+import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
 class SessionManager(private val project: Project, scope: CoroutineScope) {
@@ -33,6 +35,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
     private val sessions = mutableMapOf<String, Session>()
     private val resourceToSessionMap = mutableMapOf<String, String>()
+    private val projectPathToResourceIdMap = mutableMapOf<Path, Pair<String, String>>()
     private val sessionsUnderRestart = ConcurrentHashMap<String, Unit>()
 
     private val commands = MutableSharedFlow<LaunchSessionCommand>(
@@ -90,12 +93,14 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         LOG.trace("Connection between resource $idValue and session ${command.sessionId}")
 
         resourceToSessionMap[idValue] = command.sessionId
+        projectPathToResourceIdMap[Path(command.sessionModel.projectPath)] = command.sessionId to idValue
     }
 
     private suspend fun handleDeleteCommand(command: DeleteSessionCommand) {
         LOG.trace("Deleting session ${command.sessionId}")
 
         resourceToSessionMap.removeIf { it.value == command.sessionId }
+        projectPathToResourceIdMap.removeIf { it.value.first == command.sessionId }
         sessionsUnderRestart.remove(command.sessionId)
         val session = sessions.remove(command.sessionId) ?: return
 
@@ -109,6 +114,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     suspend fun submitCommand(command: LaunchSessionCommand) {
         commands.emit(command)
     }
+
+    fun getResourceIdByProject(projectPath: Path) = projectPathToResourceIdMap[projectPath]?.second
 
     fun isResourceRunning(resourceId: String): Boolean {
         val sessionId = resourceToSessionMap[resourceId] ?: return false
@@ -151,6 +158,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         LOG.trace("Stopping resource $resourceId")
 
         val sessionId = resourceToSessionMap.remove(resourceId) ?: return
+        projectPathToResourceIdMap.removeIf { it.value.second == resourceId }
         sessionsUnderRestart.remove(sessionId)
         val session = sessions.remove(sessionId) ?: return
         if (session.lifetimeDefinition.isNotAlive) return
@@ -171,6 +179,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         if (sessionUnderRestart != null) return
 
         resourceToSessionMap.removeIf { it.value == sessionId }
+        projectPathToResourceIdMap.removeIf { it.value.first == sessionId }
         val session = sessions.remove(sessionId) ?: return
         if (session.lifetimeDefinition.isNotAlive) return
 
