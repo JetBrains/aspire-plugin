@@ -20,24 +20,42 @@ dependencies {
 
 rdgen {
     val pluginSourcePath = projectDir.resolve("../src")
-    val ktOutput = pluginSourcePath.resolve("main/kotlin/me/rafaelldi/aspire/generated")
-    val csOutput = pluginSourcePath.resolve("dotnet/aspire-session-host/Generated")
 
     verbose = true
-    packages = "model.sessionHost"
+    packages = "model.sessionHost,model.aspirePlugin"
+
+    val ktSessionHostOutput = pluginSourcePath.resolve("main/kotlin/me/rafaelldi/aspire/generated")
+    val csSessionHostOutput = pluginSourcePath.resolve("dotnet/aspire-session-host/Generated")
 
     generator {
         language = "kotlin"
         transform = "asis"
         root = "model.sessionHost.AspireSessionHostRoot"
-        directory = ktOutput.canonicalPath
+        directory = ktSessionHostOutput.canonicalPath
     }
 
     generator {
         language = "csharp"
         transform = "reversed"
         root = "model.sessionHost.AspireSessionHostRoot"
-        directory = csOutput.canonicalPath
+        directory = csSessionHostOutput.canonicalPath
+    }
+
+    val ktPluginOutput = pluginSourcePath.resolve("main/kotlin/me/rafaelldi/aspire/generated")
+    val csPluginOutput = pluginSourcePath.resolve("dotnet/aspire-plugin/Generated")
+
+    generator {
+        language = "kotlin"
+        transform = "asis"
+        root = "com.jetbrains.rider.model.nova.ide.IdeRoot"
+        directory = ktPluginOutput.canonicalPath
+    }
+
+    generator {
+        language = "csharp"
+        transform = "reversed"
+        root = "com.jetbrains.rider.model.nova.ide.IdeRoot"
+        directory = csPluginOutput.canonicalPath
     }
 }
 
