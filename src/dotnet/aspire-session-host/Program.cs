@@ -26,7 +26,7 @@ builder.Services.ConfigureHttpJsonOptions(it =>
 var app = builder.Build();
 
 await app.Services.InitializeSessionServices();
-await app.Services.InitializeResourceServices();
+await app.Services.InitializeResourceServices(app.Configuration);
 
 app.UseWebSockets();
 

@@ -27,7 +27,7 @@ class SessionHostManager(private val project: Project, private val scope: Corout
         private val LOG = logger<SessionHostManager>()
     }
 
-    suspend fun startSessionHost(
+    fun startSessionHost(
         aspireHostConfig: AspireHostConfig,
         protocolServerPort: Int,
         sessionHostModel: AspireSessionHostModel
@@ -47,7 +47,7 @@ class SessionHostManager(private val project: Project, private val scope: Corout
         )
     }
 
-    private suspend fun subscribe(
+    private fun subscribe(
         aspireHostConfig: AspireHostConfig,
         sessionHostModel: AspireSessionHostModel,
         sessionHostLifetime: Lifetime

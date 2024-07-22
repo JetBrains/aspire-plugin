@@ -9,11 +9,13 @@ using JetBrains.ProjectModel.Assemblies.Interfaces;
 using JetBrains.ProjectModel.Properties;
 using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
+using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Hosting;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Launch;
 using JetBrains.ReSharper.UnitTestFramework.Execution.TestRunner;
 using JetBrains.Util;
 using JetBrains.Util.Dotnet.TargetFrameworkIds;
+
 // ReSharper disable ConvertIfStatementToReturnStatement
 
 namespace AspirePlugin.UnitTest;
@@ -49,14 +51,24 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
         {
             var project = netDescriptor.Project;
             var aspireHostProject = GetAspireHostProject(project, netDescriptor.TargetFrameworkId);
-            if (aspireHostProject is not null)
+            var aspireHostProjectPath = aspireHostProject?.ProjectFile?.Location.FullPath;
+            if (aspireHostProjectPath is not null)
             {
                 var isDebugging = run.Launch.HostProvider is DebugHostProvider;
-                var sessionHostModel = new SessionHostModel(isDebugging);
+                var request = new StartSessionHostRequest(
+                    run.Id,
+                    aspireHostProjectPath,
+                    isDebugging
+                );
                 var model = solution.GetProtocolSolution().GetAspirePluginModel();
-                if (model.StartSessionHost.Start(run.Lifetime, sessionHostModel) is RdTask<Unit> task)
+                if (model.StartSessionHost.Start(run.Lifetime, request) is RdTask<StartSessionHostResponse> task)
                 {
-                    await task.AsTask();
+                    var response = await task.AsTask();
+                    var envVariables = run.Settings.TestRunner.EnvironmentVariables;
+                    foreach (var hostEnvironmentVariable in response.EnvironmentVariables)
+                    {
+                        envVariables.Value[hostEnvironmentVariable.Key] = hostEnvironmentVariable.Value;
+                    }
                 }
             }
         }
@@ -66,26 +78,38 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
 
     public async Task CleanupAfterRun(IUnitTestRun run, ITaskRunnerHostController next)
     {
+        var model = solution.GetProtocolSolution().GetAspirePluginModel();
+        var request = new StopSessionHostRequest(run.Id);
+        if (model.StopSessionHost.Start(run.Lifetime, request) is RdTask<Unit> task)
+        {
+            await task.AsTask();
+        }
+
         await next.CleanupAfterRun(run);
     }
 
     public void Cancel(IUnitTestRun run)
     {
+        var model = solution.GetProtocolSolution().GetAspirePluginModel();
+        model.UnitTestRunCancelled(run.Id);
     }
 
     private IProject? GetAspireHostProject(IProject projectUnderTest, TargetFrameworkId targetFrameworkId)
     {
-        var referenced = projectUnderTest.GetReferencedProjects(targetFrameworkId);
-        foreach (var referencedProject in referenced)
+        using (ReadLockCookie.Create())
         {
-            var property =
-                referencedProject.GetUniqueRequestedProjectProperty(AspireHostProjectPropertyRequest.IsAspireHost);
-            if (!property.IsNullOrEmpty() && string.Equals(property, "true", StringComparison.OrdinalIgnoreCase))
+            var referenced = projectUnderTest.GetReferencedProjects(targetFrameworkId);
+            foreach (var referencedProject in referenced)
             {
-                return referencedProject;
+                var property =
+                    referencedProject.GetUniqueRequestedProjectProperty(AspireHostProjectPropertyRequest.IsAspireHost);
+                if (!property.IsNullOrEmpty() && string.Equals(property, "true", StringComparison.OrdinalIgnoreCase))
+                {
+                    return referencedProject;
+                }
             }
-        }
 
-        return null;
+            return null;
+        }
     }
 }

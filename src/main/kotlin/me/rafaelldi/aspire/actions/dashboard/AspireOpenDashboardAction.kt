@@ -32,7 +32,7 @@ class AspireOpenDashboardAction : AnAction() {
         val hostService = AspireServiceManager
             .getInstance(project)
             .getHostService(hostPath)
-        if (hostService == null || !hostService.isActive) {
+        if (hostService == null || !hostService.isActive || hostService.dashboardUrl.isNullOrEmpty()) {
             event.presentation.isEnabledAndVisible = false
             return
         }

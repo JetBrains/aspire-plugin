@@ -37,7 +37,7 @@ class AspireHostService(
         private set
 
     fun startHost(
-        aspireHostDashboardUrl: String,
+        aspireHostDashboardUrl: String?,
         sessionHostModel: AspireSessionHostModel,
         aspireHostServiceLifetime: Lifetime
     ) {
