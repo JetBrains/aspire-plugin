@@ -45,7 +45,6 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
 
     public async Task PrepareForRun(IUnitTestRun run, ITaskRunnerHostController next)
     {
-        System.Diagnostics.Debugger.Launch();
         if (run.RuntimeDescriptor is TestRunnerRuntimeDescriptor.NetCore netDescriptor)
         {
             var project = netDescriptor.Project;
@@ -55,8 +54,10 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
                 var isDebugging = run.Launch.HostProvider is DebugHostProvider;
                 var sessionHostModel = new SessionHostModel(isDebugging);
                 var model = solution.GetProtocolSolution().GetAspirePluginModel();
-                var task = model.StartSessionHost.Start(run.Lifetime, sessionHostModel) as RdTask<Unit>;
-                await task.AsTask();
+                if (model.StartSessionHost.Start(run.Lifetime, sessionHostModel) is RdTask<Unit> task)
+                {
+                    await task.AsTask();
+                }
             }
         }
 

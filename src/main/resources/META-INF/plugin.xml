@@ -26,6 +26,9 @@
                 key="configurable.Aspire"
                 bundle="messages.AspireBundle"/>
 
+        <rd.solutionExtListener endpoint="IDE Frontend"
+                                listener="me.rafaelldi.aspire.unitTests.AspireUnitTestProtocolListener"/>
+
         <notificationGroup id="Aspire" displayType="BALLOON"/>
 
         <webHelpProvider implementation="me.rafaelldi.aspire.AspireHelpProvider"/>
@@ -40,13 +43,14 @@
     <extensions defaultExtensionNs="com.intellij.rider.database">
         <dotnetDataProvider implementation="me.rafaelldi.aspire.database.DummyMongoDataProvider"/>
         <dotnetDataProvider implementation="me.rafaelldi.aspire.database.DummyRedisDataProvider"/>
-        <connectionStringsFactory implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConnectionStringsFactory"/>
+        <connectionStringsFactory
+                implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConnectionStringsFactory"/>
         <connectionStringToJdbcUrlMapper implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConverter"/>
     </extensions>
 
     <projectListeners>
         <listener class="me.rafaelldi.aspire.database.DatabaseResourceListener"
-                  topic="me.rafaelldi.aspire.services.ResourceListener" />
+                  topic="me.rafaelldi.aspire.services.ResourceListener"/>
         <listener class="me.rafaelldi.aspire.services.AspireServiceManager$Listener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
