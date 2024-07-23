@@ -40,6 +40,7 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
         runManager: RunManager
     ): List<Pair<RunnableProject, RunnerAndConfigurationSettings>> {
         val aspireHostProjects = projects.filter { it.kind == AspireRunnableProjectKinds.AspireHost }
+        if (aspireHostProjects.isEmpty()) return emptyList()
 
         val result = mutableListOf<Pair<RunnableProject, RunnerAndConfigurationSettings>>()
 
@@ -67,7 +68,8 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
                     configurationName,
                     runnableProject,
                     profile.key,
-                    runManager
+                    runManager,
+                    project
                 )
 
                 runManager.addConfiguration(configuration)
@@ -111,7 +113,8 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
         name: String,
         runnableProject: RunnableProject,
         profile: String,
-        runManager: RunManager
+        runManager: RunManager,
+        project: Project
     ): RunnerAndConfigurationSettings {
         val settings = runManager.createConfiguration(name, factory).apply {
             isActivateToolWindowBeforeRun = false
@@ -120,15 +123,21 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
         (settings.configuration as? AspireHostConfiguration)?.parameters?.apply {
             projectFilePath = runnableProject.projectFilePath
             profileName = profile
-            val launchProfile = getLaunchProfileByName(runnableProject, profile)
+            val projectOutput = runnableProject.projectOutputs.firstOrNull()
+            projectTfm = projectOutput?.tfm?.presentableName ?: ""
+            val launchProfile = FunctionLaunchProfilesService
+                .getInstance(project)
+                .getLaunchProfileByName(runnableProject, profile)
             if (launchProfile != null) {
-                val environmentVariables = getEnvironmentVariables(launchProfile.first, launchProfile.second)
-                envs = environmentVariables
+                arguments = getArguments(launchProfile.content, projectOutput)
+                trackArguments = true
+                workingDirectory = getWorkingDirectory(launchProfile.content, projectOutput)
+                trackWorkingDirectory = true
+                envs = getEnvironmentVariables(launchProfile.name, launchProfile.content)
                 trackEnvs = true
-                val applicationUrl = getApplicationUrl(launchProfile.second)
                 startBrowserParameters.apply {
-                    url = applicationUrl ?: ""
-                    startAfterLaunch = launchProfile.second.launchBrowser
+                    url = getApplicationUrl(launchProfile.content)
+                    startAfterLaunch = launchProfile.content.launchBrowser
                 }
                 trackUrl = true
             }
