@@ -7,6 +7,7 @@
 ### Added
 
 - Unit testing support
+- Target framework, arguments, working directory and podman runtime parameters to the run configuration
 
 ## [1.3.1] - 2024-07-17
 
