@@ -1,35 +1,33 @@
 package me.rafaelldi.aspire.run
 
 import com.intellij.execution.CantRunException
+import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.openapi.application.readAction
+import com.intellij.ide.browsers.BrowserStarter
+import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
-import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
-import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
+import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
+import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
 import com.jetbrains.rider.run.environment.ExecutableRunParameters
 import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
-import me.rafaelldi.aspire.util.ASPIRE_ALLOW_UNSECURED_TRANSPORT
-import me.rafaelldi.aspire.util.ASPNETCORE_URLS
-import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
-import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
-import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN
-import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
-import me.rafaelldi.aspire.util.DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS
-import me.rafaelldi.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
+import me.rafaelldi.aspire.util.*
 import java.io.File
 import java.net.URI
 import java.util.*
@@ -53,10 +51,17 @@ class AspireHostExecutorFactory(
             it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath == parameters.projectFilePath
         } ?: throw CantRunException(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
 
-        val profile = getLaunchSettingsProfile(runnableProject)
+        val projectOutput = runnableProject
+            .projectOutputs
+            .singleOrNull { it.tfm?.presentableName == parameters.projectTfm }
+            ?: throw CantRunException("Unable to get the project output for ${parameters.projectTfm}")
+
+        val profile = FunctionLaunchProfilesService
+            .getInstance(project)
+            .getLaunchProfileByName(runnableProject, parameters.profileName)
             ?: throw CantRunException("Profile ${parameters.profileName} not found")
 
-        val executable = getDotNetExecutable(runnableProject, profile)
+        val executable = getDotNetExecutable(runnableProject, projectOutput, profile)
 
         return when (executorId) {
             DefaultDebugExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
@@ -67,41 +72,38 @@ class AspireHostExecutorFactory(
 
     private suspend fun getDotNetExecutable(
         runnableProject: RunnableProject,
-        profile: LaunchSettingsJson.Profile
+        projectOutput: ProjectOutput,
+        launchProfile: LaunchProfile
     ): DotNetExecutable {
-        val projectOutput = runnableProject.projectOutputs.firstOrNull()
-            ?: throw CantRunException("Unable to find project output")
+        val effectiveArguments =
+            if (parameters.trackArguments) getArguments(launchProfile.content, projectOutput)
+            else parameters.arguments
 
-        val commandLineArguments =
-            if (projectOutput.defaultArguments.isEmpty()) profile.commandLineArgs
-            else ParametersListUtil.join(projectOutput.defaultArguments) + " " + profile.commandLineArgs.orEmpty()
+        val effectiveWorkingDirectory =
+            if (parameters.trackWorkingDirectory) getWorkingDirectory(launchProfile.content, projectOutput)
+            else parameters.workingDirectory
 
-        val envs = parameters.envs.toMutableMap()
-        val environmentVariableValues = configureEnvironmentVariables(envs)
+        val effectiveEnvs =
+            if (parameters.trackEnvs) getEnvironmentVariables(launchProfile.name, launchProfile.content).toMutableMap()
+            else parameters.envs.toMutableMap()
+        val environmentVariableValues = configureEnvironmentVariables(effectiveEnvs)
 
-        if (environmentVariableValues.browserToken != null) {
-            val url = URI(parameters.startBrowserParameters.url)
-            val updatedUrl = URI(
-                url.scheme,
-                null,
-                url.host,
-                url.port,
-                "/login",
-                "t=${environmentVariableValues.browserToken}",
-                null
-            )
-            parameters.startBrowserParameters.url = updatedUrl.toString()
+        var effectiveUrl =
+            if (parameters.trackUrl) getApplicationUrl(launchProfile.content)
+            else parameters.startBrowserParameters.url
+        if (parameters.trackUrl && environmentVariableValues.browserToken != null) {
+            effectiveUrl = configureUrl(effectiveUrl, environmentVariableValues.browserToken)
         }
 
         val processOptions = ProjectProcessOptions(
             File(runnableProject.projectFilePath),
-            File(projectOutput.workingDirectory)
+            File(effectiveWorkingDirectory)
         )
         val runParameters = ExecutableRunParameters(
             projectOutput.exePath,
-            projectOutput.workingDirectory,
-            commandLineArguments,
-            envs,
+            effectiveWorkingDirectory,
+            effectiveArguments,
+            effectiveEnvs,
             true,
             projectOutput.tfm
         )
@@ -119,7 +121,7 @@ class AspireHostExecutorFactory(
             false,
             params.environmentVariables,
             true,
-            parameters.startBrowserAction,
+            getStartBrowserAction(effectiveUrl, parameters.startBrowserParameters),
             null,
             "",
             true
@@ -173,14 +175,37 @@ class AspireHostExecutorFactory(
         return EnvironmentVariableValues(browserToken)
     }
 
-    private suspend fun getLaunchSettingsProfile(runnableProject: RunnableProject): LaunchSettingsJson.Profile? {
-        val launchSettings = readAction {
-            LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
-        }
-        return launchSettings?.profiles?.get(parameters.profileName)
+    private fun configureUrl(urlValue: String, browserToken: String): String {
+        val url = URI(urlValue)
+        val updatedUrl = URI(
+            url.scheme,
+            null,
+            url.host,
+            url.port,
+            "/login",
+            "t=${browserToken}",
+            null
+        )
+        return updatedUrl.toString()
     }
 
     private data class EnvironmentVariableValues(
         val browserToken: String?
     )
+
+    private fun getStartBrowserAction(
+        browserUrl: String,
+        params: DotNetStartBrowserParameters
+    ): (ExecutionEnvironment, RunProfile, ProcessHandler) -> Unit =
+        { _, runProfile, processHandler ->
+            if (params.startAfterLaunch && runProfile is RunConfiguration) {
+                val startBrowserSettings = StartBrowserSettings().apply {
+                    isSelected = params.startAfterLaunch
+                    url = browserUrl
+                    browser = params.browser
+                    isStartJavaScriptDebugger = params.withJavaScriptDebugger
+                }
+                BrowserStarter(runProfile, startBrowserSettings, processHandler).start()
+            }
+        }
 }

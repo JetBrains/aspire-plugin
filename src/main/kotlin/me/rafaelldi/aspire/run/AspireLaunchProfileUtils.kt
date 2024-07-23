@@ -1,30 +1,39 @@
 package me.rafaelldi.aspire.run
 
-import com.jetbrains.rider.model.RunnableProject
+import com.intellij.util.execution.ParametersListUtil
+import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
-import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 
-internal fun getLaunchProfileByName(
-    runnableProject: RunnableProject,
-    launchProfileName: String?
-): Pair<String, LaunchSettingsJson.Profile>? {
-    if (launchProfileName == null) return null
-    val launchProfiles = LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
-        ?.profiles
-        ?.filter { it.value.commandName.equals("Project", true) }
-        ?: return null
-    val profileByName = launchProfiles[launchProfileName] ?: return null
-    return launchProfileName to profileByName
+
+internal fun getArguments(profile: LaunchSettingsJson.Profile?, projectOutput: ProjectOutput?): String {
+    val defaultArguments = projectOutput?.defaultArguments
+    return if (defaultArguments.isNullOrEmpty()) profile?.commandLineArgs ?: ""
+    else {
+        val parametersList = ParametersListUtil.join(defaultArguments)
+        val commandLineArgs = profile?.commandLineArgs
+        if (commandLineArgs != null) {
+            "$parametersList $commandLineArgs"
+        } else {
+            parametersList
+        }
+    }
 }
 
-internal fun getEnvironmentVariables(launchProfileName: String, launchProfileContent: LaunchSettingsJson.Profile): MutableMap<String, String> {
-    val environmentVariables = launchProfileContent.environmentVariables
+internal fun getWorkingDirectory(profile: LaunchSettingsJson.Profile?, projectOutput: ProjectOutput?): String {
+    return profile?.workingDirectory ?: projectOutput?.workingDirectory ?: ""
+}
+
+internal fun getEnvironmentVariables(profileName: String?, profile: LaunchSettingsJson.Profile?): MutableMap<String, String> {
+    val environmentVariables = profile
+        ?.environmentVariables
         ?.mapNotNull { it.value?.let { value -> it.key to value } }
         ?.toMap()
         ?.toMutableMap()
         ?: mutableMapOf()
-    environmentVariables["DOTNET_LAUNCH_PROFILE"] = launchProfileName
-    val applicationUrl = launchProfileContent.applicationUrl
+    if (profileName != null) {
+        environmentVariables["DOTNET_LAUNCH_PROFILE"] = profileName
+    }
+    val applicationUrl = profile?.applicationUrl
     if (!applicationUrl.isNullOrEmpty()) {
         environmentVariables["ASPNETCORE_URLS"] = applicationUrl
     }
@@ -32,7 +41,7 @@ internal fun getEnvironmentVariables(launchProfileName: String, launchProfileCon
     return environmentVariables
 }
 
-internal fun getApplicationUrl(launchProfileContent: LaunchSettingsJson.Profile) : String? {
-    val applicationUrl = launchProfileContent.applicationUrl
-    return applicationUrl?.substringBefore(';')
+internal fun getApplicationUrl(profile: LaunchSettingsJson.Profile) : String {
+    val applicationUrl = profile.applicationUrl
+    return applicationUrl?.substringBefore(';') ?: ""
 }

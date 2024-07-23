@@ -16,9 +16,7 @@ class AspireHostConfigurationFactory(type: AspireHostConfigurationType) :
         project,
         this,
         "Aspire Host",
-        AspireHostConfigurationParameters(
-            project, "", "", true, hashMapOf(), true, DotNetStartBrowserParameters()
-        )
+        AspireHostConfigurationParameters.createDefault(project)
     )
 
     override fun configureDefaultSettings(settings: RunnerAndConfigurationSettings) {
