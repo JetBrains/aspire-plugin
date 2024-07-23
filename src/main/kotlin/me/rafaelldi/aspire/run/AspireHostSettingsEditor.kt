@@ -31,6 +31,7 @@ class AspireHostSettingsEditor(private val project: Project) :
                 lifetime
             ),
             EnvironmentVariablesEditor(AspireBundle.message("run.editor.environment.variables"), "Environment_variables"),
+            FlagEditor("Use Podman container runtime", "Use_podman_runtime"),
             ViewSeparator(AspireBundle.message("run.editor.open.browser")),
             TextEditor(AspireBundle.message("run.editor.url"), "URL", lifetime),
             BrowserSettingsEditor("")
@@ -49,6 +50,7 @@ class AspireHostSettingsEditor(private val project: Project) :
             workingDirectory = FileUtil.toSystemIndependentName(viewModel.workingDirectorySelector.path.value)
             trackEnvs = viewModel.trackEnvs
             envs = viewModel.environmentVariablesEditor.envs.value
+            usePodmanRuntime = viewModel.usePodmanRuntimeFlagEditor.isSelected.value
             trackUrl = viewModel.trackUrl
             startBrowserParameters.url = viewModel.urlEditor.text.value
             startBrowserParameters.browser = viewModel.dotNetBrowserSettingsEditor.settings.value.myBrowser
@@ -71,6 +73,7 @@ class AspireHostSettingsEditor(private val project: Project) :
                 workingDirectory,
                 trackEnvs,
                 envs,
+                usePodmanRuntime,
                 trackUrl,
                 startBrowserParameters
             )

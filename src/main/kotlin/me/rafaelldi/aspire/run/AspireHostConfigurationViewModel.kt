@@ -24,6 +24,7 @@ class AspireHostConfigurationViewModel(
     val programParametersEditor: ProgramParametersEditor,
     val workingDirectorySelector: PathSelector,
     val environmentVariablesEditor: EnvironmentVariablesEditor,
+    val usePodmanRuntimeFlagEditor: FlagEditor,
     separator: ViewSeparator,
     val urlEditor: TextEditor,
     val dotNetBrowserSettingsEditor: BrowserSettingsEditor
@@ -36,6 +37,7 @@ class AspireHostConfigurationViewModel(
             programParametersEditor,
             workingDirectorySelector,
             environmentVariablesEditor,
+            usePodmanRuntimeFlagEditor,
             separator,
             urlEditor,
             dotNetBrowserSettingsEditor
@@ -209,6 +211,7 @@ class AspireHostConfigurationViewModel(
         workingDirectory: String,
         trackEnvs: Boolean,
         envs: Map<String, String>,
+        usePodmanRuntime: Boolean,
         trackUrl: Boolean,
         dotNetStartBrowserParameters: DotNetStartBrowserParameters
     ) {
@@ -220,6 +223,8 @@ class AspireHostConfigurationViewModel(
         this.trackUrl = trackUrl
 
         runnableProjectsModel?.projects?.adviseOnce(lifetime) { projectList ->
+            usePodmanRuntimeFlagEditor.isSelected.set(usePodmanRuntime)
+
             dotNetBrowserSettingsEditor.settings.set(
                 BrowserSettings(
                     dotNetStartBrowserParameters.startAfterLaunch,

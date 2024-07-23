@@ -22,6 +22,7 @@ class AspireHostConfigurationParameters(
     var workingDirectory: String,
     var trackEnvs: Boolean,
     var envs: Map<String, String>,
+    var usePodmanRuntime: Boolean,
     var trackUrl: Boolean,
     var startBrowserParameters: DotNetStartBrowserParameters
 ) {
@@ -35,6 +36,7 @@ class AspireHostConfigurationParameters(
         private const val WORKING_DIRECTORY = "WORKING_DIRECTORY"
         private const val TRACK_ENVS = "TRACK_ENVS"
         private const val TRACK_URL = "TRACK_URL"
+        private const val USE_PODMAN_RUNTIME = "USE_PODMAN_RUNTIME"
 
         fun createDefault(project: Project) = AspireHostConfigurationParameters(
             project,
@@ -47,6 +49,7 @@ class AspireHostConfigurationParameters(
             "",
             true,
             hashMapOf(),
+            false,
             true,
             DotNetStartBrowserParameters()
         )
@@ -84,6 +87,8 @@ class AspireHostConfigurationParameters(
         val trackEnvsString = JDOMExternalizerUtil.readField(element, TRACK_ENVS) ?: ""
         trackEnvs = trackEnvsString != "0"
         EnvironmentVariablesComponent.readExternal(element, envs)
+        val usePodmanRuntimeString = JDOMExternalizerUtil.readField(element, USE_PODMAN_RUNTIME) ?: ""
+        usePodmanRuntime = usePodmanRuntimeString == "1"
         val trackUrlString = JDOMExternalizerUtil.readField(element, TRACK_URL) ?: ""
         trackUrl = trackUrlString != "0"
         startBrowserParameters = DotNetStartBrowserParameters.readExternal(element)
@@ -99,6 +104,7 @@ class AspireHostConfigurationParameters(
         JDOMExternalizerUtil.writeField(element, WORKING_DIRECTORY, workingDirectory)
         JDOMExternalizerUtil.writeField(element, TRACK_ENVS, if (trackEnvs) "1" else "0")
         EnvironmentVariablesComponent.writeExternal(element, envs)
+        JDOMExternalizerUtil.writeField(element, USE_PODMAN_RUNTIME, if (usePodmanRuntime) "1" else "0")
         JDOMExternalizerUtil.writeField(element, TRACK_URL, if (trackUrl) "1" else "0")
         startBrowserParameters.writeExternal(element)
     }
@@ -114,6 +120,7 @@ class AspireHostConfigurationParameters(
         workingDirectory,
         trackEnvs,
         envs,
+        usePodmanRuntime,
         trackUrl,
         startBrowserParameters.copy()
     )

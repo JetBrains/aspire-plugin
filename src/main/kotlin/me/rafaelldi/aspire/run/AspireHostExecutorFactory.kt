@@ -172,6 +172,12 @@ class AspireHostExecutorFactory(
             envs[DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY] = UUID.randomUUID().toString()
         }
 
+        //Configure Podman container runtime
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling?tabs=linux&pivots=visual-studio#container-runtime
+        if (parameters.usePodmanRuntime && !envs.containsKey(DOTNET_ASPIRE_CONTAINER_RUNTIME)) {
+            envs[DOTNET_ASPIRE_CONTAINER_RUNTIME] = "podman"
+        }
+
         return EnvironmentVariableValues(browserToken)
     }
 
