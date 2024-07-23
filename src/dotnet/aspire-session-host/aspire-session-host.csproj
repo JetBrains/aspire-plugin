@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grpc.AspNetCore" Version="2.63.0" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
         <PackageReference Include="JetBrains.Annotations" Version="2024.2.0"/>
         <PackageReference Include="JetBrains.RdFramework" Version="2024.1.1" />
         <PackageReference Include="Microsoft.Extensions.Resilience" Version="8.7.0" />
