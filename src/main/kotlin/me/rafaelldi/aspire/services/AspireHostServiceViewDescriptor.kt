@@ -28,7 +28,6 @@ class AspireHostServiceViewDescriptor(
         Separator(),
         ActionManager.getInstance().getAction("Aspire.Manifest"),
         ActionManager.getInstance().getAction("Aspire.Dashboard"),
-        ActionManager.getInstance().getAction("Aspire.Diagram"),
         Separator(),
         ActionManager.getInstance().getAction("Aspire.Settings"),
         ActionManager.getInstance().getAction("Aspire.Help")

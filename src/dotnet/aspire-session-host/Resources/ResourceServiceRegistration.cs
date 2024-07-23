@@ -57,8 +57,13 @@ internal static class ResourceServiceRegistration
         });
     }
 
-    internal static async Task InitializeResourceServices(this IServiceProvider services)
+    internal static async Task InitializeResourceServices(this IServiceProvider services, IConfiguration configuration)
     {
+        var resourceServiceOptions = configuration
+            .GetSection(ConfigureResourceServiceOptions.SectionName)
+            .Get<ResourceServiceOptions>();
+        if (resourceServiceOptions?.EndpointUrl is null) return;
+
         using var scope = services.CreateScope();
         var resourceService = scope.ServiceProvider.GetRequiredService<ResourceService>();
         resourceService.Initialize();
