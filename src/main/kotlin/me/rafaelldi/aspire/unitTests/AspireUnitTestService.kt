@@ -20,6 +20,8 @@ import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.*
 import me.rafaelldi.aspire.run.AspireHostConfig
 import me.rafaelldi.aspire.sessionHost.SessionHostManager
+import me.rafaelldi.aspire.util.DEBUG_SESSION_PORT
+import me.rafaelldi.aspire.util.DEBUG_SESSION_TOKEN
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
@@ -70,11 +72,11 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
 
                 val environmentVariables = listOf(
                     SessionHostEnvironmentVariable(
-                        "DEBUG_SESSION_TOKEN",
+                        DEBUG_SESSION_TOKEN,
                         debugSessionToken
                     ),
                     SessionHostEnvironmentVariable(
-                        "DEBUG_SESSION_PORT",
+                        DEBUG_SESSION_PORT,
                         debugSessionUrl
                     )
                 )

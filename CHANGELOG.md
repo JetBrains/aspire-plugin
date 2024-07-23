@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Unit testing support
+
 ## [1.3.1] - 2024-07-17
 
 ### Changed
