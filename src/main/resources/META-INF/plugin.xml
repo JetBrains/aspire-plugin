@@ -29,6 +29,8 @@
         <rd.solutionExtListener endpoint="IDE Frontend"
                                 listener="me.rafaelldi.aspire.unitTests.AspireUnitTestProtocolListener"/>
 
+        <backgroundPostStartupActivity implementation="me.rafaelldi.aspire.WarmupStartupActivity"/>
+
         <notificationGroup id="Aspire" displayType="BALLOON"/>
 
         <webHelpProvider implementation="me.rafaelldi.aspire.AspireHelpProvider"/>
