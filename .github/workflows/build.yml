@@ -31,6 +31,7 @@ jobs:
 
   # Prepare environment and build the plugin
   build:
+    if: github.event.pull_request.draft == false
     name: Build
     runs-on: ubuntu-latest
     outputs:
