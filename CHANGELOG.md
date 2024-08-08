@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#226](https://github.com/JetBrains/aspire-plugin/issues/226): Cannot restart .NET project services
+
 ## [1.4.0] - 2024-07-24
 
 ### Added
