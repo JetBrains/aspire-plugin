@@ -15,23 +15,23 @@ import me.rafaelldi.aspire.AspireBundle
 import me.rafaelldi.aspire.generated.ResourceState
 import me.rafaelldi.aspire.generated.ResourceType
 import me.rafaelldi.aspire.sessionHost.SessionManager
+import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_SERVICE_INSTANCE_ID
 import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_STATE
 import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_TYPE
-import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_UID
 
 class RestartResourceAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        val resourceUid = event.getData(ASPIRE_RESOURCE_UID)
+        val serviceInstanceId = event.getData(ASPIRE_RESOURCE_SERVICE_INSTANCE_ID)
 
-        if (resourceUid != null) {
+        if (serviceInstanceId != null) {
             val resourceType = event.getData(ASPIRE_RESOURCE_TYPE)
             val resourceState = event.getData(ASPIRE_RESOURCE_STATE)
 
             if (resourceType == ResourceType.Project && resourceState == ResourceState.Running) {
                 currentThreadCoroutineScope().launch {
                     withBackgroundProgress(project, AspireBundle.message("progress.stop.resource")) {
-                        SessionManager.getInstance(project).restartResource(resourceUid, false)
+                        SessionManager.getInstance(project).restartResource(serviceInstanceId, false)
                     }
                 }
             }
@@ -58,9 +58,9 @@ class RestartResourceAction : AnAction() {
             return
         }
 
-        val resourceUid = event.getData(ASPIRE_RESOURCE_UID)
+        val serviceInstanceId = event.getData(ASPIRE_RESOURCE_SERVICE_INSTANCE_ID)
 
-        if (resourceUid != null) {
+        if (serviceInstanceId != null) {
             val resourceType = event.getData(ASPIRE_RESOURCE_TYPE)
             val resourceState = event.getData(ASPIRE_RESOURCE_STATE)
 
@@ -69,7 +69,7 @@ class RestartResourceAction : AnAction() {
                 return
             }
 
-            if (!SessionManager.getInstance(project).isResourceRunning(resourceUid)) {
+            if (!SessionManager.getInstance(project).isResourceRunning(serviceInstanceId)) {
                 event.presentation.isEnabledAndVisible = false
                 return
             }

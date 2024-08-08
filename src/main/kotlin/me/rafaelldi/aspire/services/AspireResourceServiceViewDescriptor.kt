@@ -12,6 +12,7 @@ import com.intellij.ui.components.JBTabbedPane
 import me.rafaelldi.aspire.AspireBundle
 import me.rafaelldi.aspire.services.components.ResourceConsolePanel
 import me.rafaelldi.aspire.services.components.ResourceDashboardPanel
+import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_SERVICE_INSTANCE_ID
 import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_STATE
 import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_TYPE
 import me.rafaelldi.aspire.util.ASPIRE_RESOURCE_UID
@@ -51,6 +52,7 @@ class AspireResourceServiceViewDescriptor(
 
     override fun getData(dataId: String) =
         if (ASPIRE_RESOURCE_UID.`is`(dataId)) resourceService.uid
+        else if (ASPIRE_RESOURCE_SERVICE_INSTANCE_ID.`is`(dataId)) resourceService.serviceInstanceId
         else if (ASPIRE_RESOURCE_TYPE.`is`(dataId)) resourceService.type
         else if (ASPIRE_RESOURCE_STATE.`is`(dataId)) resourceService.state
         else null
