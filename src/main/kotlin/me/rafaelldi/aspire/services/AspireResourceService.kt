@@ -13,6 +13,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import me.rafaelldi.aspire.AspireService
 import me.rafaelldi.aspire.generated.*
+import me.rafaelldi.aspire.util.getServiceInstanceId
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.math.roundToInt
@@ -38,6 +39,9 @@ class AspireResourceService(
     var urls: Array<ResourceUrl>
         private set
     var environment: Array<ResourceEnvironmentVariable>
+        private set
+
+    var serviceInstanceId: String? = null
         private set
 
     var startTime: LocalDateTime? = null
@@ -81,6 +85,8 @@ class AspireResourceService(
         stateStyle = model?.stateStyle
         urls = model?.urls ?: emptyArray()
         environment = model?.environment ?: emptyArray()
+
+        serviceInstanceId = model?.getServiceInstanceId()
 
         fillFromProperties(model?.properties ?: emptyArray())
 
@@ -157,6 +163,8 @@ class AspireResourceService(
         stateStyle = resourceModel.stateStyle
         urls = resourceModel.urls
         environment = resourceModel.environment
+
+        serviceInstanceId = resourceModel.getServiceInstanceId()
 
         fillFromProperties(resourceModel.properties)
 

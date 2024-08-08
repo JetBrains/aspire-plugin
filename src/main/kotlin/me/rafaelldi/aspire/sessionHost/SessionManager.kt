@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.rafaelldi.aspire.generated.SessionModel
 import me.rafaelldi.aspire.run.AspireHostConfig
+import me.rafaelldi.aspire.util.getServiceInstanceId
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
@@ -83,11 +84,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     }
 
     private fun saveConnectionToResource(command: CreateSessionCommand) {
-        val resourceAttributes =
-            command.sessionModel.envs?.firstOrNull { it.key.equals("OTEL_RESOURCE_ATTRIBUTES", true) }?.value ?: return
-        val serviceInstanceId =
-            resourceAttributes.split(",").firstOrNull { it.startsWith("service.instance.id") } ?: return
-        val idValue = serviceInstanceId.removePrefix("service.instance.id=")
+        val idValue = command.sessionModel.getServiceInstanceId() ?: return
         if (idValue.isEmpty()) return
 
         LOG.trace("Connection between resource $idValue and session ${command.sessionId}")
