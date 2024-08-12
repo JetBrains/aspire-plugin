@@ -9,7 +9,7 @@ serialization = "1.7.1"
 kotlin = "2.0.10"
 changelog = "2.2.1"
 intelliJPlatform = "2.0.0"
-qodana = "2024.1.5"
+qodana = "2024.1.9"
 
 [libraries]
 rdGen = { group = "com.jetbrains.rd", name = "rd-gen", version.ref = "rdGen" }
