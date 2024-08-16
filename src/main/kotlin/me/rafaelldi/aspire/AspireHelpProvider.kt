@@ -5,7 +5,7 @@ import com.intellij.openapi.help.WebHelpProvider
 class AspireHelpProvider : WebHelpProvider() {
     companion object {
         const val HELP_ID_PREFIX = "me.rafaelldi.aspire."
-        private const val HELP_DOCS = "https://www.jetbrains.com/help/rider/2024.2"
+        private const val HELP_DOCS = "https://www.jetbrains.com/help/rider"
         private const val MAIN = "NET_Aspire.html"
         private const val RUN_CONFIGURATION = "NET_Aspire_run_configuration.html"
     }
