@@ -14,26 +14,26 @@
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <configurationType implementation="me.rafaelldi.aspire.run.AspireHostConfigurationType"/>
-        <programRunner implementation="me.rafaelldi.aspire.run.AspireHostProgramRunner"/>
+        <configurationType implementation="com.jetbrains.rider.aspire.run.AspireHostConfigurationType"/>
+        <programRunner implementation="com.jetbrains.rider.run.AspireHostProgramRunner"/>
 
-        <serviceViewContributor implementation="me.rafaelldi.aspire.services.AspireServiceContributor"/>
+        <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.AspireServiceContributor"/>
 
         <applicationConfigurable
                 parentId="tools"
-                instance="me.rafaelldi.aspire.settings.AspireConfigurable"
+                instance="com.jetbrains.rider.aspire.settings.AspireConfigurable"
                 id="Aspire.Configurable"
                 key="configurable.Aspire"
                 bundle="messages.AspireBundle"/>
 
         <rd.solutionExtListener endpoint="IDE Frontend"
-                                listener="me.rafaelldi.aspire.unitTests.AspireUnitTestProtocolListener"/>
+                                listener="com.jetbrains.rider.aspire.unitTests.AspireUnitTestProtocolListener"/>
 
-        <backgroundPostStartupActivity implementation="me.rafaelldi.aspire.WarmupStartupActivity"/>
+        <backgroundPostStartupActivity implementation="com.jetbrains.rider.aspire.WarmupStartupActivity"/>
 
         <notificationGroup id="Aspire" displayType="BALLOON"/>
 
-        <webHelpProvider implementation="me.rafaelldi.aspire.AspireHelpProvider"/>
+        <webHelpProvider implementation="com.jetbrains.rider.aspire.AspireHelpProvider"/>
 
         <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
 
@@ -43,54 +43,54 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.rider.database">
-        <dotnetDataProvider implementation="me.rafaelldi.aspire.database.DummyMongoDataProvider"/>
-        <dotnetDataProvider implementation="me.rafaelldi.aspire.database.DummyRedisDataProvider"/>
+        <dotnetDataProvider implementation="com.jetbrains.rider.aspire.database.DummyMongoDataProvider"/>
+        <dotnetDataProvider implementation="com.jetbrains.rider.aspire.database.DummyRedisDataProvider"/>
         <connectionStringsFactory
-                implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConnectionStringsFactory"/>
-        <connectionStringToJdbcUrlMapper implementation="me.rafaelldi.aspire.database.mysql.DummyMySqlConverter"/>
+                implementation="com.jetbrains.rider.aspire.database.mysql.DummyMySqlConnectionStringsFactory"/>
+        <connectionStringToJdbcUrlMapper implementation="com.jetbrains.rider.aspire.database.mysql.DummyMySqlConverter"/>
     </extensions>
 
     <projectListeners>
-        <listener class="me.rafaelldi.aspire.database.DatabaseResourceListener"
-                  topic="me.rafaelldi.aspire.services.ResourceListener"/>
-        <listener class="me.rafaelldi.aspire.services.AspireServiceManager$Listener"
+        <listener class="com.jetbrains.rider.aspire.database.DatabaseResourceListener"
+                  topic="com.jetbrains.rider.aspire.services.ResourceListener"/>
+        <listener class="com.jetbrains.rider.aspire.services.AspireServiceManager$Listener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
 
     <actions>
         <action id="Aspire.Settings"
-                class="me.rafaelldi.aspire.actions.dashboard.AspireSettingsAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.AspireSettingsAction"
                 icon="AllIcons.General.Settings"/>
         <action id="Aspire.Help"
-                class="me.rafaelldi.aspire.actions.dashboard.AspireHelpAction"/>
+                class="com.jetbrains.rider.aspire.actions.dashboard.AspireHelpAction"/>
         <action id="Aspire.Dashboard"
-                class="me.rafaelldi.aspire.actions.dashboard.AspireOpenDashboardAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.AspireOpenDashboardAction"
                 icon="AllIcons.General.Web"/>
         <action id="Aspire.Manifest"
-                class="me.rafaelldi.aspire.actions.dashboard.AspireManifestAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.AspireManifestAction"
                 icon="AllIcons.FileTypes.Json"/>
         <action id="Aspire.Solution.Manifest"
-                class="me.rafaelldi.aspire.actions.ManifestGenerationAction"
+                class="com.jetbrains.rider.aspire.actions.ManifestGenerationAction"
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
         <action id="Aspire.Resource.Restart"
-                class="me.rafaelldi.aspire.actions.dashboard.RestartResourceAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.RestartResourceAction"
                 icon="AllIcons.Actions.Restart"/>
         <action id="Aspire.Resource.Restart.Debug"
-                class="me.rafaelldi.aspire.actions.dashboard.RestartDebugResourceAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.RestartDebugResourceAction"
                 icon="AllIcons.Actions.RestartDebugger"/>
         <action id="Aspire.Resource.Stop"
-                class="me.rafaelldi.aspire.actions.dashboard.StopResourceAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.StopResourceAction"
                 icon="AllIcons.Actions.Suspend"/>
         <action id="Aspire.Host.Run"
-                class="me.rafaelldi.aspire.actions.dashboard.RunHostAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.RunHostAction"
                 icon="AllIcons.Actions.Execute"/>
         <action id="Aspire.Host.Debug"
-                class="me.rafaelldi.aspire.actions.dashboard.DebugHostAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.DebugHostAction"
                 icon="AllIcons.Actions.StartDebugger"/>
         <action id="Aspire.Host.Stop"
-                class="me.rafaelldi.aspire.actions.dashboard.StopHostAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.StopHostAction"
                 icon="AllIcons.Actions.Suspend"/>
     </actions>
 
