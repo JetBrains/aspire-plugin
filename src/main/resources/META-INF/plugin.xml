@@ -15,7 +15,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="com.jetbrains.rider.aspire.run.AspireHostConfigurationType"/>
-        <programRunner implementation="com.jetbrains.rider.run.AspireHostProgramRunner"/>
+        <programRunner implementation="com.jetbrains.rider.aspire.run.AspireHostProgramRunner"/>
 
         <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.AspireServiceContributor"/>
 

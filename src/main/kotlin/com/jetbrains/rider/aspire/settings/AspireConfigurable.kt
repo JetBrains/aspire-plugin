@@ -10,10 +10,6 @@ class AspireConfigurable: BoundConfigurable(AspireBundle.message("configurable.A
 
     override fun createPanel() = panel {
         row {
-            checkBox(AspireBundle.message("configurable.Aspire.check.new.version"))
-                .bindSelected(settings::checkForNewVersions)
-        }
-        row {
             checkBox(AspireBundle.message("configurable.Aspire.connect.to.database"))
                 .bindSelected(settings::connectToDatabase)
         }
