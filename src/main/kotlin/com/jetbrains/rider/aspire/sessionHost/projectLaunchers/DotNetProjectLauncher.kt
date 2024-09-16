@@ -78,7 +78,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.nameWithoutExtension
 
 @Service(Service.Level.PROJECT)
-class DotNetProjectLauncher(private val project: Project) {
+class DotNetProjectLauncher(private val project: Project): ProjectLauncher {
     companion object {
         fun getInstance(project: Project) = project.service<DotNetProjectLauncher>()
 
@@ -87,7 +87,7 @@ class DotNetProjectLauncher(private val project: Project) {
         private const val DOTNET_HOTRELOAD_NAMEDPIPE_NAME = "DOTNET_HOTRELOAD_NAMEDPIPE_NAME"
     }
 
-    suspend fun launchRunSession(
+    override suspend fun launchRunSession(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
@@ -175,7 +175,7 @@ class DotNetProjectLauncher(private val project: Project) {
         })
     }
 
-    suspend fun launchDebugSession(
+    override suspend fun launchDebugSession(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,

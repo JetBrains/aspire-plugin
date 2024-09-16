@@ -10,6 +10,10 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.DotNetProjectLauncher
+import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectLauncher
+import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.WasmHostProjectLauncher
+import com.jetbrains.rider.nuget.PackageVersionResolution
+import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Service(Service.Level.PROJECT)
@@ -18,6 +22,9 @@ class SessionLauncher(private val project: Project) {
         fun getInstance(project: Project) = project.service<SessionLauncher>()
 
         private val LOG = logger<SessionLauncher>()
+
+        private const val DEV_SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.DevServer"
+        private const val SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.Server"
     }
 
     suspend fun launchSession(
@@ -57,8 +64,8 @@ class SessionLauncher(private val project: Project) {
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
-        val dotnetProjectLauncher = DotNetProjectLauncher.getInstance(project)
-        dotnetProjectLauncher.launchDebugSession(
+        val projectLauncher = getProjectLauncher(sessionModel)
+        projectLauncher.launchDebugSession(
             sessionId,
             sessionModel,
             sessionLifetime,
@@ -72,12 +79,25 @@ class SessionLauncher(private val project: Project) {
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
-        val dotnetProjectLauncher = DotNetProjectLauncher.getInstance(project)
-        dotnetProjectLauncher.launchRunSession(
+        val projectLauncher = getProjectLauncher(sessionModel)
+        projectLauncher.launchRunSession(
             sessionId,
             sessionModel,
             sessionLifetime,
             sessionEvents
         )
+    }
+
+    private suspend fun getProjectLauncher(sessionModel: SessionModel): ProjectLauncher {
+        if (isBlazorWasm(sessionModel.projectPath))
+            return WasmHostProjectLauncher.getInstance(project)
+
+        return DotNetProjectLauncher.getInstance(project)
+    }
+
+    private suspend fun isBlazorWasm(projectPath: String): Boolean {
+        val nugetChecker = RiderNuGetInstalledPackageCheckerHost.getInstance(project)
+        return nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, DEV_SERVER_NUGET) ||
+                nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, SERVER_NUGET)
     }
 }
