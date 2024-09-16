@@ -28,7 +28,7 @@ rdgen {
     verbose = true
     packages = "model.sessionHost,model.aspirePlugin"
 
-    val ktSessionHostOutput = pluginSourcePath.resolve("main/kotlin/me/rafaelldi/aspire/generated")
+    val ktSessionHostOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/aspire/generated")
     val csSessionHostOutput = pluginSourcePath.resolve("dotnet/aspire-session-host/Generated")
 
     generator {
@@ -45,7 +45,7 @@ rdgen {
         directory = csSessionHostOutput.canonicalPath
     }
 
-    val ktPluginOutput = pluginSourcePath.resolve("main/kotlin/me/rafaelldi/aspire/generated")
+    val ktPluginOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/aspire/generated")
     val csPluginOutput = pluginSourcePath.resolve("dotnet/aspire-plugin/Generated")
 
     generator {
