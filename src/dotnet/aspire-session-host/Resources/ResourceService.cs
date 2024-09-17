@@ -1,8 +1,13 @@
-﻿using Aspire.ResourceService.Proto.V1;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Aspire.ResourceService.Proto.V1;
 using JetBrains.Rider.Aspire.SessionHost.Generated;
 using Grpc.Core;
 using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Registry;
@@ -18,7 +23,7 @@ internal sealed class ResourceService(
 ) : IDisposable
 {
     private const string ApiKeyHeader = "x-resource-service-api-key";
-    private readonly Metadata _headers = [];
+    private readonly Grpc.Core.Metadata _headers = [];
     private readonly ResourceServiceOptions _optionValue = options.Value;
     private readonly LifetimeDefinition _lifetimeDef = new();
 

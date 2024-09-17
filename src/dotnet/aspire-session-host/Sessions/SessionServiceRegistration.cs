@@ -1,4 +1,8 @@
-﻿namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
 
 internal static class SessionServiceRegistration
 {
