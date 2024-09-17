@@ -1,71 +1,39 @@
+@file:Suppress("DuplicatedCode", "LoggingSimilarMessage")
+
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.process.KillableProcessHandler
 import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
-import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
-import com.jetbrains.rd.framework.IdKind
-import com.jetbrains.rd.framework.Identities
-import com.jetbrains.rd.framework.Protocol
-import com.jetbrains.rd.framework.Serializers
-import com.jetbrains.rd.framework.SocketWire
+import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.put
 import com.jetbrains.rd.util.threading.coroutines.nextTrueValueAsync
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
-import com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactory
-import com.jetbrains.rider.aspire.sessionHost.SessionHotReloadConfigurationExtension
-import com.jetbrains.rider.aspire.sessionHost.SessionLogReceived
+import com.jetbrains.rider.aspire.sessionHost.hotReload.DotNetProjectHotReloadConfigurationExtension
 import com.jetbrains.rider.aspire.sessionHost.SessionManager
-import com.jetbrains.rider.aspire.sessionHost.SessionStarted
-import com.jetbrains.rider.aspire.sessionHost.SessionTerminated
 import com.jetbrains.rider.aspire.sessionHost.findBySessionProject
-import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.RiderDebuggerWorkerModelManager
 import com.jetbrains.rider.debugger.createAndStartSession
-import com.jetbrains.rider.debugger.editAndContinue.DotNetRunHotReloadProcess
-import com.jetbrains.rider.debugger.editAndContinue.hotReloadManager
 import com.jetbrains.rider.debugger.targets.DEBUGGER_WORKER_LAUNCHER
-import com.jetbrains.rider.model.debuggerWorker.DebugKind
-import com.jetbrains.rider.model.debuggerWorker.DebuggerStartInfoBase
-import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
-import com.jetbrains.rider.model.debuggerWorker.DotNetCoreExeStartInfo
-import com.jetbrains.rider.model.debuggerWorker.DotNetCoreInfo
-import com.jetbrains.rider.model.debuggerWorker.DotNetDebuggerSessionModel
-import com.jetbrains.rider.model.debuggerWorker.EncInfo
+import com.jetbrains.rider.model.debuggerWorker.*
 import com.jetbrains.rider.model.debuggerWorkerConnectionHelperModel
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.run.ConsoleKind
-import com.jetbrains.rider.run.DebugProfileStateBase
-import com.jetbrains.rider.run.IDebuggerOutputListener
-import com.jetbrains.rider.run.TerminalProcessHandler
-import com.jetbrains.rider.run.bindToSettings
-import com.jetbrains.rider.run.configurations.RunnableProjectKinds
+import com.jetbrains.rider.run.*
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
-import com.jetbrains.rider.run.createConsole
-import com.jetbrains.rider.run.createRunCommandLine
 import com.jetbrains.rider.run.environment.ExecutableType
-import com.jetbrains.rider.run.pid
-import com.jetbrains.rider.run.toModelMap
 import com.jetbrains.rider.runtime.DotNetExecutable
-import com.jetbrains.rider.runtime.DotNetRuntime
-import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import com.jetbrains.rider.util.NetUtils
 import icons.RiderIcons
@@ -77,33 +45,34 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.nameWithoutExtension
 
-@Service(Service.Level.PROJECT)
-class DotNetProjectLauncher(private val project: Project): ProjectLauncher {
+class DotNetProjectLauncher : AspireProjectLauncherExtension {
     companion object {
-        fun getInstance(project: Project) = project.service<DotNetProjectLauncher>()
-
         private val LOG = logger<DotNetProjectLauncher>()
-
-        private const val DOTNET_HOTRELOAD_NAMEDPIPE_NAME = "DOTNET_HOTRELOAD_NAMEDPIPE_NAME"
     }
+
+    override val priority = 10
+
+    override suspend fun isApplicable(projectPath: String, project: Project) = true
 
     override suspend fun launchRunSession(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        project: Project
     ) {
-        val executable = getExecutable(sessionModel) ?: return
-        val runtime = getRuntime(executable) ?: return
+        val executable = getExecutable(sessionModel, project) ?: return
+        val runtime = getRuntime(executable, project) ?: return
 
         LOG.trace { "Starting run session for project ${sessionModel.projectPath}" }
 
         val sessionProjectPath = Path(sessionModel.projectPath)
-        val executableToRun = modifyExecutableToRun(
+        val (executableToRun, hotReloadProcessListener) = enableHotReload(
             executable,
             sessionProjectPath,
             sessionModel.launchProfile,
-            sessionLifetime
+            sessionLifetime,
+            project
         )
 
         val commandLine = executableToRun.createRunCommandLine(runtime)
@@ -122,21 +91,22 @@ class DotNetProjectLauncher(private val project: Project): ProjectLauncher {
             }
         }
 
-        addHotReloadListener(handler, sessionLifetime, commandLine.environment)
+        hotReloadProcessListener?.let { handler.addProcessListener(it) }
 
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
 
         handler.startNotify()
     }
 
-    private suspend fun modifyExecutableToRun(
+    private suspend fun enableHotReload(
         executable: DotNetExecutable,
         sessionProjectPath: Path,
         launchProfile: String?,
-        lifetime: Lifetime
-    ): DotNetExecutable {
+        lifetime: Lifetime,
+        project: Project
+    ): Pair<DotNetExecutable, ProcessAdapter?> {
         val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
-            ?: return executable
+            ?: return executable to null
 
         val hotReloadRunInfo = RuntimeHotReloadRunConfigurationInfo(
             DefaultRunExecutor.EXECUTOR_ID,
@@ -155,34 +125,23 @@ class DotNetProjectLauncher(private val project: Project): ProjectLauncher {
             }
         } else null
 
-        val ext = SessionHotReloadConfigurationExtension()
+        val ext = DotNetProjectHotReloadConfigurationExtension()
         if (!ext.canExecute(lifetime, hotReloadRunInfo, profile)) {
-            return executable
+            return executable to null
         }
 
-        return ext.execute(executable)
-    }
-
-    private fun addHotReloadListener(handler: KillableProcessHandler, lifetime: Lifetime, envs: Map<String, String>) {
-        val pipeName = envs[DOTNET_HOTRELOAD_NAMEDPIPE_NAME]
-        if (pipeName.isNullOrEmpty()) return
-
-        handler.addProcessListener(object : ProcessAdapter() {
-            override fun startNotified(event: ProcessEvent) {
-                val runSession = DotNetRunHotReloadProcess(lifetime, pipeName)
-                project.hotReloadManager.addProcess(runSession)
-            }
-        })
+        return ext.execute(executable, lifetime, project)
     }
 
     override suspend fun launchDebugSession(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        project: Project
     ) {
-        val executable = getExecutable(sessionModel) ?: return
-        val runtime = getRuntime(executable) ?: return
+        val executable = getExecutable(sessionModel, project) ?: return
+        val runtime = getRuntime(executable, project) ?: return
 
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
 
@@ -207,7 +166,8 @@ class DotNetProjectLauncher(private val project: Project): ProjectLauncher {
                 presentableCommandLine,
                 startInfo,
                 sessionEvents,
-                sessionLifetime
+                sessionLifetime,
+                project
             )
         }
     }
@@ -232,7 +192,8 @@ class DotNetProjectLauncher(private val project: Project): ProjectLauncher {
         presentableCommandLine: String,
         startInfo: DebuggerStartInfoBase,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        sessionLifetime: Lifetime
+        sessionLifetime: Lifetime,
+        project: Project
     ) {
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
         val frontendToDebuggerPort = NetUtils.findFreePort(57200)
@@ -273,7 +234,8 @@ class DotNetProjectLauncher(private val project: Project): ProjectLauncher {
             backendToDebuggerPort,
             workerModel,
             sessionLifetime,
-            sessionEvents
+            sessionEvents,
+            project
         )
         val console = createConsole(
             ConsoleKind.Normal,
@@ -329,7 +291,8 @@ class DotNetProjectLauncher(private val project: Project): ProjectLauncher {
         backendToDebuggerPort: Int,
         workerModel: DebuggerWorkerModel,
         processLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        project: Project
     ): DebuggerWorkerProcessHandler {
         val launcher = DEBUGGER_WORKER_LAUNCHER.getLauncher()
         val launcherCmd = DebugProfileStateBase.createWorkerCmdForLauncherInfo(
@@ -360,64 +323,5 @@ class DotNetProjectLauncher(private val project: Project): ProjectLauncher {
         )
 
         return debuggerWorkerProcessHandler
-    }
-
-    private suspend fun getExecutable(sessionModel: SessionModel): DotNetExecutable? {
-        val factory = SessionExecutableFactory.getInstance(project)
-        val executable = factory.createExecutable(sessionModel)
-        if (executable == null) {
-            LOG.warn("Unable to create executable for project: ${sessionModel.projectPath}")
-        }
-
-        return executable
-    }
-
-    private fun getRuntime(executable: DotNetExecutable): DotNetCoreRuntime? {
-        val runtime = DotNetRuntime.detectRuntimeForProject(
-            project,
-            RunnableProjectKinds.DotNetCore,
-            RiderDotNetActiveRuntimeHost.getInstance(project),
-            executable.runtimeType,
-            executable.exePath,
-            executable.projectTfm
-        )?.runtime as? DotNetCoreRuntime
-        if (runtime == null) {
-            LOG.warn("Unable to detect runtime for executable: ${executable.exePath}")
-        }
-
-        return runtime
-    }
-
-    private fun subscribeToSessionEvents(
-        sessionId: String,
-        handler: ProcessHandler,
-        sessionEvents: MutableSharedFlow<SessionEvent>
-    ) {
-        handler.addProcessListener(object : ProcessAdapter() {
-            override fun startNotified(event: ProcessEvent) {
-                LOG.trace("Aspire session process started (id: $sessionId)")
-                val pid = when (event.processHandler) {
-                    is KillableProcessHandler -> event.processHandler.pid()
-                    else -> null
-                }
-                if (pid == null) {
-                    LOG.warn("Unable to determine process id for the session $sessionId")
-                    sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
-                } else {
-                    sessionEvents.tryEmit(SessionStarted(sessionId, pid))
-                }
-            }
-
-            override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                val text = decodeAnsiCommandsToString(event.text, outputType)
-                val isStdErr = outputType == ProcessOutputType.STDERR
-                sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
-            }
-
-            override fun processNotStarted() {
-                LOG.warn("Aspire session process is not started")
-                sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
-            }
-        })
     }
 }

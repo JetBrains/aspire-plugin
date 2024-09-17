@@ -9,11 +9,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.SessionModel
-import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.DotNetProjectLauncher
-import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectLauncher
-import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.WasmHostProjectLauncher
-import com.jetbrains.rider.nuget.PackageVersionResolution
-import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
+import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.AspireProjectLauncherExtension
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Service(Service.Level.PROJECT)
@@ -22,9 +18,6 @@ class SessionLauncher(private val project: Project) {
         fun getInstance(project: Project) = project.service<SessionLauncher>()
 
         private val LOG = logger<SessionLauncher>()
-
-        private const val DEV_SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.DevServer"
-        private const val SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.Server"
     }
 
     suspend fun launchSession(
@@ -65,11 +58,17 @@ class SessionLauncher(private val project: Project) {
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
         val projectLauncher = getProjectLauncher(sessionModel)
+        if (projectLauncher == null) {
+            LOG.warn("Unable to find appropriate launcher for the project ${sessionModel.projectPath}")
+            return
+        }
+
         projectLauncher.launchDebugSession(
             sessionId,
             sessionModel,
             sessionLifetime,
-            sessionEvents
+            sessionEvents,
+            project
         )
     }
 
@@ -80,24 +79,26 @@ class SessionLauncher(private val project: Project) {
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
         val projectLauncher = getProjectLauncher(sessionModel)
+        if (projectLauncher == null) {
+            LOG.warn("Unable to find appropriate launcher for the project ${sessionModel.projectPath}")
+            return
+        }
+
         projectLauncher.launchRunSession(
             sessionId,
             sessionModel,
             sessionLifetime,
-            sessionEvents
+            sessionEvents,
+            project
         )
     }
 
-    private suspend fun getProjectLauncher(sessionModel: SessionModel): ProjectLauncher {
-        if (isBlazorWasm(sessionModel.projectPath))
-            return WasmHostProjectLauncher.getInstance(project)
+    private suspend fun getProjectLauncher(sessionModel: SessionModel): AspireProjectLauncherExtension? {
+        for (launcher in AspireProjectLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
+            if (launcher.isApplicable(sessionModel.projectPath, project))
+                return launcher
+        }
 
-        return DotNetProjectLauncher.getInstance(project)
-    }
-
-    private suspend fun isBlazorWasm(projectPath: String): Boolean {
-        val nugetChecker = RiderNuGetInstalledPackageCheckerHost.getInstance(project)
-        return nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, DEV_SERVER_NUGET) ||
-                nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, SERVER_NUGET)
+        return null
     }
 }
