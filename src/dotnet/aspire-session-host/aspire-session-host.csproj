@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Protobuf Include="**/*.proto" GrpcServices="Both" />
+        <Protobuf Include="**/*.proto" GrpcServices="Both" OutputDir="%(RelativeDir)"/>
     </ItemGroup>
 
     <ItemGroup>
