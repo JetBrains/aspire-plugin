@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PackageLock Include="JetBrains.Annotations" Version="2024.3.0" />
+    <PackageLock Include="JetBrains.RdFramework" Version="2024.3.0" />
+    <PackageLock Include="Grpc.AspNetCore" Version="2.66.0" />
+    <PackageLock Include="Grpc.AspNetCore.Server" Version="2.66.0" />
+    <PackageLock Include="Grpc.Net.Client" Version="2.66.0" />
+    <PackageLock Include="Grpc.Net.ClientFactory" Version="2.66.0" />
+    <PackageLock Include="Grpc.Net.Common" Version="2.66.0" />
+    <PackageLock Include="Grpc.Core.Api" Version="2.66.0" />
+    <PackageLock Include="Polly.Core" Version="8.4.1" />
+    <PackageLock Include="Polly.Extensions" Version="8.4.1" />
+    <PackageLock Include="JetBrains.Lifetimes" Version="2024.3.0" />
+    <PackageLock Include="JetBrains.Repack.Google.Protobuf" Version="3.27.0" />
+    <PackageLock Include="Microsoft.AspNetCore.App.Ref" Version="8.0.8" IsDevelopmentDependency="True" />
+    <PackageLock Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.66.0" />
+    <PackageLock Include="Grpc.Tools" Version="2.66.0" />
+    <PackageLock Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Diagnostics" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Diagnostics.Abstractions" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Diagnostics.ExceptionSummarization" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.ObjectPool" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Resilience" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Telemetry.Abstractions" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Compliance.Abstractions" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Compliance.Abstractions" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageLock Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageLock Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
+    <PackageLock Include="System.Threading.RateLimiting" Version="7.0.0" />
+  </ItemGroup>
+</Project>

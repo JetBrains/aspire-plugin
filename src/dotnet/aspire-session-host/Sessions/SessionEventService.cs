@@ -1,4 +1,6 @@
-﻿using System.Threading.Channels;
+﻿using System;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 using JetBrains.Lifetimes;
 
 // ReSharper disable ReplaceAsyncWithTaskReturn

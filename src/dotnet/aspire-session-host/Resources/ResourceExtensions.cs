@@ -1,4 +1,6 @@
+using System;
 using System.Globalization;
+using System.Linq;
 using Aspire.ResourceService.Proto.V1;
 using JetBrains.Rider.Aspire.SessionHost.Generated;
 using Google.Protobuf.WellKnownTypes;

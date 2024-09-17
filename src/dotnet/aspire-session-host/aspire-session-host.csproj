@@ -1,21 +1,59 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
-
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <RootNamespace>JetBrains.Rider.Aspire.SessionHost</RootNamespace>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <Protobuf Include="**/*.proto" GrpcServices="Both" OutputDir="%(RelativeDir)"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Grpc.AspNetCore" Version="2.66.0" />
-        <PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
-        <PackageReference Include="JetBrains.RdFramework" Version="2024.3.0" />
-        <PackageReference Include="Microsoft.Extensions.Resilience" Version="8.10.0" />
-    </ItemGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <InternalBuild Condition="'$(SolutionFileName)' != 'aspire-plugin.sln'">True</InternalBuild>
+    <InternalBuild Condition="$(InternalBuild) == ''">False</InternalBuild>
+  </PropertyGroup>
+  <Import Project="Sdk.props" Sdk="JetBrains.Toolset.MainSolution.Sdk" Version="20200625.1.1.2" Condition="$(InternalBuild)" />
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="!$(InternalBuild)" />
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <SdkTargetFrameworkOverride>.NETCoreApp,Version=v8.0</SdkTargetFrameworkOverride>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>JetBrains.Rider.Aspire.SessionHost</RootNamespace>
+    <AssemblyName>Rider.Plugins.Aspire.SessionHost</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Protobuf Include="**\*.proto" GrpcServices="Both" OutputDir="%(RelativeDir)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" />
+    <PackageReference Include="Grpc.Net.Client" />
+    <PackageReference Include="Grpc.Net.Common" />
+    <PackageReference Include="Grpc.Net.ClientFactory" />
+    <PackageReference Include="JetBrains.Repack.Google.Protobuf" />
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="JetBrains.RdFramework" />
+    <PackageReference Include="JetBrains.Lifetimes" />
+    <PackageReference Include="Grpc.Core.Api" />
+    <PackageReference Include="Polly.Core" />
+    <PackageReference Include="Polly.Extensions" />
+    <PackageReference Include="Microsoft.AspNetCore.App.Ref" Condition="$(InternalBuild)" />
+    <PackageReference Include="Grpc.AspNetCore.Server" />
+    <PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" />
+    <PackageReference Include="Grpc.Tools" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.ExceptionSummarization" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Resilience" />
+    <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Compliance.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+    <PackageReference Include="System.Threading.RateLimiting" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Rider.Plugins.Aspire.SessionHost.runtimeconfig.json" />
+  </ItemGroup>
+  <!-- .NET SDK and internal targets imports -->
+  <Import Project="ManagedProject.Generated.Targets" Condition="$(InternalBuild)" />
+  <Import Project="Sdk.targets" Sdk="JetBrains.Toolset.MainSolution.Sdk" Version="20200625.1.1.2" Condition="$(InternalBuild)" />
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" Condition="!$(InternalBuild)" />
 </Project>
