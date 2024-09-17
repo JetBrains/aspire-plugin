@@ -1,10 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <InternalBuild Condition="'$(SolutionFileName)' != 'aspire-plugin.sln'">True</InternalBuild>
+        <InternalBuild Condition="$(InternalBuild) == ''">False</InternalBuild>
+    </PropertyGroup>
     <PropertyGroup>
         <RootNamespace>AspirePlugin</RootNamespace>
     </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <SdkTargetFrameworkOverride>net8.0</SdkTargetFrameworkOverride>
+        <AssemblyName>Rider.Plugins.Aspire</AssemblyName>
+    </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Rider.SDK" Version="$(RiderSDKVersion)" />
+<!--        <PackageReference Include="JetBrains.Rider.SDK" Condition="!$(InternalBuild)" />-->
+        <PackageReference Include="JetBrains.Lifetimes" />
+        <PackageReference Include="JetBrains.RdFramework" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
     </ItemGroup>
 
+    <!-- .NET SDK and internal targets imports -->
+    <Import Project="ManagedProject.Generated.Targets" Condition="$(InternalBuild)" />
+    <Import Project="Sdk.targets" Sdk="JetBrains.Toolset.MainSolution.Sdk" Version="20200625.1.1.2" Condition="$(InternalBuild)" />
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" Condition="!$(InternalBuild)" />
 </Project>

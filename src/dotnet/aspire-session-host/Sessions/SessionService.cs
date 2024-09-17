@@ -1,4 +1,9 @@
-﻿using AspireSessionHost.Generated;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using AspireSessionHost.Generated;
+using JetBrains.Rider.Model;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable ReplaceAsyncWithTaskReturn
 

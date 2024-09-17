@@ -1,4 +1,6 @@
-﻿using AspireSessionHost.Generated;
+﻿using System;
+using System.Threading.Tasks;
+using AspireSessionHost.Generated;
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
 using JetBrains.Rd;
