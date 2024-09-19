@@ -1,7 +1,6 @@
 [versions]
 # libraries
 # https://search.maven.org/artifact/com.jetbrains.rd/rd-gen
-rdGen = "2024.3.0"
 opentest4j = "1.3.0"
 serialization = "1.7.3"
 
@@ -12,9 +11,7 @@ intelliJPlatform = "2.1.0"
 qodana = "2024.2.3"
 
 [libraries]
-rdGen = { group = "com.jetbrains.rd", name = "rd-gen", version.ref = "rdGen" }
 opentest4j = { group = "org.opentest4j", name = "opentest4j", version.ref = "opentest4j" }
-kotlinStdLib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 serializationJson = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 
 [plugins]

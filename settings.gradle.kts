@@ -1,4 +1,7 @@
 pluginManagement {
+    val rdVersion: String by settings
+    val rdKotlinVersion: String by settings
+
     repositories {
         gradlePluginPortal()
         mavenCentral()
@@ -6,7 +9,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "com.jetbrains.rdgen") {
-                useModule("com.jetbrains.rd:rd-gen:${requested.version}")
+                useModule("com.jetbrains.rd:rd-gen:${rdVersion}")
             }
         }
     }
