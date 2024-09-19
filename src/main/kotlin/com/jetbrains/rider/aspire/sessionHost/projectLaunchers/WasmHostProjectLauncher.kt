@@ -2,10 +2,8 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
-import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
-import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
@@ -13,22 +11,15 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
 import com.jetbrains.rider.aspire.sessionHost.SessionManager
-import com.jetbrains.rider.aspire.sessionHost.findBySessionProject
 import com.jetbrains.rider.aspire.sessionHost.hotReload.WasmHostHotReloadConfigurationExtension
-import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.nuget.PackageVersionResolution
 import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
-import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.TerminalProcessHandler
-import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
-import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.createRunCommandLine
-import com.jetbrains.rider.runtime.DotNetExecutable
 import kotlinx.coroutines.flow.MutableSharedFlow
-import java.nio.file.Path
 import kotlin.io.path.Path
 
-class WasmHostProjectLauncher : AspireProjectLauncherExtension {
+class WasmHostProjectLauncher : AspireProjectBaseLauncher() {
     companion object {
         private val LOG = logger<WasmHostProjectLauncher>()
 
@@ -37,6 +28,8 @@ class WasmHostProjectLauncher : AspireProjectLauncherExtension {
     }
 
     override val priority = 1
+
+    override val hotReloadExtension = WasmHostHotReloadConfigurationExtension()
 
     override suspend fun isApplicable(projectPath: String, project: Project): Boolean {
         val nugetChecker = RiderNuGetInstalledPackageCheckerHost.getInstance(project)
@@ -86,41 +79,6 @@ class WasmHostProjectLauncher : AspireProjectLauncherExtension {
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
 
         handler.startNotify()
-    }
-
-    private suspend fun enableHotReload(
-        executable: DotNetExecutable,
-        sessionProjectPath: Path,
-        launchProfile: String?,
-        lifetime: Lifetime,
-        project: Project
-    ): Pair<DotNetExecutable, ProcessAdapter?> {
-        val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
-            ?: return executable to null
-
-        val hotReloadRunInfo = RuntimeHotReloadRunConfigurationInfo(
-            DefaultRunExecutor.EXECUTOR_ID,
-            project,
-            runnableProject,
-            executable.projectTfm,
-            null
-        )
-
-        val profile = if (!launchProfile.isNullOrEmpty()) {
-            val launchSettings = readAction {
-                LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
-            }
-            launchSettings?.let { ls ->
-                ls.profiles?.get(launchProfile)
-            }
-        } else null
-
-        val ext = WasmHostHotReloadConfigurationExtension()
-        if (!ext.canExecute(lifetime, hotReloadRunInfo, profile)) {
-            return executable to null
-        }
-
-        return ext.execute(executable, lifetime, project)
     }
 
     override suspend fun launchDebugSession(

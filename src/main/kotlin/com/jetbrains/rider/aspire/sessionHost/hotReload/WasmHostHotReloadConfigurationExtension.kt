@@ -21,8 +21,9 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class WasmHostHotReloadConfigurationExtension : RiderHotReloadRunConfigurationExtensionBase() {
-    suspend fun canExecute(
+class WasmHostHotReloadConfigurationExtension : RiderHotReloadRunConfigurationExtensionBase(),
+    AspireProjectHotReloadConfigurationExtension {
+    override suspend fun canExecute(
         lifetime: Lifetime,
         hotReloadRunInfo: RuntimeHotReloadRunConfigurationInfo,
         profile: LaunchSettingsJson.Profile?
@@ -33,7 +34,7 @@ class WasmHostHotReloadConfigurationExtension : RiderHotReloadRunConfigurationEx
         return withContext(Dispatchers.EDT) { isRuntimeHotReloadAvailable(lifetime, hotReloadRunInfo) }
     }
 
-    suspend fun execute(
+    override suspend fun execute(
         executable: DotNetExecutable,
         lifetime: Lifetime,
         project: Project

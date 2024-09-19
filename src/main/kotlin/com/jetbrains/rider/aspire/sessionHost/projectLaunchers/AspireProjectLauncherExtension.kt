@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
+import com.jetbrains.rider.aspire.sessionHost.hotReload.AspireProjectHotReloadConfigurationExtension
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 interface AspireProjectLauncherExtension {

@@ -2,12 +2,10 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
-import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.application.EDT
-import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
@@ -18,20 +16,16 @@ import com.jetbrains.rd.util.threading.coroutines.nextTrueValueAsync
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
-import com.jetbrains.rider.aspire.sessionHost.hotReload.DotNetProjectHotReloadConfigurationExtension
 import com.jetbrains.rider.aspire.sessionHost.SessionManager
-import com.jetbrains.rider.aspire.sessionHost.findBySessionProject
+import com.jetbrains.rider.aspire.sessionHost.hotReload.DotNetProjectHotReloadConfigurationExtension
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.RiderDebuggerWorkerModelManager
 import com.jetbrains.rider.debugger.createAndStartSession
 import com.jetbrains.rider.debugger.targets.DEBUGGER_WORKER_LAUNCHER
 import com.jetbrains.rider.model.debuggerWorker.*
 import com.jetbrains.rider.model.debuggerWorkerConnectionHelperModel
-import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.*
-import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
-import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.environment.ExecutableType
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -41,16 +35,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.Nls
-import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.nameWithoutExtension
 
-class DotNetProjectLauncher : AspireProjectLauncherExtension {
+class DotNetProjectLauncher : AspireProjectBaseLauncher() {
     companion object {
         private val LOG = logger<DotNetProjectLauncher>()
     }
 
     override val priority = 10
+
+    override val hotReloadExtension = DotNetProjectHotReloadConfigurationExtension()
 
     override suspend fun isApplicable(projectPath: String, project: Project) = true
 
@@ -96,41 +91,6 @@ class DotNetProjectLauncher : AspireProjectLauncherExtension {
         subscribeToSessionEvents(sessionId, handler, sessionEvents)
 
         handler.startNotify()
-    }
-
-    private suspend fun enableHotReload(
-        executable: DotNetExecutable,
-        sessionProjectPath: Path,
-        launchProfile: String?,
-        lifetime: Lifetime,
-        project: Project
-    ): Pair<DotNetExecutable, ProcessAdapter?> {
-        val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
-            ?: return executable to null
-
-        val hotReloadRunInfo = RuntimeHotReloadRunConfigurationInfo(
-            DefaultRunExecutor.EXECUTOR_ID,
-            project,
-            runnableProject,
-            executable.projectTfm,
-            null
-        )
-
-        val profile = if (!launchProfile.isNullOrEmpty()) {
-            val launchSettings = readAction {
-                LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
-            }
-            launchSettings?.let { ls ->
-                ls.profiles?.get(launchProfile)
-            }
-        } else null
-
-        val ext = DotNetProjectHotReloadConfigurationExtension()
-        if (!ext.canExecute(lifetime, hotReloadRunInfo, profile)) {
-            return executable to null
-        }
-
-        return ext.execute(executable, lifetime, project)
     }
 
     override suspend fun launchDebugSession(
