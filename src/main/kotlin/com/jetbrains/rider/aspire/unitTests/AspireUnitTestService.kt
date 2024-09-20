@@ -67,7 +67,8 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                     request.underDebugger,
                     null,
                     null,
-                    aspireHostLifetimeDefinition.lifetime
+                    aspireHostLifetimeDefinition.lifetime,
+                    null
                 )
 
                 val environmentVariables = listOf(
