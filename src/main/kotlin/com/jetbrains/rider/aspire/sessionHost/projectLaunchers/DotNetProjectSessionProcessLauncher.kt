@@ -64,7 +64,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         LOG.trace { "Starting run session for project ${sessionModel.projectPath}" }
 
         val sessionProjectPath = Path(sessionModel.projectPath)
-        val (executableToRun, hotReloadProcessListener) = enableHotReload(
+        val (executableWithHotReload, hotReloadProcessListener) = enableHotReload(
             executable,
             sessionProjectPath,
             sessionModel.launchProfile,
@@ -72,25 +72,16 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
             project
         )
 
-        val commandLine = executableToRun.createRunCommandLine(runtime)
-        val handler = TerminalProcessHandler(project, commandLine, commandLine.commandLineString)
-
-        handler.addProcessListener(object : ProcessAdapter() {
-            override fun processTerminated(event: ProcessEvent) {
-                sessionProcessHandlerTerminated(event.exitCode, event.text)
-            }
-        })
-
-        sessionProcessLifetime.onTermination {
-            if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
-                LOG.trace("Killing run session process handler (id: $sessionId)")
-                handler.killProcess()
-            }
-        }
-
-        hotReloadProcessListener?.let { handler.addProcessListener(it) }
-
-        subscribeToSessionEvents(sessionId, handler, sessionEvents)
+        val handler = createRunProcessHandler(
+            sessionId,
+            executableWithHotReload,
+            runtime,
+            hotReloadProcessListener,
+            sessionProcessLifetime,
+            sessionEvents,
+            project,
+            sessionProcessHandlerTerminated
+        )
 
         handler.startNotify()
     }

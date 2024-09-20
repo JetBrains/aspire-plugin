@@ -23,9 +23,11 @@ import com.jetbrains.rider.aspire.sessionHost.hotReload.AspireProjectHotReloadCo
 import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.run.TerminalProcessHandler
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
+import com.jetbrains.rider.run.createRunCommandLine
 import com.jetbrains.rider.run.pid
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
@@ -70,39 +72,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         return runtime
     }
 
-    protected fun subscribeToSessionEvents(
-        sessionId: String,
-        handler: ProcessHandler,
-        sessionEvents: MutableSharedFlow<SessionEvent>
-    ) {
-        handler.addProcessListener(object : ProcessAdapter() {
-            override fun startNotified(event: ProcessEvent) {
-                LOG.trace("Aspire session process started (id: $sessionId)")
-                val pid = when (event.processHandler) {
-                    is KillableProcessHandler -> event.processHandler.pid()
-                    else -> null
-                }
-                if (pid == null) {
-                    LOG.warn("Unable to determine process id for the session $sessionId")
-                    sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
-                } else {
-                    sessionEvents.tryEmit(SessionStarted(sessionId, pid))
-                }
-            }
-
-            override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                val text = decodeAnsiCommandsToString(event.text, outputType)
-                val isStdErr = outputType == ProcessOutputType.STDERR
-                sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
-            }
-
-            override fun processNotStarted() {
-                LOG.warn("Aspire session process is not started")
-                sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
-            }
-        })
-    }
-
     protected suspend fun enableHotReload(
         executable: DotNetExecutable,
         sessionProjectPath: Path,
@@ -135,5 +104,71 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         }
 
         return hotReloadExtension.execute(executable, lifetime, project)
+    }
+
+    protected fun createRunProcessHandler(
+        sessionId: String,
+        dotnetExecutable: DotNetExecutable,
+        dotnetRuntime: DotNetCoreRuntime,
+        hotReloadProcessListener: ProcessAdapter?,
+        sessionProcessLifetime: Lifetime,
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        project: Project,
+        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+    ) : TerminalProcessHandler {
+        val commandLine = dotnetExecutable.createRunCommandLine(dotnetRuntime)
+        val handler = TerminalProcessHandler(project, commandLine, commandLine.commandLineString)
+
+        handler.addProcessListener(object : ProcessAdapter() {
+            override fun processTerminated(event: ProcessEvent) {
+                sessionProcessHandlerTerminated(event.exitCode, event.text)
+            }
+        })
+
+        hotReloadProcessListener?.let { handler.addProcessListener(it) }
+
+        sessionProcessLifetime.onTermination {
+            if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
+                LOG.trace("Killing run session process handler (id: $sessionId)")
+                handler.killProcess()
+            }
+        }
+
+        subscribeToSessionEvents(sessionId, handler, sessionEvents)
+
+        return handler
+    }
+
+    protected fun subscribeToSessionEvents(
+        sessionId: String,
+        handler: ProcessHandler,
+        sessionEvents: MutableSharedFlow<SessionEvent>
+    ) {
+        handler.addProcessListener(object : ProcessAdapter() {
+            override fun startNotified(event: ProcessEvent) {
+                LOG.trace("Aspire session process started (id: $sessionId)")
+                val pid = when (event.processHandler) {
+                    is KillableProcessHandler -> event.processHandler.pid()
+                    else -> null
+                }
+                if (pid == null) {
+                    LOG.warn("Unable to determine process id for the session $sessionId")
+                    sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
+                } else {
+                    sessionEvents.tryEmit(SessionStarted(sessionId, pid))
+                }
+            }
+
+            override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
+                val text = decodeAnsiCommandsToString(event.text, outputType)
+                val isStdErr = outputType == ProcessOutputType.STDERR
+                sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
+            }
+
+            override fun processNotStarted() {
+                LOG.warn("Aspire session process is not started")
+                sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
+            }
+        })
     }
 }
