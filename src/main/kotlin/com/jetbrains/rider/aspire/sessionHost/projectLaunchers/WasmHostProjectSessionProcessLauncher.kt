@@ -1,19 +1,27 @@
-@file:Suppress("DuplicatedCode")
+@file:Suppress("DuplicatedCode", "UnstableApiUsage")
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.intellij.util.Url
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
-import com.jetbrains.rider.aspire.sessionHost.hotReload.DotNetProjectHotReloadConfigurationExtension
-import com.jetbrains.rider.debugger.createAndStartSession
-import com.jetbrains.rider.run.*
+import com.jetbrains.rider.aspire.sessionHost.hotReload.WasmHostHotReloadConfigurationExtension
+import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentManager
+import com.jetbrains.rider.debugger.wasm.BrowserHubManager
+import com.jetbrains.rider.nuget.PackageVersionResolution
+import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
+import com.jetbrains.rider.run.IDebuggerOutputListener
+import com.jetbrains.rider.run.configurations.HotReloadEnvironmentBuilder
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import icons.RiderIcons
@@ -22,18 +30,26 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.nameWithoutExtension
 
-class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() {
+class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() {
     companion object {
-        private val LOG = logger<DotNetProjectSessionProcessLauncher>()
+        private val LOG = logger<WasmHostProjectSessionProcessLauncher>()
+
+        private const val DEV_SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.DevServer"
+        private const val SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.Server"
     }
 
-    override val priority = 10
+    override val priority = 1
 
-    override val hotReloadExtension = DotNetProjectHotReloadConfigurationExtension()
+    override val hotReloadExtension = WasmHostHotReloadConfigurationExtension()
 
-    override suspend fun isApplicable(projectPath: String, project: Project) = true
+    override suspend fun isApplicable(projectPath: String, project: Project): Boolean {
+        val nugetChecker = RiderNuGetInstalledPackageCheckerHost.getInstance(project)
+        return nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, DEV_SERVER_NUGET) ||
+                nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, SERVER_NUGET)
+    }
 
     override suspend fun launchRunProcess(
         sessionId: String,
@@ -48,7 +64,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         webBrowser?.let { browserSettings?.apply { browser = it  } }
         val runtime = getDotNetRuntime(executable, project) ?: return
 
-        LOG.trace { "Starting run session for project ${sessionModel.projectPath}" }
+        LOG.trace { "Starting wasm run session for project ${sessionModel.projectPath}" }
 
         val sessionProjectPath = Path(sessionModel.projectPath)
         val (executableWithHotReload, hotReloadProcessListener) = enableHotReload(
@@ -86,17 +102,19 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         webBrowser?.let { browserSettings?.apply { browser = it  } }
         val runtime = getDotNetRuntime(executable, project) ?: return
 
-        LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
+        LOG.trace { "Starting wasm debug session for project ${sessionModel.projectPath}" }
 
+        val sessionProjectPath = Path(sessionModel.projectPath)
         withContext(Dispatchers.EDT) {
             createAndStartDebugSession(
                 sessionId,
-                Path(sessionModel.projectPath),
+                sessionProjectPath,
                 executable,
                 runtime,
                 sessionEvents,
                 sessionProcessLifetime,
                 project,
+                browserSettings,
                 sessionProcessHandlerTerminated
             )
         }
@@ -105,24 +123,51 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
     private suspend fun createAndStartDebugSession(
         sessionId: String,
         sessionProjectPath: Path,
-        dotnetExecutable: DotNetExecutable,
-        dotnetRuntime: DotNetCoreRuntime,
+        executable: DotNetExecutable,
+        runtime: DotNetCoreRuntime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         sessionProcessLifetime: Lifetime,
         project: Project,
+        browserSettings: StartBrowserSettings?,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
+        val browserRefreshHost = BrowserRefreshAgentManager
+            .getInstance(project)
+            .startHost(executable.projectTfm, sessionProcessLifetime)
+        val browserHubLifetimeDef = AspireService.getInstance(project).lifetime.createNested()
+        val browserHub = BrowserHubManager
+            .getInstance(project)
+            .start(browserHubLifetimeDef.lifetime)
+
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
         val debuggerWorkerSession = prepareDebuggerWorkerSession(
             sessionId,
             debuggerSessionId,
-            dotnetExecutable,
-            dotnetRuntime,
+            executable,
+            runtime,
             sessionEvents,
             sessionProcessLifetime,
             project,
-            { },
+            { modifyDebuggerWorkerCmd(browserRefreshHost.wsUrls, browserRefreshHost.serverKey, it) },
             sessionProcessHandlerTerminated
+        )
+
+        val connectedBrowser = startBrowserAndAttach(
+            browserHub,
+            browserHubLifetimeDef,
+            browserSettings,
+            sessionProcessLifetime,
+            project
+        ) ?: return
+
+        executeClient(
+            sessionProjectPath.absolutePathString(),
+            browserHub,
+            browserRefreshHost,
+            connectedBrowser,
+            browserSettings,
+            sessionProcessLifetime,
+            project
         )
 
         createAndStartSession(
@@ -134,7 +179,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
             debuggerWorkerSession.protocol,
             debuggerWorkerSession.debugSessionModel,
             object : IDebuggerOutputListener {},
-            debuggerSessionId
+            debuggerSessionId,
+            browserRefreshHost
         ) { xDebuggerManager, xDebugProcessStarter ->
             xDebuggerManager.startSessionAndShowTab(
                 sessionProjectPath.nameWithoutExtension,
@@ -144,5 +190,18 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
                 xDebugProcessStarter
             )
         }
+    }
+
+    private fun modifyDebuggerWorkerCmd(
+        wsUrls: List<Url>,
+        serverKey: String,
+        debuggerWorkerCmd: GeneralCommandLine
+    ) {
+        val hotReloadEnvs = HotReloadEnvironmentBuilder()
+            .addDeltaApplier()
+            .addBlazorRefreshClient()
+            .setBlazorRefreshServerUrls(wsUrls, serverKey)
+            .build()
+        debuggerWorkerCmd.environment.putAll(hotReloadEnvs)
     }
 }

@@ -23,7 +23,7 @@ interface SessionProcessLauncherExtension {
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        browser: WebBrowser?,
+        webBrowser: WebBrowser?,
         project: Project,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     )
@@ -33,7 +33,7 @@ interface SessionProcessLauncherExtension {
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        browser: WebBrowser?,
+        webBrowser: WebBrowser?,
         project: Project,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     )
