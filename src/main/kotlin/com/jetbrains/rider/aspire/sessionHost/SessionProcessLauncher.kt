@@ -2,6 +2,7 @@
 
 package com.jetbrains.rider.aspire.sessionHost
 
+import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -25,7 +26,8 @@ class SessionProcessLauncher(private val project: Project) {
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        debuggingMode: Boolean
+        debuggingMode: Boolean,
+        browser: WebBrowser?
     ) {
         LOG.info("Starting a session process for the project ${sessionModel.projectPath}")
 
@@ -39,14 +41,16 @@ class SessionProcessLauncher(private val project: Project) {
                 sessionId,
                 sessionModel,
                 sessionProcessLifetime,
-                sessionEvents
+                sessionEvents,
+                browser
             )
         } else {
             launchRunProcess(
                 sessionId,
                 sessionModel,
                 sessionProcessLifetime,
-                sessionEvents
+                sessionEvents,
+                browser
             )
         }
     }
@@ -55,7 +59,8 @@ class SessionProcessLauncher(private val project: Project) {
         sessionId: String,
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        browser: WebBrowser?
     ) {
         val processLauncher = getProjectProcessLauncher(sessionModel)
         if (processLauncher == null) {
@@ -68,6 +73,7 @@ class SessionProcessLauncher(private val project: Project) {
             sessionModel,
             sessionProcessLifetime,
             sessionEvents,
+            browser,
             project
         )
     }
@@ -76,7 +82,8 @@ class SessionProcessLauncher(private val project: Project) {
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        browser: WebBrowser?
     ) {
         val processLauncher = getProjectProcessLauncher(sessionModel)
         if (processLauncher == null) {
@@ -89,6 +96,7 @@ class SessionProcessLauncher(private val project: Project) {
             sessionModel,
             sessionLifetime,
             sessionEvents,
+            browser,
             project
         )
     }

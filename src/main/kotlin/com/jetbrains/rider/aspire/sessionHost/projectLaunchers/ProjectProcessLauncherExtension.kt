@@ -1,5 +1,6 @@
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
+import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -22,6 +23,7 @@ interface ProjectProcessLauncherExtension {
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
+        browser: WebBrowser?,
         project: Project
     )
 
@@ -30,6 +32,7 @@ interface ProjectProcessLauncherExtension {
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
+        browser: WebBrowser?,
         project: Project
     )
 }

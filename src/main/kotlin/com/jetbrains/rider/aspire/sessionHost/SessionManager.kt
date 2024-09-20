@@ -1,6 +1,7 @@
 package com.jetbrains.rider.aspire.sessionHost
 
 import com.intellij.database.util.common.removeIf
+import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -66,7 +67,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.sessionModel,
             command.sessionLifetimeDefinition,
             SequentialLifetimes(command.sessionLifetimeDefinition),
-            command.sessionEvents
+            command.sessionEvents,
+            command.aspireHostConfig.browser
         )
         sessions[command.sessionId] = session
 
@@ -79,7 +81,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             session.model,
             processLifetime,
             session.events,
-            command.aspireHostConfig.debuggingMode
+            command.aspireHostConfig.debuggingMode,
+            session.browser
         )
     }
 
@@ -147,7 +150,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             session.model,
             processLifetime,
             session.events,
-            withDebugger
+            withDebugger,
+            session.browser
         )
     }
 
@@ -192,7 +196,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val model: SessionModel,
         val lifetimeDefinition: LifetimeDefinition,
         val processLifetimes: SequentialLifetimes,
-        val events: MutableSharedFlow<SessionEvent>
+        val events: MutableSharedFlow<SessionEvent>,
+        val browser: WebBrowser?
     )
 
     interface LaunchSessionCommand
