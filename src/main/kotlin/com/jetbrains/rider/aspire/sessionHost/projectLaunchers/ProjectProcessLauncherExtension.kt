@@ -5,19 +5,19 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
-import com.jetbrains.rider.aspire.sessionHost.hotReload.AspireProjectHotReloadConfigurationExtension
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-interface AspireProjectLauncherExtension {
+interface ProjectProcessLauncherExtension {
     companion object {
-        val EP_NAME = ExtensionPointName<AspireProjectLauncherExtension>("com.jetbrains.rider.aspire.projectLauncherExtension")
+        val EP_NAME =
+            ExtensionPointName<ProjectProcessLauncherExtension>("com.jetbrains.rider.aspire.projectProcessLauncherExtension")
     }
 
     val priority: Int
 
     suspend fun isApplicable(projectPath: String, project: Project): Boolean
 
-    suspend fun launchRunSession(
+    suspend fun launchRunProcess(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
@@ -25,7 +25,7 @@ interface AspireProjectLauncherExtension {
         project: Project
     )
 
-    suspend fun launchDebugSession(
+    suspend fun launchDebugProcess(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,

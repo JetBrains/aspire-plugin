@@ -6,6 +6,7 @@ import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputType
+import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
@@ -33,14 +34,17 @@ import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlinx.coroutines.flow.MutableSharedFlow
 import java.nio.file.Path
 
-abstract class AspireProjectBaseLauncher : AspireProjectLauncherExtension {
+abstract class BaseProjectProcessLauncher : ProjectProcessLauncherExtension {
     companion object {
-        private val LOG = logger<AspireProjectBaseLauncher>()
+        private val LOG = logger<BaseProjectProcessLauncher>()
     }
 
     protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
 
-    protected suspend fun getExecutable(sessionModel: SessionModel, project: Project): DotNetExecutable? {
+    protected suspend fun getExecutable(
+        sessionModel: SessionModel,
+        project: Project
+    ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = SessionExecutableFactory.getInstance(project)
         val executable = factory.createExecutable(sessionModel)
         if (executable == null) {

@@ -72,9 +72,9 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
         saveConnectionToResource(command)
 
-        val launcher = SessionLauncher.getInstance(project)
+        val processLauncher = SessionProcessLauncher.getInstance(project)
         val processLifetime = session.processLifetimes.next()
-        launcher.launchSession(
+        processLauncher.launchSessionProcess(
             session.id,
             session.model,
             processLifetime,
@@ -130,7 +130,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val sessionUnderRestart = sessionsUnderRestart.putIfAbsent(sessionId, Unit)
         if (sessionUnderRestart != null) return
 
-        val launcher = SessionLauncher.getInstance(project)
+        val processLauncher = SessionProcessLauncher.getInstance(project)
         val processLifetime = withContext(Dispatchers.EDT) {
             session.processLifetimes.next()
         }
@@ -142,7 +142,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         )
         BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
 
-        launcher.launchSession(
+        processLauncher.launchSessionProcess(
             session.id,
             session.model,
             processLifetime,

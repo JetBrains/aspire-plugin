@@ -9,61 +9,82 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.SessionModel
-import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.AspireProjectLauncherExtension
+import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectProcessLauncherExtension
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Service(Service.Level.PROJECT)
-class SessionLauncher(private val project: Project) {
+class SessionProcessLauncher(private val project: Project) {
     companion object {
-        fun getInstance(project: Project) = project.service<SessionLauncher>()
+        fun getInstance(project: Project) = project.service<SessionProcessLauncher>()
 
-        private val LOG = logger<SessionLauncher>()
+        private val LOG = logger<SessionProcessLauncher>()
     }
 
-    suspend fun launchSession(
+    suspend fun launchSessionProcess(
         sessionId: String,
         sessionModel: SessionModel,
-        sessionLifetime: Lifetime,
+        sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         debuggingMode: Boolean
     ) {
-        LOG.info("Starting a session for the project ${sessionModel.projectPath}")
+        LOG.info("Starting a session process for the project ${sessionModel.projectPath}")
 
-        if (sessionLifetime.isNotAlive) {
+        if (sessionProcessLifetime.isNotAlive) {
             LOG.warn("Unable to run project ${sessionModel.projectPath} because lifetimes are not alive")
             return
         }
 
         if (debuggingMode || sessionModel.debug) {
-            launchDebugSession(
+            launchDebugProcess(
                 sessionId,
                 sessionModel,
-                sessionLifetime,
+                sessionProcessLifetime,
                 sessionEvents
             )
         } else {
-            launchRunSession(
+            launchRunProcess(
                 sessionId,
                 sessionModel,
-                sessionLifetime,
+                sessionProcessLifetime,
                 sessionEvents
             )
         }
     }
 
-    private suspend fun launchDebugSession(
+    private suspend fun launchDebugProcess(
+        sessionId: String,
+        sessionModel: SessionModel,
+        sessionProcessLifetime: Lifetime,
+        sessionEvents: MutableSharedFlow<SessionEvent>
+    ) {
+        val processLauncher = getProjectProcessLauncher(sessionModel)
+        if (processLauncher == null) {
+            LOG.warn("Unable to find appropriate process launcher for the project ${sessionModel.projectPath}")
+            return
+        }
+
+        processLauncher.launchDebugProcess(
+            sessionId,
+            sessionModel,
+            sessionProcessLifetime,
+            sessionEvents,
+            project
+        )
+    }
+
+    private suspend fun launchRunProcess(
         sessionId: String,
         sessionModel: SessionModel,
         sessionLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>
     ) {
-        val projectLauncher = getProjectLauncher(sessionModel)
-        if (projectLauncher == null) {
-            LOG.warn("Unable to find appropriate launcher for the project ${sessionModel.projectPath}")
+        val processLauncher = getProjectProcessLauncher(sessionModel)
+        if (processLauncher == null) {
+            LOG.warn("Unable to find appropriate process launcher for the project ${sessionModel.projectPath}")
             return
         }
 
-        projectLauncher.launchDebugSession(
+        processLauncher.launchRunProcess(
             sessionId,
             sessionModel,
             sessionLifetime,
@@ -72,29 +93,8 @@ class SessionLauncher(private val project: Project) {
         )
     }
 
-    private suspend fun launchRunSession(
-        sessionId: String,
-        sessionModel: SessionModel,
-        sessionLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>
-    ) {
-        val projectLauncher = getProjectLauncher(sessionModel)
-        if (projectLauncher == null) {
-            LOG.warn("Unable to find appropriate launcher for the project ${sessionModel.projectPath}")
-            return
-        }
-
-        projectLauncher.launchRunSession(
-            sessionId,
-            sessionModel,
-            sessionLifetime,
-            sessionEvents,
-            project
-        )
-    }
-
-    private suspend fun getProjectLauncher(sessionModel: SessionModel): AspireProjectLauncherExtension? {
-        for (launcher in AspireProjectLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
+    private suspend fun getProjectProcessLauncher(sessionModel: SessionModel): ProjectProcessLauncherExtension? {
+        for (launcher in ProjectProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
             if (launcher.isApplicable(sessionModel.projectPath, project))
                 return launcher
         }
