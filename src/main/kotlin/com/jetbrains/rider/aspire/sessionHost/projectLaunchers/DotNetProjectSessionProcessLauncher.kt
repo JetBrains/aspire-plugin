@@ -1,10 +1,11 @@
-@file:Suppress("DuplicatedCode", "LoggingSimilarMessage")
+@file:Suppress("DuplicatedCode")
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
 import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
@@ -38,9 +39,9 @@ import org.jetbrains.annotations.Nls
 import kotlin.io.path.Path
 import kotlin.io.path.nameWithoutExtension
 
-class DotNetProjectLauncher : AspireProjectBaseLauncher() {
+class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() {
     companion object {
-        private val LOG = logger<DotNetProjectLauncher>()
+        private val LOG = logger<DotNetProjectSessionProcessLauncher>()
     }
 
     override val priority = 10
@@ -49,15 +50,16 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
 
     override suspend fun isApplicable(projectPath: String, project: Project) = true
 
-    override suspend fun launchRunSession(
+    override suspend fun launchRunProcess(
         sessionId: String,
         sessionModel: SessionModel,
-        sessionLifetime: Lifetime,
+        sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
+        browser: WebBrowser?,
         project: Project
     ) {
-        val executable = getExecutable(sessionModel, project) ?: return
-        val runtime = getRuntime(executable, project) ?: return
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, project) ?: return
+        val runtime = getDotNetRuntime(executable, project) ?: return
 
         LOG.trace { "Starting run session for project ${sessionModel.projectPath}" }
 
@@ -66,7 +68,7 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
             executable,
             sessionProjectPath,
             sessionModel.launchProfile,
-            sessionLifetime,
+            sessionProcessLifetime,
             project
         )
 
@@ -79,9 +81,9 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
             }
         })
 
-        sessionLifetime.onTermination {
+        sessionProcessLifetime.onTermination {
             if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
-                LOG.trace("Killing session process handler (id: $sessionId)")
+                LOG.trace("Killing run session process handler (id: $sessionId)")
                 handler.killProcess()
             }
         }
@@ -93,15 +95,16 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
         handler.startNotify()
     }
 
-    override suspend fun launchDebugSession(
+    override suspend fun launchDebugProcess(
         sessionId: String,
         sessionModel: SessionModel,
-        sessionLifetime: Lifetime,
+        sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
+        browser: WebBrowser?,
         project: Project
     ) {
-        val executable = getExecutable(sessionModel, project) ?: return
-        val runtime = getRuntime(executable, project) ?: return
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, project) ?: return
+        val runtime = getDotNetRuntime(executable, project) ?: return
 
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
 
@@ -126,7 +129,7 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
                 presentableCommandLine,
                 startInfo,
                 sessionEvents,
-                sessionLifetime,
+                sessionProcessLifetime,
                 project
             )
         }
@@ -152,23 +155,23 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
         presentableCommandLine: String,
         startInfo: DebuggerStartInfoBase,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        sessionLifetime: Lifetime,
+        sessionProcessLifetime: Lifetime,
         project: Project
     ) {
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
         val frontendToDebuggerPort = NetUtils.findFreePort(57200)
         val backendToDebuggerPort = NetUtils.findFreePort(57300)
 
-        val dispatcher = RdDispatcher(sessionLifetime)
+        val dispatcher = RdDispatcher(sessionProcessLifetime)
         val wire = SocketWire.Server(
-            sessionLifetime,
+            sessionProcessLifetime,
             dispatcher,
             port = frontendToDebuggerPort,
             optId = "FrontendToDebugWorker"
         )
 
         val sessionModel = DotNetDebuggerSessionModel(startInfo)
-        sessionModel.sessionProperties.bindToSettings(sessionLifetime, project).apply {
+        sessionModel.sessionProperties.bindToSettings(sessionProcessLifetime, project).apply {
             debugKind.set(DebugKind.Live)
             remoteDebug.set(false)
             enableHeuristicPathResolve.set(false)
@@ -181,10 +184,10 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
             Identities(IdKind.Server),
             dispatcher,
             wire,
-            sessionLifetime
+            sessionProcessLifetime
         )
 
-        val workerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(sessionLifetime, protocol)
+        val workerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(sessionProcessLifetime, protocol)
         workerModel.activeSession.set(sessionModel)
 
         val debuggerWorkerProcessHandler = createDebuggerWorkerProcessHandler(
@@ -193,7 +196,7 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
             frontendToDebuggerPort,
             backendToDebuggerPort,
             workerModel,
-            sessionLifetime,
+            sessionProcessLifetime,
             sessionEvents,
             project
         )
@@ -203,9 +206,9 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
             project
         )
 
-        wire.connected.nextTrueValueAsync(sessionLifetime).await()
+        wire.connected.nextTrueValueAsync(sessionProcessLifetime).await()
         project.solution.debuggerWorkerConnectionHelperModel.ports.put(
-            sessionLifetime,
+            sessionProcessLifetime,
             debuggerSessionId,
             backendToDebuggerPort
         )
@@ -216,7 +219,7 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
             }
         })
 
-        sessionLifetime.onTermination {
+        sessionProcessLifetime.onTermination {
             if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
                 LOG.trace("Killing session process handler (id: $sessionId)")
                 debuggerWorkerProcessHandler.destroyProcess()
@@ -227,7 +230,7 @@ class DotNetProjectLauncher : AspireProjectBaseLauncher() {
             console,
             null,
             project,
-            sessionLifetime,
+            sessionProcessLifetime,
             debuggerWorkerProcessHandler,
             protocol,
             sessionModel,

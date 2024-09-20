@@ -59,9 +59,9 @@
 
     <extensions defaultExtensionNs="com.jetbrains.rider.aspire">
         <sessionProcessLauncherExtension
-                implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.WasmHostProjectLauncher"/>
+                implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.WasmHostProjectSessionProcessLauncher"/>
         <sessionProcessLauncherExtension
-                implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.DotNetProjectLauncher"/>
+                implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.DotNetProjectSessionProcessLauncher"/>
     </extensions>
 
     <projectListeners>
