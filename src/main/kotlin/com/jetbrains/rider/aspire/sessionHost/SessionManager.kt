@@ -83,7 +83,9 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             session.events,
             command.aspireHostConfig.debuggingMode,
             session.browser
-        )
+        ) { exitCode, text ->
+            sessionProcessWasTerminated(session.id, exitCode, text)
+        }
     }
 
     private fun saveConnectionToResource(command: CreateSessionCommand) {
@@ -134,7 +136,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         if (sessionUnderRestart != null) return
 
         val processLauncher = SessionProcessLauncher.getInstance(project)
-        val processLifetime = withContext(Dispatchers.EDT) {
+        val sessionProcessLifetime = withContext(Dispatchers.EDT) {
             session.processLifetimes.next()
         }
 
@@ -148,11 +150,13 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         processLauncher.launchSessionProcess(
             session.id,
             session.model,
-            processLifetime,
+            sessionProcessLifetime.lifetime,
             session.events,
             withDebugger,
             session.browser
-        )
+        ) { exitCode, text ->
+            sessionProcessWasTerminated(session.id, exitCode, text)
+        }
     }
 
     suspend fun stopResource(resourceId: String) {
@@ -173,7 +177,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         session.events.tryEmit(SessionTerminated(sessionId, 0))
     }
 
-    fun sessionProcessWasTerminated(sessionId: String, exitCode: Int, text: String?) {
+    private fun sessionProcessWasTerminated(sessionId: String, exitCode: Int, text: String?) {
         LOG.trace("Stopping session $sessionId ($exitCode, $text)")
 
         val sessionUnderRestart = sessionsUnderRestart.remove(sessionId)

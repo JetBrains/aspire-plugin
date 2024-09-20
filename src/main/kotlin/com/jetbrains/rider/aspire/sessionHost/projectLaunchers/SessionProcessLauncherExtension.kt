@@ -24,7 +24,8 @@ interface SessionProcessLauncherExtension {
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         browser: WebBrowser?,
-        project: Project
+        project: Project,
+        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     )
 
     suspend fun launchDebugProcess(
@@ -33,6 +34,7 @@ interface SessionProcessLauncherExtension {
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         browser: WebBrowser?,
-        project: Project
+        project: Project,
+        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     )
 }

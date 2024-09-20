@@ -27,7 +27,8 @@ class SessionProcessLauncher(private val project: Project) {
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         debuggingMode: Boolean,
-        browser: WebBrowser?
+        browser: WebBrowser?,
+        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
         LOG.info("Starting a session process for the project ${sessionModel.projectPath}")
 
@@ -42,7 +43,8 @@ class SessionProcessLauncher(private val project: Project) {
                 sessionModel,
                 sessionProcessLifetime,
                 sessionEvents,
-                browser
+                browser,
+                sessionProcessHandlerTerminated
             )
         } else {
             launchRunProcess(
@@ -50,7 +52,8 @@ class SessionProcessLauncher(private val project: Project) {
                 sessionModel,
                 sessionProcessLifetime,
                 sessionEvents,
-                browser
+                browser,
+                sessionProcessHandlerTerminated
             )
         }
     }
@@ -60,7 +63,8 @@ class SessionProcessLauncher(private val project: Project) {
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        browser: WebBrowser?
+        browser: WebBrowser?,
+        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
         val processLauncher = getSessionProcessLauncher(sessionModel)
         if (processLauncher == null) {
@@ -74,7 +78,8 @@ class SessionProcessLauncher(private val project: Project) {
             sessionProcessLifetime,
             sessionEvents,
             browser,
-            project
+            project,
+            sessionProcessHandlerTerminated
         )
     }
 
@@ -83,7 +88,8 @@ class SessionProcessLauncher(private val project: Project) {
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        browser: WebBrowser?
+        browser: WebBrowser?,
+        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
         val processLauncher = getSessionProcessLauncher(sessionModel)
         if (processLauncher == null) {
@@ -97,7 +103,8 @@ class SessionProcessLauncher(private val project: Project) {
             sessionProcessLifetime,
             sessionEvents,
             browser,
-            project
+            project,
+            sessionProcessHandlerTerminated
         )
     }
 

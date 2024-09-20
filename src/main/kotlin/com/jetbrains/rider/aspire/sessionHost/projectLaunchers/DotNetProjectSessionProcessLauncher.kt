@@ -17,7 +17,6 @@ import com.jetbrains.rd.util.threading.coroutines.nextTrueValueAsync
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
-import com.jetbrains.rider.aspire.sessionHost.SessionManager
 import com.jetbrains.rider.aspire.sessionHost.hotReload.DotNetProjectHotReloadConfigurationExtension
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.RiderDebuggerWorkerModelManager
@@ -56,7 +55,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         browser: WebBrowser?,
-        project: Project
+        project: Project,
+        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
         val (executable, browserSettings) = getDotNetExecutable(sessionModel, project) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
@@ -77,7 +77,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
 
         handler.addProcessListener(object : ProcessAdapter() {
             override fun processTerminated(event: ProcessEvent) {
-                SessionManager.getInstance(project).sessionProcessWasTerminated(sessionId, event.exitCode, event.text)
+                sessionProcessHandlerTerminated(event.exitCode, event.text)
             }
         })
 
@@ -101,7 +101,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         browser: WebBrowser?,
-        project: Project
+        project: Project,
+        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
         val (executable, browserSettings) = getDotNetExecutable(sessionModel, project) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
@@ -130,7 +131,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
                 startInfo,
                 sessionEvents,
                 sessionProcessLifetime,
-                project
+                project,
+                sessionProcessHandlerTerminated
             )
         }
     }
@@ -156,7 +158,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         startInfo: DebuggerStartInfoBase,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         sessionProcessLifetime: Lifetime,
-        project: Project
+        project: Project,
+        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
         val frontendToDebuggerPort = NetUtils.findFreePort(57200)
@@ -215,7 +218,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
 
         debuggerWorkerProcessHandler.addProcessListener(object : ProcessAdapter() {
             override fun processTerminated(event: ProcessEvent) {
-                SessionManager.getInstance(project).sessionProcessWasTerminated(sessionId, event.exitCode, event.text)
+                sessionProcessHandlerTerminated(event.exitCode, event.text)
             }
         })
 
