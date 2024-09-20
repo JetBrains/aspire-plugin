@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Support for Blazor Wasm projects
+
 ## [1.4.1] - 2024-08-08
 
 ### Fixed
