@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.SessionModel
-import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectProcessLauncherExtension
+import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Service(Service.Level.PROJECT)
@@ -62,7 +62,7 @@ class SessionProcessLauncher(private val project: Project) {
         sessionEvents: MutableSharedFlow<SessionEvent>,
         browser: WebBrowser?
     ) {
-        val processLauncher = getProjectProcessLauncher(sessionModel)
+        val processLauncher = getSessionProcessLauncher(sessionModel)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${sessionModel.projectPath}")
             return
@@ -81,11 +81,11 @@ class SessionProcessLauncher(private val project: Project) {
     private suspend fun launchRunProcess(
         sessionId: String,
         sessionModel: SessionModel,
-        sessionLifetime: Lifetime,
+        sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         browser: WebBrowser?
     ) {
-        val processLauncher = getProjectProcessLauncher(sessionModel)
+        val processLauncher = getSessionProcessLauncher(sessionModel)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${sessionModel.projectPath}")
             return
@@ -94,15 +94,15 @@ class SessionProcessLauncher(private val project: Project) {
         processLauncher.launchRunProcess(
             sessionId,
             sessionModel,
-            sessionLifetime,
+            sessionProcessLifetime,
             sessionEvents,
             browser,
             project
         )
     }
 
-    private suspend fun getProjectProcessLauncher(sessionModel: SessionModel): ProjectProcessLauncherExtension? {
-        for (launcher in ProjectProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
+    private suspend fun getSessionProcessLauncher(sessionModel: SessionModel): SessionProcessLauncherExtension? {
+        for (launcher in SessionProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
             if (launcher.isApplicable(sessionModel.projectPath, project))
                 return launcher
         }

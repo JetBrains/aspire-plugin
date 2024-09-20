@@ -14,8 +14,8 @@
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
     <extensionPoints>
-        <extensionPoint qualifiedName="com.jetbrains.rider.aspire.projectProcessLauncherExtension"
-                        interface="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectProcessLauncherExtension"
+        <extensionPoint qualifiedName="com.jetbrains.rider.aspire.sessionProcessLauncherExtension"
+                        interface="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension"
                         dynamic="true"/>
     </extensionPoints>
 
@@ -58,9 +58,9 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.rider.aspire">
-        <projectProcessLauncherExtension
+        <sessionProcessLauncherExtension
                 implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.WasmHostProjectLauncher"/>
-        <projectProcessLauncherExtension
+        <sessionProcessLauncherExtension
                 implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.DotNetProjectLauncher"/>
     </extensions>
 

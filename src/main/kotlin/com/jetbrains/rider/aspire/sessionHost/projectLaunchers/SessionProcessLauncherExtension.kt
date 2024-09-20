@@ -8,10 +8,10 @@ import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-interface ProjectProcessLauncherExtension {
+interface SessionProcessLauncherExtension {
     companion object {
         val EP_NAME =
-            ExtensionPointName<ProjectProcessLauncherExtension>("com.jetbrains.rider.aspire.projectProcessLauncherExtension")
+            ExtensionPointName<SessionProcessLauncherExtension>("com.jetbrains.rider.aspire.sessionProcessLauncherExtension")
     }
 
     val priority: Int
@@ -21,7 +21,7 @@ interface ProjectProcessLauncherExtension {
     suspend fun launchRunProcess(
         sessionId: String,
         sessionModel: SessionModel,
-        sessionLifetime: Lifetime,
+        sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         browser: WebBrowser?,
         project: Project
@@ -30,7 +30,7 @@ interface ProjectProcessLauncherExtension {
     suspend fun launchDebugProcess(
         sessionId: String,
         sessionModel: SessionModel,
-        sessionLifetime: Lifetime,
+        sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         browser: WebBrowser?,
         project: Project

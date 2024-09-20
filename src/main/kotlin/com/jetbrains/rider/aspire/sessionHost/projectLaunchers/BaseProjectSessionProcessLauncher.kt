@@ -34,14 +34,14 @@ import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlinx.coroutines.flow.MutableSharedFlow
 import java.nio.file.Path
 
-abstract class BaseProjectProcessLauncher : ProjectProcessLauncherExtension {
+abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtension {
     companion object {
-        private val LOG = logger<BaseProjectProcessLauncher>()
+        private val LOG = logger<BaseProjectSessionProcessLauncher>()
     }
 
     protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
 
-    protected suspend fun getExecutable(
+    protected suspend fun getDotNetExecutable(
         sessionModel: SessionModel,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
@@ -54,7 +54,7 @@ abstract class BaseProjectProcessLauncher : ProjectProcessLauncherExtension {
         return executable
     }
 
-    protected fun getRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
+    protected fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
         val runtime = DotNetRuntime.detectRuntimeForProject(
             project,
             RunnableProjectKinds.DotNetCore,
