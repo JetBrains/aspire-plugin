@@ -15,7 +15,7 @@ class AspireService(val scope: CoroutineScope): Disposable {
 
     private val lifetimeDef = LifetimeDefinition()
 
-    fun lifetime() = lifetimeDef.lifetime
+    val lifetime = lifetimeDef.lifetime
 
     override fun dispose() {
         lifetimeDef.terminate()

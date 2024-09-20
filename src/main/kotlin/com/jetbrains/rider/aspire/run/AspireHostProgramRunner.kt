@@ -12,13 +12,14 @@ import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.rd.util.lifetime
 import com.intellij.util.application
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rdclient.protocol.RdDispatcher
+import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.generated.aspireSessionHostModel
 import com.jetbrains.rider.aspire.services.AspireServiceManager
 import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
@@ -49,10 +50,10 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
     ): RunContentDescriptor? {
         LOG.info("Executing Aspire run profile state")
 
-        val aspireHostLifetimeDefinition = environment.project.lifetime.createNested()
+        val aspireHostLifetimeDefinition = AspireService.getInstance(environment.project).lifetime.createNested()
         val config = createConfig(environment, state, aspireHostLifetimeDefinition.lifetime)
 
-        LOG.trace("Aspire session host config: $config")
+        LOG.trace { "Aspire session host config: $config" }
 
         startProtocolAndSubscribe(
             environment.project,
@@ -95,10 +96,12 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
         state: RunProfileState,
         aspireHostLifetime: Lifetime
     ): AspireHostConfig {
-        val dotnetProcessState = state as? AspireHostRunProfileState
+        val aspireHostProfileState = state as? AspireHostRunProfileState
             ?: throw CantRunException("Unable to execute RunProfileState: $state")
+        val aspireHostConfiguration = (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)
+            ?: throw CantRunException("Requested configuration is not an AspireHostConfiguration")
 
-        val environmentVariables = dotnetProcessState.environmentVariables
+        val environmentVariables = aspireHostProfileState.environmentVariables
         val debugSessionToken = environmentVariables[DEBUG_SESSION_TOKEN]
         val debugSessionPort = environmentVariables[DEBUG_SESSION_PORT]
             ?.substringAfter(':')
@@ -111,15 +114,13 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
 
         val debuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
-        val configuration = (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)
-            ?: throw CantRunException("Requested configuration is not an AspireHostConfiguration")
-
-        val parameters = configuration.parameters
+        val parameters = aspireHostConfiguration.parameters
         val aspireHostProjectPath = Path(parameters.projectFilePath)
         val aspireHostProjectUrl = parameters.startBrowserParameters.url
+        val browser = parameters.startBrowserParameters.browser
 
         return AspireHostConfig(
-            configuration.name,
+            aspireHostConfiguration.name,
             debugSessionToken,
             debugSessionPort,
             aspireHostProjectPath,
@@ -127,7 +128,8 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
             debuggingMode,
             resourceServiceEndpointUrl,
             resourceServiceApiKey,
-            aspireHostLifetime
+            aspireHostLifetime,
+            browser
         )
     }
 
