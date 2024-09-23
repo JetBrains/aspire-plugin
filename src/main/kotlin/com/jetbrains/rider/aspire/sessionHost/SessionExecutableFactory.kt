@@ -1,6 +1,7 @@
 package com.jetbrains.rider.aspire.sessionHost
 
 import com.intellij.ide.browsers.StartBrowserSettings
+import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -9,6 +10,7 @@ import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable
 import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.util.MSBuildPropertyService
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
@@ -34,20 +36,24 @@ class SessionExecutableFactory(private val project: Project) {
         private const val DOTNET_LAUNCH_PROFILE = "DOTNET_LAUNCH_PROFILE"
     }
 
-    suspend fun createExecutable(sessionModel: SessionModel): Pair<DotNetExecutable, StartBrowserSettings?>? {
+    suspend fun createExecutable(
+        sessionModel: SessionModel,
+        hostRunConfiguration: AspireHostConfiguration?
+    ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val sessionProjectPath = Path(sessionModel.projectPath)
         val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
 
         return if (runnableProject != null) {
-            getExecutableForRunnableProject(runnableProject, sessionModel)
+            getExecutableForRunnableProject(runnableProject, sessionModel, hostRunConfiguration)
         } else {
-            getExecutableForExternalProject(sessionProjectPath, sessionModel)
+            getExecutableForExternalProject(sessionProjectPath, sessionModel, hostRunConfiguration)
         }
     }
 
     private suspend fun getExecutableForRunnableProject(
         runnableProject: RunnableProject,
-        sessionModel: SessionModel
+        sessionModel: SessionModel,
+        hostRunConfiguration: AspireHostConfiguration?
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val output = runnableProject.projectOutputs.firstOrNull() ?: return null
         val launchProfile = getLaunchProfile(sessionModel.launchProfile, sessionModel.envs, runnableProject)
@@ -56,7 +62,7 @@ class SessionExecutableFactory(private val project: Project) {
         val arguments = mergeArguments(sessionModel.args, output.defaultArguments, launchProfile?.commandLineArgs)
         val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
         val browserSettings = launchProfile?.let {
-            getStartBrowserSettings(Path(runnableProject.projectFilePath), it, envs, output.tfm)
+            getStartBrowserSettings(Path(runnableProject.projectFilePath), it, envs, output.tfm, hostRunConfiguration)
         }
 
         return DotNetExecutable(
@@ -99,7 +105,8 @@ class SessionExecutableFactory(private val project: Project) {
 
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
-        sessionModel: SessionModel
+        sessionModel: SessionModel,
+        hostRunConfiguration: AspireHostConfiguration?
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val propertyService = MSBuildPropertyService.getInstance(project)
         val properties = propertyService.getProjectRunProperties(sessionProjectPath) ?: return null
@@ -109,7 +116,7 @@ class SessionExecutableFactory(private val project: Project) {
         val arguments = mergeArguments(sessionModel.args, properties.arguments, launchProfile?.commandLineArgs)
         val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
         val browserSettings = launchProfile?.let {
-            getStartBrowserSettings(sessionProjectPath, it, envs, properties.targetFramework)
+            getStartBrowserSettings(sessionProjectPath, it, envs, properties.targetFramework, hostRunConfiguration)
         }
 
         return DotNetExecutable(
@@ -191,7 +198,8 @@ class SessionExecutableFactory(private val project: Project) {
         projectFilePath: Path,
         launchProfile: LaunchSettingsJson.Profile,
         envs: Map<String, String>,
-        tfm: RdTargetFrameworkId?
+        tfm: RdTargetFrameworkId?,
+        hostRunConfiguration: AspireHostConfiguration?
     ): StartBrowserSettings {
         val applicationUrlKey = "ApplicationUrl"
         val applicationRawUrl = launchProfile.applicationUrl
@@ -212,8 +220,10 @@ class SessionExecutableFactory(private val project: Project) {
         val launchUrl = processedParams[applicationUrlKey]
         val applicationUrl = processedParams[launchUrlKey]?.split(';')?.firstOrNull()
         val browserUrl = concatUrl(applicationUrl, launchUrl)
+        val webBrowser = hostRunConfiguration?.parameters?.startBrowserParameters?.browser
 
         return StartBrowserSettings().apply {
+            browser = webBrowser
             isSelected = launchProfile.launchBrowser
             url = browserUrl
         }

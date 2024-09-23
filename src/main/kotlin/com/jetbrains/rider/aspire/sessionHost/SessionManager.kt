@@ -1,7 +1,6 @@
 package com.jetbrains.rider.aspire.sessionHost
 
 import com.intellij.database.util.common.removeIf
-import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -13,6 +12,7 @@ import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfig
+import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
@@ -68,7 +68,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.sessionLifetimeDefinition,
             SequentialLifetimes(command.sessionLifetimeDefinition),
             command.sessionEvents,
-            command.aspireHostConfig.browser
+            command.aspireHostConfig.hostRunConfiguration
         )
         sessions[command.sessionId] = session
 
@@ -82,7 +82,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             processLifetime,
             session.events,
             command.aspireHostConfig.debuggingMode,
-            session.browser
+            session.hostRunConfiguration
         ) { exitCode, text ->
             sessionProcessWasTerminated(session.id, exitCode, text)
         }
@@ -153,7 +153,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             sessionProcessLifetime.lifetime,
             session.events,
             withDebugger,
-            session.browser
+            session.hostRunConfiguration
         ) { exitCode, text ->
             sessionProcessWasTerminated(session.id, exitCode, text)
         }
@@ -201,7 +201,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val lifetimeDefinition: LifetimeDefinition,
         val processLifetimes: SequentialLifetimes,
         val events: MutableSharedFlow<SessionEvent>,
-        val browser: WebBrowser?
+        val hostRunConfiguration: AspireHostConfiguration?
     )
 
     interface LaunchSessionCommand

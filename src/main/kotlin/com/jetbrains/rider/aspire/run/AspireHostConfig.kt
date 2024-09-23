@@ -1,6 +1,5 @@
 package com.jetbrains.rider.aspire.run
 
-import com.intellij.ide.browsers.WebBrowser
 import com.jetbrains.rd.util.lifetime.Lifetime
 import java.nio.file.Path
 
@@ -19,5 +18,5 @@ data class AspireHostConfig(
     //from env: DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
     val resourceServiceApiKey: String?,
     val aspireHostLifetime: Lifetime,
-    val browser: WebBrowser?
+    val hostRunConfiguration: AspireHostConfiguration?
 )

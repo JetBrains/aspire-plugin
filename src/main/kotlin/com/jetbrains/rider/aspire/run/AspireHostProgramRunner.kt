@@ -117,7 +117,6 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
         val parameters = aspireHostConfiguration.parameters
         val aspireHostProjectPath = Path(parameters.projectFilePath)
         val aspireHostProjectUrl = parameters.startBrowserParameters.url
-        val browser = parameters.startBrowserParameters.browser
 
         return AspireHostConfig(
             aspireHostConfiguration.name,
@@ -129,7 +128,7 @@ class AspireHostProgramRunner : RiderAsyncProgramRunner<RunnerSettings>(), DotNe
             resourceServiceEndpointUrl,
             resourceServiceApiKey,
             aspireHostLifetime,
-            browser
+            aspireHostConfiguration
         )
     }
 

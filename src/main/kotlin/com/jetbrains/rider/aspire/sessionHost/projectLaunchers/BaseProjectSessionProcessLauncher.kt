@@ -11,6 +11,7 @@ import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.ui.ConsoleView
+import com.intellij.ide.browsers.BrowserStarter
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.logger
@@ -27,6 +28,7 @@ import com.jetbrains.rd.util.threading.coroutines.nextTrueValueAsync
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.RiderEnvironment
 import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
 import com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactory
 import com.jetbrains.rider.aspire.sessionHost.SessionLogReceived
@@ -79,10 +81,11 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
 
     protected suspend fun getDotNetExecutable(
         sessionModel: SessionModel,
+        hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = SessionExecutableFactory.getInstance(project)
-        val executable = factory.createExecutable(sessionModel)
+        val executable = factory.createExecutable(sessionModel, hostRunConfiguration)
         if (executable == null) {
             LOG.warn("Unable to create executable for project: ${sessionModel.projectPath}")
         }
@@ -380,6 +383,16 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
                 sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
             }
         })
+    }
+
+    protected fun startBrowser(
+        hostRunConfiguration: AspireHostConfiguration?,
+        startBrowserSettings: StartBrowserSettings?,
+        processHandler: ProcessHandler
+    ) {
+        if (hostRunConfiguration == null || startBrowserSettings == null) return
+
+        BrowserStarter(hostRunConfiguration, startBrowserSettings, processHandler).start()
     }
 
     data class DebuggerWorkerSession(

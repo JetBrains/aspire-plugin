@@ -2,6 +2,7 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
+import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.application.EDT
@@ -10,6 +11,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
 import com.jetbrains.rider.aspire.sessionHost.hotReload.DotNetProjectHotReloadConfigurationExtension
 import com.jetbrains.rider.debugger.createAndStartSession
@@ -40,12 +42,11 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        webBrowser: WebBrowser?,
+        hostRunConfiguration: AspireHostConfiguration?,
         project: Project,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, project) ?: return
-        webBrowser?.let { browserSettings?.apply { browser = it  } }
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         LOG.trace { "Starting run session for project ${sessionModel.projectPath}" }
@@ -70,6 +71,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
             sessionProcessHandlerTerminated
         )
 
+        startBrowser(hostRunConfiguration, browserSettings, handler)
+
         handler.startNotify()
     }
 
@@ -78,12 +81,11 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        webBrowser: WebBrowser?,
+        hostRunConfiguration: AspireHostConfiguration?,
         project: Project,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, project) ?: return
-        webBrowser?.let { browserSettings?.apply { browser = it  } }
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }

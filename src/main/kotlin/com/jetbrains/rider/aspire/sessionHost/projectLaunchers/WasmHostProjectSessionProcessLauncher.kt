@@ -3,6 +3,7 @@
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.ide.browsers.WebBrowser
@@ -14,6 +15,7 @@ import com.intellij.util.Url
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.SessionEvent
 import com.jetbrains.rider.aspire.sessionHost.hotReload.WasmHostHotReloadConfigurationExtension
 import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentManager
@@ -56,12 +58,11 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        webBrowser: WebBrowser?,
+        hostRunConfiguration: AspireHostConfiguration?,
         project: Project,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, project) ?: return
-        webBrowser?.let { browserSettings?.apply { browser = it  } }
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         LOG.trace { "Starting wasm run session for project ${sessionModel.projectPath}" }
@@ -86,6 +87,8 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
             sessionProcessHandlerTerminated
         )
 
+        startBrowser(hostRunConfiguration, browserSettings, handler)
+
         handler.startNotify()
     }
 
@@ -94,12 +97,11 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         sessionModel: SessionModel,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        webBrowser: WebBrowser?,
+        hostRunConfiguration: AspireHostConfiguration?,
         project: Project,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, project) ?: return
-        webBrowser?.let { browserSettings?.apply { browser = it  } }
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         LOG.trace { "Starting wasm debug session for project ${sessionModel.projectPath}" }

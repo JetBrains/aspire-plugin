@@ -198,20 +198,4 @@ class AspireHostExecutorFactory(
     private data class EnvironmentVariableValues(
         val browserToken: String?
     )
-
-    private fun getStartBrowserAction(
-        browserUrl: String,
-        params: DotNetStartBrowserParameters
-    ): (ExecutionEnvironment, RunProfile, ProcessHandler) -> Unit =
-        { _, runProfile, processHandler ->
-            if (params.startAfterLaunch && runProfile is RunConfiguration) {
-                val startBrowserSettings = StartBrowserSettings().apply {
-                    isSelected = params.startAfterLaunch
-                    url = browserUrl
-                    browser = params.browser
-                    isStartJavaScriptDebugger = params.withJavaScriptDebugger
-                }
-                BrowserStarter(runProfile, startBrowserSettings, processHandler).start()
-            }
-        }
 }
