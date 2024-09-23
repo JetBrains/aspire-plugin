@@ -64,19 +64,17 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         project: Project,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
-        val runtime = getDotNetRuntime(executable, project) ?: return
-
         LOG.trace { "Starting wasm run session for project ${sessionModel.projectPath}" }
 
-        val sessionProjectPath = Path(sessionModel.projectPath)
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
         val (executableWithHotReload, hotReloadProcessListener) = enableHotReload(
             executable,
-            sessionProjectPath,
+            Path(sessionModel.projectPath),
             sessionModel.launchProfile,
             sessionProcessLifetime,
             project
         )
+        val runtime = getDotNetRuntime(executable, project) ?: return
 
         val handler = createRunProcessHandler(
             sessionId,
@@ -103,10 +101,10 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         project: Project,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
+        LOG.trace { "Starting wasm debug session for project ${sessionModel.projectPath}" }
+
         val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
-
-        LOG.trace { "Starting wasm debug session for project ${sessionModel.projectPath}" }
 
         withContext(Dispatchers.EDT) {
             createAndStartDebugSession(

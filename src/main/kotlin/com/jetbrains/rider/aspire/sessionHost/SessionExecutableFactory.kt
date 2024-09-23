@@ -1,7 +1,6 @@
 package com.jetbrains.rider.aspire.sessionHost
 
 import com.intellij.ide.browsers.StartBrowserSettings
-import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
