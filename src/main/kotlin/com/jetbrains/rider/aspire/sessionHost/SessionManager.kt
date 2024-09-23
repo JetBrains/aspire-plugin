@@ -35,9 +35,9 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         private val LOG = logger<SessionManager>()
     }
 
-    private val sessions = mutableMapOf<String, Session>()
-    private val resourceToSessionMap = mutableMapOf<String, String>()
-    private val projectPathToResourceIdMap = mutableMapOf<Path, Pair<String, String>>()
+    private val sessions = ConcurrentHashMap<String, Session>()
+    private val resourceToSessionMap = ConcurrentHashMap<String, String>()
+    private val projectPathToResourceIdMap = ConcurrentHashMap<Path, Pair<String, String>>()
     private val sessionsUnderRestart = ConcurrentHashMap<String, Unit>()
 
     private val commands = MutableSharedFlow<LaunchSessionCommand>(

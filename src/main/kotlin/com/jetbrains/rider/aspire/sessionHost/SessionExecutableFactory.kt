@@ -1,3 +1,5 @@
+@file:Suppress("DuplicatedCode")
+
 package com.jetbrains.rider.aspire.sessionHost
 
 import com.intellij.ide.browsers.StartBrowserSettings
@@ -18,10 +20,12 @@ import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
+import com.jetbrains.rider.run.environment.ExecutableRunParameters
 import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.run.environment.StringProcessingParameters
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
+import java.io.File
 import java.net.URI
 import java.net.URISyntaxException
 import java.nio.file.Path
@@ -64,14 +68,31 @@ class SessionExecutableFactory(private val project: Project) {
             getStartBrowserSettings(Path(runnableProject.projectFilePath), it, envs, output.tfm, hostRunConfiguration)
         }
 
-        return DotNetExecutable(
+        val processOptions = ProjectProcessOptions(
+            File(runnableProject.projectFilePath),
+            File(workingDirectory)
+        )
+        val runParameters = ExecutableRunParameters(
             executablePath,
-            output.tfm,
             workingDirectory,
             arguments,
-            false,
-            false,
             envs,
+            true,
+            output.tfm
+        )
+
+        val params = ExecutableParameterProcessor
+            .getInstance(project)
+            .processEnvironment(runParameters, processOptions)
+
+        return DotNetExecutable(
+            params.executablePath ?: executablePath,
+            params.tfm ?: output.tfm,
+            params.workingDirectoryPath ?: workingDirectory,
+            params.commandLineArgumentString ?: arguments,
+            false,
+            false,
+            params.environmentVariables,
             false,
             { _, _, _ -> },
             null,
@@ -118,14 +139,31 @@ class SessionExecutableFactory(private val project: Project) {
             getStartBrowserSettings(sessionProjectPath, it, envs, properties.targetFramework, hostRunConfiguration)
         }
 
-        return DotNetExecutable(
+        val processOptions = ProjectProcessOptions(
+            sessionProjectPath.toFile(),
+            File(workingDirectory)
+        )
+        val runParameters = ExecutableRunParameters(
             executablePath,
-            properties.targetFramework,
             workingDirectory,
             arguments,
-            false,
-            false,
             envs,
+            true,
+            properties.targetFramework
+        )
+
+        val params = ExecutableParameterProcessor
+            .getInstance(project)
+            .processEnvironment(runParameters, processOptions)
+
+        return DotNetExecutable(
+            params.executablePath ?: executablePath,
+            params.tfm ?: properties.targetFramework,
+            params.workingDirectoryPath ?: workingDirectory,
+            params.commandLineArgumentString ?: arguments,
+            false,
+            false,
+            params.environmentVariables,
             false,
             { _, _, _ -> },
             null,
