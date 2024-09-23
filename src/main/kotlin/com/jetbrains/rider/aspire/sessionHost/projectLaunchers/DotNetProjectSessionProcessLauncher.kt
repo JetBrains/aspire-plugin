@@ -2,9 +2,10 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
-import com.intellij.execution.configurations.RunConfiguration
+import com.intellij.execution.DefaultExecutionResult
+import com.intellij.execution.ExecutionResult
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.ide.browsers.WebBrowser
+import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
@@ -96,6 +97,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
                 Path(sessionModel.projectPath),
                 executable,
                 runtime,
+                browserSettings,
+                hostRunConfiguration,
                 sessionEvents,
                 sessionProcessLifetime,
                 project,
@@ -109,13 +112,16 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         sessionProjectPath: Path,
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
+        browserSettings: StartBrowserSettings?,
+        hostRunConfiguration: AspireHostConfiguration?,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         sessionProcessLifetime: Lifetime,
         project: Project,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
-        val debuggerWorkerSession = prepareDebuggerWorkerSession(
+
+        val debuggerWorkerSession = initDebuggerSession(
             sessionId,
             debuggerSessionId,
             dotnetExecutable,
@@ -127,12 +133,15 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
             sessionProcessHandlerTerminated
         )
 
+        val executionResult =
+            executeDebuggerSession(debuggerWorkerSession, browserSettings, hostRunConfiguration, project)
+
         createAndStartSession(
-            debuggerWorkerSession.console,
+            executionResult.executionConsole,
             null,
             project,
             sessionProcessLifetime,
-            debuggerWorkerSession.debuggerWorkerProcessHandler,
+            executionResult.processHandler,
             debuggerWorkerSession.protocol,
             debuggerWorkerSession.debugSessionModel,
             object : IDebuggerOutputListener {},
@@ -146,5 +155,22 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
                 xDebugProcessStarter
             )
         }
+    }
+
+    private fun executeDebuggerSession(
+        session: DebuggerWorkerSession,
+        browserSettings: StartBrowserSettings?,
+        hostRunConfiguration: AspireHostConfiguration?,
+        project: Project
+    ): ExecutionResult {
+        val console = createConsole(
+            ConsoleKind.Normal,
+            session.debuggerWorkerProcessHandler.debuggerWorkerRealHandler,
+            project
+        )
+
+        startBrowser(hostRunConfiguration, browserSettings, session.debuggerWorkerProcessHandler)
+
+        return DefaultExecutionResult(console, session.debuggerWorkerProcessHandler)
     }
 }

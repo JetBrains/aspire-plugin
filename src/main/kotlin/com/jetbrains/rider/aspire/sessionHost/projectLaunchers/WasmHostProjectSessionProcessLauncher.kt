@@ -2,11 +2,11 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
+import com.intellij.execution.DefaultExecutionResult
+import com.intellij.execution.ExecutionResult
 import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.ide.browsers.StartBrowserSettings
-import com.intellij.ide.browsers.WebBrowser
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
@@ -22,8 +22,10 @@ import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentManag
 import com.jetbrains.rider.debugger.wasm.BrowserHubManager
 import com.jetbrains.rider.nuget.PackageVersionResolution
 import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
+import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.IDebuggerOutputListener
 import com.jetbrains.rider.run.configurations.HotReloadEnvironmentBuilder
+import com.jetbrains.rider.run.createConsole
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import icons.RiderIcons
@@ -106,17 +108,16 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
 
         LOG.trace { "Starting wasm debug session for project ${sessionModel.projectPath}" }
 
-        val sessionProjectPath = Path(sessionModel.projectPath)
         withContext(Dispatchers.EDT) {
             createAndStartDebugSession(
                 sessionId,
-                sessionProjectPath,
+                Path(sessionModel.projectPath),
                 executable,
                 runtime,
+                browserSettings,
                 sessionEvents,
                 sessionProcessLifetime,
                 project,
-                browserSettings,
                 sessionProcessHandlerTerminated
             )
         }
@@ -127,12 +128,14 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         sessionProjectPath: Path,
         executable: DotNetExecutable,
         runtime: DotNetCoreRuntime,
+        browserSettings: StartBrowserSettings?,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         sessionProcessLifetime: Lifetime,
         project: Project,
-        browserSettings: StartBrowserSettings?,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
+        val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
+
         val browserRefreshHost = BrowserRefreshAgentManager
             .getInstance(project)
             .startHost(executable.projectTfm, sessionProcessLifetime)
@@ -141,8 +144,7 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
             .getInstance(project)
             .start(browserHubLifetimeDef.lifetime)
 
-        val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
-        val debuggerWorkerSession = prepareDebuggerWorkerSession(
+        val debuggerWorkerSession = initDebuggerSession(
             sessionId,
             debuggerSessionId,
             executable,
@@ -160,7 +162,13 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
             browserSettings,
             sessionProcessLifetime,
             project
-        ) ?: return
+        )
+        if (connectedBrowser == null) {
+            LOG.warn("Unable to obtain connected browser")
+            return
+        }
+
+        val executionResult = executeDebuggerSession(debuggerWorkerSession, project)
 
         executeClient(
             sessionProjectPath.absolutePathString(),
@@ -173,11 +181,11 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         )
 
         createAndStartSession(
-            debuggerWorkerSession.console,
+            executionResult.executionConsole,
             null,
             project,
             sessionProcessLifetime,
-            debuggerWorkerSession.debuggerWorkerProcessHandler,
+            executionResult.processHandler,
             debuggerWorkerSession.protocol,
             debuggerWorkerSession.debugSessionModel,
             object : IDebuggerOutputListener {},
@@ -205,5 +213,18 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
             .setBlazorRefreshServerUrls(wsUrls, serverKey)
             .build()
         debuggerWorkerCmd.environment.putAll(hotReloadEnvs)
+    }
+
+    private fun executeDebuggerSession(
+        session: DebuggerWorkerSession,
+        project: Project
+    ): ExecutionResult {
+        val console = createConsole(
+            ConsoleKind.Normal,
+            session.debuggerWorkerProcessHandler.debuggerWorkerRealHandler,
+            project
+        )
+
+        return DefaultExecutionResult(console, session.debuggerWorkerProcessHandler)
     }
 }

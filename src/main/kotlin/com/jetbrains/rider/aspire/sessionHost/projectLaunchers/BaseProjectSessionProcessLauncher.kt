@@ -10,11 +10,11 @@ import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputType
-import com.intellij.execution.ui.ConsoleView
 import com.intellij.ide.browsers.BrowserStarter
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.jetbrains.rd.framework.IdKind
@@ -59,7 +59,6 @@ import com.jetbrains.rider.run.bindToSettings
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
-import com.jetbrains.rider.run.createConsole
 import com.jetbrains.rider.run.createRunCommandLine
 import com.jetbrains.rider.run.environment.ExecutableType
 import com.jetbrains.rider.run.pid
@@ -109,7 +108,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         return runtime
     }
 
-    protected fun getDotNetCoreExeStartInfo(executable: DotNetExecutable, runtime: DotNetCoreRuntime) =
+    protected fun createModelStartInfo(executable: DotNetExecutable, runtime: DotNetCoreRuntime) =
         DotNetCoreExeStartInfo(
             DotNetCoreInfo(runtime.cliExePath),
             executable.projectTfm?.let { EncInfo(it) },
@@ -203,7 +202,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         return handler
     }
 
-    protected suspend fun prepareDebuggerWorkerSession(
+    protected suspend fun initDebuggerSession(
         sessionId: String,
         debuggerSessionId: Long,
         dotnetExecutable: DotNetExecutable,
@@ -219,7 +218,24 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
 
         val (wire, protocol) = createDebuggerWorkerProtocol(frontendToDebuggerPort, sessionProcessLifetime)
 
-        val startInfo = getDotNetCoreExeStartInfo(dotnetExecutable, dotnetRuntime)
+        val presentableCommandLine = createPresentableCommandLine(dotnetExecutable, dotnetRuntime)
+        val (debuggerWorkerModel, debuggerWorkerProcessHandler) = getDebuggerWorkerModelAndHandler(
+            sessionId,
+            debuggerSessionId,
+            frontendToDebuggerPort,
+            backendToDebuggerPort,
+            wire,
+            protocol,
+            presentableCommandLine,
+            sessionProcessLifetime,
+            sessionEvents,
+            project,
+            modifyDebuggerWorkerCmd,
+            sessionProcessHandlerTerminated
+        )
+
+        val startInfo = createModelStartInfo(dotnetExecutable, dotnetRuntime)
+
         val debuggerSessionModel = DotNetDebuggerSessionModel(startInfo)
         debuggerSessionModel.sessionProperties.bindToSettings(sessionProcessLifetime, project).apply {
             debugKind.set(DebugKind.Live)
@@ -228,39 +244,10 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             editAndContinueEnabled.set(true)
         }
 
-        val debuggerWorkerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(sessionProcessLifetime, protocol)
         debuggerWorkerModel.activeSession.set(debuggerSessionModel)
 
-        val presentableCommandLine = createPresentableCommandLine(dotnetExecutable, dotnetRuntime)
-        val debuggerWorkerProcessHandler = createDebuggerWorkerProcessHandler(
-            sessionId,
-            frontendToDebuggerPort,
-            backendToDebuggerPort,
-            debuggerWorkerModel,
-            presentableCommandLine,
-            sessionProcessLifetime,
-            sessionEvents,
-            project,
-            modifyDebuggerWorkerCmd,
-            sessionProcessHandlerTerminated
-        )
-        val console = createConsole(
-            ConsoleKind.Normal,
-            debuggerWorkerProcessHandler.debuggerWorkerRealHandler,
-            project
-        )
-
-        wire.connected.nextTrueValueAsync(sessionProcessLifetime).await()
-        project.solution.debuggerWorkerConnectionHelperModel.ports.put(
-            sessionProcessLifetime,
-            debuggerSessionId,
-            backendToDebuggerPort
-        )
-
         return DebuggerWorkerSession(
-            debuggerSessionId,
             debuggerWorkerProcessHandler,
-            console,
             protocol,
             debuggerSessionModel
         )
@@ -289,23 +276,24 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         return wire to protocol
     }
 
-    private fun createDebuggerWorkerProcessHandler(
+    private suspend fun getDebuggerWorkerModelAndHandler(
         sessionId: String,
+        debuggerSessionId: Long,
         frontendToDebuggerPort: Int,
         backendToDebuggerPort: Int,
-        debuggerWorkerModel: DebuggerWorkerModel,
+        wire: SocketWire.Server,
+        protocol: Protocol,
         presentableCommandLine: String,
         sessionProcessLifetime: Lifetime,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         project: Project,
         modifyDebuggerWorkerCmd: (GeneralCommandLine) -> Unit,
         sessionProcessHandlerTerminated: (Int, String?) -> Unit
-    ): DebuggerWorkerProcessHandler {
-        val debuggerWorkerLauncher = DEBUGGER_WORKER_LAUNCHER.getLauncher()
+    ): Pair<DebuggerWorkerModel, DebuggerWorkerProcessHandler> {
         val debuggerWorkerCmd = DebugProfileStateBase.createWorkerCmdForLauncherInfo(
             ConsoleKind.Normal,
             frontendToDebuggerPort,
-            debuggerWorkerLauncher,
+            DEBUGGER_WORKER_LAUNCHER.getLauncher(),
             ExecutableType.Console,
             true,
             false,
@@ -315,17 +303,20 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             modifyDebuggerWorkerCmd(it)
         }
 
+        LOG.trace { "Created debugger worker command line: $debuggerWorkerCmd" }
+
         val debuggerWorkerLogDir = createLogSubDir(project, "DebuggerWorker", "JetBrains.Debugger.Worker")
+
         debuggerWorkerCmd.withEnvironment(DEBUGGER_WORKER_LOG_DIR_ENV_KEY, debuggerWorkerLogDir.absolutePath)
         debuggerWorkerCmd.withEnvironment(DEBUGGER_WORKER_LOG_CONF_ENV_KEY, RiderEnvironment.logBackendConf)
         debuggerWorkerCmd.withEnvironment("JET_DEBUGGER_PARENT_PROCESS_PID", ProcessHandle.current().pid().toString())
+        debuggerWorkerCmd.withEnvironment("DOTNET_gcServer", "0")
         if (BundleBase.SHOW_LOCALIZED_MESSAGES) {
             debuggerWorkerCmd.withEnvironment("JET_I18N_DEBUG", "true")
         }
-        debuggerWorkerCmd.environment["DOTNET_gcServer"] = "0"
 
+        val debuggerWorkerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(sessionProcessLifetime, protocol)
         val handler = TerminalProcessHandler(project, debuggerWorkerCmd, presentableCommandLine, false)
-
         val debuggerWorkerProcessHandler = DebuggerWorkerProcessHandler(
             handler,
             debuggerWorkerModel,
@@ -343,13 +334,20 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         sessionProcessLifetime.onTermination {
             if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
                 LOG.trace("Killing debugger worker session process handler (id: $sessionId)")
-                debuggerWorkerProcessHandler.destroyProcess()
+                debuggerWorkerProcessHandler.killProcess()
             }
         }
 
         subscribeToSessionEvents(sessionId, debuggerWorkerProcessHandler.debuggerWorkerRealHandler, sessionEvents)
 
-        return debuggerWorkerProcessHandler
+        wire.connected.nextTrueValueAsync(sessionProcessLifetime).await()
+        project.solution.debuggerWorkerConnectionHelperModel.ports.put(
+            sessionProcessLifetime,
+            debuggerSessionId,
+            backendToDebuggerPort
+        )
+
+        return debuggerWorkerModel to debuggerWorkerProcessHandler
     }
 
     private fun subscribeToSessionEvents(
@@ -396,9 +394,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
     }
 
     data class DebuggerWorkerSession(
-        val debuggerSessionId: Long,
         val debuggerWorkerProcessHandler: DebuggerWorkerProcessHandler,
-        val console: ConsoleView,
         val protocol: Protocol,
         val debugSessionModel: DotNetDebuggerSessionModel
     )
