@@ -6,7 +6,8 @@
 
 ### Added
 
-- Support for Blazor Wasm projects
+- [#129](https://github.com/JetBrains/aspire-plugin/issues/129) Support for Blazor Wasm projects
+- [#247](https://github.com/JetBrains/aspire-plugin/issues/247) Ability to debug Aspire host projects
 
 ## [1.4.1] - 2024-08-08
 

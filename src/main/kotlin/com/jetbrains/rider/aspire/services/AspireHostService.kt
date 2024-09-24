@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.generated.AspireSessionHostModel
+import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
 import java.nio.file.Path
@@ -59,9 +60,13 @@ class AspireHostService(
     }
 
     fun update(executionResult: ExecutionResult, project: Project) {
+        val processHandler = executionResult.processHandler
+        val handler =
+            if (processHandler is DebuggerWorkerProcessHandler) processHandler.debuggerWorkerRealHandler
+            else processHandler
         val console = createConsole(
             ConsoleKind.Normal,
-            executionResult.processHandler,
+            handler,
             project
         )
         Disposer.register(AspireService.getInstance(project), console)
