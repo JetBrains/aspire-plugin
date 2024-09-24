@@ -178,6 +178,9 @@ jobs:
       # Check out the current repository
       - name: Fetch Sources
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+          fetch-depth: 0  # a full history is required for pull request analysis
 
       # Set up Java environment for the next steps
       - name: Setup Java
@@ -194,7 +197,7 @@ jobs:
 
       # Run Qodana inspections
       - name: Qodana - Code Inspection
-        uses: JetBrains/qodana-action@v2024.1.9
+        uses: JetBrains/qodana-action@v2024.2
         with:
           cache-default-branch-only: true
 
