@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
+package com.jetbrains.rider.aspire.sessionHost.wasmHost
 
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder

@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.sessionHost.hotReload
+package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
 import com.intellij.execution.process.ProcessAdapter
 import com.intellij.openapi.project.Project
