@@ -2,6 +2,7 @@
 
 package com.jetbrains.rider.aspire.sessionHost
 
+import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -11,7 +12,6 @@ import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension
-import kotlinx.coroutines.flow.MutableSharedFlow
 
 @Service(Service.Level.PROJECT)
 class SessionProcessLauncher(private val project: Project) {
@@ -24,11 +24,11 @@ class SessionProcessLauncher(private val project: Project) {
     suspend fun launchSessionProcess(
         sessionId: String,
         sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
         debuggingMode: Boolean,
         hostRunConfiguration: AspireHostConfiguration?,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ) {
         LOG.info("Starting a session process for the project ${sessionModel.projectPath}")
 
@@ -41,19 +41,19 @@ class SessionProcessLauncher(private val project: Project) {
             launchDebugProcess(
                 sessionId,
                 sessionModel,
+                sessionProcessEventListener,
+                sessionProcessTerminatedListener,
                 sessionProcessLifetime,
-                sessionEvents,
-                hostRunConfiguration,
-                sessionProcessHandlerTerminated
+                hostRunConfiguration
             )
         } else {
             launchRunProcess(
                 sessionId,
                 sessionModel,
+                sessionProcessEventListener,
+                sessionProcessTerminatedListener,
                 sessionProcessLifetime,
-                sessionEvents,
-                hostRunConfiguration,
-                sessionProcessHandlerTerminated
+                hostRunConfiguration
             )
         }
     }
@@ -61,10 +61,10 @@ class SessionProcessLauncher(private val project: Project) {
     private suspend fun launchDebugProcess(
         sessionId: String,
         sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
-        hostRunConfiguration: AspireHostConfiguration?,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        hostRunConfiguration: AspireHostConfiguration?
     ) {
         val processLauncher = getSessionProcessLauncher(sessionModel)
         if (processLauncher == null) {
@@ -75,21 +75,21 @@ class SessionProcessLauncher(private val project: Project) {
         processLauncher.launchDebugProcess(
             sessionId,
             sessionModel,
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
             sessionProcessLifetime,
-            sessionEvents,
             hostRunConfiguration,
             project,
-            sessionProcessHandlerTerminated
         )
     }
 
     private suspend fun launchRunProcess(
         sessionId: String,
         sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
-        hostRunConfiguration: AspireHostConfiguration?,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        hostRunConfiguration: AspireHostConfiguration?
     ) {
         val processLauncher = getSessionProcessLauncher(sessionModel)
         if (processLauncher == null) {
@@ -100,11 +100,11 @@ class SessionProcessLauncher(private val project: Project) {
         processLauncher.launchRunProcess(
             sessionId,
             sessionModel,
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
             sessionProcessLifetime,
-            sessionEvents,
             hostRunConfiguration,
             project,
-            sessionProcessHandlerTerminated
         )
     }
 

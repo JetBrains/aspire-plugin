@@ -4,6 +4,7 @@ package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
 import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.ExecutionResult
+import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.EDT
@@ -13,7 +14,6 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessionHost.SessionEvent
 import com.jetbrains.rider.aspire.sessionHost.hotReload.DotNetProjectHotReloadConfigurationExtension
 import com.jetbrains.rider.debugger.createAndStartSession
 import com.jetbrains.rider.run.*
@@ -21,7 +21,6 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import icons.RiderIcons
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -41,11 +40,11 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
     override suspend fun launchRunProcess(
         sessionId: String,
         sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
         hostRunConfiguration: AspireHostConfiguration?,
-        project: Project,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        project: Project
     ) {
         LOG.trace { "Starting run session for project ${sessionModel.projectPath}" }
 
@@ -63,11 +62,11 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
             sessionId,
             executableWithHotReload,
             runtime,
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
             hotReloadProcessListener,
             sessionProcessLifetime,
-            sessionEvents,
             project,
-            sessionProcessHandlerTerminated
         )
 
         startBrowser(hostRunConfiguration, browserSettings, handler)
@@ -78,11 +77,11 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
     override suspend fun launchDebugProcess(
         sessionId: String,
         sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
         hostRunConfiguration: AspireHostConfiguration?,
-        project: Project,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        project: Project
     ) {
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
 
@@ -97,10 +96,10 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
                 runtime,
                 browserSettings,
                 hostRunConfiguration,
-                sessionEvents,
+                sessionProcessEventListener,
+                sessionProcessTerminatedListener,
                 sessionProcessLifetime,
-                project,
-                sessionProcessHandlerTerminated
+                project
             )
         }
     }
@@ -112,10 +111,10 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         dotnetRuntime: DotNetCoreRuntime,
         browserSettings: StartBrowserSettings?,
         hostRunConfiguration: AspireHostConfiguration?,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        project: Project,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        project: Project
     ) {
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
 
@@ -124,11 +123,11 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
             debuggerSessionId,
             dotnetExecutable,
             dotnetRuntime,
-            sessionEvents,
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
             sessionProcessLifetime,
             project,
-            { },
-            sessionProcessHandlerTerminated
+            { }
         )
 
         val executionResult =

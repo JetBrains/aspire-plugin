@@ -1,12 +1,11 @@
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
+import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessionHost.SessionEvent
-import kotlinx.coroutines.flow.MutableSharedFlow
 
 interface SessionProcessLauncherExtension {
     companion object {
@@ -21,20 +20,20 @@ interface SessionProcessLauncherExtension {
     suspend fun launchRunProcess(
         sessionId: String,
         sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
         hostRunConfiguration: AspireHostConfiguration?,
-        project: Project,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        project: Project
     )
 
     suspend fun launchDebugProcess(
         sessionId: String,
         sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
         hostRunConfiguration: AspireHostConfiguration?,
-        project: Project,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        project: Project
     )
 }

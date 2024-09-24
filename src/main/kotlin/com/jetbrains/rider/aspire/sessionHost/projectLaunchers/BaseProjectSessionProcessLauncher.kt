@@ -5,18 +5,15 @@ package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 import com.intellij.BundleBase
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.process.KillableProcessHandler
 import com.intellij.execution.process.ProcessAdapter
-import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.process.ProcessOutputType
+import com.intellij.execution.process.ProcessListener
 import com.intellij.ide.browsers.BrowserStarter
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import com.jetbrains.rd.framework.IdKind
 import com.jetbrains.rd.framework.Identities
 import com.jetbrains.rd.framework.Protocol
@@ -29,14 +26,9 @@ import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.RiderEnvironment
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessionHost.SessionEvent
 import com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactory
-import com.jetbrains.rider.aspire.sessionHost.SessionLogReceived
-import com.jetbrains.rider.aspire.sessionHost.SessionStarted
-import com.jetbrains.rider.aspire.sessionHost.SessionTerminated
 import com.jetbrains.rider.aspire.sessionHost.findBySessionProject
 import com.jetbrains.rider.aspire.sessionHost.hotReload.AspireProjectHotReloadConfigurationExtension
-import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.RiderDebugRunner.Companion.DEBUGGER_WORKER_LOG_CONF_ENV_KEY
 import com.jetbrains.rider.debugger.RiderDebugRunner.Companion.DEBUGGER_WORKER_LOG_DIR_ENV_KEY
@@ -61,14 +53,12 @@ import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationIn
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.createRunCommandLine
 import com.jetbrains.rider.run.environment.ExecutableType
-import com.jetbrains.rider.run.pid
 import com.jetbrains.rider.run.toModelMap
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import com.jetbrains.rider.util.NetUtils
-import kotlinx.coroutines.flow.MutableSharedFlow
 import java.nio.file.Path
 
 abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtension {
@@ -173,21 +163,17 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         sessionId: String,
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
-        hotReloadProcessListener: ProcessAdapter?,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
+        hotReloadProcessListener: ProcessListener?,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
-        project: Project,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        project: Project
     ): TerminalProcessHandler {
         val commandLine = dotnetExecutable.createRunCommandLine(dotnetRuntime)
         val handler = TerminalProcessHandler(project, commandLine, commandLine.commandLineString)
 
-        handler.addProcessListener(object : ProcessAdapter() {
-            override fun processTerminated(event: ProcessEvent) {
-                sessionProcessHandlerTerminated(event.exitCode, event.text)
-            }
-        })
-
+        handler.addProcessListener(sessionProcessEventListener)
+        handler.addProcessListener(sessionProcessTerminatedListener)
         hotReloadProcessListener?.let { handler.addProcessListener(it) }
 
         sessionProcessLifetime.onTermination {
@@ -197,8 +183,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             }
         }
 
-        subscribeToSessionEvents(sessionId, handler, sessionEvents)
-
         return handler
     }
 
@@ -207,11 +191,11 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         debuggerSessionId: Long,
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         project: Project,
         modifyDebuggerWorkerCmd: (GeneralCommandLine) -> Unit,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
     ): DebuggerWorkerSession {
         val frontendToDebuggerPort = NetUtils.findFreePort(57200)
         val backendToDebuggerPort = NetUtils.findFreePort(57300)
@@ -227,11 +211,11 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             wire,
             protocol,
             presentableCommandLine,
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
             sessionProcessLifetime,
-            sessionEvents,
             project,
             modifyDebuggerWorkerCmd,
-            sessionProcessHandlerTerminated
         )
 
         val startInfo = createModelStartInfo(dotnetExecutable, dotnetRuntime)
@@ -284,11 +268,11 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         wire: SocketWire.Server,
         protocol: Protocol,
         presentableCommandLine: String,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
         project: Project,
-        modifyDebuggerWorkerCmd: (GeneralCommandLine) -> Unit,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        modifyDebuggerWorkerCmd: (GeneralCommandLine) -> Unit
     ): Pair<DebuggerWorkerModel, DebuggerWorkerProcessHandler> {
         val debuggerWorkerCmd = DebugProfileStateBase.createWorkerCmdForLauncherInfo(
             ConsoleKind.Normal,
@@ -325,20 +309,15 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             sessionProcessLifetime
         )
 
-        debuggerWorkerProcessHandler.addProcessListener(object : ProcessAdapter() {
-            override fun processTerminated(event: ProcessEvent) {
-                sessionProcessHandlerTerminated(event.exitCode, event.text)
-            }
-        })
+        debuggerWorkerProcessHandler.debuggerWorkerRealHandler.addProcessListener(sessionProcessEventListener)
+        debuggerWorkerProcessHandler.addProcessListener(sessionProcessTerminatedListener)
 
         sessionProcessLifetime.onTermination {
             if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
                 LOG.trace("Killing debugger worker session process handler (id: $sessionId)")
-                debuggerWorkerProcessHandler.killProcess()
+                debuggerWorkerProcessHandler.destroyProcess()
             }
         }
-
-        subscribeToSessionEvents(sessionId, debuggerWorkerProcessHandler.debuggerWorkerRealHandler, sessionEvents)
 
         wire.connected.nextTrueValueAsync(sessionProcessLifetime).await()
         project.solution.debuggerWorkerConnectionHelperModel.ports.put(
@@ -348,39 +327,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         )
 
         return debuggerWorkerModel to debuggerWorkerProcessHandler
-    }
-
-    private fun subscribeToSessionEvents(
-        sessionId: String,
-        handler: ProcessHandler,
-        sessionEvents: MutableSharedFlow<SessionEvent>
-    ) {
-        handler.addProcessListener(object : ProcessAdapter() {
-            override fun startNotified(event: ProcessEvent) {
-                LOG.trace("Aspire session process started (id: $sessionId)")
-                val pid = when (event.processHandler) {
-                    is KillableProcessHandler -> event.processHandler.pid()
-                    else -> null
-                }
-                if (pid == null) {
-                    LOG.warn("Unable to determine process id for the session $sessionId")
-                    sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
-                } else {
-                    sessionEvents.tryEmit(SessionStarted(sessionId, pid))
-                }
-            }
-
-            override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                val text = decodeAnsiCommandsToString(event.text, outputType)
-                val isStdErr = outputType == ProcessOutputType.STDERR
-                sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
-            }
-
-            override fun processNotStarted() {
-                LOG.warn("Aspire session process is not started")
-                sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
-            }
-        })
     }
 
     protected fun startBrowser(

@@ -5,6 +5,7 @@ package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.EDT
@@ -16,7 +17,6 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessionHost.SessionEvent
 import com.jetbrains.rider.aspire.sessionHost.hotReload.WasmHostHotReloadConfigurationExtension
 import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentManager
 import com.jetbrains.rider.debugger.wasm.BrowserHubManager
@@ -30,7 +30,6 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import icons.RiderIcons
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -58,11 +57,11 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
     override suspend fun launchRunProcess(
         sessionId: String,
         sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
         hostRunConfiguration: AspireHostConfiguration?,
-        project: Project,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        project: Project
     ) {
         LOG.trace { "Starting wasm run session for project ${sessionModel.projectPath}" }
 
@@ -80,11 +79,11 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
             sessionId,
             executableWithHotReload,
             runtime,
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
             hotReloadProcessListener,
             sessionProcessLifetime,
-            sessionEvents,
             project,
-            sessionProcessHandlerTerminated
         )
 
         startBrowser(hostRunConfiguration, browserSettings, handler)
@@ -95,11 +94,11 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
     override suspend fun launchDebugProcess(
         sessionId: String,
         sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
         hostRunConfiguration: AspireHostConfiguration?,
-        project: Project,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        project: Project
     ) {
         LOG.trace { "Starting wasm debug session for project ${sessionModel.projectPath}" }
 
@@ -113,10 +112,10 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
                 executable,
                 runtime,
                 browserSettings,
-                sessionEvents,
+                sessionProcessEventListener,
+                sessionProcessTerminatedListener,
                 sessionProcessLifetime,
-                project,
-                sessionProcessHandlerTerminated
+                project
             )
         }
     }
@@ -127,10 +126,10 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         executable: DotNetExecutable,
         runtime: DotNetCoreRuntime,
         browserSettings: StartBrowserSettings?,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        project: Project,
-        sessionProcessHandlerTerminated: (Int, String?) -> Unit
+        project: Project
     ) {
         val debuggerSessionId = ExecutionEnvironment.getNextUnusedExecutionId()
 
@@ -147,11 +146,11 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
             debuggerSessionId,
             executable,
             runtime,
-            sessionEvents,
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
             sessionProcessLifetime,
             project,
-            { modifyDebuggerWorkerCmd(browserRefreshHost.wsUrls, browserRefreshHost.serverKey, it) },
-            sessionProcessHandlerTerminated
+            { modifyDebuggerWorkerCmd(browserRefreshHost.wsUrls, browserRefreshHost.serverKey, it) }
         )
 
         val connectedBrowser = startBrowserAndAttach(
