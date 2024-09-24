@@ -13,6 +13,12 @@
 
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.jetbrains.rider.aspire.sessionProcessLauncherExtension"
+                        interface="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension"
+                        dynamic="true"/>
+    </extensionPoints>
+
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="com.jetbrains.rider.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="com.jetbrains.rider.aspire.run.AspireHostProgramRunner"/>
@@ -47,7 +53,15 @@
         <dotnetDataProvider implementation="com.jetbrains.rider.aspire.database.DummyRedisDataProvider"/>
         <connectionStringsFactory
                 implementation="com.jetbrains.rider.aspire.database.mysql.DummyMySqlConnectionStringsFactory"/>
-        <connectionStringToJdbcUrlMapper implementation="com.jetbrains.rider.aspire.database.mysql.DummyMySqlConverter"/>
+        <connectionStringToJdbcUrlMapper
+                implementation="com.jetbrains.rider.aspire.database.mysql.DummyMySqlConverter"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.jetbrains.rider.aspire">
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.WasmHostProjectSessionProcessLauncher"/>
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.DotNetProjectSessionProcessLauncher"/>
     </extensions>
 
     <projectListeners>

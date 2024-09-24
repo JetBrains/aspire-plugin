@@ -1,21 +1,31 @@
 package com.jetbrains.rider.aspire.sessionHost
 
 import com.intellij.database.util.common.removeIf
+import com.intellij.execution.process.KillableProcessHandler
+import com.intellij.execution.process.ProcessAdapter
+import com.intellij.execution.process.ProcessEvent
+import com.intellij.execution.process.ProcessListener
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfig
+import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
 import com.jetbrains.rider.model.BuildTarget
+import com.jetbrains.rider.run.pid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -34,9 +44,9 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         private val LOG = logger<SessionManager>()
     }
 
-    private val sessions = mutableMapOf<String, Session>()
-    private val resourceToSessionMap = mutableMapOf<String, String>()
-    private val projectPathToResourceIdMap = mutableMapOf<Path, Pair<String, String>>()
+    private val sessions = ConcurrentHashMap<String, Session>()
+    private val resourceToSessionMap = ConcurrentHashMap<String, String>()
+    private val projectPathToResourceIdMap = ConcurrentHashMap<Path, Pair<String, String>>()
     private val sessionsUnderRestart = ConcurrentHashMap<String, Unit>()
 
     private val commands = MutableSharedFlow<LaunchSessionCommand>(
@@ -66,20 +76,28 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.sessionModel,
             command.sessionLifetimeDefinition,
             SequentialLifetimes(command.sessionLifetimeDefinition),
-            command.sessionEvents
+            command.sessionEvents,
+            command.aspireHostConfig.hostRunConfiguration
         )
         sessions[command.sessionId] = session
 
         saveConnectionToResource(command)
 
-        val launcher = SessionLauncher.getInstance(project)
+        val processLauncher = SessionProcessLauncher.getInstance(project)
         val processLifetime = session.processLifetimes.next()
-        launcher.launchSession(
+
+        //We need two separate listeners because they are subscribed to different handlers
+        val sessionProcessListener = createSessionProcessEventListener(session.id, session.events)
+        val sessionProcessTerminatedListener = createSessionProcessTerminatedListener(session.id)
+
+        processLauncher.launchSessionProcess(
             session.id,
             session.model,
+            sessionProcessListener,
+            sessionProcessTerminatedListener,
             processLifetime,
-            session.events,
-            command.aspireHostConfig.debuggingMode
+            command.aspireHostConfig.debuggingMode,
+            session.hostRunConfiguration
         )
     }
 
@@ -130,8 +148,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val sessionUnderRestart = sessionsUnderRestart.putIfAbsent(sessionId, Unit)
         if (sessionUnderRestart != null) return
 
-        val launcher = SessionLauncher.getInstance(project)
-        val processLifetime = withContext(Dispatchers.EDT) {
+        val processLauncher = SessionProcessLauncher.getInstance(project)
+        val sessionProcessLifetime = withContext(Dispatchers.EDT) {
             session.processLifetimes.next()
         }
 
@@ -142,12 +160,17 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         )
         BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
 
-        launcher.launchSession(
+        val sessionProcessEventListener = createSessionProcessEventListener(session.id, session.events)
+        val sessionProcessTerminatedListener = createSessionProcessTerminatedListener(session.id)
+
+        processLauncher.launchSessionProcess(
             session.id,
             session.model,
-            processLifetime,
-            session.events,
-            withDebugger
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
+            sessionProcessLifetime.lifetime,
+            withDebugger,
+            session.hostRunConfiguration
         )
     }
 
@@ -169,7 +192,46 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         session.events.tryEmit(SessionTerminated(sessionId, 0))
     }
 
-    fun sessionProcessWasTerminated(sessionId: String, exitCode: Int, text: String?) {
+
+    private fun createSessionProcessEventListener(
+        sessionId: String,
+        sessionEvents: MutableSharedFlow<SessionEvent>
+    ): ProcessListener =
+        object : ProcessAdapter() {
+            override fun startNotified(event: ProcessEvent) {
+                LOG.trace { "Aspire session process was started (id: $sessionId)" }
+                val pid = when (event.processHandler) {
+                    is KillableProcessHandler -> event.processHandler.pid()
+                    else -> null
+                }
+                if (pid == null) {
+                    LOG.warn("Unable to determine process id for the session $sessionId")
+                    sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
+                } else {
+                    sessionEvents.tryEmit(SessionStarted(sessionId, pid))
+                }
+            }
+
+            override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
+                val text = decodeAnsiCommandsToString(event.text, outputType)
+                val isStdErr = outputType == ProcessOutputType.STDERR
+                sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
+            }
+
+            override fun processNotStarted() {
+                LOG.warn("Aspire session process is not started")
+                sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
+            }
+        }
+
+    private fun createSessionProcessTerminatedListener(sessionId: String): ProcessListener =
+        object : ProcessAdapter() {
+            override fun processTerminated(event: ProcessEvent) {
+                sessionProcessWasTerminated(sessionId, event.exitCode, event.text)
+            }
+        }
+
+    private fun sessionProcessWasTerminated(sessionId: String, exitCode: Int, text: String?) {
         LOG.trace("Stopping session $sessionId ($exitCode, $text)")
 
         val sessionUnderRestart = sessionsUnderRestart.remove(sessionId)
@@ -192,7 +254,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val model: SessionModel,
         val lifetimeDefinition: LifetimeDefinition,
         val processLifetimes: SequentialLifetimes,
-        val events: MutableSharedFlow<SessionEvent>
+        val events: MutableSharedFlow<SessionEvent>,
+        val hostRunConfiguration: AspireHostConfiguration?
     )
 
     interface LaunchSessionCommand

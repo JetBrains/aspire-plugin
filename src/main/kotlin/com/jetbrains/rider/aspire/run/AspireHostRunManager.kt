@@ -40,7 +40,8 @@ class AspireHostRunManager(private val project: Project) {
 
     fun executeConfigurationForHost(host: AspireHostService, underDebug: Boolean) {
         val executor =
-            if (underDebug) DefaultDebugExecutor.getDebugExecutorInstance() else DefaultRunExecutor.getRunExecutorInstance()
+            if (underDebug) DefaultDebugExecutor.getDebugExecutorInstance()
+            else DefaultRunExecutor.getRunExecutorInstance()
 
         val runManager = RunManager.getInstance(project)
         val selected = runManager.selectedConfiguration

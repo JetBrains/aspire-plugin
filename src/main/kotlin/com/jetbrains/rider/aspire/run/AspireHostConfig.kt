@@ -17,5 +17,6 @@ data class AspireHostConfig(
     val resourceServiceEndpointUrl: String?,
     //from env: DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
     val resourceServiceApiKey: String?,
-    val aspireHostLifetime: Lifetime
+    val aspireHostLifetime: Lifetime,
+    val hostRunConfiguration: AspireHostConfiguration?
 )

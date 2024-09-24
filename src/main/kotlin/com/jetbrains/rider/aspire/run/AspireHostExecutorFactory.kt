@@ -1,15 +1,10 @@
 package com.jetbrains.rider.aspire.run
 
 import com.intellij.execution.CantRunException
-import com.intellij.execution.configurations.RunConfiguration
-import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.ide.browsers.BrowserStarter
-import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -21,7 +16,6 @@ import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
-import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
 import com.jetbrains.rider.run.environment.ExecutableRunParameters
 import com.jetbrains.rider.run.environment.ProjectProcessOptions
@@ -198,20 +192,4 @@ class AspireHostExecutorFactory(
     private data class EnvironmentVariableValues(
         val browserToken: String?
     )
-
-    private fun getStartBrowserAction(
-        browserUrl: String,
-        params: DotNetStartBrowserParameters
-    ): (ExecutionEnvironment, RunProfile, ProcessHandler) -> Unit =
-        { _, runProfile, processHandler ->
-            if (params.startAfterLaunch && runProfile is RunConfiguration) {
-                val startBrowserSettings = StartBrowserSettings().apply {
-                    isSelected = params.startAfterLaunch
-                    url = browserUrl
-                    browser = params.browser
-                    isStartJavaScriptDebugger = params.withJavaScriptDebugger
-                }
-                BrowserStarter(runProfile, startBrowserSettings, processHandler).start()
-            }
-        }
 }
