@@ -200,6 +200,8 @@ jobs:
         uses: JetBrains/qodana-action@v2024.2
         with:
           cache-default-branch-only: true
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
 
   # Run plugin structure verification along with IntelliJ Plugin Verifier
   verify:
