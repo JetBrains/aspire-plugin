@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.run
+package com.jetbrains.rider.aspire.run.states
 
 import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.ExecutionResult
@@ -11,16 +11,16 @@ import com.jetbrains.rider.run.TerminalProcessHandler
 import com.jetbrains.rider.run.createConsole
 import com.jetbrains.rider.run.createRunCommandLine
 import com.jetbrains.rider.runtime.DotNetExecutable
-import com.jetbrains.rider.runtime.DotNetRuntime
+import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlin.io.path.Path
 
 class AspireHostRunProfileState(
     private val dotNetExecutable: DotNetExecutable,
-    private val dotNetRuntime: DotNetRuntime,
+    private val dotNetRuntime: DotNetCoreRuntime,
     private val environment: ExecutionEnvironment
-) : RunProfileState {
+) : RunProfileState, AspireHostProfileState {
 
-    val environmentVariables: Map<String, String> = dotNetExecutable.environmentVariables
+    override val environmentVariables: Map<String, String> = dotNetExecutable.environmentVariables
 
     override fun execute(
         executor: Executor?,

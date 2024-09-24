@@ -8,6 +8,8 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.aspire.run.states.AspireHostDebugProfileState
+import com.jetbrains.rider.aspire.run.states.AspireHostRunProfileState
 import com.jetbrains.rider.aspire.util.*
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
@@ -58,8 +60,8 @@ class AspireHostExecutorFactory(
         val executable = getDotNetExecutable(runnableProject, projectOutput, profile)
 
         return when (executorId) {
-            DefaultDebugExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
             DefaultRunExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
+            DefaultDebugExecutor.EXECUTOR_ID -> AspireHostDebugProfileState(executable, activeRuntime, environment)
             else -> throw CantRunException("Unable to execute Aspire host with $executorId executor")
         }
     }
