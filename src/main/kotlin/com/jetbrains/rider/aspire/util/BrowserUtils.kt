@@ -24,3 +24,11 @@ fun getStartBrowserAction(
             BrowserStarter(runProfile, startBrowserSettings, processHandler).start()
         }
     }
+
+fun getStartBrowserAction(
+    runProfile: RunConfiguration,
+    startBrowserSettings: StartBrowserSettings
+): (ExecutionEnvironment, RunProfile, ProcessHandler) -> Unit =
+    { _, _, processHandler ->
+        BrowserStarter(runProfile, startBrowserSettings, processHandler).start()
+    }

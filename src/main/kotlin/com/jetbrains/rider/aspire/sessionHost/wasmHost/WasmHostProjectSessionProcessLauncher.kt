@@ -25,6 +25,7 @@ import com.jetbrains.rider.run.IDebuggerOutputListener
 import com.jetbrains.rider.run.configurations.HotReloadEnvironmentBuilder
 import com.jetbrains.rider.run.createConsole
 import com.jetbrains.rider.runtime.DotNetExecutable
+import com.jetbrains.rider.runtime.DotNetRuntime
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import icons.RiderIcons
 import kotlinx.coroutines.Dispatchers
@@ -52,42 +53,23 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
                 nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, SERVER_NUGET)
     }
 
-    override suspend fun launchRunProcess(
+    override fun getRunProfile(
         sessionId: String,
-        sessionModel: SessionModel,
+        projectName: String,
+        dotnetExecutable: DotNetExecutable,
+        dotnetRuntime: DotNetRuntime,
         sessionProcessEventListener: ProcessListener,
         sessionProcessTerminatedListener: ProcessListener,
-        sessionProcessLifetime: Lifetime,
-        hostRunConfiguration: AspireHostConfiguration?,
-        project: Project
-    ) {
-        LOG.trace { "Starting wasm run session for project ${sessionModel.projectPath}" }
-
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
-        val (executableWithHotReload, hotReloadProcessListener) = enableHotReload(
-            executable,
-            Path(sessionModel.projectPath),
-            sessionModel.launchProfile,
-            sessionProcessLifetime,
-            project
-        )
-        val runtime = getDotNetRuntime(executable, project) ?: return
-
-        val handler = createRunProcessHandler(
-            sessionId,
-            executableWithHotReload,
-            runtime,
-            sessionProcessEventListener,
-            sessionProcessTerminatedListener,
-            hotReloadProcessListener,
-            sessionProcessLifetime,
-            project,
-        )
-
-        startBrowser(hostRunConfiguration, browserSettings, handler)
-
-        handler.startNotify()
-    }
+        sessionProcessLifetime: Lifetime
+    ) = WasmHostSessionRunProfile(
+        sessionId,
+        projectName,
+        dotnetExecutable,
+        dotnetRuntime,
+        sessionProcessEventListener,
+        sessionProcessTerminatedListener,
+        sessionProcessLifetime
+    )
 
     override suspend fun launchDebugProcess(
         sessionId: String,
@@ -100,7 +82,7 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
     ) {
         LOG.trace { "Starting wasm debug session for project ${sessionModel.projectPath}" }
 
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, false, project) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         withContext(Dispatchers.EDT) {

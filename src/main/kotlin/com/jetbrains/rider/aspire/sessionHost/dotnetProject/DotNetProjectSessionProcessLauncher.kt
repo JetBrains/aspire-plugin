@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.rider.aspire.sessionHost.dotnetProject
 
 import com.intellij.execution.DefaultExecutionResult
@@ -18,6 +20,7 @@ import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.IDebuggerOutputListener
 import com.jetbrains.rider.run.createConsole
 import com.jetbrains.rider.runtime.DotNetExecutable
+import com.jetbrains.rider.runtime.DotNetRuntime
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import icons.RiderIcons
 import kotlinx.coroutines.Dispatchers
@@ -37,42 +40,23 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
 
     override suspend fun isApplicable(projectPath: String, project: Project) = true
 
-    override suspend fun launchRunProcess(
+    override fun getRunProfile(
         sessionId: String,
-        sessionModel: SessionModel,
+        projectName: String,
+        dotnetExecutable: DotNetExecutable,
+        dotnetRuntime: DotNetRuntime,
         sessionProcessEventListener: ProcessListener,
         sessionProcessTerminatedListener: ProcessListener,
-        sessionProcessLifetime: Lifetime,
-        hostRunConfiguration: AspireHostConfiguration?,
-        project: Project
-    ) {
-        LOG.trace { "Starting run session for project ${sessionModel.projectPath}" }
-
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
-        val (executableWithHotReload, hotReloadProcessListener) = enableHotReload(
-            executable,
-            Path(sessionModel.projectPath),
-            sessionModel.launchProfile,
-            sessionProcessLifetime,
-            project
-        )
-        val runtime = getDotNetRuntime(executable, project) ?: return
-
-        val handler = createRunProcessHandler(
-            sessionId,
-            executableWithHotReload,
-            runtime,
-            sessionProcessEventListener,
-            sessionProcessTerminatedListener,
-            hotReloadProcessListener,
-            sessionProcessLifetime,
-            project,
-        )
-
-        startBrowser(hostRunConfiguration, browserSettings, handler)
-
-        handler.startNotify()
-    }
+        sessionProcessLifetime: Lifetime
+    ) = DotNetProjectSessionRunProfile(
+        sessionId,
+        projectName,
+        dotnetExecutable,
+        dotnetRuntime,
+        sessionProcessEventListener,
+        sessionProcessTerminatedListener,
+        sessionProcessLifetime
+    )
 
     override suspend fun launchDebugProcess(
         sessionId: String,
@@ -85,7 +69,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
     ) {
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
 
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, project) ?: return
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, true, project) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         withContext(Dispatchers.EDT) {

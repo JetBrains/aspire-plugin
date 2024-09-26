@@ -4,12 +4,15 @@ package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
 import com.intellij.BundleBase
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessListener
+import com.intellij.execution.runners.ExecutionEnvironmentBuilder
+import com.intellij.execution.runners.ProgramRunner
 import com.intellij.ide.browsers.BrowserStarter
 import com.intellij.ide.browsers.StartBrowserSettings
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
@@ -44,7 +47,11 @@ import com.jetbrains.rider.runtime.DotNetRuntime
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import com.jetbrains.rider.util.NetUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.nameWithoutExtension
 
 abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtension {
     companion object {
@@ -53,13 +60,71 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
 
     protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
 
+    protected abstract fun getRunProfile(
+        sessionId: String,
+        projectName: String,
+        dotnetExecutable: DotNetExecutable,
+        dotnetRuntime: DotNetRuntime,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
+        sessionProcessLifetime: Lifetime
+    ): RunProfile
+
+    override suspend fun launchRunProcess(
+        sessionId: String,
+        sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
+        sessionProcessLifetime: Lifetime,
+        hostRunConfiguration: AspireHostConfiguration?,
+        project: Project
+    ) {
+        LOG.trace { "Starting run session for ${sessionModel.projectPath}" }
+
+        val (executable, _) = getDotNetExecutable(sessionModel, hostRunConfiguration, true, project) ?: return
+        val (executableWithHotReload, hotReloadCallback) = enableHotReload(
+            executable,
+            Path(sessionModel.projectPath),
+            sessionModel.launchProfile,
+            sessionProcessLifetime,
+            project
+        )
+        val runtime = getDotNetRuntime(executableWithHotReload, project) ?: return
+
+        val projectName = Path(sessionModel.projectPath).nameWithoutExtension
+        val profile = getRunProfile(
+            sessionId,
+            projectName,
+            executableWithHotReload,
+            runtime,
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
+            sessionProcessLifetime
+        )
+
+        val environment = ExecutionEnvironmentBuilder
+            .createOrNull(project, DefaultRunExecutor.getRunExecutorInstance(), profile)
+            ?.build()
+        if (environment == null) {
+            LOG.warn("Unable to create execution environment")
+            return
+        }
+
+        hotReloadCallback?.let { environment.callback = it }
+
+        withContext(Dispatchers.EDT) {
+            environment.runner.execute(environment)
+        }
+    }
+
     protected suspend fun getDotNetExecutable(
         sessionModel: SessionModel,
         hostRunConfiguration: AspireHostConfiguration?,
+        addBrowserAction: Boolean,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = SessionExecutableFactory.getInstance(project)
-        val executable = factory.createExecutable(sessionModel, hostRunConfiguration)
+        val executable = factory.createExecutable(sessionModel, hostRunConfiguration, addBrowserAction)
         if (executable == null) {
             LOG.warn("Unable to create executable for project: ${sessionModel.projectPath}")
         }
@@ -116,7 +181,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         launchProfile: String?,
         lifetime: Lifetime,
         project: Project
-    ): Pair<DotNetExecutable, ProcessAdapter?> {
+    ): Pair<DotNetExecutable, ProgramRunner.Callback?> {
         val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
             ?: return executable to null
 
@@ -142,33 +207,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         }
 
         return hotReloadExtension.execute(executable, lifetime, project)
-    }
-
-    protected fun createRunProcessHandler(
-        sessionId: String,
-        dotnetExecutable: DotNetExecutable,
-        dotnetRuntime: DotNetCoreRuntime,
-        sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
-        hotReloadProcessListener: ProcessListener?,
-        sessionProcessLifetime: Lifetime,
-        project: Project
-    ): TerminalProcessHandler {
-        val commandLine = dotnetExecutable.createRunCommandLine(dotnetRuntime)
-        val handler = TerminalProcessHandler(project, commandLine, commandLine.commandLineString)
-
-        handler.addProcessListener(sessionProcessEventListener)
-        handler.addProcessListener(sessionProcessTerminatedListener)
-        hotReloadProcessListener?.let { handler.addProcessListener(it) }
-
-        sessionProcessLifetime.onTermination {
-            if (!handler.isProcessTerminating && !handler.isProcessTerminated) {
-                LOG.trace("Killing run session process handler (id: $sessionId)")
-                handler.killProcess()
-            }
-        }
-
-        return handler
     }
 
     protected suspend fun initDebuggerSession(

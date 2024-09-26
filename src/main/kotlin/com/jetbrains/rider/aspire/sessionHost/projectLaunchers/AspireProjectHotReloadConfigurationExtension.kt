@@ -1,6 +1,6 @@
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
-import com.intellij.execution.process.ProcessAdapter
+import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
@@ -18,5 +18,5 @@ interface AspireProjectHotReloadConfigurationExtension {
         executable: DotNetExecutable,
         lifetime: Lifetime,
         project: Project
-    ): Pair<DotNetExecutable, ProcessAdapter>
+    ): Pair<DotNetExecutable, ProgramRunner.Callback>
 }
