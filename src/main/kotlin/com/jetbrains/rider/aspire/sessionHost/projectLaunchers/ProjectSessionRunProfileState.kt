@@ -10,21 +10,15 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.runAndLogException
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
-import com.jetbrains.rider.run.ConsoleKind
-import com.jetbrains.rider.run.IDotNetProfileState
-import com.jetbrains.rider.run.PatchCommandLineExtension
-import com.jetbrains.rider.run.TerminalProcessHandler
-import com.jetbrains.rider.run.createConsole
-import com.jetbrains.rider.run.createRunCommandLine
-import com.jetbrains.rider.run.pid
+import com.jetbrains.rider.run.*
 import com.jetbrains.rider.runtime.DotNetExecutable
-import com.jetbrains.rider.runtime.DotNetRuntime
+import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlin.io.path.Path
 
 class ProjectSessionRunProfileState(
     private val sessionId: String,
     private val dotnetExecutable: DotNetExecutable,
-    private val dotnetRuntime: DotNetRuntime,
+    private val dotnetRuntime: DotNetCoreRuntime,
     private val environment: ExecutionEnvironment,
     private val sessionProcessEventListener: ProcessListener,
     private val sessionProcessTerminatedListener: ProcessListener,

@@ -15,20 +15,20 @@ import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlin.io.path.Path
 
 class AspireHostRunProfileState(
-    private val dotNetExecutable: DotNetExecutable,
-    private val dotNetRuntime: DotNetCoreRuntime,
+    private val dotnetExecutable: DotNetExecutable,
+    private val dotnetRuntime: DotNetCoreRuntime,
     private val environment: ExecutionEnvironment
 ) : RunProfileState, AspireHostProfileState {
 
-    override val environmentVariables: Map<String, String> = dotNetExecutable.environmentVariables
+    override val environmentVariables: Map<String, String> = dotnetExecutable.environmentVariables
 
     override fun execute(
         executor: Executor?,
         runner: ProgramRunner<*>
     ): ExecutionResult {
-        dotNetExecutable.validate()
+        dotnetExecutable.validate()
 
-        val commandLine = dotNetExecutable.createRunCommandLine(dotNetRuntime)
+        val commandLine = dotnetExecutable.createRunCommandLine(dotnetRuntime)
         val originalExecutable = Path(commandLine.exePath)
         val processHandler = TerminalProcessHandler(
             environment.project,
@@ -42,7 +42,7 @@ class AspireHostRunProfileState(
             environment.project
         )
 
-        dotNetExecutable.onBeforeProcessStarted(environment, environment.runProfile, processHandler)
+        dotnetExecutable.onBeforeProcessStarted(environment, environment.runProfile, processHandler)
 
         return DefaultExecutionResult(console, processHandler)
     }

@@ -3,7 +3,6 @@ package com.jetbrains.rider.aspire.sessionHost.wasmHost
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ExecutionConsole
-import com.intellij.openapi.project.Project
 import com.intellij.xdebugger.XDebugProcessStarter
 import com.intellij.xdebugger.XDebugSession
 import com.intellij.xdebugger.XDebuggerManager
@@ -18,20 +17,18 @@ import com.jetbrains.rider.run.IDebuggerOutputListener
 
 fun createAndStartSession(
     executionConsole: ExecutionConsole,
-    env: ExecutionEnvironment?,
-    project: Project,
+    env: ExecutionEnvironment,
     sessionLifetime: Lifetime,
     processHandler: ProcessHandler,
     protocol: IProtocol,
     sessionModel: DotNetDebuggerSessionModel,
     outputEventsListener: IDebuggerOutputListener,
-    executionId: Long,
-    browserRefreshHost: BrowserRefreshAgentHost,
+    browserRefreshHost: BrowserRefreshAgentHost?,
     xDebugStarter: (XDebuggerManager, XDebugProcessStarter) -> XDebugSession
 ): XDebugSession {
-    val debuggerManager = XDebuggerManager.getInstance(project)
+    val debuggerManager = XDebuggerManager.getInstance(env.project)
 
-    val fireInitializedManually = env?.getUserData(DotNetDebugRunner.FIRE_INITIALIZED_MANUALLY) ?: false
+    val fireInitializedManually = env.getUserData(DotNetDebugRunner.FIRE_INITIALIZED_MANUALLY) ?: false
 
     val newSession = xDebugStarter(debuggerManager, object : XDebugProcessStarter() {
         override fun start(session: XDebugSession) = WasmHostDebugProcess(
@@ -44,8 +41,8 @@ fun createAndStartSession(
             fireInitializedManually,
             outputEventsListener,
             OptionsUtil.toDebugKind(sessionModel.sessionProperties.debugKind.valueOrNull),
-            project,
-            executionId,
+            env.project,
+            env.executionId,
             browserRefreshHost
         )
     })

@@ -2,51 +2,32 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
-import com.intellij.BundleBase
-import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.configurations.RunProfile
+import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
-import com.intellij.ide.browsers.BrowserStarter
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rd.util.put
-import com.jetbrains.rd.util.threading.coroutines.nextTrueValueAsync
-import com.jetbrains.rdclient.protocol.RdDispatcher
-import com.jetbrains.rider.RiderEnvironment
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactory
 import com.jetbrains.rider.aspire.sessionHost.findBySessionProject
-import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
-import com.jetbrains.rider.debugger.RiderDebugRunner.Companion.DEBUGGER_WORKER_LOG_CONF_ENV_KEY
-import com.jetbrains.rider.debugger.RiderDebugRunner.Companion.DEBUGGER_WORKER_LOG_DIR_ENV_KEY
-import com.jetbrains.rider.debugger.RiderDebugRunner.Companion.createLogSubDir
-import com.jetbrains.rider.debugger.RiderDebuggerWorkerModelManager
-import com.jetbrains.rider.debugger.targets.DEBUGGER_WORKER_LAUNCHER
-import com.jetbrains.rider.model.debuggerWorker.*
-import com.jetbrains.rider.model.debuggerWorkerConnectionHelperModel
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.run.*
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
-import com.jetbrains.rider.run.environment.ExecutableType
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
-import com.jetbrains.rider.util.NetUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -59,16 +40,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
     }
 
     protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
-
-    protected abstract fun getRunProfile(
-        sessionId: String,
-        projectName: String,
-        dotnetExecutable: DotNetExecutable,
-        dotnetRuntime: DotNetRuntime,
-        sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
-        sessionProcessLifetime: Lifetime
-    ): RunProfile
 
     override suspend fun launchRunProcess(
         sessionId: String,
@@ -106,7 +77,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             .createOrNull(project, DefaultRunExecutor.getRunExecutorInstance(), profile)
             ?.build()
         if (environment == null) {
-            LOG.warn("Unable to create execution environment")
+            LOG.warn("Unable to create run execution environment")
             return
         }
 
@@ -116,6 +87,68 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             environment.runner.execute(environment)
         }
     }
+
+    protected abstract fun getRunProfile(
+        sessionId: String,
+        projectName: String,
+        dotnetExecutable: DotNetExecutable,
+        dotnetRuntime: DotNetCoreRuntime,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
+        sessionProcessLifetime: Lifetime
+    ): RunProfile
+
+    override suspend fun launchDebugProcess(
+        sessionId: String,
+        sessionModel: SessionModel,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
+        sessionProcessLifetime: Lifetime,
+        hostRunConfiguration: AspireHostConfiguration?,
+        project: Project
+    ) {
+        LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
+
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, false, project) ?: return
+        val runtime = getDotNetRuntime(executable, project) ?: return
+
+        val projectPath = Path(sessionModel.projectPath)
+        val profile = getDebugProfile(
+            sessionId,
+            projectPath.nameWithoutExtension,
+            projectPath,
+            executable,
+            runtime,
+            browserSettings,
+            sessionProcessEventListener,
+            sessionProcessTerminatedListener,
+            sessionProcessLifetime
+        )
+
+        val environment = ExecutionEnvironmentBuilder
+            .createOrNull(project, DefaultDebugExecutor.getDebugExecutorInstance(), profile)
+            ?.build()
+        if (environment == null) {
+            LOG.warn("Unable to create debug execution environment")
+            return
+        }
+
+        withContext(Dispatchers.EDT) {
+            environment.runner.execute(environment)
+        }
+    }
+
+    protected abstract fun getDebugProfile(
+        sessionId: String,
+        projectName: String,
+        projectPath: Path,
+        dotnetExecutable: DotNetExecutable,
+        dotnetRuntime: DotNetCoreRuntime,
+        browserSettings: StartBrowserSettings?,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessTerminatedListener: ProcessListener,
+        sessionProcessLifetime: Lifetime
+    ): RunProfile
 
     protected suspend fun getDotNetExecutable(
         sessionModel: SessionModel,
@@ -146,33 +179,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         }
 
         return runtime
-    }
-
-    protected fun createModelStartInfo(executable: DotNetExecutable, runtime: DotNetCoreRuntime) =
-        DotNetCoreExeStartInfo(
-            DotNetCoreInfo(runtime.cliExePath),
-            executable.projectTfm?.let { EncInfo(it) },
-            executable.exePath,
-            executable.workingDirectory,
-            executable.programParameterString,
-            executable.environmentVariables.toModelMap,
-            executable.runtimeArguments,
-            executable.executeAsIs,
-            executable.useExternalConsole
-        )
-
-    protected fun createPresentableCommandLine(executable: DotNetExecutable, runtime: DotNetCoreRuntime) = buildString {
-        if (executable.executeAsIs) {
-            append(executable.exePath)
-        } else {
-            append(runtime.cliExePath)
-            append(" ")
-            append(executable.exePath)
-        }
-        if (executable.programParameterString.isNotEmpty()) {
-            append(" ")
-            append(executable.programParameterString)
-        }
     }
 
     protected suspend fun enableHotReload(
@@ -208,163 +214,4 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
 
         return hotReloadExtension.execute(executable, lifetime, project)
     }
-
-    protected suspend fun initDebuggerSession(
-        sessionId: String,
-        debuggerSessionId: Long,
-        dotnetExecutable: DotNetExecutable,
-        dotnetRuntime: DotNetCoreRuntime,
-        sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
-        sessionProcessLifetime: Lifetime,
-        project: Project,
-        modifyDebuggerWorkerCmd: (GeneralCommandLine) -> Unit,
-    ): DebuggerWorkerSession {
-        val frontendToDebuggerPort = NetUtils.findFreePort(57200)
-        val backendToDebuggerPort = NetUtils.findFreePort(57300)
-
-        val (wire, protocol) = createDebuggerWorkerProtocol(frontendToDebuggerPort, sessionProcessLifetime)
-
-        val presentableCommandLine = createPresentableCommandLine(dotnetExecutable, dotnetRuntime)
-        val (debuggerWorkerModel, debuggerWorkerProcessHandler) = getDebuggerWorkerModelAndHandler(
-            sessionId,
-            debuggerSessionId,
-            frontendToDebuggerPort,
-            backendToDebuggerPort,
-            wire,
-            protocol,
-            presentableCommandLine,
-            sessionProcessEventListener,
-            sessionProcessTerminatedListener,
-            sessionProcessLifetime,
-            project,
-            modifyDebuggerWorkerCmd,
-        )
-
-        val startInfo = createModelStartInfo(dotnetExecutable, dotnetRuntime)
-
-        val debuggerSessionModel = DotNetDebuggerSessionModel(startInfo)
-        debuggerSessionModel.sessionProperties.bindToSettings(sessionProcessLifetime, project).apply {
-            debugKind.set(DebugKind.Live)
-            remoteDebug.set(false)
-            enableHeuristicPathResolve.set(false)
-            editAndContinueEnabled.set(true)
-        }
-
-        debuggerWorkerModel.activeSession.set(debuggerSessionModel)
-
-        return DebuggerWorkerSession(
-            debuggerWorkerProcessHandler,
-            protocol,
-            debuggerSessionModel
-        )
-    }
-
-    private fun createDebuggerWorkerProtocol(
-        frontendToDebuggerPort: Int,
-        sessionProcessLifetime: Lifetime,
-    ): Pair<SocketWire.Server, Protocol> {
-        val dispatcher = RdDispatcher(sessionProcessLifetime)
-        val wire = SocketWire.Server(
-            sessionProcessLifetime,
-            dispatcher,
-            port = frontendToDebuggerPort,
-            optId = "FrontendToDebugWorker"
-        )
-        val protocol = Protocol(
-            "FrontendToDebuggerWorker",
-            Serializers(),
-            Identities(IdKind.Server),
-            dispatcher,
-            wire,
-            sessionProcessLifetime
-        )
-
-        return wire to protocol
-    }
-
-    private suspend fun getDebuggerWorkerModelAndHandler(
-        sessionId: String,
-        debuggerSessionId: Long,
-        frontendToDebuggerPort: Int,
-        backendToDebuggerPort: Int,
-        wire: SocketWire.Server,
-        protocol: Protocol,
-        presentableCommandLine: String,
-        sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
-        sessionProcessLifetime: Lifetime,
-        project: Project,
-        modifyDebuggerWorkerCmd: (GeneralCommandLine) -> Unit
-    ): Pair<DebuggerWorkerModel, DebuggerWorkerProcessHandler> {
-        val debuggerWorkerCmd = DebugProfileStateBase.createWorkerCmdForLauncherInfo(
-            ConsoleKind.Normal,
-            frontendToDebuggerPort,
-            DEBUGGER_WORKER_LAUNCHER.getLauncher(),
-            ExecutableType.Console,
-            true,
-            false,
-            true,
-            "--backend-port=${backendToDebuggerPort}"
-        ).also {
-            modifyDebuggerWorkerCmd(it)
-        }
-
-        LOG.trace { "Created debugger worker command line: $debuggerWorkerCmd" }
-
-        val debuggerWorkerLogDir = createLogSubDir(project, "DebuggerWorker", "JetBrains.Debugger.Worker")
-
-        debuggerWorkerCmd.withEnvironment(DEBUGGER_WORKER_LOG_DIR_ENV_KEY, debuggerWorkerLogDir.absolutePath)
-        debuggerWorkerCmd.withEnvironment(DEBUGGER_WORKER_LOG_CONF_ENV_KEY, RiderEnvironment.logBackendConf)
-        debuggerWorkerCmd.withEnvironment("JET_DEBUGGER_PARENT_PROCESS_PID", ProcessHandle.current().pid().toString())
-        debuggerWorkerCmd.withEnvironment("DOTNET_gcServer", "0")
-        if (BundleBase.SHOW_LOCALIZED_MESSAGES) {
-            debuggerWorkerCmd.withEnvironment("JET_I18N_DEBUG", "true")
-        }
-
-        val debuggerWorkerModel = RiderDebuggerWorkerModelManager.createDebuggerModel(sessionProcessLifetime, protocol)
-        val handler = TerminalProcessHandler(project, debuggerWorkerCmd, presentableCommandLine, false)
-        val debuggerWorkerProcessHandler = DebuggerWorkerProcessHandler(
-            handler,
-            debuggerWorkerModel,
-            false,
-            "",
-            sessionProcessLifetime
-        )
-
-        debuggerWorkerProcessHandler.debuggerWorkerRealHandler.addProcessListener(sessionProcessEventListener)
-        debuggerWorkerProcessHandler.addProcessListener(sessionProcessTerminatedListener)
-
-        sessionProcessLifetime.onTermination {
-            if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
-                LOG.trace("Killing debugger worker session process handler (id: $sessionId)")
-                debuggerWorkerProcessHandler.destroyProcess()
-            }
-        }
-
-        wire.connected.nextTrueValueAsync(sessionProcessLifetime).await()
-        project.solution.debuggerWorkerConnectionHelperModel.ports.put(
-            sessionProcessLifetime,
-            debuggerSessionId,
-            backendToDebuggerPort
-        )
-
-        return debuggerWorkerModel to debuggerWorkerProcessHandler
-    }
-
-    protected fun startBrowser(
-        hostRunConfiguration: AspireHostConfiguration?,
-        startBrowserSettings: StartBrowserSettings?,
-        processHandler: ProcessHandler
-    ) {
-        if (hostRunConfiguration == null || startBrowserSettings == null) return
-
-        BrowserStarter(hostRunConfiguration, startBrowserSettings, processHandler).start()
-    }
-
-    data class DebuggerWorkerSession(
-        val debuggerWorkerProcessHandler: DebuggerWorkerProcessHandler,
-        val protocol: Protocol,
-        val debugSessionModel: DotNetDebuggerSessionModel
-    )
 }
