@@ -11,17 +11,17 @@ import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 class AspireHostDebugProfileState(
-    dotNetExecutable: DotNetExecutable,
-    dotNetRuntime: DotNetCoreRuntime,
+    dotnetExecutable: DotNetExecutable,
+    dotnetRuntime: DotNetCoreRuntime,
     environment: ExecutionEnvironment
 ) : DotNetCoreDebugProfile(
-    dotNetRuntime,
-    dotNetExecutable,
+    dotnetRuntime,
+    dotnetExecutable,
     environment,
-    dotNetRuntime.cliExePath
+    dotnetRuntime.cliExePath
 ), AspireHostProfileState {
 
-    override val environmentVariables: Map<String, String> = dotNetExecutable.environmentVariables
+    override val environmentVariables: Map<String, String> = dotnetExecutable.environmentVariables
 
     override suspend fun createWorkerRunInfo(
         lifetime: Lifetime,

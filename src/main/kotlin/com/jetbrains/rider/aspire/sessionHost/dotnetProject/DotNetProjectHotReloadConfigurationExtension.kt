@@ -1,16 +1,12 @@
 package com.jetbrains.rider.aspire.sessionHost.dotnetProject
 
-import com.intellij.execution.process.ProcessAdapter
-import com.intellij.execution.process.ProcessEvent
+import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.project.Project
-import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rd.util.lifetime.isAlive
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.AspireProjectHotReloadConfigurationExtension
-import com.jetbrains.rider.debugger.editAndContinue.DotNetRunHotReloadProcess
-import com.jetbrains.rider.debugger.editAndContinue.hotReloadManager
 import com.jetbrains.rider.run.configurations.HotReloadEnvironmentBuilder
+import com.jetbrains.rider.run.configurations.HotReloadProgramRunnerCallback
 import com.jetbrains.rider.run.configurations.RiderHotReloadRunConfigurationExtensionBase
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
@@ -34,7 +30,7 @@ class DotNetProjectHotReloadConfigurationExtension : RiderHotReloadRunConfigurat
         executable: DotNetExecutable,
         lifetime: Lifetime,
         project: Project
-    ): Pair<DotNetExecutable, ProcessAdapter> {
+    ): Pair<DotNetExecutable, ProgramRunner.Callback> {
         val pipeName = getPipeName()
         val hotReloadEnvs = HotReloadEnvironmentBuilder()
             .setNamedPipe(pipeName)
@@ -45,20 +41,12 @@ class DotNetProjectHotReloadConfigurationExtension : RiderHotReloadRunConfigurat
 
         val modifiedExecutable = executable.copy(environmentVariables = envs)
 
-        val hotReloadProcessLifetime = lifetime.createNested()
-        val runProcess = DotNetRunHotReloadProcess(hotReloadProcessLifetime, pipeName)
-        project.hotReloadManager.addProcess(runProcess)
+        val callback = HotReloadProgramRunnerCallback(
+            project,
+            pipeName,
+            null
+        )
 
-        val adapter = object : ProcessAdapter() {
-            override fun processTerminated(event: ProcessEvent) {
-                application.invokeLater {
-                    if (hotReloadProcessLifetime.isAlive) {
-                        hotReloadProcessLifetime.terminate()
-                    }
-                }
-            }
-        }
-
-        return modifiedExecutable to adapter
+        return modifiedExecutable to callback
     }
 }

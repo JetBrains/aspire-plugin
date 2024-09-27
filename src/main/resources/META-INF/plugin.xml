@@ -23,6 +23,8 @@
         <configurationType implementation="com.jetbrains.rider.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunner"/>
         <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostDebugProgramRunner"/>
+        <programRunner implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProgramRunner"/>
+        <programRunner implementation="com.jetbrains.rider.aspire.sessionHost.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
 
         <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.AspireServiceContributor"/>
 

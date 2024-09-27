@@ -37,7 +37,7 @@ class SessionProcessLauncher(private val project: Project) {
             return
         }
 
-        if (debuggingMode || sessionModel.debug) {
+        if (debuggingMode) {
             launchDebugProcess(
                 sessionId,
                 sessionModel,

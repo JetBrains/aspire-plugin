@@ -15,6 +15,7 @@ import com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.util.MSBuildPropertyService
+import com.jetbrains.rider.aspire.util.getStartBrowserAction
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
@@ -46,22 +47,24 @@ class SessionExecutableFactory(private val project: Project) {
 
     suspend fun createExecutable(
         sessionModel: SessionModel,
-        hostRunConfiguration: AspireHostConfiguration?
+        hostRunConfiguration: AspireHostConfiguration?,
+        addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val sessionProjectPath = Path(sessionModel.projectPath)
         val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
 
         return if (runnableProject != null) {
-            getExecutableForRunnableProject(runnableProject, sessionModel, hostRunConfiguration)
+            getExecutableForRunnableProject(runnableProject, sessionModel, hostRunConfiguration, addBrowserAction)
         } else {
-            getExecutableForExternalProject(sessionProjectPath, sessionModel, hostRunConfiguration)
+            getExecutableForExternalProject(sessionProjectPath, sessionModel, hostRunConfiguration, addBrowserAction)
         }
     }
 
     private suspend fun getExecutableForRunnableProject(
         runnableProject: RunnableProject,
         sessionModel: SessionModel,
-        hostRunConfiguration: AspireHostConfiguration?
+        hostRunConfiguration: AspireHostConfiguration?,
+        addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val output = runnableProject.projectOutputs.firstOrNull() ?: return null
         val launchProfile = getLaunchProfile(sessionModel, runnableProject)
@@ -90,6 +93,11 @@ class SessionExecutableFactory(private val project: Project) {
         val browserSettings = launchProfile?.let {
             getStartBrowserSettings(Path(runnableProject.projectFilePath), it, envs, output.tfm, hostRunConfiguration)
         }
+        val browserAction = if (addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
+            getStartBrowserAction(hostRunConfiguration, browserSettings)
+        } else {
+            { _, _, _ -> }
+        }
 
         LOG.trace { "Executable parameters for runnable project (${runnableProject.projectFilePath}): $executableParams" }
         LOG.trace { "Browser settings for runnable project (${runnableProject.projectFilePath}): $browserSettings" }
@@ -103,7 +111,7 @@ class SessionExecutableFactory(private val project: Project) {
             false,
             executableParams.environmentVariables,
             false,
-            { _, _, _ -> },
+            browserAction,
             null,
             "",
             !executablePath.endsWith(".dll", true),
@@ -114,7 +122,8 @@ class SessionExecutableFactory(private val project: Project) {
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
         sessionModel: SessionModel,
-        hostRunConfiguration: AspireHostConfiguration?
+        hostRunConfiguration: AspireHostConfiguration?,
+        addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val propertyService = MSBuildPropertyService.getInstance(project)
         val properties = propertyService.getProjectRunProperties(sessionProjectPath) ?: return null
@@ -144,6 +153,11 @@ class SessionExecutableFactory(private val project: Project) {
         val browserSettings = launchProfile?.let {
             getStartBrowserSettings(sessionProjectPath, it, envs, properties.targetFramework, hostRunConfiguration)
         }
+        val browserAction = if (addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
+            getStartBrowserAction(hostRunConfiguration, browserSettings)
+        } else {
+            { _, _, _ -> }
+        }
 
         LOG.trace { "Executable parameters for external project (${sessionProjectPath.absolutePathString()}): $executableParams" }
         LOG.trace { "Browser settings for external project (${sessionProjectPath.absolutePathString()}): $browserSettings" }
@@ -157,7 +171,7 @@ class SessionExecutableFactory(private val project: Project) {
             false,
             executableParams.environmentVariables,
             false,
-            { _, _, _ -> },
+            browserAction,
             null,
             "",
             !executablePath.endsWith(".dll", true),
