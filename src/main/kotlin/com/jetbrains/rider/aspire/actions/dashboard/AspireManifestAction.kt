@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.jetbrains.rider.aspire.manifest.ManifestService
-import com.jetbrains.rider.aspire.services.a.AspireHostManager
+import com.jetbrains.rider.aspire.services.AspireHostManager
 import com.jetbrains.rider.aspire.util.ASPIRE_HOST_PATH
 
 class AspireManifestAction : AnAction() {

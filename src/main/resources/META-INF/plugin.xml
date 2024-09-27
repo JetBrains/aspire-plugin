@@ -26,7 +26,7 @@
         <programRunner implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProgramRunner"/>
         <programRunner implementation="com.jetbrains.rider.aspire.sessionHost.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
 
-        <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.a.AspireMainServiceViewContributor"/>
+        <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.AspireMainServiceViewContributor"/>
 
         <applicationConfigurable
                 parentId="tools"
@@ -70,9 +70,9 @@
     <projectListeners>
         <listener class="com.jetbrains.rider.aspire.database.DatabaseResourceListener"
                   topic="com.jetbrains.rider.aspire.services.ResourceListener"/>
-        <listener class="com.jetbrains.rider.aspire.services.a.AspireHostManager$RunListener"
+        <listener class="com.jetbrains.rider.aspire.services.AspireHostManager$RunListener"
                   topic="com.intellij.execution.RunManagerListener"/>
-        <listener class="com.jetbrains.rider.aspire.services.a.AspireHostManager$SessionHostModelListener"
+        <listener class="com.jetbrains.rider.aspire.services.AspireHostManager$SessionHostModelListener"
                   topic="com.jetbrains.rider.aspire.listeners.AspireSessionHostModelListener"/>
     </projectListeners>
 

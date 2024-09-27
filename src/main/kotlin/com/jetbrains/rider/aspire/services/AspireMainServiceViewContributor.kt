@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.services.a
+package com.jetbrains.rider.aspire.services
 
 import com.intellij.execution.services.ServiceViewContributor
 import com.intellij.execution.services.ServiceViewLazyContributor

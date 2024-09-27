@@ -1,7 +1,6 @@
 package com.jetbrains.rider.aspire.services
 
 import com.intellij.util.messages.Topic
-import com.jetbrains.rider.aspire.services.a.AspireResource
 
 interface ResourceListener {
     companion object {

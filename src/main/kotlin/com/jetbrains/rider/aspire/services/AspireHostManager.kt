@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.services.a
+package com.jetbrains.rider.aspire.services
 
 import com.intellij.execution.RunManagerListener
 import com.intellij.execution.RunnerAndConfigurationSettings
@@ -15,6 +15,7 @@ import com.jetbrains.rider.aspire.listeners.AspireSessionHostModelListener
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.iterator
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 

@@ -3,7 +3,7 @@ package com.jetbrains.rider.aspire.database
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.services.ResourceListener
-import com.jetbrains.rider.aspire.services.a.AspireResource
+import com.jetbrains.rider.aspire.services.AspireResource
 import java.net.URI
 
 class DatabaseResourceListener(private val project: Project) : ResourceListener {

@@ -14,7 +14,7 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.generated.ResourceType
-import com.jetbrains.rider.aspire.services.a.AspireResource
+import com.jetbrains.rider.aspire.services.AspireResource
 import com.jetbrains.rider.aspire.util.getIcon
 import kotlin.io.path.absolutePathString
 

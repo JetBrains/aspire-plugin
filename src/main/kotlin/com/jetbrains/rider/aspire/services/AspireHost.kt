@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.services.a
+package com.jetbrains.rider.aspire.services
 
 import com.intellij.execution.ExecutionListener
 import com.intellij.execution.ExecutionManager
@@ -26,6 +26,7 @@ import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.iterator
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.nameWithoutExtension

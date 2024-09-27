@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.services.a
+package com.jetbrains.rider.aspire.services
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.services.ServiceEventListener
@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
-import com.jetbrains.rider.aspire.services.ResourceListener
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
