@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.run.AspireHostRunManager
-import com.jetbrains.rider.aspire.services.AspireServiceManager
+import com.jetbrains.rider.aspire.services.a.AspireHostManager
 import com.jetbrains.rider.aspire.util.ASPIRE_HOST_PATH
 import kotlinx.coroutines.launch
 
@@ -13,9 +13,9 @@ class StopHostAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val hostPath = event.getData(ASPIRE_HOST_PATH) ?: return
-        val hostService = AspireServiceManager
+        val hostService = AspireHostManager
             .getInstance(project)
-            .getHostService(hostPath)
+            .getAspireHost(hostPath)
             ?: return
 
         AspireService.getInstance(project).scope.launch {
@@ -32,9 +32,9 @@ class StopHostAction : AnAction() {
             return
         }
 
-        val hostService = AspireServiceManager
+        val hostService = AspireHostManager
             .getInstance(project)
-            .getHostService(hostPath)
+            .getAspireHost(hostPath)
         if (hostService == null) {
             event.presentation.isEnabledAndVisible = false
             return

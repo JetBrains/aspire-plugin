@@ -11,7 +11,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isNotAlive
-import com.jetbrains.rider.aspire.services.AspireHostService
+import com.jetbrains.rider.aspire.services.a.AspireHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -38,7 +38,7 @@ class AspireHostRunManager(private val project: Project) {
         configurationLifetimes[aspireHostProjectPath] = aspireHostLifetime
     }
 
-    fun executeConfigurationForHost(host: AspireHostService, underDebug: Boolean) {
+    fun executeConfigurationForHost(host: AspireHost, underDebug: Boolean) {
         val executor =
             if (underDebug) DefaultDebugExecutor.getDebugExecutorInstance()
             else DefaultRunExecutor.getRunExecutorInstance()
@@ -47,7 +47,7 @@ class AspireHostRunManager(private val project: Project) {
         val selected = runManager.selectedConfiguration
         val selectedConfiguration = selected?.configuration
         if (selectedConfiguration != null && selectedConfiguration is AspireHostConfiguration) {
-            if (host.projectPath == Path(selectedConfiguration.parameters.projectFilePath)) {
+            if (host.hostProjectPath == Path(selectedConfiguration.parameters.projectFilePath)) {
                 ProgramRunnerUtil.executeConfiguration(selected, executor)
                 return
             }
@@ -57,7 +57,7 @@ class AspireHostRunManager(private val project: Project) {
             .filter {
                 val path = (it.configuration as? AspireHostConfiguration)?.parameters?.projectFilePath
                     ?: return@filter false
-                Path(path) == host.projectPath
+                Path(path) == host.hostProjectPath
             }
 
         if (configurations.isEmpty()) {
@@ -65,7 +65,7 @@ class AspireHostRunManager(private val project: Project) {
             return
         }
 
-        val configurationName = configurationNames[host.projectPath]
+        val configurationName = configurationNames[host.hostProjectPath]
         if (configurationName != null) {
             val configurationWithName = configurations.firstOrNull { it.name == configurationName }
             if (configurationWithName != null) {
@@ -78,10 +78,10 @@ class AspireHostRunManager(private val project: Project) {
         ProgramRunnerUtil.executeConfiguration(firstConfiguration, executor)
     }
 
-    suspend fun stopConfigurationForHost(host: AspireHostService) {
-        val lifetime = configurationLifetimes[host.projectPath]
+    suspend fun stopConfigurationForHost(host: AspireHost) {
+        val lifetime = configurationLifetimes[host.hostProjectPath]
         if (lifetime == null || lifetime.lifetime.isNotAlive) {
-            LOG.warn("Unable to stop configuration for Aspire host ${host.projectPathString}")
+            LOG.warn("Unable to stop configuration for Aspire host ${host.hostProjectPathString}")
             return
         }
 

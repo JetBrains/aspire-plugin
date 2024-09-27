@@ -9,15 +9,17 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.aspire.generated.AspireSessionHostModel
+import com.jetbrains.rider.aspire.listeners.AspireSessionHostModelListener
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.services.AspireServiceContributor
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 @Service(Service.Level.PROJECT)
-class AspireHostManager(private val project: Project) : Disposable {
+class AspireHostManager(project: Project) : Disposable {
     companion object {
         fun getInstance(project: Project) = project.service<AspireHostManager>()
 
@@ -36,17 +38,20 @@ class AspireHostManager(private val project: Project) : Disposable {
         return hosts
     }
 
+    fun getAspireHost(aspireHostProjectPathString: String) = aspireHosts[aspireHostProjectPathString]
+
     fun addAspireHost(aspireHost: AspireHost) {
+        Disposer.register(this, aspireHost)
+
         if (aspireHosts.containsKey(aspireHost.hostProjectPathString)) return
 
         LOG.trace("Adding a new Aspire host ${aspireHost.hostProjectPathString}")
-        aspireHosts.put(aspireHost.hostProjectPathString, aspireHost)
-        Disposer.register(this, aspireHost)
+        aspireHosts[aspireHost.hostProjectPathString] = aspireHost
 
         val event = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_ADDED,
             aspireHost,
-            AspireServiceContributor::class.java
+            AspireMainServiceViewContributor::class.java
         )
         serviceEventPublisher.handle(event)
     }
@@ -55,23 +60,37 @@ class AspireHostManager(private val project: Project) : Disposable {
         val hostProjectPathString = aspireHostProjectPath.absolutePathString()
         LOG.trace("Removing the Aspire host $hostProjectPathString")
 
-        val aspireHost = aspireHosts.remove(hostProjectPathString)
-        if (aspireHost == null) return
+        val aspireHost = aspireHosts.remove(hostProjectPathString) ?: return
 
         val event = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_REMOVED,
             aspireHost,
-            AspireServiceContributor::class.java
+            AspireMainServiceViewContributor::class.java
         )
         serviceEventPublisher.handle(event)
 
         Disposer.dispose(aspireHost)
     }
 
+    fun addSessionHostModel(
+        aspireHostProjectPath: Path,
+        sessionHostModel: AspireSessionHostModel,
+        lifetime: Lifetime
+    ) {
+        val hostProjectPathString = aspireHostProjectPath.absolutePathString()
+        val aspireHost = aspireHosts[hostProjectPathString]
+        if (aspireHost == null) {
+            LOG.warn("Unable to find Aspire host $hostProjectPathString")
+            return
+        }
+
+        aspireHost.addSessionHostModel(sessionHostModel, lifetime)
+    }
+
     override fun dispose() {
     }
 
-    class Listener(private val project: Project) : RunManagerListener {
+    class RunListener(private val project: Project) : RunManagerListener {
         override fun runConfigurationAdded(settings: RunnerAndConfigurationSettings) {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
@@ -87,6 +106,16 @@ class AspireHostManager(private val project: Project) : Disposable {
             val params = configuration.parameters
             val projectPath = Path(params.projectFilePath)
             getInstance(project).removeAspireHost(projectPath)
+        }
+    }
+
+    class SessionHostModelListener(private val project: Project) : AspireSessionHostModelListener {
+        override fun modelCreated(
+            aspireHostProjectPath: Path,
+            sessionHostModel: AspireSessionHostModel,
+            lifetime: Lifetime
+        ) {
+            getInstance(project).addSessionHostModel(aspireHostProjectPath, sessionHostModel, lifetime)
         }
     }
 }

@@ -14,7 +14,6 @@ import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.states.AspireHostRunProfileState
-import com.jetbrains.rider.aspire.services.AspireServiceManager
 import com.jetbrains.rider.debugger.DotNetProgramRunner
 
 class AspireHostProgramRunner : DotNetProgramRunner() {
@@ -44,6 +43,13 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
 
         LOG.trace { "Aspire session host config: $config" }
 
+        saveRunConfiguration(
+            environment.project,
+            config.aspireHostProjectPath,
+            config.name,
+            aspireHostLifetimeDefinition
+        )
+
         startSessionHostAndSubscribe(
             environment.project,
             config,
@@ -55,10 +61,6 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             LOG.warn("Unable to start Aspire run profile state")
             return null
         }
-
-        AspireServiceManager
-            .getInstance(environment.project)
-            .updateAspireHostService(config.aspireHostProjectPath, executionResult)
 
         connectExecutionHandlerAndLifetime(executionResult, aspireHostLifetimeDefinition)
 

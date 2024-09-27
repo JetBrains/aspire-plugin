@@ -14,19 +14,19 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.generated.ResourceType
-import com.jetbrains.rider.aspire.services.AspireResourceService
+import com.jetbrains.rider.aspire.services.a.AspireResource
 import com.jetbrains.rider.aspire.util.getIcon
 import kotlin.io.path.absolutePathString
 
-class ResourceDashboardPanel(resourceService: AspireResourceService) : BorderLayoutPanel() {
-    private var panel = setUpPanel(resourceService)
+class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel() {
+    private var panel = setUpPanel(aspireResource)
 
     init {
         border = JBUI.Borders.empty(5, 10)
         add(ScrollPaneFactory.createScrollPane(panel, SideBorder.NONE))
     }
 
-    private fun setUpPanel(resourceData: AspireResourceService): DialogPanel = panel {
+    private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel {
         row {
             val resourceIcon = getIcon(resourceData.type, resourceData.state)
             icon(resourceIcon)

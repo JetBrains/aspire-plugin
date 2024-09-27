@@ -8,25 +8,39 @@ import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewManager
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.application
+import com.jetbrains.rd.util.addUnique
+import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.aspire.generated.AspireSessionHostModel
+import com.jetbrains.rider.aspire.generated.ResourceState
+import com.jetbrains.rider.aspire.generated.ResourceType
+import com.jetbrains.rider.aspire.generated.ResourceWrapper
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationParameters
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.nameWithoutExtension
 
 class AspireHost(
-    private val hostProjectPath: Path,
+    val hostProjectPath: Path,
     private val project: Project
 ) : Disposable {
+    companion object {
+        private val LOG = logger<AspireHost>()
+    }
 
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
+
+    private val resources = ConcurrentHashMap<String, AspireResource>()
 
     val hostProjectPathString = hostProjectPath.absolutePathString()
 
@@ -79,16 +93,33 @@ class AspireHost(
     }
 
     fun getResources(): List<AspireResource> {
-        return emptyList()
+        val result = mutableListOf<AspireResource>()
+        for (resource in resources) {
+            if (resource.value.type == ResourceType.Unknown || resource.value.state == ResourceState.Hidden)
+                continue
+
+            result.add(resource.value)
+        }
+
+        return result.sortedBy { it.type }
     }
 
-    private fun start(handler: ProcessHandler, parameters: AspireHostConfigurationParameters) {
+    fun addSessionHostModel(sessionHostModel: AspireSessionHostModel, lifetime: Lifetime) {
+        val sessionHostLifetime = lifetime.createNested()
+        sessionHostModel.resources.view(sessionHostLifetime) { resourceLifetime, resourceId, resourceModel ->
+            viewResource(resourceId, resourceModel, resourceLifetime)
+        }
+    }
+
+    private fun start(processHandler: ProcessHandler, parameters: AspireHostConfigurationParameters) {
+        LOG.trace { "Starting an Aspire Host $hostProjectPathString" }
+
         isActive = true
         dashboardUrl = parameters.startBrowserParameters.url
 
         val handler =
-            if (handler is DebuggerWorkerProcessHandler) handler.debuggerWorkerRealHandler
-            else handler
+            if (processHandler is DebuggerWorkerProcessHandler) processHandler.debuggerWorkerRealHandler
+            else processHandler
         val console = createConsole(
             ConsoleKind.Normal,
             handler,
@@ -103,10 +134,28 @@ class AspireHost(
     }
 
     private fun stop() {
+        LOG.trace { "Stopping an Aspire Host $hostProjectPathString" }
+
         isActive = false
         dashboardUrl = null
 
         sendServiceChangedEvent()
+    }
+
+    private fun viewResource(
+        resourceId: String,
+        resourceModel: ResourceWrapper,
+        resourceLifetime: Lifetime
+    ) {
+        LOG.trace { "Adding a new resource with id $resourceId to the host $hostProjectPathString" }
+
+        val resource = AspireResource(resourceModel, resourceLifetime, this, project)
+        Disposer.register(this, resource)
+        resources.addUnique(resourceLifetime, resourceId, resource)
+
+        resourceModel.isInitialized.set(true)
+
+        expand()
     }
 
     private fun selectHost() {
@@ -133,6 +182,7 @@ class AspireHost(
         )
         serviceEventPublisher.handle(event)
     }
+
 
     override fun dispose() {
     }

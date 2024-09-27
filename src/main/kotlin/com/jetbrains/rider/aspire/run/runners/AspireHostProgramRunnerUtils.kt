@@ -15,14 +15,15 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.aspire.generated.aspireSessionHostModel
+import com.jetbrains.rider.aspire.listeners.AspireSessionHostModelListener
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostRunManager
 import com.jetbrains.rider.aspire.run.states.*
-import com.jetbrains.rider.aspire.services.AspireServiceManager
 import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.nio.file.Path
 import kotlin.io.path.Path
 
 private val LOG = Logger.getInstance("#com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunnerUtils")
@@ -64,6 +65,16 @@ fun createAspireHostConfig(
     )
 }
 
+fun saveRunConfiguration(
+    project: Project,
+    aspireHostProjectPath: Path,
+    runConfigurationName: String,
+    aspireHostLifetimeDefinition: LifetimeDefinition
+) {
+    AspireHostRunManager.Companion.getInstance(project)
+        .saveRunConfiguration(aspireHostProjectPath, aspireHostLifetimeDefinition, runConfigurationName)
+}
+
 suspend fun startSessionHostAndSubscribe(
     project: Project,
     config: AspireHostConfig,
@@ -72,11 +83,9 @@ suspend fun startSessionHostAndSubscribe(
     val protocol = startSessionHostProtocol(config.aspireHostLifetime)
     val sessionHostModel = protocol.aspireSessionHostModel
 
-    AspireHostRunManager.Companion.getInstance(project)
-        .saveRunConfiguration(config.aspireHostProjectPath, aspireHostLifetimeDefinition, config.name)
-
-    AspireServiceManager.Companion.getInstance(project)
-        .startAspireHostService(config, sessionHostModel)
+    project.messageBus
+        .syncPublisher(AspireSessionHostModelListener.TOPIC)
+        .modelCreated(config.aspireHostProjectPath, sessionHostModel, aspireHostLifetimeDefinition.lifetime)
 
     SessionHostManager.Companion.getInstance(project)
         .startSessionHost(config, protocol.wire.serverPort, sessionHostModel)
