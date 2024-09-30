@@ -62,12 +62,11 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                     aspireHostProjectPath.nameWithoutExtension,
                     debugSessionToken,
                     debugSessionPort,
-                    aspireHostProjectPath,
-                    null,
                     request.underDebugger,
                     null,
                     null,
                     aspireHostLifetimeDefinition.lifetime,
+                    aspireHostProjectPath,
                     null
                 )
 

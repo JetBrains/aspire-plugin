@@ -48,19 +48,16 @@ fun createAspireHostConfig(
     val resourceServiceApiKey = state.getResourceServiceApiKey()
 
     val parameters = aspireHostConfiguration.parameters
-    val aspireHostProjectPath = Path(parameters.projectFilePath)
-    val aspireHostProjectUrl = parameters.startBrowserParameters.url
 
     return AspireHostConfig(
         aspireHostConfiguration.name,
         debugSessionToken,
         debugSessionPort,
-        aspireHostProjectPath,
-        aspireHostProjectUrl,
         isDebuggingMode,
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
         aspireHostLifetime,
+        Path(parameters.projectFilePath),
         aspireHostConfiguration
     )
 }

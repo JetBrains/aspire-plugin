@@ -73,7 +73,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.sessionLifetimeDefinition,
             SequentialLifetimes(command.sessionLifetimeDefinition),
             command.sessionEvents,
-            command.aspireHostConfig.hostRunConfiguration
+            command.aspireHostConfig.aspireHostRunConfiguration
         )
         sessions[command.sessionId] = session
 
