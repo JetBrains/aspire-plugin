@@ -10,13 +10,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.generated.AspireSessionHostModel
-import com.jetbrains.rider.aspire.listeners.AspireSessionHostModelListener
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.iterator
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
@@ -40,7 +36,7 @@ class AspireHostManager(private val project: Project) : Disposable {
         return hosts
     }
 
-    fun getAspireHost(aspireHostProjectPathString: String) = aspireHosts[Path(aspireHostProjectPathString)]
+    fun getAspireHost(aspireHostProjectPath: Path) = aspireHosts[aspireHostProjectPath]
 
     fun addAspireHost(aspireHostProjectPath: Path) {
         if (aspireHosts.containsKey(aspireHostProjectPath)) return
@@ -75,20 +71,6 @@ class AspireHostManager(private val project: Project) : Disposable {
         Disposer.dispose(aspireHost)
     }
 
-    fun addSessionHostModel(
-        aspireHostProjectPath: Path,
-        sessionHostModel: AspireSessionHostModel,
-        lifetime: Lifetime
-    ) {
-        val aspireHost = aspireHosts[aspireHostProjectPath]
-        if (aspireHost == null) {
-            LOG.warn("Unable to find Aspire host ${aspireHostProjectPath.absolutePathString()}")
-            return
-        }
-
-        aspireHost.addSessionHostModel(sessionHostModel, lifetime)
-    }
-
     override fun dispose() {
     }
 
@@ -105,16 +87,6 @@ class AspireHostManager(private val project: Project) : Disposable {
             if (configuration !is AspireHostConfiguration) return
             val params = configuration.parameters
             getInstance(project).removeAspireHost(Path(params.projectFilePath))
-        }
-    }
-
-    class SessionHostModelListener(private val project: Project) : AspireSessionHostModelListener {
-        override fun modelCreated(
-            aspireHostProjectPath: Path,
-            sessionHostModel: AspireSessionHostModel,
-            lifetime: Lifetime
-        ) {
-            getInstance(project).addSessionHostModel(aspireHostProjectPath, sessionHostModel, lifetime)
         }
     }
 }

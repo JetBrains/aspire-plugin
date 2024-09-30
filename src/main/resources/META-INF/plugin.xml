@@ -72,8 +72,6 @@
                   topic="com.jetbrains.rider.aspire.services.ResourceListener"/>
         <listener class="com.jetbrains.rider.aspire.services.AspireHostManager$RunListener"
                   topic="com.intellij.execution.RunManagerListener"/>
-        <listener class="com.jetbrains.rider.aspire.services.AspireHostManager$SessionHostModelListener"
-                  topic="com.jetbrains.rider.aspire.listeners.AspireSessionHostModelListener"/>
     </projectListeners>
 
     <actions>

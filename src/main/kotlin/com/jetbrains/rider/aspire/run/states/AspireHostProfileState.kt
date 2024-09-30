@@ -2,6 +2,7 @@ package com.jetbrains.rider.aspire.run.states
 
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_PORT
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_TOKEN
+import com.jetbrains.rider.aspire.util.DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN
 import com.jetbrains.rider.aspire.util.DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
 import com.jetbrains.rider.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
 
@@ -14,6 +15,8 @@ fun AspireHostProfileState.getDebugSessionToken() = environmentVariables[DEBUG_S
 fun AspireHostProfileState.getDebugSessionPort() = environmentVariables[DEBUG_SESSION_PORT]
     ?.substringAfter(':')
     ?.toInt()
+
+fun AspireHostProfileState.getDashboardBrowserToken() = environmentVariables[DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN]
 
 fun AspireHostProfileState.getResourceServiceEndpointUrl() = environmentVariables[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL]
 

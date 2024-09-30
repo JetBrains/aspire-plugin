@@ -16,5 +16,6 @@ data class AspireHostConfig(
     val resourceServiceApiKey: String?,
     val aspireHostLifetime: Lifetime,
     val aspireHostProjectPath: Path,
+    val aspireHostProjectUrl: String?,
     val aspireHostRunConfiguration: AspireHostConfiguration?
 )

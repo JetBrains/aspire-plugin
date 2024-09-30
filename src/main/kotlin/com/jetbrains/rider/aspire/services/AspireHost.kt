@@ -19,8 +19,9 @@ import com.jetbrains.rider.aspire.generated.AspireSessionHostModel
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.generated.ResourceWrapper
+import com.jetbrains.rider.aspire.listeners.AspireSessionHostListener
+import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.run.AspireHostConfigurationParameters
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProfile
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -64,43 +65,62 @@ class AspireHost(
         private set
 
     init {
-        project.messageBus.connect(this).subscribe(
-            ExecutionManager.EXECUTION_TOPIC,
-            object : ExecutionListener {
-                override fun processStarted(
-                    executorId: String,
-                    env: ExecutionEnvironment,
-                    handler: ProcessHandler
-                ) {
-                    val profile = env.runProfile
-                    if (profile is AspireHostConfiguration) {
-                        val projectFilePath = Path(profile.parameters.projectFilePath)
-                        if (hostProjectPath != projectFilePath) return
-
-                        start(handler, profile.parameters)
-                    } else if (profile is ProjectSessionProfile) {
-                        val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
-                        if (hostProjectPath != aspireHostProjectPath) return
-
-                        setHandlerForResource(profile.dotnetExecutable, handler)
-                    }
-                }
-
-                override fun processTerminated(
-                    executorId: String,
-                    env: ExecutionEnvironment,
-                    handler: ProcessHandler,
-                    exitCode: Int
-                ) {
-                    val profile = env.runProfile
-                    if (profile !is AspireHostConfiguration) return
-
+        project.messageBus.connect(this).subscribe(ExecutionManager.EXECUTION_TOPIC, object : ExecutionListener {
+            override fun processStarted(
+                executorId: String,
+                env: ExecutionEnvironment,
+                handler: ProcessHandler
+            ) {
+                val profile = env.runProfile
+                if (profile is AspireHostConfiguration) {
                     val projectFilePath = Path(profile.parameters.projectFilePath)
                     if (hostProjectPath != projectFilePath) return
 
-                    stop()
+                    start(handler)
+                } else if (profile is ProjectSessionProfile) {
+                    val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
+                    if (hostProjectPath != aspireHostProjectPath) return
+
+                    setHandlerForResource(profile.dotnetExecutable, handler)
                 }
-            })
+            }
+
+            override fun processTerminated(
+                executorId: String,
+                env: ExecutionEnvironment,
+                handler: ProcessHandler,
+                exitCode: Int
+            ) {
+                val profile = env.runProfile
+                if (profile !is AspireHostConfiguration) return
+
+                val projectFilePath = Path(profile.parameters.projectFilePath)
+                if (hostProjectPath != projectFilePath) return
+
+                stop()
+            }
+        })
+
+        project.messageBus.connect(this).subscribe(AspireSessionHostListener.TOPIC, object : AspireSessionHostListener {
+            override fun configCreated(
+                aspireHostProjectPath: Path,
+                config: AspireHostConfig
+            ) {
+                if (aspireHostProjectPath != hostProjectPath) return
+
+                addAspireHostUrl(config)
+            }
+
+            override fun modelCreated(
+                aspireHostProjectPath: Path,
+                sessionHostModel: AspireSessionHostModel,
+                lifetime: Lifetime
+            ) {
+                if (aspireHostProjectPath != hostProjectPath) return
+
+                addSessionHostModel(sessionHostModel, lifetime)
+            }
+        })
     }
 
     fun getResources(): List<AspireResource> {
@@ -115,18 +135,23 @@ class AspireHost(
         return result.sortedBy { it.type }
     }
 
-    fun addSessionHostModel(sessionHostModel: AspireSessionHostModel, lifetime: Lifetime) {
+    private fun addAspireHostUrl(config: AspireHostConfig) {
+        dashboardUrl = config.aspireHostProjectUrl
+
+        sendServiceChangedEvent()
+    }
+
+    private fun addSessionHostModel(sessionHostModel: AspireSessionHostModel, lifetime: Lifetime) {
         val sessionHostLifetime = lifetime.createNested()
         sessionHostModel.resources.view(sessionHostLifetime) { resourceLifetime, resourceId, resourceModel ->
             viewResource(resourceId, resourceModel, resourceLifetime)
         }
     }
 
-    private fun start(processHandler: ProcessHandler, parameters: AspireHostConfigurationParameters) {
+    private fun start(processHandler: ProcessHandler) {
         LOG.trace { "Starting an Aspire Host $hostProjectPathString" }
 
         isActive = true
-        dashboardUrl = parameters.startBrowserParameters.url
 
         val handler =
             if (processHandler is DebuggerWorkerProcessHandler) processHandler.debuggerWorkerRealHandler
@@ -171,7 +196,7 @@ class AspireHost(
         val handler = synchronized(lock) {
             handlers.remove(resource.serviceInstanceId)
         }
-        handler?.let {resource.setHandler(it) }
+        handler?.let { resource.setHandler(it) }
     }
 
     private fun setHandlerForResource(dotnetExecutable: DotNetExecutable, processHandler: ProcessHandler) {

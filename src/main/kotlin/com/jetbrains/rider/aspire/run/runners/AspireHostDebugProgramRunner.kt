@@ -60,11 +60,7 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
             aspireHostLifetimeDefinition
         )
 
-        startSessionHostAndSubscribe(
-            environment.project,
-            config,
-            aspireHostLifetimeDefinition
-        )
+        startSessionHostAndSubscribe(config, environment.project)
 
         val executionResult = state.execute(environment.executor, this, workerProcessHandler, sessionLifetime)
 

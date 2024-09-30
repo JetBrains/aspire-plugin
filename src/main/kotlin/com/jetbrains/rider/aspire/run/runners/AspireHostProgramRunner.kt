@@ -50,11 +50,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             aspireHostLifetimeDefinition
         )
 
-        startSessionHostAndSubscribe(
-            environment.project,
-            config,
-            aspireHostLifetimeDefinition
-        )
+        startSessionHostAndSubscribe(config, environment.project)
 
         val executionResult = state.execute(environment.executor, this)
         if (executionResult == null) {

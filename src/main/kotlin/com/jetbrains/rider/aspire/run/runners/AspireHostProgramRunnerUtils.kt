@@ -15,7 +15,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.aspire.generated.aspireSessionHostModel
-import com.jetbrains.rider.aspire.listeners.AspireSessionHostModelListener
+import com.jetbrains.rider.aspire.listeners.AspireSessionHostListener
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostRunManager
@@ -48,8 +48,15 @@ fun createAspireHostConfig(
     val resourceServiceApiKey = state.getResourceServiceApiKey()
 
     val parameters = aspireHostConfiguration.parameters
+    val aspireHostProjectPath = Path(parameters.projectFilePath)
+    val browserToken = state.getDashboardBrowserToken()
+    val aspireHostProjectUrl = if (browserToken != null) {
+        "${parameters.startBrowserParameters.url}/login?t=$browserToken"
+    } else {
+        parameters.startBrowserParameters.url
+    }
 
-    return AspireHostConfig(
+    val config =  AspireHostConfig(
         aspireHostConfiguration.name,
         debugSessionToken,
         debugSessionPort,
@@ -57,9 +64,16 @@ fun createAspireHostConfig(
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
         aspireHostLifetime,
-        Path(parameters.projectFilePath),
+        aspireHostProjectPath,
+        aspireHostProjectUrl,
         aspireHostConfiguration
     )
+
+    environment.project.messageBus
+        .syncPublisher(AspireSessionHostListener.TOPIC)
+        .configCreated(config.aspireHostProjectPath, config)
+
+    return config
 }
 
 fun saveRunConfiguration(
@@ -73,16 +87,15 @@ fun saveRunConfiguration(
 }
 
 suspend fun startSessionHostAndSubscribe(
-    project: Project,
     config: AspireHostConfig,
-    aspireHostLifetimeDefinition: LifetimeDefinition
+    project: Project
 ) = withContext(Dispatchers.EDT) {
     val protocol = startSessionHostProtocol(config.aspireHostLifetime)
     val sessionHostModel = protocol.aspireSessionHostModel
 
     project.messageBus
-        .syncPublisher(AspireSessionHostModelListener.TOPIC)
-        .modelCreated(config.aspireHostProjectPath, sessionHostModel, aspireHostLifetimeDefinition.lifetime)
+        .syncPublisher(AspireSessionHostListener.TOPIC)
+        .modelCreated(config.aspireHostProjectPath, sessionHostModel, config.aspireHostLifetime)
 
     SessionHostManager.Companion.getInstance(project)
         .startSessionHost(config, protocol.wire.serverPort, sessionHostModel)

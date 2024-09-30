@@ -80,7 +80,7 @@ class AspireHostServiceViewContributor(
         override fun getDataProvider() = this
 
         override fun getData(dataId: String) =
-            if (ASPIRE_HOST_PATH.`is`(dataId)) aspireHost.hostProjectPathString
+            if (ASPIRE_HOST_PATH.`is`(dataId)) aspireHost.hostProjectPath
             else null
     }
 }

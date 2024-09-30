@@ -67,6 +67,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                     null,
                     aspireHostLifetimeDefinition.lifetime,
                     aspireHostProjectPath,
+                    null,
                     null
                 )
 
