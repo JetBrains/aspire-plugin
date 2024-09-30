@@ -52,7 +52,7 @@ class AspireHostManager(private val project: Project) : Disposable {
         aspireHosts[aspireHostProjectPath] = aspireHost
 
         val event = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_ADDED,
+            ServiceEventListener.EventType.RESET,
             aspireHost,
             AspireMainServiceViewContributor::class.java
         )
