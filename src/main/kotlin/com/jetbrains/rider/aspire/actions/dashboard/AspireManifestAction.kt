@@ -4,18 +4,18 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.jetbrains.rider.aspire.manifest.ManifestService
-import com.jetbrains.rider.aspire.services.AspireServiceManager
+import com.jetbrains.rider.aspire.services.AspireHostManager
 import com.jetbrains.rider.aspire.util.ASPIRE_HOST_PATH
 
 class AspireManifestAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val hostPath = event.getData(ASPIRE_HOST_PATH) ?: return
-        val hostService = AspireServiceManager
+        val hostService = AspireHostManager
             .getInstance(project)
-            .getHostService(hostPath)
+            .getAspireHost(hostPath)
             ?: return
-        val hostProjectPath = hostService.projectPath
+        val hostProjectPath = hostService.hostProjectPath
 
         ManifestService.getInstance(project).generateManifest(hostProjectPath)
     }
@@ -28,9 +28,9 @@ class AspireManifestAction : AnAction() {
             return
         }
 
-        val hostService = AspireServiceManager
+        val hostService = AspireHostManager
             .getInstance(project)
-            .getHostService(hostPath)
+            .getAspireHost(hostPath)
         if (hostService == null) {
             event.presentation.isEnabledAndVisible = false
             return

@@ -14,7 +14,6 @@ import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.states.AspireHostDebugProfileState
-import com.jetbrains.rider.aspire.services.AspireServiceManager
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.DotNetDebugRunner
 import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
@@ -54,17 +53,16 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
 
         LOG.trace { "Aspire session host config: $config" }
 
-        startSessionHostAndSubscribe(
+        saveRunConfiguration(
             environment.project,
-            config,
+            config.aspireHostProjectPath,
+            config.name,
             aspireHostLifetimeDefinition
         )
 
-        val executionResult = state.execute(environment.executor, this, workerProcessHandler, sessionLifetime)
+        startSessionHostAndSubscribe(config, environment.project)
 
-        AspireServiceManager
-            .getInstance(environment.project)
-            .updateAspireHostService(config.aspireHostProjectPath, executionResult)
+        val executionResult = state.execute(environment.executor, this, workerProcessHandler, sessionLifetime)
 
         connectExecutionHandlerAndLifetime(executionResult, aspireHostLifetimeDefinition)
 

@@ -6,5 +6,5 @@ import com.jetbrains.rider.debugger.DotNetProgramRunner
 
 class ProjectSessionProgramRunner : DotNetProgramRunner() {
     override fun canRun(executorId: String, runProfile: RunProfile) =
-        executorId == DefaultRunExecutor.EXECUTOR_ID && runProfile is ProjectSessionRunProfile
+        executorId == DefaultRunExecutor.EXECUTOR_ID && runProfile is ProjectSessionProfile
 }

@@ -1,11 +1,7 @@
 package com.jetbrains.rider.aspire.sessionHost
 
 import com.intellij.database.util.common.removeIf
-import com.intellij.execution.process.KillableProcessHandler
-import com.intellij.execution.process.ProcessAdapter
-import com.intellij.execution.process.ProcessEvent
-import com.intellij.execution.process.ProcessListener
-import com.intellij.execution.process.ProcessOutputType
+import com.intellij.execution.process.*
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -77,7 +73,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.sessionLifetimeDefinition,
             SequentialLifetimes(command.sessionLifetimeDefinition),
             command.sessionEvents,
-            command.aspireHostConfig.hostRunConfiguration
+            command.aspireHostConfig.aspireHostRunConfiguration
         )
         sessions[command.sessionId] = session
 

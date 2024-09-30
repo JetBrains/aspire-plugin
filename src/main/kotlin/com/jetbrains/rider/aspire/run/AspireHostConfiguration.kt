@@ -3,8 +3,8 @@ package com.jetbrains.rider.aspire.run
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
-import com.jetbrains.rider.build.tasks.SolutionRunConfiguration
 import com.jetbrains.rider.run.configurations.IAutoSelectableRunConfiguration
+import com.jetbrains.rider.run.configurations.IProjectBasedRunConfiguration
 import com.jetbrains.rider.run.configurations.RiderAsyncRunConfiguration
 import org.jdom.Element
 
@@ -19,7 +19,7 @@ class AspireHostConfiguration(
     factory,
     { AspireHostSettingsEditor(it) },
     AspireHostExecutorFactory(project, parameters)
-), SolutionRunConfiguration, IAutoSelectableRunConfiguration {
+), IProjectBasedRunConfiguration, IAutoSelectableRunConfiguration {
     override fun checkConfiguration() {
         parameters.validate()
     }
@@ -46,4 +46,10 @@ class AspireHostConfiguration(
     }
 
     override fun getAutoSelectPriority() = 10
+
+    override fun getProjectFilePath() = parameters.projectFilePath
+
+    override fun setProjectFilePath(path: String) {
+        parameters.projectFilePath = path
+    }
 }

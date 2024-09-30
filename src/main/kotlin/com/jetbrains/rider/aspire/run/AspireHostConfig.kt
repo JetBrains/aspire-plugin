@@ -9,14 +9,13 @@ data class AspireHostConfig(
     val debugSessionToken: String,
     //from env: DEBUG_SESSION_PORT
     val debugSessionPort: Int,
-    val aspireHostProjectPath: Path,
-    //from env: ASPNETCORE_URLS
-    val aspireHostProjectUrl: String?,
     val debuggingMode: Boolean,
     //from env: DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
     val resourceServiceEndpointUrl: String?,
     //from env: DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
     val resourceServiceApiKey: String?,
     val aspireHostLifetime: Lifetime,
-    val hostRunConfiguration: AspireHostConfiguration?
+    val aspireHostProjectPath: Path,
+    val aspireHostProjectUrl: String?,
+    val aspireHostRunConfiguration: AspireHostConfiguration?
 )

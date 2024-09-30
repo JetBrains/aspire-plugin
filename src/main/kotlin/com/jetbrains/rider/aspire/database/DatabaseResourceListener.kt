@@ -2,8 +2,8 @@ package com.jetbrains.rider.aspire.database
 
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.generated.ResourceType
-import com.jetbrains.rider.aspire.services.AspireResourceService
 import com.jetbrains.rider.aspire.services.ResourceListener
+import com.jetbrains.rider.aspire.services.AspireResource
 import java.net.URI
 
 class DatabaseResourceListener(private val project: Project) : ResourceListener {
@@ -18,15 +18,15 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
         private const val REDIS = "redis"
     }
 
-    override fun resourceCreated(resource: AspireResourceService) {
+    override fun resourceCreated(resource: AspireResource) {
         applyChanges(resource)
     }
 
-    override fun resourceUpdated(resource: AspireResourceService) {
+    override fun resourceUpdated(resource: AspireResource) {
         applyChanges(resource)
     }
 
-    private fun applyChanges(resource: AspireResourceService) {
+    private fun applyChanges(resource: AspireResource) {
         val service = DatabaseService.getInstance(project)
         if (resource.type == ResourceType.Project) {
             resource.environment

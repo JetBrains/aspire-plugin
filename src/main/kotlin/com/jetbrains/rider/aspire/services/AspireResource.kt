@@ -1,15 +1,19 @@
 package com.jetbrains.rider.aspire.services
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
+import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
+import com.jetbrains.rider.run.ConsoleKind
+import com.jetbrains.rider.run.createConsole
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -18,12 +22,17 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.math.roundToInt
 
-class AspireResourceService(
-    wrapper: ResourceWrapper,
+class AspireResource(
+    modelWrapper: ResourceWrapper,
     val lifetime: Lifetime,
-    private val hostService: AspireHostService,
+    private val aspireHost: AspireHost,
     private val project: Project
-) {
+): Disposable {
+
+    val serviceViewContributor: AspireResourceServiceViewContributor by lazy {
+        AspireResourceServiceViewContributor(this)
+    }
+
     var uid: String
         private set
     var name: String
@@ -69,14 +78,15 @@ class AspireResourceService(
     var containerArgs: String? = null
         private set
 
-    val consoleView: ConsoleView = TextConsoleBuilderFactory
+    var consoleView: ConsoleView = TextConsoleBuilderFactory
         .getInstance()
         .createBuilder(project)
         .apply { setViewer(true) }
         .console
 
     init {
-        val model = wrapper.model.valueOrNull
+        val model = modelWrapper.model.valueOrNull
+
         uid = model?.uid ?: ""
         name = model?.name ?: ""
         type = model?.type ?: ResourceType.Unknown
@@ -90,12 +100,18 @@ class AspireResourceService(
 
         fillFromProperties(model?.properties ?: emptyArray())
 
-        wrapper.model.advise(lifetime, ::update)
-        wrapper.logReceived.advise(lifetime, ::logReceived)
+        modelWrapper.model.advise(lifetime, ::update)
+        modelWrapper.logReceived.advise(lifetime, ::logReceived)
 
-        Disposer.register(AspireService.getInstance(project), consoleView)
+        Disposer.register(this, consoleView)
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(this)
+
+        lifetime.bracketIfAlive({
+            sendServiceStructureChangedEvent()
+        }, {
+            sendServiceStructureChangedEvent()
+        })
     }
 
     private fun fillFromProperties(properties: Array<ResourceProperty>) {
@@ -154,35 +170,71 @@ class AspireResourceService(
         }
     }
 
-    private fun update(resourceModel: ResourceModel) {
-        uid = resourceModel.uid
-        name = resourceModel.name
-        type = resourceModel.type
-        displayName = resourceModel.displayName
-        state = resourceModel.state
-        stateStyle = resourceModel.stateStyle
-        urls = resourceModel.urls
-        environment = resourceModel.environment
+    private fun update(model: ResourceModel) {
+        uid = model.uid
+        name = model.name
+        type = model.type
+        displayName = model.displayName
+        state = model.state
+        stateStyle = model.stateStyle
+        urls = model.urls
+        environment = model.environment
 
-        serviceInstanceId = resourceModel.getServiceInstanceId()
+        serviceInstanceId = model.getServiceInstanceId()
 
-        fillFromProperties(resourceModel.properties)
+        fillFromProperties(model.properties)
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
-        val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
-            hostService,
-            AspireServiceContributor::class.java
+        sendServiceChildrenChangedEvent()
+    }
+
+    fun setHandler(processHandler: ProcessHandler) {
+        if (type != ResourceType.Project) return
+
+        val handler =
+            if (processHandler is DebuggerWorkerProcessHandler) processHandler.debuggerWorkerRealHandler
+            else processHandler
+        val console = createConsole(
+            ConsoleKind.Normal,
+            handler,
+            project
         )
-        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
+        Disposer.register(this, console)
+        consoleView = console
+
+        sendServiceChildrenChangedEvent()
     }
 
     private fun logReceived(log: ResourceLog) {
+        if (type == ResourceType.Project) return
+
         consoleView.print(
             log.text + "\n",
             if (!log.isError) ConsoleViewContentType.NORMAL_OUTPUT
             else ConsoleViewContentType.ERROR_OUTPUT
         )
+    }
+
+
+    private fun sendServiceStructureChangedEvent() {
+        val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
+            aspireHost.serviceViewContributor.asService(),
+            AspireMainServiceViewContributor::class.java
+        )
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
+    }
+
+    private fun sendServiceChildrenChangedEvent() {
+        val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
+            aspireHost.serviceViewContributor.asService(),
+            AspireMainServiceViewContributor::class.java
+        )
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
+    }
+
+    override fun dispose() {
     }
 }

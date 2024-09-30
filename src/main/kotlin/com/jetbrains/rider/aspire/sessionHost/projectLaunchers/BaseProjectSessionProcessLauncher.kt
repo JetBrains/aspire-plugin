@@ -63,6 +63,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         val runtime = getDotNetRuntime(executableWithHotReload, project) ?: return
 
         val projectName = Path(sessionModel.projectPath).nameWithoutExtension
+        val aspireHostProjectPath = hostRunConfiguration?.let { Path(it.parameters.projectFilePath) }
         val profile = getRunProfile(
             sessionId,
             projectName,
@@ -70,7 +71,8 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             runtime,
             sessionProcessEventListener,
             sessionProcessTerminatedListener,
-            sessionProcessLifetime
+            sessionProcessLifetime,
+            aspireHostProjectPath
         )
 
         val environment = ExecutionEnvironmentBuilder
@@ -95,7 +97,8 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         dotnetRuntime: DotNetCoreRuntime,
         sessionProcessEventListener: ProcessListener,
         sessionProcessTerminatedListener: ProcessListener,
-        sessionProcessLifetime: Lifetime
+        sessionProcessLifetime: Lifetime,
+        aspireHostProjectPath: Path?
     ): RunProfile
 
     override suspend fun launchDebugProcess(
@@ -113,6 +116,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         val projectPath = Path(sessionModel.projectPath)
+        val aspireHostProjectPath = hostRunConfiguration?.let { Path(it.parameters.projectFilePath) }
         val profile = getDebugProfile(
             sessionId,
             projectPath.nameWithoutExtension,
@@ -122,7 +126,8 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             browserSettings,
             sessionProcessEventListener,
             sessionProcessTerminatedListener,
-            sessionProcessLifetime
+            sessionProcessLifetime,
+            aspireHostProjectPath
         )
 
         val environment = ExecutionEnvironmentBuilder
@@ -147,7 +152,8 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         browserSettings: StartBrowserSettings?,
         sessionProcessEventListener: ProcessListener,
         sessionProcessTerminatedListener: ProcessListener,
-        sessionProcessLifetime: Lifetime
+        sessionProcessLifetime: Lifetime,
+        aspireHostProjectPath: Path?
     ): RunProfile
 
     protected suspend fun getDotNetExecutable(

@@ -20,13 +20,17 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.jetbrains.rider.aspire.MigrateBuildSolutionTaskActivity"/>
+
         <configurationType implementation="com.jetbrains.rider.aspire.run.AspireHostConfigurationType"/>
         <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunner"/>
         <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostDebugProgramRunner"/>
-        <programRunner implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProgramRunner"/>
-        <programRunner implementation="com.jetbrains.rider.aspire.sessionHost.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
+        <programRunner
+                implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProgramRunner"/>
+        <programRunner
+                implementation="com.jetbrains.rider.aspire.sessionHost.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
 
-        <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.AspireServiceContributor"/>
+        <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.AspireMainServiceViewContributor"/>
 
         <applicationConfigurable
                 parentId="tools"
@@ -70,7 +74,7 @@
     <projectListeners>
         <listener class="com.jetbrains.rider.aspire.database.DatabaseResourceListener"
                   topic="com.jetbrains.rider.aspire.services.ResourceListener"/>
-        <listener class="com.jetbrains.rider.aspire.services.AspireServiceManager$Listener"
+        <listener class="com.jetbrains.rider.aspire.services.AspireHostManager$RunListener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
 
