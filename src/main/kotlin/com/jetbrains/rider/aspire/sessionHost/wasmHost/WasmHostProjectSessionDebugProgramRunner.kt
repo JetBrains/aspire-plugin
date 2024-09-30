@@ -36,12 +36,16 @@ class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
         wasmProfileState.browserRefreshHost =
             BrowserRefreshAgentManager
                 .getInstance(environment.project)
-                .startHost(wasmProfileState.dotNetExecutable.projectTfm, processLifetimeDefinition.lifetime)
+                .startHost(
+                    wasmProfileState.dotNetExecutable.projectTfm,
+                    wasmProfileState.dotNetExecutable.environmentVariables,
+                    processLifetimeDefinition.lifetime
+                )
 
         wasmProfileState.browserHub =
             BrowserHubManager
                 .getInstance(environment.project)
-                .start(wasmProfileState.browserHubLifetimeDef)
+                .start(wasmProfileState.dotNetExecutable.environmentVariables, wasmProfileState.browserHubLifetimeDef)
 
         return super.initDebuggerSession(helper, processLifetimeDefinition, protocol, state, environment)
     }

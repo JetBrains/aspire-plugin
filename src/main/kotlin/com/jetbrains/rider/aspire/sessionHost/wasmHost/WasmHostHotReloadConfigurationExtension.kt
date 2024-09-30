@@ -35,9 +35,9 @@ class WasmHostHotReloadConfigurationExtension : RiderHotReloadRunConfigurationEx
         project: Project
     ): Pair<DotNetExecutable, ProgramRunner.Callback> {
         val pipeName = getPipeName()
-        val browserRefreshHost = BrowserRefreshAgentManager.Companion
+        val browserRefreshHost = BrowserRefreshAgentManager
             .getInstance(project)
-            .startHost(executable.projectTfm, lifetime)
+            .startHost(executable.projectTfm, executable.environmentVariables, lifetime)
         val hotReloadEnvs = HotReloadEnvironmentBuilder()
             .setNamedPipe(pipeName)
             .addDeltaApplier()
