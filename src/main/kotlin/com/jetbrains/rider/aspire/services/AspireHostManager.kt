@@ -1,7 +1,9 @@
 package com.jetbrains.rider.aspire.services
 
+import com.intellij.execution.RunManager
 import com.intellij.execution.RunManagerListener
 import com.intellij.execution.RunnerAndConfigurationSettings
+import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
@@ -11,6 +13,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
@@ -57,6 +60,10 @@ class AspireHostManager(private val project: Project) : Disposable {
     }
 
     fun removeAspireHost(aspireHostProjectPath: Path) {
+        val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
+        val configurations = RunManager.getInstance(project).getConfigurationsList(configurationType)
+        if (configurations.isNotEmpty()) return
+
         LOG.trace { "Removing the Aspire host ${aspireHostProjectPath.absolutePathString()}" }
 
         val aspireHost = aspireHosts.remove(aspireHostProjectPath) ?: return
