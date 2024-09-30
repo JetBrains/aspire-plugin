@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Linq;
 using Aspire.V1;
 using AspireSessionHost.Generated;
 using Google.Protobuf.WellKnownTypes;

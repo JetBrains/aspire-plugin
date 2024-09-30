@@ -5,6 +5,7 @@ using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
 using JetBrains.Rd;
 using JetBrains.Rd.Impl;
+using Microsoft.Extensions.Configuration;
 
 namespace AspireSessionHost;
 

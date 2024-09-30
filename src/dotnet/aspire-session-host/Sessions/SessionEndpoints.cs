@@ -1,7 +1,11 @@
-﻿using System.Net.WebSockets;
+﻿using System;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Channels;
+using System.Threading.Tasks;
+using JetBrains.ReSharper.Psi.CSharp.ConstantValues;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -60,7 +64,7 @@ internal static class SessionEndpoints
         return TypedResults.BadRequest(unexpectedError);
     }
 
-    private static async Task<Results<Ok, NoContent, BadRequest<ErrorResponse>>> DeleteSession(
+    private static async Task<Results<Ok, RawStringErrorConstantValue.NoContent, BadRequest<ErrorResponse>>> DeleteSession(
         string sessionId,
         [FromQuery(Name = "api-version")] string apiVersion,
         SessionService service

@@ -1,8 +1,13 @@
-﻿using Aspire.V1;
+﻿using System;
+using System.Threading.Tasks;
+using Aspire.V1;
 using Grpc.Core;
 using Grpc.Net.Client.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Retry;
+using RetryPolicy = Grpc.Net.Client.Configuration.RetryPolicy;
 
 namespace AspireSessionHost.Resources;
 
