@@ -21,9 +21,12 @@ import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.generated.ResourceWrapper
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationParameters
+import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProfile
+import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
+import com.jetbrains.rider.runtime.DotNetExecutable
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.iterator
@@ -42,6 +45,8 @@ class AspireHost(
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
     private val resources = ConcurrentHashMap<String, AspireResource>()
+    private val handlers = mutableMapOf<String, ProcessHandler>()
+    private val lock = Any()
 
     val hostProjectPathString = hostProjectPath.absolutePathString()
 
@@ -68,12 +73,17 @@ class AspireHost(
                     handler: ProcessHandler
                 ) {
                     val profile = env.runProfile
-                    if (profile !is AspireHostConfiguration) return
+                    if (profile is AspireHostConfiguration) {
+                        val projectFilePath = Path(profile.parameters.projectFilePath)
+                        if (hostProjectPath != projectFilePath) return
 
-                    val projectFilePath = Path(profile.parameters.projectFilePath)
-                    if (hostProjectPath != projectFilePath) return
+                        start(handler, profile.parameters)
+                    } else if (profile is ProjectSessionProfile) {
+                        val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
+                        if (hostProjectPath != aspireHostProjectPath) return
 
-                    start(handler, profile.parameters)
+                        setHandlerForResource(profile.dotnetExecutable, handler)
+                    }
                 }
 
                 override fun processTerminated(
@@ -157,6 +167,25 @@ class AspireHost(
         resourceModel.isInitialized.set(true)
 
         expand()
+
+        val handler = synchronized(lock) {
+            handlers.remove(resource.serviceInstanceId)
+        }
+        handler?.let {resource.setHandler(it) }
+    }
+
+    private fun setHandlerForResource(dotnetExecutable: DotNetExecutable, processHandler: ProcessHandler) {
+        val serviceInstanceId = dotnetExecutable.getServiceInstanceId() ?: return
+        val resource = synchronized(lock) {
+            val resource = resources.entries.firstOrNull { it.value.serviceInstanceId == serviceInstanceId }?.value
+            if (resource == null) {
+                handlers[serviceInstanceId] = processHandler
+                return
+            }
+            resource
+        }
+
+        resource.setHandler(processHandler)
     }
 
     private fun selectHost() {

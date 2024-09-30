@@ -7,6 +7,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -20,14 +21,14 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 @Service(Service.Level.PROJECT)
-class AspireHostManager(project: Project) : Disposable {
+class AspireHostManager(private val project: Project) : Disposable {
     companion object {
         fun getInstance(project: Project) = project.service<AspireHostManager>()
 
         private val LOG = logger<AspireHostManager>()
     }
 
-    private val aspireHosts = ConcurrentHashMap<String, AspireHost>()
+    private val aspireHosts = ConcurrentHashMap<Path, AspireHost>()
 
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
 
@@ -39,15 +40,17 @@ class AspireHostManager(project: Project) : Disposable {
         return hosts
     }
 
-    fun getAspireHost(aspireHostProjectPathString: String) = aspireHosts[aspireHostProjectPathString]
+    fun getAspireHost(aspireHostProjectPathString: String) = aspireHosts[Path(aspireHostProjectPathString)]
 
-    fun addAspireHost(aspireHost: AspireHost) {
+    fun addAspireHost(aspireHostProjectPath: Path) {
+        if (aspireHosts.containsKey(aspireHostProjectPath)) return
+
+        LOG.trace { "Adding a new Aspire host ${aspireHostProjectPath.absolutePathString()}" }
+
+        val aspireHost = AspireHost(aspireHostProjectPath, project)
         Disposer.register(this, aspireHost)
 
-        if (aspireHosts.containsKey(aspireHost.hostProjectPathString)) return
-
-        LOG.trace("Adding a new Aspire host ${aspireHost.hostProjectPathString}")
-        aspireHosts[aspireHost.hostProjectPathString] = aspireHost
+        aspireHosts[aspireHostProjectPath] = aspireHost
 
         val event = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_ADDED,
@@ -58,10 +61,9 @@ class AspireHostManager(project: Project) : Disposable {
     }
 
     fun removeAspireHost(aspireHostProjectPath: Path) {
-        val hostProjectPathString = aspireHostProjectPath.absolutePathString()
-        LOG.trace("Removing the Aspire host $hostProjectPathString")
+        LOG.trace { "Removing the Aspire host ${aspireHostProjectPath.absolutePathString()}" }
 
-        val aspireHost = aspireHosts.remove(hostProjectPathString) ?: return
+        val aspireHost = aspireHosts.remove(aspireHostProjectPath) ?: return
 
         val event = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_REMOVED,
@@ -78,10 +80,9 @@ class AspireHostManager(project: Project) : Disposable {
         sessionHostModel: AspireSessionHostModel,
         lifetime: Lifetime
     ) {
-        val hostProjectPathString = aspireHostProjectPath.absolutePathString()
-        val aspireHost = aspireHosts[hostProjectPathString]
+        val aspireHost = aspireHosts[aspireHostProjectPath]
         if (aspireHost == null) {
-            LOG.warn("Unable to find Aspire host $hostProjectPathString")
+            LOG.warn("Unable to find Aspire host ${aspireHostProjectPath.absolutePathString()}")
             return
         }
 
@@ -96,17 +97,14 @@ class AspireHostManager(project: Project) : Disposable {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
             val params = configuration.parameters
-            val projectPath = Path(params.projectFilePath)
-            val aspireHost = AspireHost(projectPath, project)
-            getInstance(project).addAspireHost(aspireHost)
+            getInstance(project).addAspireHost(Path(params.projectFilePath))
         }
 
         override fun runConfigurationRemoved(settings: RunnerAndConfigurationSettings) {
             val configuration = settings.configuration
             if (configuration !is AspireHostConfiguration) return
             val params = configuration.parameters
-            val projectPath = Path(params.projectFilePath)
-            getInstance(project).removeAspireHost(projectPath)
+            getInstance(project).removeAspireHost(Path(params.projectFilePath))
         }
     }
 

@@ -1,6 +1,7 @@
 package com.jetbrains.rider.aspire.services
 
 import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
@@ -10,6 +11,9 @@ import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
+import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
+import com.jetbrains.rider.run.ConsoleKind
+import com.jetbrains.rider.run.createConsole
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -166,21 +170,38 @@ class AspireResource(
         }
     }
 
-    private fun update(resourceModel: ResourceModel) {
-        uid = resourceModel.uid
-        name = resourceModel.name
-        type = resourceModel.type
-        displayName = resourceModel.displayName
-        state = resourceModel.state
-        stateStyle = resourceModel.stateStyle
-        urls = resourceModel.urls
-        environment = resourceModel.environment
+    private fun update(model: ResourceModel) {
+        uid = model.uid
+        name = model.name
+        type = model.type
+        displayName = model.displayName
+        state = model.state
+        stateStyle = model.stateStyle
+        urls = model.urls
+        environment = model.environment
 
-        serviceInstanceId = resourceModel.getServiceInstanceId()
+        serviceInstanceId = model.getServiceInstanceId()
 
-        fillFromProperties(resourceModel.properties)
+        fillFromProperties(model.properties)
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
+
+        sendServiceChildrenChangedEvent()
+    }
+
+    fun setHandler(processHandler: ProcessHandler) {
+        if (type != ResourceType.Project) return
+
+        val handler =
+            if (processHandler is DebuggerWorkerProcessHandler) processHandler.debuggerWorkerRealHandler
+            else processHandler
+        val console = createConsole(
+            ConsoleKind.Normal,
+            handler,
+            project
+        )
+        Disposer.register(this, console)
+        consoleView = console
 
         sendServiceChildrenChangedEvent()
     }

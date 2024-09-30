@@ -23,7 +23,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         dotnetRuntime: DotNetCoreRuntime,
         sessionProcessEventListener: ProcessListener,
         sessionProcessTerminatedListener: ProcessListener,
-        sessionProcessLifetime: Lifetime
+        sessionProcessLifetime: Lifetime,
+        aspireHostProjectPath: Path?
     ) = DotNetProjectSessionRunProfile(
         sessionId,
         projectName,
@@ -31,7 +32,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         dotnetRuntime,
         sessionProcessEventListener,
         sessionProcessTerminatedListener,
-        sessionProcessLifetime
+        sessionProcessLifetime,
+        aspireHostProjectPath
     )
 
     override fun getDebugProfile(
@@ -43,7 +45,8 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         browserSettings: StartBrowserSettings?,
         sessionProcessEventListener: ProcessListener,
         sessionProcessTerminatedListener: ProcessListener,
-        sessionProcessLifetime: Lifetime
+        sessionProcessLifetime: Lifetime,
+        aspireHostProjectPath: Path?
     ) = DotNetProjectSessionDebugProfile(
         sessionId,
         projectName,
@@ -51,6 +54,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         dotnetRuntime,
         sessionProcessEventListener,
         sessionProcessTerminatedListener,
-        sessionProcessLifetime
+        sessionProcessLifetime,
+        aspireHostProjectPath
     )
 }
