@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.5.0] - 2024-10-01
+
 ### Added
 
 - [#129](https://github.com/JetBrains/aspire-plugin/issues/129) Support for Blazor Wasm projects
@@ -218,7 +220,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/JetBrains/aspire-plugin/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/JetBrains/aspire-plugin/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.3.0...v1.3.1
