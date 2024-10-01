@@ -41,6 +41,7 @@ class DummyMySqlJdbcUrl(properties: Collection<DriverPropertyInfo>) : JdbcUrl(pr
         return false
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     var serverName
         get() = get(Property.Server)
         set(value) = set(Property.Server, value)
@@ -53,10 +54,12 @@ class DummyMySqlJdbcUrl(properties: Collection<DriverPropertyInfo>) : JdbcUrl(pr
         get() = get(Property.Database)
         set(value) = set(Property.Database, value)
 
+    @Suppress("MemberVisibilityCanBePrivate")
     var user
         get() = get(Property.User)
         set(value) = set(Property.User, value)
 
+    @Suppress("MemberVisibilityCanBePrivate")
     var password
         get() = get(Property.Password)
         set(value) = set(Property.Password, value)

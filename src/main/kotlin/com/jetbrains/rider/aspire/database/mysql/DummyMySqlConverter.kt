@@ -8,7 +8,7 @@ import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shar
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shared.converters.ConverterBase
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shared.jdbcUrls.JdbcUrl
 
-class DummyMySqlConverter(private val project: Project) :
+class DummyMySqlConverter(@Suppress("unused") private val project: Project) :
     ConverterBase<DummyMySqlConnectionString, DummyMySqlJdbcUrl>() {
 
     init {

@@ -29,10 +29,12 @@ class DummyMySqlConnectionString(project: Project, properties: List<RdConnection
         get() = get(Property.Database)
         set(value) = set(Property.Database, value)
 
+    @Suppress("MemberVisibilityCanBePrivate")
     var username: String?
         get() = get(Property.Username)
         set(value) = set(Property.Username, value)
 
+    @Suppress("MemberVisibilityCanBePrivate")
     var password: String?
         get() = get(Property.Password)
         set(value) = set(Property.Password, value)

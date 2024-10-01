@@ -82,7 +82,8 @@ fun saveRunConfiguration(
     runConfigurationName: String,
     aspireHostLifetimeDefinition: LifetimeDefinition
 ) {
-    AspireHostRunManager.Companion.getInstance(project)
+    AspireHostRunManager
+        .getInstance(project)
         .saveRunConfiguration(aspireHostProjectPath, aspireHostLifetimeDefinition, runConfigurationName)
 }
 
@@ -97,7 +98,8 @@ suspend fun startSessionHostAndSubscribe(
         .syncPublisher(AspireSessionHostListener.TOPIC)
         .modelCreated(config.aspireHostProjectPath, sessionHostModel, config.aspireHostLifetime)
 
-    SessionHostManager.Companion.getInstance(project)
+    SessionHostManager
+        .getInstance(project)
         .startSessionHost(config, protocol.wire.serverPort, sessionHostModel)
 }
 

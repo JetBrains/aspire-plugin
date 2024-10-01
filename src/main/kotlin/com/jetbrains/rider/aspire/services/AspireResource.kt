@@ -43,6 +43,7 @@ class AspireResource(
         private set
     var state: ResourceState?
         private set
+    @Suppress("MemberVisibilityCanBePrivate")
     var stateStyle: ResourceStateStyle?
         private set
     var urls: Array<ResourceUrl>

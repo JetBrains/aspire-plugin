@@ -1,4 +1,4 @@
-﻿using Aspire.V1;
+﻿using Aspire.ResourceService.Proto.V1;
 using AspireSessionHost.Generated;
 using Grpc.Core;
 using JetBrains.Collections.Viewable;

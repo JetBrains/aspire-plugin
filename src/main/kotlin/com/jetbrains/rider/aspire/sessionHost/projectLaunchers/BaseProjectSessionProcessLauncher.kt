@@ -156,7 +156,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         aspireHostProjectPath: Path?
     ): RunProfile
 
-    protected suspend fun getDotNetExecutable(
+    private suspend fun getDotNetExecutable(
         sessionModel: SessionModel,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean,
@@ -171,7 +171,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         return executable
     }
 
-    protected fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
+    private fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
         val runtime = DotNetRuntime.detectRuntimeForProject(
             project,
             RunnableProjectKinds.DotNetCore,
@@ -187,7 +187,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         return runtime
     }
 
-    protected suspend fun enableHotReload(
+    private suspend fun enableHotReload(
         executable: DotNetExecutable,
         sessionProjectPath: Path,
         launchProfile: String?,

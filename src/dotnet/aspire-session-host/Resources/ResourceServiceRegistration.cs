@@ -1,4 +1,4 @@
-﻿using Aspire.V1;
+﻿using Aspire.ResourceService.Proto.V1;
 using Grpc.Core;
 using Grpc.Net.Client.Configuration;
 using Polly;

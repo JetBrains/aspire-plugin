@@ -1,5 +1,5 @@
 using System.Globalization;
-using Aspire.V1;
+using Aspire.ResourceService.Proto.V1;
 using AspireSessionHost.Generated;
 using Google.Protobuf.WellKnownTypes;
 using ResourceProperty = AspireSessionHost.Generated.ResourceProperty;
@@ -50,7 +50,7 @@ internal static class ResourceExtensions
         _ => ResourceStateStyle.Unknown
     };
 
-    private static ResourceProperty ToModel(this Aspire.V1.ResourceProperty property) => new(
+    private static ResourceProperty ToModel(this Aspire.ResourceService.Proto.V1.ResourceProperty property) => new(
         property.Name,
         property.HasDisplayName ? property.DisplayName : null,
         GetStringValue(property.Value)
@@ -81,7 +81,7 @@ internal static class ResourceExtensions
         return value.ToString();
     }
 
-    private static ResourceEnvironmentVariable ToModel(this Aspire.V1.EnvironmentVariable variable) => new(
+    private static ResourceEnvironmentVariable ToModel(this EnvironmentVariable variable) => new(
         variable.Name,
         variable.HasValue ? variable.Value : null
     );

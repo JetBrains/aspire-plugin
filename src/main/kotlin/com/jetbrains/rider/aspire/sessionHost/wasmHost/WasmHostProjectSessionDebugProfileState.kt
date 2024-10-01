@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package com.jetbrains.rider.aspire.sessionHost.wasmHost
 
 import com.intellij.execution.CantRunException
