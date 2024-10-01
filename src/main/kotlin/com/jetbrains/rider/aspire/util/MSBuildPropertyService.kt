@@ -116,7 +116,13 @@ class MSBuildPropertyService(private val project: Project) {
             }
         }
 
-        return RdTargetFrameworkId(versionInfo, ".NETCoreApp", targetFramework, true, false)
+        return RdTargetFrameworkId(
+            versionInfo,
+            ".NETCoreApp",
+            targetFramework,
+            isNetCoreApp = true,
+            isNetFramework = false
+        )
     }
 
     private fun getExecutablePath(runCommand: String): Path? {

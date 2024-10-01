@@ -18,7 +18,6 @@ import com.jetbrains.rider.debugger.wasm.BrowserHub
 import com.jetbrains.rider.run.configurations.HotReloadEnvironmentBuilder
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 

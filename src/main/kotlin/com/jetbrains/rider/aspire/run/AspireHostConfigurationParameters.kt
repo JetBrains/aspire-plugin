@@ -49,8 +49,8 @@ class AspireHostConfigurationParameters(
             "",
             true,
             hashMapOf(),
-            false,
-            true,
+            usePodmanRuntime = false,
+            trackUrl = true,
             DotNetStartBrowserParameters()
         )
     }
