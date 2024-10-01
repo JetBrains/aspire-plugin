@@ -3,7 +3,7 @@ using JetBrains.Lifetimes;
 
 // ReSharper disable ReplaceAsyncWithTaskReturn
 
-namespace AspireSessionHost.Sessions;
+namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
 
 internal sealed class SessionEventService(Connection connection) : IDisposable
 {

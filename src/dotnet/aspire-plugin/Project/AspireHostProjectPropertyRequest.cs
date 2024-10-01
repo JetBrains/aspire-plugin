@@ -3,7 +3,7 @@ using JetBrains.Application;
 using JetBrains.Application.Parts;
 using JetBrains.ProjectModel.Properties;
 
-namespace AspirePlugin.Project;
+namespace JetBrains.Rider.Aspire.Project;
 
 [ShellComponent(Instantiation.DemandAnyThreadSafe)]
 public class AspireHostProjectPropertyRequest : IProjectPropertiesRequest

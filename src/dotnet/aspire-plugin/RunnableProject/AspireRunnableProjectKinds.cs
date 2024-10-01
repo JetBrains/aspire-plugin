@@ -1,6 +1,6 @@
 ﻿using JetBrains.Rider.Model;
 
-namespace AspirePlugin.RunnableProject;
+namespace JetBrains.Rider.Aspire.RunnableProject;
 
 public static class AspireRunnableProjectKinds
 {

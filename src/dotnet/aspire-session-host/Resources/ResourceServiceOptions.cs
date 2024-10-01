@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace AspireSessionHost.Resources;
+namespace JetBrains.Rider.Aspire.SessionHost.Resources;
 
 public sealed class ResourceServiceOptions
 {

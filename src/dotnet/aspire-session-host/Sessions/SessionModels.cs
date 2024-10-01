@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
-namespace AspireSessionHost.Sessions;
+namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
 
 [UsedImplicitly]
 internal sealed record Info(

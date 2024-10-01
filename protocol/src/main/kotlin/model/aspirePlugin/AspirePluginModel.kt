@@ -29,7 +29,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
 
     init {
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.aspire.generated")
-        setting(CSharp50Generator.Namespace, "AspirePlugin.Generated")
+        setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Generated")
 
         callback("startSessionHost", StartSessionHostRequest, StartSessionHostResponse).async
         callback("stopSessionHost", StopSessionHostRequest, void).async

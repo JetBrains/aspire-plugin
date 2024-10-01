@@ -1,4 +1,4 @@
-﻿namespace AspireSessionHost;
+﻿namespace JetBrains.Rider.Aspire.SessionHost;
 
 public class ConnectionOptions
 {

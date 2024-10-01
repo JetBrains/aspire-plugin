@@ -1,4 +1,4 @@
-﻿namespace AspireSessionHost.Sessions;
+﻿namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
 
 internal static class SessionServiceRegistration
 {

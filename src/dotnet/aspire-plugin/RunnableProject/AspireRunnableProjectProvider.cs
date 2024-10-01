@@ -4,9 +4,9 @@ using JetBrains.ProjectModel.Properties;
 using JetBrains.ReSharper.Features.Running;
 using JetBrains.Rider.Model;
 using JetBrains.Util;
-using static AspirePlugin.Project.AspireHostProjectPropertyRequest;
+using static JetBrains.Rider.Aspire.Project.AspireHostProjectPropertyRequest;
 
-namespace AspirePlugin.RunnableProject;
+namespace JetBrains.Rider.Aspire.RunnableProject;
 
 [SolutionComponent]
 public class AspireRunnableProjectProvider(

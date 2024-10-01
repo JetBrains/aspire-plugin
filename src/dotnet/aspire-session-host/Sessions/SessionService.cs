@@ -1,8 +1,8 @@
-﻿using AspireSessionHost.Generated;
+﻿using JetBrains.Rider.Aspire.SessionHost.Generated;
 
 // ReSharper disable ReplaceAsyncWithTaskReturn
 
-namespace AspireSessionHost.Sessions;
+namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
 
 internal sealed class SessionService(Connection connection, ILogger<SessionService> logger)
 {

@@ -4,7 +4,7 @@ using Grpc.Net.Client.Configuration;
 using Polly;
 using Polly.Retry;
 
-namespace AspireSessionHost.Resources;
+namespace JetBrains.Rider.Aspire.SessionHost.Resources;
 
 internal static class ResourceServiceRegistration
 {

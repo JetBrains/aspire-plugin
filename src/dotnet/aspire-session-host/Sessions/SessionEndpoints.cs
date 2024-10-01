@@ -5,7 +5,7 @@ using System.Threading.Channels;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AspireSessionHost.Sessions;
+namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
 
 internal static class SessionEndpoints
 {

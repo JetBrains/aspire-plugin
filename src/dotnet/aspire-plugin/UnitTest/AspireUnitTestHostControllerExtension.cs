@@ -1,7 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using AspirePlugin.Generated;
-using AspirePlugin.Project;
 using JetBrains.Application.Parts;
 using JetBrains.Core;
 using JetBrains.ProjectModel;
@@ -13,12 +11,14 @@ using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Hosting;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Launch;
 using JetBrains.ReSharper.UnitTestFramework.Execution.TestRunner;
+using JetBrains.Rider.Aspire.Generated;
+using JetBrains.Rider.Aspire.Project;
 using JetBrains.Util;
 using JetBrains.Util.Dotnet.TargetFrameworkIds;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 
-namespace AspirePlugin.UnitTest;
+namespace JetBrains.Rider.Aspire.UnitTest;
 
 [SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRunnerHostControllerExtension

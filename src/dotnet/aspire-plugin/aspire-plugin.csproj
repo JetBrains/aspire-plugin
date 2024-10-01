@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <RootNamespace>AspirePlugin</RootNamespace>
+        <RootNamespace>JetBrains.Rider.Aspire</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

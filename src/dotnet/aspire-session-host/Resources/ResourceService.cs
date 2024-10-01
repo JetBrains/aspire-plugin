@@ -1,5 +1,5 @@
 ﻿using Aspire.ResourceService.Proto.V1;
-using AspireSessionHost.Generated;
+using JetBrains.Rider.Aspire.SessionHost.Generated;
 using Grpc.Core;
 using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Registry;
 
-namespace AspireSessionHost.Resources;
+namespace JetBrains.Rider.Aspire.SessionHost.Resources;
 
 internal sealed class ResourceService(
     Connection connection,

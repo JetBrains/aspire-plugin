@@ -1,10 +1,10 @@
-﻿using AspireSessionHost.Generated;
-using JetBrains.Collections.Viewable;
+﻿using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
 using JetBrains.Rd;
 using JetBrains.Rd.Impl;
+using JetBrains.Rider.Aspire.SessionHost.Generated;
 
-namespace AspireSessionHost;
+namespace JetBrains.Rider.Aspire.SessionHost;
 
 internal sealed class Connection : IDisposable
 {

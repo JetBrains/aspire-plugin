@@ -31,7 +31,7 @@ using JetBrains.Rd.Text;
 // ReSharper disable RedundantOverflowCheckingContext
 
 
-namespace AspireSessionHost.Generated
+namespace JetBrains.Rider.Aspire.SessionHost.Generated
 {
   
   

@@ -31,7 +31,7 @@ using JetBrains.Rd.Text;
 // ReSharper disable RedundantOverflowCheckingContext
 
 
-namespace AspireSessionHost.Generated
+namespace JetBrains.Rider.Aspire.SessionHost.Generated
 {
   
   
@@ -44,26 +44,26 @@ namespace AspireSessionHost.Generated
     //public fields
     [NotNull] public IRdCall<SessionModel, SessionCreationResult> CreateSession => _CreateSession;
     [NotNull] public IRdCall<string, bool> DeleteSession => _DeleteSession;
-    [NotNull] public ISource<AspireSessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
-    [NotNull] public ISource<AspireSessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
-    [NotNull] public ISource<AspireSessionHost.Generated.LogReceived> LogReceived => _LogReceived;
+    [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
+    [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
+    [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> LogReceived => _LogReceived;
     [NotNull] public IViewableMap<string, ResourceWrapper> Resources => _Resources;
     
     //private fields
     [NotNull] private readonly RdCall<SessionModel, SessionCreationResult> _CreateSession;
     [NotNull] private readonly RdCall<string, bool> _DeleteSession;
-    [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessStarted> _ProcessStarted;
-    [NotNull] private readonly RdSignal<AspireSessionHost.Generated.ProcessTerminated> _ProcessTerminated;
-    [NotNull] private readonly RdSignal<AspireSessionHost.Generated.LogReceived> _LogReceived;
+    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> _ProcessStarted;
+    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> _ProcessTerminated;
+    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> _LogReceived;
     [NotNull] private readonly RdMap<string, ResourceWrapper> _Resources;
     
     //primary constructor
     private AspireSessionHostModel(
       [NotNull] RdCall<SessionModel, SessionCreationResult> createSession,
       [NotNull] RdCall<string, bool> deleteSession,
-      [NotNull] RdSignal<AspireSessionHost.Generated.ProcessStarted> processStarted,
-      [NotNull] RdSignal<AspireSessionHost.Generated.ProcessTerminated> processTerminated,
-      [NotNull] RdSignal<AspireSessionHost.Generated.LogReceived> logReceived,
+      [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> processStarted,
+      [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> processTerminated,
+      [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> logReceived,
       [NotNull] RdMap<string, ResourceWrapper> resources
     )
     {
@@ -93,9 +93,9 @@ namespace AspireSessionHost.Generated
     ) : this (
       new RdCall<SessionModel, SessionCreationResult>(SessionModel.Read, SessionModel.Write, ReadSessionCreationResultNullable, WriteSessionCreationResultNullable),
       new RdCall<string, bool>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, JetBrains.Rd.Impl.Serializers.ReadBool, JetBrains.Rd.Impl.Serializers.WriteBool),
-      new RdSignal<AspireSessionHost.Generated.ProcessStarted>(AspireSessionHost.Generated.ProcessStarted.Read, AspireSessionHost.Generated.ProcessStarted.Write),
-      new RdSignal<AspireSessionHost.Generated.ProcessTerminated>(AspireSessionHost.Generated.ProcessTerminated.Read, AspireSessionHost.Generated.ProcessTerminated.Write),
-      new RdSignal<AspireSessionHost.Generated.LogReceived>(AspireSessionHost.Generated.LogReceived.Read, AspireSessionHost.Generated.LogReceived.Write),
+      new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Write),
+      new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Write),
+      new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived>(JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Read, JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Write),
       new RdMap<string, ResourceWrapper>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write)
     ) {}
     //deconstruct trait

@@ -1,11 +1,11 @@
 using System.Globalization;
 using Aspire.ResourceService.Proto.V1;
-using AspireSessionHost.Generated;
+using JetBrains.Rider.Aspire.SessionHost.Generated;
 using Google.Protobuf.WellKnownTypes;
-using ResourceProperty = AspireSessionHost.Generated.ResourceProperty;
-using ResourceType = AspireSessionHost.Generated.ResourceType;
+using ResourceProperty = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceProperty;
+using ResourceType = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceType;
 
-namespace AspireSessionHost.Resources;
+namespace JetBrains.Rider.Aspire.SessionHost.Resources;
 
 internal static class ResourceExtensions
 {
@@ -50,7 +50,7 @@ internal static class ResourceExtensions
         _ => ResourceStateStyle.Unknown
     };
 
-    private static ResourceProperty ToModel(this Aspire.ResourceService.Proto.V1.ResourceProperty property) => new(
+    private static ResourceProperty ToModel(this global::Aspire.ResourceService.Proto.V1.ResourceProperty property) => new(
         property.Name,
         property.HasDisplayName ? property.DisplayName : null,
         GetStringValue(property.Value)

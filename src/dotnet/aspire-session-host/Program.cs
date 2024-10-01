@@ -1,7 +1,7 @@
 using System.Text.Json;
-using AspireSessionHost;
-using AspireSessionHost.Resources;
-using AspireSessionHost.Sessions;
+using JetBrains.Rider.Aspire.SessionHost;
+using JetBrains.Rider.Aspire.SessionHost.Resources;
+using JetBrains.Rider.Aspire.SessionHost.Sessions;
 
 ParentProcessWatchdog.StartNewIfAvailable();
 

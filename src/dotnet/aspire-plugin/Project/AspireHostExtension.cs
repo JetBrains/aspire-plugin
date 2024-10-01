@@ -6,7 +6,7 @@ using JetBrains.ProjectModel.Properties;
 using JetBrains.RdBackend.Common.Features.ProjectModel.View;
 using JetBrains.Util;
 
-namespace AspirePlugin.Project;
+namespace JetBrains.Rider.Aspire.Project;
 
 [ShellComponent(Instantiation.DemandAnyThreadSafe)]
 public class AspireHostExtension : ProjectModelViewPresenterExtension

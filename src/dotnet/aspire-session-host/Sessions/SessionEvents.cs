@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AspireSessionHost.Sessions;
+namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
 
 [JsonDerivedType(typeof(ProcessStartedEvent))]
 [JsonDerivedType(typeof(LogReceivedEvent))]
