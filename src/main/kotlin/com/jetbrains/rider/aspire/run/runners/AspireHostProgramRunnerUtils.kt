@@ -11,6 +11,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.rd.framework.*
+import com.jetbrains.rd.protocol.IdeRootMarshallersProvider
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rdclient.protocol.RdDispatcher
@@ -108,7 +109,7 @@ private suspend fun startSessionHostProtocol(lifetime: Lifetime) = withContext(D
     val wire = SocketWire.Server(lifetime, dispatcher, null)
     val protocol = Protocol(
         "AspireSessionHost::protocol",
-        Serializers(),
+        Serializers(IdeRootMarshallersProvider),
         Identities(IdKind.Server),
         dispatcher,
         wire,
