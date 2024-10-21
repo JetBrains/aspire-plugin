@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Application.Parts;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Properties;
 using JetBrains.ReSharper.Features.Running;
@@ -8,7 +9,7 @@ using static JetBrains.Rider.Aspire.Project.AspireHostProjectPropertyRequest;
 
 namespace JetBrains.Rider.Aspire.RunnableProject;
 
-[SolutionComponent]
+[SolutionComponent(Instantiation.DemandAnyThreadUnsafe)]
 public class AspireRunnableProjectProvider(
     ProjectRunnableOutputDetector projectRunnableOutputDetector,
     ILogger logger
