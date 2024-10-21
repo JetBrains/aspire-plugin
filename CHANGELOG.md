@@ -4,9 +4,11 @@
 
 ## [Unreleased]
 
+## [1.5.1] - 2024-10-21
+
 ### Fixed
 
-- [#263](https://github.com/JetBrains/aspire-plugin/issues/263) Opening invalid project url 
+- [#263](https://github.com/JetBrains/aspire-plugin/issues/263) Opening invalid project url
 
 ## [1.5.0] - 2024-10-01
 
@@ -224,7 +226,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/JetBrains/aspire-plugin/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/JetBrains/aspire-plugin/compare/v1.3.1...v1.4.0
