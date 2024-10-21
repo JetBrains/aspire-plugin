@@ -288,8 +288,8 @@ class SessionExecutableFactory(private val project: Project) {
         )
         val parameterProcessor = ExecutableParameterProcessor.getInstance(project)
         val processedParams = parameterProcessor.processStrings(params, projectOptions)
-        val launchUrl = processedParams[applicationUrlKey]
-        val applicationUrl = processedParams[launchUrlKey]?.split(';')?.firstOrNull()
+        val launchUrl = processedParams[launchUrlKey]
+        val applicationUrl = processedParams[applicationUrlKey]?.split(';')?.firstOrNull()
         val browserUrl = concatUrl(applicationUrl, launchUrl)
         val webBrowser = hostRunConfiguration?.parameters?.startBrowserParameters?.browser
 

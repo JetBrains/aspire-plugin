@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#263](https://github.com/JetBrains/aspire-plugin/issues/263) Opening invalid project url 
+
 ## [1.5.0] - 2024-10-01
 
 ### Added
