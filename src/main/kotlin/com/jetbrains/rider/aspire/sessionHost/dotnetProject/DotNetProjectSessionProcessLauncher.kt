@@ -13,6 +13,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
     override val priority = 10
 
     override val hotReloadExtension = DotNetProjectHotReloadConfigurationExtension()
+    override val launchBrowserInDebugSession = true
 
     override suspend fun isApplicable(projectPath: String, project: Project) = true
 

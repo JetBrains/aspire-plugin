@@ -21,6 +21,7 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
     override val priority = 1
 
     override val hotReloadExtension = WasmHostHotReloadConfigurationExtension()
+    override val launchBrowserInDebugSession = false
 
     override suspend fun isApplicable(projectPath: String, project: Project): Boolean {
         val nugetChecker = RiderNuGetInstalledPackageCheckerHost.Companion.getInstance(project)

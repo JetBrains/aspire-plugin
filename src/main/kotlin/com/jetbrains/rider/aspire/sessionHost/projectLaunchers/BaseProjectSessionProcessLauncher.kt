@@ -40,6 +40,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
     }
 
     protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
+    protected abstract val launchBrowserInDebugSession: Boolean
 
     override suspend fun launchRunProcess(
         sessionId: String,
@@ -52,7 +53,12 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
     ) {
         LOG.trace { "Starting run session for ${sessionModel.projectPath}" }
 
-        val (executable, _) = getDotNetExecutable(sessionModel, hostRunConfiguration, true, project) ?: return
+        val (executable, _) = getDotNetExecutable(
+            sessionModel,
+            hostRunConfiguration,
+            true,
+            project
+        ) ?: return
         val (executableWithHotReload, hotReloadCallback) = enableHotReload(
             executable,
             Path(sessionModel.projectPath),
@@ -112,7 +118,12 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
     ) {
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
 
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, hostRunConfiguration, false, project) ?: return
+        val (executable, browserSettings) = getDotNetExecutable(
+            sessionModel,
+            hostRunConfiguration,
+            launchBrowserInDebugSession,
+            project
+        ) ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         val projectPath = Path(sessionModel.projectPath)
