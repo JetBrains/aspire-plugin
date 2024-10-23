@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.5.2] - 2024-10-23
+
 ### Added
 
 - Setting to disable browser launch for child projects
@@ -230,7 +232,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.1...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.2...HEAD
+[1.5.2]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/JetBrains/aspire-plugin/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.4.0...v1.4.1
