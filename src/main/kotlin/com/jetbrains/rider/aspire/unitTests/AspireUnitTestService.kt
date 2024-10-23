@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.platform.util.idea.LifetimedService
-import com.jetbrains.rd.protocol.IdeRootMarshallersProvider
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
@@ -115,7 +114,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
         val wire = SocketWire.Server(lifetime, dispatcher, null)
         val protocol = Protocol(
             "AspireSessionHost::protocol",
-            Serializers(IdeRootMarshallersProvider),
+            Serializers(),
             Identities(IdKind.Server),
             dispatcher,
             wire,
