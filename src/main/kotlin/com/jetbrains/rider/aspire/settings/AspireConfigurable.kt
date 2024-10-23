@@ -10,6 +10,10 @@ class AspireConfigurable: BoundConfigurable(AspireBundle.message("configurable.A
 
     override fun createPanel() = panel {
         row {
+            checkBox(AspireBundle.message("configurable.Aspire.do.not.launch.browser"))
+                .bindSelected(settings::doNotLaunchBrowserForProjects)
+        }
+        row {
             checkBox(AspireBundle.message("configurable.Aspire.connect.to.database"))
                 .bindSelected(settings::connectToDatabase)
         }

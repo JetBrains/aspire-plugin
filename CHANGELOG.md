@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Setting to disable browser launch for child projects
+
 ## [1.5.1] - 2024-10-21
 
 ### Fixed

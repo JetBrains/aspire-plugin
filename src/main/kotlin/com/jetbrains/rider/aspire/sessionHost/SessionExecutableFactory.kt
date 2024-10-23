@@ -14,6 +14,7 @@ import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.MSBuildPropertyService
 import com.jetbrains.rider.aspire.util.getStartBrowserAction
 import com.jetbrains.rider.model.RdTargetFrameworkId
@@ -93,11 +94,13 @@ class SessionExecutableFactory(private val project: Project) {
         val browserSettings = launchProfile?.let {
             getStartBrowserSettings(Path(runnableProject.projectFilePath), it, envs, output.tfm, hostRunConfiguration)
         }
-        val browserAction = if (addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
-            getStartBrowserAction(hostRunConfiguration, browserSettings)
-        } else {
-            { _, _, _ -> }
-        }
+        val launchBrowser = AspireSettings.getInstance().doNotLaunchBrowserForProjects.not()
+        val browserAction =
+            if (launchBrowser && addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
+                getStartBrowserAction(hostRunConfiguration, browserSettings)
+            } else {
+                { _, _, _ -> }
+            }
 
         LOG.trace { "Executable parameters for runnable project (${runnableProject.projectFilePath}): $executableParams" }
         LOG.trace { "Browser settings for runnable project (${runnableProject.projectFilePath}): $browserSettings" }
@@ -153,11 +156,13 @@ class SessionExecutableFactory(private val project: Project) {
         val browserSettings = launchProfile?.let {
             getStartBrowserSettings(sessionProjectPath, it, envs, properties.targetFramework, hostRunConfiguration)
         }
-        val browserAction = if (addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
-            getStartBrowserAction(hostRunConfiguration, browserSettings)
-        } else {
-            { _, _, _ -> }
-        }
+        val launchBrowser = AspireSettings.getInstance().doNotLaunchBrowserForProjects.not()
+        val browserAction =
+            if (launchBrowser && addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
+                getStartBrowserAction(hostRunConfiguration, browserSettings)
+            } else {
+                { _, _, _ -> }
+            }
 
         LOG.trace { "Executable parameters for external project (${sessionProjectPath.absolutePathString()}): $executableParams" }
         LOG.trace { "Browser settings for external project (${sessionProjectPath.absolutePathString()}): $browserSettings" }
