@@ -13,6 +13,7 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.rider.aspire.AspireBundle
+import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.services.AspireResource
 import com.jetbrains.rider.aspire.util.getIcon
@@ -28,7 +29,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
 
     private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel {
         row {
-            val resourceIcon = getIcon(resourceData.type, resourceData.state)
+            val resourceIcon = getIcon(resourceData.type, resourceData.state, resourceData.healthStatus)
             icon(resourceIcon)
                 .gap(RightGap.SMALL)
             copyableLabel(resourceData.displayName)
@@ -60,8 +61,20 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             if (state != null) {
                 separator()
                     .gap(RightGap.SMALL)
-                copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
-                    .gap(RightGap.COLUMNS)
+                val stateLabel = copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
+
+                val healthStatus = resourceData.healthStatus
+                if (state == ResourceState.Running && healthStatus != null) {
+                    stateLabel
+                        .gap(RightGap.SMALL)
+
+                    copyableLabel("(${healthStatus.name})", color = UIUtil.FontColor.BRIGHTER)
+                        .gap(RightGap.COLUMNS)
+                }
+                else {
+                    stateLabel
+                        .gap(RightGap.COLUMNS)
+                }
             }
 
             if (resourceData.type == ResourceType.Project) {
@@ -98,6 +111,9 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         }.bottomGap(BottomGap.SMALL)
         resourceData.state?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
+        }
+        resourceData.healthStatus?.let {
+            row(AspireBundle.message("service.tab.dashboard.properties.health.status")) { copyableLabel(it.name) }
         }
         resourceData.startTime?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }

@@ -43,8 +43,7 @@ class AspireResource(
         private set
     var state: ResourceState?
         private set
-    @Suppress("MemberVisibilityCanBePrivate")
-    var stateStyle: ResourceStateStyle?
+    var healthStatus: ResourceHealthStatus?
         private set
     var urls: Array<ResourceUrl>
         private set
@@ -93,7 +92,7 @@ class AspireResource(
         type = model?.type ?: ResourceType.Unknown
         displayName = model?.displayName ?: ""
         state = model?.state
-        stateStyle = model?.stateStyle
+        healthStatus = model?.healthStatus
         urls = model?.urls ?: emptyArray()
         environment = model?.environment ?: emptyArray()
 
@@ -177,7 +176,7 @@ class AspireResource(
         type = model.type
         displayName = model.displayName
         state = model.state
-        stateStyle = model.stateStyle
+        healthStatus = model.healthStatus
         urls = model.urls
         environment = model.environment
 
