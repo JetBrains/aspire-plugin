@@ -80,15 +80,15 @@
 
     <actions>
         <action id="Aspire.Settings"
-                class="com.jetbrains.rider.aspire.actions.dashboard.AspireSettingsAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireSettingsAction"
                 icon="AllIcons.General.Settings"/>
         <action id="Aspire.Help"
-                class="com.jetbrains.rider.aspire.actions.dashboard.AspireHelpAction"/>
+                class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireHelpAction"/>
         <action id="Aspire.Dashboard"
-                class="com.jetbrains.rider.aspire.actions.dashboard.AspireOpenDashboardAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireOpenDashboardAction"
                 icon="AllIcons.General.Web"/>
         <action id="Aspire.Manifest"
-                class="com.jetbrains.rider.aspire.actions.dashboard.AspireManifestAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireManifestAction"
                 icon="AllIcons.FileTypes.Json"/>
         <action id="Aspire.Solution.Manifest"
                 class="com.jetbrains.rider.aspire.actions.ManifestGenerationAction"
@@ -96,22 +96,22 @@
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
         <action id="Aspire.Resource.Start"
-                class="com.jetbrains.rider.aspire.actions.dashboard.StartResourceAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.resource.StartResourceAction"
                 icon="AllIcons.Actions.Execute"/>
         <action id="Aspire.Resource.Restart"
-                class="com.jetbrains.rider.aspire.actions.dashboard.RestartResourceAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.resource.RestartResourceAction"
                 icon="AllIcons.Actions.Restart"/>
         <action id="Aspire.Resource.Stop"
-                class="com.jetbrains.rider.aspire.actions.dashboard.StopResourceAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.resource.StopResourceAction"
                 icon="AllIcons.Actions.Suspend"/>
         <action id="Aspire.Host.Run"
-                class="com.jetbrains.rider.aspire.actions.dashboard.RunHostAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.host.RunHostAction"
                 icon="AllIcons.Actions.Execute"/>
         <action id="Aspire.Host.Debug"
-                class="com.jetbrains.rider.aspire.actions.dashboard.DebugHostAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.host.DebugHostAction"
                 icon="AllIcons.Actions.StartDebugger"/>
         <action id="Aspire.Host.Stop"
-                class="com.jetbrains.rider.aspire.actions.dashboard.StopHostAction"
+                class="com.jetbrains.rider.aspire.actions.dashboard.host.StopHostAction"
                 icon="AllIcons.Actions.Suspend"/>
     </actions>
 

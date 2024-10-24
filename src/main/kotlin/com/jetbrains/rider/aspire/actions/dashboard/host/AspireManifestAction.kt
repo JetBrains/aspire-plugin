@@ -1,13 +1,13 @@
-package com.jetbrains.rider.aspire.actions.dashboard
+package com.jetbrains.rider.aspire.actions.dashboard.host
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.jetbrains.rider.aspire.run.AspireHostRunManager
+import com.jetbrains.rider.aspire.manifest.ManifestService
 import com.jetbrains.rider.aspire.services.AspireHostManager
 import com.jetbrains.rider.aspire.util.ASPIRE_HOST_PATH
 
-class RunHostAction : AnAction() {
+class AspireManifestAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val hostPath = event.getData(ASPIRE_HOST_PATH) ?: return
@@ -15,9 +15,9 @@ class RunHostAction : AnAction() {
             .getInstance(project)
             .getAspireHost(hostPath)
             ?: return
+        val hostProjectPath = hostService.hostProjectPath
 
-        AspireHostRunManager.getInstance(project)
-            .executeConfigurationForHost(hostService, false)
+        ManifestService.getInstance(project).generateManifest(hostProjectPath)
     }
 
     override fun update(event: AnActionEvent) {
@@ -36,8 +36,7 @@ class RunHostAction : AnAction() {
             return
         }
 
-        event.presentation.isVisible = true
-        event.presentation.isEnabled = !hostService.isActive
+        event.presentation.isEnabledAndVisible = true
     }
 
     override fun getActionUpdateThread() = ActionUpdateThread.BGT
