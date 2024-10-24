@@ -115,8 +115,14 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         resourceData.healthStatus?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.health.status")) { copyableLabel(it.name) }
         }
-        resourceData.startTime?.let {
+        resourceData.createdAt?.let {
+            row(AspireBundle.message("service.tab.dashboard.properties.creation.time")) { copyableLabel(it.toString()) }
+        }
+        resourceData.startedAt?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }
+        }
+        resourceData.stoppedAt?.let {
+            row(AspireBundle.message("service.tab.dashboard.properties.stop.time")) { copyableLabel(it.toString()) }
         }
         resourceData.pid?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.pid")) { copyableLabel(it.toString()) }

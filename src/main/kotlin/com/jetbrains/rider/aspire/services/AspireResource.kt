@@ -27,7 +27,7 @@ class AspireResource(
     val lifetime: Lifetime,
     private val aspireHost: AspireHost,
     private val project: Project
-): Disposable {
+) : Disposable {
 
     val serviceViewContributor: AspireResourceServiceViewContributor by lazy {
         AspireResourceServiceViewContributor(this)
@@ -55,7 +55,11 @@ class AspireResource(
     var serviceInstanceId: String? = null
         private set
 
-    var startTime: LocalDateTime? = null
+    var createdAt: LocalDateTime? = null
+        private set
+    var startedAt: LocalDateTime? = null
+        private set
+    var stoppedAt: LocalDateTime? = null
         private set
     var exitCode: Int? = null
         private set
@@ -95,6 +99,9 @@ class AspireResource(
         displayName = model?.displayName ?: ""
         state = model?.state
         healthStatus = model?.healthStatus
+
+        fillDates(model)
+
         urls = model?.urls ?: emptyArray()
         environment = model?.environment ?: emptyArray()
         volumes = model?.volumes ?: emptyArray()
@@ -117,14 +124,25 @@ class AspireResource(
         })
     }
 
+    private fun fillDates(model: ResourceModel?) {
+        val timezone = TimeZone.currentSystemDefault()
+        createdAt = model?.createdAt
+            ?.time
+            ?.let { Instant.fromEpochMilliseconds(it) }
+            ?.toLocalDateTime(timezone)
+        startedAt = model?.startedAt
+            ?.time
+            ?.let { Instant.fromEpochMilliseconds(it) }
+            ?.toLocalDateTime(timezone)
+        stoppedAt = model?.stoppedAt
+            ?.time
+            ?.let { Instant.fromEpochMilliseconds(it) }
+            ?.toLocalDateTime(timezone)
+    }
+
     private fun fillFromProperties(properties: Array<ResourceProperty>) {
         for (property in properties) {
             when (property.name) {
-                "resource.createTime" -> {
-                    property.value?.let {
-                        startTime = Instant.parse(it).toLocalDateTime(TimeZone.currentSystemDefault())
-                    }
-                }
 
                 "resource.exitCode" -> {
                     property.value?.let { exitCode = it.toDouble().roundToInt() }
@@ -180,6 +198,9 @@ class AspireResource(
         displayName = model.displayName
         state = model.state
         healthStatus = model.healthStatus
+
+        fillDates(model)
+
         urls = model.urls
         environment = model.environment
         volumes = model.volumes
