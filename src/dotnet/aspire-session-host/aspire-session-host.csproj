@@ -29,7 +29,7 @@
     <PackageReference Include="Grpc.Core.Api" />
     <PackageReference Include="Polly.Core" />
     <PackageReference Include="Polly.Extensions" />
-    <PackageReference Include="Microsoft.AspNetCore.App.Ref" />
+    <PackageReference Include="Microsoft.AspNetCore.App.Ref" Condition="$(InternalBuild)" />
     <PackageReference Include="Grpc.AspNetCore.Server" /><PackageReference Include="Grpc.AspNetCore.Server.ClientFactory" />
     <PackageReference Include="Grpc.Tools" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
