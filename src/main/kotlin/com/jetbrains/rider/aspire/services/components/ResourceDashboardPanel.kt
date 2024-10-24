@@ -61,18 +61,18 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             if (state != null) {
                 separator()
                     .gap(RightGap.SMALL)
-                val stateLabel = copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
 
                 val healthStatus = resourceData.healthStatus
-                if (state == ResourceState.Running && healthStatus != null) {
-                    stateLabel
-                        .gap(RightGap.SMALL)
+                val hasHealthStatus = state == ResourceState.Running && healthStatus != null
 
+                copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
+                    .apply {
+                        if (hasHealthStatus) gap(RightGap.SMALL)
+                        else gap(RightGap.COLUMNS)
+                    }
+
+                if (hasHealthStatus) {
                     copyableLabel("(${healthStatus.name})", color = UIUtil.FontColor.BRIGHTER)
-                        .gap(RightGap.COLUMNS)
-                }
-                else {
-                    stateLabel
                         .gap(RightGap.COLUMNS)
                 }
             }
@@ -154,6 +154,28 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             row(AspireBundle.message("service.tab.dashboard.properties.container.args")) { copyableLabel(it) }
         }
         separator()
+
+        if (resourceData.volumes.isNotEmpty()) {
+            row {
+                label(AspireBundle.message("service.tab.dashboard.volumes")).bold()
+            }.bottomGap(BottomGap.SMALL)
+            resourceData.volumes
+                .sortedBy { it.source }
+                .forEach { volume ->
+                    row {
+                        copyableLabel("${volume.source} : ${volume.target}")
+                            .gap(RightGap.SMALL)
+
+                        copyableLabel(volume.mountType, color = UIUtil.FontColor.BRIGHTER)
+                            .apply { if (volume.isReadOnly) gap(RightGap.SMALL) }
+
+                        if (volume.isReadOnly) {
+                            copyableLabel("(${AspireBundle.message("service.tab.dashboard.volumes.readonly")})")
+                        }
+                    }
+                }
+            separator()
+        }
 
         if (resourceData.environment.isNotEmpty()) {
             row {

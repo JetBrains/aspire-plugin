@@ -49,6 +49,8 @@ class AspireResource(
         private set
     var environment: Array<ResourceEnvironmentVariable>
         private set
+    var volumes: Array<ResourceVolume>
+        private set
 
     var serviceInstanceId: String? = null
         private set
@@ -95,6 +97,7 @@ class AspireResource(
         healthStatus = model?.healthStatus
         urls = model?.urls ?: emptyArray()
         environment = model?.environment ?: emptyArray()
+        volumes = model?.volumes ?: emptyArray()
 
         serviceInstanceId = model?.getServiceInstanceId()
 
@@ -179,6 +182,7 @@ class AspireResource(
         healthStatus = model.healthStatus
         urls = model.urls
         environment = model.environment
+        volumes = model.volumes
 
         serviceInstanceId = model.getServiceInstanceId()
 
