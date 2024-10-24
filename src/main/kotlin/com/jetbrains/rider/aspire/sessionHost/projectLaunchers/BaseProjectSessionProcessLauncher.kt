@@ -6,8 +6,10 @@ import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.ProcessListener
+import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
@@ -89,7 +91,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             return
         }
 
-        hotReloadCallback?.let { environment.callback = it }
+        setProgramCallbacks(environment, hotReloadCallback)
 
         withContext(Dispatchers.EDT) {
             environment.runner.execute(environment)
@@ -148,6 +150,8 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             LOG.warn("Unable to create debug execution environment")
             return
         }
+
+        setProgramCallbacks(environment)
 
         withContext(Dispatchers.EDT) {
             environment.runner.execute(environment)
@@ -230,5 +234,25 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         }
 
         return hotReloadExtension.execute(executable, lifetime, project)
+    }
+
+    private fun setProgramCallbacks(
+        environment: ExecutionEnvironment,
+        hotReloadCallback: ProgramRunner.Callback? = null
+    ) {
+        environment.callback = object : ProgramRunner.Callback {
+            override fun processStarted(runContentDescriptor: RunContentDescriptor?) {
+                runContentDescriptor?.apply {
+                    isActivateToolWindowWhenAdded = false
+                    isAutoFocusContent = false
+                }
+
+                hotReloadCallback?.processStarted(runContentDescriptor)
+            }
+
+            override fun processNotStarted(error: Throwable?) {
+                hotReloadCallback?.processNotStarted(error)
+            }
+        }
     }
 }

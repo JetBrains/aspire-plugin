@@ -38,7 +38,7 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
-    ) = WasmHostSessionRunProfile(
+    ) = WasmHostProjectSessionRunProfile(
         sessionId,
         projectName,
         dotnetExecutable,

@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
 import com.intellij.execution.DefaultExecutionResult
