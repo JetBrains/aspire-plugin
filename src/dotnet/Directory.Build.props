@@ -1,6 +1,9 @@
 <Project>
   <Sdk Name="JetBrains.Build.VersionLockFileTargets" Version="0.0.4" />
-  
+  <PropertyGroup>
+    <IsIndependentBuild Condition="'$(SolutionFileName)' == 'aspire-plugin.sln'">True</IsIndependentBuild>
+  </PropertyGroup>
+
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -16,4 +19,6 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG;JET_MODE_ASSERT</DefineConstants>
   </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)..\..\build\DotNetSdkPath.generated.props" Condition="'$(IsIndependentBuild)' == 'True'"/>
 </Project>

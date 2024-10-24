@@ -4,7 +4,9 @@ import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.Constants
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
+import org.jetbrains.kotlin.daemon.common.toHexString
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlin.io.path.absolutePathString
 
 plugins {
     alias(libs.plugins.kotlin) // Kotlin support
@@ -16,6 +18,10 @@ plugins {
 
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
+
+val repoRoot = projectDir
+val dotNetSdkPathPropsPath = File("build", "DotNetSdkPath.generated.props")
+val nugetConfigPath = File(repoRoot, "NuGet.Config")
 
 // Set the JVM language level used to build the project.
 kotlin {
@@ -165,6 +171,45 @@ tasks {
         dependsOn(publishSessionHost)
     }
 
+    val writeDotNetSdkPathProps = create("writeDotNetSdkPathProps") {
+        dependsOn(Constants.Tasks.INITIALIZE_INTELLIJ_PLATFORM_PLUGIN)
+        inputs.property("platformPath") { intellijPlatform.platformPath.toString() }
+        outputs.file(dotNetSdkPathPropsPath)
+        doLast {
+            dotNetSdkPathPropsPath.writeTextIfChanged(
+                """<Project>
+  <PropertyGroup>
+    <DotNetSdkPath>${intellijPlatform.platformPath.resolve("lib").resolve("DotNetSdkForRdPlugins").absolutePathString()}</DotNetSdkPath>
+  </PropertyGroup>
+</Project>
+"""
+            )
+        }
+    }
+
+    val writeNuGetConfig = create("writeNuGetConfig") {
+        dependsOn(Constants.Tasks.INITIALIZE_INTELLIJ_PLATFORM_PLUGIN)
+        inputs.property("platformPath") { intellijPlatform.platformPath.toString() }
+        outputs.file(nugetConfigPath)
+        doLast {
+            nugetConfigPath.writeTextIfChanged(
+                """<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="resharper-sdk" value="${
+                    intellijPlatform.platformPath.resolve("lib").resolve("DotNetSdkForRdPlugins").absolutePathString()
+                }" />
+  </packageSources>
+</configuration>
+"""
+            )
+        }
+    }
+
+    val prepare = create("prepare") {
+        dependsOn(":protocol:rdgen", writeNuGetConfig, writeDotNetSdkPathProps)
+      }
+
     withType<PrepareSandboxTask> {
         dependsOn(publishSessionHost)
 
@@ -230,5 +275,14 @@ intellijPlatformTesting {
                 robotServerPlugin()
             }
         }
+    }
+}
+
+fun File.writeTextIfChanged(content: String) {
+    val bytes = content.toByteArray()
+
+    if (!exists() || readBytes().toHexString() != bytes.toHexString()) {
+        println("Writing $path")
+        writeBytes(bytes)
     }
 }
