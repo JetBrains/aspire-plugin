@@ -18,9 +18,6 @@ import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
-import com.jetbrains.rider.build.BuildParameters
-import com.jetbrains.rider.build.tasks.BuildTaskThrottler
-import com.jetbrains.rider.model.BuildTarget
 import com.jetbrains.rider.run.pid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +52,10 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         scope.launch {
             commands.collect { handleCommand(it) }
         }
+    }
+
+    suspend fun submitCommand(command: LaunchSessionCommand) {
+        commands.emit(command)
     }
 
     private suspend fun handleCommand(command: LaunchSessionCommand) {
@@ -122,73 +123,6 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         session.events.tryEmit(SessionTerminated(command.sessionId, 0))
     }
 
-    suspend fun submitCommand(command: LaunchSessionCommand) {
-        commands.emit(command)
-    }
-
-    fun getResourceIdByProject(projectPath: Path) = projectPathToResourceIdMap[projectPath]?.second
-
-    fun isResourceRunning(resourceId: String): Boolean {
-        val sessionId = resourceToSessionMap[resourceId] ?: return false
-        val session = sessions[sessionId] ?: return false
-        return !session.lifetimeDefinition.isNotAlive
-    }
-
-    suspend fun restartResource(resourceId: String, withDebugger: Boolean) {
-        LOG.trace("Restarting resource $resourceId")
-
-        val sessionId = resourceToSessionMap[resourceId] ?: return
-        val session = sessions[sessionId] ?: return
-        if (session.lifetimeDefinition.isNotAlive) return
-
-        val sessionUnderRestart = sessionsUnderRestart.putIfAbsent(sessionId, Unit)
-        if (sessionUnderRestart != null) return
-
-        val processLauncher = SessionProcessLauncher.getInstance(project)
-        val sessionProcessLifetime = withContext(Dispatchers.EDT) {
-            session.processLifetimes.next()
-        }
-
-        val buildParameters = BuildParameters(
-            BuildTarget(),
-            listOf(session.model.projectPath),
-            silentMode = true
-        )
-        BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
-
-        val sessionProcessEventListener = createSessionProcessEventListener(session.id, session.events)
-        val sessionProcessTerminatedListener = createSessionProcessTerminatedListener(session.id)
-
-        processLauncher.launchSessionProcess(
-            session.id,
-            session.model,
-            sessionProcessEventListener,
-            sessionProcessTerminatedListener,
-            sessionProcessLifetime.lifetime,
-            withDebugger,
-            session.hostRunConfiguration
-        )
-    }
-
-    suspend fun stopResource(resourceId: String) {
-        LOG.trace("Stopping resource $resourceId")
-
-        val sessionId = resourceToSessionMap.remove(resourceId) ?: return
-        projectPathToResourceIdMap.removeIf { it.value.second == resourceId }
-        sessionsUnderRestart.remove(sessionId)
-        val session = sessions.remove(sessionId) ?: return
-        if (session.lifetimeDefinition.isNotAlive) return
-
-        LOG.trace("Stopping session $sessionId")
-
-        withContext(Dispatchers.EDT) {
-            session.lifetimeDefinition.terminate()
-        }
-
-        session.events.tryEmit(SessionTerminated(sessionId, 0))
-    }
-
-
     private fun createSessionProcessEventListener(
         sessionId: String,
         sessionEvents: MutableSharedFlow<SessionEvent>
@@ -223,27 +157,23 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     private fun createSessionProcessTerminatedListener(sessionId: String): ProcessListener =
         object : ProcessAdapter() {
             override fun processTerminated(event: ProcessEvent) {
-                sessionProcessWasTerminated(sessionId, event.exitCode, event.text)
+                LOG.trace("Stopping session $sessionId (${event.exitCode}, ${event.text})")
+
+                val sessionUnderRestart = sessionsUnderRestart.remove(sessionId)
+                if (sessionUnderRestart != null) return
+
+                resourceToSessionMap.removeIf { it.value == sessionId }
+                projectPathToResourceIdMap.removeIf { it.value.first == sessionId }
+                val session = sessions.remove(sessionId) ?: return
+                if (session.lifetimeDefinition.isNotAlive) return
+
+                application.invokeLater {
+                    session.lifetimeDefinition.terminate()
+                }
+
+                session.events.tryEmit(SessionTerminated(sessionId, event.exitCode))
             }
         }
-
-    private fun sessionProcessWasTerminated(sessionId: String, exitCode: Int, text: String?) {
-        LOG.trace("Stopping session $sessionId ($exitCode, $text)")
-
-        val sessionUnderRestart = sessionsUnderRestart.remove(sessionId)
-        if (sessionUnderRestart != null) return
-
-        resourceToSessionMap.removeIf { it.value == sessionId }
-        projectPathToResourceIdMap.removeIf { it.value.first == sessionId }
-        val session = sessions.remove(sessionId) ?: return
-        if (session.lifetimeDefinition.isNotAlive) return
-
-        application.invokeLater {
-            session.lifetimeDefinition.terminate()
-        }
-
-        session.events.tryEmit(SessionTerminated(sessionId, exitCode))
-    }
 
     data class Session(
         val id: String,

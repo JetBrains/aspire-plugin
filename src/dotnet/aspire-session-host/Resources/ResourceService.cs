@@ -1,11 +1,15 @@
 ﻿using Aspire.ResourceService.Proto.V1;
-using JetBrains.Rider.Aspire.SessionHost.Generated;
 using Grpc.Core;
 using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
+using JetBrains.Rd.Tasks;
+using JetBrains.Rider.Aspire.SessionHost.Generated;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Registry;
+using ResourceCommandRequest = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandRequest;
+using ResourceCommandResponse = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandResponse;
+using ResourceCommandResponseKind = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandResponseKind;
 
 namespace JetBrains.Rider.Aspire.SessionHost.Resources;
 
@@ -82,6 +86,7 @@ internal sealed class ResourceService(
 
             var resourceModel = resource.ToModel();
             var resourceWrapper = new ResourceWrapper();
+            resourceWrapper.ExecuteCommand.SetAsync(async (lt, request) => await ExecuteCommand(request, lt));
             resourceWrapper.Model.SetValue(resourceModel);
             await connection.DoWithModel(model => { model.Resources.TryAdd(resourceModel.Name, resourceWrapper); });
         }
@@ -121,6 +126,7 @@ internal sealed class ResourceService(
             else
             {
                 var resourceWrapper = new ResourceWrapper();
+                resourceWrapper.ExecuteCommand.SetAsync(async (lt, request) => await ExecuteCommand(request, lt));
                 resourceWrapper.Model.SetValue(resourceModel);
                 model.Resources.TryAdd(resourceModel.Name, resourceWrapper);
             }
@@ -131,6 +137,44 @@ internal sealed class ResourceService(
     {
         await connection.DoWithModel(model => model.Resources.Remove(change.Delete.ResourceName));
     }
+
+    private async Task<ResourceCommandResponse> ExecuteCommand(ResourceCommandRequest command, Lifetime lifetime)
+    {
+        var request = MapRequest(command);
+        var response = await client.ExecuteResourceCommandAsync(request, headers: _headers,
+            cancellationToken: lifetime.ToCancellationToken());
+        return MapResponse(response);
+    }
+
+    private static global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest MapRequest(
+        ResourceCommandRequest request) =>
+        new()
+        {
+            CommandType = request.CommandType,
+            ResourceName = request.ResourceName,
+            ResourceType = request.ResourceType
+        };
+
+    private static ResourceCommandResponse MapResponse(
+        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse response) =>
+        new(
+            MapResponseKind(response.Kind),
+            response.HasErrorMessage ? response.ErrorMessage : null
+        );
+
+    private static ResourceCommandResponseKind MapResponseKind(
+        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind kind) => kind switch
+    {
+        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Undefined => ResourceCommandResponseKind
+            .Undefined,
+        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Succeeded => ResourceCommandResponseKind
+            .Succeeded,
+        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Failed =>
+            ResourceCommandResponseKind.Failed,
+        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Cancelled => ResourceCommandResponseKind
+            .Canceled,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
+    };
 
     public void Dispose()
     {

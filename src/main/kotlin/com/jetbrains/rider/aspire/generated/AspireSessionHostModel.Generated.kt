@@ -52,10 +52,13 @@ class AspireSessionHostModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(2840668839259467409), classLoader, "com.jetbrains.rider.aspire.generated.ResourceHealthReport"))
             serializers.register(LazyCompanionMarshaller(RdId(-7695483592723081526), classLoader, "com.jetbrains.rider.aspire.generated.ResourceCommand"))
             serializers.register(LazyCompanionMarshaller(RdId(552742225967985219), classLoader, "com.jetbrains.rider.aspire.generated.ResourceLog"))
+            serializers.register(LazyCompanionMarshaller(RdId(-3460782994127365019), classLoader, "com.jetbrains.rider.aspire.generated.ResourceCommandRequest"))
+            serializers.register(LazyCompanionMarshaller(RdId(3396191624361927979), classLoader, "com.jetbrains.rider.aspire.generated.ResourceCommandResponse"))
             serializers.register(LazyCompanionMarshaller(RdId(-1311735068701761509), classLoader, "com.jetbrains.rider.aspire.generated.ResourceType"))
             serializers.register(LazyCompanionMarshaller(RdId(-3770298982336589872), classLoader, "com.jetbrains.rider.aspire.generated.ResourceState"))
             serializers.register(LazyCompanionMarshaller(RdId(-15935776453165119), classLoader, "com.jetbrains.rider.aspire.generated.ResourceStateStyle"))
             serializers.register(LazyCompanionMarshaller(RdId(2722140349088377831), classLoader, "com.jetbrains.rider.aspire.generated.ResourceCommandState"))
+            serializers.register(LazyCompanionMarshaller(RdId(-8716242335550732449), classLoader, "com.jetbrains.rider.aspire.generated.ResourceCommandResponseKind"))
         }
         
         
@@ -77,7 +80,7 @@ class AspireSessionHostModel private constructor(
         
         private val __SessionCreationResultNullableSerializer = SessionCreationResult.nullable()
         
-        const val serializationHash = 4946927011499661055L
+        const val serializationHash = 5881331261780013058L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -348,7 +351,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:133]
+ * #### Generated from [AspireSessionHostModel.kt:134]
  */
 data class ResourceCommand (
     val commandType: String,
@@ -443,7 +446,170 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:140]
+ * #### Generated from [AspireSessionHostModel.kt:154]
+ */
+data class ResourceCommandRequest (
+    val commandType: String,
+    val resourceName: String,
+    val resourceType: String
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceCommandRequest> {
+        override val _type: KClass<ResourceCommandRequest> = ResourceCommandRequest::class
+        override val id: RdId get() = RdId(-3460782994127365019)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceCommandRequest  {
+            val commandType = buffer.readString()
+            val resourceName = buffer.readString()
+            val resourceType = buffer.readString()
+            return ResourceCommandRequest(commandType, resourceName, resourceType)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceCommandRequest)  {
+            buffer.writeString(value.commandType)
+            buffer.writeString(value.resourceName)
+            buffer.writeString(value.resourceType)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceCommandRequest
+        
+        if (commandType != other.commandType) return false
+        if (resourceName != other.resourceName) return false
+        if (resourceType != other.resourceType) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + commandType.hashCode()
+        __r = __r*31 + resourceName.hashCode()
+        __r = __r*31 + resourceType.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceCommandRequest (")
+        printer.indent {
+            print("commandType = "); commandType.print(printer); println()
+            print("resourceName = "); resourceName.print(printer); println()
+            print("resourceType = "); resourceType.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:160]
+ */
+data class ResourceCommandResponse (
+    val kind: ResourceCommandResponseKind,
+    val errorMessage: String?
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<ResourceCommandResponse> {
+        override val _type: KClass<ResourceCommandResponse> = ResourceCommandResponse::class
+        override val id: RdId get() = RdId(3396191624361927979)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceCommandResponse  {
+            val kind = buffer.readEnum<ResourceCommandResponseKind>()
+            val errorMessage = buffer.readNullable { buffer.readString() }
+            return ResourceCommandResponse(kind, errorMessage)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceCommandResponse)  {
+            buffer.writeEnum(value.kind)
+            buffer.writeNullable(value.errorMessage) { buffer.writeString(it) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as ResourceCommandResponse
+        
+        if (kind != other.kind) return false
+        if (errorMessage != other.errorMessage) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + kind.hashCode()
+        __r = __r*31 + if (errorMessage != null) errorMessage.hashCode() else 0
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("ResourceCommandResponse (")
+        printer.indent {
+            print("kind = "); kind.print(printer); println()
+            print("errorMessage = "); errorMessage.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:161]
+ */
+enum class ResourceCommandResponseKind {
+    Undefined, 
+    Succeeded, 
+    Failed, 
+    Canceled;
+    
+    companion object : IMarshaller<ResourceCommandResponseKind> {
+        val marshaller = FrameworkMarshallers.enum<ResourceCommandResponseKind>()
+        
+        
+        override val _type: KClass<ResourceCommandResponseKind> = ResourceCommandResponseKind::class
+        override val id: RdId get() = RdId(-8716242335550732449)
+        
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceCommandResponseKind {
+            return marshaller.read(ctx, buffer)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceCommandResponseKind)  {
+            marshaller.write(ctx, buffer, value)
+        }
+    }
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:141]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -469,7 +635,7 @@ enum class ResourceCommandState {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:102]
+ * #### Generated from [AspireSessionHostModel.kt:103]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -534,7 +700,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:126]
+ * #### Generated from [AspireSessionHostModel.kt:127]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus,
@@ -611,7 +777,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:120]
+ * #### Generated from [AspireSessionHostModel.kt:121]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -637,7 +803,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:147]
+ * #### Generated from [AspireSessionHostModel.kt:148]
  */
 data class ResourceLog (
     val text: String,
@@ -708,7 +874,7 @@ data class ResourceLog (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:57]
+ * #### Generated from [AspireSessionHostModel.kt:58]
  */
 data class ResourceModel (
     val name: String,
@@ -857,7 +1023,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:95]
+ * #### Generated from [AspireSessionHostModel.kt:96]
  */
 data class ResourceProperty (
     val name: String,
@@ -934,7 +1100,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:67]
+ * #### Generated from [AspireSessionHostModel.kt:68]
  */
 enum class ResourceState {
     Finished, 
@@ -964,7 +1130,7 @@ enum class ResourceState {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:76]
+ * #### Generated from [AspireSessionHostModel.kt:77]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -992,7 +1158,7 @@ enum class ResourceStateStyle {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:59]
+ * #### Generated from [AspireSessionHostModel.kt:60]
  */
 enum class ResourceType {
     Project, 
@@ -1019,7 +1185,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:107]
+ * #### Generated from [AspireSessionHostModel.kt:108]
  */
 data class ResourceUrl (
     val name: String,
@@ -1090,7 +1256,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:113]
+ * #### Generated from [AspireSessionHostModel.kt:114]
  */
 data class ResourceVolume (
     val source: String,
@@ -1172,7 +1338,8 @@ data class ResourceVolume (
 class ResourceWrapper private constructor(
     private val _model: RdOptionalProperty<ResourceModel>,
     private val _isInitialized: RdOptionalProperty<Boolean>,
-    private val _logReceived: RdSignal<ResourceLog>
+    private val _logReceived: RdSignal<ResourceLog>,
+    private val _executeCommand: RdCall<ResourceCommandRequest, ResourceCommandResponse>
 ) : RdBindableBase() {
     //companion
     
@@ -1186,7 +1353,8 @@ class ResourceWrapper private constructor(
             val _model = RdOptionalProperty.read(ctx, buffer, ResourceModel)
             val _isInitialized = RdOptionalProperty.read(ctx, buffer, FrameworkMarshallers.Bool)
             val _logReceived = RdSignal.read(ctx, buffer, ResourceLog)
-            return ResourceWrapper(_model, _isInitialized, _logReceived).withId(_id)
+            val _executeCommand = RdCall.read(ctx, buffer, ResourceCommandRequest, ResourceCommandResponse)
+            return ResourceWrapper(_model, _isInitialized, _logReceived, _executeCommand).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceWrapper)  {
@@ -1194,6 +1362,7 @@ class ResourceWrapper private constructor(
             RdOptionalProperty.write(ctx, buffer, value._model)
             RdOptionalProperty.write(ctx, buffer, value._isInitialized)
             RdSignal.write(ctx, buffer, value._logReceived)
+            RdCall.write(ctx, buffer, value._executeCommand)
         }
         
         
@@ -1202,6 +1371,7 @@ class ResourceWrapper private constructor(
     val model: IOptProperty<ResourceModel> get() = _model
     val isInitialized: IOptProperty<Boolean> get() = _isInitialized
     val logReceived: ISource<ResourceLog> get() = _logReceived
+    val executeCommand: IRdCall<ResourceCommandRequest, ResourceCommandResponse> get() = _executeCommand
     //methods
     //initializer
     init {
@@ -1217,6 +1387,7 @@ class ResourceWrapper private constructor(
         bindableChildren.add("model" to _model)
         bindableChildren.add("isInitialized" to _isInitialized)
         bindableChildren.add("logReceived" to _logReceived)
+        bindableChildren.add("executeCommand" to _executeCommand)
     }
     
     //secondary constructor
@@ -1224,7 +1395,8 @@ class ResourceWrapper private constructor(
     ) : this(
         RdOptionalProperty<ResourceModel>(ResourceModel),
         RdOptionalProperty<Boolean>(FrameworkMarshallers.Bool),
-        RdSignal<ResourceLog>(ResourceLog)
+        RdSignal<ResourceLog>(ResourceLog),
+        RdCall<ResourceCommandRequest, ResourceCommandResponse>(ResourceCommandRequest, ResourceCommandResponse)
     )
     
     //equals trait
@@ -1236,6 +1408,7 @@ class ResourceWrapper private constructor(
             print("model = "); _model.print(printer); println()
             print("isInitialized = "); _isInitialized.print(printer); println()
             print("logReceived = "); _logReceived.print(printer); println()
+            print("executeCommand = "); _executeCommand.print(printer); println()
         }
         printer.print(")")
     }
@@ -1244,7 +1417,8 @@ class ResourceWrapper private constructor(
         return ResourceWrapper(
             _model.deepClonePolymorphic(),
             _isInitialized.deepClonePolymorphic(),
-            _logReceived.deepClonePolymorphic()
+            _logReceived.deepClonePolymorphic(),
+            _executeCommand.deepClonePolymorphic()
         )
     }
     //contexts

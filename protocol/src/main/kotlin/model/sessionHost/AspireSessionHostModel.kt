@@ -52,6 +52,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         property("model", ResourceModel)
         property("isInitialized", bool).async
         sink("logReceived", ResourceLog)
+        call("executeCommand", ResourceCommandRequest, ResourceCommandResponse)
     }
 
     private val ResourceModel = structdef {
@@ -148,6 +149,22 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("text", string)
         field("isError", bool)
         field("lineNumber", int)
+    }
+
+    private val ResourceCommandRequest = structdef {
+        field("commandType", string)
+        field("resourceName", string)
+        field("resourceType", string)
+    }
+
+    private val ResourceCommandResponse = structdef {
+        field("kind", enum("ResourceCommandResponseKind") {
+            +"Undefined"
+            +"Succeeded"
+            +"Failed"
+            +"Canceled"
+        })
+        field("errorMessage", string.nullable)
     }
 
     init {
