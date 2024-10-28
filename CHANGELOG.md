@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Support for new resource properties
+
 ## [1.6.0] - 2024-10-24
 
 ### Changed
