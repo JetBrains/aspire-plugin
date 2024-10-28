@@ -83,10 +83,6 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             actionButton(restartAction)
             val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
             actionButton(stopAction)
-
-            if (resourceData.type == ResourceType.Project) {
-
-            }
         }
         separator()
 

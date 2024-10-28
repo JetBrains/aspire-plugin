@@ -1,6 +1,5 @@
 package com.jetbrains.rider.aspire.sessionHost
 
-import com.intellij.database.util.common.removeIf
 import com.intellij.execution.process.*
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
@@ -11,13 +10,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
-import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.run.pid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,9 +22,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
 class SessionManager(private val project: Project, scope: CoroutineScope) {
@@ -38,9 +33,6 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     }
 
     private val sessions = ConcurrentHashMap<String, Session>()
-    private val resourceToSessionMap = ConcurrentHashMap<String, String>()
-    private val projectPathToResourceIdMap = ConcurrentHashMap<Path, Pair<String, String>>()
-    private val sessionsUnderRestart = ConcurrentHashMap<String, Unit>()
 
     private val commands = MutableSharedFlow<LaunchSessionCommand>(
         onBufferOverflow = BufferOverflow.SUSPEND,
@@ -72,16 +64,13 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.sessionId,
             command.sessionModel,
             command.sessionLifetimeDefinition,
-            SequentialLifetimes(command.sessionLifetimeDefinition),
             command.sessionEvents,
             command.aspireHostConfig.aspireHostRunConfiguration
         )
         sessions[command.sessionId] = session
 
-        saveConnectionToResource(command)
-
         val processLauncher = SessionProcessLauncher.getInstance(project)
-        val processLifetime = session.processLifetimes.next()
+        val processLifetime = session.lifetimeDefinition.lifetime
 
         //We need two separate listeners because they are subscribed to different handlers
         val sessionProcessListener = createSessionProcessEventListener(session.id, session.events)
@@ -98,22 +87,9 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         )
     }
 
-    private fun saveConnectionToResource(command: CreateSessionCommand) {
-        val idValue = command.sessionModel.getServiceInstanceId() ?: return
-        if (idValue.isEmpty()) return
-
-        LOG.trace("Connection between resource $idValue and session ${command.sessionId}")
-
-        resourceToSessionMap[idValue] = command.sessionId
-        projectPathToResourceIdMap[Path(command.sessionModel.projectPath)] = command.sessionId to idValue
-    }
-
     private suspend fun handleDeleteCommand(command: DeleteSessionCommand) {
         LOG.trace("Deleting session ${command.sessionId}")
 
-        resourceToSessionMap.removeIf { it.value == command.sessionId }
-        projectPathToResourceIdMap.removeIf { it.value.first == command.sessionId }
-        sessionsUnderRestart.remove(command.sessionId)
         val session = sessions.remove(command.sessionId) ?: return
 
         withContext(Dispatchers.EDT) {
@@ -159,11 +135,6 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             override fun processTerminated(event: ProcessEvent) {
                 LOG.trace("Stopping session $sessionId (${event.exitCode}, ${event.text})")
 
-                val sessionUnderRestart = sessionsUnderRestart.remove(sessionId)
-                if (sessionUnderRestart != null) return
-
-                resourceToSessionMap.removeIf { it.value == sessionId }
-                projectPathToResourceIdMap.removeIf { it.value.first == sessionId }
                 val session = sessions.remove(sessionId) ?: return
                 if (session.lifetimeDefinition.isNotAlive) return
 
@@ -179,7 +150,6 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val id: String,
         val model: SessionModel,
         val lifetimeDefinition: LifetimeDefinition,
-        val processLifetimes: SequentialLifetimes,
         val events: MutableSharedFlow<SessionEvent>,
         val hostRunConfiguration: AspireHostConfiguration?
     )
