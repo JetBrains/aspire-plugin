@@ -24,7 +24,7 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
         const val ID = "AspireHostConfiguration"
     }
 
-    private val factory = AspireHostConfigurationFactory(this)
+    val factory = AspireHostConfigurationFactory(this)
 
     init {
         addFactory(factory)
