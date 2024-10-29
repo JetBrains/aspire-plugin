@@ -13,6 +13,7 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.rider.aspire.AspireBundle
+import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.services.AspireResource
 import com.jetbrains.rider.aspire.util.getIcon
@@ -28,7 +29,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
 
     private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel {
         row {
-            val resourceIcon = getIcon(resourceData.type, resourceData.state)
+            val resourceIcon = getIcon(resourceData.type, resourceData.state, resourceData.healthStatus)
             icon(resourceIcon)
                 .gap(RightGap.SMALL)
             copyableLabel(resourceData.displayName)
@@ -60,18 +61,28 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             if (state != null) {
                 separator()
                     .gap(RightGap.SMALL)
+
+                val healthStatus = resourceData.healthStatus
+                val hasHealthStatus = state == ResourceState.Running && healthStatus != null
+
                 copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
-                    .gap(RightGap.COLUMNS)
+                    .apply {
+                        if (hasHealthStatus) gap(RightGap.SMALL)
+                        else gap(RightGap.COLUMNS)
+                    }
+
+                if (hasHealthStatus) {
+                    copyableLabel("(${healthStatus.name})", color = UIUtil.FontColor.BRIGHTER)
+                        .gap(RightGap.COLUMNS)
+                }
             }
 
-            if (resourceData.type == ResourceType.Project) {
-                val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
-                actionButton(restartAction)
-                val restartDebugAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart.Debug")
-                actionButton(restartDebugAction)
-                val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
-                actionButton(stopAction)
-            }
+            val startAction = ActionManager.getInstance().getAction("Aspire.Resource.Start")
+            actionButton(startAction)
+            val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
+            actionButton(restartAction)
+            val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
+            actionButton(stopAction)
         }
         separator()
 
@@ -99,8 +110,17 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         resourceData.state?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
         }
-        resourceData.startTime?.let {
+        resourceData.healthStatus?.let {
+            row(AspireBundle.message("service.tab.dashboard.properties.health.status")) { copyableLabel(it.name) }
+        }
+        resourceData.createdAt?.let {
+            row(AspireBundle.message("service.tab.dashboard.properties.creation.time")) { copyableLabel(it.toString()) }
+        }
+        resourceData.startedAt?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }
+        }
+        resourceData.stoppedAt?.let {
+            row(AspireBundle.message("service.tab.dashboard.properties.stop.time")) { copyableLabel(it.toString()) }
         }
         resourceData.pid?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.pid")) { copyableLabel(it.toString()) }
@@ -138,6 +158,28 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             row(AspireBundle.message("service.tab.dashboard.properties.container.args")) { copyableLabel(it) }
         }
         separator()
+
+        if (resourceData.volumes.isNotEmpty()) {
+            row {
+                label(AspireBundle.message("service.tab.dashboard.volumes")).bold()
+            }.bottomGap(BottomGap.SMALL)
+            resourceData.volumes
+                .sortedBy { it.source }
+                .forEach { volume ->
+                    row {
+                        copyableLabel("${volume.source} : ${volume.target}")
+                            .gap(RightGap.SMALL)
+
+                        copyableLabel(volume.mountType, color = UIUtil.FontColor.BRIGHTER)
+                            .apply { if (volume.isReadOnly) gap(RightGap.SMALL) }
+
+                        if (volume.isReadOnly) {
+                            copyableLabel("(${AspireBundle.message("service.tab.dashboard.volumes.readonly")})")
+                        }
+                    }
+                }
+            separator()
+        }
 
         if (resourceData.environment.isNotEmpty()) {
             row {

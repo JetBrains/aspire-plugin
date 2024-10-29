@@ -41,6 +41,15 @@ class AspireHostManager(private val project: Project) : Disposable {
 
     fun getAspireHost(aspireHostProjectPath: Path) = aspireHosts[aspireHostProjectPath]
 
+    fun getAspireResource(projectPath: Path): AspireResource? {
+        for (aspireHost in aspireHosts) {
+            val resource = aspireHost.value.getResource(projectPath) ?: continue
+            return resource
+        }
+
+        return null
+    }
+
     fun addAspireHost(aspireHostProjectPath: Path) {
         if (aspireHosts.containsKey(aspireHostProjectPath)) return
 

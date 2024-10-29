@@ -12,7 +12,8 @@ import com.intellij.ui.components.JBTabbedPane
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.services.components.ResourceConsolePanel
 import com.jetbrains.rider.aspire.services.components.ResourceDashboardPanel
-import com.jetbrains.rider.aspire.util.*
+import com.jetbrains.rider.aspire.util.ASPIRE_RESOURCE
+import com.jetbrains.rider.aspire.util.getIcon
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
@@ -54,7 +55,7 @@ class AspireResourceServiceViewContributor(
         )
 
         override fun getPresentation() = PresentationData().apply {
-            val icon = getIcon(aspireResource.type, aspireResource.state)
+            val icon = getIcon(aspireResource.type, aspireResource.state, aspireResource.healthStatus)
             setIcon(icon)
             addText(aspireResource.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
         }
@@ -66,10 +67,7 @@ class AspireResourceServiceViewContributor(
         override fun getDataProvider() = this
 
         override fun getData(dataId: String) =
-            if (ASPIRE_RESOURCE_UID.`is`(dataId)) aspireResource.uid
-            else if (ASPIRE_RESOURCE_SERVICE_INSTANCE_ID.`is`(dataId)) aspireResource.serviceInstanceId
-            else if (ASPIRE_RESOURCE_TYPE.`is`(dataId)) aspireResource.type
-            else if (ASPIRE_RESOURCE_STATE.`is`(dataId)) aspireResource.state
+            if (ASPIRE_RESOURCE.`is`(dataId)) aspireResource
             else null
     }
 }

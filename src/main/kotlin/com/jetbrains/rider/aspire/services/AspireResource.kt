@@ -6,6 +6,8 @@ import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -14,6 +16,8 @@ import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -23,11 +27,14 @@ import kotlin.io.path.Path
 import kotlin.math.roundToInt
 
 class AspireResource(
-    modelWrapper: ResourceWrapper,
+    private val modelWrapper: ResourceWrapper,
     val lifetime: Lifetime,
     private val aspireHost: AspireHost,
     private val project: Project
-): Disposable {
+) : Disposable {
+    companion object {
+        private val LOG = logger<AspireResource>()
+    }
 
     val serviceViewContributor: AspireResourceServiceViewContributor by lazy {
         AspireResourceServiceViewContributor(this)
@@ -43,18 +50,23 @@ class AspireResource(
         private set
     var state: ResourceState?
         private set
-    @Suppress("MemberVisibilityCanBePrivate")
-    var stateStyle: ResourceStateStyle?
+    var healthStatus: ResourceHealthStatus?
         private set
     var urls: Array<ResourceUrl>
         private set
     var environment: Array<ResourceEnvironmentVariable>
         private set
+    var volumes: Array<ResourceVolume>
+        private set
 
     var serviceInstanceId: String? = null
         private set
 
-    var startTime: LocalDateTime? = null
+    var createdAt: LocalDateTime? = null
+        private set
+    var startedAt: LocalDateTime? = null
+        private set
+    var stoppedAt: LocalDateTime? = null
         private set
     var exitCode: Int? = null
         private set
@@ -79,6 +91,9 @@ class AspireResource(
     var containerArgs: String? = null
         private set
 
+    var commands: Array<ResourceCommand>
+        private set
+
     var consoleView: ConsoleView = TextConsoleBuilderFactory
         .getInstance()
         .createBuilder(project)
@@ -93,13 +108,19 @@ class AspireResource(
         type = model?.type ?: ResourceType.Unknown
         displayName = model?.displayName ?: ""
         state = model?.state
-        stateStyle = model?.stateStyle
+        healthStatus = model?.healthStatus
+
+        fillDates(model)
+
         urls = model?.urls ?: emptyArray()
         environment = model?.environment ?: emptyArray()
+        volumes = model?.volumes ?: emptyArray()
 
         serviceInstanceId = model?.getServiceInstanceId()
 
         fillFromProperties(model?.properties ?: emptyArray())
+
+        commands = model?.commands ?: emptyArray()
 
         modelWrapper.model.advise(lifetime, ::update)
         modelWrapper.logReceived.advise(lifetime, ::logReceived)
@@ -115,14 +136,25 @@ class AspireResource(
         })
     }
 
+    private fun fillDates(model: ResourceModel?) {
+        val timezone = TimeZone.currentSystemDefault()
+        createdAt = model?.createdAt
+            ?.time
+            ?.let { Instant.fromEpochMilliseconds(it) }
+            ?.toLocalDateTime(timezone)
+        startedAt = model?.startedAt
+            ?.time
+            ?.let { Instant.fromEpochMilliseconds(it) }
+            ?.toLocalDateTime(timezone)
+        stoppedAt = model?.stoppedAt
+            ?.time
+            ?.let { Instant.fromEpochMilliseconds(it) }
+            ?.toLocalDateTime(timezone)
+    }
+
     private fun fillFromProperties(properties: Array<ResourceProperty>) {
         for (property in properties) {
             when (property.name) {
-                "resource.createTime" -> {
-                    property.value?.let {
-                        startTime = Instant.parse(it).toLocalDateTime(TimeZone.currentSystemDefault())
-                    }
-                }
 
                 "resource.exitCode" -> {
                     property.value?.let { exitCode = it.toDouble().roundToInt() }
@@ -177,13 +209,19 @@ class AspireResource(
         type = model.type
         displayName = model.displayName
         state = model.state
-        stateStyle = model.stateStyle
+        healthStatus = model.healthStatus
+
+        fillDates(model)
+
         urls = model.urls
         environment = model.environment
+        volumes = model.volumes
 
         serviceInstanceId = model.getServiceInstanceId()
 
         fillFromProperties(model.properties)
+
+        commands = model.commands
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
@@ -207,6 +245,18 @@ class AspireResource(
         sendServiceChildrenChangedEvent()
     }
 
+    suspend fun executeCommand(commandType: String) = withContext(Dispatchers.EDT) {
+        val command = ResourceCommandRequest(
+            commandType,
+            name,
+            type.toString()
+        )
+        val response = modelWrapper.executeCommand.startSuspending(command)
+        if (response.kind != ResourceCommandResponseKind.Succeeded) {
+            LOG.warn("Unable to execute command: ${response.kind}, ${response.errorMessage}")
+        }
+    }
+
     private fun logReceived(log: ResourceLog) {
         if (type == ResourceType.Project) return
 
@@ -216,7 +266,6 @@ class AspireResource(
             else ConsoleViewContentType.ERROR_OUTPUT
         )
     }
-
 
     private fun sendServiceStructureChangedEvent() {
         val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(

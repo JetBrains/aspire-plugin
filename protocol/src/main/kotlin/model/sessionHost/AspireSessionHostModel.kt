@@ -52,6 +52,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         property("model", ResourceModel)
         property("isInitialized", bool).async
         sink("logReceived", ResourceLog)
+        call("executeCommand", ResourceCommandRequest, ResourceCommandResponse)
     }
 
     private val ResourceModel = structdef {
@@ -80,16 +81,23 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
             +"Error"
             +"Unknown"
         }.nullable)
-        field("createdAt", dateTime)
+        field("createdAt", dateTime.nullable)
+        field("startedAt", dateTime.nullable)
+        field("stoppedAt", dateTime.nullable)
         field("properties", array(ResourceProperty))
         field("environment", array(ResourceEnvironmentVariable))
         field("urls", array(ResourceUrl))
+        field("volumes", array(ResourceVolume))
+        field("healthStatus", ResourceHealthStatus.nullable)
+        field("healthReports", array(ResourceHealthReport))
+        field("commands", array(ResourceCommand))
     }
 
     private val ResourceProperty = structdef {
         field("name", string)
         field("displayName", string.nullable)
         field("value", string.nullable)
+        field("isSensitive", bool.nullable)
     }
 
     private val ResourceEnvironmentVariable = structdef {
@@ -103,10 +111,60 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("isInternal", bool)
     }
 
+    private val ResourceVolume = structdef {
+        field("source", string)
+        field("target", string)
+        field("mountType", string)
+        field("isReadOnly", bool)
+    }
+
+    private val ResourceHealthStatus = enum("ResourceHealthStatus") {
+        +"Healthy"
+        +"Unhealthy"
+        +"Degraded"
+    }
+
+    private val ResourceHealthReport = structdef {
+        field("status", ResourceHealthStatus)
+        field("key", string)
+        field("description", string)
+        field("exception", string)
+    }
+
+    private val ResourceCommand = structdef {
+        field("commandType", string)
+        field("displayName", string)
+        field("confirmationMessage", string.nullable)
+        field("isHighlighted", bool)
+        field("iconName", string.nullable)
+        field("displayDescription", string.nullable)
+        field("state", enum("ResourceCommandState") {
+            +"Enabled"
+            +"Disabled"
+            +"Hidden"
+        })
+    }
+
     private val ResourceLog = structdef {
         field("text", string)
         field("isError", bool)
         field("lineNumber", int)
+    }
+
+    private val ResourceCommandRequest = structdef {
+        field("commandType", string)
+        field("resourceName", string)
+        field("resourceType", string)
+    }
+
+    private val ResourceCommandResponse = structdef {
+        field("kind", enum("ResourceCommandResponseKind") {
+            +"Undefined"
+            +"Succeeded"
+            +"Failed"
+            +"Canceled"
+        })
+        field("errorMessage", string.nullable)
     }
 
     init {

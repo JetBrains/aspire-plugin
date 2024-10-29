@@ -30,7 +30,6 @@ import com.jetbrains.rider.run.createConsole
 import com.jetbrains.rider.runtime.DotNetExecutable
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.iterator
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.nameWithoutExtension
@@ -133,6 +132,17 @@ class AspireHost(
         }
 
         return result.sortedBy { it.type }
+    }
+
+    fun getResource(projectPath: Path): AspireResource? {
+        for (resource in resources) {
+            if (resource.value.type == ResourceType.Unknown || resource.value.state == ResourceState.Hidden)
+                continue
+
+            if (resource.value.projectPath == projectPath) return resource.value
+        }
+
+        return null
     }
 
     private fun addAspireHostUrl(config: AspireHostConfig) {
