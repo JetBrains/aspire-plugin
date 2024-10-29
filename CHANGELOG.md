@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.6.1] - 2024-10-29
+
 ### Added
 
 - Support for new resource properties
@@ -242,7 +244,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.1...HEAD
+[1.6.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.5.0...v1.5.1
