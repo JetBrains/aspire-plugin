@@ -10,6 +10,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.application
@@ -103,52 +104,61 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
     }
 
     private suspend fun handleAddConnectionStringCommand(command: AddConnectionStringCommand) {
-        val resource = findResourceByConnectionString(command.connectionString)
-        if (resource != null) {
-            createDataSource(command.connectionString, resource)
-        } else {
+        val resources = findResourceByConnectionString(command.connectionString)
+        if (resources.isEmpty()) {
             connectionStrings.add(command.connectionString)
+        } else {
+            resources.forEach { createDataSource(command.connectionString, it) }
         }
     }
 
-    private fun findResourceByConnectionString(connectionString: DatabaseResourceConnectionString): DatabaseResource? {
+    private fun findResourceByConnectionString(connectionString: DatabaseResourceConnectionString): List<DatabaseResource> {
+        val result = mutableListOf<DatabaseResource>()
         for (resource in databaseResources) {
             for (port in resource.ports) {
                 if (connectionString.connectionString.contains(port)) {
-                    return resource
+                    result.add(resource)
                 }
             }
         }
 
-        return null
+        return result
     }
 
     private suspend fun handleAddDatabaseResourceCommand(command: AddDatabaseResourceCommand) {
-        val connectionString = findConnectionStringByResource(command.resource)
-        if (connectionString != null) {
-            createDataSource(connectionString, command.resource)
-        } else {
+        val connectionStrings = findConnectionStringByResource(command.resource)
+        if (connectionStrings.isEmpty()) {
             databaseResources.add(command.resource)
+        } else {
+            connectionStrings.forEach { createDataSource(it, command.resource) }
         }
     }
 
-    private fun findConnectionStringByResource(resource: DatabaseResource): DatabaseResourceConnectionString? {
+    private fun findConnectionStringByResource(resource: DatabaseResource): List<DatabaseResourceConnectionString> {
+        val result = mutableListOf<DatabaseResourceConnectionString>()
         for (connectionString in connectionStrings) {
             for (port in resource.ports) {
                 if (connectionString.connectionString.contains(port)) {
-                    return connectionString
+                    result.add(connectionString)
                 }
             }
         }
 
-        return null
+        return result
     }
 
     private suspend fun createDataSource(
         connectionString: DatabaseResourceConnectionString,
         resource: DatabaseResource
     ) {
-        if (createdConnections.contains(connectionString.connectionString)) return
+        synchronized(lock) {
+            if (createdConnections.contains(connectionString.connectionString)) {
+                LOG.trace { "Connection for ${connectionString.connectionString} is already created" }
+                return
+            }
+        }
+
+        LOG.trace { "Creating data source for ${connectionString.connectionString}" }
 
         val dataProvider = when (resource.type) {
             DatabaseResourceType.POSTGRES -> NpgsqlDataProvider.getInstance(project)
@@ -158,22 +168,37 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
             DatabaseResourceType.MONGO -> DummyMongoDataProvider.getInstance(project)
             DatabaseResourceType.REDIS -> DummyRedisDataProvider.getInstance(project)
         }
-        val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first()) ?: return
+        val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
+        if (driver == null) {
+            LOG.warn("Unable to guess database driver")
+            return
+        }
 
         val url =
             if (resource.type == DatabaseResourceType.REDIS) {
-                convertRedisConnectionString(connectionString.connectionString) ?: return
+                convertRedisConnectionString(connectionString.connectionString)
             } else if (rawConnectionStringTypes.contains(resource.type)) {
                 connectionString.connectionString
             } else {
-                val factory = ConnectionStringsFactory.get(dataProvider, project) ?: return
+                val factory = ConnectionStringsFactory.get(dataProvider, project)
+                if (factory == null) {
+                    LOG.warn("Unable to find connection string factory")
+                    return
+                }
                 val parsedConnectionString =
-                    factory.create(connectionString.connectionString, dataProvider).getOrNull() ?: return
+                    factory.create(connectionString.connectionString, dataProvider).getOrNull()
+                if (parsedConnectionString == null) {
+                    LOG.warn("Unable to parse connection string ${connectionString.connectionString}")
+                    return
+                }
                 ConnectionStringToJdbcUrlConverter.convert(parsedConnectionString, driver, project)
                     ?.build()
                     ?.getOrNull()
-                    ?: return
             }
+        if (url == null) {
+            LOG.warn("Unable to convert ${connectionString.connectionString} to url")
+            return
+        }
 
         val dataSource = LocalDataSource.fromDriver(driver, url, true).apply {
             name = connectionString.name
@@ -235,7 +260,7 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
 
             try {
                 performAutoIntrospection(LoaderContext.selectGeneralTask(project, dataSource), true)
-            } catch (ce: CancellationException) {
+            } catch (_: CancellationException) {
                 LOG.trace("Introspection is canceled")
             } catch (e: Exception) {
                 LOG.warn("Unable to perform auto introspection", e)
@@ -245,7 +270,7 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
     private suspend fun waitForConnection(dataSource: LocalDataSource): Boolean {
         val credentials = DatabaseCredentialsUi.newUIInstance()
 
-        for (i in 1..<5) {
+        (1..<5).forEach { i ->
             when (val connectionResult = connectionManager.testConnection(dataSource, credentials)) {
                 TestConnectionExecutionResult.Cancelled -> {
                     LOG.debug("Connection cancelled")

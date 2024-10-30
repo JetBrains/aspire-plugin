@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#243](https://github.com/JetBrains/aspire-plugin/issues/243) Only one database gets added to database panel if multiple databases are present
+
 ## [1.6.1] - 2024-10-29
 
 ### Added
