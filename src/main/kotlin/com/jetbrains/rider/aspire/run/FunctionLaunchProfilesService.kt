@@ -3,6 +3,7 @@ package com.jetbrains.rider.aspire.run
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
@@ -10,13 +11,14 @@ import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
-class FunctionLaunchProfilesService {
+class FunctionLaunchProfilesService(val project: Project) {
     companion object {
         fun getInstance(project: Project): FunctionLaunchProfilesService = project.service()
     }
 
     private val cache = ConcurrentHashMap<String, Pair<Long, List<LaunchProfile>>>()
 
+    @RequiresBackgroundThread
     fun initialize(runnableProjects: List<RunnableProject>) {
         runnableProjects.forEach {
             val launchSettingsFile = LaunchSettingsJsonService.getLaunchSettingsFileForProject(it)
@@ -26,6 +28,7 @@ class FunctionLaunchProfilesService {
         }
     }
 
+    @RequiresBackgroundThread
     fun getLaunchProfiles(runnableProject: RunnableProject): List<LaunchProfile> {
         val launchSettingsFile = LaunchSettingsJsonService.getLaunchSettingsFileForProject(runnableProject)
             ?: return emptyList()
@@ -41,11 +44,13 @@ class FunctionLaunchProfilesService {
         return existingLaunchProfile.second
     }
 
+    @RequiresBackgroundThread
     fun getLaunchProfileByName(runnableProject: RunnableProject, launchProfileName: String?): LaunchProfile? =
         getLaunchProfiles(runnableProject).find { it.name == launchProfileName }
 
+    @RequiresBackgroundThread
     private fun getLaunchProfiles(launchSettingsFile: File): List<LaunchProfile> {
-        val launchSettings = LaunchSettingsJsonService.loadLaunchSettings(launchSettingsFile)
+        val launchSettings = LaunchSettingsJsonService.getInstance(project).loadLaunchSettings(launchSettingsFile)
             ?: return emptyList()
 
         return launchSettings

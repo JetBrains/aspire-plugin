@@ -24,6 +24,8 @@ import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URI
 import java.util.*
@@ -52,11 +54,12 @@ class AspireHostExecutorFactory(
             .singleOrNull { it.tfm?.presentableName == parameters.projectTfm }
             ?: throw CantRunException("Unable to get the project output for ${parameters.projectTfm}")
 
-        val profile = FunctionLaunchProfilesService
-            .getInstance(project)
-            .getLaunchProfileByName(runnableProject, parameters.profileName)
-            ?: throw CantRunException("Profile ${parameters.profileName} not found")
-
+        val profile = withContext(Dispatchers.Default) {
+            FunctionLaunchProfilesService
+                .getInstance(project)
+                .getLaunchProfileByName(runnableProject, parameters.profileName)
+                ?: throw CantRunException("Profile ${parameters.profileName} not found")
+        }
         val executable = getDotNetExecutable(runnableProject, projectOutput, profile)
 
         return when (executorId) {

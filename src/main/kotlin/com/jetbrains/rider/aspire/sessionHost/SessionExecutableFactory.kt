@@ -29,6 +29,8 @@ import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.run.environment.StringProcessingParameters
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URI
 import java.net.URISyntaxException
@@ -191,8 +193,10 @@ class SessionExecutableFactory(private val project: Project) {
     ): LaunchSettingsJson.Profile? {
         val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
 
-        val launchSettings = readAction {
-            LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
+        val launchSettings = withContext(Dispatchers.Default) {
+            readAction {
+                LaunchSettingsJsonService.getInstance(project).loadLaunchSettings(runnableProject)
+            }
         } ?: return null
 
         return launchSettings.profiles?.get(launchProfileKey)
@@ -207,8 +211,10 @@ class SessionExecutableFactory(private val project: Project) {
 
         val launchSettingsFile =
             LaunchSettingsJsonService.getLaunchSettingsFileForProject(sessionProjectPath.toFile()) ?: return null
-        val launchSettings = readAction {
-            LaunchSettingsJsonService.loadLaunchSettings(launchSettingsFile)
+        val launchSettings = withContext(Dispatchers.Default) {
+            readAction {
+                LaunchSettingsJsonService.getInstance(project).loadLaunchSettings(launchSettingsFile) //TODO:Switch to suspend
+            }
         } ?: return null
 
         return launchSettings.profiles?.get(launchProfileKey)

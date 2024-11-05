@@ -221,8 +221,10 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         )
 
         val profile = if (!launchProfile.isNullOrEmpty()) {
-            val launchSettings = readAction {
-                LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
+            val launchSettings = withContext(Dispatchers.Default) {
+                readAction {
+                    LaunchSettingsJsonService.getInstance(project).loadLaunchSettings(runnableProject)
+                }
             }
             launchSettings?.let { ls ->
                 ls.profiles?.get(launchProfile)
