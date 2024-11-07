@@ -3,10 +3,11 @@ package com.jetbrains.rider.aspire.run
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
-import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
@@ -18,20 +19,19 @@ class FunctionLaunchProfilesService(val project: Project) {
 
     private val cache = ConcurrentHashMap<String, Pair<Long, List<LaunchProfile>>>()
 
-    @RequiresBackgroundThread
-    fun initialize(runnableProjects: List<RunnableProject>) {
-        runnableProjects.forEach {
+    suspend fun initialize(runnableProjects: List<RunnableProject>) {
+        for (it in runnableProjects) {
             val launchSettingsFile = LaunchSettingsJsonService.getLaunchSettingsFileForProject(it)
-                ?: return@forEach
+                ?: continue
             val profiles = getLaunchProfiles(launchSettingsFile)
             cache[launchSettingsFile.absolutePath] = Pair(launchSettingsFile.lastModified(), profiles)
         }
     }
 
-    @RequiresBackgroundThread
-    fun getLaunchProfiles(runnableProject: RunnableProject): List<LaunchProfile> {
-        val launchSettingsFile = LaunchSettingsJsonService.getLaunchSettingsFileForProject(runnableProject)
-            ?: return emptyList()
+    suspend fun getLaunchProfiles(runnableProject: RunnableProject): List<LaunchProfile> {
+        val launchSettingsFile = withContext(Dispatchers.IO) {
+            LaunchSettingsJsonService.getLaunchSettingsFileForProject(runnableProject)
+        } ?: return emptyList()
 
         val launchSettingsFileStamp = launchSettingsFile.lastModified()
         val existingLaunchProfile = cache[launchSettingsFile.absolutePath]
@@ -44,14 +44,13 @@ class FunctionLaunchProfilesService(val project: Project) {
         return existingLaunchProfile.second
     }
 
-    @RequiresBackgroundThread
-    fun getLaunchProfileByName(runnableProject: RunnableProject, launchProfileName: String?): LaunchProfile? =
+    suspend fun getLaunchProfileByName(runnableProject: RunnableProject, launchProfileName: String?): LaunchProfile? =
         getLaunchProfiles(runnableProject).find { it.name == launchProfileName }
 
-    @RequiresBackgroundThread
-    private fun getLaunchProfiles(launchSettingsFile: File): List<LaunchProfile> {
-        val launchSettings = LaunchSettingsJsonService.getInstance(project).loadLaunchSettings(launchSettingsFile)
-            ?: return emptyList()
+    private suspend fun getLaunchProfiles(launchSettingsFile: File): List<LaunchProfile> {
+        val launchSettings = withContext(Dispatchers.IO) {
+            LaunchSettingsJsonService.getInstance(project).loadLaunchSettings(launchSettingsFile)
+        } ?: return emptyList()
 
         return launchSettings
             .profiles
