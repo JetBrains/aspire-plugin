@@ -5,6 +5,8 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.asContextElement
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rd.util.lifetime.SequentialLifetimes
+import com.jetbrains.rd.util.threading.coroutines.launch
 import com.jetbrains.rd.util.threading.coroutines.nextNotNullValue
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
@@ -16,13 +18,12 @@ import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSetti
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
 class AspireHostConfigurationViewModel(
     private val project: Project,
-    private val lifetime: Lifetime,
+    lifetime: Lifetime,
     private val runnableProjectsModel: RunnableProjectsModel?,
     val projectSelector: ProjectSelector,
     val tfmSelector: StringSelector,
@@ -103,7 +104,7 @@ class AspireHostConfigurationViewModel(
     private fun reloadLaunchProfileSelector(runnableProject: RunnableProject, onLoadingComplete: (() -> Unit)? = null) {
         launchProfileSelector.profile.set(LaunchProfile("", LaunchSettingsJson.Profile.UNKNOWN))
 
-        lifetime.coroutineScope.launch(Dispatchers.Default + ModalityState.current().asContextElement()) {
+        currentEditSessionLifetime.launch(Dispatchers.Default + ModalityState.current().asContextElement()) {
             val launchProfiles = FunctionLaunchProfilesService.getInstance(project).getLaunchProfiles(runnableProject)
             withContext(Dispatchers.EDT) {
                 launchProfileSelector.profileList.apply {
@@ -214,6 +215,9 @@ class AspireHostConfigurationViewModel(
         trackUrl = urlEditor.text.value == applicationUrl
     }
 
+    private val currentEditSessionLifetimeSource = SequentialLifetimes(lifetime)
+    private lateinit var currentEditSessionLifetime: Lifetime
+
     fun reset(
         projectFilePath: String,
         projectTfm: String,
@@ -229,49 +233,51 @@ class AspireHostConfigurationViewModel(
         dotNetStartBrowserParameters: DotNetStartBrowserParameters
     ) {
         isLoaded = false
+        currentEditSessionLifetime = currentEditSessionLifetimeSource.next()
 
         this.trackArguments = trackArguments
         this.trackWorkingDirectory = trackWorkingDirectory
         this.trackEnvs = trackEnvs
         this.trackUrl = trackUrl
-        lifetime.coroutineScope.launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
+
+        currentEditSessionLifetime.launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
             val projectList = getProjectList() ?: return@launch
-                usePodmanRuntimeFlagEditor.isSelected.set(usePodmanRuntime)
+            usePodmanRuntimeFlagEditor.isSelected.set(usePodmanRuntime)
 
-                dotNetBrowserSettingsEditor.settings.set(
-                    BrowserSettings(
-                        dotNetStartBrowserParameters.startAfterLaunch,
-                        dotNetStartBrowserParameters.withJavaScriptDebugger,
-                        dotNetStartBrowserParameters.browser
-                    )
+            dotNetBrowserSettingsEditor.settings.set(
+                BrowserSettings(
+                    dotNetStartBrowserParameters.startAfterLaunch,
+                    dotNetStartBrowserParameters.withJavaScriptDebugger,
+                    dotNetStartBrowserParameters.browser
                 )
+            )
 
-                if (projectFilePath.isEmpty() || projectList.none {
-                        it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
-                    }) {
-                    if (projectFilePath.isEmpty()) {
-                        addFirstFunctionProject(projectList)
-                    } else {
-                        addFakeProject(projectList, projectFilePath)
-                    }
+            if (projectFilePath.isEmpty() || projectList.none {
+                    it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
+                }) {
+                if (projectFilePath.isEmpty()) {
+                    addFirstFunctionProject(projectList)
                 } else {
-                    addSelectedAspireHostProject(
-                        projectList,
-                        projectFilePath,
-                        projectTfm,
-                        launchProfileName,
-                        trackArguments,
-                        arguments,
-                        trackWorkingDirectory,
-                        workingDirectory,
-                        trackEnvs,
-                        envs,
-                        trackUrl,
-                        dotNetStartBrowserParameters
-                    )
+                    addFakeProject(projectList, projectFilePath)
                 }
+            } else {
+                addSelectedAspireHostProject(
+                    projectList,
+                    projectFilePath,
+                    projectTfm,
+                    launchProfileName,
+                    trackArguments,
+                    arguments,
+                    trackWorkingDirectory,
+                    workingDirectory,
+                    trackEnvs,
+                    envs,
+                    trackUrl,
+                    dotNetStartBrowserParameters
+                )
+            }
 
-                isLoaded = true
+            isLoaded = true
         }
     }
 
