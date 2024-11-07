@@ -13,8 +13,6 @@ import com.jetbrains.rider.run.configurations.IRunConfigurationWithDefault
 import com.jetbrains.rider.run.configurations.IRunnableProjectConfigurationType
 import com.jetbrains.rider.run.configurations.RunConfigurationHelper.hasConfigurationForNameAndTypeId
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class AspireHostConfigurationType : ConfigurationTypeBase(
     ID,
@@ -47,9 +45,9 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
         val result = mutableListOf<Pair<RunnableProject, RunnerAndConfigurationSettings>>()
 
         for (runnableProject in aspireHostProjects) {
-            val profiles = withContext(Dispatchers.IO) {
-                LaunchSettingsJsonService.getInstance(project).loadLaunchSettings(runnableProject)?.profiles
-            } ?: continue
+            val profiles = LaunchSettingsJsonService.getInstance(project).loadLaunchSettingsSuspend(
+                LaunchSettingsJsonService.getLaunchSettingsFileForProject(runnableProject) ?: continue
+            )?.profiles ?: continue
             for (profile in profiles) {
                 if (!profile.value.commandName.equals("Project", true))
                     continue

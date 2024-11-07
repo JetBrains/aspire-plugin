@@ -3,7 +3,6 @@
 package com.jetbrains.rider.aspire.sessionHost
 
 import com.intellij.ide.browsers.StartBrowserSettings
-import com.intellij.openapi.application.readAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -29,8 +28,6 @@ import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.run.environment.StringProcessingParameters
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URI
 import java.net.URISyntaxException
@@ -193,11 +190,9 @@ class SessionExecutableFactory(private val project: Project) {
     ): LaunchSettingsJson.Profile? {
         val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
 
-        val launchSettings = withContext(Dispatchers.Default) {
-            readAction {
-                LaunchSettingsJsonService.getInstance(project).loadLaunchSettings(runnableProject)
-            }
-        } ?: return null
+        val launchSettings = LaunchSettingsJsonService.getInstance(project).loadLaunchSettingsSuspend(
+            LaunchSettingsJsonService.getLaunchSettingsFileForProject(runnableProject) ?: return null
+        ) ?: return null
 
         return launchSettings.profiles?.get(launchProfileKey)
     }
@@ -211,11 +206,8 @@ class SessionExecutableFactory(private val project: Project) {
 
         val launchSettingsFile =
             LaunchSettingsJsonService.getLaunchSettingsFileForProject(sessionProjectPath.toFile()) ?: return null
-        val launchSettings = withContext(Dispatchers.Default) {
-            readAction {
-                LaunchSettingsJsonService.getInstance(project).loadLaunchSettings(launchSettingsFile) //TODO:Switch to suspend
-            }
-        } ?: return null
+        val launchSettings =
+            LaunchSettingsJsonService.getInstance(project).loadLaunchSettingsSuspend(launchSettingsFile) ?: return null
 
         return launchSettings.profiles?.get(launchProfileKey)
     }
