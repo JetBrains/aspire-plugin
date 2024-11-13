@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+- Fix resource icon when healthStatus is null
+
 ## [1.6.2] - 2024-10-30
 
 ### Fixed
