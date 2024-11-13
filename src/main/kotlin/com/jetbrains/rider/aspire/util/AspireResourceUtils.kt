@@ -24,7 +24,7 @@ internal fun getIcon(type: ResourceType, state: ResourceState?, healthStatus: Re
         ResourceState.Finished -> icon
         ResourceState.FailedToStart -> BadgeIconSupplier(icon).errorIcon
         ResourceState.Running -> {
-            if (healthStatus == ResourceHealthStatus.Healthy) {
+            if (healthStatus == ResourceHealthStatus.Healthy || healthStatus == null) {
                 BadgeIconSupplier(icon).liveIndicatorIcon
             } else {
                 BadgeIconSupplier(icon).warningIcon
