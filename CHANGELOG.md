@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.6.4] - 2024-11-14
+
 ### Fixed
 
 - [#292](https://github.com/JetBrains/aspire-plugin/issues/292) Fix no runner found for execution type 'IDE' error
@@ -260,7 +262,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.3...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.4...HEAD
+[1.6.4]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.0...v1.6.1
