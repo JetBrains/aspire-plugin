@@ -1,6 +1,5 @@
 package com.jetbrains.rider.aspire.sessionHost
 
-import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.KillableColoredProcessHandler
 import com.intellij.execution.process.ProcessEvent
@@ -15,16 +14,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
 import com.intellij.openapi.util.Key
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
+import com.jetbrains.rider.NetCoreRuntime
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
-import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
-import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.div
 
 @Service(Service.Level.PROJECT)
-class SessionHostLauncher(private val project: Project) {
+class SessionHostLauncher {
     companion object {
         fun getInstance(project: Project) = project.service<SessionHostLauncher>()
 
@@ -51,10 +49,9 @@ class SessionHostLauncher(private val project: Project) {
     ) {
         LOG.info("Starting Aspire session host")
 
-        val dotnet = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
-            ?: throw CantRunException("Cannot find active .NET runtime")
+        val dotnetCliPath = NetCoreRuntime.cliPath.value
 
-        val commandLine = getCommandLine(dotnet, aspireHostConfig, sessionHostRdPort)
+        val commandLine = getCommandLine(dotnetCliPath, aspireHostConfig, sessionHostRdPort)
         LOG.trace("Host command line: ${commandLine.commandLineString}")
 
         val processHandler = KillableColoredProcessHandler(commandLine)
@@ -87,12 +84,12 @@ class SessionHostLauncher(private val project: Project) {
     }
 
     private fun getCommandLine(
-        dotnet: DotNetCoreRuntime,
+        dotnetCliPath: String,
         aspireHostConfig: AspireHostConfig,
         rdPort: Int
     ): GeneralCommandLine {
         val commandLine = GeneralCommandLine()
-            .withExePath(dotnet.cliExePath)
+            .withExePath(dotnetCliPath)
             .withCharset(StandardCharsets.UTF_8)
             .withParameters(hostAssemblyPath.toString())
             .withWorkDirectory(hostAssemblyPath.parent.toFile())

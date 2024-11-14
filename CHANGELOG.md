@@ -4,7 +4,13 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#292](https://github.com/JetBrains/aspire-plugin/issues/292) Fix no runner found for execution type 'IDE' error
+
 ## [1.6.3] - 2024-11-13
+
+### Fixed
 
 - Fix resource icon when healthStatus is null
 
