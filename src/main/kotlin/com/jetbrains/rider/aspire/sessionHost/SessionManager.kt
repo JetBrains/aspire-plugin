@@ -15,6 +15,9 @@ import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
+import com.jetbrains.rider.build.BuildParameters
+import com.jetbrains.rider.build.tasks.BuildTaskThrottler
+import com.jetbrains.rider.model.BuildTarget
 import com.jetbrains.rider.run.pid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,6 +71,13 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.aspireHostConfig.aspireHostRunConfiguration
         )
         sessions[command.sessionId] = session
+
+        val buildParameters = BuildParameters(
+            BuildTarget(),
+            listOf(session.model.projectPath),
+            silentMode = true
+        )
+        BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
 
         val processLauncher = SessionProcessLauncher.getInstance(project)
         val processLifetime = session.lifetimeDefinition.lifetime

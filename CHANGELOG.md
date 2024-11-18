@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#298](https://github.com/JetBrains/aspire-plugin/issues/298) Build a resource project before launching it
+
 ## [1.6.4] - 2024-11-14
 
 ### Fixed
