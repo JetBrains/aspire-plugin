@@ -157,8 +157,8 @@ jobs:
           name: tests-result
           path: ${{ github.workspace }}/build/reports/tests
 
-  # Run Qodana inspections and provide report
-  inspectCode:
+  # Run Qodana inspections on the kotlin part and provide report
+  qodanaFrontend:
     name: Inspect code
     needs: [ build ]
     runs-on: ubuntu-latest
@@ -199,9 +199,59 @@ jobs:
       - name: Qodana - Code Inspection
         uses: JetBrains/qodana-action@v2024.2
         with:
+          args: --config,qodana-frontend.yaml
+          artifact-name: qodana-frontend
           cache-default-branch-only: true
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+
+  # Run Qodana inspections on the dotnet part and provide report
+  qodanaBackend:
+    name: Inspect code
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      checks: write
+      pull-requests: write
+    steps:
+
+      # Free GitHub Actions Environment Disk Space
+      - name: Maximize Build Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+
+      # Check out the current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+          fetch-depth: 0  # a full history is required for pull request analysis
+
+      # Set up Java environment for the next steps
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      # Setup .NET 8 environment for the next steps
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      # Run Qodana inspections
+      - name: Qodana - Code Inspection
+        uses: JetBrains/qodana-action@v2024.2
+        with:
+          args: --config,qodana-backend.yaml
+          artifact-name: qodana-backend
+          cache-default-branch-only: true
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_BACKEND }}
 
   # Run plugin structure verification along with IntelliJ Plugin Verifier
   verify:
@@ -262,7 +312,7 @@ jobs:
   releaseDraft:
     name: Release draft
     if: github.event_name != 'pull_request'
-    needs: [ build, test, inspectCode ]
+    needs: [ build, test, qodanaFrontend, qodanaBackend ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
