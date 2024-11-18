@@ -199,7 +199,7 @@ jobs:
       - name: Qodana - Code Inspection
         uses: JetBrains/qodana-action@v2024.2
         with:
-          args: --config,qodana-frontend.yml
+          args: --config,${{ github.workspace }}/qodana-frontend.yml
           artifact-name: qodana-frontend
           cache-default-branch-only: true
         env:
@@ -247,7 +247,7 @@ jobs:
       - name: Qodana - Code Inspection
         uses: JetBrains/qodana-action@v2024.2
         with:
-          args: --config,qodana-backend.yml
+          args: --config,${{ github.workspace }}/qodana-backend.yml
           artifact-name: qodana-backend
           cache-default-branch-only: true
         env:
