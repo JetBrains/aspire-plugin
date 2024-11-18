@@ -3,7 +3,6 @@
 
 version: 1.0
 linter: jetbrains/qodana-jvm:2024.2
-ide: QDJVM
 projectJDK: "17"
 profile:
   name: qodana.recommended

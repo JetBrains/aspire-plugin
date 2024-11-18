@@ -3,7 +3,6 @@
 
 version: 1.0
 linter: jetbrains/qodana-dotnet:2024.2
-ide: QDNET
 dotnet:
   solution: aspire-plugin.sln
 profile:
