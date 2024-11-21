@@ -35,7 +35,6 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
     ) = WasmHostProjectSessionRunProfile(
@@ -44,7 +43,6 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         dotnetExecutable,
         dotnetRuntime,
         sessionProcessEventListener,
-        sessionProcessTerminatedListener,
         sessionProcessLifetime,
         aspireHostProjectPath
     )
@@ -57,7 +55,6 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         dotnetRuntime: DotNetCoreRuntime,
         browserSettings: StartBrowserSettings?,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
     ) = WasmHostProjectSessionDebugProfile(
@@ -68,7 +65,6 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         dotnetRuntime,
         browserSettings,
         sessionProcessEventListener,
-        sessionProcessTerminatedListener,
         sessionProcessLifetime,
         aspireHostProjectPath
     )

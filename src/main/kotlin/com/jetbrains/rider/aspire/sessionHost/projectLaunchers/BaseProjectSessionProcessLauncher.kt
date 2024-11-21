@@ -48,7 +48,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         sessionId: String,
         sessionModel: SessionModel,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
@@ -78,7 +77,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             executableWithHotReload,
             runtime,
             sessionProcessEventListener,
-            sessionProcessTerminatedListener,
             sessionProcessLifetime,
             aspireHostProjectPath
         )
@@ -104,7 +102,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
     ): RunProfile
@@ -113,7 +110,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         sessionId: String,
         sessionModel: SessionModel,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
@@ -138,7 +134,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             runtime,
             browserSettings,
             sessionProcessEventListener,
-            sessionProcessTerminatedListener,
             sessionProcessLifetime,
             aspireHostProjectPath
         )
@@ -166,7 +161,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         dotnetRuntime: DotNetCoreRuntime,
         browserSettings: StartBrowserSettings?,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
     ): RunProfile

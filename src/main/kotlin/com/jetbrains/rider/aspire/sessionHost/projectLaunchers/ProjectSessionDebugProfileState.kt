@@ -22,7 +22,6 @@ open class ProjectSessionDebugProfileState(
     dotnetRuntime: DotNetCoreRuntime,
     environment: ExecutionEnvironment,
     private val sessionProcessEventListener: ProcessListener,
-    private val sessionProcessTerminatedListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime
 ) : DotNetCoreDebugProfile(
     dotnetRuntime,
@@ -68,8 +67,7 @@ open class ProjectSessionDebugProfileState(
             }
         }
 
-        debuggerWorkerProcessHandler.debuggerWorkerRealHandler.addProcessListener(sessionProcessEventListener)
-        debuggerWorkerProcessHandler.addProcessListener(sessionProcessTerminatedListener)
+        debuggerWorkerProcessHandler.addProcessListener(sessionProcessEventListener)
 
         return debuggerWorkerProcessHandler
     }

@@ -18,7 +18,6 @@ class WasmHostProjectSessionDebugProfile(
     private val dotnetRuntime: DotNetCoreRuntime,
     private val browserSettings: StartBrowserSettings?,
     private val sessionProcessEventListener: ProcessListener,
-    private val sessionProcessTerminatedListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime,
     aspireHostProjectPath: Path?
 ) : ProjectSessionProfile(projectName, dotnetExecutable, aspireHostProjectPath) {
@@ -33,7 +32,6 @@ class WasmHostProjectSessionDebugProfile(
         environment,
         browserSettings,
         sessionProcessEventListener,
-        sessionProcessTerminatedListener,
         sessionProcessLifetime
     )
 }
