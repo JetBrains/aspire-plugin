@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.6.5] - 2024-11-21
+
 ### Fixed
 
 - [#298](https://github.com/JetBrains/aspire-plugin/issues/298) Build a resource project before launching it
@@ -270,7 +272,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.4...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.5...HEAD
+[1.6.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.2...v1.6.3
 [1.6.2]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.1...v1.6.2
