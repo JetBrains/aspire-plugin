@@ -94,6 +94,9 @@ class AspireResource(
     var commands: Array<ResourceCommand>
         private set
 
+    var isUnderDebugger: Boolean? = null
+        private set
+
     var consoleView: ConsoleView = TextConsoleBuilderFactory
         .getInstance()
         .createBuilder(project)
@@ -232,8 +235,14 @@ class AspireResource(
         if (type != ResourceType.Project) return
 
         val handler =
-            if (processHandler is DebuggerWorkerProcessHandler) processHandler.debuggerWorkerRealHandler
-            else processHandler
+            if (processHandler is DebuggerWorkerProcessHandler) {
+                isUnderDebugger = true
+                processHandler.debuggerWorkerRealHandler
+            }
+            else {
+                isUnderDebugger = false
+                processHandler
+            }
         val console = createConsole(
             ConsoleKind.Normal,
             handler,
