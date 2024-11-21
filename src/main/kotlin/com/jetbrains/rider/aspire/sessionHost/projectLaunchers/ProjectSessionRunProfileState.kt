@@ -25,7 +25,6 @@ class ProjectSessionRunProfileState(
     private val dotnetRuntime: DotNetCoreRuntime,
     private val environment: ExecutionEnvironment,
     private val sessionProcessEventListener: ProcessListener,
-    private val sessionProcessTerminatedListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime
 ) : RunProfileState {
     companion object {
@@ -53,7 +52,6 @@ class ProjectSessionRunProfileState(
         }
 
         processHandler.addProcessListener(sessionProcessEventListener)
-        processHandler.addProcessListener(sessionProcessTerminatedListener)
 
         val console = createConsole(
             ConsoleKind.Normal,

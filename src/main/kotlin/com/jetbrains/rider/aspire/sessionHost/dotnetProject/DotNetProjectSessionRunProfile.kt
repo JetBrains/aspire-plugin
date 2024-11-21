@@ -16,7 +16,6 @@ class DotNetProjectSessionRunProfile(
     dotnetExecutable: DotNetExecutable,
     private val dotnetRuntime: DotNetCoreRuntime,
     private val sessionProcessEventListener: ProcessListener,
-    private val sessionProcessTerminatedListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime,
     aspireHostProjectPath: Path?
 ) : ProjectSessionProfile(projectName, dotnetExecutable, aspireHostProjectPath) {
@@ -29,7 +28,6 @@ class DotNetProjectSessionRunProfile(
         dotnetRuntime,
         environment,
         sessionProcessEventListener,
-        sessionProcessTerminatedListener,
         sessionProcessLifetime
     )
 }

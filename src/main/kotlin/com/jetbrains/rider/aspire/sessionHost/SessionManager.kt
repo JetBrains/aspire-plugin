@@ -17,6 +17,7 @@ import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
+import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.model.BuildTarget
 import com.jetbrains.rider.run.pid
 import kotlinx.coroutines.CoroutineScope
@@ -82,15 +83,12 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val processLauncher = SessionProcessLauncher.getInstance(project)
         val processLifetime = session.lifetimeDefinition.lifetime
 
-        //We need two separate listeners because they are subscribed to different handlers
         val sessionProcessListener = createSessionProcessEventListener(session.id, session.events)
-        val sessionProcessTerminatedListener = createSessionProcessTerminatedListener(session.id)
 
         processLauncher.launchSessionProcess(
             session.id,
             session.model,
             sessionProcessListener,
-            sessionProcessTerminatedListener,
             processLifetime,
             command.aspireHostConfig.debuggingMode,
             session.hostRunConfiguration
@@ -116,8 +114,10 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         object : ProcessAdapter() {
             override fun startNotified(event: ProcessEvent) {
                 LOG.trace { "Aspire session process was started (id: $sessionId)" }
-                val pid = when (event.processHandler) {
-                    is KillableProcessHandler -> event.processHandler.pid()
+                val processHandler = event.processHandler
+                val pid = when (processHandler) {
+                    is DebuggerWorkerProcessHandler -> processHandler.debuggerWorkerRealHandler.pid()
+                    is ProcessHandler -> event.processHandler.pid()
                     else -> null
                 }
                 if (pid == null) {
@@ -138,10 +138,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
                 LOG.warn("Aspire session process is not started")
                 sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
             }
-        }
 
-    private fun createSessionProcessTerminatedListener(sessionId: String): ProcessListener =
-        object : ProcessAdapter() {
             override fun processTerminated(event: ProcessEvent) {
                 LOG.trace("Stopping session $sessionId (${event.exitCode}, ${event.text})")
 

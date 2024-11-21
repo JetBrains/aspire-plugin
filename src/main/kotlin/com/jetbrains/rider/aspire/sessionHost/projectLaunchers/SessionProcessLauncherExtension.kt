@@ -21,7 +21,6 @@ interface SessionProcessLauncherExtension {
         sessionId: String,
         sessionModel: SessionModel,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
@@ -31,7 +30,6 @@ interface SessionProcessLauncherExtension {
         sessionId: String,
         sessionModel: SessionModel,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project

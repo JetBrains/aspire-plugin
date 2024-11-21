@@ -25,7 +25,6 @@ class SessionProcessLauncher(private val project: Project) {
         sessionId: String,
         sessionModel: SessionModel,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         debuggingMode: Boolean,
         hostRunConfiguration: AspireHostConfiguration?,
@@ -42,7 +41,6 @@ class SessionProcessLauncher(private val project: Project) {
                 sessionId,
                 sessionModel,
                 sessionProcessEventListener,
-                sessionProcessTerminatedListener,
                 sessionProcessLifetime,
                 hostRunConfiguration
             )
@@ -51,7 +49,6 @@ class SessionProcessLauncher(private val project: Project) {
                 sessionId,
                 sessionModel,
                 sessionProcessEventListener,
-                sessionProcessTerminatedListener,
                 sessionProcessLifetime,
                 hostRunConfiguration
             )
@@ -62,7 +59,6 @@ class SessionProcessLauncher(private val project: Project) {
         sessionId: String,
         sessionModel: SessionModel,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?
     ) {
@@ -76,7 +72,6 @@ class SessionProcessLauncher(private val project: Project) {
             sessionId,
             sessionModel,
             sessionProcessEventListener,
-            sessionProcessTerminatedListener,
             sessionProcessLifetime,
             hostRunConfiguration,
             project,
@@ -87,7 +82,6 @@ class SessionProcessLauncher(private val project: Project) {
         sessionId: String,
         sessionModel: SessionModel,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessTerminatedListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?
     ) {
@@ -101,7 +95,6 @@ class SessionProcessLauncher(private val project: Project) {
             sessionId,
             sessionModel,
             sessionProcessEventListener,
-            sessionProcessTerminatedListener,
             sessionProcessLifetime,
             hostRunConfiguration,
             project,

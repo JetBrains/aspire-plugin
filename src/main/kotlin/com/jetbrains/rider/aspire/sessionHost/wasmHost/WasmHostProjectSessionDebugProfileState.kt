@@ -29,7 +29,6 @@ class WasmHostProjectSessionDebugProfileState(
     environment: ExecutionEnvironment,
     private val browserSettings: StartBrowserSettings?,
     sessionProcessEventListener: ProcessListener,
-    sessionProcessTerminatedListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime
 ) : ProjectSessionDebugProfileState(
     sessionId,
@@ -37,7 +36,6 @@ class WasmHostProjectSessionDebugProfileState(
     dotnetRuntime,
     environment,
     sessionProcessEventListener,
-    sessionProcessTerminatedListener,
     sessionProcessLifetime
 ) {
     companion object {
