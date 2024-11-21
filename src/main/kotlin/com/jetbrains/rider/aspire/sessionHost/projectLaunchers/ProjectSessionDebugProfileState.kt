@@ -7,6 +7,7 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.diagnostic.logger
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
 import com.jetbrains.rider.run.TerminalProcessHandler
@@ -32,6 +33,18 @@ open class ProjectSessionDebugProfileState(
     companion object {
         private val LOG = logger<ProjectSessionDebugProfileState>()
     }
+
+    override suspend fun createWorkerRunInfo(
+        lifetime: Lifetime,
+        helper: DebuggerHelperHost,
+        port: Int
+    ) = createWorkerRunInfoForLauncherInfo(
+        consoleKind,
+        port,
+        getLauncherInfo(lifetime, helper),
+        dotNetExecutable.executableType,
+        dotNetExecutable.usePty
+    )
 
     override suspend fun startDebuggerWorker(
         workerCmd: GeneralCommandLine,
