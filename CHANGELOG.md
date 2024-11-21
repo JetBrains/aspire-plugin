@@ -8,6 +8,10 @@
 
 - [#298](https://github.com/JetBrains/aspire-plugin/issues/298) Build a resource project before launching it
 
+### Added
+
+- Attach debugger to a resource dashboard action
+
 ## [1.6.4] - 2024-11-14
 
 ### Fixed

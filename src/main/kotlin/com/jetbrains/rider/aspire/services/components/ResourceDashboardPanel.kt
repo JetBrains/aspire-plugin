@@ -83,6 +83,14 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             actionButton(restartAction)
             val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
             actionButton(stopAction)
+            if (resourceData.type == ResourceType.Project &&
+                resourceData.state == ResourceState.Running &&
+                resourceData.pid != null &&
+                resourceData.isUnderDebugger == false
+            ) {
+                val attachAction = ActionManager.getInstance().getAction("Aspire.Resource.Attach")
+                actionButton(attachAction)
+            }
         }
         separator()
 
