@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated plugin configuration
+
 ## [1.6.5] - 2024-11-21
 
 ### Fixed
