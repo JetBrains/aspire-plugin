@@ -247,7 +247,6 @@ jobs:
       - name: Qodana - Code Inspection
         uses: JetBrains/qodana-action@v2024.2
         with:
-          args: --ide,QDNET
           artifact-name: qodana-backend
           cache-default-branch-only: true
         env:
