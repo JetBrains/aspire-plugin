@@ -202,7 +202,6 @@ jobs:
           args: --config,qodana-frontend.yml
           artifact-name: qodana-frontend
           cache-default-branch-only: true
-          pr-mode: false
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
 
@@ -251,7 +250,6 @@ jobs:
           args: --config,qodana-backend.yml
           artifact-name: qodana-backend
           cache-default-branch-only: true
-          pr-mode: false
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_BACKEND }}
 
