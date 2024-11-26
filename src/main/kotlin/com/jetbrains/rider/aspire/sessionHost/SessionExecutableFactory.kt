@@ -118,7 +118,8 @@ class SessionExecutableFactory(private val project: Project) {
             null,
             "",
             !executablePath.endsWith(".dll", true),
-            DotNetCoreRuntimeType
+            DotNetCoreRuntimeType,
+            usePty = false
         ) to browserSettings
     }
 

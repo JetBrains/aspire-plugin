@@ -14,7 +14,6 @@ import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -129,7 +128,10 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             }
 
             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                val text = decodeAnsiCommandsToString(event.text, outputType)
+                val text =
+                    if (event.text.endsWith("\r\n")) event.text.substring(0, event.text.length - 2)
+                    else if (event.text.endsWith("\n")) event.text.substring(0, event.text.length - 1)
+                    else event.text
                 val isStdErr = outputType == ProcessOutputType.STDERR
                 sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
             }
