@@ -110,52 +110,52 @@ jobs:
           name: ${{ steps.artifact.outputs.filename }}
           path: ./build/distributions/content/*/*
 
-#  # Run tests and upload a code coverage report
-#  test:
-#    name: Test
-#    needs: [ build ]
-#    runs-on: ubuntu-latest
-#    steps:
-#
-#      # Free GitHub Actions Environment Disk Space
-#      - name: Maximize Build Space
-#        uses: jlumbroso/free-disk-space@v1.3.1
-#        with:
-#          tool-cache: false
-#          large-packages: false
-#
-#      # Check out the current repository
-#      - name: Fetch Sources
-#        uses: actions/checkout@v4
-#
-#      # Set up Java environment for the next steps
-#      - name: Setup Java
-#        uses: actions/setup-java@v4
-#        with:
-#          distribution: zulu
-#          java-version: 17
-#
-#      # Setup .NET 8 environment for the next steps
-#      - name: Setup .NET
-#        uses: actions/setup-dotnet@v4
-#        with:
-#          dotnet-version: '8.x'
-#
-#      # Setup Gradle
-#      - name: Setup Gradle
-#        uses: gradle/actions/setup-gradle@v4
-#
-#      # Run tests
-#      - name: Run Tests
-#        run: ./gradlew check
-#
-#      # Collect Tests Result of failed tests
-#      - name: Collect Tests Result
-#        if: ${{ failure() }}
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: tests-result
-#          path: ${{ github.workspace }}/build/reports/tests
+  # Run tests and upload a code coverage report
+  test:
+    name: Test
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+
+      # Free GitHub Actions Environment Disk Space
+      - name: Maximize Build Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+
+      # Check out the current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+
+      # Set up Java environment for the next steps
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      # Setup .NET 8 environment for the next steps
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      # Setup Gradle
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Run tests
+      - name: Run Tests
+        run: ./gradlew check
+
+      # Collect Tests Result of failed tests
+      - name: Collect Tests Result
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-result
+          path: ${{ github.workspace }}/build/reports/tests
 
   # Run Qodana inspections on the Kotlin part and provide a report
   qodanaFrontend:
@@ -206,7 +206,7 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
 
-  # Run Qodana inspections on the dotnet part and provide report
+  # Run Qodana inspections on the dotnet part and provide a report
   qodanaBackend:
     name: Qodana Backend
     needs: [ build ]
@@ -255,93 +255,93 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_BACKEND }}
 
-#  # Run plugin structure verification along with IntelliJ Plugin Verifier
-#  verify:
-#    name: Verify plugin
-#    needs: [ build ]
-#    runs-on: ubuntu-latest
-#    steps:
-#
-#      # Free GitHub Actions Environment Disk Space
-#      - name: Maximize Build Space
-#        uses: jlumbroso/free-disk-space@v1.3.1
-#        with:
-#          tool-cache: false
-#          large-packages: false
-#
-#      # Check out the current repository
-#      - name: Fetch Sources
-#        uses: actions/checkout@v4
-#
-#      # Set up Java environment for the next steps
-#      - name: Setup Java
-#        uses: actions/setup-java@v4
-#        with:
-#          distribution: zulu
-#          java-version: 17
-#
-#      # Setup .NET 8 environment for the next steps
-#      - name: Setup .NET
-#        uses: actions/setup-dotnet@v4
-#        with:
-#          dotnet-version: '8.x'
-#
-#      # Setup Gradle
-#      - name: Setup Gradle
-#        uses: gradle/actions/setup-gradle@v4
-#
-#      # Cache Plugin Verifier IDEs
-#      - name: Setup Plugin Verifier IDEs Cache
-#        uses: actions/cache@v4
-#        with:
-#          path: ${{ needs.build.outputs.pluginVerifierHomeDir }}/ides
-#          key: plugin-verifier-${{ hashFiles('build/listProductsReleases.txt') }}
-#
-#      # Run Verify Plugin task and IntelliJ Plugin Verifier tool
-#      - name: Run Plugin Verification tasks
-#        run: ./gradlew verifyPlugin -Dplugin.verifier.home.dir=${{ needs.build.outputs.pluginVerifierHomeDir }}
-#
-#      # Collect Plugin Verifier Result
-#      - name: Collect Plugin Verifier Result
-#        if: ${{ always() }}
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: pluginVerifier-result
-#          path: ${{ github.workspace }}/build/reports/pluginVerifier
+  # Run plugin structure verification along with IntelliJ Plugin Verifier
+  verify:
+    name: Verify plugin
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
 
-#  # Prepare a draft release for GitHub Releases page for the manual verification
-#  # If accepted and published, release workflow would be triggered
-#  releaseDraft:
-#    name: Release draft
-#    if: github.event_name != 'pull_request'
-#    needs: [ build, test, qodanaFrontend, qodanaBackend ]
-#    runs-on: ubuntu-latest
-#    permissions:
-#      contents: write
-#    steps:
-#
-#      # Check out the current repository
-#      - name: Fetch Sources
-#        uses: actions/checkout@v4
-#
-#      # Remove old release drafts by using the curl request for the available releases with a draft flag
-#      - name: Remove Old Release Drafts
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        run: |
-#          gh api repos/{owner}/{repo}/releases \
-#            --jq '.[] | select(.draft == true) | .id' \
-#            | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
-#
-#      # Create a new release draft which is not publicly visible and requires manual acceptance
-#      - name: Create Release Draft
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        run: |
-#          gh release create "v${{ needs.build.outputs.version }}" \
-#            --draft \
-#            --title "v${{ needs.build.outputs.version }}" \
-#            --notes "$(cat << 'EOM'
-#          ${{ needs.build.outputs.changelog }}
-#          EOM
-#          )"
+      # Free GitHub Actions Environment Disk Space
+      - name: Maximize Build Space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+
+      # Check out the current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+
+      # Set up Java environment for the next steps
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      # Setup .NET 8 environment for the next steps
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      # Setup Gradle
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # Cache Plugin Verifier IDEs
+      - name: Setup Plugin Verifier IDEs Cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ needs.build.outputs.pluginVerifierHomeDir }}/ides
+          key: plugin-verifier-${{ hashFiles('build/listProductsReleases.txt') }}
+
+      # Run Verify Plugin task and IntelliJ Plugin Verifier tool
+      - name: Run Plugin Verification tasks
+        run: ./gradlew verifyPlugin -Dplugin.verifier.home.dir=${{ needs.build.outputs.pluginVerifierHomeDir }}
+
+      # Collect Plugin Verifier Result
+      - name: Collect Plugin Verifier Result
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: pluginVerifier-result
+          path: ${{ github.workspace }}/build/reports/pluginVerifier
+
+  # Prepare a draft release for GitHub Releases page for the manual verification
+  # If accepted and published, release workflow would be triggered
+  releaseDraft:
+    name: Release draft
+    if: github.event_name != 'pull_request'
+    needs: [ build, test, qodanaFrontend, qodanaBackend ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+
+      # Check out the current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+
+      # Remove old release drafts by using the curl request for the available releases with a draft flag
+      - name: Remove Old Release Drafts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/{owner}/{repo}/releases \
+            --jq '.[] | select(.draft == true) | .id' \
+            | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
+
+      # Create a new release draft which is not publicly visible and requires manual acceptance
+      - name: Create Release Draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ needs.build.outputs.version }}" \
+            --draft \
+            --title "v${{ needs.build.outputs.version }}" \
+            --notes "$(cat << 'EOM'
+          ${{ needs.build.outputs.changelog }}
+          EOM
+          )"
