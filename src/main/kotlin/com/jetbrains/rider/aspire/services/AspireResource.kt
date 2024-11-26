@@ -10,6 +10,7 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.terminal.TerminalExecutionConsole
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.settings.AspireSettings
@@ -98,6 +99,8 @@ class AspireResource(
     var isUnderDebugger: Boolean? = null
         private set
 
+    val console = TerminalExecutionConsole(project, null)
+
     var consoleView: ConsoleView = TextConsoleBuilderFactory
         .getInstance()
         .createBuilder(project)
@@ -129,6 +132,7 @@ class AspireResource(
         modelWrapper.model.advise(lifetime, ::update)
         modelWrapper.logReceived.advise(lifetime, ::logReceived)
 
+        Disposer.register(this, console)
         Disposer.register(this, consoleView)
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(this)
@@ -248,15 +252,15 @@ class AspireResource(
                 isUnderDebugger = false
                 processHandler
             }
-        val console = createConsole(
-            ConsoleKind.Normal,
-            handler,
-            project
-        )
-        Disposer.register(this, console)
-        consoleView = console
+//        val console = createConsole(
+//            ConsoleKind.Normal,
+//            handler,
+//            project
+//        )
+//        Disposer.register(this, console)
+//        consoleView = console
 
-        sendServiceChildrenChangedEvent()
+//        sendServiceChildrenChangedEvent()
     }
 
     suspend fun executeCommand(commandType: String) = withContext(Dispatchers.EDT) {
@@ -272,10 +276,10 @@ class AspireResource(
     }
 
     private fun logReceived(log: ResourceLog) {
-        if (type == ResourceType.Project) return
+//        if (type == ResourceType.Project) return
 
-        consoleView.print(
-            log.text + "\n",
+        console.print(
+            log.text, //+ "\n",
             if (!log.isError) ConsoleViewContentType.NORMAL_OUTPUT
             else ConsoleViewContentType.ERROR_OUTPUT
         )
