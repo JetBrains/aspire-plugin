@@ -7,6 +7,6 @@ import com.jetbrains.rider.aspire.services.AspireResource
 class ResourceConsolePanel(resourceService: AspireResource) : BorderLayoutPanel() {
     init {
         border = JBUI.Borders.empty()
-        add(resourceService.consoleView.component)
+        add(resourceService.console.component)
     }
 }
