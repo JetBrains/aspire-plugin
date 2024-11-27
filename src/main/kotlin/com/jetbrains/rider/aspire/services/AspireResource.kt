@@ -1,10 +1,8 @@
 package com.jetbrains.rider.aspire.services
 
-import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.services.ServiceEventListener
-import com.intellij.execution.ui.ConsoleView
-import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
@@ -15,8 +13,6 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
-import com.jetbrains.rider.run.ConsoleKind
-import com.jetbrains.rider.run.createConsole
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -98,13 +94,16 @@ class AspireResource(
     var isUnderDebugger: Boolean? = null
         private set
 
-    val console = TerminalExecutionConsole(project, null)
+    private val logProcessHandler = object : ProcessHandler() {
+        override fun destroyProcessImpl() {}
 
-    var consoleView: ConsoleView = TextConsoleBuilderFactory
-        .getInstance()
-        .createBuilder(project)
-        .apply { setViewer(true) }
-        .console
+        override fun detachProcessImpl() {}
+
+        override fun detachIsDefault() = false
+
+        override fun getProcessInput() = null
+    }
+    val logConsole = TerminalExecutionConsole(project, logProcessHandler)
 
     init {
         val model = modelWrapper.model.valueOrNull
@@ -131,8 +130,9 @@ class AspireResource(
         modelWrapper.model.advise(lifetime, ::update)
         modelWrapper.logReceived.advise(lifetime, ::logReceived)
 
-        Disposer.register(this, console)
-        Disposer.register(this, consoleView)
+        logProcessHandler.startNotify()
+
+        Disposer.register(this, logConsole)
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(this)
 
@@ -238,24 +238,9 @@ class AspireResource(
     fun setHandler(processHandler: ProcessHandler) {
         if (type != ResourceType.Project) return
 
-        val handler =
-            if (processHandler is DebuggerWorkerProcessHandler) {
-                isUnderDebugger = true
-                processHandler.debuggerWorkerRealHandler
-            }
-            else {
-                isUnderDebugger = false
-                processHandler
-            }
-//        val console = createConsole(
-//            ConsoleKind.Normal,
-//            handler,
-//            project
-//        )
-//        Disposer.register(this, console)
-//        consoleView = console
+        isUnderDebugger = processHandler is DebuggerWorkerProcessHandler
 
-//        sendServiceChildrenChangedEvent()
+        sendServiceChildrenChangedEvent()
     }
 
     suspend fun executeCommand(commandType: String) = withContext(Dispatchers.EDT) {
@@ -271,13 +256,8 @@ class AspireResource(
     }
 
     private fun logReceived(log: ResourceLog) {
-//        if (type == ResourceType.Project) return
-
-        console.print(
-            log.text, //+ "\n",
-            if (!log.isError) ConsoleViewContentType.NORMAL_OUTPUT
-            else ConsoleViewContentType.ERROR_OUTPUT
-        )
+        val outputType = if (!log.isError) ProcessOutputTypes.STDOUT else ProcessOutputTypes.STDERR
+        logProcessHandler.notifyTextAvailable(log.text + "\r\n", outputType)
     }
 
     private fun sendServiceStructureChangedEvent() {
