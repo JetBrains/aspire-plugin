@@ -13,6 +13,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
+import com.jetbrains.rider.aspire.util.parseLogEntry
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -97,14 +98,12 @@ class AspireResource(
 
     private val logProcessHandler = object : ProcessHandler() {
         override fun destroyProcessImpl() {}
-
         override fun detachProcessImpl() {}
-
         override fun detachIsDefault() = false
-
         override fun getProcessInput() = null
     }
-    val logConsole = TerminalExecutionConsole(project, logProcessHandler)
+    private val logConsole = TerminalExecutionConsole(project, logProcessHandler)
+    val logConsoleComponent = logConsole.component
 
     init {
         val model = modelWrapper.model.valueOrNull
@@ -262,7 +261,9 @@ class AspireResource(
 
     private fun logReceived(log: ResourceLog) {
         val outputType = if (!log.isError) ProcessOutputTypes.STDOUT else ProcessOutputTypes.STDERR
-        logProcessHandler.notifyTextAvailable(log.text + "\r\n", outputType)
+        val (timestamp, logContent) = parseLogEntry(log.text) ?: return
+        val logLine = "$timestamp $logContent"
+        logProcessHandler.notifyTextAvailable(logLine + "\r\n", outputType)
     }
 
     private fun sendServiceStructureChangedEvent() {
