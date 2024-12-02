@@ -71,6 +71,8 @@ class AspireResource(
         private set
     var exitCode: Int? = null
         private set
+    var connectionString: String? = null
+        private set
     var pid: Int? = null
         private set
     var projectPath: Path? = null
@@ -90,6 +92,8 @@ class AspireResource(
     var containerCommand: String? = null
         private set
     var containerArgs: String? = null
+        private set
+    var containerLifetime: String? = null
         private set
 
     var commands: Array<ResourceCommand>
@@ -168,16 +172,20 @@ class AspireResource(
                     property.value?.let { exitCode = it.toDouble().roundToInt() }
                 }
 
+                "resource.connectionString" -> {
+                    property.value?.let { connectionString = it }
+                }
+
                 "project.path" -> {
                     property.value?.let { projectPath = Path(it) }
                 }
 
-                "executable.pid" -> {
-                    property.value?.let { pid = it.toInt() }
-                }
-
                 "executable.path" -> {
                     property.value?.let { executablePath = Path(it) }
+                }
+
+                "executable.pid" -> {
+                    property.value?.let { pid = it.toInt() }
                 }
 
                 "executable.workDir" -> {
@@ -188,12 +196,12 @@ class AspireResource(
                     property.value?.let { args = it }
                 }
 
-                "container.image" -> {
-                    property.value?.let { containerImage = it }
-                }
-
                 "container.id" -> {
                     property.value?.let { containerId = it }
+                }
+
+                "container.image" -> {
+                    property.value?.let { containerImage = it }
                 }
 
                 "container.ports" -> {
@@ -206,6 +214,10 @@ class AspireResource(
 
                 "container.args" -> {
                     property.value?.let { containerArgs = it }
+                }
+
+                "container.lifetime" -> {
+                    property.value?.let { containerLifetime = it }
                 }
             }
         }
