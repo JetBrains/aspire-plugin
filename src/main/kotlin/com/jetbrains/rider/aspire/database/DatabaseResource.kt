@@ -6,6 +6,7 @@ data class DatabaseResource(
     val name: String,
     val type: DatabaseResourceType,
     val ports: List<String>,
+    val isPersistent: Boolean,
     val lifetime: Lifetime
 )
 
