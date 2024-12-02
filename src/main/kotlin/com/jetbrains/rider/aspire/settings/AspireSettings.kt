@@ -23,4 +23,10 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         set(value) {
             state.connectToDatabase = value
         }
+
+    var showSensitiveProperties
+        get() = state.showSensitiveProperties
+        set(value) {
+            state.showSensitiveProperties = value
+        }
 }
