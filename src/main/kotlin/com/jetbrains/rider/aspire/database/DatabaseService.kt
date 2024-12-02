@@ -104,12 +104,10 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
     }
 
     private suspend fun handleAddConnectionStringCommand(command: AddConnectionStringCommand) {
+        connectionStrings.add(command.connectionString)
+
         val resources = findResourceByConnectionString(command.connectionString)
-        if (resources.isEmpty()) {
-            connectionStrings.add(command.connectionString)
-        } else {
-            resources.forEach { createDataSource(command.connectionString, it) }
-        }
+        resources.forEach { createDataSource(command.connectionString, it) }
     }
 
     private fun findResourceByConnectionString(connectionString: DatabaseResourceConnectionString): List<DatabaseResource> {
@@ -126,12 +124,10 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
     }
 
     private suspend fun handleAddDatabaseResourceCommand(command: AddDatabaseResourceCommand) {
+        databaseResources.add(command.resource)
+
         val connectionStrings = findConnectionStringByResource(command.resource)
-        if (connectionStrings.isEmpty()) {
-            databaseResources.add(command.resource)
-        } else {
-            connectionStrings.forEach { createDataSource(it, command.resource) }
-        }
+        connectionStrings.forEach { createDataSource(it, command.resource) }
     }
 
     private fun findConnectionStringByResource(resource: DatabaseResource): List<DatabaseResourceConnectionString> {
