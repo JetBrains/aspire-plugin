@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
+import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
@@ -156,7 +157,11 @@ class AspireResource(
     }
 
     private fun fillFromProperties(properties: Array<ResourceProperty>) {
+        val showSensitiveProperties = AspireSettings.getInstance().showSensitiveProperties
+
         for (property in properties) {
+            if (property.isSensitive == true && !showSensitiveProperties) continue
+
             when (property.name) {
 
                 "resource.exitCode" -> {

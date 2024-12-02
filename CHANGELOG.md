@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Setting to hide sensitive property values on the dashboard
+
 ## [1.6.6] - 2024-11-22
 
 ### Changed

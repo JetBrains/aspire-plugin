@@ -39,8 +39,8 @@ class AspireResourceServiceViewContributor(
 
     private fun getPanel(): JPanel {
         val tabs = JBTabbedPane()
-        tabs.addTab(AspireBundle.getMessage("service.tab.dashboard"), ResourceDashboardPanel(aspireResource))
-        tabs.addTab(AspireBundle.getMessage("service.tab.console"), ResourceConsolePanel(aspireResource))
+        tabs.addTab(AspireBundle.message("service.tab.dashboard"), ResourceDashboardPanel(aspireResource))
+        tabs.addTab(AspireBundle.message("service.tab.console"), ResourceConsolePanel(aspireResource))
 
         val panel = JPanel(BorderLayout()).apply {
             add(tabs, BorderLayout.CENTER)
