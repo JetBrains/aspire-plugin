@@ -256,9 +256,8 @@ class AspireResource(
 
     private fun logReceived(log: ResourceLog) {
         val outputType = if (!log.isError) ProcessOutputTypes.STDOUT else ProcessOutputTypes.STDERR
-        val (timestamp, logContent) = parseLogEntry(log.text) ?: return
-        val logLine = "$timestamp $logContent"
-        logProcessHandler.notifyTextAvailable(logLine + "\r\n", outputType)
+        val (_, logContent) = parseLogEntry(log.text) ?: return
+        logProcessHandler.notifyTextAvailable(logContent + "\r\n", outputType)
     }
 
     private fun sendServiceStructureChangedEvent() {
