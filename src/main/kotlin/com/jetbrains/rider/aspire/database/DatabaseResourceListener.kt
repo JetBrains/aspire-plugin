@@ -2,8 +2,8 @@ package com.jetbrains.rider.aspire.database
 
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.generated.ResourceType
-import com.jetbrains.rider.aspire.services.ResourceListener
 import com.jetbrains.rider.aspire.services.AspireResource
+import com.jetbrains.rider.aspire.services.ResourceListener
 import java.net.URI
 
 class DatabaseResourceListener(private val project: Project) : ResourceListener {
@@ -57,11 +57,13 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
                     }
                 }
                 .toList()
+            val isPersistent = resource.containerLifetime.equals("persistent", true)
 
             val databaseResource = DatabaseResource(
                 resource.name,
                 resourceType,
                 ports,
+                isPersistent,
                 resource.lifetime
             )
             service.addDatabaseResource(databaseResource)
