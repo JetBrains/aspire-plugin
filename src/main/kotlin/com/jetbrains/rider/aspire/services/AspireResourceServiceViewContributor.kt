@@ -51,7 +51,10 @@ class AspireResourceServiceViewContributor(
 
     private inner class AspireResourceServiceViewDescriptor : ServiceViewDescriptor, DataProvider {
         private val toolbarActions = DefaultActionGroup(
-            ActionManager.getInstance().getAction("Aspire.Resource.Stop")
+            ActionManager.getInstance().getAction("Aspire.Resource.Start"),
+            ActionManager.getInstance().getAction("Aspire.Resource.Restart"),
+            ActionManager.getInstance().getAction("Aspire.Resource.Stop"),
+            ActionManager.getInstance().getAction("Aspire.Resource.Attach")
         )
 
         override fun getPresentation() = PresentationData().apply {
