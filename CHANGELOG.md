@@ -12,6 +12,7 @@
 
 - [#119](https://github.com/JetBrains/aspire-plugin/issues/119): Colors in Aspire logs are missing
 - [#306](https://github.com/JetBrains/aspire-plugin/issues/306): Can run AppHost under .NET 9
+- [#304](https://github.com/JetBrains/aspire-plugin/issues/304): Starting console application project resource does not honor `workingDirectory` option of the launch profile
 
 ## [1.6.6] - 2024-11-22
 

@@ -14,6 +14,7 @@ import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.getWorkingDirectory
 import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.MSBuildPropertyService
 import com.jetbrains.rider.aspire.util.getStartBrowserAction
@@ -70,7 +71,7 @@ class SessionExecutableFactory(private val project: Project) {
         val output = runnableProject.projectOutputs.firstOrNull() ?: return null
         val launchProfile = getLaunchProfile(sessionModel, runnableProject)
         val executablePath = output.exePath
-        val workingDirectory = output.workingDirectory
+        val workingDirectory = getWorkingDirectory(launchProfile, output)
         val arguments = mergeArguments(sessionModel.args, output.defaultArguments, launchProfile?.commandLineArgs)
         val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
 
@@ -133,7 +134,7 @@ class SessionExecutableFactory(private val project: Project) {
         val properties = propertyService.getProjectRunProperties(sessionProjectPath) ?: return null
         val launchProfile = getLaunchProfile(sessionModel, sessionProjectPath)
         val executablePath = properties.executablePath.systemIndependentPath
-        val workingDirectory = properties.workingDirectory.systemIndependentPath
+        val workingDirectory = getWorkingDirectory(launchProfile, properties)
         val arguments = mergeArguments(sessionModel.args, properties.arguments, launchProfile?.commandLineArgs)
         val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
 

@@ -1,6 +1,8 @@
 package com.jetbrains.rider.aspire.run
 
 import com.intellij.util.execution.ParametersListUtil
+import com.intellij.util.io.systemIndependentPath
+import com.jetbrains.rider.aspire.util.MSBuildPropertyService.ProjectRunProperties
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 
@@ -20,6 +22,10 @@ internal fun getArguments(profile: LaunchSettingsJson.Profile?, projectOutput: P
 
 internal fun getWorkingDirectory(profile: LaunchSettingsJson.Profile?, projectOutput: ProjectOutput?): String {
     return profile?.workingDirectory ?: projectOutput?.workingDirectory ?: ""
+}
+
+internal fun getWorkingDirectory(profile: LaunchSettingsJson.Profile?, projectProperties: ProjectRunProperties?): String {
+    return profile?.workingDirectory ?: projectProperties?.workingDirectory?.systemIndependentPath ?: ""
 }
 
 internal fun getEnvironmentVariables(
