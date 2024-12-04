@@ -237,7 +237,7 @@ class AspireHostConfigurationViewModel(
                     it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
                 }) {
                 if (projectFilePath.isEmpty()) {
-                    addFirstFunctionProject(projectList)
+                    addFirstAspireProject(projectList)
                 } else {
                     addFakeProject(projectList, projectFilePath)
                 }
@@ -262,7 +262,7 @@ class AspireHostConfigurationViewModel(
         }
     }
 
-    private fun addFirstFunctionProject(projectList: List<RunnableProject>) {
+    private fun addFirstAspireProject(projectList: List<RunnableProject>) {
         val runnableProject = projectList.firstOrNull { it.kind == AspireRunnableProjectKinds.AspireHost }
             ?: return
         projectSelector.project.set(runnableProject)
@@ -317,6 +317,7 @@ class AspireHostConfigurationViewModel(
         if (selectedTfm != null) {
             tfmSelector.string.set(selectedTfm)
         } else {
+            tfmSelector.stringList.add("")
             tfmSelector.string.set("")
         }
 
