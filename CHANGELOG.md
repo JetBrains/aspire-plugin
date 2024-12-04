@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.6.7] - 2024-12-04
+
 ### Added
 
 - Setting to hide sensitive property values on the dashboard
@@ -288,7 +290,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.6...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.7...HEAD
+[1.6.7]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.6...v1.6.7
 [1.6.6]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.5...v1.6.6
 [1.6.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.3...v1.6.4
