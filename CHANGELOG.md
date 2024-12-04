@@ -8,6 +8,11 @@
 
 - Setting to hide sensitive property values on the dashboard
 
+### Fixed
+
+- [#119](https://github.com/JetBrains/aspire-plugin/issues/119): Colors in Aspire logs are missing
+- [#306](https://github.com/JetBrains/aspire-plugin/issues/306): Can run AppHost under .NET 9
+
 ## [1.6.6] - 2024-11-22
 
 ### Changed
