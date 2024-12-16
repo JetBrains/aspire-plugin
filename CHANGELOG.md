@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed 
+
+- [RIDER-121087](https://youtrack.jetbrains.com/issue/RIDER-121087): Aspire suggests generating a run config on any project
+
 ## [1.6.7] - 2024-12-04
 
 ### Added
