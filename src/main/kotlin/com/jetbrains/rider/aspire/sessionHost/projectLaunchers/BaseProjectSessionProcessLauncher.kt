@@ -12,7 +12,6 @@ import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.EDT
-import com.intellij.openapi.application.readAction
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
@@ -215,9 +214,8 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         )
 
         val profile = if (!launchProfile.isNullOrEmpty()) {
-            val launchSettings = readAction {
-                LaunchSettingsJsonService.loadLaunchSettings(runnableProject)
-            }
+            val launchSettings = LaunchSettingsJsonService.getLaunchSettingsFileForProject(runnableProject)
+                ?.let { LaunchSettingsJsonService.getInstance(project).loadLaunchSettingsSuspend(it) }
             launchSettings?.let { ls ->
                 ls.profiles?.get(launchProfile)
             }
