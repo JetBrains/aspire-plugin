@@ -35,6 +35,7 @@ class AspireHostRunConfigurationProducer : LazyRunConfigurationProducer<AspireHo
         val projectFilePath = FileUtil.toSystemIndependentName(item.getFile()?.path ?: "")
         val runnableProjects = context.project.solution.runnableProjectsModel.projects.valueOrNull ?: return false
         val runnableProject = runnableProjects.firstOrNull { it.projectFilePath == projectFilePath  } ?: return false
+        if (runnableProject.kind != AspireRunnableProjectKinds.AspireHost) return false
 
         configuration.parameters.projectFilePath = runnableProject.projectFilePath
 
