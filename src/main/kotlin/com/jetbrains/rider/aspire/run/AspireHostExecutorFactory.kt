@@ -17,6 +17,7 @@ import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.run.configurations.controls.LaunchProfile
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
 import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
 import com.jetbrains.rider.run.environment.ExecutableRunParameters
@@ -52,9 +53,9 @@ class AspireHostExecutorFactory(
             .singleOrNull { it.tfm?.presentableName == parameters.projectTfm }
             ?: throw CantRunException("Unable to get the project output for ${parameters.projectTfm}")
 
-        val profile = FunctionLaunchProfilesService
+        val profile = LaunchSettingsJsonService
             .getInstance(project)
-            .getLaunchProfileByName(runnableProject, parameters.profileName)
+            .getProjectLaunchProfileByName(runnableProject, parameters.profileName)
             ?: throw CantRunException("Profile ${parameters.profileName} not found")
 
         val executable = getDotNetExecutable(runnableProject, projectOutput, profile)
