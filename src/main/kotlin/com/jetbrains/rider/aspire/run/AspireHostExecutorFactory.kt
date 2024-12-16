@@ -56,7 +56,6 @@ class AspireHostExecutorFactory(
             .getInstance(project)
             .getLaunchProfileByName(runnableProject, parameters.profileName)
             ?: throw CantRunException("Profile ${parameters.profileName} not found")
-
         val executable = getDotNetExecutable(runnableProject, projectOutput, profile)
 
         return when (executorId) {
