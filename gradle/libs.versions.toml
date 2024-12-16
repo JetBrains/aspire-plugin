@@ -8,7 +8,7 @@ serialization = "1.7.3"
 # plugins
 kotlin = "2.0.21"
 changelog = "2.2.1"
-intelliJPlatform = "2.1.0"
+intelliJPlatform = "2.2.1"
 qodana = "2024.2.6"
 
 [libraries]
