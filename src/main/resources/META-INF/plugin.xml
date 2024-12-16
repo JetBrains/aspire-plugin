@@ -43,8 +43,6 @@
         <rd.solutionExtListener endpoint="IDE Frontend"
                                 listener="com.jetbrains.rider.aspire.unitTests.AspireUnitTestProtocolListener"/>
 
-        <backgroundPostStartupActivity implementation="com.jetbrains.rider.aspire.WarmupStartupActivity"/>
-
         <notificationGroup id="Aspire" displayType="BALLOON"/>
 
         <webHelpProvider implementation="com.jetbrains.rider.aspire.AspireHelpProvider"/>
