@@ -192,9 +192,10 @@ class SessionExecutableFactory(private val project: Project) {
     ): LaunchSettingsJson.Profile? {
         val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
 
-        val launchSettings = LaunchSettingsJsonService.getInstance(project).loadLaunchSettingsSuspend(
-            LaunchSettingsJsonService.getLaunchSettingsFileForProject(runnableProject) ?: return null
-        ) ?: return null
+        val launchSettings = LaunchSettingsJsonService
+            .getInstance(project)
+            .loadLaunchSettingsSuspend(runnableProject)
+            ?: return null
 
         return launchSettings.profiles?.get(launchProfileKey)
     }

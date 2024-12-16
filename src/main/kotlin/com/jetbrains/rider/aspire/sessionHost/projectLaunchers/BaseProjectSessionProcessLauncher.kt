@@ -214,11 +214,10 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         )
 
         val profile = if (!launchProfile.isNullOrEmpty()) {
-            val launchSettings = LaunchSettingsJsonService.getLaunchSettingsFileForProject(runnableProject)
-                ?.let { LaunchSettingsJsonService.getInstance(project).loadLaunchSettingsSuspend(it) }
-            launchSettings?.let { ls ->
-                ls.profiles?.get(launchProfile)
-            }
+            LaunchSettingsJsonService
+                .getInstance(project)
+                .loadLaunchSettingsSuspend(runnableProject)
+                ?.let { it.profiles?.get(launchProfile) }
         } else null
 
         if (!hotReloadExtension.canExecute(lifetime, hotReloadRunInfo, profile)) {

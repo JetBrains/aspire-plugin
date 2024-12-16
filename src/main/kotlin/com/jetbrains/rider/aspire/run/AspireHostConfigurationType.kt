@@ -42,12 +42,12 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
         val aspireHostProjects = projects.filter { it.kind == AspireRunnableProjectKinds.AspireHost }
         if (aspireHostProjects.isEmpty()) return emptyList()
 
+        val service = LaunchSettingsJsonService.getInstance(project)
         val result = mutableListOf<Pair<RunnableProject, RunnerAndConfigurationSettings>>()
 
         for (runnableProject in aspireHostProjects) {
-            val profiles = LaunchSettingsJsonService.getInstance(project).loadLaunchSettingsSuspend(
-                LaunchSettingsJsonService.getLaunchSettingsFileForProject(runnableProject) ?: continue
-            )?.profiles ?: continue
+            val profiles = service.loadLaunchSettingsSuspend(runnableProject)?.profiles ?: continue
+
             for (profile in profiles) {
                 if (!profile.value.commandName.equals("Project", true))
                     continue
@@ -65,8 +65,7 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
 
                 if (runManager.hasConfigurationForNameAndTypeId(configurationName, ID) ||
                     runManager.hasConfigurationForNameAndTypeId(runnableProject.name, ID)
-                )
-                    continue
+                ) continue
 
                 val configuration = generateConfigurationForProfile(
                     configurationName,
