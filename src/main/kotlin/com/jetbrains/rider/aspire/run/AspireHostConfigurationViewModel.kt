@@ -8,6 +8,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.threading.coroutines.launch
 import com.jetbrains.rd.util.threading.coroutines.nextNotNullValue
+import com.jetbrains.rider.aspire.util.getProjectLaunchProfiles
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectsModel
@@ -105,7 +106,10 @@ class AspireHostConfigurationViewModel(
         launchProfileSelector.isLoading.set(true)
 
         currentEditSessionLifetime.launch(Dispatchers.Default + ModalityState.current().asContextElement()) {
-            val launchProfiles = getLaunchProfiles(runnableProject)
+            val launchProfiles = LaunchSettingsJsonService
+                .getInstance(project)
+                .getProjectLaunchProfiles(runnableProject)
+
             withContext(Dispatchers.EDT) {
                 launchProfileSelector.profileList.apply {
                     clear()
@@ -391,21 +395,5 @@ class AspireHostConfigurationViewModel(
         return selectedProject
             .projectOutputs
             .singleOrNull { it.tfm?.presentableName == tfmSelector.string.valueOrNull }
-    }
-
-    private suspend fun getLaunchProfiles(runnableProject: RunnableProject): List<LaunchProfile> {
-        val launchSettings = LaunchSettingsJsonService
-            .getInstance(project)
-            .loadLaunchSettingsSuspend(runnableProject)
-            ?: return emptyList()
-
-        return launchSettings
-            .profiles
-            .orEmpty()
-            .asSequence()
-            .filter { it.value.commandName.equals("Project", true) }
-            .map { (name, content) -> LaunchProfile(name, content) }
-            .sortedBy { it.name }
-            .toList()
     }
 }
