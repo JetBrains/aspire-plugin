@@ -20,7 +20,6 @@ import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 
 class AspireHostConfigurationViewModel(
@@ -67,28 +66,34 @@ class AspireHostConfigurationViewModel(
         disable()
 
         if (runnableProjectsModel != null) {
+            val projectModelLifetimes = SequentialLifetimes(lifetime)
             projectSelector.bindTo(
                 runnableProjectsModel,
                 lifetime,
                 { p -> p.kind == AspireRunnableProjectKinds.AspireHost },
                 ::enable,
-                ::handleProjectSelection
+                {
+                    projectModelLifetimes.next().launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
+                        handleProjectSelection(it)
+                    }
+                }
             )
         }
 
-        tfmSelector.string.advise(lifetime) { handleChangeTfmSelection() }
-        launchProfileSelector.profile.advise(lifetime) { handleProfileSelection() }
+        tfmSelector.string.advise(lifetime) { recalculateFields() }
+        launchProfileSelector.profile.advise(lifetime) { recalculateFields() }
         programParametersEditor.parametersString.advise(lifetime) { handleArgumentsChange() }
         workingDirectorySelector.path.advise(lifetime) { handleWorkingDirectoryChange() }
         environmentVariablesEditor.envs.advise(lifetime) { handleEnvValueChange() }
         urlEditor.text.advise(lifetime) { handleUrlValueChange() }
     }
 
-    private fun handleProjectSelection(runnableProject: RunnableProject) {
+    private suspend fun handleProjectSelection(runnableProject: RunnableProject) {
         if (!isLoaded) return
 
         reloadTfmSelector(runnableProject)
-        reloadLaunchProfileSelector(runnableProject) { recalculateFields() }
+        reloadLaunchProfileSelector(runnableProject)
+        recalculateFields()
     }
 
     private fun reloadTfmSelector(runnableProject: RunnableProject) {
@@ -102,47 +107,26 @@ class AspireHostConfigurationViewModel(
         }
     }
 
-    private fun reloadLaunchProfileSelector(runnableProject: RunnableProject, onLoadingComplete: (() -> Unit)? = null) {
+    private suspend fun reloadLaunchProfileSelector(runnableProject: RunnableProject) {
         launchProfileSelector.isLoading.set(true)
 
-        currentEditSessionLifetime.launch(Dispatchers.Default + ModalityState.current().asContextElement()) {
-            val launchProfiles = LaunchSettingsJsonService
-                .getInstance(project)
-                .getProjectLaunchProfiles(runnableProject)
-
-            withContext(Dispatchers.EDT) {
-                launchProfileSelector.profileList.apply {
-                    clear()
-                    addAll(launchProfiles)
-                }
-                if (launchProfiles.any()) {
-                    launchProfileSelector.profile.set(launchProfiles.first())
-                }
-                onLoadingComplete?.invoke()
-                launchProfileSelector.isLoading.set(false)
-            }
+        val launchProfiles = LaunchSettingsJsonService
+            .getInstance(project)
+            .getProjectLaunchProfiles(runnableProject)
+        launchProfileSelector.profileList.apply {
+            clear()
+            addAll(launchProfiles)
         }
-    }
+        if (launchProfiles.any()) {
+            launchProfileSelector.profile.set(launchProfiles.first())
+        }
 
-    private fun handleChangeTfmSelection() {
-        if (!isLoaded) return
-
-        val projectOutput = getSelectedProjectOutput() ?: return
-        val launchProfile = launchProfileSelector.profile.valueOrNull ?: return
-
-        recalculateFields(projectOutput, launchProfile)
-    }
-
-    private fun handleProfileSelection() {
-        if (!isLoaded) return
-
-        val projectOutput = getSelectedProjectOutput() ?: return
-        val launchProfile = launchProfileSelector.profile.valueOrNull ?: return
-
-        recalculateFields(projectOutput, launchProfile)
+        launchProfileSelector.isLoading.set(false)
     }
 
     private fun recalculateFields() {
+        if (!isLoaded) return
+
         val projectOutput = getSelectedProjectOutput() ?: return
         val launchProfile = launchProfileSelector.profile.valueOrNull ?: return
 
@@ -250,7 +234,11 @@ class AspireHostConfigurationViewModel(
         this.trackUrl = trackUrl
 
         currentEditSessionLifetime.launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
-            val projectList = runnableProjectsModel?.projects?.nextNotNullValue() ?: return@launch
+            val projectList = runnableProjectsModel
+                ?.projects
+                ?.nextNotNullValue()
+                ?.filter { it.kind == AspireRunnableProjectKinds.AspireHost }
+                ?: return@launch
 
             usePodmanRuntimeFlagEditor.isSelected.set(usePodmanRuntime)
 
@@ -262,9 +250,7 @@ class AspireHostConfigurationViewModel(
                 )
             )
 
-            if (projectFilePath.isEmpty() || projectList.none {
-                    it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
-                }) {
+            if (projectFilePath.isEmpty() || projectList.none { it.projectFilePath == projectFilePath }) {
                 if (projectFilePath.isEmpty()) {
                     addFirstAspireProject(projectList)
                 } else {
@@ -291,7 +277,7 @@ class AspireHostConfigurationViewModel(
         }
     }
 
-    private fun addFirstAspireProject(projectList: List<RunnableProject>) {
+    private suspend fun addFirstAspireProject(projectList: List<RunnableProject>) {
         val runnableProject = projectList.firstOrNull { it.kind == AspireRunnableProjectKinds.AspireHost }
             ?: return
         projectSelector.project.set(runnableProject)
@@ -318,7 +304,7 @@ class AspireHostConfigurationViewModel(
         projectSelector.project.set(fakeProject)
     }
 
-    private fun addSelectedAspireHostProject(
+    private suspend fun addSelectedAspireHostProject(
         projectList: List<RunnableProject>,
         projectFilePath: String,
         tfm: String,
@@ -332,60 +318,60 @@ class AspireHostConfigurationViewModel(
         trackUrl: Boolean,
         dotNetStartBrowserParameters: DotNetStartBrowserParameters
     ) {
-        val runnableProject = projectList.singleOrNull {
+        val selectedProject = projectList.singleOrNull {
             it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
         } ?: return
 
-        projectSelector.project.set(runnableProject)
-        reloadTfmSelector(runnableProject)
-        reloadLaunchProfileSelector(runnableProject) {
-            val selectedTfm =
-                if (tfm.isNotEmpty()) tfmSelector.stringList.firstOrNull { it == tfm }
-                else tfmSelector.stringList.firstOrNull()
-            if (selectedTfm != null) {
-                tfmSelector.string.set(selectedTfm)
-            } else {
-                tfmSelector.stringList.add("")
-                tfmSelector.string.set("")
-            }
+        projectSelector.project.set(selectedProject)
+        reloadTfmSelector(selectedProject)
+        reloadLaunchProfileSelector(selectedProject)
 
-            val selectedProfile =
-                if (launchProfile.isNotEmpty()) launchProfileSelector.profileList.firstOrNull { it.name == launchProfile }
-                else launchProfileSelector.profileList.firstOrNull()
-            if (selectedProfile != null) {
-                launchProfileSelector.profile.set(selectedProfile)
-            } else {
-                val fakeLaunchProfile = LaunchProfile(launchProfile, LaunchSettingsJson.Profile.UNKNOWN)
-                launchProfileSelector.profileList.add(fakeLaunchProfile)
-                launchProfileSelector.profile.set(fakeLaunchProfile)
-            }
+        val selectedTfm =
+            if (tfm.isNotEmpty()) tfmSelector.stringList.firstOrNull { it == tfm }
+            else tfmSelector.stringList.firstOrNull()
+        if (selectedTfm != null) {
+            tfmSelector.string.set(selectedTfm)
+        } else {
+            tfmSelector.stringList.add("")
+            tfmSelector.string.set("")
+        }
 
-            if (selectedTfm != null && selectedProfile != null) {
-                val selectedOutput = getSelectedProjectOutput() ?: return@reloadLaunchProfileSelector
+        val selectedProfile =
+            if (launchProfile.isNotEmpty()) launchProfileSelector.profileList.firstOrNull { it.name == launchProfile }
+            else launchProfileSelector.profileList.firstOrNull()
+        if (selectedProfile != null) {
+            launchProfileSelector.profile.set(selectedProfile)
+        } else {
+            val fakeLaunchProfile = LaunchProfile(launchProfile, LaunchSettingsJson.Profile.UNKNOWN)
+            launchProfileSelector.profileList.add(fakeLaunchProfile)
+            launchProfileSelector.profile.set(fakeLaunchProfile)
+        }
 
-                val effectiveArguments =
-                    if (trackArguments) getArguments(selectedProfile.content, selectedOutput)
-                    else arguments
-                programParametersEditor.defaultValue.set(effectiveArguments)
-                programParametersEditor.parametersString.set(effectiveArguments)
+        if (selectedTfm != null && selectedProfile != null) {
+            val selectedOutput = getSelectedProjectOutput() ?: return
 
-                val effectiveWorkingDirectory =
-                    if (trackWorkingDirectory) getWorkingDirectory(selectedProfile.content, selectedOutput)
-                    else workingDirectory
-                workingDirectorySelector.defaultValue.set(effectiveWorkingDirectory)
-                workingDirectorySelector.path.set(effectiveWorkingDirectory)
+            val effectiveArguments =
+                if (trackArguments) getArguments(selectedProfile.content, selectedOutput)
+                else arguments
+            programParametersEditor.defaultValue.set(effectiveArguments)
+            programParametersEditor.parametersString.set(effectiveArguments)
 
-                val effectiveEnvs =
-                    if (trackEnvs) getEnvironmentVariables(selectedProfile.name, selectedProfile.content)
-                    else envs
-                environmentVariablesEditor.envs.set(effectiveEnvs)
+            val effectiveWorkingDirectory =
+                if (trackWorkingDirectory) getWorkingDirectory(selectedProfile.content, selectedOutput)
+                else workingDirectory
+            workingDirectorySelector.defaultValue.set(effectiveWorkingDirectory)
+            workingDirectorySelector.path.set(effectiveWorkingDirectory)
 
-                val effectiveUrl =
-                    if (trackUrl) getApplicationUrl(selectedProfile.content)
-                    else dotNetStartBrowserParameters.url
-                urlEditor.defaultValue.value = effectiveUrl
-                urlEditor.text.value = effectiveUrl
-            }
+            val effectiveEnvs =
+                if (trackEnvs) getEnvironmentVariables(selectedProfile.name, selectedProfile.content)
+                else envs
+            environmentVariablesEditor.envs.set(effectiveEnvs)
+
+            val effectiveUrl =
+                if (trackUrl) getApplicationUrl(selectedProfile.content)
+                else dotNetStartBrowserParameters.url
+            urlEditor.defaultValue.value = effectiveUrl
+            urlEditor.text.value = effectiveUrl
         }
     }
 
