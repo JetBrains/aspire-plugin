@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Support for Rider 2025.1
+
 ## [1.6.8] - 2024-12-16
 
 ### Fixed
