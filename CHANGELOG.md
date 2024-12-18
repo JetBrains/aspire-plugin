@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.7.0] - 2024-12-18
+
 ### Changed
 
 - Support for Rider 2025.1
@@ -300,7 +302,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.8...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.8...v1.7.0
 [1.6.8]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.7...v1.6.8
 [1.6.7]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.6...v1.6.7
 [1.6.6]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.5...v1.6.6
