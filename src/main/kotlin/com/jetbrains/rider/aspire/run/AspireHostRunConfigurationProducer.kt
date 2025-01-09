@@ -8,6 +8,10 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.systemIndependentPath
 import com.intellij.psi.PsiElement
 import com.jetbrains.rd.util.firstOrNull
+import com.jetbrains.rider.aspire.launchProfiles.getApplicationUrl
+import com.jetbrains.rider.aspire.launchProfiles.getArguments
+import com.jetbrains.rider.aspire.launchProfiles.getEnvironmentVariables
+import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getFile

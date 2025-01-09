@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.util
+package com.jetbrains.rider.aspire.launchProfiles
 
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.controls.LaunchProfile
