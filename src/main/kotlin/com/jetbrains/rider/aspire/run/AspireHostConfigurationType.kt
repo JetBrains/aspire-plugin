@@ -6,7 +6,7 @@ import com.intellij.execution.configurations.ConfigurationTypeBase
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireIcons
-import com.jetbrains.rider.aspire.util.getProjectLaunchProfileByName
+import com.jetbrains.rider.aspire.launchProfiles.*
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectKind

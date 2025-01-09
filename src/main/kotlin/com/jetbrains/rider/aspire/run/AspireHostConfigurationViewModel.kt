@@ -8,7 +8,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.threading.coroutines.launch
 import com.jetbrains.rd.util.threading.coroutines.nextNotNullValue
-import com.jetbrains.rider.aspire.util.getProjectLaunchProfiles
+import com.jetbrains.rider.aspire.launchProfiles.*
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectsModel

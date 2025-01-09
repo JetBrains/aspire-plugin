@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.run
+package com.jetbrains.rider.aspire.launchProfiles
 
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.systemIndependentPath

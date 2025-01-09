@@ -12,8 +12,8 @@ import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable
 import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.run.getWorkingDirectory
 import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.MSBuildPropertyService
 import com.jetbrains.rider.aspire.util.getStartBrowserAction
