@@ -6,3 +6,4 @@ build
 output
 [Bb]in/
 [Oo]bj/
+*.DotSettings.user
