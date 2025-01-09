@@ -49,7 +49,7 @@ internal fun getEnvironmentVariables(
     return environmentVariables
 }
 
-internal fun getApplicationUrl(profile: LaunchSettingsJson.Profile): String {
-    val applicationUrl = profile.applicationUrl
+internal fun getApplicationUrl(profile: LaunchSettingsJson.Profile?): String {
+    val applicationUrl = profile?.applicationUrl
     return applicationUrl?.substringBefore(';') ?: ""
 }
