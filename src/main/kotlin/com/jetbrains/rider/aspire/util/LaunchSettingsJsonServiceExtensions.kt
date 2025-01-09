@@ -21,6 +21,13 @@ suspend fun LaunchSettingsJsonService.getProjectLaunchProfileByName(
     runnableProject: RunnableProject,
     launchProfileName: String?
 ): LaunchProfile? {
-    val profiles = getProjectLaunchProfiles(runnableProject)
-    return profiles.find { it.name == launchProfileName }
+    val launchSettings = loadLaunchSettingsSuspend(runnableProject) ?: return null
+
+    return launchSettings
+        .profiles
+        .orEmpty()
+        .asSequence()
+        .filter { it.value.commandName.equals("Project", true) }
+        .firstOrNull { it.key == launchProfileName }
+        ?.let { (name, content) -> LaunchProfile(name, content) }
 }
