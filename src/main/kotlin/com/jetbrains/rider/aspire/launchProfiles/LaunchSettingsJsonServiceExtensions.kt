@@ -4,12 +4,20 @@ import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 
-suspend fun LaunchSettingsJsonService.getProjectLaunchProfiles(runnableProject: RunnableProject): List<LaunchProfile> {
-    val launchSettings = loadLaunchSettingsSuspend(runnableProject) ?: return emptyList()
+fun LaunchSettingsJsonService.getFirstOrNullLaunchProfileProfile(runnableProject: RunnableProject): LaunchProfile? {
+    val profiles = loadLaunchSettings(runnableProject)?.profiles ?: return null
 
-    return launchSettings
-        .profiles
-        .orEmpty()
+    return profiles
+        .asSequence()
+        .filter { it.value.commandName.equals("Project", true) }
+        .firstOrNull()
+        ?.let { LaunchProfile(it.key, it.value) }
+}
+
+suspend fun LaunchSettingsJsonService.getProjectLaunchProfiles(runnableProject: RunnableProject): List<LaunchProfile> {
+    val profiles = loadLaunchSettingsSuspend(runnableProject)?.profiles ?: return emptyList()
+
+    return profiles
         .asSequence()
         .filter { it.value.commandName.equals("Project", true) }
         .map { (name, content) -> LaunchProfile(name, content) }
@@ -21,11 +29,9 @@ suspend fun LaunchSettingsJsonService.getProjectLaunchProfileByName(
     runnableProject: RunnableProject,
     launchProfileName: String?
 ): LaunchProfile? {
-    val launchSettings = loadLaunchSettingsSuspend(runnableProject) ?: return null
+    val profiles = loadLaunchSettingsSuspend(runnableProject)?.profiles ?: return null
 
-    return launchSettings
-        .profiles
-        .orEmpty()
+    return profiles
         .asSequence()
         .filter { it.value.commandName.equals("Project", true) }
         .firstOrNull { it.key == launchProfileName }

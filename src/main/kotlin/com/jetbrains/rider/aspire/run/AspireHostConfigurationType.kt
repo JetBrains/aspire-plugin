@@ -6,7 +6,7 @@ import com.intellij.execution.configurations.ConfigurationTypeBase
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireIcons
-import com.jetbrains.rider.aspire.launchProfiles.*
+import com.jetbrains.rider.aspire.launchProfiles.getProjectLaunchProfileByName
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectKind
@@ -167,22 +167,12 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
         runnableProject: RunnableProject,
         projectOutput: ProjectOutput?,
         launchProfile: LaunchProfile?
-    ) = parameters.apply {
-        projectFilePath = runnableProject.projectFilePath
-        projectTfm = projectOutput?.tfm?.presentableName ?: ""
-        profileName = launchProfile?.name ?: ""
-        trackArguments = true
-        arguments = getArguments(launchProfile?.content, projectOutput)
-        trackWorkingDirectory = true
-        workingDirectory = getWorkingDirectory(launchProfile?.content, projectOutput)
-        trackEnvs = true
-        envs = getEnvironmentVariables(launchProfile?.name, launchProfile?.content)
-        trackUrl = true
-        startBrowserParameters.apply {
-            url = getApplicationUrl(launchProfile?.content)
-            startAfterLaunch = launchProfile?.content?.launchBrowser == true
-        }
-    }
+    ) = parameters.setUpFromRunnableProject(
+        runnableProject,
+        projectOutput,
+        launchProfile
+    )
+
 
     override fun getHelpTopic() = "me.rafaelldi.aspire.run-config"
 }
