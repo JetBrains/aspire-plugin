@@ -128,12 +128,8 @@ class AspireHostConfigurationViewModel(
         if (!isLoaded) return
 
         val projectOutput = getSelectedProjectOutput() ?: return
-        val launchProfile = launchProfileSelector.profile.valueOrNull ?: return
+        val profile = launchProfileSelector.profile.valueOrNull ?: return
 
-        recalculateFields(projectOutput, launchProfile)
-    }
-
-    private fun recalculateFields(projectOutput: ProjectOutput, profile: LaunchProfile) {
         if (trackWorkingDirectory) {
             val workingDirectory = getWorkingDirectory(profile.content, projectOutput)
             workingDirectorySelector.path.set(workingDirectory)
