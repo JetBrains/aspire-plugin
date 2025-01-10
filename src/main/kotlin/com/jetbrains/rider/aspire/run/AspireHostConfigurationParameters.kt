@@ -5,9 +5,16 @@ import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.rd.util.reactive.hasTrueValue
+import com.jetbrains.rider.aspire.launchProfiles.getApplicationUrl
+import com.jetbrains.rider.aspire.launchProfiles.getArguments
+import com.jetbrains.rider.aspire.launchProfiles.getEnvironmentVariables
+import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
+import com.jetbrains.rider.model.ProjectOutput
+import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.RiderRunBundle
+import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import org.jdom.Element
@@ -146,4 +153,26 @@ class AspireHostConfigurationParameters(
         trackUrl,
         startBrowserParameters.copy()
     )
+
+    fun setUpFromRunnableProject(
+        runnableProject: RunnableProject,
+        projectOutput: ProjectOutput?,
+        launchProfile: LaunchProfile?
+    ) {
+        projectFilePath = runnableProject.projectFilePath
+        projectTfm = projectOutput?.tfm?.presentableName ?: ""
+        profileName = launchProfile?.name ?: ""
+        trackArguments = true
+        arguments = getArguments(launchProfile?.content, projectOutput)
+        trackWorkingDirectory = true
+        workingDirectory = getWorkingDirectory(launchProfile?.content, projectOutput)
+        trackEnvs = true
+        envs = getEnvironmentVariables(launchProfile?.name, launchProfile?.content)
+        usePodmanRuntime = false
+        trackUrl = true
+        startBrowserParameters.apply {
+            url = getApplicationUrl(launchProfile?.content)
+            startAfterLaunch = launchProfile?.content?.launchBrowser == true
+        }
+    }
 }

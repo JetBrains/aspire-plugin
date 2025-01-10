@@ -7,11 +7,7 @@ import com.intellij.openapi.util.Ref
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.systemIndependentPath
 import com.intellij.psi.PsiElement
-import com.jetbrains.rd.util.firstOrNull
-import com.jetbrains.rider.aspire.launchProfiles.getApplicationUrl
-import com.jetbrains.rider.aspire.launchProfiles.getArguments
-import com.jetbrains.rider.aspire.launchProfiles.getEnvironmentVariables
-import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
+import com.jetbrains.rider.aspire.launchProfiles.getFirstOrNullLaunchProfileProfile
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getFile
@@ -64,27 +60,13 @@ class AspireHostRunConfigurationProducer : LazyRunConfigurationProducer<AspireHo
             .firstOrNull()
         val profile = LaunchSettingsJsonService
             .getInstance(context.project)
-            .loadLaunchSettings(runnableProject)
-            ?.profiles
-            ?.firstOrNull()
+            .getFirstOrNullLaunchProfileProfile(runnableProject)
 
-        configuration.parameters.apply {
-            projectFilePath = selectedProjectFilePath
-            projectTfm = projectOutput?.tfm?.presentableName ?: ""
-            profileName = profile?.key ?: ""
-            trackArguments = true
-            arguments = getArguments(profile?.value, projectOutput)
-            trackWorkingDirectory = true
-            workingDirectory = getWorkingDirectory(profile?.value, projectOutput)
-            trackEnvs = true
-            envs = getEnvironmentVariables(profile?.key, profile?.value)
-            usePodmanRuntime = false
-            trackUrl = true
-            startBrowserParameters.apply {
-                url = getApplicationUrl(profile?.value)
-                startAfterLaunch = profile?.value?.launchBrowser == true
-            }
-        }
+        configuration.parameters.setUpFromRunnableProject(
+            runnableProject,
+            projectOutput,
+            profile
+        )
 
         return true
     }
