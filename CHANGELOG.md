@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Removed
+
+- Unused dependencies
+
 ## [1.7.0] - 2024-12-18
 
 ### Changed
