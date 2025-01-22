@@ -93,6 +93,10 @@ class AspireHostExecutorFactory(
             effectiveUrl = configureUrl(effectiveUrl, environmentVariableValues.browserToken)
         }
 
+        val effectiveLaunchBrowser =
+            if (parameters.trackBrowserLaunch) getLaunchBrowserFlag(launchProfile.content)
+            else parameters.startBrowserParameters.startAfterLaunch
+
         val processOptions = ProjectProcessOptions(
             File(runnableProject.projectFilePath),
             File(effectiveWorkingDirectory)
@@ -119,7 +123,7 @@ class AspireHostExecutorFactory(
             useExternalConsole = false,
             params.environmentVariables,
             true,
-            getStartBrowserAction(effectiveUrl, parameters.startBrowserParameters),
+            getStartBrowserAction(effectiveUrl, effectiveLaunchBrowser, parameters.startBrowserParameters),
             null,
             "",
             true

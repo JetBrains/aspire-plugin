@@ -11,12 +11,13 @@ import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParamete
 
 fun getStartBrowserAction(
     browserUrl: String,
+    launchBrowser: Boolean,
     params: DotNetStartBrowserParameters
 ): (ExecutionEnvironment, RunProfile, ProcessHandler) -> Unit =
     { _, runProfile, processHandler ->
-        if (params.startAfterLaunch && runProfile is RunConfiguration) {
+        if (launchBrowser && runProfile is RunConfiguration) {
             val startBrowserSettings = StartBrowserSettings().apply {
-                isSelected = params.startAfterLaunch
+                isSelected = true
                 url = browserUrl
                 browser = params.browser
                 isStartJavaScriptDebugger = params.withJavaScriptDebugger
