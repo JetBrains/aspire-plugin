@@ -52,6 +52,7 @@ class AspireHostSettingsEditor(private val project: Project) :
             envs = viewModel.environmentVariablesEditor.envs.value
             usePodmanRuntime = viewModel.usePodmanRuntimeFlagEditor.isSelected.value
             trackUrl = viewModel.trackUrl
+            trackBrowserLaunch = viewModel.trackBrowserLaunch
             startBrowserParameters.url = viewModel.urlEditor.text.value
             startBrowserParameters.browser = viewModel.dotNetBrowserSettingsEditor.settings.value.myBrowser
             startBrowserParameters.startAfterLaunch =
@@ -75,6 +76,7 @@ class AspireHostSettingsEditor(private val project: Project) :
                 envs,
                 usePodmanRuntime,
                 trackUrl,
+                trackBrowserLaunch,
                 startBrowserParameters
             )
         }

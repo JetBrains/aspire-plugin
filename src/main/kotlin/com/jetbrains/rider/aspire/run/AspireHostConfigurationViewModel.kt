@@ -61,6 +61,7 @@ class AspireHostConfigurationViewModel(
     var trackWorkingDirectory = true
     var trackEnvs = true
     var trackUrl = true
+    var trackBrowserLaunch = true
 
     init {
         disable()
@@ -86,6 +87,7 @@ class AspireHostConfigurationViewModel(
         workingDirectorySelector.path.advise(lifetime) { handleWorkingDirectoryChange() }
         environmentVariablesEditor.envs.advise(lifetime) { handleEnvValueChange() }
         urlEditor.text.advise(lifetime) { handleUrlValueChange() }
+        dotNetBrowserSettingsEditor.settings.advise(lifetime) { handleBrowserSettingsChange() }
     }
 
     private suspend fun handleProjectSelection(runnableProject: RunnableProject) {
@@ -146,9 +148,18 @@ class AspireHostConfigurationViewModel(
         }
         if (trackUrl) {
             val applicationUrl = getApplicationUrl(profile.content)
-            urlEditor.text.value = applicationUrl
-            urlEditor.defaultValue.value = applicationUrl
-            dotNetBrowserSettingsEditor.settings.value = BrowserSettings(profile.content.launchBrowser, false, null)
+            urlEditor.text.set(applicationUrl)
+            urlEditor.defaultValue.set(applicationUrl)
+        }
+        if (trackBrowserLaunch) {
+            val launchBrowser = getLaunchBrowserFlag(profile.content)
+            val currentSettings = dotNetBrowserSettingsEditor.settings.value
+            val browserSettings = BrowserSettings(
+                launchBrowser,
+                currentSettings.withJavaScriptDebugger,
+                currentSettings.myBrowser
+            )
+            dotNetBrowserSettingsEditor.settings.set(browserSettings)
         }
     }
 
@@ -207,6 +218,19 @@ class AspireHostConfigurationViewModel(
         trackUrl = urlEditor.text.value == applicationUrl
     }
 
+    private fun handleBrowserSettingsChange() {
+        if (!isLoaded) return
+
+        val launchProfile = launchProfileSelector.profile.valueOrNull
+        if (launchProfile == null) {
+            trackBrowserLaunch = false
+            return
+        }
+
+        val launchBrowser = getLaunchBrowserFlag(launchProfile.content)
+        trackBrowserLaunch = dotNetBrowserSettingsEditor.settings.value.startAfterLaunch == launchBrowser
+    }
+
     fun reset(
         projectFilePath: String,
         projectTfm: String,
@@ -219,6 +243,7 @@ class AspireHostConfigurationViewModel(
         envs: Map<String, String>,
         usePodmanRuntime: Boolean,
         trackUrl: Boolean,
+        trackBrowserLaunch: Boolean,
         dotNetStartBrowserParameters: DotNetStartBrowserParameters
     ) {
         isLoaded = false
@@ -228,6 +253,7 @@ class AspireHostConfigurationViewModel(
         this.trackWorkingDirectory = trackWorkingDirectory
         this.trackEnvs = trackEnvs
         this.trackUrl = trackUrl
+        this.trackBrowserLaunch = trackBrowserLaunch
 
         currentEditSessionLifetime.launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
             val projectList = runnableProjectsModel
@@ -238,15 +264,15 @@ class AspireHostConfigurationViewModel(
 
             usePodmanRuntimeFlagEditor.isSelected.set(usePodmanRuntime)
 
-            dotNetBrowserSettingsEditor.settings.set(
-                BrowserSettings(
-                    dotNetStartBrowserParameters.startAfterLaunch,
-                    dotNetStartBrowserParameters.withJavaScriptDebugger,
-                    dotNetStartBrowserParameters.browser
-                )
-            )
-
             if (projectFilePath.isEmpty() || projectList.none { it.projectFilePath == projectFilePath }) {
+                dotNetBrowserSettingsEditor.settings.set(
+                    BrowserSettings(
+                        dotNetStartBrowserParameters.startAfterLaunch,
+                        dotNetStartBrowserParameters.withJavaScriptDebugger,
+                        dotNetStartBrowserParameters.browser
+                    )
+                )
+
                 if (projectFilePath.isEmpty()) {
                     addFirstAspireProject(projectList)
                 } else {
@@ -265,6 +291,7 @@ class AspireHostConfigurationViewModel(
                     trackEnvs,
                     envs,
                     trackUrl,
+                    trackBrowserLaunch,
                     dotNetStartBrowserParameters
                 )
             }
@@ -312,6 +339,7 @@ class AspireHostConfigurationViewModel(
         trackEnvs: Boolean,
         envs: Map<String, String>,
         trackUrl: Boolean,
+        trackBrowserLaunch: Boolean,
         dotNetStartBrowserParameters: DotNetStartBrowserParameters
     ) {
         val selectedProject = projectList.singleOrNull {
@@ -366,8 +394,18 @@ class AspireHostConfigurationViewModel(
             val effectiveUrl =
                 if (trackUrl) getApplicationUrl(selectedProfile.content)
                 else dotNetStartBrowserParameters.url
-            urlEditor.defaultValue.value = effectiveUrl
-            urlEditor.text.value = effectiveUrl
+            urlEditor.defaultValue.set(effectiveUrl)
+            urlEditor.text.set(effectiveUrl)
+
+            val effectiveLaunchBrowser =
+                if (trackBrowserLaunch) getLaunchBrowserFlag(selectedProfile.content)
+                else dotNetStartBrowserParameters.startAfterLaunch
+            val browserSettings = BrowserSettings(
+                effectiveLaunchBrowser,
+                dotNetStartBrowserParameters.withJavaScriptDebugger,
+                dotNetStartBrowserParameters.browser
+            )
+            dotNetBrowserSettingsEditor.settings.set(browserSettings)
         }
     }
 

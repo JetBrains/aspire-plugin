@@ -5,10 +5,7 @@ import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.rd.util.reactive.hasTrueValue
-import com.jetbrains.rider.aspire.launchProfiles.getApplicationUrl
-import com.jetbrains.rider.aspire.launchProfiles.getArguments
-import com.jetbrains.rider.aspire.launchProfiles.getEnvironmentVariables
-import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
+import com.jetbrains.rider.aspire.launchProfiles.*
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
@@ -33,6 +30,7 @@ class AspireHostConfigurationParameters(
     var envs: Map<String, String>,
     var usePodmanRuntime: Boolean,
     var trackUrl: Boolean,
+    var trackBrowserLaunch: Boolean,
     var startBrowserParameters: DotNetStartBrowserParameters
 ) {
     companion object {
@@ -45,6 +43,7 @@ class AspireHostConfigurationParameters(
         private const val WORKING_DIRECTORY = "WORKING_DIRECTORY"
         private const val TRACK_ENVS = "TRACK_ENVS"
         private const val TRACK_URL = "TRACK_URL"
+        private const val TRACK_BROWSER_LAUNCH = "TRACK_BROWSER_LAUNCH"
         private const val USE_PODMAN_RUNTIME = "USE_PODMAN_RUNTIME"
 
         fun createDefault(project: Project) = AspireHostConfigurationParameters(
@@ -60,6 +59,7 @@ class AspireHostConfigurationParameters(
             hashMapOf(),
             usePodmanRuntime = false,
             trackUrl = true,
+            trackBrowserLaunch = true,
             DotNetStartBrowserParameters()
         )
     }
@@ -120,6 +120,8 @@ class AspireHostConfigurationParameters(
         usePodmanRuntime = usePodmanRuntimeString == "1"
         val trackUrlString = JDOMExternalizerUtil.readField(element, TRACK_URL) ?: ""
         trackUrl = trackUrlString != "0"
+        val trackBrowserLaunchString = JDOMExternalizerUtil.readField(element, TRACK_BROWSER_LAUNCH) ?: ""
+        trackBrowserLaunch = trackBrowserLaunchString != "0"
         startBrowserParameters = DotNetStartBrowserParameters.readExternal(element)
     }
 
@@ -135,6 +137,7 @@ class AspireHostConfigurationParameters(
         EnvironmentVariablesComponent.writeExternal(element, envs)
         JDOMExternalizerUtil.writeField(element, USE_PODMAN_RUNTIME, if (usePodmanRuntime) "1" else "0")
         JDOMExternalizerUtil.writeField(element, TRACK_URL, if (trackUrl) "1" else "0")
+        JDOMExternalizerUtil.writeField(element, TRACK_BROWSER_LAUNCH, if (trackBrowserLaunch) "1" else "0")
         startBrowserParameters.writeExternal(element)
     }
 
@@ -151,6 +154,7 @@ class AspireHostConfigurationParameters(
         envs,
         usePodmanRuntime,
         trackUrl,
+        trackBrowserLaunch,
         startBrowserParameters.copy()
     )
 
@@ -170,9 +174,10 @@ class AspireHostConfigurationParameters(
         envs = getEnvironmentVariables(launchProfile?.name, launchProfile?.content)
         usePodmanRuntime = false
         trackUrl = true
+        trackBrowserLaunch = true
         startBrowserParameters.apply {
             url = getApplicationUrl(launchProfile?.content)
-            startAfterLaunch = launchProfile?.content?.launchBrowser == true
+            startAfterLaunch = getLaunchBrowserFlag(launchProfile?.content)
         }
     }
 }

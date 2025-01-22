@@ -53,3 +53,8 @@ internal fun getApplicationUrl(profile: LaunchSettingsJson.Profile?): String {
     val applicationUrl = profile?.applicationUrl
     return applicationUrl?.substringBefore(';') ?: ""
 }
+
+internal fun getLaunchBrowserFlag(profile: LaunchSettingsJson.Profile?): Boolean {
+    val launchBrowser = profile?.launchBrowser
+    return launchBrowser == true
+}
