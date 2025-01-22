@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Sync `launchBrowser` flag from an AppHost `launchSettings` file with run configuration
+
 ## [1.7.1] - 2025-01-17
 
 ### Removed
