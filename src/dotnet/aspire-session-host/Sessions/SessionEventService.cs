@@ -5,7 +5,7 @@ using JetBrains.Lifetimes;
 
 namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
 
-internal sealed class SessionEventService(Connection connection) : IDisposable
+internal sealed class SessionEventService(Connection connection, ILogger<SessionEventService> logger) : IDisposable
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
 
@@ -24,18 +24,21 @@ internal sealed class SessionEventService(Connection connection) : IDisposable
             model.ProcessStarted.Advise(_lifetimeDef.Lifetime,
                 it =>
                 {
+                    logger.LogTrace("Process started {startedProcess}", it);
                     _channel.Writer.TryWrite(new ProcessStartedEvent(it.Id, "processRestarted", it.Pid));
                 });
 
             model.LogReceived.Advise(_lifetimeDef.Lifetime,
                 it =>
                 {
+                    logger.LogTrace("Log received {log}", it);
                     _channel.Writer.TryWrite(new LogReceivedEvent(it.Id, "serviceLogs", it.IsStdErr, it.Message));
                 });
 
             model.ProcessTerminated.Advise(_lifetimeDef.Lifetime,
                 it =>
                 {
+                    logger.LogTrace("Process terminated {terminatedProcess}", it);
                     _channel.Writer.TryWrite(new ProcessTerminatedEvent(it.Id, "sessionTerminated", it.ExitCode));
                 });
         });

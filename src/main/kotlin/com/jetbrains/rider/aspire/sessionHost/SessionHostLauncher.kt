@@ -9,6 +9,7 @@ import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
@@ -45,19 +46,19 @@ class SessionHostLauncher {
     fun launchSessionHost(
         aspireHostConfig: AspireHostConfig,
         sessionHostRdPort: Int,
-        aspireHostLifetime: LifetimeDefinition
+        sessionHostLifetime: LifetimeDefinition
     ) {
         LOG.info("Starting Aspire session host")
 
         val dotnetCliPath = NetCoreRuntime.cliPath.value
 
         val commandLine = getCommandLine(dotnetCliPath, aspireHostConfig, sessionHostRdPort)
-        LOG.trace("Host command line: ${commandLine.commandLineString}")
+        LOG.trace { "Host command line: ${commandLine.commandLineString}" }
 
         val processHandler = KillableColoredProcessHandler(commandLine)
-        aspireHostLifetime.onTermination {
+        sessionHostLifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
-                LOG.trace("Killing Aspire session host process")
+                LOG.info("Aspire session host lifetime was terminated; killing the process")
                 processHandler.killProcess()
             }
         }
@@ -72,12 +73,12 @@ class SessionHostLauncher {
             }
 
             override fun processTerminated(event: ProcessEvent) {
-                aspireHostLifetime.executeIfAlive {
-                    LOG.trace("Terminating Aspire session host lifetime")
-                    aspireHostLifetime.terminate(true)
+                sessionHostLifetime.executeIfAlive {
+                    LOG.info("Aspire session host process was terminated; terminating the lifetime")
+                    sessionHostLifetime.terminate(true)
                 }
             }
-        }, aspireHostLifetime.createNestedDisposable())
+        }, sessionHostLifetime.createNestedDisposable())
 
         processHandler.startNotify()
         LOG.trace("Aspire session host started")

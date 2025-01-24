@@ -23,11 +23,13 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
         );
         if (launchConfiguration == null)
         {
+            logger.LogWarning("Only a single project launch configuration is supported.");
             return (null, _multipleProjectLaunchConfigurations);
         }
 
         if (!File.Exists(launchConfiguration.ProjectPath))
         {
+            logger.LogWarning("Project file doesn't exist");
             return (null, _projectNotFound);
         }
 
@@ -48,6 +50,8 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
         logger.LogInformation("Starting a new session {session}", sessionModel);
 
         var result = await connection.DoWithModel(model => model.CreateSession.Sync(sessionModel));
+        logger.LogDebug("Session creation result: {sessionCreationResult}", result);
+
         return (result, null);
     }
 
@@ -56,6 +60,8 @@ internal sealed class SessionService(Connection connection, ILogger<SessionServi
         logger.LogInformation("Deleting the session {sessionId}", id);
 
         var result = await connection.DoWithModel(model => model.DeleteSession.Sync(id));
+        logger.LogDebug("Session deletion result: {sessionDeletionResult}", result);
+
         return result;
     }
 }
