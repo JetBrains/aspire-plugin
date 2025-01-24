@@ -9,11 +9,12 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.application
+import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import com.jetbrains.rd.util.lifetime.isNotAlive
+import com.jetbrains.rd.util.lifetime.isAlive
+import com.jetbrains.rd.util.put
 import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.run.AspireHostConfig
-import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -35,7 +36,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         private val LOG = logger<SessionManager>()
     }
 
-    private val sessions = ConcurrentHashMap<String, Session>()
+    private val sessionLifetimes = ConcurrentHashMap<String, LifetimeDefinition>()
 
     private val commands = MutableSharedFlow<LaunchSessionCommand>(
         onBufferOverflow = BufferOverflow.SUSPEND,
@@ -61,58 +62,63 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     }
 
     private suspend fun handleCreateCommand(command: CreateSessionCommand) {
-        LOG.trace("Creating session ${command.sessionId}, ${command.sessionModel}")
+        LOG.info("Creating session ${command.sessionId}")
+        LOG.trace { "Session details ${command.sessionModel}" }
 
-        val session = Session(
-            command.sessionId,
-            command.sessionModel,
-            command.sessionLifetimeDefinition,
-            command.sessionEvents,
-            command.aspireHostConfig.aspireHostRunConfiguration
-        )
-        sessions[command.sessionId] = session
+        val sessionLifetimeDefinition = command.sessionHostLifetime.createNested()
+        sessionLifetimes.put(sessionLifetimeDefinition.lifetime, command.sessionId, sessionLifetimeDefinition)
 
         val buildParameters = BuildParameters(
             BuildTarget(),
-            listOf(session.model.projectPath),
+            listOf(command.sessionModel.projectPath),
             silentMode = true
         )
         BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
 
         val processLauncher = SessionProcessLauncher.getInstance(project)
-        val processLifetime = session.lifetimeDefinition.lifetime
+        val processLifetime = sessionLifetimeDefinition.lifetime
 
-        val sessionProcessListener = createSessionProcessEventListener(session.id, session.events)
+        val sessionProcessListener = createSessionProcessEventListener(
+            command.sessionId,
+            command.sessionEvents,
+            sessionLifetimeDefinition
+        )
 
         processLauncher.launchSessionProcess(
-            session.id,
-            session.model,
+            command.sessionId,
+            command.sessionModel,
             sessionProcessListener,
             processLifetime,
             command.aspireHostConfig.debuggingMode,
-            session.hostRunConfiguration
+            command.aspireHostConfig.aspireHostRunConfiguration
         )
     }
 
     private suspend fun handleDeleteCommand(command: DeleteSessionCommand) {
-        LOG.trace("Deleting session ${command.sessionId}")
+        LOG.info("Deleting session ${command.sessionId}")
 
-        val session = sessions.remove(command.sessionId) ?: return
-
-        withContext(Dispatchers.EDT) {
-            session.lifetimeDefinition.terminate()
+        val sessionLifetimeDefinition = sessionLifetimes.remove(command.sessionId)
+        if (sessionLifetimeDefinition == null) {
+            LOG.warn("Unable to find session ${command.sessionId} lifetime")
+            return
         }
 
-        session.events.tryEmit(SessionTerminated(command.sessionId, 0))
+        if (sessionLifetimeDefinition.isAlive) {
+            withContext(Dispatchers.EDT) {
+                LOG.trace { "Terminating session ${command.sessionId} lifetime" }
+                sessionLifetimeDefinition.terminate()
+            }
+        }
     }
 
     private fun createSessionProcessEventListener(
         sessionId: String,
-        sessionEvents: MutableSharedFlow<SessionEvent>
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        sessionLifetimeDefinition: LifetimeDefinition
     ): ProcessListener =
         object : ProcessAdapter() {
             override fun startNotified(event: ProcessEvent) {
-                LOG.trace { "Aspire session process was started (id: $sessionId)" }
+                LOG.info("Session $sessionId process was started")
                 val processHandler = event.processHandler
                 val pid = when (processHandler) {
                     is DebuggerWorkerProcessHandler -> processHandler.debuggerWorkerRealHandler.pid()
@@ -121,9 +127,13 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
                 }
                 if (pid == null) {
                     LOG.warn("Unable to determine process id for the session $sessionId")
-                    sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
+                    terminateSession(-1)
                 } else {
-                    sessionEvents.tryEmit(SessionStarted(sessionId, pid))
+                    LOG.trace { "Session $sessionId process id = $pid" }
+                    val eventSendingResult = sessionEvents.tryEmit(SessionStarted(sessionId, pid))
+                    if (!eventSendingResult) {
+                        LOG.warn("Unable to send an event for session $sessionId start")
+                    }
                 }
             }
 
@@ -133,35 +143,36 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
                     else if (event.text.endsWith("\n")) event.text.substring(0, event.text.length - 1)
                     else event.text
                 val isStdErr = outputType == ProcessOutputType.STDERR
-                sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
+                val eventSendingResult = sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
+                if (!eventSendingResult) {
+                    LOG.warn("Unable to send an event for session $sessionId log")
+                }
             }
 
             override fun processNotStarted() {
-                LOG.warn("Aspire session process is not started")
-                sessionEvents.tryEmit(SessionTerminated(sessionId, -1))
+                LOG.warn("Session $sessionId process is not started")
+                terminateSession(-1)
             }
 
             override fun processTerminated(event: ProcessEvent) {
-                LOG.trace("Stopping session $sessionId (${event.exitCode}, ${event.text})")
+                LOG.info("Session $sessionId process was terminated (${event.exitCode}, ${event.text})")
+                terminateSession(event.exitCode)
+            }
 
-                val session = sessions.remove(sessionId) ?: return
-                if (session.lifetimeDefinition.isNotAlive) return
-
-                application.invokeLater {
-                    session.lifetimeDefinition.terminate()
+            private fun terminateSession(exitCode: Int) {
+                LOG.trace { "Terminating session $sessionId with exitCode $exitCode" }
+                val eventSendingResult = sessionEvents.tryEmit(SessionTerminated(sessionId, exitCode))
+                if (!eventSendingResult) {
+                    LOG.warn("Unable to send an event for session $sessionId termination")
                 }
-
-                session.events.tryEmit(SessionTerminated(sessionId, event.exitCode))
+                if (sessionLifetimeDefinition.isAlive) {
+                    application.invokeLater {
+                        LOG.trace { "Terminating session $sessionId lifetime" }
+                        sessionLifetimeDefinition.terminate()
+                    }
+                }
             }
         }
-
-    data class Session(
-        val id: String,
-        val model: SessionModel,
-        val lifetimeDefinition: LifetimeDefinition,
-        val events: MutableSharedFlow<SessionEvent>,
-        val hostRunConfiguration: AspireHostConfiguration?
-    )
 
     interface LaunchSessionCommand
 
@@ -170,7 +181,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val sessionModel: SessionModel,
         val sessionEvents: MutableSharedFlow<SessionEvent>,
         val aspireHostConfig: AspireHostConfig,
-        val sessionLifetimeDefinition: LifetimeDefinition
+        val sessionHostLifetime: Lifetime
     ) : LaunchSessionCommand
 
     data class DeleteSessionCommand(

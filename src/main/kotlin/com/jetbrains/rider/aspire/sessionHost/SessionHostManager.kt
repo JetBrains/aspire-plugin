@@ -4,6 +4,7 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -32,13 +33,13 @@ class SessionHostManager(private val project: Project, private val scope: Corout
         protocolServerPort: Int,
         sessionHostModel: AspireSessionHostModel
     ) {
-        LOG.trace("Adding Aspire session host: $aspireHostConfig")
+        LOG.trace { "Creating a new Aspire session host: $aspireHostConfig" }
 
         val sessionHostLifetime = aspireHostConfig.aspireHostLifetime.createNested()
 
         subscribe(aspireHostConfig, sessionHostModel, sessionHostLifetime)
 
-        LOG.trace("Starting new session hosts with launcher")
+        LOG.trace("Starting a new session host with launcher")
         val sessionHostLauncher = SessionHostLauncher.getInstance(project)
         sessionHostLauncher.launchSessionHost(
             aspireHostConfig,
@@ -55,7 +56,8 @@ class SessionHostManager(private val project: Project, private val scope: Corout
         LOG.trace("Subscribing to protocol model")
         val sessionEvents = MutableSharedFlow<SessionEvent>(
             onBufferOverflow = BufferOverflow.DROP_OLDEST,
-            extraBufferCapacity = 100
+            extraBufferCapacity = 100,
+            replay = 20
         )
 
         scope.launch(Dispatchers.EDT) {
@@ -71,17 +73,17 @@ class SessionHostManager(private val project: Project, private val scope: Corout
                 sessionEvents.collect {
                     when (it) {
                         is SessionStarted -> {
-                            LOG.trace("Aspire session started (${it.id}, ${it.pid})")
+                            LOG.trace { "Aspire session started (${it.id}, ${it.pid})" }
                             sessionHostModel.processStarted.fire(ProcessStarted(it.id, it.pid))
                         }
 
                         is SessionTerminated -> {
-                            LOG.trace("Aspire session terminated (${it.id}, ${it.exitCode})")
+                            LOG.trace { "Aspire session terminated (${it.id}, ${it.exitCode})" }
                             sessionHostModel.processTerminated.fire(ProcessTerminated(it.id, it.exitCode))
                         }
 
                         is SessionLogReceived -> {
-                            LOG.trace("Aspire session log received (${it.id}, ${it.isStdErr}, ${it.message})")
+                            LOG.trace { "Aspire session log received (${it.id}, ${it.isStdErr}, ${it.message})" }
                             sessionHostModel.logReceived.fire(LogReceived(it.id, it.isStdErr, it.message))
                         }
                     }
@@ -98,12 +100,14 @@ class SessionHostManager(private val project: Project, private val scope: Corout
     ): SessionCreationResult {
         val sessionId = UUID.randomUUID().toString()
 
+        LOG.trace { "Creating session with id: $sessionId" }
+
         val command = CreateSessionCommand(
             sessionId,
             sessionModel,
             sessionEvents,
             aspireHostConfig,
-            sessionHostLifetime.createNested()
+            sessionHostLifetime
         )
 
         SessionManager.getInstance(project).submitCommand(command)
@@ -112,6 +116,8 @@ class SessionHostManager(private val project: Project, private val scope: Corout
     }
 
     private suspend fun deleteSession(sessionId: String): Boolean {
+        LOG.trace { "Deleting session with id: $sessionId" }
+
         val command = DeleteSessionCommand(sessionId)
 
         SessionManager.getInstance(project).submitCommand(command)

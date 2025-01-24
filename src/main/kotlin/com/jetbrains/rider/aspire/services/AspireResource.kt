@@ -6,6 +6,7 @@ import com.intellij.execution.services.ServiceEventListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.terminal.TerminalExecutionConsole
@@ -253,6 +254,7 @@ class AspireResource(
             name,
             type.toString()
         )
+        LOG.trace { "Executing command: $command for the resource $uid" }
         val response = modelWrapper.executeCommand.startSuspending(command)
         if (response.kind != ResourceCommandResponseKind.Succeeded) {
             LOG.warn("Unable to execute command: ${response.kind}, ${response.errorMessage}")
