@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 class SessionHost(
@@ -68,9 +69,9 @@ class SessionHost(
         for (host in aspireHosts) {
             add(host.value)
         }
-    }
+    }.sortedBy { it.displayName }
 
-    override fun getServiceDescriptor(project: Project, aspireHost: AspireHost) = aspireHost.getViewDescriptor()
+    override fun getServiceDescriptor(project: Project, aspireHost: AspireHost) = aspireHost.getViewDescriptor(project)
 
     suspend fun start() {
         if (!sessionHostLifetimes.isTerminated) return
@@ -119,13 +120,21 @@ class SessionHost(
     ) {
         LOG.trace("Subscribing to session host protocol model")
 
-        sessionHostModel.aspireHosts.view(lifetime) { lt, id, aspireHostModel ->
-            viewAspireHosts(aspireHostModel, lt)
+        sessionHostModel.aspireHosts.view(lifetime) { hostLifetime, hostId, hostModel ->
+            viewAspireHost(hostModel, hostLifetime)
         }
     }
 
-    private fun viewAspireHosts(model: AspireHostModel, lifetime: Lifetime) {
-        //TODO: add a model to aspire host
+    private fun viewAspireHost(model: AspireHostModel, lifetime: Lifetime) {
+        val aspireHostProjectPath = Path(model.config.aspireHostProjectPath)
+        val aspireHost = aspireHosts[aspireHostProjectPath]
+        if (aspireHost == null) {
+            LOG.warn("Could not find aspire host $aspireHostProjectPath")
+            return
+        }
+
+        LOG.trace { "Setting Aspire host model to $aspireHostProjectPath" }
+        aspireHost.setAspireHostModel(model, lifetime)
     }
 
     suspend fun stop() {

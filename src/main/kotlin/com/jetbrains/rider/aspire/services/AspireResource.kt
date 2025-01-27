@@ -29,15 +29,10 @@ import kotlin.math.roundToInt
 class AspireResource(
     private val modelWrapper: ResourceWrapper,
     val lifetime: Lifetime,
-    private val aspireHost: AspireHost,
     private val project: Project
 ) : Disposable {
     companion object {
         private val LOG = logger<AspireResource>()
-    }
-
-    val serviceViewContributor: AspireResourceServiceViewContributor by lazy {
-        AspireResourceServiceViewContributor(this)
     }
 
     var uid: String
@@ -105,6 +100,8 @@ class AspireResource(
     }
     private val logConsole = TerminalExecutionConsole(project, logProcessHandler)
     val logConsoleComponent = logConsole.component
+
+    private val descriptor by lazy { AspireResourceViewDescriptor(this) }
 
     init {
         val model = modelWrapper.model.valueOrNull
@@ -270,7 +267,7 @@ class AspireResource(
     private fun sendServiceStructureChangedEvent() {
         val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
-            aspireHost.serviceViewContributor.asService(),
+            this,
             AspireMainServiceViewContributor::class.java
         )
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
@@ -279,11 +276,13 @@ class AspireResource(
     private fun sendServiceChildrenChangedEvent() {
         val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
-            aspireHost.serviceViewContributor.asService(),
+            this,
             AspireMainServiceViewContributor::class.java
         )
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
     }
+
+    fun getViewDescriptor() = descriptor
 
     override fun dispose() {
     }
