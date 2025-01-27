@@ -244,6 +244,8 @@ class AspireHost(
         serviceEventPublisher.handle(event)
     }
 
+    fun getViewDescriptor() = AspireHostServiceViewDescriptor(this)
+
 
     override fun dispose() {
     }
