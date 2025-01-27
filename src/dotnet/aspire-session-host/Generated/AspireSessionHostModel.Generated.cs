@@ -48,6 +48,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
     [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> LogReceived => _LogReceived;
     [NotNull] public IViewableMap<string, ResourceWrapper> Resources => _Resources;
+    [NotNull] public IViewableMap<string, AspireHostModel> AspireHosts => _AspireHosts;
     
     //private fields
     [NotNull] private readonly RdCall<SessionModel, SessionCreationResult> _CreateSession;
@@ -56,6 +57,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> _ProcessTerminated;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> _LogReceived;
     [NotNull] private readonly RdMap<string, ResourceWrapper> _Resources;
+    [NotNull] private readonly RdMap<string, AspireHostModel> _AspireHosts;
     
     //primary constructor
     private AspireSessionHostModel(
@@ -64,7 +66,8 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> processStarted,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> processTerminated,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> logReceived,
-      [NotNull] RdMap<string, ResourceWrapper> resources
+      [NotNull] RdMap<string, ResourceWrapper> resources,
+      [NotNull] RdMap<string, AspireHostModel> aspireHosts
     )
     {
       if (createSession == null) throw new ArgumentNullException("createSession");
@@ -73,6 +76,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       if (processTerminated == null) throw new ArgumentNullException("processTerminated");
       if (logReceived == null) throw new ArgumentNullException("logReceived");
       if (resources == null) throw new ArgumentNullException("resources");
+      if (aspireHosts == null) throw new ArgumentNullException("aspireHosts");
       
       _CreateSession = createSession;
       _DeleteSession = deleteSession;
@@ -80,6 +84,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       _ProcessTerminated = processTerminated;
       _LogReceived = logReceived;
       _Resources = resources;
+      _AspireHosts = aspireHosts;
       _CreateSession.ValueCanBeNull = true;
       BindableChildren.Add(new KeyValuePair<string, object>("createSession", _CreateSession));
       BindableChildren.Add(new KeyValuePair<string, object>("deleteSession", _DeleteSession));
@@ -87,6 +92,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
       BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
       BindableChildren.Add(new KeyValuePair<string, object>("resources", _Resources));
+      BindableChildren.Add(new KeyValuePair<string, object>("aspireHosts", _AspireHosts));
     }
     //secondary constructor
     private AspireSessionHostModel (
@@ -96,7 +102,8 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Write),
       new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Write),
       new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived>(JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Read, JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Write),
-      new RdMap<string, ResourceWrapper>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write)
+      new RdMap<string, ResourceWrapper>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write),
+      new RdMap<string, AspireHostModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, AspireHostModel.Read, AspireHostModel.Write)
     ) {}
     //deconstruct trait
     //statics
@@ -105,7 +112,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     public static  CtxWriteDelegate<SessionCreationResult> WriteSessionCreationResultNullable = SessionCreationResult.Write.NullableClass();
     
-    protected override long SerializationHash => 5881331261780013058L;
+    protected override long SerializationHash => 1986475458008568395L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -136,6 +143,178 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
         printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
         printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
         printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
+        printer.Print("resources = "); _Resources.PrintEx(printer); printer.Println();
+        printer.Print("aspireHosts = "); _AspireHosts.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:170</p>
+  /// </summary>
+  public sealed class AspireHostConfig : IPrintable, IEquatable<AspireHostConfig>
+  {
+    //fields
+    //public fields
+    [CanBeNull] public string ResourceServiceEndpointUrl {get; private set;}
+    [CanBeNull] public string ResourceServiceApiKey {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public AspireHostConfig(
+      [CanBeNull] string resourceServiceEndpointUrl,
+      [CanBeNull] string resourceServiceApiKey
+    )
+    {
+      ResourceServiceEndpointUrl = resourceServiceEndpointUrl;
+      ResourceServiceApiKey = resourceServiceApiKey;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([CanBeNull] out string resourceServiceEndpointUrl, [CanBeNull] out string resourceServiceApiKey)
+    {
+      resourceServiceEndpointUrl = ResourceServiceEndpointUrl;
+      resourceServiceApiKey = ResourceServiceApiKey;
+    }
+    //statics
+    
+    public static CtxReadDelegate<AspireHostConfig> Read = (ctx, reader) => 
+    {
+      var resourceServiceEndpointUrl = ReadStringNullable(ctx, reader);
+      var resourceServiceApiKey = ReadStringNullable(ctx, reader);
+      var _result = new AspireHostConfig(resourceServiceEndpointUrl, resourceServiceApiKey);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    
+    public static CtxWriteDelegate<AspireHostConfig> Write = (ctx, writer, value) => 
+    {
+      WriteStringNullable(ctx, writer, value.ResourceServiceEndpointUrl);
+      WriteStringNullable(ctx, writer, value.ResourceServiceApiKey);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((AspireHostConfig) obj);
+    }
+    public bool Equals(AspireHostConfig other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Equals(ResourceServiceEndpointUrl, other.ResourceServiceEndpointUrl) && Equals(ResourceServiceApiKey, other.ResourceServiceApiKey);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + (ResourceServiceEndpointUrl != null ? ResourceServiceEndpointUrl.GetHashCode() : 0);
+        hash = hash * 31 + (ResourceServiceApiKey != null ? ResourceServiceApiKey.GetHashCode() : 0);
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("AspireHostConfig (");
+      using (printer.IndentCookie()) {
+        printer.Print("resourceServiceEndpointUrl = "); ResourceServiceEndpointUrl.PrintEx(printer); printer.Println();
+        printer.Print("resourceServiceApiKey = "); ResourceServiceApiKey.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:175</p>
+  /// </summary>
+  public sealed class AspireHostModel : RdBindableBase
+  {
+    //fields
+    //public fields
+    [NotNull] public AspireHostConfig Config {get; private set;}
+    [NotNull] public IViewableMap<string, ResourceWrapper> Resources => _Resources;
+    
+    //private fields
+    [NotNull] private readonly RdMap<string, ResourceWrapper> _Resources;
+    
+    //primary constructor
+    private AspireHostModel(
+      [NotNull] AspireHostConfig config,
+      [NotNull] RdMap<string, ResourceWrapper> resources
+    )
+    {
+      if (config == null) throw new ArgumentNullException("config");
+      if (resources == null) throw new ArgumentNullException("resources");
+      
+      Config = config;
+      _Resources = resources;
+      BindableChildren.Add(new KeyValuePair<string, object>("resources", _Resources));
+    }
+    //secondary constructor
+    public AspireHostModel (
+      [NotNull] AspireHostConfig config
+    ) : this (
+      config,
+      new RdMap<string, ResourceWrapper>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write)
+    ) {}
+    //deconstruct trait
+    //statics
+    
+    public static CtxReadDelegate<AspireHostModel> Read = (ctx, reader) => 
+    {
+      var _id = RdId.Read(reader);
+      var config = AspireHostConfig.Read(ctx, reader);
+      var resources = RdMap<string, ResourceWrapper>.Read(ctx, reader, JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write);
+      var _result = new AspireHostModel(config, resources).WithId(_id);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<AspireHostModel> Write = (ctx, writer, value) => 
+    {
+      value.RdId.Write(writer);
+      AspireHostConfig.Write(ctx, writer, value.Config);
+      RdMap<string, ResourceWrapper>.Write(ctx, writer, value._Resources);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    //hash code trait
+    //pretty print
+    public override void Print(PrettyPrinter printer)
+    {
+      printer.Println("AspireHostModel (");
+      using (printer.IndentCookie()) {
+        printer.Print("config = "); Config.PrintEx(printer); printer.Println();
         printer.Print("resources = "); _Resources.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
