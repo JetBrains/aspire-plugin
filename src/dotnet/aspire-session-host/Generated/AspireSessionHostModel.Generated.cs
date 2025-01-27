@@ -42,16 +42,12 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   {
     //fields
     //public fields
-    [NotNull] public IRdCall<SessionModel, SessionCreationResult> CreateSession => _CreateSession;
-    [NotNull] public IRdCall<string, bool> DeleteSession => _DeleteSession;
     [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
     [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
     [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> LogReceived => _LogReceived;
     [NotNull] public IViewableMap<string, AspireHostModel> AspireHosts => _AspireHosts;
     
     //private fields
-    [NotNull] private readonly RdCall<SessionModel, SessionCreationResult> _CreateSession;
-    [NotNull] private readonly RdCall<string, bool> _DeleteSession;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> _ProcessStarted;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> _ProcessTerminated;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> _LogReceived;
@@ -59,30 +55,21 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     //primary constructor
     private AspireSessionHostModel(
-      [NotNull] RdCall<SessionModel, SessionCreationResult> createSession,
-      [NotNull] RdCall<string, bool> deleteSession,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> processStarted,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> processTerminated,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> logReceived,
       [NotNull] RdMap<string, AspireHostModel> aspireHosts
     )
     {
-      if (createSession == null) throw new ArgumentNullException("createSession");
-      if (deleteSession == null) throw new ArgumentNullException("deleteSession");
       if (processStarted == null) throw new ArgumentNullException("processStarted");
       if (processTerminated == null) throw new ArgumentNullException("processTerminated");
       if (logReceived == null) throw new ArgumentNullException("logReceived");
       if (aspireHosts == null) throw new ArgumentNullException("aspireHosts");
       
-      _CreateSession = createSession;
-      _DeleteSession = deleteSession;
       _ProcessStarted = processStarted;
       _ProcessTerminated = processTerminated;
       _LogReceived = logReceived;
       _AspireHosts = aspireHosts;
-      _CreateSession.ValueCanBeNull = true;
-      BindableChildren.Add(new KeyValuePair<string, object>("createSession", _CreateSession));
-      BindableChildren.Add(new KeyValuePair<string, object>("deleteSession", _DeleteSession));
       BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
       BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
       BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
@@ -91,8 +78,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     //secondary constructor
     private AspireSessionHostModel (
     ) : this (
-      new RdCall<SessionModel, SessionCreationResult>(SessionModel.Read, SessionModel.Write, ReadSessionCreationResultNullable, WriteSessionCreationResultNullable),
-      new RdCall<string, bool>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, JetBrains.Rd.Impl.Serializers.ReadBool, JetBrains.Rd.Impl.Serializers.WriteBool),
       new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Write),
       new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Write),
       new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived>(JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Read, JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Write),
@@ -101,11 +86,9 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     //deconstruct trait
     //statics
     
-    public static CtxReadDelegate<SessionCreationResult> ReadSessionCreationResultNullable = SessionCreationResult.Read.NullableClass();
     
-    public static  CtxWriteDelegate<SessionCreationResult> WriteSessionCreationResultNullable = SessionCreationResult.Write.NullableClass();
     
-    protected override long SerializationHash => -3240095003388598890L;
+    protected override long SerializationHash => 7631734498724645971L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -131,8 +114,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     {
       printer.Println("AspireSessionHostModel (");
       using (printer.IndentCookie()) {
-        printer.Print("createSession = "); _CreateSession.PrintEx(printer); printer.Println();
-        printer.Print("deleteSession = "); _DeleteSession.PrintEx(printer); printer.Println();
         printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
         printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
         printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
@@ -151,7 +132,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:206</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:193</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
@@ -249,7 +230,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:194</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:181</p>
   /// </summary>
   public sealed class AspireHostModelConfig : IPrintable, IEquatable<AspireHostModelConfig>
   {
@@ -377,7 +358,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:51</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:38</p>
   /// </summary>
   public sealed class CreateSessionRequest : IPrintable, IEquatable<CreateSessionRequest>
   {
@@ -508,7 +489,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:60</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:47</p>
   /// </summary>
   public sealed class CreateSessionResponse : IPrintable, IEquatable<CreateSessionResponse>
   {
@@ -601,7 +582,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:65</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:52</p>
   /// </summary>
   public sealed class DeleteSessionRequest : IPrintable, IEquatable<DeleteSessionRequest>
   {
@@ -686,7 +667,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:69</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:56</p>
   /// </summary>
   public sealed class DeleteSessionResponse : IPrintable, IEquatable<DeleteSessionResponse>
   {
@@ -1071,7 +1052,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:158</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:145</p>
   /// </summary>
   public sealed class ResourceCommand : IPrintable, IEquatable<ResourceCommand>
   {
@@ -1207,7 +1188,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:178</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:165</p>
   /// </summary>
   public sealed class ResourceCommandRequest : IPrintable, IEquatable<ResourceCommandRequest>
   {
@@ -1310,7 +1291,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:184</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:171</p>
   /// </summary>
   public sealed class ResourceCommandResponse : IPrintable, IEquatable<ResourceCommandResponse>
   {
@@ -1403,7 +1384,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:185</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:172</p>
   /// </summary>
   public enum ResourceCommandResponseKind {
     Undefined,
@@ -1414,7 +1395,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:165</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:152</p>
   /// </summary>
   public enum ResourceCommandState {
     Enabled,
@@ -1424,7 +1405,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:127</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:114</p>
   /// </summary>
   public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
   {
@@ -1519,7 +1500,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:151</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:138</p>
   /// </summary>
   public sealed class ResourceHealthReport : IPrintable, IEquatable<ResourceHealthReport>
   {
@@ -1630,7 +1611,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:145</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:132</p>
   /// </summary>
   public enum ResourceHealthStatus {
     Healthy,
@@ -1640,7 +1621,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:172</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:159</p>
   /// </summary>
   public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
   {
@@ -1741,7 +1722,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:82</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:69</p>
   /// </summary>
   public sealed class ResourceModel : IPrintable, IEquatable<ResourceModel>
   {
@@ -1974,7 +1955,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:120</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:107</p>
   /// </summary>
   public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
   {
@@ -2087,7 +2068,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:92</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:79</p>
   /// </summary>
   public enum ResourceState {
     Finished,
@@ -2101,7 +2082,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:101</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:88</p>
   /// </summary>
   public enum ResourceStateStyle {
     Success,
@@ -2113,7 +2094,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:84</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:71</p>
   /// </summary>
   public enum ResourceType {
     Project,
@@ -2124,7 +2105,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:132</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:119</p>
   /// </summary>
   public sealed class ResourceUrl : IPrintable, IEquatable<ResourceUrl>
   {
@@ -2226,7 +2207,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:138</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:125</p>
   /// </summary>
   public sealed class ResourceVolume : IPrintable, IEquatable<ResourceVolume>
   {
@@ -2337,7 +2318,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:75</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:62</p>
   /// </summary>
   public sealed class ResourceWrapper : RdBindableBase
   {
@@ -2439,91 +2420,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:47</p>
-  /// </summary>
-  public sealed class SessionCreationResult : IPrintable, IEquatable<SessionCreationResult>
-  {
-    //fields
-    //public fields
-    [NotNull] public string SessionId {get; private set;}
-    
-    //private fields
-    //primary constructor
-    public SessionCreationResult(
-      [NotNull] string sessionId
-    )
-    {
-      if (sessionId == null) throw new ArgumentNullException("sessionId");
-      
-      SessionId = sessionId;
-    }
-    //secondary constructor
-    //deconstruct trait
-    public void Deconstruct([NotNull] out string sessionId)
-    {
-      sessionId = SessionId;
-    }
-    //statics
-    
-    public static CtxReadDelegate<SessionCreationResult> Read = (ctx, reader) => 
-    {
-      var sessionId = reader.ReadString();
-      var _result = new SessionCreationResult(sessionId);
-      return _result;
-    };
-    
-    public static CtxWriteDelegate<SessionCreationResult> Write = (ctx, writer, value) => 
-    {
-      writer.Write(value.SessionId);
-    };
-    
-    //constants
-    
-    //custom body
-    //methods
-    //equals trait
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
-      return Equals((SessionCreationResult) obj);
-    }
-    public bool Equals(SessionCreationResult other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return SessionId == other.SessionId;
-    }
-    //hash code trait
-    public override int GetHashCode()
-    {
-      unchecked {
-        var hash = 0;
-        hash = hash * 31 + SessionId.GetHashCode();
-        return hash;
-      }
-    }
-    //pretty print
-    public void Print(PrettyPrinter printer)
-    {
-      printer.Println("SessionCreationResult (");
-      using (printer.IndentCookie()) {
-        printer.Print("sessionId = "); SessionId.PrintEx(printer); printer.Println();
-      }
-      printer.Print(")");
-    }
-    //toString
-    public override string ToString()
-    {
-      var printer = new SingleLinePrettyPrinter();
-      Print(printer);
-      return printer.ToString();
-    }
-  }
-  
-  
-  /// <summary>
   /// <p>Generated from: AspireSessionHostModel.kt:33</p>
   /// </summary>
   public sealed class SessionEnvironmentVariable : IPrintable, IEquatable<SessionEnvironmentVariable>
@@ -2604,137 +2500,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       using (printer.IndentCookie()) {
         printer.Print("key = "); Key.PrintEx(printer); printer.Println();
         printer.Print("value = "); Value.PrintEx(printer); printer.Println();
-      }
-      printer.Print(")");
-    }
-    //toString
-    public override string ToString()
-    {
-      var printer = new SingleLinePrettyPrinter();
-      Print(printer);
-      return printer.ToString();
-    }
-  }
-  
-  
-  /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:38</p>
-  /// </summary>
-  public sealed class SessionModel : IPrintable, IEquatable<SessionModel>
-  {
-    //fields
-    //public fields
-    [NotNull] public string ProjectPath {get; private set;}
-    public bool Debug {get; private set;}
-    [CanBeNull] public string LaunchProfile {get; private set;}
-    public bool DisableLaunchProfile {get; private set;}
-    [CanBeNull] public string[] Args {get; private set;}
-    [CanBeNull] public SessionEnvironmentVariable[] Envs {get; private set;}
-    
-    //private fields
-    //primary constructor
-    public SessionModel(
-      [NotNull] string projectPath,
-      bool debug,
-      [CanBeNull] string launchProfile,
-      bool disableLaunchProfile,
-      [CanBeNull] string[] args,
-      [CanBeNull] SessionEnvironmentVariable[] envs
-    )
-    {
-      if (projectPath == null) throw new ArgumentNullException("projectPath");
-      
-      ProjectPath = projectPath;
-      Debug = debug;
-      LaunchProfile = launchProfile;
-      DisableLaunchProfile = disableLaunchProfile;
-      Args = args;
-      Envs = envs;
-    }
-    //secondary constructor
-    //deconstruct trait
-    public void Deconstruct([NotNull] out string projectPath, out bool debug, [CanBeNull] out string launchProfile, out bool disableLaunchProfile, [CanBeNull] out string[] args, [CanBeNull] out SessionEnvironmentVariable[] envs)
-    {
-      projectPath = ProjectPath;
-      debug = Debug;
-      launchProfile = LaunchProfile;
-      disableLaunchProfile = DisableLaunchProfile;
-      args = Args;
-      envs = Envs;
-    }
-    //statics
-    
-    public static CtxReadDelegate<SessionModel> Read = (ctx, reader) => 
-    {
-      var projectPath = reader.ReadString();
-      var debug = reader.ReadBool();
-      var launchProfile = ReadStringNullable(ctx, reader);
-      var disableLaunchProfile = reader.ReadBool();
-      var args = ReadStringArrayNullable(ctx, reader);
-      var envs = ReadSessionEnvironmentVariableArrayNullable(ctx, reader);
-      var _result = new SessionModel(projectPath, debug, launchProfile, disableLaunchProfile, args, envs);
-      return _result;
-    };
-    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
-    public static CtxReadDelegate<string[]> ReadStringArrayNullable = JetBrains.Rd.Impl.Serializers.ReadString.Array().NullableClass();
-    public static CtxReadDelegate<SessionEnvironmentVariable[]> ReadSessionEnvironmentVariableArrayNullable = SessionEnvironmentVariable.Read.Array().NullableClass();
-    
-    public static CtxWriteDelegate<SessionModel> Write = (ctx, writer, value) => 
-    {
-      writer.Write(value.ProjectPath);
-      writer.Write(value.Debug);
-      WriteStringNullable(ctx, writer, value.LaunchProfile);
-      writer.Write(value.DisableLaunchProfile);
-      WriteStringArrayNullable(ctx, writer, value.Args);
-      WriteSessionEnvironmentVariableArrayNullable(ctx, writer, value.Envs);
-    };
-    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
-    public static  CtxWriteDelegate<string[]> WriteStringArrayNullable = JetBrains.Rd.Impl.Serializers.WriteString.Array().NullableClass();
-    public static  CtxWriteDelegate<SessionEnvironmentVariable[]> WriteSessionEnvironmentVariableArrayNullable = SessionEnvironmentVariable.Write.Array().NullableClass();
-    
-    //constants
-    
-    //custom body
-    //methods
-    //equals trait
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
-      return Equals((SessionModel) obj);
-    }
-    public bool Equals(SessionModel other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return ProjectPath == other.ProjectPath && Debug == other.Debug && Equals(LaunchProfile, other.LaunchProfile) && DisableLaunchProfile == other.DisableLaunchProfile && Equals(Args, other.Args) && Equals(Envs, other.Envs);
-    }
-    //hash code trait
-    public override int GetHashCode()
-    {
-      unchecked {
-        var hash = 0;
-        hash = hash * 31 + ProjectPath.GetHashCode();
-        hash = hash * 31 + Debug.GetHashCode();
-        hash = hash * 31 + (LaunchProfile != null ? LaunchProfile.GetHashCode() : 0);
-        hash = hash * 31 + DisableLaunchProfile.GetHashCode();
-        hash = hash * 31 + (Args != null ? Args.ContentHashCode() : 0);
-        hash = hash * 31 + (Envs != null ? Envs.ContentHashCode() : 0);
-        return hash;
-      }
-    }
-    //pretty print
-    public void Print(PrettyPrinter printer)
-    {
-      printer.Println("SessionModel (");
-      using (printer.IndentCookie()) {
-        printer.Print("projectPath = "); ProjectPath.PrintEx(printer); printer.Println();
-        printer.Print("debug = "); Debug.PrintEx(printer); printer.Println();
-        printer.Print("launchProfile = "); LaunchProfile.PrintEx(printer); printer.Println();
-        printer.Print("disableLaunchProfile = "); DisableLaunchProfile.PrintEx(printer); printer.Println();
-        printer.Print("args = "); Args.PrintEx(printer); printer.Println();
-        printer.Print("envs = "); Envs.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }

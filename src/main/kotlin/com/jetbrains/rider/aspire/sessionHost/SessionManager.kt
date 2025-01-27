@@ -13,7 +13,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isAlive
 import com.jetbrains.rd.util.put
-import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
@@ -63,14 +63,14 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
     private suspend fun handleCreateCommand(command: CreateSessionCommand) {
         LOG.info("Creating session ${command.sessionId}")
-        LOG.trace { "Session details ${command.sessionModel}" }
+        LOG.trace { "Session details ${command.createSessionRequest}" }
 
         val sessionLifetimeDefinition = command.sessionHostLifetime.createNested()
         sessionLifetimes.put(sessionLifetimeDefinition.lifetime, command.sessionId, sessionLifetimeDefinition)
 
         val buildParameters = BuildParameters(
             BuildTarget(),
-            listOf(command.sessionModel.projectPath),
+            listOf(command.createSessionRequest.projectPath),
             silentMode = true
         )
         BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
@@ -86,7 +86,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
         processLauncher.launchSessionProcess(
             command.sessionId,
-            command.sessionModel,
+            command.createSessionRequest,
             sessionProcessListener,
             processLifetime,
             command.aspireHostConfig.debuggingMode,
@@ -178,7 +178,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
     data class CreateSessionCommand(
         val sessionId: String,
-        val sessionModel: SessionModel,
+        val createSessionRequest: CreateSessionRequest,
         val sessionEvents: MutableSharedFlow<SessionEvent>,
         val aspireHostConfig: AspireHostConfig,
         val sessionHostLifetime: Lifetime

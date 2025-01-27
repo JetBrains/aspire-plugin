@@ -4,7 +4,7 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 
 interface SessionProcessLauncherExtension {
@@ -19,7 +19,7 @@ interface SessionProcessLauncherExtension {
 
     suspend fun launchRunProcess(
         sessionId: String,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?,
@@ -28,7 +28,7 @@ interface SessionProcessLauncherExtension {
 
     suspend fun launchDebugProcess(
         sessionId: String,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?,
