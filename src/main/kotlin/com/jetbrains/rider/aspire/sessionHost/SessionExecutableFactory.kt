@@ -10,8 +10,8 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.systemIndependentPath
+import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable
-import com.jetbrains.rider.aspire.generated.SessionModel
 import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.settings.AspireSettings
@@ -47,7 +47,7 @@ class SessionExecutableFactory(private val project: Project) {
     }
 
     suspend fun createExecutable(
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
@@ -63,7 +63,7 @@ class SessionExecutableFactory(private val project: Project) {
 
     private suspend fun getExecutableForRunnableProject(
         runnableProject: RunnableProject,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
@@ -125,7 +125,7 @@ class SessionExecutableFactory(private val project: Project) {
 
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
@@ -187,7 +187,7 @@ class SessionExecutableFactory(private val project: Project) {
 
     //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
     private suspend fun getLaunchProfile(
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         runnableProject: RunnableProject
     ): LaunchSettingsJson.Profile? {
         val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
@@ -202,7 +202,7 @@ class SessionExecutableFactory(private val project: Project) {
 
     //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
     private suspend fun getLaunchProfile(
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProjectPath: Path
     ): LaunchSettingsJson.Profile? {
         val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
@@ -215,7 +215,7 @@ class SessionExecutableFactory(private val project: Project) {
         return launchSettings.profiles?.get(launchProfileKey)
     }
 
-    private fun getLaunchProfileKey(sessionModel: SessionModel): String? {
+    private fun getLaunchProfileKey(sessionModel: CreateSessionRequest): String? {
         if (sessionModel.disableLaunchProfile) {
             LOG.trace { "Launch profile disabled" }
             return null

@@ -35,19 +35,6 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("value", string)
     }
 
-    private val SessionModel = structdef {
-        field("projectPath", string)
-        field("debug", bool)
-        field("launchProfile", string.nullable)
-        field("disableLaunchProfile", bool)
-        field("args", array(string).nullable)
-        field("envs", array(SessionEnvironmentVariable).nullable)
-    }
-
-    private val SessionCreationResult = structdef {
-        field("sessionId", string)
-    }
-
     private val CreateSessionRequest = structdef {
         field("projectPath", string)
         field("debug", bool)
@@ -213,9 +200,6 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
     }
 
     init {
-        callback("createSession", SessionModel, SessionCreationResult.nullable)
-        callback("deleteSession", string, bool)
-
         source("processStarted", ProcessStarted)
         source("processTerminated", ProcessTerminated)
         source("logReceived", LogReceived)

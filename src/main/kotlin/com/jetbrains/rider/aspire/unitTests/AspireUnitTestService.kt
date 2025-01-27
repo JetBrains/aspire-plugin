@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.nameWithoutExtension
 
 @Service(Service.Level.PROJECT)
@@ -112,9 +113,19 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
         val protocol = startProtocol(config.aspireHostLifetime)
         val sessionHostModel = protocol.aspireSessionHostModel
 
+        val aspireHostConfig = AspireHostModelConfig(
+            config.id,
+            config.aspireHostProjectPath.absolutePathString(),
+            config.resourceServiceEndpointUrl,
+            config.resourceServiceApiKey
+        )
+        val aspireHostModel = AspireHostModel(aspireHostConfig)
+
+        sessionHostModel.aspireHosts.put(config.id, aspireHostModel)
+
         SessionHostManager
             .getInstance(project)
-            .startSessionHost(config, protocol.wire.serverPort, sessionHostModel)
+            .startSessionHost(config, protocol.wire.serverPort, aspireHostModel, sessionHostModel)
     }
 
     private suspend fun startProtocol(lifetime: Lifetime) = withContext(Dispatchers.EDT) {

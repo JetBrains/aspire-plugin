@@ -9,7 +9,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
-import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension
 
@@ -23,7 +23,7 @@ class SessionProcessLauncher(private val project: Project) {
 
     suspend fun launchSessionProcess(
         sessionId: String,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         debuggingMode: Boolean,
@@ -57,12 +57,12 @@ class SessionProcessLauncher(private val project: Project) {
 
     private suspend fun launchDebugProcess(
         sessionId: String,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?
     ) {
-        val processLauncher = getSessionProcessLauncher(sessionModel)
+        val processLauncher = getSessionProcessLauncher(sessionModel.projectPath)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${sessionModel.projectPath}")
             return
@@ -80,12 +80,12 @@ class SessionProcessLauncher(private val project: Project) {
 
     private suspend fun launchRunProcess(
         sessionId: String,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?
     ) {
-        val processLauncher = getSessionProcessLauncher(sessionModel)
+        val processLauncher = getSessionProcessLauncher(sessionModel.projectPath)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${sessionModel.projectPath}")
             return
@@ -101,9 +101,9 @@ class SessionProcessLauncher(private val project: Project) {
         )
     }
 
-    private suspend fun getSessionProcessLauncher(sessionModel: SessionModel): SessionProcessLauncherExtension? {
+    private suspend fun getSessionProcessLauncher(projectPath: String): SessionProcessLauncherExtension? {
         for (launcher in SessionProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
-            if (launcher.isApplicable(sessionModel.projectPath, project))
+            if (launcher.isApplicable(projectPath, project))
                 return launcher
         }
 

@@ -31,13 +31,14 @@ class SessionHostManager(private val project: Project, private val scope: Corout
     fun startSessionHost(
         aspireHostConfig: AspireHostConfig,
         protocolServerPort: Int,
+        aspireHostModel: AspireHostModel,
         sessionHostModel: AspireSessionHostModel
     ) {
         LOG.trace { "Creating a new Aspire session host: $aspireHostConfig" }
 
         val sessionHostLifetime = aspireHostConfig.aspireHostLifetime.createNested()
 
-        subscribe(aspireHostConfig, sessionHostModel, sessionHostLifetime)
+        subscribe(aspireHostConfig, aspireHostModel, sessionHostModel, sessionHostLifetime)
 
         LOG.trace("Starting a new session host with launcher")
         val sessionHostLauncher = SessionHostLauncher.getInstance(project)
@@ -50,6 +51,7 @@ class SessionHostManager(private val project: Project, private val scope: Corout
 
     private fun subscribe(
         aspireHostConfig: AspireHostConfig,
+        aspireHostModel: AspireHostModel,
         sessionHostModel: AspireSessionHostModel,
         sessionHostLifetime: Lifetime
     ) {
@@ -61,11 +63,11 @@ class SessionHostManager(private val project: Project, private val scope: Corout
         )
 
         scope.launch(Dispatchers.EDT) {
-            sessionHostModel.createSession.setSuspend { _, model ->
+            aspireHostModel.createSession.setSuspend { _, model ->
                 createSession(model, sessionEvents, aspireHostConfig, sessionHostLifetime)
             }
 
-            sessionHostModel.deleteSession.setSuspend { _, sessionId ->
+            aspireHostModel.deleteSession.setSuspend { _, sessionId ->
                 deleteSession(sessionId)
             }
 
@@ -93,18 +95,18 @@ class SessionHostManager(private val project: Project, private val scope: Corout
     }
 
     private suspend fun createSession(
-        sessionModel: SessionModel,
+        createSessionRequest: CreateSessionRequest,
         sessionEvents: MutableSharedFlow<SessionEvent>,
         aspireHostConfig: AspireHostConfig,
         sessionHostLifetime: Lifetime
-    ): SessionCreationResult {
+    ): CreateSessionResponse {
         val sessionId = UUID.randomUUID().toString()
 
         LOG.trace { "Creating session with id: $sessionId" }
 
         val command = CreateSessionCommand(
             sessionId,
-            sessionModel,
+            createSessionRequest,
             sessionEvents,
             aspireHostConfig,
             sessionHostLifetime
@@ -112,16 +114,16 @@ class SessionHostManager(private val project: Project, private val scope: Corout
 
         SessionManager.getInstance(project).submitCommand(command)
 
-        return SessionCreationResult(sessionId)
+        return CreateSessionResponse(sessionId, null)
     }
 
-    private suspend fun deleteSession(sessionId: String): Boolean {
-        LOG.trace { "Deleting session with id: $sessionId" }
+    private suspend fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
+        LOG.trace { "Deleting session with id: ${deleteSessionRequest.sessionId}" }
 
-        val command = DeleteSessionCommand(sessionId)
+        val command = DeleteSessionCommand(deleteSessionRequest.sessionId)
 
         SessionManager.getInstance(project).submitCommand(command)
 
-        return true
+        return DeleteSessionResponse(deleteSessionRequest.sessionId, null)
     }
 }

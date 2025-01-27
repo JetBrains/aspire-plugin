@@ -23,8 +23,6 @@ import kotlin.reflect.KClass
  * #### Generated from [AspireSessionHostModel.kt:16]
  */
 class AspireSessionHostModel private constructor(
-    private val _createSession: RdCall<SessionModel, SessionCreationResult?>,
-    private val _deleteSession: RdCall<String, Boolean>,
     private val _processStarted: RdSignal<ProcessStarted>,
     private val _processTerminated: RdSignal<ProcessTerminated>,
     private val _logReceived: RdSignal<LogReceived>,
@@ -40,8 +38,6 @@ class AspireSessionHostModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(-4984966637681634785), classLoader, "com.jetbrains.rider.aspire.generated.ProcessTerminated"))
             serializers.register(LazyCompanionMarshaller(RdId(548077805281958706), classLoader, "com.jetbrains.rider.aspire.generated.LogReceived"))
             serializers.register(LazyCompanionMarshaller(RdId(-5369615389742325332), classLoader, "com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable"))
-            serializers.register(LazyCompanionMarshaller(RdId(-1286323512761547290), classLoader, "com.jetbrains.rider.aspire.generated.SessionModel"))
-            serializers.register(LazyCompanionMarshaller(RdId(-5594530824153105985), classLoader, "com.jetbrains.rider.aspire.generated.SessionCreationResult"))
             serializers.register(LazyCompanionMarshaller(RdId(3848038420960084968), classLoader, "com.jetbrains.rider.aspire.generated.CreateSessionRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(8608726607558258184), classLoader, "com.jetbrains.rider.aspire.generated.CreateSessionResponse"))
             serializers.register(LazyCompanionMarshaller(RdId(945330335384668759), classLoader, "com.jetbrains.rider.aspire.generated.DeleteSessionRequest"))
@@ -84,17 +80,14 @@ class AspireSessionHostModel private constructor(
             return AspireSessionHostModel()
         }
         
-        private val __SessionCreationResultNullableSerializer = SessionCreationResult.nullable()
         
-        const val serializationHash = -3240095003388598890L
+        const val serializationHash = 7631734498724645971L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
     override val serializationHash: Long get() = AspireSessionHostModel.serializationHash
     
     //fields
-    val createSession: IRdEndpoint<SessionModel, SessionCreationResult?> get() = _createSession
-    val deleteSession: IRdEndpoint<String, Boolean> get() = _deleteSession
     val processStarted: ISignal<ProcessStarted> get() = _processStarted
     val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
     val logReceived: ISignal<LogReceived> get() = _logReceived
@@ -102,8 +95,6 @@ class AspireSessionHostModel private constructor(
     //methods
     //initializer
     init {
-        bindableChildren.add("createSession" to _createSession)
-        bindableChildren.add("deleteSession" to _deleteSession)
         bindableChildren.add("processStarted" to _processStarted)
         bindableChildren.add("processTerminated" to _processTerminated)
         bindableChildren.add("logReceived" to _logReceived)
@@ -113,8 +104,6 @@ class AspireSessionHostModel private constructor(
     //secondary constructor
     private constructor(
     ) : this(
-        RdCall<SessionModel, SessionCreationResult?>(SessionModel, __SessionCreationResultNullableSerializer),
-        RdCall<String, Boolean>(FrameworkMarshallers.String, FrameworkMarshallers.Bool),
         RdSignal<ProcessStarted>(ProcessStarted),
         RdSignal<ProcessTerminated>(ProcessTerminated),
         RdSignal<LogReceived>(LogReceived),
@@ -127,8 +116,6 @@ class AspireSessionHostModel private constructor(
     override fun print(printer: PrettyPrinter)  {
         printer.println("AspireSessionHostModel (")
         printer.indent {
-            print("createSession = "); _createSession.print(printer); println()
-            print("deleteSession = "); _deleteSession.print(printer); println()
             print("processStarted = "); _processStarted.print(printer); println()
             print("processTerminated = "); _processTerminated.print(printer); println()
             print("logReceived = "); _logReceived.print(printer); println()
@@ -139,8 +126,6 @@ class AspireSessionHostModel private constructor(
     //deepClone
     override fun deepClone(): AspireSessionHostModel   {
         return AspireSessionHostModel(
-            _createSession.deepClonePolymorphic(),
-            _deleteSession.deepClonePolymorphic(),
             _processStarted.deepClonePolymorphic(),
             _processTerminated.deepClonePolymorphic(),
             _logReceived.deepClonePolymorphic(),
@@ -156,7 +141,7 @@ val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionH
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:206]
+ * #### Generated from [AspireSessionHostModel.kt:193]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -244,7 +229,7 @@ class AspireHostModel private constructor(
  * @property aspireHostProjectPath Path of the Aspire Host .csproj file
  * @property resourceServiceEndpointUrl `DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable
  * @property resourceServiceApiKey `DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
- * #### Generated from [AspireSessionHostModel.kt:194]
+ * #### Generated from [AspireSessionHostModel.kt:181]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -321,7 +306,7 @@ data class AspireHostModelConfig (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:51]
+ * #### Generated from [AspireSessionHostModel.kt:38]
  */
 data class CreateSessionRequest (
     val projectPath: String,
@@ -410,7 +395,7 @@ data class CreateSessionRequest (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:60]
+ * #### Generated from [AspireSessionHostModel.kt:47]
  */
 data class CreateSessionResponse (
     val sessionId: String?,
@@ -475,7 +460,7 @@ data class CreateSessionResponse (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:65]
+ * #### Generated from [AspireSessionHostModel.kt:52]
  */
 data class DeleteSessionRequest (
     val sessionId: String
@@ -535,7 +520,7 @@ data class DeleteSessionRequest (
 
 /**
  * @property sessionId The field will be null if the session cannot be found
- * #### Generated from [AspireSessionHostModel.kt:69]
+ * #### Generated from [AspireSessionHostModel.kt:56]
  */
 data class DeleteSessionResponse (
     val sessionId: String?,
@@ -801,7 +786,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:158]
+ * #### Generated from [AspireSessionHostModel.kt:145]
  */
 data class ResourceCommand (
     val commandType: String,
@@ -896,7 +881,7 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:178]
+ * #### Generated from [AspireSessionHostModel.kt:165]
  */
 data class ResourceCommandRequest (
     val commandType: String,
@@ -967,7 +952,7 @@ data class ResourceCommandRequest (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:184]
+ * #### Generated from [AspireSessionHostModel.kt:171]
  */
 data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
@@ -1032,7 +1017,7 @@ data class ResourceCommandResponse (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:185]
+ * #### Generated from [AspireSessionHostModel.kt:172]
  */
 enum class ResourceCommandResponseKind {
     Undefined, 
@@ -1059,7 +1044,7 @@ enum class ResourceCommandResponseKind {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:165]
+ * #### Generated from [AspireSessionHostModel.kt:152]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -1085,7 +1070,7 @@ enum class ResourceCommandState {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:127]
+ * #### Generated from [AspireSessionHostModel.kt:114]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -1150,7 +1135,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:151]
+ * #### Generated from [AspireSessionHostModel.kt:138]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus,
@@ -1227,7 +1212,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:145]
+ * #### Generated from [AspireSessionHostModel.kt:132]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -1253,7 +1238,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:172]
+ * #### Generated from [AspireSessionHostModel.kt:159]
  */
 data class ResourceLog (
     val text: String,
@@ -1324,7 +1309,7 @@ data class ResourceLog (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:82]
+ * #### Generated from [AspireSessionHostModel.kt:69]
  */
 data class ResourceModel (
     val name: String,
@@ -1473,7 +1458,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:120]
+ * #### Generated from [AspireSessionHostModel.kt:107]
  */
 data class ResourceProperty (
     val name: String,
@@ -1550,7 +1535,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:92]
+ * #### Generated from [AspireSessionHostModel.kt:79]
  */
 enum class ResourceState {
     Finished, 
@@ -1580,7 +1565,7 @@ enum class ResourceState {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:101]
+ * #### Generated from [AspireSessionHostModel.kt:88]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -1608,7 +1593,7 @@ enum class ResourceStateStyle {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:84]
+ * #### Generated from [AspireSessionHostModel.kt:71]
  */
 enum class ResourceType {
     Project, 
@@ -1635,7 +1620,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:132]
+ * #### Generated from [AspireSessionHostModel.kt:119]
  */
 data class ResourceUrl (
     val name: String,
@@ -1706,7 +1691,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:138]
+ * #### Generated from [AspireSessionHostModel.kt:125]
  */
 data class ResourceVolume (
     val source: String,
@@ -1783,7 +1768,7 @@ data class ResourceVolume (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:75]
+ * #### Generated from [AspireSessionHostModel.kt:62]
  */
 class ResourceWrapper private constructor(
     private val _model: RdOptionalProperty<ResourceModel>,
@@ -1877,65 +1862,6 @@ class ResourceWrapper private constructor(
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:47]
- */
-data class SessionCreationResult (
-    val sessionId: String
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<SessionCreationResult> {
-        override val _type: KClass<SessionCreationResult> = SessionCreationResult::class
-        override val id: RdId get() = RdId(-5594530824153105985)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionCreationResult  {
-            val sessionId = buffer.readString()
-            return SessionCreationResult(sessionId)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionCreationResult)  {
-            buffer.writeString(value.sessionId)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as SessionCreationResult
-        
-        if (sessionId != other.sessionId) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + sessionId.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("SessionCreationResult (")
-        printer.indent {
-            print("sessionId = "); sessionId.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
  * #### Generated from [AspireSessionHostModel.kt:33]
  */
 data class SessionEnvironmentVariable (
@@ -1991,95 +1917,6 @@ data class SessionEnvironmentVariable (
         printer.indent {
             print("key = "); key.print(printer); println()
             print("value = "); value.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspireSessionHostModel.kt:38]
- */
-data class SessionModel (
-    val projectPath: String,
-    val debug: Boolean,
-    val launchProfile: String?,
-    val disableLaunchProfile: Boolean,
-    val args: Array<String>?,
-    val envs: Array<SessionEnvironmentVariable>?
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<SessionModel> {
-        override val _type: KClass<SessionModel> = SessionModel::class
-        override val id: RdId get() = RdId(-1286323512761547290)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): SessionModel  {
-            val projectPath = buffer.readString()
-            val debug = buffer.readBool()
-            val launchProfile = buffer.readNullable { buffer.readString() }
-            val disableLaunchProfile = buffer.readBool()
-            val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
-            val envs = buffer.readNullable { buffer.readArray {SessionEnvironmentVariable.read(ctx, buffer)} }
-            return SessionModel(projectPath, debug, launchProfile, disableLaunchProfile, args, envs)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionModel)  {
-            buffer.writeString(value.projectPath)
-            buffer.writeBool(value.debug)
-            buffer.writeNullable(value.launchProfile) { buffer.writeString(it) }
-            buffer.writeBool(value.disableLaunchProfile)
-            buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
-            buffer.writeNullable(value.envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as SessionModel
-        
-        if (projectPath != other.projectPath) return false
-        if (debug != other.debug) return false
-        if (launchProfile != other.launchProfile) return false
-        if (disableLaunchProfile != other.disableLaunchProfile) return false
-        if (args != other.args) return false
-        if (envs != other.envs) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + projectPath.hashCode()
-        __r = __r*31 + debug.hashCode()
-        __r = __r*31 + if (launchProfile != null) launchProfile.hashCode() else 0
-        __r = __r*31 + disableLaunchProfile.hashCode()
-        __r = __r*31 + if (args != null) args.contentDeepHashCode() else 0
-        __r = __r*31 + if (envs != null) envs.contentDeepHashCode() else 0
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("SessionModel (")
-        printer.indent {
-            print("projectPath = "); projectPath.print(printer); println()
-            print("debug = "); debug.print(printer); println()
-            print("launchProfile = "); launchProfile.print(printer); println()
-            print("disableLaunchProfile = "); disableLaunchProfile.print(printer); println()
-            print("args = "); args.print(printer); println()
-            print("envs = "); envs.print(printer); println()
         }
         printer.print(")")
     }

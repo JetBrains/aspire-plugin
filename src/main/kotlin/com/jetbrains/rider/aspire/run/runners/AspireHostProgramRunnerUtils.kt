@@ -108,7 +108,7 @@ suspend fun startSessionHostAndSubscribe(
     )
     val aspireHostModel = AspireHostModel(aspireHostConfig)
 
-    sessionHostModel.aspireHosts.put(config.debugSessionToken, aspireHostModel)
+    sessionHostModel.aspireHosts.put(config.id, aspireHostModel)
 
     project.messageBus
         .syncPublisher(AspireSessionHostListener.TOPIC)
@@ -116,7 +116,7 @@ suspend fun startSessionHostAndSubscribe(
 
     SessionHostManager
         .getInstance(project)
-        .startSessionHost(config, protocol.wire.serverPort, sessionHostModel)
+        .startSessionHost(config, protocol.wire.serverPort, aspireHostModel, sessionHostModel)
 }
 
 private suspend fun startSessionHostProtocol(lifetime: Lifetime) = withContext(Dispatchers.EDT) {

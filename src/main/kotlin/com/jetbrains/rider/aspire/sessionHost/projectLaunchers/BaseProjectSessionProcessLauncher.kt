@@ -16,7 +16,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.generated.SessionModel
+import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactory
 import com.jetbrains.rider.aspire.sessionHost.findBySessionProject
@@ -45,7 +45,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
 
     override suspend fun launchRunProcess(
         sessionId: String,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?,
@@ -107,7 +107,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
 
     override suspend fun launchDebugProcess(
         sessionId: String,
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         hostRunConfiguration: AspireHostConfiguration?,
@@ -165,7 +165,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
     ): RunProfile
 
     private suspend fun getDotNetExecutable(
-        sessionModel: SessionModel,
+        sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean,
         project: Project
