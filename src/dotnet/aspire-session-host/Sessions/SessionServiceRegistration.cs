@@ -5,7 +5,6 @@ internal static class SessionServiceRegistration
     internal static void AddSessionServices(this IServiceCollection services)
     {
         services.AddSingleton<SessionEventService>();
-        services.AddSingleton<SessionService>();
     }
 
     internal static async Task InitializeSessionServices(this IServiceProvider services)

@@ -25,6 +25,8 @@ internal sealed class AspireHostService(
         });
     }
 
+    internal AspireHost? GetAspireHost(string id) => _hosts.GetValueOrDefault(id);
+
     public void Dispose()
     {
         _lifetimeDef.Dispose();

@@ -5,6 +5,8 @@ import java.nio.file.Path
 
 data class AspireHostConfig(
     val name: String,
+    //from env: DCP_INSTANCE_ID_PREFIX
+    val id: String,
     //from env: DEBUG_SESSION_TOKEN
     val debugSessionToken: String,
     //from env: DEBUG_SESSION_PORT

@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
+using JetBrains.Rider.Aspire.SessionHost.AspireHost;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,11 @@ internal static class SessionEndpoints
     private static readonly ErrorResponse ProtocolVersionIsNotSupported = new(new ErrorDetail(
         "ProtocolVersionIsNotSupported",
         "The current protocol version is not supported by the plugin. Probably you should update either Aspire or the plugin."
+    ));
+
+    private static readonly ErrorResponse AspireHostIsNotFound = new(new ErrorDetail(
+        "AspireHostIsNotFound",
+        "Unable to find an Aspire host. Please make sure that Aspire is running."
     ));
 
     internal static void MapSessionEndpoints(this IEndpointRouteBuilder routes)
@@ -37,7 +43,8 @@ internal static class SessionEndpoints
     private static async Task<Results<Created<Session>, BadRequest<ErrorResponse>>> CreateSession(
         Session session,
         [FromQuery(Name = "api-version")] string apiVersion,
-        SessionService service
+        [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")] string dcpInstanceId,
+        AspireHostService hostService
     )
     {
         if (!IsProtocolVersionSupported(apiVersion))
@@ -45,10 +52,17 @@ internal static class SessionEndpoints
             return TypedResults.BadRequest(ProtocolVersionIsNotSupported);
         }
 
-        var (result, error) = await service.Create(session);
-        if (result != null)
+        var aspireHostId = GetAspireHostId(dcpInstanceId);
+        var aspireHost = hostService.GetAspireHost(aspireHostId);
+        if (aspireHost is null)
         {
-            return TypedResults.Created($"/run_session/{result.SessionId}", session);
+            return TypedResults.BadRequest(AspireHostIsNotFound);
+        }
+
+        var (sessionId, error) = await aspireHost.Create(session);
+        if (sessionId != null)
+        {
+            return TypedResults.Created($"/run_session/{sessionId}", session);
         }
 
         if (error != null)
@@ -63,7 +77,8 @@ internal static class SessionEndpoints
     private static async Task<Results<Ok, NoContent, BadRequest<ErrorResponse>>> DeleteSession(
         string sessionId,
         [FromQuery(Name = "api-version")] string apiVersion,
-        SessionService service
+        [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")] string dcpInstanceId,
+        AspireHostService hostService
     )
     {
         if (!IsProtocolVersionSupported(apiVersion))
@@ -71,9 +86,28 @@ internal static class SessionEndpoints
             return TypedResults.BadRequest(ProtocolVersionIsNotSupported);
         }
 
-        var isSuccessful = await service.Delete(sessionId);
-        return isSuccessful ? TypedResults.Ok() : TypedResults.NoContent();
+        var aspireHostId = GetAspireHostId(dcpInstanceId);
+        var aspireHost = hostService.GetAspireHost(aspireHostId);
+        if (aspireHost is null)
+        {
+            return TypedResults.BadRequest(AspireHostIsNotFound);
+        }
+
+        var (deletedSessionId, error) = await aspireHost.Delete(sessionId);
+        if (deletedSessionId != null)
+        {
+            return TypedResults.Ok();
+        }
+
+        if (error != null)
+        {
+            return TypedResults.BadRequest(error);
+        }
+
+        return TypedResults.NoContent();
     }
+
+    private static string GetAspireHostId(string dcpInstanceId) => dcpInstanceId[..5];
 
     private static async Task Notify(
         HttpContext context,

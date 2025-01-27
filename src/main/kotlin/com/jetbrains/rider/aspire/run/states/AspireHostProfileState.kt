@@ -1,10 +1,6 @@
 package com.jetbrains.rider.aspire.run.states
 
-import com.jetbrains.rider.aspire.util.DEBUG_SESSION_PORT
-import com.jetbrains.rider.aspire.util.DEBUG_SESSION_TOKEN
-import com.jetbrains.rider.aspire.util.DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN
-import com.jetbrains.rider.aspire.util.DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY
-import com.jetbrains.rider.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
+import com.jetbrains.rider.aspire.util.*
 
 interface AspireHostProfileState {
     val environmentVariables: Map<String, String>
@@ -15,6 +11,8 @@ fun AspireHostProfileState.getDebugSessionToken() = environmentVariables[DEBUG_S
 fun AspireHostProfileState.getDebugSessionPort() = environmentVariables[DEBUG_SESSION_PORT]
     ?.substringAfter(':')
     ?.toInt()
+
+fun AspireHostProfileState.getDcpInstancePrefix() = environmentVariables[DCP_INSTANCE_ID_PREFIX]
 
 fun AspireHostProfileState.getDashboardBrowserToken() = environmentVariables[DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN]
 
