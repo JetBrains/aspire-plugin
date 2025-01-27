@@ -13,18 +13,17 @@ import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.services.SessionHost
-import kotlinx.coroutines.CoroutineScope
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
-class SessionHostManager2(project: Project, scope: CoroutineScope) : LifetimedService() {
+class SessionHostManager2(project: Project) : LifetimedService() {
     companion object {
         fun getInstance(project: Project) = project.service<SessionHostManager2>()
 
         private val LOG = logger<SessionHostManager2>()
     }
 
-    val sessionHost: SessionHost = SessionHost(serviceLifetime, scope, project)
+    val sessionHost: SessionHost = SessionHost(serviceLifetime, project)
 
     init {
         Disposer.register(this, sessionHost)

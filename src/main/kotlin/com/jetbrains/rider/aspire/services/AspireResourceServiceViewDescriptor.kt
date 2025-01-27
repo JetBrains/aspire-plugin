@@ -15,7 +15,7 @@ import com.jetbrains.rider.aspire.util.getIcon
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class AspireResourceViewDescriptor(private val aspireResource: AspireResource) : ServiceViewDescriptor, DataProvider {
+class AspireResourceServiceViewDescriptor(private val aspireResource: AspireResource) : ServiceViewDescriptor, DataProvider {
     private val toolbarActions = DefaultActionGroup(
         ActionManager.getInstance().getAction("Aspire.Resource.Start"),
         ActionManager.getInstance().getAction("Aspire.Resource.Restart"),

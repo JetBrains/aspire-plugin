@@ -5,40 +5,41 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.services.AspireHost
-import com.jetbrains.rider.aspire.services.AspireHostManager
-import com.jetbrains.rider.aspire.util.ASPIRE_HOST_PATH
+import com.jetbrains.rider.aspire.sessionHost.SessionHostManager2
+import com.jetbrains.rider.aspire.util.ASPIRE_HOST
+import java.nio.file.Path
 
 abstract class AspireHostBaseAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        val hostPath = event.getData(ASPIRE_HOST_PATH) ?: return
-        val hostService = AspireHostManager
-            .getInstance(project)
-            .getAspireHost(hostPath)
-            ?: return
+        val hostPath = event.getData(ASPIRE_HOST)?.hostProjectPath ?: return
+        val aspireHost = getAspireHost(hostPath, project) ?: return
 
-        performAction(hostService, project)
+        performAction(aspireHost, project)
     }
 
     protected abstract fun performAction(hostService: AspireHost, project: Project)
 
     override fun update(event: AnActionEvent) {
         val project = event.project
-        val hostPath = event.getData(ASPIRE_HOST_PATH)
+        val hostPath = event.getData(ASPIRE_HOST)?.hostProjectPath
         if (project == null || hostPath == null) {
             event.presentation.isEnabledAndVisible = false
             return
         }
 
-        val hostService = AspireHostManager
-            .getInstance(project)
-            .getAspireHost(hostPath)
-        if (hostService == null) {
+        val aspireHost = getAspireHost(hostPath, project)
+        if (aspireHost == null) {
             event.presentation.isEnabledAndVisible = false
             return
         }
 
-        updateAction(event, hostService)
+        updateAction(event, aspireHost)
+    }
+
+    private fun getAspireHost(hostPath: Path, project: Project): AspireHost? {
+        val sessionHost = SessionHostManager2.getInstance(project).sessionHost
+        return sessionHost.getAspireHost(hostPath)
     }
 
     protected abstract fun updateAction(event: AnActionEvent, hostService: AspireHost)

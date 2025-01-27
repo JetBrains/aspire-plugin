@@ -21,7 +21,6 @@ import com.jetbrains.rider.aspire.generated.aspireSessionHostModel
 import com.jetbrains.rider.aspire.sessionHost.SessionHostConfig
 import com.jetbrains.rider.aspire.sessionHost.SessionHostLauncher
 import com.jetbrains.rider.util.NetUtils
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -34,7 +33,6 @@ import kotlin.io.path.absolutePathString
 
 class SessionHost(
     lifetime: Lifetime,
-    private val scope: CoroutineScope,
     private val project: Project
 ) : ServiceViewProvidingContributor<AspireHost, SessionHost>, Disposable {
     companion object {
@@ -72,6 +70,10 @@ class SessionHost(
     }.sortedBy { it.displayName }
 
     override fun getServiceDescriptor(project: Project, aspireHost: AspireHost) = aspireHost.getViewDescriptor(project)
+
+    fun getAspireHost(aspireHostProjectPath: Path): AspireHost? {
+        return aspireHosts[aspireHostProjectPath]
+    }
 
     suspend fun start() {
         if (!sessionHostLifetimes.isTerminated) return

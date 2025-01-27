@@ -43,15 +43,16 @@ class AspireHost(
         private val LOG = logger<AspireHost>()
     }
 
-    private val resources = ConcurrentHashMap<String, AspireResource>()
-    private val handlers = mutableMapOf<String, ProcessHandler>()
     private val lock = Any()
-
-    val hostProjectPathString = hostProjectPath.absolutePathString()
 
     private val descriptor by lazy { AspireHostServiceViewDescriptor(this) }
 
+    private val resources = ConcurrentHashMap<String, AspireResource>()
+    private val handlers = mutableMapOf<String, ProcessHandler>()
+
     private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
+
+    val hostProjectPathString = hostProjectPath.absolutePathString()
 
     var displayName: String = hostProjectPath.nameWithoutExtension
         private set
