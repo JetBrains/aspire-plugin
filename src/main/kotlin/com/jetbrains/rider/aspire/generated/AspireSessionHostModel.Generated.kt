@@ -81,7 +81,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = 7631734498724645971L
+        const val serializationHash = -9081557362022364369L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -147,6 +147,9 @@ class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
     private val _createSession: RdCall<CreateSessionRequest, CreateSessionResponse>,
     private val _deleteSession: RdCall<DeleteSessionRequest, DeleteSessionResponse>,
+    private val _processStarted: RdSignal<ProcessStarted>,
+    private val _processTerminated: RdSignal<ProcessTerminated>,
+    private val _logReceived: RdSignal<LogReceived>,
     private val _resources: RdMap<String, ResourceWrapper>
 ) : RdBindableBase() {
     //companion
@@ -161,8 +164,11 @@ class AspireHostModel private constructor(
             val config = AspireHostModelConfig.read(ctx, buffer)
             val _createSession = RdCall.read(ctx, buffer, CreateSessionRequest, CreateSessionResponse)
             val _deleteSession = RdCall.read(ctx, buffer, DeleteSessionRequest, DeleteSessionResponse)
+            val _processStarted = RdSignal.read(ctx, buffer, ProcessStarted)
+            val _processTerminated = RdSignal.read(ctx, buffer, ProcessTerminated)
+            val _logReceived = RdSignal.read(ctx, buffer, LogReceived)
             val _resources = RdMap.read(ctx, buffer, FrameworkMarshallers.String, ResourceWrapper)
-            return AspireHostModel(config, _createSession, _deleteSession, _resources).withId(_id)
+            return AspireHostModel(config, _createSession, _deleteSession, _processStarted, _processTerminated, _logReceived, _resources).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModel)  {
@@ -170,6 +176,9 @@ class AspireHostModel private constructor(
             AspireHostModelConfig.write(ctx, buffer, value.config)
             RdCall.write(ctx, buffer, value._createSession)
             RdCall.write(ctx, buffer, value._deleteSession)
+            RdSignal.write(ctx, buffer, value._processStarted)
+            RdSignal.write(ctx, buffer, value._processTerminated)
+            RdSignal.write(ctx, buffer, value._logReceived)
             RdMap.write(ctx, buffer, value._resources)
         }
         
@@ -178,12 +187,18 @@ class AspireHostModel private constructor(
     //fields
     val createSession: IRdEndpoint<CreateSessionRequest, CreateSessionResponse> get() = _createSession
     val deleteSession: IRdEndpoint<DeleteSessionRequest, DeleteSessionResponse> get() = _deleteSession
+    val processStarted: ISignal<ProcessStarted> get() = _processStarted
+    val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
+    val logReceived: ISignal<LogReceived> get() = _logReceived
     val resources: IMutableViewableMap<String, ResourceWrapper> get() = _resources
     //methods
     //initializer
     init {
         bindableChildren.add("createSession" to _createSession)
         bindableChildren.add("deleteSession" to _deleteSession)
+        bindableChildren.add("processStarted" to _processStarted)
+        bindableChildren.add("processTerminated" to _processTerminated)
+        bindableChildren.add("logReceived" to _logReceived)
         bindableChildren.add("resources" to _resources)
     }
     
@@ -194,6 +209,9 @@ class AspireHostModel private constructor(
         config,
         RdCall<CreateSessionRequest, CreateSessionResponse>(CreateSessionRequest, CreateSessionResponse),
         RdCall<DeleteSessionRequest, DeleteSessionResponse>(DeleteSessionRequest, DeleteSessionResponse),
+        RdSignal<ProcessStarted>(ProcessStarted),
+        RdSignal<ProcessTerminated>(ProcessTerminated),
+        RdSignal<LogReceived>(LogReceived),
         RdMap<String, ResourceWrapper>(FrameworkMarshallers.String, ResourceWrapper)
     )
     
@@ -206,6 +224,9 @@ class AspireHostModel private constructor(
             print("config = "); config.print(printer); println()
             print("createSession = "); _createSession.print(printer); println()
             print("deleteSession = "); _deleteSession.print(printer); println()
+            print("processStarted = "); _processStarted.print(printer); println()
+            print("processTerminated = "); _processTerminated.print(printer); println()
+            print("logReceived = "); _logReceived.print(printer); println()
             print("resources = "); _resources.print(printer); println()
         }
         printer.print(")")
@@ -216,6 +237,9 @@ class AspireHostModel private constructor(
             config,
             _createSession.deepClonePolymorphic(),
             _deleteSession.deepClonePolymorphic(),
+            _processStarted.deepClonePolymorphic(),
+            _processTerminated.deepClonePolymorphic(),
+            _logReceived.deepClonePolymorphic(),
             _resources.deepClonePolymorphic()
         )
     }

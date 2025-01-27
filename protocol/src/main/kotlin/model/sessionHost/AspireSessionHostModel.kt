@@ -196,6 +196,10 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         callback("createSession", CreateSessionRequest, CreateSessionResponse)
         callback("deleteSession", DeleteSessionRequest, DeleteSessionResponse)
 
+        source("processStarted", ProcessStarted)
+        source("processTerminated", ProcessTerminated)
+        source("logReceived", LogReceived)
+
         map("resources", string, ResourceWrapper)
     }
 

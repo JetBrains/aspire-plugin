@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using Aspire.ResourceService.Proto.V1;
 using Grpc.Core;
 using Grpc.Net.Client;
@@ -13,9 +14,12 @@ internal sealed class AspireHost
 {
     private const string ApiKeyHeader = "x-resource-service-api-key";
 
+    private readonly string _id;
     private readonly Connection _connection;
     private readonly AspireHostModel _aspireHostModel;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
+    private readonly ResiliencePipelineProvider<string> _resiliencePipelineProvider;
 
     private readonly ErrorResponse _multipleProjectLaunchConfigurations = new(new ErrorDetail(
         "BadRequest",
@@ -27,6 +31,15 @@ internal sealed class AspireHost
         "A project file is not found."
     ));
 
+    private readonly Channel<ISessionEvent> _sessionEventChannel = Channel.CreateUnbounded<ISessionEvent>(
+        new UnboundedChannelOptions
+        {
+            SingleReader = true,
+            SingleWriter = true
+        });
+
+    internal ChannelReader<ISessionEvent> SessionEventReader => _sessionEventChannel.Reader;
+
     internal AspireHost(
         string id,
         Connection connection,
@@ -35,31 +48,52 @@ internal sealed class AspireHost
         ILoggerFactory loggerFactory,
         Lifetime lifetime)
     {
+        _id = id;
         _connection = connection;
         _aspireHostModel = model;
+        _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<AspireHost>();
+        _resiliencePipelineProvider = resiliencePipelineProvider;
+
+        InitializeSessionEventWatcher(lifetime);
 
         var config = model.Config;
         if (!string.IsNullOrEmpty(config.ResourceServiceEndpointUrl) &&
             !string.IsNullOrEmpty(config.ResourceServiceApiKey))
         {
-            _logger.LogInformation("Resource watching is enabled for the host {id}", id);
-
-            var metadata = new Metadata { { ApiKeyHeader, config.ResourceServiceApiKey } };
-            var client = CreateResourceClient(config.ResourceServiceEndpointUrl, lifetime);
-
-            var resourceLogWatcherLogger = loggerFactory.CreateLogger<AspireHostResourceLogWatcher>();
-            var resourceLogWatcher = new AspireHostResourceLogWatcher(client, metadata, connection, model,
-                resiliencePipelineProvider, resourceLogWatcherLogger, lifetime.CreateNested().Lifetime);
-            lifetime.StartAttachedAsync(TaskScheduler.Default,
-                async () => await resourceLogWatcher.WatchResourceLogs());
-
-            var resourceWatcherLogger = loggerFactory.CreateLogger<AspireHostResourceWatcher>();
-            var resourceWatcher = new AspireHostResourceWatcher(client, metadata, connection, model,
-                resiliencePipelineProvider, resourceWatcherLogger);
-            lifetime.StartAttachedAsync(TaskScheduler.Default,
-                async () => await resourceWatcher.WatchResources());
+            InitializeResourceWatchers(config.ResourceServiceEndpointUrl, config.ResourceServiceApiKey, lifetime);
         }
+    }
+
+    private void InitializeSessionEventWatcher(Lifetime lifetime)
+    {
+        var sessionEventWatcherLogger = _loggerFactory.CreateLogger<SessionEventWatcher>();
+        var sessionEventWatcher = new SessionEventWatcher(_connection, _aspireHostModel, _sessionEventChannel.Writer,
+            sessionEventWatcherLogger, lifetime.CreateNested().Lifetime);
+        lifetime.StartAttachedAsync(TaskScheduler.Default,
+            async () => await sessionEventWatcher.WatchSessionEvents());
+    }
+
+    private void InitializeResourceWatchers(string resourceServiceEndpointUrl, string resourceServiceApiKey, Lifetime lifetime)
+    {
+        _logger.LogInformation("Resource watching is enabled for the host {aspireHostId}", _id);
+
+        var metadata = new Metadata { { ApiKeyHeader, resourceServiceApiKey } };
+        var client = CreateResourceClient(resourceServiceEndpointUrl, lifetime);
+
+        _logger.LogDebug("Creating resource log watcher for {aspireHostId}", _id);
+        var resourceLogWatcherLogger = _loggerFactory.CreateLogger<AspireHostResourceLogWatcher>();
+        var resourceLogWatcher = new AspireHostResourceLogWatcher(client, metadata, _connection, _aspireHostModel,
+            _resiliencePipelineProvider, resourceLogWatcherLogger, lifetime.CreateNested().Lifetime);
+        lifetime.StartAttachedAsync(TaskScheduler.Default,
+            async () => await resourceLogWatcher.WatchResourceLogs());
+
+        _logger.LogDebug("Creating resource watcher for {aspireHostId}", _id);
+        var resourceWatcherLogger = _loggerFactory.CreateLogger<AspireHostResourceWatcher>();
+        var resourceWatcher = new AspireHostResourceWatcher(client, metadata, _connection, _aspireHostModel,
+            _resiliencePipelineProvider, resourceWatcherLogger);
+        lifetime.StartAttachedAsync(TaskScheduler.Default,
+            async () => await resourceWatcher.WatchResources());
     }
 
     private static DashboardService.DashboardServiceClient CreateResourceClient(string resourceServiceEndpointUrl,
