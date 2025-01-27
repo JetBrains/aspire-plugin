@@ -116,7 +116,7 @@ suspend fun startSessionHostAndSubscribe(
 
     SessionHostManager
         .getInstance(project)
-        .startSessionHost(config, protocol.wire.serverPort, aspireHostModel, sessionHostModel)
+        .startSessionHost(config, protocol.wire.serverPort, aspireHostModel)
 }
 
 private suspend fun startSessionHostProtocol(lifetime: Lifetime) = withContext(Dispatchers.EDT) {

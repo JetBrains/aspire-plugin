@@ -31,14 +31,13 @@ class SessionHostManager(private val project: Project, private val scope: Corout
     fun startSessionHost(
         aspireHostConfig: AspireHostConfig,
         protocolServerPort: Int,
-        aspireHostModel: AspireHostModel,
-        sessionHostModel: AspireSessionHostModel
+        aspireHostModel: AspireHostModel
     ) {
         LOG.trace { "Creating a new Aspire session host: $aspireHostConfig" }
 
         val sessionHostLifetime = aspireHostConfig.aspireHostLifetime.createNested()
 
-        subscribe(aspireHostConfig, aspireHostModel, sessionHostModel, sessionHostLifetime)
+        subscribe(aspireHostConfig, aspireHostModel, sessionHostLifetime)
 
         LOG.trace("Starting a new session host with launcher")
         val sessionHostLauncher = SessionHostLauncher.getInstance(project)
@@ -52,7 +51,6 @@ class SessionHostManager(private val project: Project, private val scope: Corout
     private fun subscribe(
         aspireHostConfig: AspireHostConfig,
         aspireHostModel: AspireHostModel,
-        sessionHostModel: AspireSessionHostModel,
         sessionHostLifetime: Lifetime
     ) {
         LOG.trace("Subscribing to protocol model")
@@ -76,17 +74,17 @@ class SessionHostManager(private val project: Project, private val scope: Corout
                     when (it) {
                         is SessionStarted -> {
                             LOG.trace { "Aspire session started (${it.id}, ${it.pid})" }
-                            sessionHostModel.processStarted.fire(ProcessStarted(it.id, it.pid))
+                            aspireHostModel.processStarted.fire(ProcessStarted(it.id, it.pid))
                         }
 
                         is SessionTerminated -> {
                             LOG.trace { "Aspire session terminated (${it.id}, ${it.exitCode})" }
-                            sessionHostModel.processTerminated.fire(ProcessTerminated(it.id, it.exitCode))
+                            aspireHostModel.processTerminated.fire(ProcessTerminated(it.id, it.exitCode))
                         }
 
                         is SessionLogReceived -> {
                             LOG.trace { "Aspire session log received (${it.id}, ${it.isStdErr}, ${it.message})" }
-                            sessionHostModel.logReceived.fire(LogReceived(it.id, it.isStdErr, it.message))
+                            aspireHostModel.logReceived.fire(LogReceived(it.id, it.isStdErr, it.message))
                         }
                     }
                 }

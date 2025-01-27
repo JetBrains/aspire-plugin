@@ -125,7 +125,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
 
         SessionHostManager
             .getInstance(project)
-            .startSessionHost(config, protocol.wire.serverPort, aspireHostModel, sessionHostModel)
+            .startSessionHost(config, protocol.wire.serverPort, aspireHostModel)
     }
 
     private suspend fun startProtocol(lifetime: Lifetime) = withContext(Dispatchers.EDT) {
