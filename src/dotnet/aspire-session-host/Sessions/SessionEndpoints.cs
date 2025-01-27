@@ -112,7 +112,8 @@ internal static class SessionEndpoints
     private static async Task Notify(
         HttpContext context,
         [FromQuery(Name = "api-version")] string apiVersion,
-        SessionEventService service
+        [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")] string dcpInstanceId,
+        AspireHostService hostService
     )
     {
         if (!IsProtocolVersionSupported(apiVersion))
@@ -121,10 +122,18 @@ internal static class SessionEndpoints
             return;
         }
 
+        var aspireHostId = GetAspireHostId(dcpInstanceId);
+        var aspireHost = hostService.GetAspireHost(aspireHostId);
+        if (aspireHost is null)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            return;
+        }
+
         if (context.WebSockets.IsWebSocketRequest)
         {
             using var ws = await context.WebSockets.AcceptWebSocketAsync();
-            await Receive(ws, service.Reader);
+            await Receive(ws, aspireHost.SessionEventReader);
         }
         else
         {

@@ -88,7 +88,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     
     
-    protected override long SerializationHash => 7631734498724645971L;
+    protected override long SerializationHash => -9081557362022364369L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -141,11 +141,17 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     [NotNull] public AspireHostModelConfig Config {get; private set;}
     [NotNull] public IRdCall<CreateSessionRequest, CreateSessionResponse> CreateSession => _CreateSession;
     [NotNull] public IRdCall<DeleteSessionRequest, DeleteSessionResponse> DeleteSession => _DeleteSession;
+    [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
+    [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
+    [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> LogReceived => _LogReceived;
     [NotNull] public IViewableMap<string, ResourceWrapper> Resources => _Resources;
     
     //private fields
     [NotNull] private readonly RdCall<CreateSessionRequest, CreateSessionResponse> _CreateSession;
     [NotNull] private readonly RdCall<DeleteSessionRequest, DeleteSessionResponse> _DeleteSession;
+    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> _ProcessStarted;
+    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> _ProcessTerminated;
+    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> _LogReceived;
     [NotNull] private readonly RdMap<string, ResourceWrapper> _Resources;
     
     //primary constructor
@@ -153,20 +159,32 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       [NotNull] AspireHostModelConfig config,
       [NotNull] RdCall<CreateSessionRequest, CreateSessionResponse> createSession,
       [NotNull] RdCall<DeleteSessionRequest, DeleteSessionResponse> deleteSession,
+      [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> processStarted,
+      [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> processTerminated,
+      [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> logReceived,
       [NotNull] RdMap<string, ResourceWrapper> resources
     )
     {
       if (config == null) throw new ArgumentNullException("config");
       if (createSession == null) throw new ArgumentNullException("createSession");
       if (deleteSession == null) throw new ArgumentNullException("deleteSession");
+      if (processStarted == null) throw new ArgumentNullException("processStarted");
+      if (processTerminated == null) throw new ArgumentNullException("processTerminated");
+      if (logReceived == null) throw new ArgumentNullException("logReceived");
       if (resources == null) throw new ArgumentNullException("resources");
       
       Config = config;
       _CreateSession = createSession;
       _DeleteSession = deleteSession;
+      _ProcessStarted = processStarted;
+      _ProcessTerminated = processTerminated;
+      _LogReceived = logReceived;
       _Resources = resources;
       BindableChildren.Add(new KeyValuePair<string, object>("createSession", _CreateSession));
       BindableChildren.Add(new KeyValuePair<string, object>("deleteSession", _DeleteSession));
+      BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
+      BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
+      BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
       BindableChildren.Add(new KeyValuePair<string, object>("resources", _Resources));
     }
     //secondary constructor
@@ -176,6 +194,9 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       config,
       new RdCall<CreateSessionRequest, CreateSessionResponse>(CreateSessionRequest.Read, CreateSessionRequest.Write, CreateSessionResponse.Read, CreateSessionResponse.Write),
       new RdCall<DeleteSessionRequest, DeleteSessionResponse>(DeleteSessionRequest.Read, DeleteSessionRequest.Write, DeleteSessionResponse.Read, DeleteSessionResponse.Write),
+      new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Write),
+      new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Write),
+      new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived>(JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Read, JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Write),
       new RdMap<string, ResourceWrapper>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write)
     ) {}
     //deconstruct trait
@@ -187,8 +208,11 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       var config = AspireHostModelConfig.Read(ctx, reader);
       var createSession = RdCall<CreateSessionRequest, CreateSessionResponse>.Read(ctx, reader, CreateSessionRequest.Read, CreateSessionRequest.Write, CreateSessionResponse.Read, CreateSessionResponse.Write);
       var deleteSession = RdCall<DeleteSessionRequest, DeleteSessionResponse>.Read(ctx, reader, DeleteSessionRequest.Read, DeleteSessionRequest.Write, DeleteSessionResponse.Read, DeleteSessionResponse.Write);
+      var processStarted = RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted>.Read(ctx, reader, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Write);
+      var processTerminated = RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated>.Read(ctx, reader, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Write);
+      var logReceived = RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived>.Read(ctx, reader, JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Read, JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Write);
       var resources = RdMap<string, ResourceWrapper>.Read(ctx, reader, JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write);
-      var _result = new AspireHostModel(config, createSession, deleteSession, resources).WithId(_id);
+      var _result = new AspireHostModel(config, createSession, deleteSession, processStarted, processTerminated, logReceived, resources).WithId(_id);
       return _result;
     };
     
@@ -198,6 +222,9 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       AspireHostModelConfig.Write(ctx, writer, value.Config);
       RdCall<CreateSessionRequest, CreateSessionResponse>.Write(ctx, writer, value._CreateSession);
       RdCall<DeleteSessionRequest, DeleteSessionResponse>.Write(ctx, writer, value._DeleteSession);
+      RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted>.Write(ctx, writer, value._ProcessStarted);
+      RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated>.Write(ctx, writer, value._ProcessTerminated);
+      RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived>.Write(ctx, writer, value._LogReceived);
       RdMap<string, ResourceWrapper>.Write(ctx, writer, value._Resources);
     };
     
@@ -215,6 +242,9 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
         printer.Print("config = "); Config.PrintEx(printer); printer.Println();
         printer.Print("createSession = "); _CreateSession.PrintEx(printer); printer.Println();
         printer.Print("deleteSession = "); _DeleteSession.PrintEx(printer); printer.Println();
+        printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
+        printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
+        printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
         printer.Print("resources = "); _Resources.PrintEx(printer); printer.Println();
       }
       printer.Print(")");

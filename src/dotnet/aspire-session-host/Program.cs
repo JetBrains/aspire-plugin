@@ -14,7 +14,6 @@ builder.Services.AddGrpc();
 var connection = new Connection(builder.Configuration);
 builder.Services.AddSingleton(connection);
 
-builder.Services.AddSessionServices();
 builder.Services.AddAspireHostServices();
 
 builder.Services.ConfigureHttpJsonOptions(it =>
@@ -24,7 +23,6 @@ builder.Services.ConfigureHttpJsonOptions(it =>
 
 var app = builder.Build();
 
-await app.Services.InitializeSessionServices();
 await app.Services.InitializeAspireHostServices();
 
 app.UseWebSockets();
