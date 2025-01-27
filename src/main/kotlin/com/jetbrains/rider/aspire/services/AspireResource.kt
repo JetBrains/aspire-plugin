@@ -101,7 +101,7 @@ class AspireResource(
     private val logConsole = TerminalExecutionConsole(project, logProcessHandler)
     val logConsoleComponent = logConsole.component
 
-    private val descriptor by lazy { AspireResourceViewDescriptor(this) }
+    private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
 
     init {
         val model = modelWrapper.model.valueOrNull

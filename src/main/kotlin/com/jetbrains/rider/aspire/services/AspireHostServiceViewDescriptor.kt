@@ -11,7 +11,7 @@ import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.JBUI
 import com.jetbrains.rider.aspire.AspireIcons
-import com.jetbrains.rider.aspire.util.ASPIRE_HOST_PATH
+import com.jetbrains.rider.aspire.util.ASPIRE_HOST
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
@@ -56,6 +56,6 @@ class AspireHostServiceViewDescriptor(private val aspireHost: AspireHost) : Serv
     override fun getDataProvider() = this
 
     override fun getData(dataId: String) =
-        if (ASPIRE_HOST_PATH.`is`(dataId)) aspireHost.hostProjectPath
+        if (ASPIRE_HOST.`is`(dataId)) aspireHost
         else null
 }
