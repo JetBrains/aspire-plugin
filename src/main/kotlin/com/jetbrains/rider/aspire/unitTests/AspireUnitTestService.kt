@@ -16,6 +16,7 @@ import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
+import com.jetbrains.rider.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_PORT
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_TOKEN
 import com.jetbrains.rider.util.NetUtils
@@ -55,12 +56,14 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                 val aspireHostLifetimeDefinition = serviceLifetime.createNested()
 
                 val aspireHostProjectPath = Path(request.aspireHostProjectPath)
+                val dcpInstancePrefix = UUID.randomUUID().toString()
                 val debugSessionToken = UUID.randomUUID().toString()
                 val debugSessionPort = NetUtils.findFreePort(47100)
                 val debugSessionUrl = "localhost:$debugSessionPort"
 
                 val config = AspireHostConfig(
                     aspireHostProjectPath.nameWithoutExtension,
+                    dcpInstancePrefix,
                     debugSessionToken,
                     debugSessionPort,
                     request.underDebugger,
@@ -80,6 +83,10 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                     SessionHostEnvironmentVariable(
                         DEBUG_SESSION_PORT,
                         debugSessionUrl
+                    ),
+                    SessionHostEnvironmentVariable(
+                        DCP_INSTANCE_ID_PREFIX,
+                        dcpInstancePrefix
                     )
                 )
 

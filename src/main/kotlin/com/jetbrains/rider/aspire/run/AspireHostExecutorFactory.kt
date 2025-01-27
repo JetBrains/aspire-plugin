@@ -135,8 +135,10 @@ class AspireHostExecutorFactory(
         //see: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#enabling-ide-execution
         val debugSessionToken = UUID.randomUUID().toString()
         val debugSessionPort = NetUtils.findFreePort(47100)
+        val dcpInstancePrefix = generateDcpInstancePrefix()
         envs[DEBUG_SESSION_TOKEN] = debugSessionToken
         envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
+        envs[DCP_INSTANCE_ID_PREFIX] = dcpInstancePrefix
 
         val urls = requireNotNull(envs[ASPNETCORE_URLS])
         val isHttpUrl = !urls.contains("https")
@@ -181,6 +183,13 @@ class AspireHostExecutorFactory(
         }
 
         return EnvironmentVariableValues(browserToken)
+    }
+
+    fun generateDcpInstancePrefix(): String {
+        val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+        return (1..5)
+            .map { allowedChars.random() }
+            .joinToString("")
     }
 
     private fun configureUrl(urlValue: String, browserToken: String): String {

@@ -48,6 +48,30 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("sessionId", string)
     }
 
+    private val CreateSessionRequest = structdef {
+        field("projectPath", string)
+        field("debug", bool)
+        field("launchProfile", string.nullable)
+        field("disableLaunchProfile", bool)
+        field("args", array(string).nullable)
+        field("envs", array(SessionEnvironmentVariable).nullable)
+    }
+
+    private val CreateSessionResponse = structdef {
+        field("sessionId", string.nullable)
+        field("error", string.nullable)
+    }
+
+    private val DeleteSessionRequest = structdef {
+        field("sessionId", string)
+    }
+
+    private val DeleteSessionResponse = structdef {
+        field("sessionId", string.nullable)
+            .documentation = "The field will be null if the session cannot be found"
+        field("error", string.nullable)
+    }
+
     private val ResourceWrapper = classdef {
         property("model", ResourceModel)
         property("isInitialized", bool).async
@@ -169,7 +193,8 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
 
     private val AspireHostModelConfig = structdef {
         field("id", string)
-            .documentation = "Unique identifier for the Aspire Host, created from the `DEBUG_SESSION_TOKEN` environment variable"
+            .documentation =
+            "Unique identifier for the Aspire Host, created from the `DCP_INSTANCE_ID_PREFIX` environment variable"
         field("aspireHostProjectPath", string)
             .documentation = "Path of the Aspire Host .csproj file"
         field("resourceServiceEndpointUrl", string.nullable)
@@ -180,6 +205,9 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
 
     private val AspireHostModel = classdef {
         field("config", AspireHostModelConfig)
+
+        callback("createSession", CreateSessionRequest, CreateSessionResponse)
+        callback("deleteSession", DeleteSessionRequest, DeleteSessionResponse)
 
         map("resources", string, ResourceWrapper)
     }

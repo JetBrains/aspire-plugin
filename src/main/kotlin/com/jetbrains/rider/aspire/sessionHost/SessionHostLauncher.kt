@@ -31,8 +31,6 @@ class SessionHostLauncher {
 
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
         private const val RIDER_RD_PORT = "Rider_Connection__RdPort"
-        private const val RIDER_RESOURCE_SERVICE_ENDPOINT_URL = "Rider_ResourceService__EndpointUrl"
-        private const val RIDER_RESOURCE_SERVICE_API_KEY = "Rider_ResourceService__ApiKey"
     }
 
     private val pluginId = PluginId.getId("me.rafaelldi.aspire")
@@ -99,10 +97,6 @@ class SessionHostLauncher {
                     put("Kestrel__Endpoints__Http__Url", "http://localhost:${aspireHostConfig.debugSessionPort}/")
                     put(RIDER_RD_PORT, "$rdPort")
                     put(RIDER_PARENT_PROCESS_ID, ProcessHandle.current().pid().toString())
-                    if (aspireHostConfig.resourceServiceEndpointUrl != null)
-                        put(RIDER_RESOURCE_SERVICE_ENDPOINT_URL, aspireHostConfig.resourceServiceEndpointUrl)
-                    if (aspireHostConfig.resourceServiceApiKey != null)
-                        put(RIDER_RESOURCE_SERVICE_API_KEY, aspireHostConfig.resourceServiceApiKey)
                 }
             )
         return commandLine

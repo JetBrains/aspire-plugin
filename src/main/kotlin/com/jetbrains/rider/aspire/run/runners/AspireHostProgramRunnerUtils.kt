@@ -45,8 +45,9 @@ fun createAspireHostConfig(
 
     val debugSessionToken = state.getDebugSessionToken()
     val debugSessionPort = state.getDebugSessionPort()
-    if (debugSessionToken == null || debugSessionPort == null)
-        throw CantRunException("Unable to find token or port")
+    val dcpInstancePrefix = state.getDcpInstancePrefix()
+    if (debugSessionToken == null || debugSessionPort == null || dcpInstancePrefix == null)
+        throw CantRunException("Run configuration environment variables are not configured properly")
 
     val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
     val resourceServiceApiKey = state.getResourceServiceApiKey()
@@ -62,6 +63,7 @@ fun createAspireHostConfig(
 
     val config =  AspireHostConfig(
         aspireHostConfiguration.name,
+        dcpInstancePrefix,
         debugSessionToken,
         debugSessionPort,
         isDebuggingMode,
@@ -99,7 +101,7 @@ suspend fun startSessionHostAndSubscribe(
     val sessionHostModel = protocol.aspireSessionHostModel
 
     val aspireHostConfig = AspireHostModelConfig(
-        config.debugSessionToken,
+        config.id,
         config.aspireHostProjectPath.absolutePathString(),
         config.resourceServiceEndpointUrl,
         config.resourceServiceApiKey
