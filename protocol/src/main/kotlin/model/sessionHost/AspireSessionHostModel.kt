@@ -167,6 +167,17 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("errorMessage", string.nullable)
     }
 
+    private val AspireHostConfig = structdef {
+        field("resourceServiceEndpointUrl", string.nullable)
+        field("resourceServiceApiKey", string.nullable)
+    }
+
+    private val AspireHostModel = classdef {
+        field("config", AspireHostConfig)
+
+        map("resources", string, ResourceWrapper)
+    }
+
     init {
         callback("createSession", SessionModel, SessionCreationResult.nullable)
         callback("deleteSession", string, bool)
@@ -176,5 +187,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         source("logReceived", LogReceived)
 
         map("resources", string, ResourceWrapper)
+
+        map("aspireHosts", string, AspireHostModel)
     }
 }

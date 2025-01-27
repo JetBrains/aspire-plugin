@@ -3,16 +3,20 @@ package com.jetbrains.rider.aspire.generated
 
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.framework.base.*
-import com.jetbrains.rd.framework.impl.*
-
-import com.jetbrains.rd.util.lifetime.*
-import com.jetbrains.rd.util.reactive.*
-import com.jetbrains.rd.util.string.*
-import com.jetbrains.rd.util.*
-import kotlin.time.Duration
+import com.jetbrains.rd.framework.impl.RdCall
+import com.jetbrains.rd.framework.impl.RdMap
+import com.jetbrains.rd.framework.impl.RdOptionalProperty
+import com.jetbrains.rd.framework.impl.RdSignal
+import com.jetbrains.rd.util.Date
+import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rd.util.reactive.IMutableViewableMap
+import com.jetbrains.rd.util.reactive.IOptProperty
+import com.jetbrains.rd.util.reactive.ISignal
+import com.jetbrains.rd.util.reactive.ISource
+import com.jetbrains.rd.util.string.IPrintable
+import com.jetbrains.rd.util.string.PrettyPrinter
+import com.jetbrains.rd.util.string.print
 import kotlin.reflect.KClass
-import kotlin.jvm.JvmStatic
-
 
 
 /**
@@ -24,7 +28,8 @@ class AspireSessionHostModel private constructor(
     private val _processStarted: RdSignal<ProcessStarted>,
     private val _processTerminated: RdSignal<ProcessTerminated>,
     private val _logReceived: RdSignal<LogReceived>,
-    private val _resources: RdMap<String, ResourceWrapper>
+    private val _resources: RdMap<String, ResourceWrapper>,
+    private val _aspireHosts: RdMap<String, AspireHostModel>
 ) : RdExtBase() {
     //companion
     
@@ -50,6 +55,8 @@ class AspireSessionHostModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(552742225967985219), classLoader, "com.jetbrains.rider.aspire.generated.ResourceLog"))
             serializers.register(LazyCompanionMarshaller(RdId(-3460782994127365019), classLoader, "com.jetbrains.rider.aspire.generated.ResourceCommandRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(3396191624361927979), classLoader, "com.jetbrains.rider.aspire.generated.ResourceCommandResponse"))
+            serializers.register(LazyCompanionMarshaller(RdId(7139185059374037243), classLoader, "com.jetbrains.rider.aspire.generated.AspireHostConfig"))
+            serializers.register(LazyCompanionMarshaller(RdId(7370971417554020944), classLoader, "com.jetbrains.rider.aspire.generated.AspireHostModel"))
             serializers.register(LazyCompanionMarshaller(RdId(-1311735068701761509), classLoader, "com.jetbrains.rider.aspire.generated.ResourceType"))
             serializers.register(LazyCompanionMarshaller(RdId(-3770298982336589872), classLoader, "com.jetbrains.rider.aspire.generated.ResourceState"))
             serializers.register(LazyCompanionMarshaller(RdId(-15935776453165119), classLoader, "com.jetbrains.rider.aspire.generated.ResourceStateStyle"))
@@ -76,7 +83,7 @@ class AspireSessionHostModel private constructor(
         
         private val __SessionCreationResultNullableSerializer = SessionCreationResult.nullable()
         
-        const val serializationHash = 5881331261780013058L
+        const val serializationHash = 1986475458008568395L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -89,6 +96,7 @@ class AspireSessionHostModel private constructor(
     val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
     val logReceived: ISignal<LogReceived> get() = _logReceived
     val resources: IMutableViewableMap<String, ResourceWrapper> get() = _resources
+    val aspireHosts: IMutableViewableMap<String, AspireHostModel> get() = _aspireHosts
     //methods
     //initializer
     init {
@@ -98,6 +106,7 @@ class AspireSessionHostModel private constructor(
         bindableChildren.add("processTerminated" to _processTerminated)
         bindableChildren.add("logReceived" to _logReceived)
         bindableChildren.add("resources" to _resources)
+        bindableChildren.add("aspireHosts" to _aspireHosts)
     }
     
     //secondary constructor
@@ -108,7 +117,8 @@ class AspireSessionHostModel private constructor(
         RdSignal<ProcessStarted>(ProcessStarted),
         RdSignal<ProcessTerminated>(ProcessTerminated),
         RdSignal<LogReceived>(LogReceived),
-        RdMap<String, ResourceWrapper>(FrameworkMarshallers.String, ResourceWrapper)
+        RdMap<String, ResourceWrapper>(FrameworkMarshallers.String, ResourceWrapper),
+        RdMap<String, AspireHostModel>(FrameworkMarshallers.String, AspireHostModel)
     )
     
     //equals trait
@@ -123,6 +133,7 @@ class AspireSessionHostModel private constructor(
             print("processTerminated = "); _processTerminated.print(printer); println()
             print("logReceived = "); _logReceived.print(printer); println()
             print("resources = "); _resources.print(printer); println()
+            print("aspireHosts = "); _aspireHosts.print(printer); println()
         }
         printer.print(")")
     }
@@ -134,7 +145,8 @@ class AspireSessionHostModel private constructor(
             _processStarted.deepClonePolymorphic(),
             _processTerminated.deepClonePolymorphic(),
             _logReceived.deepClonePolymorphic(),
-            _resources.deepClonePolymorphic()
+            _resources.deepClonePolymorphic(),
+            _aspireHosts.deepClonePolymorphic()
         )
     }
     //contexts
@@ -143,6 +155,139 @@ class AspireSessionHostModel private constructor(
 }
 val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionHostModel::class) { @Suppress("DEPRECATION") AspireSessionHostModel.create(lifetime, this) }
 
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:170]
+ */
+data class AspireHostConfig (
+    val resourceServiceEndpointUrl: String?,
+    val resourceServiceApiKey: String?
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<AspireHostConfig> {
+        override val _type: KClass<AspireHostConfig> = AspireHostConfig::class
+        override val id: RdId get() = RdId(7139185059374037243)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostConfig  {
+            val resourceServiceEndpointUrl = buffer.readNullable { buffer.readString() }
+            val resourceServiceApiKey = buffer.readNullable { buffer.readString() }
+            return AspireHostConfig(resourceServiceEndpointUrl, resourceServiceApiKey)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostConfig)  {
+            buffer.writeNullable(value.resourceServiceEndpointUrl) { buffer.writeString(it) }
+            buffer.writeNullable(value.resourceServiceApiKey) { buffer.writeString(it) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as AspireHostConfig
+        
+        if (resourceServiceEndpointUrl != other.resourceServiceEndpointUrl) return false
+        if (resourceServiceApiKey != other.resourceServiceApiKey) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + if (resourceServiceEndpointUrl != null) resourceServiceEndpointUrl.hashCode() else 0
+        __r = __r*31 + if (resourceServiceApiKey != null) resourceServiceApiKey.hashCode() else 0
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("AspireHostConfig (")
+        printer.indent {
+            print("resourceServiceEndpointUrl = "); resourceServiceEndpointUrl.print(printer); println()
+            print("resourceServiceApiKey = "); resourceServiceApiKey.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspireSessionHostModel.kt:175]
+ */
+class AspireHostModel private constructor(
+    val config: AspireHostConfig,
+    private val _resources: RdMap<String, ResourceWrapper>
+) : RdBindableBase() {
+    //companion
+    
+    companion object : IMarshaller<AspireHostModel> {
+        override val _type: KClass<AspireHostModel> = AspireHostModel::class
+        override val id: RdId get() = RdId(7370971417554020944)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostModel  {
+            val _id = RdId.read(buffer)
+            val config = AspireHostConfig.read(ctx, buffer)
+            val _resources = RdMap.read(ctx, buffer, FrameworkMarshallers.String, ResourceWrapper)
+            return AspireHostModel(config, _resources).withId(_id)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModel)  {
+            value.rdid.write(buffer)
+            AspireHostConfig.write(ctx, buffer, value.config)
+            RdMap.write(ctx, buffer, value._resources)
+        }
+        
+        
+    }
+    //fields
+    val resources: IMutableViewableMap<String, ResourceWrapper> get() = _resources
+    //methods
+    //initializer
+    init {
+        bindableChildren.add("resources" to _resources)
+    }
+    
+    //secondary constructor
+    constructor(
+        config: AspireHostConfig
+    ) : this(
+        config,
+        RdMap<String, ResourceWrapper>(FrameworkMarshallers.String, ResourceWrapper)
+    )
+    
+    //equals trait
+    //hash code trait
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("AspireHostModel (")
+        printer.indent {
+            print("config = "); config.print(printer); println()
+            print("resources = "); _resources.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    override fun deepClone(): AspireHostModel   {
+        return AspireHostModel(
+            config,
+            _resources.deepClonePolymorphic()
+        )
+    }
+    //contexts
+    //threading
+}
 
 
 /**
