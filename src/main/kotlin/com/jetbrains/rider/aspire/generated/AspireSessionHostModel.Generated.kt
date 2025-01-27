@@ -28,7 +28,6 @@ class AspireSessionHostModel private constructor(
     private val _processStarted: RdSignal<ProcessStarted>,
     private val _processTerminated: RdSignal<ProcessTerminated>,
     private val _logReceived: RdSignal<LogReceived>,
-    private val _resources: RdMap<String, ResourceWrapper>,
     private val _aspireHosts: RdMap<String, AspireHostModel>
 ) : RdExtBase() {
     //companion
@@ -83,7 +82,7 @@ class AspireSessionHostModel private constructor(
         
         private val __SessionCreationResultNullableSerializer = SessionCreationResult.nullable()
         
-        const val serializationHash = 1986475458008568395L
+        const val serializationHash = -1593802969616715494L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -95,7 +94,6 @@ class AspireSessionHostModel private constructor(
     val processStarted: ISignal<ProcessStarted> get() = _processStarted
     val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
     val logReceived: ISignal<LogReceived> get() = _logReceived
-    val resources: IMutableViewableMap<String, ResourceWrapper> get() = _resources
     val aspireHosts: IMutableViewableMap<String, AspireHostModel> get() = _aspireHosts
     //methods
     //initializer
@@ -105,7 +103,6 @@ class AspireSessionHostModel private constructor(
         bindableChildren.add("processStarted" to _processStarted)
         bindableChildren.add("processTerminated" to _processTerminated)
         bindableChildren.add("logReceived" to _logReceived)
-        bindableChildren.add("resources" to _resources)
         bindableChildren.add("aspireHosts" to _aspireHosts)
     }
     
@@ -117,7 +114,6 @@ class AspireSessionHostModel private constructor(
         RdSignal<ProcessStarted>(ProcessStarted),
         RdSignal<ProcessTerminated>(ProcessTerminated),
         RdSignal<LogReceived>(LogReceived),
-        RdMap<String, ResourceWrapper>(FrameworkMarshallers.String, ResourceWrapper),
         RdMap<String, AspireHostModel>(FrameworkMarshallers.String, AspireHostModel)
     )
     
@@ -132,7 +128,6 @@ class AspireSessionHostModel private constructor(
             print("processStarted = "); _processStarted.print(printer); println()
             print("processTerminated = "); _processTerminated.print(printer); println()
             print("logReceived = "); _logReceived.print(printer); println()
-            print("resources = "); _resources.print(printer); println()
             print("aspireHosts = "); _aspireHosts.print(printer); println()
         }
         printer.print(")")
@@ -145,7 +140,6 @@ class AspireSessionHostModel private constructor(
             _processStarted.deepClonePolymorphic(),
             _processTerminated.deepClonePolymorphic(),
             _logReceived.deepClonePolymorphic(),
-            _resources.deepClonePolymorphic(),
             _aspireHosts.deepClonePolymorphic()
         )
     }

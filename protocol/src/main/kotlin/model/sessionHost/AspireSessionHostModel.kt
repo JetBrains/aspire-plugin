@@ -186,8 +186,6 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         source("processTerminated", ProcessTerminated)
         source("logReceived", LogReceived)
 
-        map("resources", string, ResourceWrapper)
-
         map("aspireHosts", string, AspireHostModel)
     }
 }

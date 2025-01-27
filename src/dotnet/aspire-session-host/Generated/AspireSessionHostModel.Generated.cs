@@ -47,7 +47,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
     [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
     [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> LogReceived => _LogReceived;
-    [NotNull] public IViewableMap<string, ResourceWrapper> Resources => _Resources;
     [NotNull] public IViewableMap<string, AspireHostModel> AspireHosts => _AspireHosts;
     
     //private fields
@@ -56,7 +55,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> _ProcessStarted;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> _ProcessTerminated;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> _LogReceived;
-    [NotNull] private readonly RdMap<string, ResourceWrapper> _Resources;
     [NotNull] private readonly RdMap<string, AspireHostModel> _AspireHosts;
     
     //primary constructor
@@ -66,7 +64,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> processStarted,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> processTerminated,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> logReceived,
-      [NotNull] RdMap<string, ResourceWrapper> resources,
       [NotNull] RdMap<string, AspireHostModel> aspireHosts
     )
     {
@@ -75,7 +72,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       if (processStarted == null) throw new ArgumentNullException("processStarted");
       if (processTerminated == null) throw new ArgumentNullException("processTerminated");
       if (logReceived == null) throw new ArgumentNullException("logReceived");
-      if (resources == null) throw new ArgumentNullException("resources");
       if (aspireHosts == null) throw new ArgumentNullException("aspireHosts");
       
       _CreateSession = createSession;
@@ -83,7 +79,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       _ProcessStarted = processStarted;
       _ProcessTerminated = processTerminated;
       _LogReceived = logReceived;
-      _Resources = resources;
       _AspireHosts = aspireHosts;
       _CreateSession.ValueCanBeNull = true;
       BindableChildren.Add(new KeyValuePair<string, object>("createSession", _CreateSession));
@@ -91,7 +86,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
       BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
       BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
-      BindableChildren.Add(new KeyValuePair<string, object>("resources", _Resources));
       BindableChildren.Add(new KeyValuePair<string, object>("aspireHosts", _AspireHosts));
     }
     //secondary constructor
@@ -102,7 +96,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Write),
       new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Write),
       new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived>(JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Read, JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Write),
-      new RdMap<string, ResourceWrapper>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write),
       new RdMap<string, AspireHostModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, AspireHostModel.Read, AspireHostModel.Write)
     ) {}
     //deconstruct trait
@@ -112,7 +105,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     public static  CtxWriteDelegate<SessionCreationResult> WriteSessionCreationResultNullable = SessionCreationResult.Write.NullableClass();
     
-    protected override long SerializationHash => 1986475458008568395L;
+    protected override long SerializationHash => -1593802969616715494L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -143,7 +136,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
         printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
         printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
         printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
-        printer.Print("resources = "); _Resources.PrintEx(printer); printer.Println();
         printer.Print("aspireHosts = "); _AspireHosts.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
