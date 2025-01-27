@@ -204,10 +204,6 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
     }
 
     init {
-        source("processStarted", ProcessStarted)
-        source("processTerminated", ProcessTerminated)
-        source("logReceived", LogReceived)
-
         map("aspireHosts", string, AspireHostModel)
     }
 }

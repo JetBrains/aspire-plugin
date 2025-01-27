@@ -42,45 +42,24 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   {
     //fields
     //public fields
-    [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
-    [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
-    [NotNull] public ISource<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> LogReceived => _LogReceived;
     [NotNull] public IViewableMap<string, AspireHostModel> AspireHosts => _AspireHosts;
     
     //private fields
-    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> _ProcessStarted;
-    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> _ProcessTerminated;
-    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> _LogReceived;
     [NotNull] private readonly RdMap<string, AspireHostModel> _AspireHosts;
     
     //primary constructor
     private AspireSessionHostModel(
-      [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted> processStarted,
-      [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated> processTerminated,
-      [NotNull] RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived> logReceived,
       [NotNull] RdMap<string, AspireHostModel> aspireHosts
     )
     {
-      if (processStarted == null) throw new ArgumentNullException("processStarted");
-      if (processTerminated == null) throw new ArgumentNullException("processTerminated");
-      if (logReceived == null) throw new ArgumentNullException("logReceived");
       if (aspireHosts == null) throw new ArgumentNullException("aspireHosts");
       
-      _ProcessStarted = processStarted;
-      _ProcessTerminated = processTerminated;
-      _LogReceived = logReceived;
       _AspireHosts = aspireHosts;
-      BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
-      BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
-      BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
       BindableChildren.Add(new KeyValuePair<string, object>("aspireHosts", _AspireHosts));
     }
     //secondary constructor
     private AspireSessionHostModel (
     ) : this (
-      new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessStarted.Write),
-      new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated>(JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.SessionHost.Generated.ProcessTerminated.Write),
-      new RdSignal<JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived>(JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Read, JetBrains.Rider.Aspire.SessionHost.Generated.LogReceived.Write),
       new RdMap<string, AspireHostModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, AspireHostModel.Read, AspireHostModel.Write)
     ) {}
     //deconstruct trait
@@ -88,7 +67,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     
     
-    protected override long SerializationHash => -9081557362022364369L;
+    protected override long SerializationHash => 5457146888202243027L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -114,9 +93,6 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     {
       printer.Println("AspireSessionHostModel (");
       using (printer.IndentCookie()) {
-        printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
-        printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
-        printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
         printer.Print("aspireHosts = "); _AspireHosts.PrintEx(printer); printer.Println();
       }
       printer.Print(")");

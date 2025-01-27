@@ -23,9 +23,6 @@ import kotlin.reflect.KClass
  * #### Generated from [AspireSessionHostModel.kt:16]
  */
 class AspireSessionHostModel private constructor(
-    private val _processStarted: RdSignal<ProcessStarted>,
-    private val _processTerminated: RdSignal<ProcessTerminated>,
-    private val _logReceived: RdSignal<LogReceived>,
     private val _aspireHosts: RdMap<String, AspireHostModel>
 ) : RdExtBase() {
     //companion
@@ -81,32 +78,23 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = -9081557362022364369L
+        const val serializationHash = 5457146888202243027L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
     override val serializationHash: Long get() = AspireSessionHostModel.serializationHash
     
     //fields
-    val processStarted: ISignal<ProcessStarted> get() = _processStarted
-    val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
-    val logReceived: ISignal<LogReceived> get() = _logReceived
     val aspireHosts: IMutableViewableMap<String, AspireHostModel> get() = _aspireHosts
     //methods
     //initializer
     init {
-        bindableChildren.add("processStarted" to _processStarted)
-        bindableChildren.add("processTerminated" to _processTerminated)
-        bindableChildren.add("logReceived" to _logReceived)
         bindableChildren.add("aspireHosts" to _aspireHosts)
     }
     
     //secondary constructor
     private constructor(
     ) : this(
-        RdSignal<ProcessStarted>(ProcessStarted),
-        RdSignal<ProcessTerminated>(ProcessTerminated),
-        RdSignal<LogReceived>(LogReceived),
         RdMap<String, AspireHostModel>(FrameworkMarshallers.String, AspireHostModel)
     )
     
@@ -116,9 +104,6 @@ class AspireSessionHostModel private constructor(
     override fun print(printer: PrettyPrinter)  {
         printer.println("AspireSessionHostModel (")
         printer.indent {
-            print("processStarted = "); _processStarted.print(printer); println()
-            print("processTerminated = "); _processTerminated.print(printer); println()
-            print("logReceived = "); _logReceived.print(printer); println()
             print("aspireHosts = "); _aspireHosts.print(printer); println()
         }
         printer.print(")")
@@ -126,9 +111,6 @@ class AspireSessionHostModel private constructor(
     //deepClone
     override fun deepClone(): AspireSessionHostModel   {
         return AspireSessionHostModel(
-            _processStarted.deepClonePolymorphic(),
-            _processTerminated.deepClonePolymorphic(),
-            _logReceived.deepClonePolymorphic(),
             _aspireHosts.deepClonePolymorphic()
         )
     }
