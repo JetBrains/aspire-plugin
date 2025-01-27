@@ -16,7 +16,6 @@ import com.intellij.openapi.rd.createNestedDisposable
 import com.intellij.openapi.util.Key
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rider.NetCoreRuntime
-import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
@@ -41,20 +40,16 @@ class SessionHostLauncher {
         basePath / "aspire-session-host" / "aspire-session-host.dll"
     }
 
-    fun launchSessionHost(
-        aspireHostConfig: AspireHostConfig,
-        sessionHostRdPort: Int,
-        sessionHostLifetime: LifetimeDefinition
-    ) {
+    fun launchSessionHost(config: SessionHostConfig, lifetime: LifetimeDefinition) {
         LOG.info("Starting Aspire session host")
 
         val dotnetCliPath = NetCoreRuntime.cliPath.value
 
-        val commandLine = getCommandLine(dotnetCliPath, aspireHostConfig, sessionHostRdPort)
+        val commandLine = getCommandLine(dotnetCliPath, config)
         LOG.trace { "Host command line: ${commandLine.commandLineString}" }
 
         val processHandler = KillableColoredProcessHandler(commandLine)
-        sessionHostLifetime.onTermination {
+        lifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
                 LOG.info("Aspire session host lifetime was terminated; killing the process")
                 processHandler.killProcess()
@@ -71,22 +66,18 @@ class SessionHostLauncher {
             }
 
             override fun processTerminated(event: ProcessEvent) {
-                sessionHostLifetime.executeIfAlive {
+                lifetime.executeIfAlive {
                     LOG.info("Aspire session host process was terminated; terminating the lifetime")
-                    sessionHostLifetime.terminate(true)
+                    lifetime.terminate(true)
                 }
             }
-        }, sessionHostLifetime.createNestedDisposable())
+        }, lifetime.createNestedDisposable())
 
         processHandler.startNotify()
         LOG.trace("Aspire session host started")
     }
 
-    private fun getCommandLine(
-        dotnetCliPath: String,
-        aspireHostConfig: AspireHostConfig,
-        rdPort: Int
-    ): GeneralCommandLine {
+    private fun getCommandLine(dotnetCliPath: String, config: SessionHostConfig): GeneralCommandLine {
         val commandLine = GeneralCommandLine()
             .withExePath(dotnetCliPath)
             .withCharset(StandardCharsets.UTF_8)
@@ -94,8 +85,8 @@ class SessionHostLauncher {
             .withWorkDirectory(hostAssemblyPath.parent.toFile())
             .withEnvironment(
                 buildMap {
-                    put("Kestrel__Endpoints__Http__Url", "http://localhost:${aspireHostConfig.debugSessionPort}/")
-                    put(RIDER_RD_PORT, "$rdPort")
+                    put("Kestrel__Endpoints__Http__Url", "http://localhost:${config.debugSessionPort}/")
+                    put(RIDER_RD_PORT, "${config.rdPort}")
                     put(RIDER_PARENT_PROCESS_ID, ProcessHandle.current().pid().toString())
                 }
             )
