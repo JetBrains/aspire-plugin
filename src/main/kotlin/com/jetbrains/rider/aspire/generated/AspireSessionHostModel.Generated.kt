@@ -54,7 +54,7 @@ class AspireSessionHostModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(552742225967985219), classLoader, "com.jetbrains.rider.aspire.generated.ResourceLog"))
             serializers.register(LazyCompanionMarshaller(RdId(-3460782994127365019), classLoader, "com.jetbrains.rider.aspire.generated.ResourceCommandRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(3396191624361927979), classLoader, "com.jetbrains.rider.aspire.generated.ResourceCommandResponse"))
-            serializers.register(LazyCompanionMarshaller(RdId(7139185059374037243), classLoader, "com.jetbrains.rider.aspire.generated.AspireHostConfig"))
+            serializers.register(LazyCompanionMarshaller(RdId(8004637670271409586), classLoader, "com.jetbrains.rider.aspire.generated.AspireHostModelConfig"))
             serializers.register(LazyCompanionMarshaller(RdId(7370971417554020944), classLoader, "com.jetbrains.rider.aspire.generated.AspireHostModel"))
             serializers.register(LazyCompanionMarshaller(RdId(-1311735068701761509), classLoader, "com.jetbrains.rider.aspire.generated.ResourceType"))
             serializers.register(LazyCompanionMarshaller(RdId(-3770298982336589872), classLoader, "com.jetbrains.rider.aspire.generated.ResourceState"))
@@ -82,7 +82,7 @@ class AspireSessionHostModel private constructor(
         
         private val __SessionCreationResultNullableSerializer = SessionCreationResult.nullable()
         
-        const val serializationHash = -1593802969616715494L
+        const val serializationHash = 2645867664861809451L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -152,75 +152,10 @@ val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionH
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:170]
- */
-data class AspireHostConfig (
-    val resourceServiceEndpointUrl: String?,
-    val resourceServiceApiKey: String?
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<AspireHostConfig> {
-        override val _type: KClass<AspireHostConfig> = AspireHostConfig::class
-        override val id: RdId get() = RdId(7139185059374037243)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostConfig  {
-            val resourceServiceEndpointUrl = buffer.readNullable { buffer.readString() }
-            val resourceServiceApiKey = buffer.readNullable { buffer.readString() }
-            return AspireHostConfig(resourceServiceEndpointUrl, resourceServiceApiKey)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostConfig)  {
-            buffer.writeNullable(value.resourceServiceEndpointUrl) { buffer.writeString(it) }
-            buffer.writeNullable(value.resourceServiceApiKey) { buffer.writeString(it) }
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as AspireHostConfig
-        
-        if (resourceServiceEndpointUrl != other.resourceServiceEndpointUrl) return false
-        if (resourceServiceApiKey != other.resourceServiceApiKey) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + if (resourceServiceEndpointUrl != null) resourceServiceEndpointUrl.hashCode() else 0
-        __r = __r*31 + if (resourceServiceApiKey != null) resourceServiceApiKey.hashCode() else 0
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("AspireHostConfig (")
-        printer.indent {
-            print("resourceServiceEndpointUrl = "); resourceServiceEndpointUrl.print(printer); println()
-            print("resourceServiceApiKey = "); resourceServiceApiKey.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspireSessionHostModel.kt:175]
+ * #### Generated from [AspireSessionHostModel.kt:181]
  */
 class AspireHostModel private constructor(
-    val config: AspireHostConfig,
+    val config: AspireHostModelConfig,
     private val _resources: RdMap<String, ResourceWrapper>
 ) : RdBindableBase() {
     //companion
@@ -232,14 +167,14 @@ class AspireHostModel private constructor(
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostModel  {
             val _id = RdId.read(buffer)
-            val config = AspireHostConfig.read(ctx, buffer)
+            val config = AspireHostModelConfig.read(ctx, buffer)
             val _resources = RdMap.read(ctx, buffer, FrameworkMarshallers.String, ResourceWrapper)
             return AspireHostModel(config, _resources).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModel)  {
             value.rdid.write(buffer)
-            AspireHostConfig.write(ctx, buffer, value.config)
+            AspireHostModelConfig.write(ctx, buffer, value.config)
             RdMap.write(ctx, buffer, value._resources)
         }
         
@@ -255,7 +190,7 @@ class AspireHostModel private constructor(
     
     //secondary constructor
     constructor(
-        config: AspireHostConfig
+        config: AspireHostModelConfig
     ) : this(
         config,
         RdMap<String, ResourceWrapper>(FrameworkMarshallers.String, ResourceWrapper)
@@ -279,6 +214,87 @@ class AspireHostModel private constructor(
             _resources.deepClonePolymorphic()
         )
     }
+    //contexts
+    //threading
+}
+
+
+/**
+ * @property id Unique identifier for the Aspire Host, created from the `DEBUG_SESSION_TOKEN` environment variable
+ * @property aspireHostProjectPath Path of the Aspire Host .csproj file
+ * @property resourceServiceEndpointUrl `DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable
+ * @property resourceServiceApiKey `DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
+ * #### Generated from [AspireSessionHostModel.kt:170]
+ */
+data class AspireHostModelConfig (
+    val id: String,
+    val aspireHostProjectPath: String,
+    val resourceServiceEndpointUrl: String?,
+    val resourceServiceApiKey: String?
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<AspireHostModelConfig> {
+        override val _type: KClass<AspireHostModelConfig> = AspireHostModelConfig::class
+        override val id: RdId get() = RdId(8004637670271409586)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostModelConfig  {
+            val id = buffer.readString()
+            val aspireHostProjectPath = buffer.readString()
+            val resourceServiceEndpointUrl = buffer.readNullable { buffer.readString() }
+            val resourceServiceApiKey = buffer.readNullable { buffer.readString() }
+            return AspireHostModelConfig(id, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModelConfig)  {
+            buffer.writeString(value.id)
+            buffer.writeString(value.aspireHostProjectPath)
+            buffer.writeNullable(value.resourceServiceEndpointUrl) { buffer.writeString(it) }
+            buffer.writeNullable(value.resourceServiceApiKey) { buffer.writeString(it) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as AspireHostModelConfig
+        
+        if (id != other.id) return false
+        if (aspireHostProjectPath != other.aspireHostProjectPath) return false
+        if (resourceServiceEndpointUrl != other.resourceServiceEndpointUrl) return false
+        if (resourceServiceApiKey != other.resourceServiceApiKey) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + id.hashCode()
+        __r = __r*31 + aspireHostProjectPath.hashCode()
+        __r = __r*31 + if (resourceServiceEndpointUrl != null) resourceServiceEndpointUrl.hashCode() else 0
+        __r = __r*31 + if (resourceServiceApiKey != null) resourceServiceApiKey.hashCode() else 0
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("AspireHostModelConfig (")
+        printer.indent {
+            print("id = "); id.print(printer); println()
+            print("aspireHostProjectPath = "); aspireHostProjectPath.print(printer); println()
+            print("resourceServiceEndpointUrl = "); resourceServiceEndpointUrl.print(printer); println()
+            print("resourceServiceApiKey = "); resourceServiceApiKey.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
     //contexts
     //threading
 }

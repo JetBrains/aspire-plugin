@@ -2,7 +2,7 @@ package com.jetbrains.rider.aspire.listeners
 
 import com.intellij.util.messages.Topic
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.generated.AspireSessionHostModel
+import com.jetbrains.rider.aspire.generated.AspireHostModel
 import com.jetbrains.rider.aspire.run.AspireHostConfig
 import java.nio.file.Path
 
@@ -13,5 +13,5 @@ interface AspireSessionHostListener {
     }
 
     fun configCreated(aspireHostProjectPath: Path, config: AspireHostConfig)
-    fun modelCreated(aspireHostProjectPath: Path, sessionHostModel: AspireSessionHostModel, lifetime: Lifetime)
+    fun aspireHostModelCreated(model: AspireHostModel, lifetime: Lifetime)
 }

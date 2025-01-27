@@ -4,7 +4,6 @@ using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
 using JetBrains.Rd.Tasks;
 using JetBrains.Rider.Aspire.SessionHost.Generated;
-using JetBrains.Rider.Aspire.SessionHost.Resources;
 using Polly;
 using Polly.Registry;
 using ResourceCommandRequest = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandRequest;

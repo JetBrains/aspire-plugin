@@ -65,7 +65,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         })
         field("displayName", string)
         field("uid", string)
-        field("state",  enum("ResourceState") {
+        field("state", enum("ResourceState") {
             +"Finished"
             +"Exited"
             +"FailedToStart"
@@ -167,13 +167,19 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("errorMessage", string.nullable)
     }
 
-    private val AspireHostConfig = structdef {
+    private val AspireHostModelConfig = structdef {
+        field("id", string)
+            .documentation = "Unique identifier for the Aspire Host, created from the `DEBUG_SESSION_TOKEN` environment variable"
+        field("aspireHostProjectPath", string)
+            .documentation = "Path of the Aspire Host .csproj file"
         field("resourceServiceEndpointUrl", string.nullable)
+            .documentation = "`DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable"
         field("resourceServiceApiKey", string.nullable)
+            .documentation = "`DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable"
     }
 
     private val AspireHostModel = classdef {
-        field("config", AspireHostConfig)
+        field("config", AspireHostModelConfig)
 
         map("resources", string, ResourceWrapper)
     }
