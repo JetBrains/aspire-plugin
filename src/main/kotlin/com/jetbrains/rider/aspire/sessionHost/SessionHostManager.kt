@@ -40,12 +40,12 @@ class SessionHostManager(private val project: Project, private val scope: Corout
         subscribe(aspireHostConfig, aspireHostModel, sessionHostLifetime)
 
         LOG.trace("Starting a new session host with launcher")
-        val sessionHostLauncher = SessionHostLauncher.getInstance(project)
-        sessionHostLauncher.launchSessionHost(
-            aspireHostConfig,
-            protocolServerPort,
-            sessionHostLifetime
-        )
+//        val sessionHostLauncher = SessionHostLauncher.getInstance(project)
+//        sessionHostLauncher.launchSessionHost(
+//            aspireHostConfig,
+//            protocolServerPort,
+//            sessionHostLifetime
+//        )
     }
 
     private fun subscribe(

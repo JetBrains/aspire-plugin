@@ -30,7 +30,7 @@
         <programRunner
                 implementation="com.jetbrains.rider.aspire.sessionHost.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
 
-        <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.AspireMainServiceViewContributor2"/>
+        <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.AspireMainServiceViewContributor"/>
 
         <applicationConfigurable
                 parentId="tools"

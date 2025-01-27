@@ -110,10 +110,6 @@ suspend fun startSessionHostAndSubscribe(
 
     sessionHostModel.aspireHosts.put(config.id, aspireHostModel)
 
-    project.messageBus
-        .syncPublisher(AspireSessionHostListener.TOPIC)
-        .aspireHostModelCreated(aspireHostModel, config.aspireHostLifetime)
-
     SessionHostManager
         .getInstance(project)
         .startSessionHost(config, protocol.wire.serverPort, aspireHostModel)
