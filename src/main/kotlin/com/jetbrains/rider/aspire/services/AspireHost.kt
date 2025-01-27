@@ -15,7 +15,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.util.application
 import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.generated.AspireSessionHostModel
+import com.jetbrains.rider.aspire.generated.AspireHostModel
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.generated.ResourceWrapper
@@ -110,14 +110,10 @@ class AspireHost(
                 addAspireHostUrl(config)
             }
 
-            override fun modelCreated(
-                aspireHostProjectPath: Path,
-                sessionHostModel: AspireSessionHostModel,
-                lifetime: Lifetime
-            ) {
-                if (aspireHostProjectPath != hostProjectPath) return
+            override fun aspireHostModelCreated(model: AspireHostModel, lifetime: Lifetime) {
+                if (Path(model.config.aspireHostProjectPath) != hostProjectPath) return
 
-                addSessionHostModel(sessionHostModel, lifetime)
+                addModel(model, lifetime)
             }
         })
     }
@@ -151,9 +147,9 @@ class AspireHost(
         sendServiceChangedEvent()
     }
 
-    private fun addSessionHostModel(sessionHostModel: AspireSessionHostModel, lifetime: Lifetime) {
-        val sessionHostLifetime = lifetime.createNested()
-        sessionHostModel.resources.view(sessionHostLifetime) { resourceLifetime, resourceId, resourceModel ->
+    private fun addModel(aspireHostModel: AspireHostModel, lifetime: Lifetime) {
+        val aspireHostLifetime = lifetime.createNested()
+        aspireHostModel.resources.view(aspireHostLifetime) { resourceLifetime, resourceId, resourceModel ->
             viewResource(resourceId, resourceModel, resourceLifetime)
         }
     }

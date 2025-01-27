@@ -1,13 +1,13 @@
 using System.Globalization;
 using Aspire.ResourceService.Proto.V1;
-using JetBrains.Rider.Aspire.SessionHost.Generated;
 using Google.Protobuf.WellKnownTypes;
+using JetBrains.Rider.Aspire.SessionHost.Generated;
 using ResourceCommand = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommand;
 using ResourceCommandState = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandState;
 using ResourceProperty = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceProperty;
 using ResourceType = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceType;
 
-namespace JetBrains.Rider.Aspire.SessionHost.Resources;
+namespace JetBrains.Rider.Aspire.SessionHost.AspireHost;
 
 internal static class ResourceExtensions
 {

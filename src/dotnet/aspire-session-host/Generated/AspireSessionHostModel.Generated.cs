@@ -105,7 +105,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     public static  CtxWriteDelegate<SessionCreationResult> WriteSessionCreationResultNullable = SessionCreationResult.Write.NullableClass();
     
-    protected override long SerializationHash => -1593802969616715494L;
+    protected override long SerializationHash => 2645867664861809451L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -151,106 +151,13 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:170</p>
-  /// </summary>
-  public sealed class AspireHostConfig : IPrintable, IEquatable<AspireHostConfig>
-  {
-    //fields
-    //public fields
-    [CanBeNull] public string ResourceServiceEndpointUrl {get; private set;}
-    [CanBeNull] public string ResourceServiceApiKey {get; private set;}
-    
-    //private fields
-    //primary constructor
-    public AspireHostConfig(
-      [CanBeNull] string resourceServiceEndpointUrl,
-      [CanBeNull] string resourceServiceApiKey
-    )
-    {
-      ResourceServiceEndpointUrl = resourceServiceEndpointUrl;
-      ResourceServiceApiKey = resourceServiceApiKey;
-    }
-    //secondary constructor
-    //deconstruct trait
-    public void Deconstruct([CanBeNull] out string resourceServiceEndpointUrl, [CanBeNull] out string resourceServiceApiKey)
-    {
-      resourceServiceEndpointUrl = ResourceServiceEndpointUrl;
-      resourceServiceApiKey = ResourceServiceApiKey;
-    }
-    //statics
-    
-    public static CtxReadDelegate<AspireHostConfig> Read = (ctx, reader) => 
-    {
-      var resourceServiceEndpointUrl = ReadStringNullable(ctx, reader);
-      var resourceServiceApiKey = ReadStringNullable(ctx, reader);
-      var _result = new AspireHostConfig(resourceServiceEndpointUrl, resourceServiceApiKey);
-      return _result;
-    };
-    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
-    
-    public static CtxWriteDelegate<AspireHostConfig> Write = (ctx, writer, value) => 
-    {
-      WriteStringNullable(ctx, writer, value.ResourceServiceEndpointUrl);
-      WriteStringNullable(ctx, writer, value.ResourceServiceApiKey);
-    };
-    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
-    
-    //constants
-    
-    //custom body
-    //methods
-    //equals trait
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
-      return Equals((AspireHostConfig) obj);
-    }
-    public bool Equals(AspireHostConfig other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return Equals(ResourceServiceEndpointUrl, other.ResourceServiceEndpointUrl) && Equals(ResourceServiceApiKey, other.ResourceServiceApiKey);
-    }
-    //hash code trait
-    public override int GetHashCode()
-    {
-      unchecked {
-        var hash = 0;
-        hash = hash * 31 + (ResourceServiceEndpointUrl != null ? ResourceServiceEndpointUrl.GetHashCode() : 0);
-        hash = hash * 31 + (ResourceServiceApiKey != null ? ResourceServiceApiKey.GetHashCode() : 0);
-        return hash;
-      }
-    }
-    //pretty print
-    public void Print(PrettyPrinter printer)
-    {
-      printer.Println("AspireHostConfig (");
-      using (printer.IndentCookie()) {
-        printer.Print("resourceServiceEndpointUrl = "); ResourceServiceEndpointUrl.PrintEx(printer); printer.Println();
-        printer.Print("resourceServiceApiKey = "); ResourceServiceApiKey.PrintEx(printer); printer.Println();
-      }
-      printer.Print(")");
-    }
-    //toString
-    public override string ToString()
-    {
-      var printer = new SingleLinePrettyPrinter();
-      Print(printer);
-      return printer.ToString();
-    }
-  }
-  
-  
-  /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:175</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:181</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
     //fields
     //public fields
-    [NotNull] public AspireHostConfig Config {get; private set;}
+    [NotNull] public AspireHostModelConfig Config {get; private set;}
     [NotNull] public IViewableMap<string, ResourceWrapper> Resources => _Resources;
     
     //private fields
@@ -258,7 +165,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     //primary constructor
     private AspireHostModel(
-      [NotNull] AspireHostConfig config,
+      [NotNull] AspireHostModelConfig config,
       [NotNull] RdMap<string, ResourceWrapper> resources
     )
     {
@@ -271,7 +178,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     }
     //secondary constructor
     public AspireHostModel (
-      [NotNull] AspireHostConfig config
+      [NotNull] AspireHostModelConfig config
     ) : this (
       config,
       new RdMap<string, ResourceWrapper>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write)
@@ -282,7 +189,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     public static CtxReadDelegate<AspireHostModel> Read = (ctx, reader) => 
     {
       var _id = RdId.Read(reader);
-      var config = AspireHostConfig.Read(ctx, reader);
+      var config = AspireHostModelConfig.Read(ctx, reader);
       var resources = RdMap<string, ResourceWrapper>.Read(ctx, reader, JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write);
       var _result = new AspireHostModel(config, resources).WithId(_id);
       return _result;
@@ -291,7 +198,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     public static CtxWriteDelegate<AspireHostModel> Write = (ctx, writer, value) => 
     {
       value.RdId.Write(writer);
-      AspireHostConfig.Write(ctx, writer, value.Config);
+      AspireHostModelConfig.Write(ctx, writer, value.Config);
       RdMap<string, ResourceWrapper>.Write(ctx, writer, value._Resources);
     };
     
@@ -308,6 +215,134 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       using (printer.IndentCookie()) {
         printer.Print("config = "); Config.PrintEx(printer); printer.Println();
         printer.Print("resources = "); _Resources.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireSessionHostModel.kt:170</p>
+  /// </summary>
+  public sealed class AspireHostModelConfig : IPrintable, IEquatable<AspireHostModelConfig>
+  {
+    //fields
+    //public fields
+    
+    /// <summary>
+    /// Unique identifier for the Aspire Host, created from the `DEBUG_SESSION_TOKEN` environment variable
+    /// </summary>
+    [NotNull] public string Id {get; private set;}
+    
+    /// <summary>
+    /// Path of the Aspire Host .csproj file
+    /// </summary>
+    [NotNull] public string AspireHostProjectPath {get; private set;}
+    
+    /// <summary>
+    /// `DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable
+    /// </summary>
+    [CanBeNull] public string ResourceServiceEndpointUrl {get; private set;}
+    
+    /// <summary>
+    /// `DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
+    /// </summary>
+    [CanBeNull] public string ResourceServiceApiKey {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public AspireHostModelConfig(
+      [NotNull] string id,
+      [NotNull] string aspireHostProjectPath,
+      [CanBeNull] string resourceServiceEndpointUrl,
+      [CanBeNull] string resourceServiceApiKey
+    )
+    {
+      if (id == null) throw new ArgumentNullException("id");
+      if (aspireHostProjectPath == null) throw new ArgumentNullException("aspireHostProjectPath");
+      
+      Id = id;
+      AspireHostProjectPath = aspireHostProjectPath;
+      ResourceServiceEndpointUrl = resourceServiceEndpointUrl;
+      ResourceServiceApiKey = resourceServiceApiKey;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string id, [NotNull] out string aspireHostProjectPath, [CanBeNull] out string resourceServiceEndpointUrl, [CanBeNull] out string resourceServiceApiKey)
+    {
+      id = Id;
+      aspireHostProjectPath = AspireHostProjectPath;
+      resourceServiceEndpointUrl = ResourceServiceEndpointUrl;
+      resourceServiceApiKey = ResourceServiceApiKey;
+    }
+    //statics
+    
+    public static CtxReadDelegate<AspireHostModelConfig> Read = (ctx, reader) => 
+    {
+      var id = reader.ReadString();
+      var aspireHostProjectPath = reader.ReadString();
+      var resourceServiceEndpointUrl = ReadStringNullable(ctx, reader);
+      var resourceServiceApiKey = ReadStringNullable(ctx, reader);
+      var _result = new AspireHostModelConfig(id, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    
+    public static CtxWriteDelegate<AspireHostModelConfig> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Id);
+      writer.Write(value.AspireHostProjectPath);
+      WriteStringNullable(ctx, writer, value.ResourceServiceEndpointUrl);
+      WriteStringNullable(ctx, writer, value.ResourceServiceApiKey);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((AspireHostModelConfig) obj);
+    }
+    public bool Equals(AspireHostModelConfig other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Id == other.Id && AspireHostProjectPath == other.AspireHostProjectPath && Equals(ResourceServiceEndpointUrl, other.ResourceServiceEndpointUrl) && Equals(ResourceServiceApiKey, other.ResourceServiceApiKey);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Id.GetHashCode();
+        hash = hash * 31 + AspireHostProjectPath.GetHashCode();
+        hash = hash * 31 + (ResourceServiceEndpointUrl != null ? ResourceServiceEndpointUrl.GetHashCode() : 0);
+        hash = hash * 31 + (ResourceServiceApiKey != null ? ResourceServiceApiKey.GetHashCode() : 0);
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("AspireHostModelConfig (");
+      using (printer.IndentCookie()) {
+        printer.Print("id = "); Id.PrintEx(printer); printer.Println();
+        printer.Print("aspireHostProjectPath = "); AspireHostProjectPath.PrintEx(printer); printer.Println();
+        printer.Print("resourceServiceEndpointUrl = "); ResourceServiceEndpointUrl.PrintEx(printer); printer.Println();
+        printer.Print("resourceServiceApiKey = "); ResourceServiceApiKey.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }

@@ -15,6 +15,8 @@ import com.jetbrains.rd.protocol.IdeRootMarshallersProvider
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rdclient.protocol.RdDispatcher
+import com.jetbrains.rider.aspire.generated.AspireHostModel
+import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
 import com.jetbrains.rider.aspire.generated.aspireSessionHostModel
 import com.jetbrains.rider.aspire.listeners.AspireSessionHostListener
 import com.jetbrains.rider.aspire.run.AspireHostConfig
@@ -26,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
 private val LOG = Logger.getInstance("#com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunnerUtils")
 
@@ -95,9 +98,19 @@ suspend fun startSessionHostAndSubscribe(
     val protocol = startSessionHostProtocol(config.aspireHostLifetime)
     val sessionHostModel = protocol.aspireSessionHostModel
 
+    val aspireHostConfig = AspireHostModelConfig(
+        config.debugSessionToken,
+        config.aspireHostProjectPath.absolutePathString(),
+        config.resourceServiceEndpointUrl,
+        config.resourceServiceApiKey
+    )
+    val aspireHostModel = AspireHostModel(aspireHostConfig)
+
+    sessionHostModel.aspireHosts.put(config.debugSessionToken, aspireHostModel)
+
     project.messageBus
         .syncPublisher(AspireSessionHostListener.TOPIC)
-        .modelCreated(config.aspireHostProjectPath, sessionHostModel, config.aspireHostLifetime)
+        .aspireHostModelCreated(aspireHostModel, config.aspireHostLifetime)
 
     SessionHostManager
         .getInstance(project)
