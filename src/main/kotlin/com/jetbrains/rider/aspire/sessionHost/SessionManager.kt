@@ -14,7 +14,6 @@ import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isAlive
 import com.jetbrains.rd.util.put
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
-import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -65,7 +64,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         LOG.info("Creating session ${command.sessionId}")
         LOG.trace { "Session details ${command.createSessionRequest}" }
 
-        val sessionLifetimeDefinition = command.sessionHostLifetime.createNested()
+        val sessionLifetimeDefinition = command.aspireHostLifetime.createNested()
         sessionLifetimes.put(sessionLifetimeDefinition.lifetime, command.sessionId, sessionLifetimeDefinition)
 
         val buildParameters = BuildParameters(
@@ -89,8 +88,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.createSessionRequest,
             sessionProcessListener,
             processLifetime,
-            command.aspireHostConfig.debuggingMode,
-            command.aspireHostConfig.aspireHostRunConfiguration
+            command.isAspireHostUnderDebug,
+            command.aspireHostRunConfigName
         )
     }
 
@@ -180,8 +179,9 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val sessionId: String,
         val createSessionRequest: CreateSessionRequest,
         val sessionEvents: MutableSharedFlow<SessionEvent>,
-        val aspireHostConfig: AspireHostConfig,
-        val sessionHostLifetime: Lifetime
+        val isAspireHostUnderDebug: Boolean,
+        val aspireHostRunConfigName: String,
+        val aspireHostLifetime: Lifetime
     ) : LaunchSessionCommand
 
     data class DeleteSessionCommand(

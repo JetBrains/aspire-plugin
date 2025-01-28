@@ -9,12 +9,11 @@ import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireService
-import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.states.AspireHostRunProfileState
 import com.jetbrains.rider.debugger.DotNetProgramRunner
+import kotlin.io.path.Path
 
 class AspireHostProgramRunner : DotNetProgramRunner() {
     companion object {
@@ -35,42 +34,29 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
     ): RunContentDescriptor? {
         LOG.info("Executing Aspire run profile state")
 
-        val aspireHostLifetimeDefinition = AspireService
+        if (state !is AspireHostRunProfileState) {
+            throw CantRunException("Unable to execute RunProfileState: $state")
+        }
+
+        val aspireHostProcessHandlerLifetime = AspireService
             .getInstance(environment.project)
             .lifetime
             .createNested()
-        val config = createConfig(environment, state, aspireHostLifetimeDefinition.lifetime)
 
-        LOG.trace { "Aspire session host config: $config" }
+        val aspireHostConfig = setUpAspireHostModel(environment, state, aspireHostProcessHandlerLifetime)
+        LOG.trace { "Aspire session host config: $aspireHostConfig" }
 
         saveRunConfiguration(
             environment.project,
-            config.aspireHostProjectPath,
-            config.name,
-            aspireHostLifetimeDefinition
+            Path(aspireHostConfig.aspireHostProjectPath),
+            aspireHostConfig.runConfigName,
+            aspireHostProcessHandlerLifetime
         )
 
-        startSessionHostAndSubscribe(config, environment.project)
-
         val executionResult = state.execute(environment.executor, this)
-        if (executionResult == null) {
-            LOG.warn("Unable to start Aspire run profile state")
-            return null
-        }
 
-        connectExecutionHandlerAndLifetime(executionResult, aspireHostLifetimeDefinition)
+        connectExecutionHandlerAndLifetime(executionResult, aspireHostProcessHandlerLifetime)
 
         return showRunContent(executionResult, environment)
-    }
-
-    private fun createConfig(
-        environment: ExecutionEnvironment,
-        state: RunProfileState,
-        aspireHostLifetime: Lifetime
-    ): AspireHostConfig {
-        val aspireHostProfileState = state as? AspireHostRunProfileState
-            ?: throw CantRunException("Unable to execute RunProfileState: $state")
-
-        return createAspireHostConfig(environment, aspireHostProfileState, aspireHostLifetime)
     }
 }

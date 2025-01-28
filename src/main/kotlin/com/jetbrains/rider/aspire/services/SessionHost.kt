@@ -10,17 +10,20 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.platform.util.coroutines.childScope
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.protocol.IdeRootMarshallersProvider
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.aspire.generated.AspireHostModel
+import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
 import com.jetbrains.rider.aspire.generated.AspireSessionHostModel
 import com.jetbrains.rider.aspire.generated.aspireSessionHostModel
 import com.jetbrains.rider.aspire.sessionHost.SessionHostConfig
 import com.jetbrains.rider.aspire.sessionHost.SessionHostLauncher
 import com.jetbrains.rider.util.NetUtils
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -33,6 +36,7 @@ import kotlin.io.path.absolutePathString
 
 class SessionHost(
     lifetime: Lifetime,
+    private val scope: CoroutineScope,
     private val project: Project
 ) : ServiceViewProvidingContributor<AspireHost, SessionHost>, Disposable {
     companion object {
@@ -120,23 +124,22 @@ class SessionHost(
         sessionHostModel: AspireSessionHostModel,
         lifetime: Lifetime
     ) {
-        LOG.trace("Subscribing to session host protocol model")
-
+        LOG.trace("Subscribing to Session host model")
         sessionHostModel.aspireHosts.view(lifetime) { hostLifetime, hostId, hostModel ->
             viewAspireHost(hostModel, hostLifetime)
         }
     }
 
-    private fun viewAspireHost(model: AspireHostModel, lifetime: Lifetime) {
+    private fun viewAspireHost(model: AspireHostModel, aspireHostLifetime: Lifetime) {
         val aspireHostProjectPath = Path(model.config.aspireHostProjectPath)
         val aspireHost = aspireHosts[aspireHostProjectPath]
         if (aspireHost == null) {
-            LOG.warn("Could not find aspire host $aspireHostProjectPath")
+            LOG.warn("Could not find Aspire host $aspireHostProjectPath")
             return
         }
 
         LOG.trace { "Setting Aspire host model to $aspireHostProjectPath" }
-        aspireHost.setAspireHostModel(model, lifetime)
+        aspireHost.setAspireHostModel(model, aspireHostLifetime)
     }
 
     suspend fun stop() {
@@ -153,12 +156,12 @@ class SessionHost(
         }
     }
 
-    fun addAspireHost(aspireHostProjectPath: Path) {
+    fun addAspireHostProject(aspireHostProjectPath: Path) {
         if (aspireHosts.containsKey(aspireHostProjectPath)) return
 
         LOG.trace { "Adding a new Aspire host ${aspireHostProjectPath.absolutePathString()}" }
 
-        val aspireHost = AspireHost(aspireHostProjectPath, project)
+        val aspireHost = AspireHost(aspireHostProjectPath, scope.childScope("Aspire Host"), project)
         Disposer.register(this, aspireHost)
 
         aspireHosts[aspireHostProjectPath] = aspireHost
@@ -171,7 +174,7 @@ class SessionHost(
         serviceEventPublisher.handle(event)
     }
 
-    fun removeAspireHost(aspireHostProjectPath: Path) {
+    fun removeAspireHostProject(aspireHostProjectPath: Path) {
         LOG.trace { "Removing the Aspire host ${aspireHostProjectPath.absolutePathString()}" }
 
         val aspireHost = aspireHosts.remove(aspireHostProjectPath) ?: return
@@ -184,6 +187,25 @@ class SessionHost(
         serviceEventPublisher.handle(event)
 
         Disposer.dispose(aspireHost)
+    }
+
+    fun addAspireHostModel(config: AspireHostModelConfig) {
+        if (!isActive) {
+            LOG.warn("Unable to add Aspire host model because Session host isn't active")
+            return
+        }
+
+        val aspireHostModel = AspireHostModel(config)
+        requireNotNull(model).aspireHosts.put(config.id, aspireHostModel)
+    }
+
+    fun removeAspireHostModel(config: AspireHostModelConfig) {
+        if (!isActive) {
+            LOG.warn("Unable to remove Aspire host model because Session host isn't active")
+            return
+        }
+
+        requireNotNull(model).aspireHosts.remove(config.id)
     }
 
     override fun dispose() {

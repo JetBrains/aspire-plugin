@@ -2,7 +2,6 @@ package com.jetbrains.rider.aspire.run.runners
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.RunProfile
-import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.diagnostic.logger
@@ -11,7 +10,6 @@ import com.intellij.xdebugger.XDebugSession
 import com.jetbrains.rd.framework.IProtocol
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireService
-import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.states.AspireHostDebugProfileState
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -19,6 +17,7 @@ import com.jetbrains.rider.debugger.DotNetDebugRunner
 import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
 import com.jetbrains.rider.model.debuggerWorker.DotNetDebuggerSessionModel
 import com.jetbrains.rider.run.IDotNetDebugProfileState
+import kotlin.io.path.Path
 
 class AspireHostDebugProgramRunner : DotNetDebugRunner() {
     companion object {
@@ -44,27 +43,28 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
     ): XDebugSession {
         LOG.info("Creating Aspire debug session")
 
-        val aspireHostLifetimeDefinition = AspireService
+        if (state !is AspireHostDebugProfileState) {
+            throw CantRunException("Unable to execute RunProfileState: $state")
+        }
+
+        val aspireHostProcessHandlerLifetime = AspireService
             .getInstance(environment.project)
             .lifetime
             .createNested()
 
-        val config = createConfig(environment, state, aspireHostLifetimeDefinition.lifetime)
-
-        LOG.trace { "Aspire session host config: $config" }
+        val aspireHostConfig = setUpAspireHostModel(environment, state, aspireHostProcessHandlerLifetime)
+        LOG.trace { "Aspire session host config: $aspireHostConfig" }
 
         saveRunConfiguration(
             environment.project,
-            config.aspireHostProjectPath,
-            config.name,
-            aspireHostLifetimeDefinition
+            Path(aspireHostConfig.aspireHostProjectPath),
+            aspireHostConfig.runConfigName,
+            aspireHostProcessHandlerLifetime
         )
-
-        startSessionHostAndSubscribe(config, environment.project)
 
         val executionResult = state.execute(environment.executor, this, workerProcessHandler, sessionLifetime)
 
-        connectExecutionHandlerAndLifetime(executionResult, aspireHostLifetimeDefinition)
+        connectExecutionHandlerAndLifetime(executionResult, aspireHostProcessHandlerLifetime)
 
         return com.jetbrains.rider.debugger.createAndStartSession(
             executionResult.executionConsole,
@@ -77,16 +77,5 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
         ) { xDebuggerManager, xDebugProcessStarter ->
             xDebuggerManager.startSession(environment, xDebugProcessStarter)
         }
-    }
-
-    private fun createConfig(
-        environment: ExecutionEnvironment,
-        state: RunProfileState,
-        aspireHostLifetime: Lifetime
-    ): AspireHostConfig {
-        val aspireHostProfileState = state as? AspireHostDebugProfileState
-            ?: throw CantRunException("Unable to execute RunProfileState: $state")
-
-        return createAspireHostConfig(environment, aspireHostProfileState, aspireHostLifetime)
     }
 }

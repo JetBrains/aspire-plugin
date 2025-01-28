@@ -9,27 +9,34 @@ import com.intellij.execution.services.ServiceViewManager
 import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.application
+import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.generated.AspireHostModel
-import com.jetbrains.rider.aspire.generated.ResourceState
-import com.jetbrains.rider.aspire.generated.ResourceType
-import com.jetbrains.rider.aspire.generated.ResourceWrapper
-import com.jetbrains.rider.aspire.listeners.AspireSessionHostListener
-import com.jetbrains.rider.aspire.run.AspireHostConfig
+import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
+import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.sessionHost.*
+import com.jetbrains.rider.aspire.sessionHost.SessionManager.CreateSessionCommand
+import com.jetbrains.rider.aspire.sessionHost.SessionManager.DeleteSessionCommand
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProfile
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
 import com.jetbrains.rider.runtime.DotNetExecutable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -37,6 +44,7 @@ import kotlin.io.path.nameWithoutExtension
 
 class AspireHost(
     val hostProjectPath: Path,
+    private val scope: CoroutineScope,
     private val project: Project
 ) : ServiceViewProvidingContributor<AspireResource, AspireHost>, Disposable {
     companion object {
@@ -99,17 +107,6 @@ class AspireHost(
                 hostStopped()
             }
         })
-
-        project.messageBus.connect(this).subscribe(AspireSessionHostListener.TOPIC, object : AspireSessionHostListener {
-            override fun configCreated(
-                aspireHostProjectPath: Path,
-                config: AspireHostConfig
-            ) {
-                if (aspireHostProjectPath != hostProjectPath) return
-
-                addAspireHostUrl(config)
-            }
-        })
     }
 
     override fun asService() = this
@@ -140,9 +137,88 @@ class AspireHost(
         return null
     }
 
-    fun setAspireHostModel(model: AspireHostModel, lifetime: Lifetime) {
-        model.resources.view(lifetime) { resourceLifetime, resourceId, resourceModel ->
+    fun setAspireHostModel(model: AspireHostModel, aspireHostLifetime: Lifetime) {
+        LOG.trace(" Subscribing to Aspire host model")
+
+        setAspireHostUrl(model.config)
+
+        val sessionEvents = MutableSharedFlow<SessionEvent>(
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+            extraBufferCapacity = 100,
+            replay = 20
+        )
+
+        scope.launch(Dispatchers.EDT) {
+            model.createSession.setSuspend { _, request ->
+                createSession(request, sessionEvents, model.config, aspireHostLifetime)
+            }
+
+            model.deleteSession.setSuspend { _, request ->
+                deleteSession(request)
+            }
+
+            lifetimedCoroutineScope(aspireHostLifetime) {
+                sessionEvents.collect {
+                    handleSessionEvent(it, model)
+                }
+            }
+        }
+
+        model.resources.view(aspireHostLifetime) { resourceLifetime, resourceId, resourceModel ->
             viewResource(resourceId, resourceModel, resourceLifetime)
+        }
+    }
+
+    private suspend fun createSession(
+        createSessionRequest: CreateSessionRequest,
+        sessionEvents: MutableSharedFlow<SessionEvent>,
+        aspireHostConfig: AspireHostModelConfig,
+        aspireHostLifetime: Lifetime
+    ): CreateSessionResponse {
+        val sessionId = UUID.randomUUID().toString()
+
+        LOG.trace { "Creating session with id: $sessionId" }
+
+        val command = CreateSessionCommand(
+            sessionId,
+            createSessionRequest,
+            sessionEvents,
+            aspireHostConfig.isDebuggingMode,
+            aspireHostConfig.runConfigName,
+            aspireHostLifetime
+        )
+
+        SessionManager.getInstance(project).submitCommand(command)
+
+        return CreateSessionResponse(sessionId, null)
+    }
+
+    private suspend fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
+        LOG.trace { "Deleting session with id: ${deleteSessionRequest.sessionId}" }
+
+        val command = DeleteSessionCommand(deleteSessionRequest.sessionId)
+
+        SessionManager.getInstance(project).submitCommand(command)
+
+        return DeleteSessionResponse(deleteSessionRequest.sessionId, null)
+    }
+
+    private fun handleSessionEvent(sessionEvent: SessionEvent, model: AspireHostModel) {
+        when (sessionEvent) {
+            is SessionStarted -> {
+                LOG.trace { "Aspire session started (${sessionEvent.id}, ${sessionEvent.pid})" }
+                model.processStarted.fire(ProcessStarted(sessionEvent.id, sessionEvent.pid))
+            }
+
+            is SessionTerminated -> {
+                LOG.trace { "Aspire session terminated (${sessionEvent.id}, ${sessionEvent.exitCode})" }
+                model.processTerminated.fire(ProcessTerminated(sessionEvent.id, sessionEvent.exitCode))
+            }
+
+            is SessionLogReceived -> {
+                LOG.trace { "Aspire session log received (${sessionEvent.id}, ${sessionEvent.isStdErr}, ${sessionEvent.message})" }
+                model.logReceived.fire(LogReceived(sessionEvent.id, sessionEvent.isStdErr, sessionEvent.message))
+            }
         }
     }
 
@@ -167,7 +243,7 @@ class AspireHost(
         handler?.let { resource.setHandler(it) }
     }
 
-    private fun addAspireHostUrl(config: AspireHostConfig) {
+    private fun setAspireHostUrl(config: AspireHostModelConfig) {
         dashboardUrl = config.aspireHostProjectUrl
 
         sendServiceChangedEvent()

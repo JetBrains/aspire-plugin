@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.rider.aspire.sessionHost
 
 import com.intellij.execution.RunManager
@@ -9,29 +11,32 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.platform.util.coroutines.childScope
 import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.services.SessionHost
+import kotlinx.coroutines.CoroutineScope
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
-class SessionHostManager2(project: Project) : LifetimedService() {
+class SessionHostManager2(project: Project, scope: CoroutineScope) : LifetimedService() {
     companion object {
         fun getInstance(project: Project) = project.service<SessionHostManager2>()
 
         private val LOG = logger<SessionHostManager2>()
     }
 
-    val sessionHost: SessionHost = SessionHost(serviceLifetime, project)
+    val sessionHost: SessionHost = SessionHost(serviceLifetime, scope.childScope("Aspire Session Host"), project)
 
     init {
         Disposer.register(this, sessionHost)
     }
 
-    suspend fun startSessionHost() {
+    suspend fun getOrStartSessionHost(): SessionHost {
         LOG.trace("Starting session host")
         sessionHost.start()
+        return sessionHost
     }
 
     suspend fun stopSessionHost() {
@@ -45,7 +50,7 @@ class SessionHostManager2(project: Project) : LifetimedService() {
             if (configuration !is AspireHostConfiguration) return
 
             val params = configuration.parameters
-            getInstance(project).sessionHost.addAspireHost(Path(params.projectFilePath))
+            getInstance(project).sessionHost.addAspireHostProject(Path(params.projectFilePath))
         }
 
         override fun runConfigurationRemoved(settings: RunnerAndConfigurationSettings) {
@@ -60,7 +65,7 @@ class SessionHostManager2(project: Project) : LifetimedService() {
                 .filter { it is AspireHostConfiguration && it.parameters.projectFilePath == params.projectFilePath }
             if (configurations.isNotEmpty()) return
 
-            getInstance(project).sessionHost.removeAspireHost(Path(params.projectFilePath))
+            getInstance(project).sessionHost.removeAspireHostProject(Path(params.projectFilePath))
         }
     }
 }

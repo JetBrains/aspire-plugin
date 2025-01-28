@@ -6,54 +6,40 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
-import com.jetbrains.rd.framework.*
-import com.jetbrains.rd.protocol.IdeRootMarshallersProvider
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import com.jetbrains.rdclient.protocol.RdDispatcher
-import com.jetbrains.rider.aspire.generated.AspireHostModel
 import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
-import com.jetbrains.rider.aspire.generated.aspireSessionHostModel
-import com.jetbrains.rider.aspire.listeners.AspireSessionHostListener
-import com.jetbrains.rider.aspire.run.AspireHostConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostRunManager
 import com.jetbrains.rider.aspire.run.states.*
-import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.jetbrains.rider.aspire.sessionHost.SessionHostManager2
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 private val LOG = Logger.getInstance("#com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunnerUtils")
 
-fun createAspireHostConfig(
+fun setUpAspireHostModel(
     environment: ExecutionEnvironment,
     state: AspireHostProfileState,
-    aspireHostLifetime: Lifetime
-): AspireHostConfig {
+    aspireHostProcessHandlerLifetime: Lifetime,
+): AspireHostModelConfig {
     val aspireHostConfiguration =
         (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)
             ?: throw CantRunException("Requested configuration is not an AspireHostConfiguration")
 
     val isDebuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
 
-    val debugSessionToken = state.getDebugSessionToken()
-    val debugSessionPort = state.getDebugSessionPort()
-    val dcpInstancePrefix = state.getDcpInstancePrefix()
-    if (debugSessionToken == null || debugSessionPort == null || dcpInstancePrefix == null)
-        throw CantRunException("Run configuration environment variables are not configured properly")
-
+    val dcpInstancePrefix = requireNotNull(state.getDcpInstancePrefix())
     val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
     val resourceServiceApiKey = state.getResourceServiceApiKey()
 
     val parameters = aspireHostConfiguration.parameters
     val aspireHostProjectPath = Path(parameters.projectFilePath)
+
     val browserToken = state.getDashboardBrowserToken()
     val aspireHostProjectUrl = if (browserToken != null) {
         "${parameters.startBrowserParameters.url}/login?t=$browserToken"
@@ -61,25 +47,24 @@ fun createAspireHostConfig(
         parameters.startBrowserParameters.url
     }
 
-    val config =  AspireHostConfig(
-        aspireHostConfiguration.name,
+    val aspireHostConfig = AspireHostModelConfig(
         dcpInstancePrefix,
-        debugSessionToken,
-        debugSessionPort,
-        isDebuggingMode,
+        aspireHostConfiguration.name,
+        aspireHostProjectPath.absolutePathString(),
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
-        aspireHostLifetime,
-        aspireHostProjectPath,
-        aspireHostProjectUrl,
-        aspireHostConfiguration
+        isDebuggingMode,
+        aspireHostProjectUrl
     )
 
-    environment.project.messageBus
-        .syncPublisher(AspireSessionHostListener.TOPIC)
-        .configCreated(config.aspireHostProjectPath, config)
+    val sessionHost = SessionHostManager2.getInstance(environment.project).sessionHost
+    aspireHostProcessHandlerLifetime.bracketIfAlive({
+        sessionHost.addAspireHostModel(aspireHostConfig)
+    }, {
+        sessionHost.removeAspireHostModel(aspireHostConfig)
+    })
 
-    return config
+    return aspireHostConfig
 }
 
 fun saveRunConfiguration(
@@ -91,42 +76,6 @@ fun saveRunConfiguration(
     AspireHostRunManager
         .getInstance(project)
         .saveRunConfiguration(aspireHostProjectPath, aspireHostLifetimeDefinition, runConfigurationName)
-}
-
-suspend fun startSessionHostAndSubscribe(
-    config: AspireHostConfig,
-    project: Project
-) = withContext(Dispatchers.EDT) {
-    val protocol = startSessionHostProtocol(config.aspireHostLifetime)
-    val sessionHostModel = protocol.aspireSessionHostModel
-
-    val aspireHostConfig = AspireHostModelConfig(
-        config.id,
-        config.aspireHostProjectPath.absolutePathString(),
-        config.resourceServiceEndpointUrl,
-        config.resourceServiceApiKey
-    )
-    val aspireHostModel = AspireHostModel(aspireHostConfig)
-
-    sessionHostModel.aspireHosts.put(config.id, aspireHostModel)
-
-    SessionHostManager
-        .getInstance(project)
-        .startSessionHost(config, protocol.wire.serverPort, aspireHostModel)
-}
-
-private suspend fun startSessionHostProtocol(lifetime: Lifetime) = withContext(Dispatchers.EDT) {
-    val dispatcher = RdDispatcher(lifetime)
-    val wire = SocketWire.Server(lifetime, dispatcher, null)
-    val protocol = Protocol(
-        "AspireSessionHost::protocol",
-        Serializers(IdeRootMarshallersProvider),
-        Identities(IdKind.Server),
-        dispatcher,
-        wire,
-        lifetime
-    )
-    return@withContext protocol
 }
 
 fun connectExecutionHandlerAndLifetime(
