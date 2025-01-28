@@ -78,7 +78,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = 5457146888202243027L
+        const val serializationHash = 2570574298624288784L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -123,7 +123,7 @@ val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionH
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:193]
+ * #### Generated from [AspireSessionHostModel.kt:199]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -232,16 +232,22 @@ class AspireHostModel private constructor(
 
 /**
  * @property id Unique identifier for the Aspire Host, created from the `DCP_INSTANCE_ID_PREFIX` environment variable
+ * @property runConfigName Name of the started run configuration
  * @property aspireHostProjectPath Path of the Aspire Host .csproj file
  * @property resourceServiceEndpointUrl `DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable
  * @property resourceServiceApiKey `DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
+ * @property isDebuggingMode Is Aspire Host running with debugger attached
+ * @property aspireHostProjectUrl URL of the Aspire Host dashboard
  * #### Generated from [AspireSessionHostModel.kt:181]
  */
 data class AspireHostModelConfig (
     val id: String,
+    val runConfigName: String,
     val aspireHostProjectPath: String,
     val resourceServiceEndpointUrl: String?,
-    val resourceServiceApiKey: String?
+    val resourceServiceApiKey: String?,
+    val isDebuggingMode: Boolean,
+    val aspireHostProjectUrl: String
 ) : IPrintable {
     //companion
     
@@ -252,17 +258,23 @@ data class AspireHostModelConfig (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostModelConfig  {
             val id = buffer.readString()
+            val runConfigName = buffer.readString()
             val aspireHostProjectPath = buffer.readString()
             val resourceServiceEndpointUrl = buffer.readNullable { buffer.readString() }
             val resourceServiceApiKey = buffer.readNullable { buffer.readString() }
-            return AspireHostModelConfig(id, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey)
+            val isDebuggingMode = buffer.readBool()
+            val aspireHostProjectUrl = buffer.readString()
+            return AspireHostModelConfig(id, runConfigName, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, isDebuggingMode, aspireHostProjectUrl)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModelConfig)  {
             buffer.writeString(value.id)
+            buffer.writeString(value.runConfigName)
             buffer.writeString(value.aspireHostProjectPath)
             buffer.writeNullable(value.resourceServiceEndpointUrl) { buffer.writeString(it) }
             buffer.writeNullable(value.resourceServiceApiKey) { buffer.writeString(it) }
+            buffer.writeBool(value.isDebuggingMode)
+            buffer.writeString(value.aspireHostProjectUrl)
         }
         
         
@@ -279,9 +291,12 @@ data class AspireHostModelConfig (
         other as AspireHostModelConfig
         
         if (id != other.id) return false
+        if (runConfigName != other.runConfigName) return false
         if (aspireHostProjectPath != other.aspireHostProjectPath) return false
         if (resourceServiceEndpointUrl != other.resourceServiceEndpointUrl) return false
         if (resourceServiceApiKey != other.resourceServiceApiKey) return false
+        if (isDebuggingMode != other.isDebuggingMode) return false
+        if (aspireHostProjectUrl != other.aspireHostProjectUrl) return false
         
         return true
     }
@@ -289,9 +304,12 @@ data class AspireHostModelConfig (
     override fun hashCode(): Int  {
         var __r = 0
         __r = __r*31 + id.hashCode()
+        __r = __r*31 + runConfigName.hashCode()
         __r = __r*31 + aspireHostProjectPath.hashCode()
         __r = __r*31 + if (resourceServiceEndpointUrl != null) resourceServiceEndpointUrl.hashCode() else 0
         __r = __r*31 + if (resourceServiceApiKey != null) resourceServiceApiKey.hashCode() else 0
+        __r = __r*31 + isDebuggingMode.hashCode()
+        __r = __r*31 + aspireHostProjectUrl.hashCode()
         return __r
     }
     //pretty print
@@ -299,9 +317,12 @@ data class AspireHostModelConfig (
         printer.println("AspireHostModelConfig (")
         printer.indent {
             print("id = "); id.print(printer); println()
+            print("runConfigName = "); runConfigName.print(printer); println()
             print("aspireHostProjectPath = "); aspireHostProjectPath.print(printer); println()
             print("resourceServiceEndpointUrl = "); resourceServiceEndpointUrl.print(printer); println()
             print("resourceServiceApiKey = "); resourceServiceApiKey.print(printer); println()
+            print("isDebuggingMode = "); isDebuggingMode.print(printer); println()
+            print("aspireHostProjectUrl = "); aspireHostProjectUrl.print(printer); println()
         }
         printer.print(")")
     }

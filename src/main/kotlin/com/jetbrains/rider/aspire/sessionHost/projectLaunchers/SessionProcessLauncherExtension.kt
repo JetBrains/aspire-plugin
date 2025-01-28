@@ -5,7 +5,6 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
-import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 
 interface SessionProcessLauncherExtension {
     companion object {
@@ -22,7 +21,7 @@ interface SessionProcessLauncherExtension {
         sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireHostRunConfigName: String,
         project: Project
     )
 
@@ -31,7 +30,7 @@ interface SessionProcessLauncherExtension {
         sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireHostRunConfigName: String,
         project: Project
     )
 }

@@ -10,7 +10,6 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
-import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension
 
 @Service(Service.Level.PROJECT)
@@ -26,8 +25,8 @@ class SessionProcessLauncher(private val project: Project) {
         sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        debuggingMode: Boolean,
-        hostRunConfiguration: AspireHostConfiguration?,
+        isAspireHostUnderDebug: Boolean,
+        aspireHostRunConfigName: String,
     ) {
         LOG.info("Starting a session process for the project ${sessionModel.projectPath}")
 
@@ -36,13 +35,13 @@ class SessionProcessLauncher(private val project: Project) {
             return
         }
 
-        if (debuggingMode) {
+        if (isAspireHostUnderDebug) {
             launchDebugProcess(
                 sessionId,
                 sessionModel,
                 sessionProcessEventListener,
                 sessionProcessLifetime,
-                hostRunConfiguration
+                aspireHostRunConfigName
             )
         } else {
             launchRunProcess(
@@ -50,7 +49,7 @@ class SessionProcessLauncher(private val project: Project) {
                 sessionModel,
                 sessionProcessEventListener,
                 sessionProcessLifetime,
-                hostRunConfiguration
+                aspireHostRunConfigName
             )
         }
     }
@@ -60,7 +59,7 @@ class SessionProcessLauncher(private val project: Project) {
         sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        hostRunConfiguration: AspireHostConfiguration?
+        aspireHostRunConfigName: String
     ) {
         val processLauncher = getSessionProcessLauncher(sessionModel.projectPath)
         if (processLauncher == null) {
@@ -73,7 +72,7 @@ class SessionProcessLauncher(private val project: Project) {
             sessionModel,
             sessionProcessEventListener,
             sessionProcessLifetime,
-            hostRunConfiguration,
+            aspireHostRunConfigName,
             project,
         )
     }
@@ -83,7 +82,7 @@ class SessionProcessLauncher(private val project: Project) {
         sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        hostRunConfiguration: AspireHostConfiguration?
+        aspireHostRunConfigName: String
     ) {
         val processLauncher = getSessionProcessLauncher(sessionModel.projectPath)
         if (processLauncher == null) {
@@ -96,7 +95,7 @@ class SessionProcessLauncher(private val project: Project) {
             sessionModel,
             sessionProcessEventListener,
             sessionProcessLifetime,
-            hostRunConfiguration,
+            aspireHostRunConfigName,
             project,
         )
     }

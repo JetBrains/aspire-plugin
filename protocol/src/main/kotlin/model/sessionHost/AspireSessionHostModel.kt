@@ -182,12 +182,18 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("id", string)
             .documentation =
             "Unique identifier for the Aspire Host, created from the `DCP_INSTANCE_ID_PREFIX` environment variable"
+        field("runConfigName", string)
+            .documentation = "Name of the started run configuration"
         field("aspireHostProjectPath", string)
             .documentation = "Path of the Aspire Host .csproj file"
         field("resourceServiceEndpointUrl", string.nullable)
             .documentation = "`DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable"
         field("resourceServiceApiKey", string.nullable)
             .documentation = "`DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable"
+        field("isDebuggingMode", bool)
+            .documentation = "Is Aspire Host running with debugger attached"
+        field("aspireHostProjectUrl", string)
+            .documentation = "URL of the Aspire Host dashboard"
     }
 
     private val AspireHostModel = classdef {

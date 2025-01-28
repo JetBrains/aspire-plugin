@@ -11,6 +11,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.launchProfiles.*
 import com.jetbrains.rider.aspire.run.states.AspireHostDebugProfileState
 import com.jetbrains.rider.aspire.run.states.AspireHostRunProfileState
+import com.jetbrains.rider.aspire.sessionHost.SessionHostManager2
 import com.jetbrains.rider.aspire.util.*
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
@@ -130,11 +131,13 @@ class AspireHostExecutorFactory(
         )
     }
 
-    private fun configureEnvironmentVariables(envs: MutableMap<String, String>): EnvironmentVariableValues {
+    private suspend fun configureEnvironmentVariables(envs: MutableMap<String, String>): EnvironmentVariableValues {
+        val sessionHost = SessionHostManager2.getInstance(project).getOrStartSessionHost()
+
         //Switch DCP to the IDE mode
         //see: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#enabling-ide-execution
-        val debugSessionToken = UUID.randomUUID().toString()
-        val debugSessionPort = NetUtils.findFreePort(47100)
+        val debugSessionToken = requireNotNull(sessionHost.debugSessionToken)
+        val debugSessionPort = requireNotNull(sessionHost.debugSessionPort)
         val dcpInstancePrefix = generateDcpInstancePrefix()
         envs[DEBUG_SESSION_TOKEN] = debugSessionToken
         envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
