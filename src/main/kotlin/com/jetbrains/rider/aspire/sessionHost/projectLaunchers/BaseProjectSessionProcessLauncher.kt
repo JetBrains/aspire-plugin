@@ -51,7 +51,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        aspireHostRunConfigName: String,
+        aspireHostRunConfigName: String?,
         project: Project
     ) {
         LOG.trace { "Starting run session for ${sessionModel.projectPath}" }
@@ -114,7 +114,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        aspireHostRunConfigName: String,
+        aspireHostRunConfigName: String?,
         project: Project
     ) {
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
@@ -169,7 +169,9 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         aspireHostProjectPath: Path?
     ): RunProfile
 
-    private fun getAspireHostRunConfiguration(name: String, project: Project): AspireHostConfiguration? {
+    private fun getAspireHostRunConfiguration(name: String?, project: Project): AspireHostConfiguration? {
+        if (name == null) return null
+
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
         val runConfiguration = RunManager.getInstance(project)
             .getConfigurationsList(configurationType)

@@ -180,7 +180,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val createSessionRequest: CreateSessionRequest,
         val sessionEvents: MutableSharedFlow<SessionEvent>,
         val isAspireHostUnderDebug: Boolean,
-        val aspireHostRunConfigName: String,
+        val aspireHostRunConfigName: String?,
         val aspireHostLifetime: Lifetime
     ) : LaunchSessionCommand
 

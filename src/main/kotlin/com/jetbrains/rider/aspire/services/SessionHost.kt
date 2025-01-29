@@ -195,17 +195,19 @@ class SessionHost(
             return
         }
 
+        LOG.trace { "Adding Aspire host model $config" }
         val aspireHostModel = AspireHostModel(config)
         requireNotNull(model).aspireHosts.put(config.id, aspireHostModel)
     }
 
-    fun removeAspireHostModel(config: AspireHostModelConfig) {
+    fun removeAspireHostModel(aspireHostId: String) {
         if (!isActive) {
             LOG.warn("Unable to remove Aspire host model because Session host isn't active")
             return
         }
 
-        requireNotNull(model).aspireHosts.remove(config.id)
+        LOG.trace { "Removing Aspire host model with id $aspireHostId" }
+        requireNotNull(model).aspireHosts.remove(aspireHostId)
     }
 
     override fun dispose() {
