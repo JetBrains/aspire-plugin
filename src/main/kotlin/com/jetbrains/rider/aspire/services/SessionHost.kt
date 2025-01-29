@@ -3,6 +3,7 @@
 package com.jetbrains.rider.aspire.services
 
 import com.intellij.execution.services.ServiceEventListener
+import com.intellij.execution.services.ServiceViewManager
 import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
@@ -11,6 +12,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
+import com.intellij.util.application
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.protocol.IdeRootMarshallersProvider
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -166,12 +168,9 @@ class SessionHost(
 
         aspireHosts[aspireHostProjectPath] = aspireHost
 
-        val event = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.RESET,
-            aspireHost,
-            AspireMainServiceViewContributor::class.java
-        )
-        serviceEventPublisher.handle(event)
+        sendServiceAddedEvent(aspireHost)
+
+        expand()
     }
 
     fun removeAspireHostProject(aspireHostProjectPath: Path) {
@@ -179,17 +178,12 @@ class SessionHost(
 
         val aspireHost = aspireHosts.remove(aspireHostProjectPath) ?: return
 
-        val event = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_REMOVED,
-            aspireHost,
-            AspireMainServiceViewContributor::class.java
-        )
-        serviceEventPublisher.handle(event)
+        sendServiceRemovedEvent(aspireHost)
 
         Disposer.dispose(aspireHost)
     }
 
-    fun addAspireHostModel(config: AspireHostModelConfig) {
+    fun startAspireHostModel(config: AspireHostModelConfig) {
         if (!isActive) {
             LOG.warn("Unable to add Aspire host model because Session host isn't active")
             return
@@ -200,7 +194,7 @@ class SessionHost(
         requireNotNull(model).aspireHosts.put(config.id, aspireHostModel)
     }
 
-    fun removeAspireHostModel(aspireHostId: String) {
+    fun stopAspireHostModel(aspireHostId: String) {
         if (!isActive) {
             LOG.warn("Unable to remove Aspire host model because Session host isn't active")
             return
@@ -208,6 +202,32 @@ class SessionHost(
 
         LOG.trace { "Removing Aspire host model with id $aspireHostId" }
         requireNotNull(model).aspireHosts.remove(aspireHostId)
+    }
+
+    private fun expand() {
+        application.invokeLater {
+            ServiceViewManager
+                .getInstance(project)
+                .expand(this, AspireMainServiceViewContributor::class.java)
+        }
+    }
+
+    private fun sendServiceAddedEvent(aspireHost: AspireHost) {
+        val event = ServiceEventListener.ServiceEvent.createServiceAddedEvent(
+            aspireHost,
+            AspireMainServiceViewContributor::class.java,
+            this
+        )
+        serviceEventPublisher.handle(event)
+    }
+
+    private fun sendServiceRemovedEvent(aspireHost: AspireHost) {
+        val event = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_REMOVED,
+            aspireHost,
+            AspireMainServiceViewContributor::class.java
+        )
+        serviceEventPublisher.handle(event)
     }
 
     override fun dispose() {

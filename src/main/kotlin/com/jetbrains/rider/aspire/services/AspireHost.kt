@@ -88,7 +88,7 @@ class AspireHost(
                     val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
                     if (hostProjectPath != aspireHostProjectPath) return
 
-                    setHandlerForHost(profile.dotnetExecutable, handler)
+                    setHandlerForResource(profile.dotnetExecutable, handler)
                 }
             }
 
@@ -119,7 +119,7 @@ class AspireHost(
                 continue
             add(resource.value)
         }
-    }.sortedBy { it.type }
+    }.sortedWith(compareBy({ it.type }, { it.name }))
 
     override fun getServiceDescriptor(
         project: Project,
@@ -233,6 +233,14 @@ class AspireHost(
         Disposer.register(this, resource)
         resources.addUnique(resourceLifetime, resourceId, resource)
 
+        if (resource.type != ResourceType.Unknown && resource.state != ResourceState.Hidden) {
+            resourceLifetime.bracketIfAlive({
+                sendServiceAddedEvent(resource)
+            }, {
+                sendServiceRemovedEvent(resource)
+            })
+        }
+
         resourceModel.isInitialized.set(true)
 
         expand()
@@ -279,7 +287,7 @@ class AspireHost(
         sendServiceChangedEvent()
     }
 
-    private fun setHandlerForHost(dotnetExecutable: DotNetExecutable, processHandler: ProcessHandler) {
+    private fun setHandlerForResource(dotnetExecutable: DotNetExecutable, processHandler: ProcessHandler) {
         val serviceInstanceId = dotnetExecutable.getServiceInstanceId() ?: return
         val resource = synchronized(lock) {
             val resource = resources.entries.firstOrNull { it.value.serviceInstanceId == serviceInstanceId }?.value
@@ -313,6 +321,24 @@ class AspireHost(
         val event = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_CHANGED,
             this,
+            AspireMainServiceViewContributor::class.java
+        )
+        serviceEventPublisher.handle(event)
+    }
+
+    private fun sendServiceAddedEvent(aspireResource: AspireResource) {
+        val event = ServiceEventListener.ServiceEvent.createServiceAddedEvent(
+            aspireResource,
+            AspireMainServiceViewContributor::class.java,
+            this
+        )
+        serviceEventPublisher.handle(event)
+    }
+
+    private fun sendServiceRemovedEvent(aspireResource: AspireResource) {
+        val event = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_REMOVED,
+            aspireResource,
             AspireMainServiceViewContributor::class.java
         )
         serviceEventPublisher.handle(event)

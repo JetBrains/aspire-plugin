@@ -103,6 +103,8 @@ class AspireResource(
 
     private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
 
+    private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
+
     init {
         val model = modelWrapper.model.valueOrNull
 
@@ -133,12 +135,6 @@ class AspireResource(
         Disposer.register(this, logConsole)
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(this)
-
-        lifetime.bracketIfAlive({
-            sendServiceStructureChangedEvent()
-        }, {
-            sendServiceStructureChangedEvent()
-        })
     }
 
     private fun fillDates(model: ResourceModel?) {
@@ -234,7 +230,7 @@ class AspireResource(
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
-        sendServiceChildrenChangedEvent()
+        sendServiceChangedEvent()
     }
 
     fun setHandler(processHandler: ProcessHandler) {
@@ -242,7 +238,7 @@ class AspireResource(
 
         isUnderDebugger = processHandler is DebuggerWorkerProcessHandler
 
-        sendServiceChildrenChangedEvent()
+        sendServiceChangedEvent()
     }
 
     suspend fun executeCommand(commandType: String) = withContext(Dispatchers.EDT) {
@@ -264,22 +260,13 @@ class AspireResource(
         logProcessHandler.notifyTextAvailable(logContent + "\r\n", outputType)
     }
 
-    private fun sendServiceStructureChangedEvent() {
-        val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_STRUCTURE_CHANGED,
+    private fun sendServiceChangedEvent() {
+        val event = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_CHANGED,
             this,
             AspireMainServiceViewContributor::class.java
         )
-        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
-    }
-
-    private fun sendServiceChildrenChangedEvent() {
-        val serviceEvent = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
-            this,
-            AspireMainServiceViewContributor::class.java
-        )
-        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(serviceEvent)
+        serviceEventPublisher.handle(event)
     }
 
     fun getViewDescriptor() = descriptor
