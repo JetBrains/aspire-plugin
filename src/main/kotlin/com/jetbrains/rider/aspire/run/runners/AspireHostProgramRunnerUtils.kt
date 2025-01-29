@@ -6,6 +6,7 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
@@ -16,13 +17,15 @@ import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostRunManager
 import com.jetbrains.rider.aspire.run.states.*
 import com.jetbrains.rider.aspire.sessionHost.SessionHostManager2
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 private val LOG = Logger.getInstance("#com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunnerUtils")
 
-fun setUpAspireHostModel(
+suspend fun setUpAspireHostModel(
     environment: ExecutionEnvironment,
     state: AspireHostProfileState,
     aspireHostProcessHandlerLifetime: Lifetime,
@@ -58,11 +61,16 @@ fun setUpAspireHostModel(
     )
 
     val sessionHost = SessionHostManager2.getInstance(environment.project).sessionHost
-    aspireHostProcessHandlerLifetime.bracketIfAlive({
+
+    aspireHostProcessHandlerLifetime.onTermination {
+        application.invokeLater {
+            sessionHost.stopAspireHostModel(aspireHostConfig.id)
+        }
+    }
+
+    withContext(Dispatchers.EDT) {
         sessionHost.startAspireHostModel(aspireHostConfig)
-    }, {
-        sessionHost.stopAspireHostModel(aspireHostConfig.id)
-    })
+    }
 
     return aspireHostConfig
 }

@@ -2,10 +2,12 @@
 
 package com.jetbrains.rider.aspire.unitTests
 
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import com.intellij.util.application
 import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -15,10 +17,11 @@ import com.jetbrains.rider.aspire.sessionHost.SessionHostManager2
 import com.jetbrains.rider.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_PORT
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_TOKEN
+import com.jetbrains.rider.aspire.util.generateDcpInstancePrefix
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -52,7 +55,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                 val debugSessionToken = requireNotNull(sessionHost.debugSessionToken)
                 val debugSessionPort = requireNotNull(sessionHost.debugSessionPort)
                 val debugSessionUrl = "localhost:$debugSessionPort"
-                val dcpInstancePrefix = UUID.randomUUID().toString()
+                val dcpInstancePrefix = generateDcpInstancePrefix()
                 val aspireHostProjectPath = Path(request.aspireHostProjectPath)
 
                 val aspireHostConfig = AspireHostModelConfig(
@@ -89,7 +92,9 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                     aspireUnitTestHosts.putIfAbsent(request.unitTestRunId, aspireUnitTestServiceHost)
 
                 if (currentAspireHost == null) {
-                    sessionHost.startAspireHostModel(aspireHostConfig)
+                    withContext(Dispatchers.EDT) {
+                        sessionHost.startAspireHostModel(aspireHostConfig)
+                    }
                     val response = StartSessionHostResponse(environmentVariables.toTypedArray())
                     rdTask.set(response)
                 } else {
@@ -107,10 +112,10 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
             rdTask.set(Unit)
             return
         }
-        SessionHostManager2
-            .getInstance(project)
-            .sessionHost
-            .stopAspireHostModel(aspireHost.aspireHostId)
+        val sessionHost = SessionHostManager2.getInstance(project).sessionHost
+        application.invokeLater {
+            sessionHost.stopAspireHostModel(aspireHost.aspireHostId)
+        }
         rdTask.set(Unit)
     }
 
@@ -120,10 +125,10 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
             LOG.info("Unable to find Aspire host for unitTestRunId $unitTestRunId")
             return
         }
-        SessionHostManager2
-            .getInstance(project)
-            .sessionHost
-            .stopAspireHostModel(aspireHost.aspireHostId)
+        val sessionHost = SessionHostManager2.getInstance(project).sessionHost
+        application.invokeLater {
+            sessionHost.stopAspireHostModel(aspireHost.aspireHostId)
+        }
     }
 
     private data class AspireHostForUnitTestRun(

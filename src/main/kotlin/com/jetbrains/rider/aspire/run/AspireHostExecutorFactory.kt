@@ -188,13 +188,6 @@ class AspireHostExecutorFactory(
         return EnvironmentVariableValues(browserToken)
     }
 
-    fun generateDcpInstancePrefix(): String {
-        val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
-        return (1..5)
-            .map { allowedChars.random() }
-            .joinToString("")
-    }
-
     private fun configureUrl(urlValue: String, browserToken: String): String {
         val url = URI(urlValue)
         val updatedUrl = URI(
