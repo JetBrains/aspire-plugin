@@ -48,7 +48,7 @@ class SessionHostLauncher {
         val commandLine = getCommandLine(dotnetCliPath, config)
         LOG.trace { "Host command line: ${commandLine.commandLineString}" }
 
-        val processHandler = KillableColoredProcessHandler(commandLine)
+        val processHandler = KillableColoredProcessHandler.Silent(commandLine)
         lifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
                 LOG.info("Aspire session host lifetime was terminated; killing the process")

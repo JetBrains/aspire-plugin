@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.application
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.protocol.IdeRootMarshallersProvider
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -122,13 +123,16 @@ class SessionHost(
         return@withContext protocol
     }
 
-    private fun subscribeToModel(
+    private suspend fun subscribeToModel(
         sessionHostModel: AspireSessionHostModel,
         lifetime: Lifetime
     ) {
         LOG.trace("Subscribing to Session host model")
-        sessionHostModel.aspireHosts.view(lifetime) { hostLifetime, hostId, hostModel ->
-            viewAspireHost(hostModel, hostLifetime)
+
+        withContext(Dispatchers.EDT) {
+            sessionHostModel.aspireHosts.view(lifetime) { hostLifetime, hostId, hostModel ->
+                viewAspireHost(hostModel, hostLifetime)
+            }
         }
     }
 
@@ -183,6 +187,7 @@ class SessionHost(
         Disposer.dispose(aspireHost)
     }
 
+    @RequiresEdt
     fun startAspireHostModel(config: AspireHostModelConfig) {
         if (!isActive) {
             LOG.warn("Unable to add Aspire host model because Session host isn't active")
@@ -194,6 +199,7 @@ class SessionHost(
         requireNotNull(model).aspireHosts.put(config.id, aspireHostModel)
     }
 
+    @RequiresEdt
     fun stopAspireHostModel(aspireHostId: String) {
         if (!isActive) {
             LOG.warn("Unable to remove Aspire host model because Session host isn't active")
