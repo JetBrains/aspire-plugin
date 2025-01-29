@@ -89,7 +89,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                     aspireUnitTestHosts.putIfAbsent(request.unitTestRunId, aspireUnitTestServiceHost)
 
                 if (currentAspireHost == null) {
-                    sessionHost.addAspireHostModel(aspireHostConfig)
+                    sessionHost.startAspireHostModel(aspireHostConfig)
                     val response = StartSessionHostResponse(environmentVariables.toTypedArray())
                     rdTask.set(response)
                 } else {
@@ -110,7 +110,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
         SessionHostManager2
             .getInstance(project)
             .sessionHost
-            .removeAspireHostModel(aspireHost.aspireHostId)
+            .stopAspireHostModel(aspireHost.aspireHostId)
         rdTask.set(Unit)
     }
 
@@ -123,7 +123,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
         SessionHostManager2
             .getInstance(project)
             .sessionHost
-            .removeAspireHostModel(aspireHost.aspireHostId)
+            .stopAspireHostModel(aspireHost.aspireHostId)
     }
 
     private data class AspireHostForUnitTestRun(

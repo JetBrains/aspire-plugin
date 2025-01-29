@@ -59,9 +59,9 @@ fun setUpAspireHostModel(
 
     val sessionHost = SessionHostManager2.getInstance(environment.project).sessionHost
     aspireHostProcessHandlerLifetime.bracketIfAlive({
-        sessionHost.addAspireHostModel(aspireHostConfig)
+        sessionHost.startAspireHostModel(aspireHostConfig)
     }, {
-        sessionHost.removeAspireHostModel(aspireHostConfig.id)
+        sessionHost.stopAspireHostModel(aspireHostConfig.id)
     })
 
     return aspireHostConfig
