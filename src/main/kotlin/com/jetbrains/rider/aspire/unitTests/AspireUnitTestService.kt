@@ -13,7 +13,7 @@ import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import com.jetbrains.rider.aspire.generated.*
-import com.jetbrains.rider.aspire.sessionHost.SessionHostManager2
+import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
 import com.jetbrains.rider.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_PORT
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_TOKEN
@@ -50,7 +50,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
         scope.launch(Dispatchers.Default) {
             lifetimedCoroutineScope(lifetime) {
                 LOG.trace("Starting a session host for a unit test session")
-                val sessionHost = SessionHostManager2.getInstance(project).getOrStartSessionHost()
+                val sessionHost = SessionHostManager.getInstance(project).getOrStartSessionHost()
 
                 val debugSessionToken = requireNotNull(sessionHost.debugSessionToken)
                 val debugSessionPort = requireNotNull(sessionHost.debugSessionPort)
@@ -112,7 +112,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
             rdTask.set(Unit)
             return
         }
-        val sessionHost = SessionHostManager2.getInstance(project).sessionHost
+        val sessionHost = SessionHostManager.getInstance(project).sessionHost
         application.invokeLater {
             sessionHost.stopAspireHostModel(aspireHost.aspireHostId)
         }
@@ -125,7 +125,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
             LOG.info("Unable to find Aspire host for unitTestRunId $unitTestRunId")
             return
         }
-        val sessionHost = SessionHostManager2.getInstance(project).sessionHost
+        val sessionHost = SessionHostManager.getInstance(project).sessionHost
         application.invokeLater {
             sessionHost.stopAspireHostModel(aspireHost.aspireHostId)
         }

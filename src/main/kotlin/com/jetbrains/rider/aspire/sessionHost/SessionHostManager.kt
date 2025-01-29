@@ -20,11 +20,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
-class SessionHostManager2(project: Project, scope: CoroutineScope) : LifetimedService() {
+class SessionHostManager(project: Project, scope: CoroutineScope) : LifetimedService() {
     companion object {
-        fun getInstance(project: Project) = project.service<SessionHostManager2>()
+        fun getInstance(project: Project) = project.service<SessionHostManager>()
 
-        private val LOG = logger<SessionHostManager2>()
+        private val LOG = logger<SessionHostManager>()
     }
 
     val sessionHost: SessionHost = SessionHost(serviceLifetime, scope.childScope("Aspire Session Host"), project)
