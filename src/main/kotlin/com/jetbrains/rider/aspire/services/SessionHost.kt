@@ -50,7 +50,7 @@ class SessionHost(
 
     private var model: AspireSessionHostModel? = null
 
-    private val descriptor by lazy { SessionHostServiceViewDescriptor(this) }
+    private val descriptor by lazy { SessionHostServiceViewDescriptor() }
 
     private val aspireHosts = ConcurrentHashMap<Path, AspireHost>()
 
