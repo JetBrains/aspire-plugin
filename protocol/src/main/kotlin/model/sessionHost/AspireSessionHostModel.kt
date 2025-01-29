@@ -182,7 +182,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("id", string)
             .documentation =
             "Unique identifier for the Aspire Host, created from the `DCP_INSTANCE_ID_PREFIX` environment variable"
-        field("runConfigName", string)
+        field("runConfigName", string.nullable)
             .documentation = "Name of the started run configuration"
         field("aspireHostProjectPath", string)
             .documentation = "Path of the Aspire Host .csproj file"
@@ -192,7 +192,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
             .documentation = "`DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable"
         field("isDebuggingMode", bool)
             .documentation = "Is Aspire Host running with debugger attached"
-        field("aspireHostProjectUrl", string)
+        field("aspireHostProjectUrl", string.nullable)
             .documentation = "URL of the Aspire Host dashboard"
     }
 

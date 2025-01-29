@@ -78,7 +78,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = 2570574298624288784L
+        const val serializationHash = -600542046374291568L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -242,12 +242,12 @@ class AspireHostModel private constructor(
  */
 data class AspireHostModelConfig (
     val id: String,
-    val runConfigName: String,
+    val runConfigName: String?,
     val aspireHostProjectPath: String,
     val resourceServiceEndpointUrl: String?,
     val resourceServiceApiKey: String?,
     val isDebuggingMode: Boolean,
-    val aspireHostProjectUrl: String
+    val aspireHostProjectUrl: String?
 ) : IPrintable {
     //companion
     
@@ -258,23 +258,23 @@ data class AspireHostModelConfig (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostModelConfig  {
             val id = buffer.readString()
-            val runConfigName = buffer.readString()
+            val runConfigName = buffer.readNullable { buffer.readString() }
             val aspireHostProjectPath = buffer.readString()
             val resourceServiceEndpointUrl = buffer.readNullable { buffer.readString() }
             val resourceServiceApiKey = buffer.readNullable { buffer.readString() }
             val isDebuggingMode = buffer.readBool()
-            val aspireHostProjectUrl = buffer.readString()
+            val aspireHostProjectUrl = buffer.readNullable { buffer.readString() }
             return AspireHostModelConfig(id, runConfigName, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, isDebuggingMode, aspireHostProjectUrl)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModelConfig)  {
             buffer.writeString(value.id)
-            buffer.writeString(value.runConfigName)
+            buffer.writeNullable(value.runConfigName) { buffer.writeString(it) }
             buffer.writeString(value.aspireHostProjectPath)
             buffer.writeNullable(value.resourceServiceEndpointUrl) { buffer.writeString(it) }
             buffer.writeNullable(value.resourceServiceApiKey) { buffer.writeString(it) }
             buffer.writeBool(value.isDebuggingMode)
-            buffer.writeString(value.aspireHostProjectUrl)
+            buffer.writeNullable(value.aspireHostProjectUrl) { buffer.writeString(it) }
         }
         
         
@@ -304,12 +304,12 @@ data class AspireHostModelConfig (
     override fun hashCode(): Int  {
         var __r = 0
         __r = __r*31 + id.hashCode()
-        __r = __r*31 + runConfigName.hashCode()
+        __r = __r*31 + if (runConfigName != null) runConfigName.hashCode() else 0
         __r = __r*31 + aspireHostProjectPath.hashCode()
         __r = __r*31 + if (resourceServiceEndpointUrl != null) resourceServiceEndpointUrl.hashCode() else 0
         __r = __r*31 + if (resourceServiceApiKey != null) resourceServiceApiKey.hashCode() else 0
         __r = __r*31 + isDebuggingMode.hashCode()
-        __r = __r*31 + aspireHostProjectUrl.hashCode()
+        __r = __r*31 + if (aspireHostProjectUrl != null) aspireHostProjectUrl.hashCode() else 0
         return __r
     }
     //pretty print

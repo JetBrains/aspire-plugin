@@ -55,12 +55,14 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
         val aspireHostConfig = setUpAspireHostModel(environment, state, aspireHostProcessHandlerLifetime)
         LOG.trace { "Aspire session host config: $aspireHostConfig" }
 
-        saveRunConfiguration(
-            environment.project,
-            Path(aspireHostConfig.aspireHostProjectPath),
-            aspireHostConfig.runConfigName,
-            aspireHostProcessHandlerLifetime
-        )
+        if (aspireHostConfig.runConfigName != null) {
+            saveRunConfiguration(
+                environment.project,
+                Path(aspireHostConfig.aspireHostProjectPath),
+                aspireHostConfig.runConfigName,
+                aspireHostProcessHandlerLifetime
+            )
+        }
 
         val executionResult = state.execute(environment.executor, this, workerProcessHandler, sessionLifetime)
 

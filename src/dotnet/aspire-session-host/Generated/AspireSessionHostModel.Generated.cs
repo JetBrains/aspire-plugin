@@ -67,7 +67,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     
     
-    protected override long SerializationHash => 2570574298624288784L;
+    protected override long SerializationHash => -600542046374291568L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -251,7 +251,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     /// <summary>
     /// Name of the started run configuration
     /// </summary>
-    [NotNull] public string RunConfigName {get; private set;}
+    [CanBeNull] public string RunConfigName {get; private set;}
     
     /// <summary>
     /// Path of the Aspire Host .csproj file
@@ -276,24 +276,22 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     /// <summary>
     /// URL of the Aspire Host dashboard
     /// </summary>
-    [NotNull] public string AspireHostProjectUrl {get; private set;}
+    [CanBeNull] public string AspireHostProjectUrl {get; private set;}
     
     //private fields
     //primary constructor
     public AspireHostModelConfig(
       [NotNull] string id,
-      [NotNull] string runConfigName,
+      [CanBeNull] string runConfigName,
       [NotNull] string aspireHostProjectPath,
       [CanBeNull] string resourceServiceEndpointUrl,
       [CanBeNull] string resourceServiceApiKey,
       bool isDebuggingMode,
-      [NotNull] string aspireHostProjectUrl
+      [CanBeNull] string aspireHostProjectUrl
     )
     {
       if (id == null) throw new ArgumentNullException("id");
-      if (runConfigName == null) throw new ArgumentNullException("runConfigName");
       if (aspireHostProjectPath == null) throw new ArgumentNullException("aspireHostProjectPath");
-      if (aspireHostProjectUrl == null) throw new ArgumentNullException("aspireHostProjectUrl");
       
       Id = id;
       RunConfigName = runConfigName;
@@ -305,7 +303,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string id, [NotNull] out string runConfigName, [NotNull] out string aspireHostProjectPath, [CanBeNull] out string resourceServiceEndpointUrl, [CanBeNull] out string resourceServiceApiKey, out bool isDebuggingMode, [NotNull] out string aspireHostProjectUrl)
+    public void Deconstruct([NotNull] out string id, [CanBeNull] out string runConfigName, [NotNull] out string aspireHostProjectPath, [CanBeNull] out string resourceServiceEndpointUrl, [CanBeNull] out string resourceServiceApiKey, out bool isDebuggingMode, [CanBeNull] out string aspireHostProjectUrl)
     {
       id = Id;
       runConfigName = RunConfigName;
@@ -320,12 +318,12 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     public static CtxReadDelegate<AspireHostModelConfig> Read = (ctx, reader) => 
     {
       var id = reader.ReadString();
-      var runConfigName = reader.ReadString();
+      var runConfigName = ReadStringNullable(ctx, reader);
       var aspireHostProjectPath = reader.ReadString();
       var resourceServiceEndpointUrl = ReadStringNullable(ctx, reader);
       var resourceServiceApiKey = ReadStringNullable(ctx, reader);
       var isDebuggingMode = reader.ReadBool();
-      var aspireHostProjectUrl = reader.ReadString();
+      var aspireHostProjectUrl = ReadStringNullable(ctx, reader);
       var _result = new AspireHostModelConfig(id, runConfigName, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, isDebuggingMode, aspireHostProjectUrl);
       return _result;
     };
@@ -334,12 +332,12 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     public static CtxWriteDelegate<AspireHostModelConfig> Write = (ctx, writer, value) => 
     {
       writer.Write(value.Id);
-      writer.Write(value.RunConfigName);
+      WriteStringNullable(ctx, writer, value.RunConfigName);
       writer.Write(value.AspireHostProjectPath);
       WriteStringNullable(ctx, writer, value.ResourceServiceEndpointUrl);
       WriteStringNullable(ctx, writer, value.ResourceServiceApiKey);
       writer.Write(value.IsDebuggingMode);
-      writer.Write(value.AspireHostProjectUrl);
+      WriteStringNullable(ctx, writer, value.AspireHostProjectUrl);
     };
     public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
     
@@ -359,7 +357,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Id == other.Id && RunConfigName == other.RunConfigName && AspireHostProjectPath == other.AspireHostProjectPath && Equals(ResourceServiceEndpointUrl, other.ResourceServiceEndpointUrl) && Equals(ResourceServiceApiKey, other.ResourceServiceApiKey) && IsDebuggingMode == other.IsDebuggingMode && AspireHostProjectUrl == other.AspireHostProjectUrl;
+      return Id == other.Id && Equals(RunConfigName, other.RunConfigName) && AspireHostProjectPath == other.AspireHostProjectPath && Equals(ResourceServiceEndpointUrl, other.ResourceServiceEndpointUrl) && Equals(ResourceServiceApiKey, other.ResourceServiceApiKey) && IsDebuggingMode == other.IsDebuggingMode && Equals(AspireHostProjectUrl, other.AspireHostProjectUrl);
     }
     //hash code trait
     public override int GetHashCode()
@@ -367,12 +365,12 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       unchecked {
         var hash = 0;
         hash = hash * 31 + Id.GetHashCode();
-        hash = hash * 31 + RunConfigName.GetHashCode();
+        hash = hash * 31 + (RunConfigName != null ? RunConfigName.GetHashCode() : 0);
         hash = hash * 31 + AspireHostProjectPath.GetHashCode();
         hash = hash * 31 + (ResourceServiceEndpointUrl != null ? ResourceServiceEndpointUrl.GetHashCode() : 0);
         hash = hash * 31 + (ResourceServiceApiKey != null ? ResourceServiceApiKey.GetHashCode() : 0);
         hash = hash * 31 + IsDebuggingMode.GetHashCode();
-        hash = hash * 31 + AspireHostProjectUrl.GetHashCode();
+        hash = hash * 31 + (AspireHostProjectUrl != null ? AspireHostProjectUrl.GetHashCode() : 0);
         return hash;
       }
     }

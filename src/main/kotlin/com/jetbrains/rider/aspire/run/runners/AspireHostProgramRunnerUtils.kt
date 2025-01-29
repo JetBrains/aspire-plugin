@@ -61,7 +61,7 @@ fun setUpAspireHostModel(
     aspireHostProcessHandlerLifetime.bracketIfAlive({
         sessionHost.addAspireHostModel(aspireHostConfig)
     }, {
-        sessionHost.removeAspireHostModel(aspireHostConfig)
+        sessionHost.removeAspireHostModel(aspireHostConfig.id)
     })
 
     return aspireHostConfig
