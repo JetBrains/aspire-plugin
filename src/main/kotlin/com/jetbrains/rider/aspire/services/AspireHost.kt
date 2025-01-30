@@ -235,7 +235,7 @@ class AspireHost(
 
         if (resource.type != ResourceType.Unknown && resource.state != ResourceState.Hidden) {
             resourceLifetime.bracketIfAlive({
-                sendServiceAddedEvent(resource)
+                sendServiceChildrenChangedEvent()
             }, {
                 sendServiceRemovedEvent(resource)
             })
@@ -326,11 +326,11 @@ class AspireHost(
         serviceEventPublisher.handle(event)
     }
 
-    private fun sendServiceAddedEvent(aspireResource: AspireResource) {
-        val event = ServiceEventListener.ServiceEvent.createServiceAddedEvent(
-            aspireResource,
-            AspireMainServiceViewContributor::class.java,
-            this
+    private fun sendServiceChildrenChangedEvent() {
+        val event = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
+            this,
+            AspireMainServiceViewContributor::class.java
         )
         serviceEventPublisher.handle(event)
     }

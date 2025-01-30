@@ -11,7 +11,6 @@ internal static class AspireHostRegistration
 
         services.AddResiliencePipeline(nameof(AspireHostResourceWatcher), builder =>
         {
-            //TODO: Ignore cancellation
             builder.AddRetry(new RetryStrategyOptions
             {
                 MaxRetryAttempts = 10,
@@ -22,13 +21,11 @@ internal static class AspireHostRegistration
 
         services.AddResiliencePipeline(nameof(AspireHostResourceLogWatcher), builder =>
         {
-            //TODO: Ignore cancellation
             builder.AddRetry(new RetryStrategyOptions
             {
                 MaxRetryAttempts = 10,
                 Delay = TimeSpan.FromSeconds(2),
-                BackoffType = DelayBackoffType.Constant,
-                ShouldHandle = new PredicateBuilder().HandleResult(result => result is bool boolResult && !boolResult)
+                BackoffType = DelayBackoffType.Constant
             });
         });
     }
