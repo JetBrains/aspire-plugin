@@ -18,7 +18,8 @@ internal sealed class AspireHostResourceWatcher(
     Connection connection,
     AspireHostModel hostModel,
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
-    ILogger logger)
+    ILogger logger,
+    Lifetime lifetime)
 {
     private readonly ResiliencePipeline _pipeline =
         resiliencePipelineProvider.GetPipeline(nameof(AspireHostResourceWatcher));
@@ -29,16 +30,12 @@ internal sealed class AspireHostResourceWatcher(
         {
             logger.LogInformation("Start resource watching");
 
-            await Task.Delay(TimeSpan.FromSeconds(5), Lifetime.AsyncLocal.Value);
+            await Task.Delay(TimeSpan.FromSeconds(5), lifetime);
 
             var retryCout = 1;
-            await _pipeline.ExecuteAsync(
-                async token => await SendWatchResourcesRequest(retryCout++, token),
-                Lifetime.AsyncLocal.Value
-            );
+            await _pipeline.ExecuteAsync(async token => await SendWatchResourcesRequest(retryCout++, token), lifetime);
 
-            logger.LogInformation("Stop resource watching, lifetime is alive {isAlive}",
-                Lifetime.AsyncLocal.Value.IsAlive);
+            logger.LogInformation("Stop resource watching, lifetime is alive {isAlive}", lifetime.IsAlive);
         }
         catch (OperationCanceledException)
         {
@@ -48,19 +45,26 @@ internal sealed class AspireHostResourceWatcher(
 
     private async Task SendWatchResourcesRequest(int retryCount, CancellationToken ct)
     {
-        var request = new WatchResourcesRequest { IsReconnect = retryCount > 1 };
-        var response = client.WatchResources(request, headers: headers, cancellationToken: ct);
-        await foreach (var update in response.ResponseStream.ReadAllAsync(ct))
+        try
         {
-            switch (update.KindCase)
+            var request = new WatchResourcesRequest { IsReconnect = retryCount > 1 };
+            var response = client.WatchResources(request, headers: headers, cancellationToken: ct);
+            await foreach (var update in response.ResponseStream.ReadAllAsync(ct))
             {
-                case WatchResourcesUpdate.KindOneofCase.InitialData:
-                    await HandleInitialData(update.InitialData, ct);
-                    break;
-                case WatchResourcesUpdate.KindOneofCase.Changes:
-                    await HandleChanges(update.Changes, ct);
-                    break;
+                switch (update.KindCase)
+                {
+                    case WatchResourcesUpdate.KindOneofCase.InitialData:
+                        await HandleInitialData(update.InitialData, ct);
+                        break;
+                    case WatchResourcesUpdate.KindOneofCase.Changes:
+                        await HandleChanges(update.Changes, ct);
+                        break;
+                }
             }
+        }
+        catch (OperationCanceledException) when(ct.IsCancellationRequested)
+        {
+            logger.LogTrace("Resource watching request was cancelled");
         }
     }
 
@@ -78,10 +82,7 @@ internal sealed class AspireHostResourceWatcher(
             var resourceWrapper = new ResourceWrapper();
             resourceWrapper.ExecuteCommand.SetAsync(async (lt, request) => await ExecuteCommand(request, lt));
             resourceWrapper.Model.SetValue(resourceModel);
-            await connection.DoWithModel(_ =>
-            {
-                hostModel.Resources.TryAdd(resourceModel.Name, resourceWrapper);
-            });
+            await connection.DoWithModel(_ => { hostModel.Resources.TryAdd(resourceModel.Name, resourceWrapper); });
         }
     }
 

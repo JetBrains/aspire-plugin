@@ -91,7 +91,7 @@ internal sealed class AspireHost
         _logger.LogDebug("Creating resource watcher for {aspireHostId}", _id);
         var resourceWatcherLogger = _loggerFactory.CreateLogger<AspireHostResourceWatcher>();
         var resourceWatcher = new AspireHostResourceWatcher(client, metadata, _connection, _aspireHostModel,
-            _resiliencePipelineProvider, resourceWatcherLogger);
+            _resiliencePipelineProvider, resourceWatcherLogger, lifetime.CreateNested().Lifetime);
         lifetime.StartAttachedAsync(TaskScheduler.Default,
             async () => await resourceWatcher.WatchResources());
     }

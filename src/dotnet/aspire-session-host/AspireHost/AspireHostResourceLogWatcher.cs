@@ -28,13 +28,13 @@ internal sealed class AspireHostResourceLogWatcher(
             {
                 lt.StartAttachedAsync(
                     TaskScheduler.Default,
-                    async () => await WatchResourceLogs(resourceId, resource)
+                    async () => await WatchResourceLogs(resourceId, resource, lt)
                 );
             });
         });
     }
 
-    private async Task WatchResourceLogs(string resourceName, ResourceWrapper resource)
+    private async Task WatchResourceLogs(string resourceName, ResourceWrapper resource, Lifetime resourceLifetime)
     {
         try
         {
@@ -42,18 +42,16 @@ internal sealed class AspireHostResourceLogWatcher(
 
             if (!resource.IsInitialized.HasTrueValue())
             {
-                await resource.IsInitialized.NextTrueValueAsync(Lifetime.AsyncLocal.Value);
+                await resource.IsInitialized.NextTrueValueAsync(resourceLifetime);
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(5), Lifetime.AsyncLocal.Value);
+            await Task.Delay(TimeSpan.FromSeconds(5), resourceLifetime);
 
             await _pipeline.ExecuteAsync(
-                async token => await SendWatchResourceLogsRequest(resourceName, resource, token),
-                Lifetime.AsyncLocal.Value
-            );
+                async token => await SendWatchResourceLogsRequest(resourceName, resource, token), resourceLifetime);
 
             logger.LogInformation("Stop log watching for the resource {resourceName}, lifetime is alive {isAlive}",
-                resourceName, Lifetime.AsyncLocal.Value.IsAlive);
+                resourceName, resourceLifetime);
         }
         catch (OperationCanceledException)
         {
@@ -61,39 +59,41 @@ internal sealed class AspireHostResourceLogWatcher(
         }
     }
 
-    private async Task<bool> SendWatchResourceLogsRequest(
+    private async Task SendWatchResourceLogsRequest(
         string resourceName,
         ResourceWrapper resource,
         CancellationToken ct)
     {
         logger.LogTrace("Sending log watching request for the resource {resourceName}", resourceName);
 
-        var request = new WatchResourceConsoleLogsRequest { ResourceName = resourceName };
-        var response = client.WatchResourceConsoleLogs(request, headers: headers, cancellationToken: ct);
-        await foreach (var update in response.ResponseStream.ReadAllAsync(ct))
+        try
         {
-            foreach (var logLine in update.LogLines)
+            var request = new WatchResourceConsoleLogsRequest { ResourceName = resourceName };
+            var response = client.WatchResourceConsoleLogs(request, headers: headers, cancellationToken: ct);
+            await foreach (var update in response.ResponseStream.ReadAllAsync(ct))
             {
-                ct.ThrowIfCancellationRequested();
+                foreach (var logLine in update.LogLines)
+                {
+                    ct.ThrowIfCancellationRequested();
 
-                if (string.IsNullOrEmpty(logLine.Text)) continue;
+                    if (string.IsNullOrEmpty(logLine.Text)) continue;
 
-                logger.LogTrace("Log line received {logLine}", logLine);
-                await connection.DoWithModel(_ =>
-                    resource.LogReceived(
-                        new ResourceLog(
-                            logLine.Text,
-                            logLine.HasIsStdErr ? logLine.IsStdErr : false,
-                            logLine.LineNumber
+                    logger.LogTrace("Log line received {logLine}", logLine);
+                    await connection.DoWithModel(_ =>
+                        resource.LogReceived(
+                            new ResourceLog(
+                                logLine.Text,
+                                logLine.HasIsStdErr ? logLine.IsStdErr : false,
+                                logLine.LineNumber
+                            )
                         )
-                    )
-                );
+                    );
+                }
             }
         }
-
-        //Sometimes Aspire returns just an empty list, and the method simply quits without sending any log.
-        //In such a case, we want to retry the method.
-        //So, only if the corresponding token has been canceled, we should stop execution.
-        return ct.IsCancellationRequested;
+        catch (OperationCanceledException) when(ct.IsCancellationRequested)
+        {
+            logger.LogTrace("Log watching request was cancelled");
+        }
     }
 }
