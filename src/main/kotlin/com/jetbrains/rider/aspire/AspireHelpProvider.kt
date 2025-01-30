@@ -9,6 +9,9 @@ class AspireHelpProvider : WebHelpProvider() {
         private const val MAIN = "NET_Aspire.html"
         private const val RUN_CONFIGURATION = "NET_Aspire_run_configuration.html"
     }
+
+    override fun getHelpTopicPrefix() = HELP_ID_PREFIX
+
     override fun getHelpPageUrl(helpTopicId: String): String? {
         if (!helpTopicId.startsWith(HELP_ID_PREFIX)) {
             return null
