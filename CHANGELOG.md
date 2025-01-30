@@ -8,6 +8,10 @@
 
 - Sync `launchBrowser` flag from an AppHost `launchSettings` file with run configuration
 
+### Changed
+
+- Use a single SessionHost for all project run configurations and tests
+
 ## [1.7.1] - 2025-01-17
 
 ### Removed
