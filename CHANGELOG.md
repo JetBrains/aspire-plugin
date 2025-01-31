@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.7.2] - 2025-01-31
+
 ### Fixed
 
 - Sync `launchBrowser` flag from an AppHost `launchSettings` file with run configuration
@@ -317,7 +319,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.1...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.2...HEAD
+[1.7.2]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.1...v1.7.2
 [1.7.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.8...v1.7.0
 [1.6.8]: https://github.com/JetBrains/aspire-plugin/compare/v1.6.7...v1.6.8
