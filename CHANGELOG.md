@@ -11,6 +11,7 @@
 ### Changed
 
 - Use a single SessionHost for all project run configurations and tests
+- Support for Rider 2025.1 EAP 2
 
 ## [1.7.1] - 2025-01-17
 
