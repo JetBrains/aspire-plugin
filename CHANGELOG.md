@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Improve Aspire service displaying
+
 ## [1.7.2] - 2025-01-31
 
 ### Fixed
