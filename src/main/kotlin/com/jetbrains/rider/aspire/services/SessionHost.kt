@@ -57,6 +57,8 @@ class SessionHost(
 
     private val aspireHosts = ConcurrentHashMap<Path, AspireHost>()
 
+    val hasAspireHosts: Boolean
+        get() = aspireHosts.any()
     val isActive: Boolean
         get() = !sessionHostLifetimes.isTerminated
     var debugSessionToken: String? = null

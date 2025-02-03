@@ -7,13 +7,12 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.AspireIcons
 import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
 
-class AspireMainServiceViewContributor : ServiceViewContributor<SessionHost>,
-    ServiceViewLazyContributor {
+class AspireMainServiceViewContributor : ServiceViewContributor<SessionHost>, ServiceViewLazyContributor {
     override fun getViewDescriptor(project: Project) =
         SimpleServiceViewDescriptor(".NET Aspire", AspireIcons.Service)
 
     override fun getServices(project: Project) =
-        listOf(SessionHostManager.getInstance(project).sessionHost)
+        SessionHostManager.getInstance(project).getSessionHosts()
 
     override fun getServiceDescriptor(project: Project, service: SessionHost) =
         service.getViewDescriptor(project)
