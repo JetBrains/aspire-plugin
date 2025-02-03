@@ -42,7 +42,7 @@ abstract class AspireResourceBaseAction : AnAction() {
         val projectPath = projectEntity.url?.toPath() ?: return null
         val sessionHost = SessionHostManager.getInstance(project).sessionHost
         for (aspireHost in sessionHost.getServices(project)) {
-            val resource = aspireHost.getResource(projectPath) ?: continue
+            val resource = aspireHost.getProjectResource(projectPath) ?: continue
             return resource
         }
 

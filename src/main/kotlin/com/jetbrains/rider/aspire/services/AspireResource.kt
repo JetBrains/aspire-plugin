@@ -28,6 +28,7 @@ import kotlin.math.roundToInt
 
 class AspireResource(
     private val modelWrapper: ResourceWrapper,
+    private val aspireHost: AspireHost,
     val lifetime: Lifetime,
     private val project: Project
 ) : Disposable {
@@ -103,8 +104,6 @@ class AspireResource(
 
     private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
 
-    private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
-
     init {
         val model = modelWrapper.model.valueOrNull
 
@@ -134,7 +133,7 @@ class AspireResource(
 
         Disposer.register(this, logConsole)
 
-        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(this)
+        sendResourceCreatedEvent()
     }
 
     private fun fillDates(model: ResourceModel?) {
@@ -208,9 +207,12 @@ class AspireResource(
         }
     }
 
+    fun getViewDescriptor() = descriptor
+
     private fun update(model: ResourceModel) {
         uid = model.uid
         name = model.name
+        val typeInitialised = type == ResourceType.Unknown && model.type != ResourceType.Unknown
         type = model.type
         displayName = model.displayName
         state = model.state
@@ -230,7 +232,11 @@ class AspireResource(
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
-        sendServiceChangedEvent()
+        if (typeInitialised) {
+            sendServiceChildrenChangedEvent()
+        } else if (type != ResourceType.Unknown && state != ResourceState.Hidden) {
+            sendServiceChangedEvent()
+        }
     }
 
     fun setHandler(processHandler: ProcessHandler) {
@@ -260,16 +266,27 @@ class AspireResource(
         logProcessHandler.notifyTextAvailable(logContent + "\r\n", outputType)
     }
 
+    private fun sendResourceCreatedEvent() {
+        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(this)
+    }
+
     private fun sendServiceChangedEvent() {
         val event = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_CHANGED,
             this,
             AspireMainServiceViewContributor::class.java
         )
-        serviceEventPublisher.handle(event)
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
     }
 
-    fun getViewDescriptor() = descriptor
+    private fun sendServiceChildrenChangedEvent() {
+        val event = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
+            aspireHost,
+            AspireMainServiceViewContributor::class.java
+        )
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
+    }
 
     override fun dispose() {
     }

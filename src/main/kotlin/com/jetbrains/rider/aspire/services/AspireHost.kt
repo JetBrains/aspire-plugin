@@ -58,8 +58,6 @@ class AspireHost(
     private val resources = ConcurrentHashMap<String, AspireResource>()
     private val handlers = mutableMapOf<String, ProcessHandler>()
 
-    private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
-
     val hostProjectPathString = hostProjectPath.absolutePathString()
 
     var displayName: String = hostProjectPath.nameWithoutExtension
@@ -115,9 +113,9 @@ class AspireHost(
 
     override fun getServices(project: Project) = buildList {
         for (resource in resources) {
-            if (resource.value.type == ResourceType.Unknown || resource.value.state == ResourceState.Hidden)
-                continue
-            add(resource.value)
+            if (resource.value.type != ResourceType.Unknown && resource.value.state != ResourceState.Hidden) {
+                add(resource.value)
+            }
         }
     }.sortedWith(compareBy({ it.type }, { it.name }))
 
@@ -126,9 +124,9 @@ class AspireHost(
         aspireResource: AspireResource
     ) = aspireResource.getViewDescriptor()
 
-    fun getResource(projectPath: Path): AspireResource? {
+    fun getProjectResource(projectPath: Path): AspireResource? {
         for (resource in resources) {
-            if (resource.value.type == ResourceType.Unknown || resource.value.state == ResourceState.Hidden)
+            if (resource.value.type != ResourceType.Project || resource.value.state == ResourceState.Hidden)
                 continue
 
             if (resource.value.projectPath == projectPath) return resource.value
@@ -229,15 +227,15 @@ class AspireHost(
     ) {
         LOG.trace { "Adding a new resource with id $resourceId to the host $hostProjectPathString" }
 
-        val resource = AspireResource(resourceModel, resourceLifetime, project)
+        val resource = AspireResource(resourceModel, this, resourceLifetime, project)
         Disposer.register(this, resource)
         resources.addUnique(resourceLifetime, resourceId, resource)
 
-        if (resource.type != ResourceType.Unknown && resource.state != ResourceState.Hidden) {
+        if (resource.state != ResourceState.Hidden) {
             resourceLifetime.bracketIfAlive({
                 sendServiceChildrenChangedEvent()
             }, {
-                sendServiceRemovedEvent(resource)
+                sendServiceChildrenChangedEvent()
             })
         }
 
@@ -323,7 +321,7 @@ class AspireHost(
             this,
             AspireMainServiceViewContributor::class.java
         )
-        serviceEventPublisher.handle(event)
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
     }
 
     private fun sendServiceChildrenChangedEvent() {
@@ -332,16 +330,7 @@ class AspireHost(
             this,
             AspireMainServiceViewContributor::class.java
         )
-        serviceEventPublisher.handle(event)
-    }
-
-    private fun sendServiceRemovedEvent(aspireResource: AspireResource) {
-        val event = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_REMOVED,
-            aspireResource,
-            AspireMainServiceViewContributor::class.java
-        )
-        serviceEventPublisher.handle(event)
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
     }
 
     override fun dispose() {

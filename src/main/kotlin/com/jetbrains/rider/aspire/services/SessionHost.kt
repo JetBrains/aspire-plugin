@@ -57,8 +57,6 @@ class SessionHost(
 
     private val aspireHosts = ConcurrentHashMap<Path, AspireHost>()
 
-    private val serviceEventPublisher = project.messageBus.syncPublisher(ServiceEventListener.TOPIC)
-
     val isActive: Boolean
         get() = !sessionHostLifetimes.isTerminated
     var debugSessionToken: String? = null
@@ -224,7 +222,7 @@ class SessionHost(
             AspireMainServiceViewContributor::class.java,
             this
         )
-        serviceEventPublisher.handle(event)
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
     }
 
     private fun sendServiceRemovedEvent(aspireHost: AspireHost) {
@@ -233,7 +231,7 @@ class SessionHost(
             aspireHost,
             AspireMainServiceViewContributor::class.java
         )
-        serviceEventPublisher.handle(event)
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
     }
 
     override fun dispose() {
