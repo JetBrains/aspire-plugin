@@ -2,8 +2,6 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
-import com.intellij.execution.RunManager
-import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -20,17 +18,13 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactory
 import com.jetbrains.rider.aspire.sessionHost.findBySessionProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.runtime.DotNetExecutable
-import com.jetbrains.rider.runtime.DotNetRuntime
-import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -169,20 +163,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         aspireHostProjectPath: Path?
     ): RunProfile
 
-    private fun getAspireHostRunConfiguration(name: String?, project: Project): AspireHostConfiguration? {
-        if (name == null) return null
-
-        val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
-        val runConfiguration = RunManager.getInstance(project)
-            .getConfigurationsList(configurationType)
-            .singleOrNull { it is AspireHostConfiguration && it.name == name }
-        if (runConfiguration == null) {
-            LOG.warn("Unable to find Aspire run configuration type: $name")
-        }
-
-        return runConfiguration as AspireHostConfiguration
-    }
-
     private suspend fun getDotNetExecutable(
         sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
@@ -196,22 +176,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         }
 
         return executable
-    }
-
-    private fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
-        val runtime = DotNetRuntime.detectRuntimeForProject(
-            project,
-            RunnableProjectKinds.DotNetCore,
-            RiderDotNetActiveRuntimeHost.getInstance(project),
-            executable.runtimeType,
-            executable.exePath,
-            executable.projectTfm
-        )?.runtime as? DotNetCoreRuntime
-        if (runtime == null) {
-            LOG.warn("Unable to detect runtime for executable: ${executable.exePath}")
-        }
-
-        return runtime
     }
 
     private suspend fun enableHotReload(

@@ -20,6 +20,12 @@ import com.jetbrains.rider.model.debuggerWorker.DotNetDebuggerSessionModel
 import com.jetbrains.rider.run.IDotNetDebugProfileState
 
 class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
+    companion object {
+        const val ID = "aspire.wasm.project.session.debug.runner"
+    }
+
+    override fun getRunnerId() = ID
+
     override fun canRun(executorId: String, runProfile: RunProfile) =
         executorId == DefaultDebugExecutor.EXECUTOR_ID && runProfile is WasmHostProjectSessionDebugProfile
 

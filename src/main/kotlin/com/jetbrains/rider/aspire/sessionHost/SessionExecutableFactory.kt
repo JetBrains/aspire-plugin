@@ -8,10 +8,8 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
-import com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable
 import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.settings.AspireSettings
@@ -22,11 +20,7 @@ import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
-import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
-import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
-import com.jetbrains.rider.run.environment.ExecutableRunParameters
-import com.jetbrains.rider.run.environment.ProjectProcessOptions
-import com.jetbrains.rider.run.environment.StringProcessingParameters
+import com.jetbrains.rider.run.environment.*
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
 import java.io.File
@@ -42,8 +36,6 @@ class SessionExecutableFactory(private val project: Project) {
         fun getInstance(project: Project) = project.service<SessionExecutableFactory>()
 
         private val LOG = logger<SessionExecutableFactory>()
-
-        private const val DOTNET_LAUNCH_PROFILE = "DOTNET_LAUNCH_PROFILE"
     }
 
     suspend fun createExecutable(
@@ -55,41 +47,45 @@ class SessionExecutableFactory(private val project: Project) {
         val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
 
         return if (runnableProject != null) {
-            getExecutableForRunnableProject(runnableProject, sessionModel, hostRunConfiguration, addBrowserAction)
+            getExecutableForRunnableProject(
+                sessionProjectPath,
+                runnableProject,
+                sessionModel,
+                hostRunConfiguration,
+                addBrowserAction
+            )
         } else {
-            getExecutableForExternalProject(sessionProjectPath, sessionModel, hostRunConfiguration, addBrowserAction)
+            getExecutableForExternalProject(
+                sessionProjectPath,
+                sessionModel,
+                hostRunConfiguration,
+                addBrowserAction
+            )
         }
     }
 
     private suspend fun getExecutableForRunnableProject(
+        sessionProjectPath: Path,
         runnableProject: RunnableProject,
         sessionModel: CreateSessionRequest,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val output = runnableProject.projectOutputs.firstOrNull() ?: return null
-        val launchProfile = getLaunchProfile(sessionModel, runnableProject)
+        val launchProfile = getLaunchProfile(sessionModel, runnableProject, project)
         val executablePath = output.exePath
         val workingDirectory = getWorkingDirectory(launchProfile, output)
         val arguments = mergeArguments(sessionModel.args, output.defaultArguments, launchProfile?.commandLineArgs)
         val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
 
-        val processOptions = ProjectProcessOptions(
-            File(runnableProject.projectFilePath),
-            File(workingDirectory)
-        )
-        val runParameters = ExecutableRunParameters(
+        val executableParams = getExecutableParams(
+            sessionProjectPath,
             executablePath,
             workingDirectory,
             arguments,
             envs,
-            true,
             output.tfm
         )
-
-        val executableParams = ExecutableParameterProcessor
-            .getInstance(project)
-            .processEnvironment(runParameters, processOptions)
 
         val browserSettings = launchProfile?.let {
             getStartBrowserSettings(Path(runnableProject.projectFilePath), it, envs, output.tfm, hostRunConfiguration)
@@ -131,28 +127,20 @@ class SessionExecutableFactory(private val project: Project) {
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val propertyService = MSBuildPropertyService.getInstance(project)
         val properties = propertyService.getProjectRunProperties(sessionProjectPath) ?: return null
-        val launchProfile = getLaunchProfile(sessionModel, sessionProjectPath)
+        val launchProfile = getLaunchProfile(sessionModel, sessionProjectPath, project)
         val executablePath = properties.executablePath.systemIndependentPath
         val workingDirectory = getWorkingDirectory(launchProfile, properties)
         val arguments = mergeArguments(sessionModel.args, properties.arguments, launchProfile?.commandLineArgs)
         val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
 
-        val processOptions = ProjectProcessOptions(
-            sessionProjectPath.toFile(),
-            File(workingDirectory)
-        )
-        val runParameters = ExecutableRunParameters(
+        val executableParams = getExecutableParams(
+            sessionProjectPath,
             executablePath,
             workingDirectory,
             arguments,
             envs,
-            true,
             properties.targetFramework
         )
-
-        val executableParams = ExecutableParameterProcessor
-            .getInstance(project)
-            .processEnvironment(runParameters, processOptions)
 
         val browserSettings = launchProfile?.let {
             getStartBrowserSettings(sessionProjectPath, it, envs, properties.targetFramework, hostRunConfiguration)
@@ -185,90 +173,30 @@ class SessionExecutableFactory(private val project: Project) {
         ) to browserSettings
     }
 
-    //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
-    private suspend fun getLaunchProfile(
-        sessionModel: CreateSessionRequest,
-        runnableProject: RunnableProject
-    ): LaunchSettingsJson.Profile? {
-        val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
+    private suspend fun getExecutableParams(
+        sessionProjectPath: Path,
+        executablePath: String,
+        workingDirectory: String,
+        arguments: String,
+        envs: Map<String, String>,
+        targetFramework: RdTargetFrameworkId?
+    ): ExecutableParameterProcessingResult {
+        val processOptions = ProjectProcessOptions(
+            sessionProjectPath.toFile(),
+            File(workingDirectory)
+        )
+        val runParameters = ExecutableRunParameters(
+            executablePath,
+            workingDirectory,
+            arguments,
+            envs,
+            true,
+            targetFramework
+        )
 
-        val launchSettings = LaunchSettingsJsonService
+        return ExecutableParameterProcessor
             .getInstance(project)
-            .loadLaunchSettingsSuspend(runnableProject)
-            ?: return null
-
-        return launchSettings.profiles?.get(launchProfileKey)
-    }
-
-    //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
-    private suspend fun getLaunchProfile(
-        sessionModel: CreateSessionRequest,
-        sessionProjectPath: Path
-    ): LaunchSettingsJson.Profile? {
-        val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
-
-        val launchSettingsFile =
-            LaunchSettingsJsonService.getLaunchSettingsFileForProject(sessionProjectPath.toFile()) ?: return null
-        val launchSettings =
-            LaunchSettingsJsonService.getInstance(project).loadLaunchSettingsSuspend(launchSettingsFile) ?: return null
-
-        return launchSettings.profiles?.get(launchProfileKey)
-    }
-
-    private fun getLaunchProfileKey(sessionModel: CreateSessionRequest): String? {
-        if (sessionModel.disableLaunchProfile) {
-            LOG.trace { "Launch profile disabled" }
-            return null
-        }
-
-        val launchProfileKey =
-            if (!sessionModel.launchProfile.isNullOrEmpty()) {
-                sessionModel.launchProfile
-            } else {
-                sessionModel.envs?.firstOrNull { it.key.equals(DOTNET_LAUNCH_PROFILE, false) }?.value
-            }
-
-        LOG.trace { "Found launch profile key: $launchProfileKey" }
-
-        return launchProfileKey
-    }
-
-    //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
-    private fun mergeArguments(
-        sessionArguments: Array<String>?,
-        defaultArguments: List<String>,
-        launchProfileArguments: String?
-    ) = buildString {
-        if (sessionArguments != null) {
-            if (sessionArguments.isNotEmpty()) {
-                append(ParametersListUtil.join(sessionArguments.toList()))
-            }
-        } else {
-            if (defaultArguments.isNotEmpty()) {
-                append(ParametersListUtil.join(defaultArguments))
-                append(" ")
-            }
-
-            if (!launchProfileArguments.isNullOrEmpty()) {
-                append(launchProfileArguments)
-            }
-        }
-    }
-
-    //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
-    private fun mergeEnvironmentVariables(
-        sessionEnvironmentVariables: Array<SessionEnvironmentVariable>?,
-        launchProfileEnvironmentVariables: Map<String, String?>?
-    ) = buildMap {
-        if (launchProfileEnvironmentVariables?.isNotEmpty() == true) {
-            launchProfileEnvironmentVariables.forEach {
-                it.value?.let { value -> put(it.key, value) }
-            }
-        }
-
-        if (sessionEnvironmentVariables?.isNotEmpty() == true) {
-            sessionEnvironmentVariables.associateTo(this) { it.key to it.value }
-        }
+            .processEnvironment(runParameters, processOptions)
     }
 
     private suspend fun getStartBrowserSettings(

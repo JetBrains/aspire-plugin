@@ -67,6 +67,6 @@ class ProjectSessionRunProfileState(
 
         dotnetExecutable.onBeforeProcessStarted(environment, environment.runProfile, processHandler)
 
-        return return DefaultExecutionResult(console, processHandler)
+        return DefaultExecutionResult(console, processHandler)
     }
 }
