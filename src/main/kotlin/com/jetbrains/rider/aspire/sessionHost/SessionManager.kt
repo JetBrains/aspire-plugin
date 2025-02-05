@@ -75,19 +75,19 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
 
         val processLauncher = SessionProcessLauncher.getInstance(project)
-        val processLifetime = sessionLifetimeDefinition.lifetime
+        val processLifetimeDefinition = sessionLifetimeDefinition.lifetime.createNested()
 
         val sessionProcessListener = createSessionProcessEventListener(
             command.sessionId,
             command.sessionEvents,
-            sessionLifetimeDefinition
+            processLifetimeDefinition
         )
 
         processLauncher.launchSessionProcess(
             command.sessionId,
             command.createSessionRequest,
             sessionProcessListener,
-            processLifetime,
+            processLifetimeDefinition.lifetime,
             command.isAspireHostUnderDebug,
             command.aspireHostRunConfigName
         )
@@ -113,7 +113,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     private fun createSessionProcessEventListener(
         sessionId: String,
         sessionEvents: MutableSharedFlow<SessionEvent>,
-        sessionLifetimeDefinition: LifetimeDefinition
+        processLifetimeDefinition: LifetimeDefinition
     ): ProcessListener =
         object : ProcessAdapter() {
             override fun startNotified(event: ProcessEvent) {
@@ -164,10 +164,10 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
                 if (!eventSendingResult) {
                     LOG.warn("Unable to send an event for session $sessionId termination")
                 }
-                if (sessionLifetimeDefinition.isAlive) {
+                if (processLifetimeDefinition.isAlive) {
                     application.invokeLater {
                         LOG.trace { "Terminating session $sessionId lifetime" }
-                        sessionLifetimeDefinition.terminate()
+                        processLifetimeDefinition.terminate()
                     }
                 }
             }
