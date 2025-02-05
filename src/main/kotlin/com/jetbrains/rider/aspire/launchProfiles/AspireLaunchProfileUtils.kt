@@ -35,10 +35,8 @@ internal fun getEnvironmentVariables(
     profileName: String?,
     profile: LaunchSettingsJson.Profile?
 ) = buildMap {
-    profile?.environmentVariables?.forEach {
-        if (it.value != null) {
-            put(it.key, it.value)
-        }
+    profile?.environmentVariables?.forEach { pair ->
+        pair.value?.let { put(pair.key, it) }
     }
 
     if (!profileName.isNullOrEmpty()) {
