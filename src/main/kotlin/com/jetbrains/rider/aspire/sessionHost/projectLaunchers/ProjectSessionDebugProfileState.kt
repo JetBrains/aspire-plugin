@@ -73,7 +73,7 @@ open class ProjectSessionDebugProfileState(
             projectLifetime
         )
 
-        sessionProcessLifetime.onTermination {
+        sessionProcessLifetime.onTerminationIfAlive {
             if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
                 LOG.trace("Killing debugger worker session process handler (id: $sessionId)")
                 debuggerWorkerProcessHandler.killProcess()
