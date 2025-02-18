@@ -137,12 +137,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             }
 
             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                val text =
-                    if (event.text.endsWith("\r\n")) event.text.substring(0, event.text.length - 2)
-                    else if (event.text.endsWith("\n")) event.text.substring(0, event.text.length - 1)
-                    else event.text
                 val isStdErr = outputType == ProcessOutputType.STDERR
-                val eventSendingResult = sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, text))
+                val eventSendingResult = sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, event.text))
                 if (!eventSendingResult) {
                     LOG.warn("Unable to send an event for session $sessionId log")
                 }
