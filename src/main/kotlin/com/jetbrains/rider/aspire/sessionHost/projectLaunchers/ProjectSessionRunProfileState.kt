@@ -10,7 +10,6 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.util.Key
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.TerminalProcessHandler
@@ -38,17 +37,12 @@ class ProjectSessionRunProfileState(
     ): ExecutionResult {
         val commandLine = dotnetExecutable.createRunCommandLine(dotnetRuntime)
         val originalExecutable = Path(commandLine.exePath)
-        val processHandler = object : TerminalProcessHandler(
+        val processHandler = TerminalProcessHandler(
             environment.project,
             commandLine,
             commandLine.commandLineString,
             originalExecutable = originalExecutable
-        ) {
-            override fun notifyTextAvailable(text: String, outputType: Key<*>) {
-                val modifiedText = text.lineSequence().joinToString("\r\n")
-                super.notifyTextAvailable(modifiedText, outputType)
-            }
-        }
+        )
 
         sessionProcessLifetime.onTerminationIfAlive {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {

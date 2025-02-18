@@ -12,6 +12,8 @@ internal sealed class SessionEventWatcher(
     ILogger logger,
     Lifetime lifetime)
 {
+    private static readonly string[] LineSeparators = ["\r", "\n", "\r\n"];
+
     internal async Task WatchSessionEvents()
     {
         await connection.DoWithModel(_ =>
@@ -30,8 +32,14 @@ internal sealed class SessionEventWatcher(
             hostModel.LogReceived.Advise(lifetime, it =>
             {
                 logger.LogTrace("Log received {log}", it);
+                var message = ModifyText(it.Message);
+                if (string.IsNullOrEmpty(message))
+                {
+                    logger.LogTrace("Message is empty after processing");
+                    return;
+                }
                 var writingResult =
-                    sessionEventWriter.TryWrite(new LogReceivedEvent(it.Id, "serviceLogs", it.IsStdErr, it.Message));
+                    sessionEventWriter.TryWrite(new LogReceivedEvent(it.Id, "serviceLogs", it.IsStdErr, message));
                 if (!writingResult)
                 {
                     logger.LogWarning("Failed to write log received event");
@@ -49,5 +57,11 @@ internal sealed class SessionEventWatcher(
                 }
             });
         });
+    }
+
+    private static string ModifyText(string text)
+    {
+        var modified = string.Join("\r\n", text.Split(LineSeparators, StringSplitOptions.RemoveEmptyEntries));
+        return modified;
     }
 }
