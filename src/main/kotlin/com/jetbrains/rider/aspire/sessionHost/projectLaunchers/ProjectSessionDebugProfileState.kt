@@ -6,6 +6,7 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.util.Key
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -52,12 +53,17 @@ open class ProjectSessionDebugProfileState(
         projectLifetime: Lifetime
     ): DebuggerWorkerProcessHandler {
         val presentableCommandLine = createPresentableCommandLine()
-        val processHandler = TerminalProcessHandler(
+        val processHandler = object : TerminalProcessHandler(
             project,
             workerCmd,
             presentableCommandLine,
             false
-        )
+        ) {
+            override fun notifyTextAvailable(text: String, outputType: Key<*>) {
+                val modifiedText = text.lineSequence().joinToString("\r\n")
+                super.notifyTextAvailable(modifiedText, outputType)
+            }
+        }
 
         val debuggerWorkerProcessHandler = DebuggerWorkerProcessHandler(
             processHandler,
