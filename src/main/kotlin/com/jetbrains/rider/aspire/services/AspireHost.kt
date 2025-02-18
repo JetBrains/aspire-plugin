@@ -25,11 +25,9 @@ import com.jetbrains.rider.aspire.sessionHost.*
 import com.jetbrains.rider.aspire.sessionHost.SessionManager.CreateSessionCommand
 import com.jetbrains.rider.aspire.sessionHost.SessionManager.DeleteSessionCommand
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProfile
-import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
-import com.jetbrains.rider.runtime.DotNetExecutable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -56,7 +54,8 @@ class AspireHost(
     private val descriptor by lazy { AspireHostServiceViewDescriptor(this) }
 
     private val resources = ConcurrentHashMap<String, AspireResource>()
-    private val handlers = mutableMapOf<String, ProcessHandler>()
+    private val projectResources = mutableMapOf<String, AspireResource>()
+    private val resourceProfileData = mutableMapOf<String, AspireProjectResourceProfileData>()
 
     val hostProjectPathString = hostProjectPath.absolutePathString()
 
@@ -86,7 +85,7 @@ class AspireHost(
                     val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
                     if (hostProjectPath != aspireHostProjectPath) return
 
-                    setHandlerForResource(profile.dotnetExecutable, handler)
+                    setProfileDataForResource(profile)
                 }
             }
 
@@ -243,10 +242,7 @@ class AspireHost(
 
         expand()
 
-        val handler = synchronized(lock) {
-            handlers.remove(resource.serviceInstanceId)
-        }
-        handler?.let { resource.setHandler(it) }
+        setProfileDataForResource(resource)
     }
 
     private fun setAspireHostUrl(config: AspireHostModelConfig) {
@@ -282,21 +278,43 @@ class AspireHost(
         isActive = false
         dashboardUrl = null
 
+        synchronized(lock) {
+            resourceProfileData.clear()
+            projectResources.clear()
+        }
+
         sendServiceChangedEvent()
     }
 
-    private fun setHandlerForResource(dotnetExecutable: DotNetExecutable, processHandler: ProcessHandler) {
-        val serviceInstanceId = dotnetExecutable.getServiceInstanceId() ?: return
-        val resource = synchronized(lock) {
-            val resource = resources.entries.firstOrNull { it.value.serviceInstanceId == serviceInstanceId }?.value
-            if (resource == null) {
-                handlers[serviceInstanceId] = processHandler
+    private fun setProfileDataForResource(resource: AspireResource) {
+        val projectPath = resource.projectPath?.absolutePathString() ?: return
+
+        val profileData = synchronized(lock) {
+            val pd = resourceProfileData.remove(projectPath)
+            if (pd == null) {
+                projectResources[projectPath] = resource
                 return
             }
-            resource
+            pd
         }
 
-        resource.setHandler(processHandler)
+        resource.setProfileData(profileData)
+    }
+
+    private fun setProfileDataForResource(profile: ProjectSessionProfile) {
+        val projectPath = profile.projectPath.absolutePathString()
+        val profileData = AspireProjectResourceProfileData(profile.projectPath, profile.isDebugMode)
+
+        val resource = synchronized(lock) {
+            val r = projectResources.remove(projectPath)
+            if (r == null) {
+                resourceProfileData[projectPath] = profileData
+                return
+            }
+            r
+        }
+
+        resource.setProfileData(profileData)
     }
 
     private fun selectHost() {

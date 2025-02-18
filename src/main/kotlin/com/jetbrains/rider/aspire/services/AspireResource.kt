@@ -15,7 +15,6 @@ import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.aspire.util.parseLogEntry
-import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -239,10 +238,10 @@ class AspireResource(
         }
     }
 
-    fun setHandler(processHandler: ProcessHandler) {
+    fun setProfileData(profileData: AspireProjectResourceProfileData) {
         if (type != ResourceType.Project) return
 
-        isUnderDebugger = processHandler is DebuggerWorkerProcessHandler
+        isUnderDebugger = profileData.isDebugMode
 
         sendServiceChangedEvent()
     }
