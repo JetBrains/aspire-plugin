@@ -12,13 +12,13 @@ import java.nio.file.Path
 
 class DotNetProjectSessionRunProfile(
     private val sessionId: String,
-    projectName: String,
+    projectPath: Path,
     dotnetExecutable: DotNetExecutable,
     private val dotnetRuntime: DotNetCoreRuntime,
     private val sessionProcessEventListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime,
     aspireHostProjectPath: Path?
-) : ProjectSessionProfile(projectName, dotnetExecutable, aspireHostProjectPath) {
+) : ProjectSessionProfile(projectPath, dotnetExecutable, aspireHostProjectPath, false) {
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment

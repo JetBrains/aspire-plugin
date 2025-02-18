@@ -12,15 +12,14 @@ import java.nio.file.Path
 
 class WasmHostProjectSessionDebugProfile(
     private val sessionId: String,
-    projectName: String,
-    private val projectPath: Path,
+    projectPath: Path,
     dotnetExecutable: DotNetExecutable,
     private val dotnetRuntime: DotNetCoreRuntime,
     private val browserSettings: StartBrowserSettings?,
     private val sessionProcessEventListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime,
     aspireHostProjectPath: Path?
-) : ProjectSessionProfile(projectName, dotnetExecutable, aspireHostProjectPath) {
+) : ProjectSessionProfile(projectPath, dotnetExecutable, aspireHostProjectPath, true) {
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment
