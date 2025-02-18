@@ -10,7 +10,6 @@ import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
-import kotlin.io.path.nameWithoutExtension
 
 class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() {
     companion object {
@@ -31,7 +30,7 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
 
     override fun getRunProfile(
         sessionId: String,
-        projectName: String,
+        projectPath: Path,
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
         sessionProcessEventListener: ProcessListener,
@@ -39,7 +38,7 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         aspireHostProjectPath: Path?
     ) = WasmHostProjectSessionRunProfile(
         sessionId,
-        projectName,
+        projectPath,
         dotnetExecutable,
         dotnetRuntime,
         sessionProcessEventListener,
@@ -49,7 +48,6 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
 
     override fun getDebugProfile(
         sessionId: String,
-        projectName: String,
         projectPath: Path,
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
@@ -59,7 +57,6 @@ class WasmHostProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher(
         aspireHostProjectPath: Path?
     ) = WasmHostProjectSessionDebugProfile(
         sessionId,
-        projectPath.nameWithoutExtension,
         projectPath,
         dotnetExecutable,
         dotnetRuntime,

@@ -13,13 +13,13 @@ import java.nio.file.Path
 
 class DotNetProjectSessionDebugProfile(
     private val sessionId: String,
-    projectName: String,
+    projectPath: Path,
     dotnetExecutable: DotNetExecutable,
     private val dotnetRuntime: DotNetCoreRuntime,
     private val sessionProcessEventListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime,
     aspireHostProjectPath: Path?
-) : ProjectSessionProfile(projectName, dotnetExecutable, aspireHostProjectPath), IRiderDebuggable {
+) : ProjectSessionProfile(projectPath, dotnetExecutable, aspireHostProjectPath, true), IRiderDebuggable {
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment

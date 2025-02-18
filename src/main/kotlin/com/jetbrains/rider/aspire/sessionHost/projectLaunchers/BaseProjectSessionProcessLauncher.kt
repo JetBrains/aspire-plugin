@@ -30,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.nameWithoutExtension
 
 abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtension {
     companion object {
@@ -66,11 +65,11 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         )
         val runtime = getDotNetRuntime(executableWithHotReload, project) ?: return
 
-        val projectName = Path(sessionModel.projectPath).nameWithoutExtension
+        val projectPath = Path(sessionModel.projectPath)
         val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
         val profile = getRunProfile(
             sessionId,
-            projectName,
+            projectPath,
             executableWithHotReload,
             runtime,
             sessionProcessEventListener,
@@ -95,7 +94,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
 
     protected abstract fun getRunProfile(
         sessionId: String,
-        projectName: String,
+        projectPath: Path,
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
         sessionProcessEventListener: ProcessListener,
@@ -126,7 +125,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
         val profile = getDebugProfile(
             sessionId,
-            projectPath.nameWithoutExtension,
             projectPath,
             executable,
             runtime,
@@ -153,7 +151,6 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
 
     protected abstract fun getDebugProfile(
         sessionId: String,
-        projectName: String,
         projectPath: Path,
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,

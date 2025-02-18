@@ -19,7 +19,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
 
     override fun getRunProfile(
         sessionId: String,
-        projectName: String,
+        projectPath: Path,
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
         sessionProcessEventListener: ProcessListener,
@@ -27,7 +27,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         aspireHostProjectPath: Path?
     ) = DotNetProjectSessionRunProfile(
         sessionId,
-        projectName,
+        projectPath,
         dotnetExecutable,
         dotnetRuntime,
         sessionProcessEventListener,
@@ -37,7 +37,6 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
 
     override fun getDebugProfile(
         sessionId: String,
-        projectName: String,
         projectPath: Path,
         dotnetExecutable: DotNetExecutable,
         dotnetRuntime: DotNetCoreRuntime,
@@ -47,7 +46,7 @@ class DotNetProjectSessionProcessLauncher : BaseProjectSessionProcessLauncher() 
         aspireHostProjectPath: Path?
     ) = DotNetProjectSessionDebugProfile(
         sessionId,
-        projectName,
+        projectPath,
         dotnetExecutable,
         dotnetRuntime,
         sessionProcessEventListener,
