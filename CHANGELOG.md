@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Various internal fixes
+
 ## [1.7.3] - 2025-02-03
 
 ### Fixed
