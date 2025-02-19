@@ -34,3 +34,4 @@ The plugin provides support for .NET Aspire projects in JetBrains Rider.
 
   Download the [latest release](https://github.com/rafaelldi/aspire-plugin/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+ 
