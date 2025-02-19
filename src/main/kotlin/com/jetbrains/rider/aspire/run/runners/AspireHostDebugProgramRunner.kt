@@ -75,7 +75,8 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
             executionResult.processHandler,
             protocol,
             sessionModel,
-            state.getDebuggerOutputEventsListener()
+            state.getDebuggerOutputEventsListener(),
+            false
         ) { xDebuggerManager, xDebugProcessStarter ->
             xDebuggerManager.startSession(environment, xDebugProcessStarter)
         }
