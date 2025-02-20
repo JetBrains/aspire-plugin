@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using JetBrains.Application.Parts;
+﻿using JetBrains.Application.Parts;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Properties;
 using JetBrains.ReSharper.Features.Running;
@@ -15,7 +14,7 @@ public class AspireRunnableProjectProvider(
     ILogger logger
 ) : IRunnableProjectProvider
 {
-    public JetBrains.Rider.Model.RunnableProject? CreateRunnableProject(
+    public Model.RunnableProject? CreateRunnableProject(
         IProject project,
         string name,
         string fullName,
@@ -39,7 +38,7 @@ public class AspireRunnableProjectProvider(
             projectOutputs.Add(projectOutput);
         }
 
-        return new JetBrains.Rider.Model.RunnableProject(
+        return new Model.RunnableProject(
             name,
             fullName,
             project.ProjectFileLocation.NormalizeSeparators(FileSystemPathEx.SeparatorStyle.Unix),

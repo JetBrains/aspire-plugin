@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using JetBrains.Application.Parts;
 using JetBrains.Core;
 using JetBrains.ProjectModel;
