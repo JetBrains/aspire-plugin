@@ -7,3 +7,4 @@ output
 [Bb]in/
 [Oo]bj/
 *.DotSettings.user
+nuget.config
