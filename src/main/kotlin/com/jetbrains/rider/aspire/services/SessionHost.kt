@@ -57,10 +57,10 @@ class SessionHost(
 
     private val aspireHosts = ConcurrentHashMap<Path, AspireHost>()
 
+    private val isActive: Boolean
+        get() = !sessionHostLifetimes.isTerminated
     val hasAspireHosts: Boolean
         get() = aspireHosts.any()
-    val isActive: Boolean
-        get() = !sessionHostLifetimes.isTerminated
     var debugSessionToken: String? = null
         private set
     var debugSessionPort: Int? = null
@@ -83,10 +83,10 @@ class SessionHost(
     }
 
     suspend fun start() {
-        if (!sessionHostLifetimes.isTerminated) return
+        if (isActive) return
 
         mutex.withLock {
-            if (!sessionHostLifetimes.isTerminated) return
+            if (isActive) return
 
             LOG.trace("Starting session host")
             val sessionHostLifetime = sessionHostLifetimes.next()
@@ -149,10 +149,10 @@ class SessionHost(
     }
 
     suspend fun stop() {
-        if (sessionHostLifetimes.isTerminated) return
+        if (!isActive) return
 
         mutex.withLock {
-            if (sessionHostLifetimes.isTerminated) return
+            if (!isActive) return
 
             LOG.trace("Stopping session host")
             model = null

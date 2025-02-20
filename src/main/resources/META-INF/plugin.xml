@@ -114,6 +114,12 @@
         <action id="Aspire.Host.Stop"
                 class="com.jetbrains.rider.aspire.actions.dashboard.host.StopHostAction"
                 icon="AllIcons.Actions.Suspend"/>
+        <action id="Aspire.Session.Host.Start"
+                class="com.jetbrains.rider.aspire.actions.StartSessionHostAction"
+                icon="AllIcons.Actions.Execute"/>
+        <action id="Aspire.Session.Host.Stop"
+                class="com.jetbrains.rider.aspire.actions.StopSessionHostAction"
+                icon="AllIcons.Actions.Suspend"/>
     </actions>
 
 </idea-plugin>
