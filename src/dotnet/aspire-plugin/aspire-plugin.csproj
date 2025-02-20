@@ -1,11 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net472</TargetFramework>
         <RootNamespace>JetBrains.Rider.Aspire</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="JetBrains.Rider.SDK" Version="$(RiderSDKVersion)" />
-    </ItemGroup>
+    <Target BeforeTargets="CoreCompile" Name="CheckForGradlePrepared" Condition="!Exists('$(JetBrainsRiderRdBackendCommonReference)')">
+        <Error Text="Please run `./gradlew :prepare`"/>
+    </Target>
+
+    <Import Project="$(MSBuildThisFileDirectory)..\..\..\build\DotNetSdkPath.Generated.props" Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\build\DotNetSdkPath.Generated.props')"/>
+
+    <PropertyGroup>
+        <JetBrainsRiderRdBackendCommonReference>$(DotNetSdkPath)\Build\PackageReference.JetBrains.Rider.RdBackend.Common.Props</JetBrainsRiderRdBackendCommonReference>
+    </PropertyGroup>
+
+    <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')"/>
 
 </Project>

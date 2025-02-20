@@ -5,6 +5,8 @@ import org.jetbrains.intellij.platform.gradle.Constants
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlin.io.path.absolute
+import kotlin.io.path.isDirectory
 
 plugins {
     alias(libs.plugins.kotlin)
@@ -16,6 +18,14 @@ plugins {
 
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
+
+val riderSdkPath by lazy {
+    val path = intellijPlatform.platformPath.resolve("lib/DotNetSdkForRdPlugins").absolute()
+    if (!path.isDirectory()) error("$path does not exist or not a directory")
+
+    println("Rider SDK path: $path")
+    return@lazy path
+}
 
 // Set the JVM language level used to build the project.
 kotlin {
@@ -121,11 +131,44 @@ tasks {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
     }
 
+    val generateDotNetSdkProperties by registering {
+        val dotNetSdkGeneratedPropsFile = projectDir.resolve("build/DotNetSdkPath.Generated.props")
+        doLast {
+            dotNetSdkGeneratedPropsFile.writeTextIfChanged("""
+            <Project>
+              <PropertyGroup>
+                <DotNetSdkPath>$riderSdkPath</DotNetSdkPath>
+              </PropertyGroup>
+            </Project>
+            """.trimIndent())
+        }
+    }
+
+    val generateNuGetConfig by registering {
+        val nuGetConfigFile = projectDir.resolve("nuget.config")
+        doLast {
+            nuGetConfigFile.writeTextIfChanged("""
+            <?xml version="1.0" encoding="utf-8"?>
+            <!-- Auto-generated from 'generateNuGetConfig' task of old.build_gradle.kts -->
+            <!-- Run `gradlew :prepare` to regenerate -->
+            <configuration>
+                <packageSources>
+                    <add key="rider-sdk" value="$riderSdkPath" />
+                </packageSources>
+            </configuration>
+            """.trimIndent())
+        }
+    }
+
     val rdGen = ":protocol:rdgen"
+
+    val prepareDotNetPart by registering {
+        dependsOn(rdGen, generateDotNetSdkProperties, generateNuGetConfig)
+    }
 
     val dotnetBuildConfiguration = providers.gradleProperty("dotnetBuildConfiguration").get()
     val compileDotNet by registering {
-        dependsOn(rdGen)
+        dependsOn(prepareDotNetPart)
         doLast {
             exec {
                 executable("dotnet")
@@ -203,23 +246,12 @@ artifacts {
     }
 }
 
-intellijPlatformTesting {
-    runIde {
-        register("runIdeForUiTests") {
-            task {
-                jvmArgumentProviders += CommandLineArgumentProvider {
-                    listOf(
-                        "-Drobot-server.port=8082",
-                        "-Dide.mac.message.dialogs.as.sheets=false",
-                        "-Djb.privacy.policy.text=<!--999.999-->",
-                        "-Djb.consents.confirmation.enabled=false",
-                    )
-                }
-            }
+fun File.writeTextIfChanged(content: String) {
+    val bytes = content.toByteArray()
 
-            plugins {
-                robotServerPlugin()
-            }
-        }
+    if (!exists() || !readBytes().contentEquals(bytes)) {
+        println("Writing $path")
+        parentFile.mkdirs()
+        writeBytes(bytes)
     }
 }
