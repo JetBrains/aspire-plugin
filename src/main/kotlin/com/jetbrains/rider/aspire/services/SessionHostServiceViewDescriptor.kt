@@ -6,7 +6,7 @@ import com.intellij.ui.SimpleTextAttributes
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.AspireIcons
 
-class SessionHostServiceViewDescriptor() : ServiceViewDescriptor {
+class SessionHostServiceViewDescriptor : ServiceViewDescriptor {
     override fun getPresentation() = PresentationData().apply {
         setIcon(AspireIcons.Service)
         @Suppress("DialogTitleCapitalization")

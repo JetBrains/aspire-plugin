@@ -13,7 +13,6 @@ import com.intellij.terminal.TerminalExecutionConsole
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.settings.AspireSettings
-import com.jetbrains.rider.aspire.util.getServiceInstanceId
 import com.jetbrains.rider.aspire.util.parseLogEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,8 +34,8 @@ class AspireResource(
         private val LOG = logger<AspireResource>()
     }
 
-    var uid: String
-        private set
+    private var uid: String
+
     var name: String
         private set
     var type: ResourceType
@@ -52,9 +51,6 @@ class AspireResource(
     var environment: Array<ResourceEnvironmentVariable>
         private set
     var volumes: Array<ResourceVolume>
-        private set
-
-    var serviceInstanceId: String? = null
         private set
 
     var createdAt: LocalDateTime? = null
@@ -118,8 +114,6 @@ class AspireResource(
         urls = model?.urls ?: emptyArray()
         environment = model?.environment ?: emptyArray()
         volumes = model?.volumes ?: emptyArray()
-
-        serviceInstanceId = model?.getServiceInstanceId()
 
         fillFromProperties(model?.properties ?: emptyArray())
 
@@ -222,8 +216,6 @@ class AspireResource(
         urls = model.urls
         environment = model.environment
         volumes = model.volumes
-
-        serviceInstanceId = model.getServiceInstanceId()
 
         fillFromProperties(model.properties)
 
