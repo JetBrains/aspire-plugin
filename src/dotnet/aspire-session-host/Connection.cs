@@ -10,7 +10,7 @@ internal sealed class Connection : IDisposable
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
     private readonly Lifetime _lifetime;
-    private readonly IScheduler _scheduler;
+    private readonly SingleThreadScheduler _scheduler;
     private readonly IProtocol _protocol;
     private readonly Task<AspireSessionHostModel> _model;
 

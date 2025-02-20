@@ -83,6 +83,7 @@ internal sealed class AspireHostResourceLogWatcher(
                         resource.LogReceived(
                             new ResourceLog(
                                 logLine.Text,
+                                // ReSharper disable once SimplifyConditionalTernaryExpression
                                 logLine.HasIsStdErr ? logLine.IsStdErr : false,
                                 logLine.LineNumber
                             )

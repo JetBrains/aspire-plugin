@@ -91,6 +91,7 @@ internal static class ResourceExtensions
             return value.NumberValue.ToString(CultureInfo.InvariantCulture);
         }
 
+        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (value.HasNullValue)
         {
             return null;

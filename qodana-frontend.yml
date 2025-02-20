@@ -9,6 +9,5 @@ profile:
 exclude:
   - name: All
     paths:
-      - .qodana
       - protocol
       - src/main/kotlin/com/jetbrains/rider/aspire/generated
