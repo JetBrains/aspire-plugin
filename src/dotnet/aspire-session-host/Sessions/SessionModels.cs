@@ -3,19 +3,19 @@ using JetBrains.Annotations;
 
 namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
 
-[UsedImplicitly]
+[PublicAPI]
 internal sealed record Info(
     List<string> ProtocolsSupported
 );
 
-[UsedImplicitly]
+[PublicAPI]
 internal sealed record Session(
     LaunchConfiguration[] LaunchConfigurations,
     EnvironmentVariable[]? Env,
     string[]? Args
 );
 
-[UsedImplicitly]
+[PublicAPI]
 internal sealed record LaunchConfiguration(
     string Type,
     string ProjectPath,
@@ -25,19 +25,20 @@ internal sealed record LaunchConfiguration(
 );
 
 [JsonConverter(typeof(JsonStringEnumConverter<Mode>))]
+[PublicAPI]
 internal enum Mode
 {
     Debug,
     NoDebug
 }
 
-[UsedImplicitly]
+[PublicAPI]
 internal sealed record EnvironmentVariable(string Name, string? Value);
 
-[UsedImplicitly]
+[PublicAPI]
 internal sealed record ErrorResponse(ErrorDetail Error);
 
-[UsedImplicitly]
+[PublicAPI]
 internal sealed record ErrorDetail(
     string Code,
     string Message,

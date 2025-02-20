@@ -144,7 +144,9 @@ internal sealed class AspireHost
 
         var envs = session.Env
             ?.Where(it => it.Value is not null)
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
             ?.Select(it => new SessionEnvironmentVariable(it.Name, it.Value!))
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
             ?.ToArray();
 
         var request = new CreateSessionRequest(
@@ -172,7 +174,7 @@ internal sealed class AspireHost
 
         _logger.LogInformation("Deleting the session {deleteSessionRequest}", request);
 
-        var result = await _connection.DoWithModel(model => _aspireHostModel.DeleteSession.Sync(request));
+        var result = await _connection.DoWithModel(_ => _aspireHostModel.DeleteSession.Sync(request));
         _logger.LogDebug("Session deletion response: {sessionDeletionResponse}", result);
 
         var error = result.Error is not null ? BuildErrorResponse(result.Error) : null;

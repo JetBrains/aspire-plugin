@@ -59,10 +59,14 @@ internal sealed class AspireHostResourceWatcher(
                     case WatchResourcesUpdate.KindOneofCase.Changes:
                         await HandleChanges(update.Changes, ct);
                         break;
+                    case WatchResourcesUpdate.KindOneofCase.None:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(update.KindCase.ToString());
                 }
             }
         }
-        catch (OperationCanceledException) when(ct.IsCancellationRequested)
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
             logger.LogTrace("Resource watching request was cancelled");
         }
@@ -104,6 +108,10 @@ internal sealed class AspireHostResourceWatcher(
                 case WatchResourcesChange.KindOneofCase.Delete:
                     await DeleteResource(change);
                     break;
+                case WatchResourcesChange.KindOneofCase.None:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(change.KindCase.ToString());
             }
         }
     }
@@ -132,11 +140,11 @@ internal sealed class AspireHostResourceWatcher(
         await connection.DoWithModel(_ => hostModel.Resources.Remove(change.Delete.ResourceName));
     }
 
-    private async Task<ResourceCommandResponse> ExecuteCommand(ResourceCommandRequest command, Lifetime lifetime)
+    private async Task<ResourceCommandResponse> ExecuteCommand(ResourceCommandRequest command, Lifetime lt)
     {
         var request = MapRequest(command);
         var response = await client.ExecuteResourceCommandAsync(request, headers: headers,
-            cancellationToken: lifetime.ToCancellationToken());
+            cancellationToken: lt.ToCancellationToken());
         return MapResponse(response);
     }
 

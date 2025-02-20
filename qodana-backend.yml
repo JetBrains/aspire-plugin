@@ -7,3 +7,7 @@ dotnet:
   solution: aspire-plugin.sln
 profile:
   name: qodana.recommended
+exclude:
+  - name: All
+    paths:
+      - README.md
