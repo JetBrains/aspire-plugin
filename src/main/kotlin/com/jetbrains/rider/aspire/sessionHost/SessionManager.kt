@@ -118,8 +118,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         object : ProcessAdapter() {
             override fun startNotified(event: ProcessEvent) {
                 LOG.info("Session $sessionId process was started")
-                val processHandler = event.processHandler
-                val pid = when (processHandler) {
+                val pid = when (val processHandler = event.processHandler) {
                     is DebuggerWorkerProcessHandler -> processHandler.debuggerWorkerRealHandler.pid()
                     is ProcessHandler -> event.processHandler.pid()
                     else -> null

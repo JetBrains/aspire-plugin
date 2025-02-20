@@ -5,7 +5,6 @@ import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.diagnostic.trace
 import com.intellij.xdebugger.XDebugSession
 import com.jetbrains.rd.framework.IProtocol
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -17,7 +16,6 @@ import com.jetbrains.rider.debugger.DotNetDebugRunner
 import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
 import com.jetbrains.rider.model.debuggerWorker.DotNetDebuggerSessionModel
 import com.jetbrains.rider.run.IDotNetDebugProfileState
-import kotlin.io.path.Path
 
 class AspireHostDebugProgramRunner : DotNetDebugRunner() {
     companion object {
@@ -52,17 +50,7 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
             .lifetime
             .createNested()
 
-        val aspireHostConfig = setUpAspireHostModel(environment, state, aspireHostProcessHandlerLifetime)
-        LOG.trace { "Aspire session host config: $aspireHostConfig" }
-
-        if (aspireHostConfig.runConfigName != null) {
-            saveRunConfiguration(
-                environment.project,
-                Path(aspireHostConfig.aspireHostProjectPath),
-                aspireHostConfig.runConfigName,
-                aspireHostProcessHandlerLifetime
-            )
-        }
+        setUpAspireHostModelAndSaveRunConfig(environment, state, aspireHostProcessHandlerLifetime)
 
         val executionResult = state.execute(environment.executor, this, workerProcessHandler, sessionLifetime)
 

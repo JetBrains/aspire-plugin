@@ -13,8 +13,7 @@ private const val PATTERN = "^$YEAR-$MONTH-${DAY}T$HOUR:$MINUTES:$SECONDS$PARTIA
 private val regex = Regex(PATTERN)
 
 fun parseLogEntry(logEntry: String): Pair<String, String>? {
-    val match = regex.find(logEntry)
-    if (match == null) return null
+    val match = regex.find(logEntry) ?: return null
 
     val timestamp = match.value
     val logContent =

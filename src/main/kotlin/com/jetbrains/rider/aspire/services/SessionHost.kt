@@ -195,8 +195,7 @@ class SessionHost(
         }
 
         LOG.trace { "Adding Aspire host model $config" }
-        val aspireHostModel = AspireHostModel(config)
-        requireNotNull(model).aspireHosts.put(config.id, aspireHostModel)
+        requireNotNull(model).aspireHosts[config.id] = AspireHostModel(config)
     }
 
     @RequiresEdt

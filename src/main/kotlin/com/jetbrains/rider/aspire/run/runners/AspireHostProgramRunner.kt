@@ -8,12 +8,10 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.diagnostic.trace
 import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.states.AspireHostRunProfileState
 import com.jetbrains.rider.debugger.DotNetProgramRunner
-import kotlin.io.path.Path
 
 class AspireHostProgramRunner : DotNetProgramRunner() {
     companion object {
@@ -43,17 +41,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
             .lifetime
             .createNested()
 
-        val aspireHostConfig = setUpAspireHostModel(environment, state, aspireHostProcessHandlerLifetime)
-        LOG.trace { "Aspire session host config: $aspireHostConfig" }
-
-        if (aspireHostConfig.runConfigName != null) {
-            saveRunConfiguration(
-                environment.project,
-                Path(aspireHostConfig.aspireHostProjectPath),
-                aspireHostConfig.runConfigName,
-                aspireHostProcessHandlerLifetime
-            )
-        }
+        setUpAspireHostModelAndSaveRunConfig(environment, state, aspireHostProcessHandlerLifetime)
 
         val executionResult = state.execute(environment.executor, this)
 

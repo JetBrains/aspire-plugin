@@ -8,6 +8,7 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -25,7 +26,27 @@ import kotlin.io.path.absolutePathString
 
 private val LOG = Logger.getInstance("#com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunnerUtils")
 
-suspend fun setUpAspireHostModel(
+suspend fun setUpAspireHostModelAndSaveRunConfig(
+    environment: ExecutionEnvironment,
+    state: AspireHostProfileState,
+    aspireHostProcessHandlerLifetimeDef: LifetimeDefinition,
+) {
+    val aspireHostConfig = setUpAspireHostModel(environment, state, aspireHostProcessHandlerLifetimeDef.lifetime)
+    LOG.trace { "Aspire session host config: $aspireHostConfig" }
+
+    if (aspireHostConfig.runConfigName != null) {
+        LOG.trace { "Saving Aspire Host run configuration ${aspireHostConfig.runConfigName}" }
+
+        saveRunConfiguration(
+            environment.project,
+            Path(aspireHostConfig.aspireHostProjectPath),
+            aspireHostConfig.runConfigName,
+            aspireHostProcessHandlerLifetimeDef
+        )
+    }
+}
+
+private suspend fun setUpAspireHostModel(
     environment: ExecutionEnvironment,
     state: AspireHostProfileState,
     aspireHostProcessHandlerLifetime: Lifetime,
@@ -75,7 +96,7 @@ suspend fun setUpAspireHostModel(
     return aspireHostConfig
 }
 
-fun saveRunConfiguration(
+private fun saveRunConfiguration(
     project: Project,
     aspireHostProjectPath: Path,
     runConfigurationName: String,
