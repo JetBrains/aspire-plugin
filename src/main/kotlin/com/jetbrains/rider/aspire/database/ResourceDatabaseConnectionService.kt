@@ -48,7 +48,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
 
     private val connectionManager = ConnectionManager(project)
 
-    private val connectionToProcess = MutableSharedFlow<Pair<SessionConnectionString, DatabaseResource2>>(
+    private val connectionToProcess = MutableSharedFlow<Pair<SessionConnectionString, DatabaseResource>>(
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
         extraBufferCapacity = 100
     )
@@ -66,11 +66,11 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
         }
     }
 
-    fun processConnection(connectionString: SessionConnectionString, databaseResource: DatabaseResource2) {
+    fun processConnection(connectionString: SessionConnectionString, databaseResource: DatabaseResource) {
         connectionToProcess.tryEmit(connectionString to databaseResource)
     }
 
-    private suspend fun process(connectionString: SessionConnectionString, databaseResource: DatabaseResource2) {
+    private suspend fun process(connectionString: SessionConnectionString, databaseResource: DatabaseResource) {
         if (databaseResource.resourceLifetime.isNotAlive) return
 
         val modifiedConnectionString = modifyConnectionString(connectionString, databaseResource) ?: return
@@ -133,7 +133,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
     //We have to modify the connection string to use the iternal url because it doesn't change for the persistent resources
     private fun modifyConnectionString(
         connectionString: SessionConnectionString,
-        databaseResource: DatabaseResource2
+        databaseResource: DatabaseResource
     ): String? {
         val targetUrl = databaseResource.urls.find {
             connectionString.connectionString.contains(it.uri.port.toString())
@@ -173,7 +173,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
 
     private suspend fun getConnectionUrl(
         connectionString: String,
-        databaseResource: DatabaseResource2,
+        databaseResource: DatabaseResource,
         dataProvider: DotnetDataProvider,
         driver: DatabaseDriver
     ): String? {
