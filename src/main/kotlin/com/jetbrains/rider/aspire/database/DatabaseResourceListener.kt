@@ -8,8 +8,6 @@ import java.net.URI
 
 class DatabaseResourceListener(private val project: Project) : ResourceListener {
     companion object {
-        private const val CONNECTION_STRINGS = "ConnectionStrings"
-        private const val CONNECTION_STRING_PREFIX = "ConnectionStrings__"
         private const val POSTGRES = "postgres"
         private const val MYSQL = "mysql"
         private const val MSSQL = "mssql"
@@ -27,57 +25,37 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
     }
 
     private fun applyChanges(resource: AspireResource) {
-        val service = DatabaseService.getInstance(project)
-        if (resource.type == ResourceType.Project) {
-            resource.environment
-                .filter { it.key.startsWith(CONNECTION_STRINGS) && it.value != null }
-                .forEach {
-                    if (!it.value.isNullOrEmpty()) {
-                        val connectionName = it.key.substringAfter(CONNECTION_STRING_PREFIX)
-
-                        val connectionString = DatabaseResourceConnectionString(
-                            connectionName,
-                            it.value,
-                            resource.lifetime
-                        )
-                        service.addConnectionString(connectionString)
-                    }
-                }
-        } else if (resource.type == ResourceType.Container) {
-            if (resource.urls.isEmpty()) return
+        if (resource.type == ResourceType.Container) {
+            val containerId = resource.containerId ?: return
             val resourceType = getType(resource.containerImage) ?: return
-            val ports = resource.urls
-                .asSequence()
-                .mapNotNull {
-                    try {
-                        val url = URI(it.fullUrl)
-                        url.port.toString()
-                    } catch (_: Exception) {
-                        return@mapNotNull null
-                    }
+            val urls = resource.urls
+                .mapNotNull { url ->
+                    runCatching { URI(url.fullUrl) }.getOrNull()
+                        ?.let { DatabaseResourceUrl(url.name, it, url.isInternal) }
                 }
-                .toList()
+            if (urls.isEmpty()) return
             val isPersistent = resource.containerLifetime.equals("persistent", true)
 
-            val databaseResource = DatabaseResource(
+            val databaseResource = DatabaseResource2(
                 resource.name,
+                containerId,
                 resourceType,
-                ports,
+                urls,
                 isPersistent,
                 resource.lifetime
             )
-            service.addDatabaseResource(databaseResource)
+            ResourceDatabaseService.getInstance(project).putDatabaseResource(databaseResource)
         }
     }
 
-    private fun getType(image: String?): DatabaseResourceType? {
+    private fun getType(image: String?): DatabaseType? {
         if (image == null) return null
-        if (image.contains(POSTGRES)) return DatabaseResourceType.POSTGRES
-        if (image.contains(MYSQL)) return DatabaseResourceType.MYSQL
-        if (image.contains(MSSQL)) return DatabaseResourceType.MSSQL
-        if (image.contains(ORACLE)) return DatabaseResourceType.ORACLE
-        if (image.contains(MONGO)) return DatabaseResourceType.MONGO
-        if (image.contains(REDIS)) return DatabaseResourceType.REDIS
+        if (image.contains(POSTGRES)) return DatabaseType.POSTGRES
+        if (image.contains(MYSQL)) return DatabaseType.MYSQL
+        if (image.contains(MSSQL)) return DatabaseType.MSSQL
+        if (image.contains(ORACLE)) return DatabaseType.ORACLE
+        if (image.contains(MONGO)) return DatabaseType.MONGO
+        if (image.contains(REDIS)) return DatabaseType.REDIS
         return null
     }
 }

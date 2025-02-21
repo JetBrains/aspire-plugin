@@ -44,8 +44,8 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
     }
 
     private val rawConnectionStringTypes = listOf(
-        DatabaseResourceType.MSSQL,
-        DatabaseResourceType.MONGO
+        DatabaseType.MSSQL,
+        DatabaseType.MONGO
     )
 
     private val connectionManager = ConnectionManager(project)
@@ -161,12 +161,12 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
         LOG.trace { "Creating data source for ${connectionString.connectionString}" }
 
         val dataProvider = when (resource.type) {
-            DatabaseResourceType.POSTGRES -> NpgsqlDataProvider.getInstance(project)
-            DatabaseResourceType.MYSQL -> MySqlClientDataProvider.getInstance(project)
-            DatabaseResourceType.MSSQL -> SqlClientDataProvider.getInstance(project)
-            DatabaseResourceType.ORACLE -> OracleClientDataProvider.getInstance(project)
-            DatabaseResourceType.MONGO -> DummyMongoDataProvider.getInstance(project)
-            DatabaseResourceType.REDIS -> DummyRedisDataProvider.getInstance(project)
+            DatabaseType.POSTGRES -> NpgsqlDataProvider.getInstance(project)
+            DatabaseType.MYSQL -> MySqlClientDataProvider.getInstance(project)
+            DatabaseType.MSSQL -> SqlClientDataProvider.getInstance(project)
+            DatabaseType.ORACLE -> OracleClientDataProvider.getInstance(project)
+            DatabaseType.MONGO -> DummyMongoDataProvider.getInstance(project)
+            DatabaseType.REDIS -> DummyRedisDataProvider.getInstance(project)
         }
         val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
         if (driver == null) {
@@ -175,7 +175,7 @@ class DatabaseService(private val project: Project, scope: CoroutineScope) {
         }
 
         val url =
-            if (resource.type == DatabaseResourceType.REDIS) {
+            if (resource.type == DatabaseType.REDIS) {
                 convertRedisConnectionString(connectionString.connectionString)
             } else if (rawConnectionStringTypes.contains(resource.type)) {
                 connectionString.connectionString

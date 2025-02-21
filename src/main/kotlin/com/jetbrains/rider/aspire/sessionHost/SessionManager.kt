@@ -91,6 +91,10 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.isAspireHostUnderDebug,
             command.aspireHostRunConfigName
         )
+
+        project.messageBus
+            .syncPublisher(SessionListener.TOPIC)
+            .sessionCreated(command, sessionLifetimeDefinition.lifetime)
     }
 
     private suspend fun handleDeleteCommand(command: DeleteSessionCommand) {
