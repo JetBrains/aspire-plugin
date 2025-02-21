@@ -23,13 +23,13 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
     }
 
     private val connectionStrings = ConcurrentHashMap<Pair<String, String>, SessionConnectionString>()
-    private val databaseResources = ConcurrentHashMap<String, DatabaseResource2>()
+    private val databaseResources = ConcurrentHashMap<String, DatabaseResource>()
 
     private val connectionStringToProcess = MutableSharedFlow<SessionConnectionString>(
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
         extraBufferCapacity = 100
     )
-    private val databaseResourceToProcess = MutableSharedFlow<DatabaseResource2>(
+    private val databaseResourceToProcess = MutableSharedFlow<DatabaseResource>(
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
         extraBufferCapacity = 100
     )
@@ -60,7 +60,7 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
         }
     }
 
-    fun putDatabaseResource(resource: DatabaseResource2) {
+    fun putDatabaseResource(resource: DatabaseResource) {
         if (resource.resourceLifetime.isNotAlive) return
 
         LOG.trace { "Adding database resource $resource" }
@@ -74,7 +74,7 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
     }
 
     private fun process(connectionString: SessionConnectionString) {
-        val databases = mutableListOf<DatabaseResource2>()
+        val databases = mutableListOf<DatabaseResource>()
         for (databaseResource in databaseResources.values) {
             for (url in databaseResource.urls) {
                 if (connectionString.connectionString.contains(url.uri.port.toString())) {
@@ -89,7 +89,7 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
         }
     }
 
-    private fun process(databaseResource: DatabaseResource2) {
+    private fun process(databaseResource: DatabaseResource) {
         val connections = mutableListOf<SessionConnectionString>()
         for (connectionString in connectionStrings.values) {
             for (url in databaseResource.urls) {

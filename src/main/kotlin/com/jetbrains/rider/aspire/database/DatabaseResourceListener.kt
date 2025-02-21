@@ -36,7 +36,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
             if (urls.isEmpty()) return
             val isPersistent = resource.containerLifetime.equals("persistent", true)
 
-            val databaseResource = DatabaseResource2(
+            val databaseResource = DatabaseResource(
                 resource.name,
                 containerId,
                 resourceType,
