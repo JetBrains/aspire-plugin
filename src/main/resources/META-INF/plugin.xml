@@ -72,6 +72,8 @@
     <projectListeners>
         <listener class="com.jetbrains.rider.aspire.database.DatabaseResourceListener"
                   topic="com.jetbrains.rider.aspire.services.ResourceListener"/>
+        <listener class="com.jetbrains.rider.aspire.database.DatabaseSessionListener"
+                  topic="com.jetbrains.rider.aspire.sessionHost.SessionListener"/>
         <listener class="com.jetbrains.rider.aspire.sessionHost.SessionHostManager$RunListener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
