@@ -67,6 +67,8 @@
                 implementation="com.jetbrains.rider.aspire.sessionHost.wasmHost.WasmHostProjectSessionProcessLauncher"/>
         <sessionProcessLauncherExtension
                 implementation="com.jetbrains.rider.aspire.sessionHost.dotnetProject.DotNetProjectSessionProcessLauncher"/>
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.rider.aspire.sessionHost.awsLambda.LambdaProjectSessionProcessLauncher"/>
     </extensions>
 
     <projectListeners>
