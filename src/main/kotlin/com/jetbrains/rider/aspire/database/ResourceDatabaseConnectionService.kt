@@ -127,7 +127,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
             connectionStrings.remove(modifiedConnectionString)
             return
         }
-        urlToConnectionStrings.put(url, modifiedConnectionString)
+        urlToConnectionStrings[url] = modifiedConnectionString
 
         val dataSourceManager = LocalDataSourceManager.getInstance(project)
         val createdDataSource = if (dataSourceManager.dataSources.any { it.url == url }) {

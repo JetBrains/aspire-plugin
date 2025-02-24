@@ -71,7 +71,7 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
 
         LOG.trace { "Adding database resource $resource" }
 
-        databaseResources.put(resource.containerId, resource)
+        databaseResources[resource.containerId] = resource
         resource.resourceLifetime.onTerminationIfAlive {
             databaseResources.remove(resource.containerId)
         }
