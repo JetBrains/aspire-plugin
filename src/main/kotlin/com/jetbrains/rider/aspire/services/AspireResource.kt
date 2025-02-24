@@ -61,8 +61,6 @@ class AspireResource(
         private set
     var exitCode: Int? = null
         private set
-    var connectionString: String? = null
-        private set
     var pid: Int? = null
         private set
     var projectPath: Path? = null
@@ -159,10 +157,6 @@ class AspireResource(
 
                 "resource.exitCode" -> {
                     property.value?.let { exitCode = it.toDouble().roundToInt() }
-                }
-
-                "resource.connectionString" -> {
-                    property.value?.let { connectionString = it }
                 }
 
                 "project.path" -> {
