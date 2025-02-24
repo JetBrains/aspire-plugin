@@ -6,7 +6,7 @@
 
 ### Fixed
 
-- [#296](https://github.com/JetBrains/aspire-plugin/issues/296) Database containers whose Lifestime is Permanent should be kept in the Database panel
+- [#296](https://github.com/JetBrains/aspire-plugin/issues/296) Database containers whose Lifetime is Permanent should be kept in the Database panel
 
 ## [1.7.4] - 2025-02-19
 
