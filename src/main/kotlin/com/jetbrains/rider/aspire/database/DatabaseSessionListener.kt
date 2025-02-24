@@ -21,7 +21,7 @@ class DatabaseSessionListener(private val project: Project) : SessionListener {
         connectionStrings.forEach {
             val connectionName = it.key.substringAfter(CONNECTION_STRING_PREFIX)
             val connectionString = SessionConnectionString(sessionId, connectionName, it.value, sessionLifetime)
-            service.putConnectionString(connectionString)
+            service.put(connectionString)
         }
     }
 }

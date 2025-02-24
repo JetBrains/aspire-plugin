@@ -14,6 +14,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Service responsible for managing the association between [DatabaseResource] and [SessionConnectionString].
+ *
+ * Associations are determined on the equality of ports.
+ * If it finds an association, it sends the pair to the [ResourceDatabaseConnectionService] service.
+ */
 @Service(Service.Level.PROJECT)
 class ResourceDatabaseService(private val project: Project, scope: CoroutineScope) {
     companion object {
@@ -43,7 +49,7 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
         }
     }
 
-    fun putConnectionString(connectionString: SessionConnectionString) {
+    fun put(connectionString: SessionConnectionString) {
         if (connectionString.sessionLifetime.isNotAlive) return
 
         LOG.trace { "Adding connection string $connectionString" }
@@ -60,7 +66,7 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
         }
     }
 
-    fun putDatabaseResource(resource: DatabaseResource) {
+    fun put(resource: DatabaseResource) {
         if (resource.resourceLifetime.isNotAlive) return
 
         LOG.trace { "Adding database resource $resource" }
@@ -73,7 +79,7 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
         databaseResourceToProcess.tryEmit(resource)
     }
 
-    private fun process(connectionString: SessionConnectionString) {
+    private suspend fun process(connectionString: SessionConnectionString) {
         val databases = mutableListOf<DatabaseResource>()
         for (databaseResource in databaseResources.values) {
             for (url in databaseResource.urls) {
@@ -89,7 +95,7 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
         }
     }
 
-    private fun process(databaseResource: DatabaseResource) {
+    private suspend fun process(databaseResource: DatabaseResource) {
         val connections = mutableListOf<SessionConnectionString>()
         for (connectionString in connectionStrings.values) {
             for (url in databaseResource.urls) {

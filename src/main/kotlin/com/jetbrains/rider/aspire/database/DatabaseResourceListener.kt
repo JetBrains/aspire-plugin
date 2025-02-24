@@ -44,7 +44,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
                 isPersistent,
                 resource.lifetime
             )
-            ResourceDatabaseService.getInstance(project).putDatabaseResource(databaseResource)
+            ResourceDatabaseService.getInstance(project).put(databaseResource)
         }
     }
 

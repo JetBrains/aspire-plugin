@@ -30,6 +30,18 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * Service for managing database connections and associated Aspire resources.
+ *
+ * This service attempts
+ * to create a new [LocalDataSource] based on the provided [DatabaseResource] and [SessionConnectionString].
+ *
+ * 1. The service tries to use the internal ports of [DatabaseResource],
+ * as they remain the same for persistent resources.
+ * 2. If a [LocalDataSource] has been created, the service attempts to connect to it.
+ * 3. If the [DatabaseResource] is not persistent,
+ * the created [LocalDataSource] will be deleted when the lifetime of the resource terminates.
+ */
 @Service(Service.Level.PROJECT)
 class ResourceDatabaseConnectionService(private val project: Project, scope: CoroutineScope) {
     companion object {
@@ -49,11 +61,11 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
     private val connectionManager = ConnectionManager(project)
 
     private val connectionToProcess = MutableSharedFlow<Pair<SessionConnectionString, DatabaseResource>>(
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        onBufferOverflow = BufferOverflow.SUSPEND,
         extraBufferCapacity = 100
     )
     private val createdDataSources = MutableSharedFlow<LocalDataSource>(
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        onBufferOverflow = BufferOverflow.SUSPEND,
         extraBufferCapacity = 100
     )
 
@@ -66,8 +78,8 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
         }
     }
 
-    fun processConnection(connectionString: SessionConnectionString, databaseResource: DatabaseResource) {
-        connectionToProcess.tryEmit(connectionString to databaseResource)
+    suspend fun processConnection(connectionString: SessionConnectionString, databaseResource: DatabaseResource) {
+        connectionToProcess.emit(connectionString to databaseResource)
     }
 
     private suspend fun process(connectionString: SessionConnectionString, databaseResource: DatabaseResource) {
@@ -83,43 +95,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
         }
 
         try {
-            val dataProvider = getDataProvider(databaseResource.type)
-            val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
-            if (driver == null) {
-                LOG.info("Unable to guess database driver")
-                connectionStrings.remove(modifiedConnectionString)
-                return
-            }
-
-            val url = getConnectionUrl(modifiedConnectionString, databaseResource, dataProvider, driver)
-            if (url == null) {
-                LOG.info("Unable to convert $modifiedConnectionString to url")
-                connectionStrings.remove(modifiedConnectionString)
-                return
-            }
-
-            val dataSourceManager = LocalDataSourceManager.getInstance(project)
-            val createdDataSource = if (dataSourceManager.dataSources.any { it.url == url }) {
-                LOG.trace { "Data source with $url is already in use" }
-                null
-            } else {
-                LOG.trace { "Creating a new data source with $url" }
-                val dataSource = LocalDataSource.fromDriver(driver, url, true).apply {
-                    name = connectionString.connectionName
-                    isAutoSynchronize = true
-                }
-                dataSourceManager.addDataSource(dataSource)
-                dataSource
-            }
-
-            if (!databaseResource.isPersistent && createdDataSource != null) {
-                databaseResource.resourceLifetime.onTerminationIfAlive {
-                    LOG.trace { "Removing data source $url" }
-                    dataSourceManager.removeDataSource(createdDataSource)
-                }
-            }
-
-            createdDataSource?.let { createdDataSources.tryEmit(it) }
+            createDataSource(databaseResource, modifiedConnectionString, connectionString)
         } catch (ce: CancellationException) {
             connectionStrings.remove(modifiedConnectionString)
             LOG.trace { "Connecting with $modifiedConnectionString was cancelled" }
@@ -128,6 +104,50 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
             LOG.warn("Unable to connect to database $modifiedConnectionString", e)
             connectionStrings.remove(modifiedConnectionString)
         }
+    }
+
+    private suspend fun createDataSource(
+        databaseResource: DatabaseResource,
+        modifiedConnectionString: String,
+        connectionString: SessionConnectionString
+    ) {
+        val dataProvider = getDataProvider(databaseResource.type)
+        val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
+        if (driver == null) {
+            LOG.info("Unable to guess database driver")
+            connectionStrings.remove(modifiedConnectionString)
+            return
+        }
+
+        val url = getConnectionUrl(modifiedConnectionString, databaseResource, dataProvider, driver)
+        if (url == null) {
+            LOG.info("Unable to convert $modifiedConnectionString to url")
+            connectionStrings.remove(modifiedConnectionString)
+            return
+        }
+
+        val dataSourceManager = LocalDataSourceManager.getInstance(project)
+        val createdDataSource = if (dataSourceManager.dataSources.any { it.url == url }) {
+            LOG.trace { "Data source with $url is already in use" }
+            null
+        } else {
+            LOG.trace { "Creating a new data source with $url" }
+            val dataSource = LocalDataSource.fromDriver(driver, url, true).apply {
+                name = connectionString.connectionName
+                isAutoSynchronize = true
+            }
+            dataSourceManager.addDataSource(dataSource)
+            dataSource
+        }
+
+        if (!databaseResource.isPersistent && createdDataSource != null) {
+            databaseResource.resourceLifetime.onTerminationIfAlive {
+                LOG.trace { "Removing data source $url" }
+                dataSourceManager.removeDataSource(createdDataSource)
+            }
+        }
+
+        createdDataSource?.let { createdDataSources.tryEmit(it) }
     }
 
     //We have to modify the connection string to use the iternal url because it doesn't change for the persistent resources
