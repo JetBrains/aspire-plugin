@@ -1,12 +1,14 @@
 package com.jetbrains.rider.aspire.database
 
 import com.intellij.database.access.DatabaseCredentialsUi
+import com.intellij.database.dataSource.DataSourceStorage
 import com.intellij.database.dataSource.DatabaseDriver
 import com.intellij.database.dataSource.LocalDataSource
 import com.intellij.database.dataSource.LocalDataSourceManager
 import com.intellij.database.util.DbImplUtil
 import com.intellij.database.util.LoaderContext
 import com.intellij.database.util.performAutoIntrospection
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.debug
@@ -14,6 +16,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.withBackgroundProgress
+import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.services.connection.ConnectionManager
@@ -21,11 +24,9 @@ import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.service
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.converters.ConnectionStringToJdbcUrlConverter
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.*
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.factories.ConnectionStringsFactory
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
@@ -57,6 +58,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
     private val rawConnectionStringTypes = listOf(DatabaseType.MSSQL, DatabaseType.MONGO)
 
     private val connectionStrings = ConcurrentHashMap<String, Unit>()
+    private val urlToConnectionStrings = ConcurrentHashMap<String, String>()
 
     private val connectionManager = ConnectionManager(project)
 
@@ -125,6 +127,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
             connectionStrings.remove(modifiedConnectionString)
             return
         }
+        urlToConnectionStrings.put(url, modifiedConnectionString)
 
         val dataSourceManager = LocalDataSourceManager.getInstance(project)
         val createdDataSource = if (dataSourceManager.dataSources.any { it.url == url }) {
@@ -136,14 +139,18 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
                 name = connectionString.connectionName
                 isAutoSynchronize = true
             }
-            dataSourceManager.addDataSource(dataSource)
+            withContext(Dispatchers.EDT) {
+                dataSourceManager.addDataSource(dataSource)
+            }
             dataSource
         }
 
         if (!databaseResource.isPersistent && createdDataSource != null) {
             databaseResource.resourceLifetime.onTerminationIfAlive {
                 LOG.trace { "Removing data source $url" }
-                dataSourceManager.removeDataSource(createdDataSource)
+                application.invokeLater {
+                    dataSourceManager.removeDataSource(createdDataSource)
+                }
             }
         }
 
@@ -274,5 +281,17 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
         }
 
         return false
+    }
+
+    private fun removeConnectionStringByUrl(url: String?) {
+        if (url == null) return
+        val connectionString = urlToConnectionStrings.remove(url) ?: return
+        connectionStrings.remove(connectionString)
+    }
+
+    class DataSourceListener(private val project: Project) : DataSourceStorage.Listener {
+        override fun dataSourceRemoved(dataSource: LocalDataSource) {
+            getInstance(project).removeConnectionStringByUrl(dataSource.url)
+        }
     }
 }
