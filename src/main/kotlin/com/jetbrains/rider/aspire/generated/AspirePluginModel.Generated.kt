@@ -2,23 +2,23 @@
 package com.jetbrains.rider.aspire.generated
 
 import com.jetbrains.rd.framework.*
-import com.jetbrains.rd.framework.base.*
-import com.jetbrains.rd.framework.impl.*
-
-import com.jetbrains.rd.util.lifetime.*
-import com.jetbrains.rd.util.reactive.*
-import com.jetbrains.rd.util.string.*
-import com.jetbrains.rd.util.*
-import kotlin.time.Duration
+import com.jetbrains.rd.framework.base.ISerializersOwner
+import com.jetbrains.rd.framework.base.RdExtBase
+import com.jetbrains.rd.framework.base.deepClonePolymorphic
+import com.jetbrains.rd.framework.impl.RdCall
+import com.jetbrains.rd.framework.impl.RdSignal
+import com.jetbrains.rd.util.reactive.IAsyncSource
+import com.jetbrains.rd.util.string.IPrintable
+import com.jetbrains.rd.util.string.PrettyPrinter
+import com.jetbrains.rd.util.string.print
 import kotlin.reflect.KClass
-import kotlin.jvm.JvmStatic
-
 
 
 /**
  * #### Generated from [AspirePluginModel.kt:10]
  */
 class AspirePluginModel private constructor(
+    private val _getProjectOutputType: RdCall<String, String?>,
     private val _startSessionHost: RdCall<StartSessionHostRequest, StartSessionHostResponse>,
     private val _stopSessionHost: RdCall<StopSessionHostRequest, Unit>,
     private val _unitTestRunCancelled: RdSignal<String>
@@ -38,14 +38,16 @@ class AspirePluginModel private constructor(
         
         
         
+        private val __StringNullableSerializer = FrameworkMarshallers.String.nullable()
         
-        const val serializationHash = 3962467493622399682L
+        const val serializationHash = -4698860226523395197L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspirePluginModel
     override val serializationHash: Long get() = AspirePluginModel.serializationHash
     
     //fields
+    val getProjectOutputType: IRdCall<String, String?> get() = _getProjectOutputType
     val startSessionHost: IRdEndpoint<StartSessionHostRequest, StartSessionHostResponse> get() = _startSessionHost
     val stopSessionHost: IRdEndpoint<StopSessionHostRequest, Unit> get() = _stopSessionHost
     val unitTestRunCancelled: IAsyncSource<String> get() = _unitTestRunCancelled
@@ -58,6 +60,7 @@ class AspirePluginModel private constructor(
     }
     
     init {
+        bindableChildren.add("getProjectOutputType" to _getProjectOutputType)
         bindableChildren.add("startSessionHost" to _startSessionHost)
         bindableChildren.add("stopSessionHost" to _stopSessionHost)
         bindableChildren.add("unitTestRunCancelled" to _unitTestRunCancelled)
@@ -66,6 +69,7 @@ class AspirePluginModel private constructor(
     //secondary constructor
     internal constructor(
     ) : this(
+        RdCall<String, String?>(FrameworkMarshallers.String, __StringNullableSerializer),
         RdCall<StartSessionHostRequest, StartSessionHostResponse>(StartSessionHostRequest, StartSessionHostResponse),
         RdCall<StopSessionHostRequest, Unit>(StopSessionHostRequest, FrameworkMarshallers.Void),
         RdSignal<String>(FrameworkMarshallers.String)
@@ -77,6 +81,7 @@ class AspirePluginModel private constructor(
     override fun print(printer: PrettyPrinter)  {
         printer.println("AspirePluginModel (")
         printer.indent {
+            print("getProjectOutputType = "); _getProjectOutputType.print(printer); println()
             print("startSessionHost = "); _startSessionHost.print(printer); println()
             print("stopSessionHost = "); _stopSessionHost.print(printer); println()
             print("unitTestRunCancelled = "); _unitTestRunCancelled.print(printer); println()
@@ -86,6 +91,7 @@ class AspirePluginModel private constructor(
     //deepClone
     override fun deepClone(): AspirePluginModel   {
         return AspirePluginModel(
+            _getProjectOutputType.deepClonePolymorphic(),
             _startSessionHost.deepClonePolymorphic(),
             _stopSessionHost.deepClonePolymorphic(),
             _unitTestRunCancelled.deepClonePolymorphic()

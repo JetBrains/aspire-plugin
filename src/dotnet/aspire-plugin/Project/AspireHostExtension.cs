@@ -1,6 +1,7 @@
 using JetBrains.Application;
 using JetBrains.Application.Parts;
 using JetBrains.ProjectModel;
+using JetBrains.ProjectModel.MSBuild;
 using JetBrains.ProjectModel.ProjectsHost;
 using JetBrains.ProjectModel.Properties;
 using JetBrains.RdBackend.Common.Features.ProjectModel.View;
@@ -13,13 +14,13 @@ public class AspireHostExtension : ProjectModelViewPresenterExtension
 {
     public override bool TryAddUserData(IProjectMark projectMark, IProject? project, out string name, out string value)
     {
-        var property = project?.GetUniqueRequestedProjectProperty(AspireHostProjectPropertyRequest.IsAspireHost);
+        var property = project?.GetUniqueRequestedProjectProperty(MSBuildProjectUtil.IsAspireHostProperty);
         if (property.IsNullOrEmpty())
         {
             return base.TryAddUserData(projectMark, project, out name, out value);
         }
 
-        name = AspireHostProjectPropertyRequest.IsAspireHost;
+        name = MSBuildProjectUtil.IsAspireHostProperty;
         value = property;
 
         return true;
