@@ -8,9 +8,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
+import com.jetbrains.rider.aspire.generated.aspirePluginModel
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.nodes.getUserData
+import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntities
 import com.jetbrains.rider.projectView.workspace.isProject
 import kotlin.io.path.Path
@@ -21,6 +23,7 @@ class LambdaProjectSessionProcessLauncher : SessionProcessLauncherExtension {
 
         private const val AWS_PROJECT_TYPE = "AWSProjectType"
         private const val LAMBDA = "Lambda"
+        private const val LIBRARY = "library"
     }
 
     override val priority = 3
@@ -37,6 +40,7 @@ class LambdaProjectSessionProcessLauncher : SessionProcessLauncherExtension {
             LOG.trace { "Can't find a project entity for the path $projectPath" }
             return false
         }
+
         val descriptor = entity.descriptor as? RdProjectDescriptor
         if (descriptor == null) {
             LOG.trace { "Can't find an RdProjectDescriptor for the path $projectPath" }
@@ -44,8 +48,14 @@ class LambdaProjectSessionProcessLauncher : SessionProcessLauncherExtension {
         }
 
         val awsProjectType = descriptor.getUserData(AWS_PROJECT_TYPE)
+        if (awsProjectType?.equals(LAMBDA, true) != true) {
+            LOG.trace { "Can't find AWS project type for the path $projectPath" }
+            return false
+        }
 
-        return awsProjectType?.equals(LAMBDA, true) == true
+        val outputType = project.solution.aspirePluginModel.getProjectOutputType.startSuspending(projectPath)
+
+        return outputType?.equals(LIBRARY, true) == true
     }
 
     override suspend fun launchRunProcess(

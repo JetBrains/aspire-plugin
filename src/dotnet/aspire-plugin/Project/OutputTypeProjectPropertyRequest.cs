@@ -5,8 +5,8 @@ using JetBrains.ProjectModel.Properties;
 namespace JetBrains.Rider.Aspire.Project;
 
 [ShellComponent(Instantiation.DemandAnyThreadSafe)]
-public class AspireHostProjectPropertyRequest : IProjectPropertiesRequest
+public class OutputTypeProjectPropertyRequest : IProjectPropertiesRequest
 {
-    public const string IsAspireHost = "IsAspireHost";
-    public IEnumerable<string> RequestedProperties => [IsAspireHost];
+    public const string OutputType = "OutputType";
+    public IEnumerable<string> RequestedProperties => [OutputType];
 }

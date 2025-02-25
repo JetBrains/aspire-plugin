@@ -42,32 +42,39 @@ namespace JetBrains.Rider.Aspire.Generated
   {
     //fields
     //public fields
+    [NotNull] public IRdEndpoint<string, string> GetProjectOutputType => _GetProjectOutputType;
     [NotNull] public IRdCall<StartSessionHostRequest, StartSessionHostResponse> StartSessionHost => _StartSessionHost;
     [NotNull] public IRdCall<StopSessionHostRequest, Unit> StopSessionHost => _StopSessionHost;
     [NotNull] public void UnitTestRunCancelled(string value) => _UnitTestRunCancelled.Fire(value);
     
     //private fields
+    [NotNull] private readonly RdCall<string, string> _GetProjectOutputType;
     [NotNull] private readonly RdCall<StartSessionHostRequest, StartSessionHostResponse> _StartSessionHost;
     [NotNull] private readonly RdCall<StopSessionHostRequest, Unit> _StopSessionHost;
     [NotNull] private readonly RdSignal<string> _UnitTestRunCancelled;
     
     //primary constructor
     private AspirePluginModel(
+      [NotNull] RdCall<string, string> getProjectOutputType,
       [NotNull] RdCall<StartSessionHostRequest, StartSessionHostResponse> startSessionHost,
       [NotNull] RdCall<StopSessionHostRequest, Unit> stopSessionHost,
       [NotNull] RdSignal<string> unitTestRunCancelled
     )
     {
+      if (getProjectOutputType == null) throw new ArgumentNullException("getProjectOutputType");
       if (startSessionHost == null) throw new ArgumentNullException("startSessionHost");
       if (stopSessionHost == null) throw new ArgumentNullException("stopSessionHost");
       if (unitTestRunCancelled == null) throw new ArgumentNullException("unitTestRunCancelled");
       
+      _GetProjectOutputType = getProjectOutputType;
       _StartSessionHost = startSessionHost;
       _StopSessionHost = stopSessionHost;
       _UnitTestRunCancelled = unitTestRunCancelled;
       _StartSessionHost.Async = true;
       _StopSessionHost.Async = true;
       _UnitTestRunCancelled.Async = true;
+      _GetProjectOutputType.ValueCanBeNull = true;
+      BindableChildren.Add(new KeyValuePair<string, object>("getProjectOutputType", _GetProjectOutputType));
       BindableChildren.Add(new KeyValuePair<string, object>("startSessionHost", _StartSessionHost));
       BindableChildren.Add(new KeyValuePair<string, object>("stopSessionHost", _StopSessionHost));
       BindableChildren.Add(new KeyValuePair<string, object>("unitTestRunCancelled", _UnitTestRunCancelled));
@@ -75,6 +82,7 @@ namespace JetBrains.Rider.Aspire.Generated
     //secondary constructor
     internal AspirePluginModel (
     ) : this (
+      new RdCall<string, string>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ReadStringNullable, WriteStringNullable),
       new RdCall<StartSessionHostRequest, StartSessionHostResponse>(StartSessionHostRequest.Read, StartSessionHostRequest.Write, StartSessionHostResponse.Read, StartSessionHostResponse.Write),
       new RdCall<StopSessionHostRequest, Unit>(StopSessionHostRequest.Read, StopSessionHostRequest.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid),
       new RdSignal<string>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString)
@@ -82,9 +90,11 @@ namespace JetBrains.Rider.Aspire.Generated
     //deconstruct trait
     //statics
     
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
     
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
     
-    protected override long SerializationHash => 3962467493622399682L;
+    protected override long SerializationHash => -4698860226523395197L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -105,6 +115,7 @@ namespace JetBrains.Rider.Aspire.Generated
     {
       printer.Println("AspirePluginModel (");
       using (printer.IndentCookie()) {
+        printer.Print("getProjectOutputType = "); _GetProjectOutputType.PrintEx(printer); printer.Println();
         printer.Print("startSessionHost = "); _StartSessionHost.PrintEx(printer); printer.Println();
         printer.Print("stopSessionHost = "); _StopSessionHost.PrintEx(printer); printer.Println();
         printer.Print("unitTestRunCancelled = "); _UnitTestRunCancelled.PrintEx(printer); printer.Println();

@@ -1,10 +1,8 @@
 ﻿using JetBrains.Application.Parts;
 using JetBrains.ProjectModel;
-using JetBrains.ProjectModel.Properties;
 using JetBrains.ReSharper.Features.Running;
 using JetBrains.Rider.Model;
 using JetBrains.Util;
-using static JetBrains.Rider.Aspire.Project.AspireHostProjectPropertyRequest;
 
 namespace JetBrains.Rider.Aspire.RunnableProject;
 
@@ -22,8 +20,7 @@ public class AspireRunnableProjectProvider(
     {
         if (!project.IsDotNetCoreProject()) return null;
 
-        var isAspireHost = project.GetUniqueRequestedProjectProperty(IsAspireHost);
-        if (isAspireHost.IsNullOrEmpty() || isAspireHost != "true") return null;
+        if (!project.IsAspireHostProject()) return null;
 
         var projectOutputs = new List<ProjectOutput>();
         foreach (var tfm in project.TargetFrameworkIds)

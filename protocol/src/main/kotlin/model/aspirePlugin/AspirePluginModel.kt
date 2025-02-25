@@ -31,6 +31,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.aspire.generated")
         setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Generated")
 
+        call("getProjectOutputType", string, string.nullable)
         callback("startSessionHost", StartSessionHostRequest, StartSessionHostResponse).async
         callback("stopSessionHost", StopSessionHostRequest, void).async
         sink("unitTestRunCancelled", string).async

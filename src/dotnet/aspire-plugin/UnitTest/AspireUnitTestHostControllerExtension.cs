@@ -2,7 +2,6 @@ using JetBrains.Application.Parts;
 using JetBrains.Core;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Assemblies.Interfaces;
-using JetBrains.ProjectModel.Properties;
 using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
 using JetBrains.ReSharper.Resources.Shell;
@@ -10,8 +9,6 @@ using JetBrains.ReSharper.UnitTestFramework.Execution.Hosting;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Launch;
 using JetBrains.ReSharper.UnitTestFramework.Execution.TestRunner;
 using JetBrains.Rider.Aspire.Generated;
-using JetBrains.Rider.Aspire.Project;
-using JetBrains.Util;
 using JetBrains.Util.Dotnet.TargetFrameworkIds;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
@@ -99,9 +96,7 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
             var referenced = projectUnderTest.GetReferencedProjects(targetFrameworkId);
             foreach (var referencedProject in referenced)
             {
-                var property =
-                    referencedProject.GetUniqueRequestedProjectProperty(AspireHostProjectPropertyRequest.IsAspireHost);
-                if (!property.IsNullOrEmpty() && string.Equals(property, "true", StringComparison.OrdinalIgnoreCase))
+                if (referencedProject.IsAspireHostProject())
                 {
                     return referencedProject;
                 }
