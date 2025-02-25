@@ -2,6 +2,8 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
+import com.intellij.execution.RunManager
+import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
@@ -16,27 +18,25 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactory
-import com.jetbrains.rider.aspire.sessionHost.findBySessionProject
-import com.jetbrains.rider.model.runnableProjectsModel
-import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
-import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
-import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.runtime.DotNetExecutable
+import com.jetbrains.rider.runtime.DotNetRuntime
+import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.Path
 
-abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtension {
+/**
+ * An implementation of the `SessionProcessLauncherExtension` interface that creates a [DotNetExecutable]
+ * from the [CreateSessionRequest] and uses it to create Run/Debug profiles.
+ */
+abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherExtension {
     companion object {
-        private val LOG = logger<BaseProjectSessionProcessLauncher>()
+        private val LOG = logger<DotNetExecutableSessionProcessLauncher>()
     }
-
-    protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
-    protected abstract val launchBrowserInDebugSession: Boolean
 
     override suspend fun launchRunProcess(
         sessionId: String,
@@ -49,27 +49,23 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         LOG.trace { "Starting run session for ${sessionModel.projectPath}" }
 
         val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, _) = getDotNetExecutable(
-            sessionModel,
-            aspireHostRunConfig,
-            true,
-            project
-        ) ?: return
-        val (executableWithHotReload, hotReloadCallback) = enableHotReload(
+        val (executable, _) = getDotNetExecutable(sessionModel, false, aspireHostRunConfig, project)
+            ?: return
+        val (modifiedExecutable, callback) = modifyDotNetExecutable(
             executable,
             Path(sessionModel.projectPath),
             sessionModel.launchProfile,
             sessionProcessLifetime,
             project
         )
-        val runtime = getDotNetRuntime(executableWithHotReload, project) ?: return
+        val runtime = getDotNetRuntime(modifiedExecutable, project) ?: return
 
         val projectPath = Path(sessionModel.projectPath)
         val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
         val profile = getRunProfile(
             sessionId,
             projectPath,
-            executableWithHotReload,
+            modifiedExecutable,
             runtime,
             sessionProcessEventListener,
             sessionProcessLifetime,
@@ -84,22 +80,12 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             return
         }
 
-        environment.setProgramCallbacks(hotReloadCallback)
+        environment.setProgramCallbacks(callback)
 
         withContext(Dispatchers.EDT) {
             environment.runner.execute(environment)
         }
     }
-
-    protected abstract fun getRunProfile(
-        sessionId: String,
-        projectPath: Path,
-        dotnetExecutable: DotNetExecutable,
-        dotnetRuntime: DotNetCoreRuntime,
-        sessionProcessEventListener: ProcessListener,
-        sessionProcessLifetime: Lifetime,
-        aspireHostProjectPath: Path?
-    ): RunProfile
 
     override suspend fun launchDebugProcess(
         sessionId: String,
@@ -112,12 +98,8 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
 
         val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, browserSettings) = getDotNetExecutable(
-            sessionModel,
-            aspireHostRunConfig,
-            launchBrowserInDebugSession,
-            project
-        ) ?: return
+        val (executable, browserSettings) = getDotNetExecutable(sessionModel, true, aspireHostRunConfig, project)
+            ?: return
         val runtime = getDotNetRuntime(executable, project) ?: return
 
         val projectPath = Path(sessionModel.projectPath)
@@ -148,6 +130,63 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         }
     }
 
+    private fun getAspireHostRunConfiguration(name: String?, project: Project): AspireHostConfiguration? {
+        if (name == null) return null
+
+        val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
+        val runConfiguration = RunManager.getInstance(project)
+            .getConfigurationsList(configurationType)
+            .singleOrNull { it is AspireHostConfiguration && it.name == name }
+        if (runConfiguration == null) {
+            LOG.warn("Unable to find Aspire run configuration type: $name")
+        }
+
+        return runConfiguration as? AspireHostConfiguration
+    }
+
+    private fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
+        val runtime = DotNetRuntime.detectRuntimeForProject(
+            project,
+            RunnableProjectKinds.DotNetCore,
+            RiderDotNetActiveRuntimeHost.getInstance(project),
+            executable.runtimeType,
+            executable.exePath,
+            executable.projectTfm
+        )?.runtime as? DotNetCoreRuntime
+        if (runtime == null) {
+            LOG.warn("Unable to detect runtime for executable: ${executable.exePath}")
+        }
+
+        return runtime
+    }
+
+    protected abstract suspend fun getDotNetExecutable(
+        sessionModel: CreateSessionRequest,
+        isDebugSession: Boolean,
+        hostRunConfiguration: AspireHostConfiguration?,
+        project: Project
+    ): Pair<DotNetExecutable, StartBrowserSettings?>?
+
+    protected open suspend fun modifyDotNetExecutable(
+        executable: DotNetExecutable,
+        sessionProjectPath: Path,
+        launchProfile: String?,
+        lifetime: Lifetime,
+        project: Project
+    ): Pair<DotNetExecutable, ProgramRunner.Callback?> {
+        return executable to null
+    }
+
+    protected abstract fun getRunProfile(
+        sessionId: String,
+        projectPath: Path,
+        dotnetExecutable: DotNetExecutable,
+        dotnetRuntime: DotNetCoreRuntime,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessLifetime: Lifetime,
+        aspireHostProjectPath: Path?
+    ): RunProfile
+
     protected abstract fun getDebugProfile(
         sessionId: String,
         projectPath: Path,
@@ -158,52 +197,4 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
     ): RunProfile
-
-    private suspend fun getDotNetExecutable(
-        sessionModel: CreateSessionRequest,
-        hostRunConfiguration: AspireHostConfiguration?,
-        addBrowserAction: Boolean,
-        project: Project
-    ): Pair<DotNetExecutable, StartBrowserSettings?>? {
-        val factory = SessionExecutableFactory.getInstance(project)
-        val executable = factory.createExecutable(sessionModel, hostRunConfiguration, addBrowserAction)
-        if (executable == null) {
-            LOG.warn("Unable to create executable for project: ${sessionModel.projectPath}")
-        }
-
-        return executable
-    }
-
-    private suspend fun enableHotReload(
-        executable: DotNetExecutable,
-        sessionProjectPath: Path,
-        launchProfile: String?,
-        lifetime: Lifetime,
-        project: Project
-    ): Pair<DotNetExecutable, ProgramRunner.Callback?> {
-        val runnableProject =
-            project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) { it.kind == RunnableProjectKinds.DotNetCore }
-                ?: return executable to null
-
-        val hotReloadRunInfo = RuntimeHotReloadRunConfigurationInfo(
-            DefaultRunExecutor.EXECUTOR_ID,
-            project,
-            runnableProject,
-            executable.projectTfm,
-            null
-        )
-
-        val profile = if (!launchProfile.isNullOrEmpty()) {
-            LaunchSettingsJsonService
-                .getInstance(project)
-                .loadLaunchSettingsSuspend(runnableProject)
-                ?.let { it.profiles?.get(launchProfile) }
-        } else null
-
-        if (!hotReloadExtension.canExecute(lifetime, hotReloadRunInfo, profile)) {
-            return executable to null
-        }
-
-        return hotReloadExtension.execute(executable, lifetime, project)
-    }
 }
