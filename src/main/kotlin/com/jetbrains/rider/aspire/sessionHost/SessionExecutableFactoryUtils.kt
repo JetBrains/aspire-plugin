@@ -6,9 +6,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.generated.SessionEnvironmentVariable
+import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
+import com.jetbrains.rider.run.environment.ExecutableParameterProcessingResult
+import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
+import com.jetbrains.rider.run.environment.ExecutableRunParameters
+import com.jetbrains.rider.run.environment.ProjectProcessOptions
+import java.io.File
 import java.nio.file.Path
 
 private const val DOTNET_LAUNCH_PROFILE = "DOTNET_LAUNCH_PROFILE"
@@ -100,4 +106,31 @@ fun mergeEnvironmentVariables(
     if (sessionEnvironmentVariables?.isNotEmpty() == true) {
         sessionEnvironmentVariables.associateTo(this) { it.key to it.value }
     }
+}
+
+suspend fun getExecutableParams(
+    sessionProjectPath: Path,
+    executablePath: String,
+    workingDirectory: String,
+    arguments: String,
+    envs: Map<String, String>,
+    targetFramework: RdTargetFrameworkId?,
+    project: Project
+): ExecutableParameterProcessingResult {
+    val processOptions = ProjectProcessOptions(
+        sessionProjectPath.toFile(),
+        File(workingDirectory)
+    )
+    val runParameters = ExecutableRunParameters(
+        executablePath,
+        workingDirectory,
+        arguments,
+        envs,
+        true,
+        targetFramework
+    )
+
+    return ExecutableParameterProcessor
+        .getInstance(project)
+        .processEnvironment(runParameters, processOptions)
 }

@@ -6,10 +6,8 @@ import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.ProcessListener
-import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
-import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
@@ -22,6 +20,7 @@ import com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactory
 import com.jetbrains.rider.aspire.sessionHost.findBySessionProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.runtime.DotNetExecutable
@@ -85,7 +84,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             return
         }
 
-        setProgramCallbacks(environment, hotReloadCallback)
+        environment.setProgramCallbacks(hotReloadCallback)
 
         withContext(Dispatchers.EDT) {
             environment.runner.execute(environment)
@@ -142,7 +141,7 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
             return
         }
 
-        setProgramCallbacks(environment)
+        environment.setProgramCallbacks()
 
         withContext(Dispatchers.EDT) {
             environment.runner.execute(environment)
@@ -182,8 +181,9 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         lifetime: Lifetime,
         project: Project
     ): Pair<DotNetExecutable, ProgramRunner.Callback?> {
-        val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
-            ?: return executable to null
+        val runnableProject =
+            project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) { it.kind == RunnableProjectKinds.DotNetCore }
+                ?: return executable to null
 
         val hotReloadRunInfo = RuntimeHotReloadRunConfigurationInfo(
             DefaultRunExecutor.EXECUTOR_ID,
@@ -205,25 +205,5 @@ abstract class BaseProjectSessionProcessLauncher : SessionProcessLauncherExtensi
         }
 
         return hotReloadExtension.execute(executable, lifetime, project)
-    }
-
-    private fun setProgramCallbacks(
-        environment: ExecutionEnvironment,
-        hotReloadCallback: ProgramRunner.Callback? = null
-    ) {
-        environment.callback = object : ProgramRunner.Callback {
-            override fun processStarted(runContentDescriptor: RunContentDescriptor?) {
-                runContentDescriptor?.apply {
-                    isActivateToolWindowWhenAdded = false
-                    isAutoFocusContent = false
-                }
-
-                hotReloadCallback?.processStarted(runContentDescriptor)
-            }
-
-            override fun processNotStarted(error: Throwable?) {
-                hotReloadCallback?.processNotStarted(error)
-            }
-        }
     }
 }
