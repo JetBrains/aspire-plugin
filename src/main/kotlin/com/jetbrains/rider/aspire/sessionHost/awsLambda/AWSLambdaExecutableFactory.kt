@@ -46,6 +46,13 @@ class AWSLambdaExecutableFactory(private val project: Project) {
             return null
         }
 
+        val workingDirectoryPath = Path(workingDirectory)
+        val workingDirectoryAbsolutePath = if (!workingDirectoryPath.isAbsolute) {
+            sessionProjectPath.parent.resolve(workingDirectoryPath.normalize()).absolutePathString()
+        } else {
+            workingDirectoryPath.absolutePathString()
+        }
+
         val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile.environmentVariables)
 
         val targetFramework = MSBuildPropertyService.getInstance(project).getProjectTargetFramework(sessionProjectPath)
@@ -53,7 +60,7 @@ class AWSLambdaExecutableFactory(private val project: Project) {
         val executableParams = getExecutableParams(
             sessionProjectPath,
             executablePath,
-            workingDirectory,
+            workingDirectoryAbsolutePath,
             arguments,
             envs,
             targetFramework,
@@ -65,7 +72,7 @@ class AWSLambdaExecutableFactory(private val project: Project) {
         return DotNetExecutable(
             executableParams.executablePath ?: executablePath,
             targetFramework,
-            executableParams.workingDirectoryPath ?: workingDirectory,
+            executableParams.workingDirectoryPath ?: workingDirectoryAbsolutePath,
             executableParams.commandLineArgumentString ?: arguments,
             useMonoRuntime = false,
             useExternalConsole = false,
