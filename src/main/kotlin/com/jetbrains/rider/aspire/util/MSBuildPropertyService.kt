@@ -34,6 +34,38 @@ class MSBuildPropertyService(private val project: Project) {
     }
 
     suspend fun getProjectRunProperties(projectPath: Path): ProjectRunProperties? {
+        val projectRunPropertiesJson = getProjectProperties(
+            projectPath,
+            "TargetFramework,RunCommand,RunArguments,RunWorkingDirectory"
+        ) ?: return null
+        val projectProperties = json.decodeFromString<ProjectRunPropertiesOutput>(projectRunPropertiesJson)
+
+        val targetFramework = getTargetFrameworkId(projectProperties.properties.targetFramework)
+            ?: return null
+        val executable = getExecutablePath(projectProperties.properties.runCommand)
+            ?: return null
+        val args = ParametersListUtil.parse(projectProperties.properties.runArguments)
+        val workingDirectory = getWorkingDirectoryPath(projectProperties.properties.runWorkingDirectory)
+            ?: return null
+
+        return ProjectRunProperties(
+            targetFramework,
+            executable,
+            args,
+            workingDirectory
+        )
+    }
+
+    suspend fun getProjectTargetFramework(projectPath: Path): RdTargetFrameworkId? {
+        val targetFramework = getProjectProperties(
+            projectPath,
+            "TargetFramework"
+        )?.trim() ?: return null
+
+        return getTargetFrameworkId(targetFramework)
+    }
+
+    private suspend fun getProjectProperties(projectPath: Path, listOfProperties: String): String? {
         val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
         if (runtime == null) {
             LOG.warn("Unable to find dotnet runtime")
@@ -59,7 +91,7 @@ class MSBuildPropertyService(private val project: Project) {
                 listOf(
                     "build",
                     projectPath.absolutePathString(),
-                    "-getProperty:TargetFramework,RunCommand,RunArguments,RunWorkingDirectory"
+                    "-getProperty:${listOfProperties}"
                 )
             )
         val propertyOutput = withContext(Dispatchers.IO) {
@@ -70,22 +102,7 @@ class MSBuildPropertyService(private val project: Project) {
             return null
         }
 
-        val projectProperties = json.decodeFromString<ProjectRunPropertiesOutput>(propertyOutput.stdout)
-
-        val targetFramework = getTargetFrameworkId(projectProperties.properties.targetFramework)
-            ?: return null
-        val executable = getExecutablePath(projectProperties.properties.runCommand)
-            ?: return null
-        val args = ParametersListUtil.parse(projectProperties.properties.runArguments)
-        val workingDirectory = getWorkingDirectoryPath(projectProperties.properties.runWorkingDirectory)
-            ?: return null
-
-        return ProjectRunProperties(
-            targetFramework,
-            executable,
-            args,
-            workingDirectory
-        )
+        return propertyOutput.stdout
     }
 
     private fun getTargetFrameworkId(targetFramework: String): RdTargetFrameworkId? {

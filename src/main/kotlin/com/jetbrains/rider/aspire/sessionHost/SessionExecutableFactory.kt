@@ -19,11 +19,13 @@ import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
-import com.jetbrains.rider.run.environment.*
+import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
+import com.jetbrains.rider.run.environment.ProjectProcessOptions
+import com.jetbrains.rider.run.environment.StringProcessingParameters
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
-import java.io.File
 import java.net.URI
 import java.net.URISyntaxException
 import java.nio.file.Path
@@ -44,7 +46,8 @@ class SessionExecutableFactory(private val project: Project) {
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val sessionProjectPath = Path(sessionModel.projectPath)
-        val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath)
+        val runnableProject =
+            project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) { it.kind == RunnableProjectKinds.DotNetCore }
 
         return if (runnableProject != null) {
             getExecutableForRunnableProject(
@@ -84,7 +87,8 @@ class SessionExecutableFactory(private val project: Project) {
             workingDirectory,
             arguments,
             envs,
-            output.tfm
+            output.tfm,
+            project
         )
 
         val browserSettings = launchProfile?.let {
@@ -139,7 +143,8 @@ class SessionExecutableFactory(private val project: Project) {
             workingDirectory,
             arguments,
             envs,
-            properties.targetFramework
+            properties.targetFramework,
+            project
         )
 
         val browserSettings = launchProfile?.let {
@@ -171,32 +176,6 @@ class SessionExecutableFactory(private val project: Project) {
             !executablePath.endsWith(".dll", true),
             DotNetCoreRuntimeType
         ) to browserSettings
-    }
-
-    private suspend fun getExecutableParams(
-        sessionProjectPath: Path,
-        executablePath: String,
-        workingDirectory: String,
-        arguments: String,
-        envs: Map<String, String>,
-        targetFramework: RdTargetFrameworkId?
-    ): ExecutableParameterProcessingResult {
-        val processOptions = ProjectProcessOptions(
-            sessionProjectPath.toFile(),
-            File(workingDirectory)
-        )
-        val runParameters = ExecutableRunParameters(
-            executablePath,
-            workingDirectory,
-            arguments,
-            envs,
-            true,
-            targetFramework
-        )
-
-        return ExecutableParameterProcessor
-            .getInstance(project)
-            .processEnvironment(runParameters, processOptions)
     }
 
     private suspend fun getStartBrowserSettings(

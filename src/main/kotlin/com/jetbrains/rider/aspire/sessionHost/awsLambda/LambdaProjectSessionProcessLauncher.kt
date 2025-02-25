@@ -10,11 +10,13 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.generated.aspirePluginModel
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension
+import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.getDotNetRuntime
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.nodes.getUserData
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntities
 import com.jetbrains.rider.projectView.workspace.isProject
+import com.jetbrains.rider.runtime.DotNetExecutable
 import kotlin.io.path.Path
 
 class LambdaProjectSessionProcessLauncher : SessionProcessLauncherExtension {
@@ -67,6 +69,9 @@ class LambdaProjectSessionProcessLauncher : SessionProcessLauncherExtension {
         project: Project
     ) {
         LOG.trace { "Starting run session for ${sessionModel.projectPath}" }
+
+        val executable = getDotNetExecutable(sessionModel, project) ?: return
+        val runtime = getDotNetRuntime(executable, project) ?: return
     }
 
     override suspend fun launchDebugProcess(
@@ -78,5 +83,18 @@ class LambdaProjectSessionProcessLauncher : SessionProcessLauncherExtension {
         project: Project
     ) {
         LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
+    }
+
+    private suspend fun getDotNetExecutable(
+        sessionModel: CreateSessionRequest,
+        project: Project
+    ): DotNetExecutable? {
+        val factory = AWSLambdaExecutableFactory.getInstance(project)
+        val executable = factory.createExecutable(sessionModel)
+        if (executable == null) {
+            LOG.warn("Unable to create AWS Lambda executable for project: ${sessionModel.projectPath}")
+        }
+
+        return executable
     }
 }
