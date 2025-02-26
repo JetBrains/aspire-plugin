@@ -127,8 +127,6 @@ class AspireResource(
         logProcessHandler.startNotify()
 
         Disposer.register(this, logConsole)
-
-        sendResourceCreatedEvent()
     }
 
     private fun fillDates(model: ResourceModel?) {
@@ -211,10 +209,10 @@ class AspireResource(
     private fun update(model: ResourceModel) {
         uid = model.uid
         name = model.name
-        val typeInitialised = type == ResourceType.Unknown && model.type != ResourceType.Unknown
+        val typeJustInitialised = type == ResourceType.Unknown && model.type != ResourceType.Unknown
         type = model.type
         displayName = model.displayName
-        state = model.state
+        state = if (state != ResourceState.Hidden) model.state else ResourceState.Hidden
         healthStatus = model.healthStatus
 
         fillDates(model)
@@ -229,7 +227,7 @@ class AspireResource(
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
-        if (typeInitialised) {
+        if (typeJustInitialised && state != ResourceState.Hidden) {
             sendServiceChildrenChangedEvent()
         } else if (type != ResourceType.Unknown && state != ResourceState.Hidden) {
             sendServiceChangedEvent()
@@ -261,10 +259,6 @@ class AspireResource(
         val outputType = if (!log.isError) ProcessOutputTypes.STDOUT else ProcessOutputTypes.STDERR
         val (_, logContent) = parseLogEntry(log.text) ?: return
         logProcessHandler.notifyTextAvailable(logContent + "\r\n", outputType)
-    }
-
-    private fun sendResourceCreatedEvent() {
-        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(this)
     }
 
     private fun sendServiceChangedEvent() {
