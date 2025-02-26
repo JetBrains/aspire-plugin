@@ -28,7 +28,8 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 /**
- * Provides support for the .NET library projects that have a project property `AWSProjectType` equal to `Lambda`.
+ * Launches a .NET library project that has a project property `AWSProjectType` equal to `Lambda`
+ * from an Aspire session request.
  */
 class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLauncher() {
     companion object {
@@ -79,7 +80,7 @@ class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLaunch
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
-        val factory = AWSLambdaExecutableFactory.getInstance(project)
+        val factory = LambdaProjectExecutableFactory.getInstance(project)
         val executable = factory.createExecutable(sessionModel)
         if (executable == null) {
             LOG.warn("Unable to create AWS Lambda executable for project: ${sessionModel.projectPath}")

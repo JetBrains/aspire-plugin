@@ -16,11 +16,15 @@ import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
+/**
+ * Factory class for creating instances of [DotNetExecutable] from a NET library project
+ * that has a project property `AWSProjectType` equal to `Lambda`.
+ */
 @Service(Service.Level.PROJECT)
-class AWSLambdaExecutableFactory(private val project: Project) {
+class LambdaProjectExecutableFactory(private val project: Project) {
     companion object {
-        fun getInstance(project: Project): AWSLambdaExecutableFactory = project.service()
-        private val LOG = logger<AWSLambdaExecutableFactory>()
+        fun getInstance(project: Project): LambdaProjectExecutableFactory = project.service()
+        private val LOG = logger<LambdaProjectExecutableFactory>()
     }
 
     suspend fun createExecutable(sessionModel: CreateSessionRequest): DotNetExecutable? {
@@ -33,7 +37,7 @@ class AWSLambdaExecutableFactory(private val project: Project) {
         }
 
         if (!launchProfile.commandName.equals(ExecutableCommand.COMMAND_NAME, true)) {
-            LOG.warn("Launch profile command name for AWS Lambda project should be `${ExecutableCommand.COMMAND_NAME}`")
+            LOG.warn("Launch profile command name for AWS Lambda library project should be `${ExecutableCommand.COMMAND_NAME}`")
             return null
         }
 
