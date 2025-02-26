@@ -208,11 +208,14 @@ class DotNetProjectExecutableFactory(private val project: Project) {
         val applicationUrl = processedParams[applicationUrlKey]?.split(';')?.firstOrNull()
         val browserUrl = concatUrl(applicationUrl, launchUrl)
         val webBrowser = hostRunConfiguration?.parameters?.startBrowserParameters?.browser
+        val withJavaScriptDebugger =
+            hostRunConfiguration?.parameters?.startBrowserParameters?.withJavaScriptDebugger == true
 
         return StartBrowserSettings().apply {
             browser = webBrowser
             isSelected = launchProfile.launchBrowser
             url = browserUrl
+            isStartJavaScriptDebugger = withJavaScriptDebugger
         }
     }
 
