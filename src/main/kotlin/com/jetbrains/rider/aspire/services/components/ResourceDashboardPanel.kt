@@ -29,7 +29,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
 
     private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel {
         row {
-            val resourceIcon = getIcon(resourceData.type, resourceData.state, resourceData.healthStatus)
+            val resourceIcon = getIcon(resourceData)
             icon(resourceIcon)
                 .gap(RightGap.SMALL)
             copyableLabel(resourceData.displayName)

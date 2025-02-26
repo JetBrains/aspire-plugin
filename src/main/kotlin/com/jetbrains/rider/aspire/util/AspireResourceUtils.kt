@@ -8,13 +8,25 @@ import com.intellij.ui.BadgeIconSupplier
 import com.jetbrains.rider.aspire.generated.ResourceHealthStatus
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
+import com.jetbrains.rider.aspire.services.AspireResource
 import icons.RiderIcons
 import javax.swing.Icon
 
-internal fun getIcon(type: ResourceType, state: ResourceState?, healthStatus: ResourceHealthStatus?): Icon {
+internal fun getIcon(aspireResource: AspireResource): Icon {
+    val type = aspireResource.type
+    val state = aspireResource.state
+    val healthStatus = aspireResource.healthStatus
+
     var icon = when (type) {
         ResourceType.Project -> RiderIcons.RunConfigurations.DotNetProject
-        ResourceType.Container -> DockerIcons.Docker
+        ResourceType.Container -> when {
+            aspireResource.containerImage?.contains("postgres") == true -> AllIcons.Providers.Postgresql
+            aspireResource.containerImage?.contains("mssql") == true -> AllIcons.Providers.SqlServer
+            aspireResource.containerImage?.contains("mysql") == true -> AllIcons.Providers.Mysql
+            aspireResource.containerImage?.contains("mongo") == true -> AllIcons.Providers.MongoDB
+            aspireResource.containerImage?.contains("redis") == true -> AllIcons.Providers.Redis
+            else -> DockerIcons.Docker
+        }
         ResourceType.Executable -> AllIcons.Nodes.Console
         ResourceType.Unknown -> AllIcons.RunConfigurations.TestUnknown
     }

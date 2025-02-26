@@ -24,7 +24,7 @@ class AspireResourceServiceViewDescriptor(private val aspireResource: AspireReso
     )
 
     override fun getPresentation() = PresentationData().apply {
-        val icon = getIcon(aspireResource.type, aspireResource.state, aspireResource.healthStatus)
+        val icon = getIcon(aspireResource)
         setIcon(icon)
         addText(aspireResource.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
     }
