@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactory
+import com.jetbrains.rider.aspire.sessionHost.DotNetProjectExecutableFactory
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.DotNetExecutableWithHotReloadSessionProcessLauncher
 import com.jetbrains.rider.nuget.PackageVersionResolution
 import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
@@ -16,7 +16,7 @@ import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
 
 /**
- * Provides support for the Blazor WASM projects.
+ * Launches a Blazor WASM host project from an Aspire session request.
  */
 class WasmHostProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessionProcessLauncher() {
     companion object {
@@ -80,7 +80,7 @@ class WasmHostProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessi
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
-        val factory = SessionExecutableFactory.getInstance(project)
+        val factory = DotNetProjectExecutableFactory.getInstance(project)
         val addBrowserAction = !isDebugSession
         val executable = factory.createExecutable(sessionModel, hostRunConfiguration, addBrowserAction)
         if (executable == null) {

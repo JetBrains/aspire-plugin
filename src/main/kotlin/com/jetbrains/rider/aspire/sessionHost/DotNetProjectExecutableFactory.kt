@@ -32,12 +32,15 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
+/**
+ * Factory class for creating instances of [DotNetExecutable] from a regular .NET project.
+ */
 @Service(Service.Level.PROJECT)
-class SessionExecutableFactory(private val project: Project) {
+class DotNetProjectExecutableFactory(private val project: Project) {
     companion object {
-        fun getInstance(project: Project) = project.service<SessionExecutableFactory>()
+        fun getInstance(project: Project) = project.service<DotNetProjectExecutableFactory>()
 
-        private val LOG = logger<SessionExecutableFactory>()
+        private val LOG = logger<DotNetProjectExecutableFactory>()
     }
 
     suspend fun createExecutable(
