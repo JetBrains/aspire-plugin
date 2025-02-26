@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.7.5] - 2025-02-26
+
 ### Changed
 
 - [#354](https://github.com/JetBrains/aspire-plugin/issues/354) Support for AWS lambda projects
@@ -340,7 +342,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.4...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.5...HEAD
+[1.7.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.4...v1.7.5
 [1.7.4]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.2...v1.7.3
 [1.7.2]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.1...v1.7.2
