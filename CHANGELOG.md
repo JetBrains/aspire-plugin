@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- [#354](https://github.com/JetBrains/aspire-plugin/issues/354) Support for AWS lambda projects
+- Use specialized icons for database resources 
+
 ### Fixed
 
 - [#296](https://github.com/JetBrains/aspire-plugin/issues/296) Database containers whose Lifetime is Permanent should be kept in the Database panel
