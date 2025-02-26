@@ -1,6 +1,8 @@
 package com.jetbrains.rider.aspire.sessionHost.wasmHost
 
 import com.intellij.execution.process.ProcessListener
+import com.intellij.execution.runners.ExecutionEnvironmentBuilder
+import com.intellij.execution.runners.ProgramRunner
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
@@ -88,5 +90,14 @@ class WasmHostProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessi
         }
 
         return executable
+    }
+
+    override fun ExecutionEnvironmentBuilder.modifyExecutionEnvironmentForDebug(): ExecutionEnvironmentBuilder {
+        val defaultRunner = ProgramRunner.findRunnerById(WasmHostProjectSessionDebugProgramRunner.ID)
+        return if (defaultRunner != null) {
+            this.runner(defaultRunner)
+        } else {
+            this
+        }
     }
 }

@@ -2,7 +2,6 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
-import com.intellij.execution.Executor
 import com.intellij.execution.RunManager
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.configurations.RunProfile
@@ -75,7 +74,7 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
             aspireHostProjectPath
         )
 
-        executeProfile(profile, DefaultRunExecutor.getRunExecutorInstance(), callback, project)
+        executeProfile(profile, false, callback, project)
     }
 
     override suspend fun launchDebugProcess(
@@ -106,7 +105,7 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
             aspireHostProjectPath
         )
 
-        executeProfile(profile, DefaultDebugExecutor.getDebugExecutorInstance(), null, project)
+        executeProfile(profile, true, null, project)
     }
 
     private fun getAspireHostRunConfiguration(name: String?, project: Project): AspireHostConfiguration? {
@@ -179,14 +178,22 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
 
     private suspend fun executeProfile(
         profile: RunProfile,
-        executor: Executor,
+        isDebugSession: Boolean,
         callback: ProgramRunner.Callback?,
         project: Project
     ) {
-        val environment = ExecutionEnvironmentBuilder
-            .createOrNull(project, executor, profile)
-            ?.modifyExecutionEnvironment()
-            ?.build()
+        val environment =
+            if (!isDebugSession) {
+                ExecutionEnvironmentBuilder
+                    .createOrNull(project, DefaultRunExecutor.getRunExecutorInstance(), profile)
+                    ?.modifyExecutionEnvironmentForRun()
+                    ?.build()
+            } else {
+                ExecutionEnvironmentBuilder
+                    .createOrNull(project, DefaultDebugExecutor.getDebugExecutorInstance(), profile)
+                    ?.modifyExecutionEnvironmentForDebug()
+                    ?.build()
+            }
         if (environment == null) {
             LOG.warn("Unable to create debug execution environment")
             return
@@ -199,8 +206,22 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
         }
     }
 
-    protected open fun ExecutionEnvironmentBuilder.modifyExecutionEnvironment(): ExecutionEnvironmentBuilder {
-        return this
+    protected open fun ExecutionEnvironmentBuilder.modifyExecutionEnvironmentForRun(): ExecutionEnvironmentBuilder {
+        val defaultRunner = ProgramRunner.findRunnerById(ProjectSessionProgramRunner.ID)
+        return if (defaultRunner != null) {
+            this.runner(defaultRunner)
+        } else {
+            this
+        }
+    }
+
+    protected open fun ExecutionEnvironmentBuilder.modifyExecutionEnvironmentForDebug(): ExecutionEnvironmentBuilder {
+        val defaultRunner = ProgramRunner.findRunnerById(ProjectSessionDebugProgramRunner.ID)
+        return if (defaultRunner != null) {
+            this.runner(defaultRunner)
+        } else {
+            this
+        }
     }
 
     private fun ExecutionEnvironment.setProgramCallbacks(hotReloadCallback: ProgramRunner.Callback? = null) {
