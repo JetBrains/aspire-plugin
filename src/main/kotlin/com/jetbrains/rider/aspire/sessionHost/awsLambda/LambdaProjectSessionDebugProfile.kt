@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.sessionHost.dotnetProject
+package com.jetbrains.rider.aspire.sessionHost.awsLambda
 
 import com.intellij.execution.Executor
 import com.intellij.execution.process.ProcessListener
@@ -10,7 +10,7 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
 
-class DotNetProjectSessionDebugProfile(
+class LambdaProjectSessionDebugProfile(
     private val sessionId: String,
     projectPath: Path,
     dotnetExecutable: DotNetExecutable,

@@ -12,8 +12,6 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.generated.aspirePluginModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessionHost.dotnetProject.DotNetProjectSessionDebugProfile
-import com.jetbrains.rider.aspire.sessionHost.dotnetProject.DotNetProjectSessionRunProfile
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.DotNetExecutableSessionProcessLauncher
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.nodes.getUserData
@@ -98,7 +96,7 @@ class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLaunch
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
-    ) = DotNetProjectSessionRunProfile(
+    ) = LambdaProjectSessionRunProfile(
         sessionId,
         projectPath,
         dotnetExecutable,
@@ -117,7 +115,7 @@ class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLaunch
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
-    ) = DotNetProjectSessionDebugProfile(
+    ) = LambdaProjectSessionDebugProfile(
         sessionId,
         projectPath,
         dotnetExecutable,
