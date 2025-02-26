@@ -2,14 +2,17 @@
 
 package com.jetbrains.rider.aspire.sessionHost.projectLaunchers
 
+import com.intellij.execution.Executor
 import com.intellij.execution.RunManager
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.ProcessListener
+import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
+import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
@@ -72,19 +75,7 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
             aspireHostProjectPath
         )
 
-        val environment = ExecutionEnvironmentBuilder
-            .createOrNull(project, DefaultRunExecutor.getRunExecutorInstance(), profile)
-            ?.build()
-        if (environment == null) {
-            LOG.warn("Unable to create run execution environment")
-            return
-        }
-
-        environment.setProgramCallbacks(callback)
-
-        withContext(Dispatchers.EDT) {
-            environment.runner.execute(environment)
-        }
+        executeProfile(profile, DefaultRunExecutor.getRunExecutorInstance(), callback, project)
     }
 
     override suspend fun launchDebugProcess(
@@ -115,19 +106,7 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
             aspireHostProjectPath
         )
 
-        val environment = ExecutionEnvironmentBuilder
-            .createOrNull(project, DefaultDebugExecutor.getDebugExecutorInstance(), profile)
-            ?.build()
-        if (environment == null) {
-            LOG.warn("Unable to create debug execution environment")
-            return
-        }
-
-        environment.setProgramCallbacks()
-
-        withContext(Dispatchers.EDT) {
-            environment.runner.execute(environment)
-        }
+        executeProfile(profile, DefaultDebugExecutor.getDebugExecutorInstance(), null, project)
     }
 
     private fun getAspireHostRunConfiguration(name: String?, project: Project): AspireHostConfiguration? {
@@ -197,4 +176,47 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
     ): RunProfile
+
+    private suspend fun executeProfile(
+        profile: RunProfile,
+        executor: Executor,
+        callback: ProgramRunner.Callback?,
+        project: Project
+    ) {
+        val environment = ExecutionEnvironmentBuilder
+            .createOrNull(project, executor, profile)
+            ?.modifyExecutionEnvironment()
+            ?.build()
+        if (environment == null) {
+            LOG.warn("Unable to create debug execution environment")
+            return
+        }
+
+        environment.setProgramCallbacks(callback)
+
+        withContext(Dispatchers.EDT) {
+            environment.runner.execute(environment)
+        }
+    }
+
+    protected open fun ExecutionEnvironmentBuilder.modifyExecutionEnvironment(): ExecutionEnvironmentBuilder {
+        return this
+    }
+
+    private fun ExecutionEnvironment.setProgramCallbacks(hotReloadCallback: ProgramRunner.Callback? = null) {
+        callback = object : ProgramRunner.Callback {
+            override fun processStarted(runContentDescriptor: RunContentDescriptor?) {
+                runContentDescriptor?.apply {
+                    isActivateToolWindowWhenAdded = false
+                    isAutoFocusContent = false
+                }
+
+                hotReloadCallback?.processStarted(runContentDescriptor)
+            }
+
+            override fun processNotStarted(error: Throwable?) {
+                hotReloadCallback?.processNotStarted(error)
+            }
+        }
+    }
 }
