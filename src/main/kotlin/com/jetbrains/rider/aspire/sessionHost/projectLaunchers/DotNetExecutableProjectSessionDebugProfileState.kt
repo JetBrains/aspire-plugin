@@ -17,7 +17,15 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-open class ProjectSessionDebugProfileState(
+/**
+ * Represents a debug profile state for executing a [DotNetExecutable] from an Aspire session request.
+ *
+ * The provided [sessionProcessEventListener] will be attached to the created [DebuggerWorkerProcessHandler].
+ *
+ * The created [DebuggerWorkerProcessHandler] will be connected to the [sessionProcessLifetime],
+ * so that the debugger worker process will be killed on the lifetime termination.
+ */
+open class DotNetExecutableProjectSessionDebugProfileState(
     private val sessionId: String,
     dotnetExecutable: DotNetExecutable,
     dotnetRuntime: DotNetCoreRuntime,
@@ -31,7 +39,7 @@ open class ProjectSessionDebugProfileState(
     dotnetRuntime.cliExePath
 ) {
     companion object {
-        private val LOG = logger<ProjectSessionDebugProfileState>()
+        private val LOG = logger<DotNetExecutableProjectSessionDebugProfileState>()
     }
 
     override suspend fun createWorkerRunInfo(

@@ -20,7 +20,15 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlin.io.path.Path
 
-class ProjectSessionRunProfileState(
+/**
+ * Represents a run profile state for executing a [DotNetExecutable] from an Aspire session request.
+ *
+ * The provided [sessionProcessEventListener] will be attached to the created [TerminalProcessHandler].
+ *
+ * The created [TerminalProcessHandler] will be connected to the [sessionProcessLifetime],
+ * so that the process will be killed on the lifetime termination.
+ */
+class DotNetExecutableSessionRunProfileState(
     private val sessionId: String,
     private val dotnetExecutable: DotNetExecutable,
     private val dotnetRuntime: DotNetCoreRuntime,
@@ -29,7 +37,7 @@ class ProjectSessionRunProfileState(
     private val sessionProcessLifetime: Lifetime
 ) : RunProfileState {
     companion object {
-        private val LOG = logger<ProjectSessionRunProfileState>()
+        private val LOG = logger<DotNetExecutableSessionRunProfileState>()
     }
 
     override fun execute(
