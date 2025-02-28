@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Action to navigate to the resource project debug tab
+
 ## [1.7.5] - 2025-02-26
 
 ### Changed
