@@ -24,7 +24,10 @@ internal fun getIcon(aspireResource: AspireResource): Icon {
             aspireResource.containerImage?.contains("mssql") == true -> AllIcons.Providers.SqlServer
             aspireResource.containerImage?.contains("mysql") == true -> AllIcons.Providers.Mysql
             aspireResource.containerImage?.contains("mongo") == true -> AllIcons.Providers.MongoDB
+            aspireResource.containerImage?.contains("elasticsearch") == true -> AllIcons.Providers.Elasticsearch
             aspireResource.containerImage?.contains("redis") == true -> AllIcons.Providers.Redis
+            aspireResource.containerImage?.contains("rabbitmq") == true -> AllIcons.Providers.RabbitMQ
+            aspireResource.containerImage?.contains("confluent") == true -> AllIcons.Providers.Kafka
             else -> DockerIcons.Docker
         }
         ResourceType.Executable -> AllIcons.Nodes.Console
