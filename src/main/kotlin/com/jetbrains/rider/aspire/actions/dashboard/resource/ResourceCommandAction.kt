@@ -17,7 +17,7 @@ abstract class ResourceCommandAction : AspireResourceBaseAction() {
         if (command.state != ResourceCommandState.Enabled) return
 
         currentThreadCoroutineScope().launch {
-            resourceService.executeCommand(command.commandType)
+            resourceService.executeCommand(command.name)
         }
     }
 

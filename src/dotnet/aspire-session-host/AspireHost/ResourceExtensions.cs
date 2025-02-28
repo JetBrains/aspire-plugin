@@ -5,6 +5,7 @@ using JetBrains.Rider.Aspire.SessionHost.Generated;
 using ResourceCommand = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommand;
 using ResourceCommandState = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandState;
 using ResourceProperty = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceProperty;
+using ResourceRelationship = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceRelationship;
 using ResourceType = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceType;
 
 namespace JetBrains.Rider.Aspire.SessionHost.AspireHost;
@@ -25,9 +26,9 @@ internal static class ResourceExtensions
         resource.Environment.Select(it => it.ToModel()).ToArray(),
         resource.Urls.Select(it => it.ToModel()).ToArray(),
         resource.Volumes.Select(it => it.ToModel()).ToArray(),
-        resource.HasHealthStatus ? MapHealthStatus(resource.HealthStatus) : null,
         resource.HealthReports.Select(it => it.ToModel()).ToArray(),
-        resource.Commands.Select(it => it.ToModel()).ToArray()
+        resource.Commands.Select(it => it.ToModel()).ToArray(),
+        resource.Relationships.Select(it => it.ToModel()).ToArray()
     );
 
     private static ResourceType MapType(string type) => type switch
@@ -126,7 +127,7 @@ internal static class ResourceExtensions
     );
 
     private static ResourceCommand ToModel(this global::Aspire.ResourceService.Proto.V1.ResourceCommand command) => new(
-        command.CommandType,
+        command.Name,
         command.DisplayName,
         command.HasConfirmationMessage ? command.ConfirmationMessage : null,
         command.IsHighlighted,
@@ -143,4 +144,10 @@ internal static class ResourceExtensions
         global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Hidden => ResourceCommandState.Hidden,
         _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
     };
+
+    private static ResourceRelationship ToModel(
+        this global::Aspire.ResourceService.Proto.V1.ResourceRelationship relationship) => new(
+        relationship.ResourceName,
+        relationship.Type
+    );
 }

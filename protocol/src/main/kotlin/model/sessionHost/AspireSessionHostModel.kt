@@ -99,9 +99,9 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("environment", array(ResourceEnvironmentVariable))
         field("urls", array(ResourceUrl))
         field("volumes", array(ResourceVolume))
-        field("healthStatus", ResourceHealthStatus.nullable)
         field("healthReports", array(ResourceHealthReport))
         field("commands", array(ResourceCommand))
+        field("relationships", array(ResourceRelationship))
     }
 
     private val ResourceProperty = structdef {
@@ -136,14 +136,14 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
     }
 
     private val ResourceHealthReport = structdef {
-        field("status", ResourceHealthStatus)
+        field("status", ResourceHealthStatus.nullable)
         field("key", string)
         field("description", string)
         field("exception", string)
     }
 
     private val ResourceCommand = structdef {
-        field("commandType", string)
+        field("name", string)
         field("displayName", string)
         field("confirmationMessage", string.nullable)
         field("isHighlighted", bool)
@@ -156,6 +156,11 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         })
     }
 
+    private val ResourceRelationship = structdef {
+        field("resourceName", string)
+        field("type", string)
+    }
+
     private val ResourceLog = structdef {
         field("text", string)
         field("isError", bool)
@@ -163,7 +168,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
     }
 
     private val ResourceCommandRequest = structdef {
-        field("commandType", string)
+        field("commandName", string)
         field("resourceName", string)
         field("resourceType", string)
     }

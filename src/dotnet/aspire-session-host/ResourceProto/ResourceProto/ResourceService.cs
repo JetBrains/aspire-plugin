@@ -28,102 +28,104 @@ namespace Aspire.ResourceService.Proto.V1 {
             "ZS52MRocZ29vZ2xlL3Byb3RvYnVmL3N0cnVjdC5wcm90bxofZ29vZ2xlL3By",
             "b3RvYnVmL3RpbWVzdGFtcC5wcm90byIfCh1BcHBsaWNhdGlvbkluZm9ybWF0",
             "aW9uUmVxdWVzdCI6Ch5BcHBsaWNhdGlvbkluZm9ybWF0aW9uUmVzcG9uc2US",
-            "GAoQYXBwbGljYXRpb25fbmFtZRgBIAEoCSKjAwoPUmVzb3VyY2VDb21tYW5k",
-            "EhQKDGNvbW1hbmRfdHlwZRgBIAEoCRIUCgxkaXNwbGF5X25hbWUYAiABKAkS",
-            "IQoUY29uZmlybWF0aW9uX21lc3NhZ2UYAyABKAlIAIgBARIuCglwYXJhbWV0",
-            "ZXIYBCABKAsyFi5nb29nbGUucHJvdG9idWYuVmFsdWVIAYgBARIWCg5pc19o",
-            "aWdobGlnaHRlZBgFIAEoCBIWCglpY29uX25hbWUYBiABKAlIAogBARIxCgxp",
-            "Y29uX3ZhcmlhbnQYByABKA4yFi5hc3BpcmUudjEuSWNvblZhcmlhbnRIA4gB",
-            "ARIgChNkaXNwbGF5X2Rlc2NyaXB0aW9uGAggASgJSASIAQESLgoFc3RhdGUY",
-            "CSABKA4yHy5hc3BpcmUudjEuUmVzb3VyY2VDb21tYW5kU3RhdGVCFwoVX2Nv",
-            "bmZpcm1hdGlvbl9tZXNzYWdlQgwKCl9wYXJhbWV0ZXJCDAoKX2ljb25fbmFt",
-            "ZUIPCg1faWNvbl92YXJpYW50QhYKFF9kaXNwbGF5X2Rlc2NyaXB0aW9uIpoB",
-            "ChZSZXNvdXJjZUNvbW1hbmRSZXF1ZXN0EhQKDGNvbW1hbmRfdHlwZRgBIAEo",
-            "CRIVCg1yZXNvdXJjZV9uYW1lGAIgASgJEhUKDXJlc291cmNlX3R5cGUYAyAB",
-            "KAkSLgoJcGFyYW1ldGVyGAQgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVl",
-            "SACIAQFCDAoKX3BhcmFtZXRlciJ9ChdSZXNvdXJjZUNvbW1hbmRSZXNwb25z",
-            "ZRI0CgRraW5kGAEgASgOMiYuYXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJl",
-            "c3BvbnNlS2luZBIaCg1lcnJvcl9tZXNzYWdlGAIgASgJSACIAQFCEAoOX2Vy",
-            "cm9yX21lc3NhZ2UifQoMUmVzb3VyY2VUeXBlEhMKC3VuaXF1ZV9uYW1lGAEg",
-            "ASgJEhkKDGRpc3BsYXlfbmFtZRgCIAEoCUgAiAEBEiwKCGNvbW1hbmRzGAMg",
-            "AygLMhouYXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZEIPCg1fZGlzcGxheV9u",
-            "YW1lIlcKE0Vudmlyb25tZW50VmFyaWFibGUSDAoEbmFtZRgBIAEoCRISCgV2",
-            "YWx1ZRgCIAEoCUgAiAEBEhQKDGlzX2Zyb21fc3BlYxgDIAEoCEIICgZfdmFs",
-            "dWUiOgoDVXJsEgwKBG5hbWUYASABKAkSEAoIZnVsbF91cmwYAiABKAkSEwoL",
-            "aXNfaW50ZXJuYWwYAyABKAgiUgoGVm9sdW1lEg4KBnNvdXJjZRgBIAEoCRIO",
-            "CgZ0YXJnZXQYAiABKAkSEgoKbW91bnRfdHlwZRgDIAEoCRIUCgxpc19yZWFk",
-            "X29ubHkYBCABKAgibAoMSGVhbHRoUmVwb3J0EicKBnN0YXR1cxgBIAEoDjIX",
-            "LmFzcGlyZS52MS5IZWFsdGhTdGF0dXMSCwoDa2V5GAIgASgJEhMKC2Rlc2Ny",
-            "aXB0aW9uGAMgASgJEhEKCWV4Y2VwdGlvbhgEIAEoCSKfAQoQUmVzb3VyY2VQ",
-            "cm9wZXJ0eRIMCgRuYW1lGAEgASgJEhkKDGRpc3BsYXlfbmFtZRgCIAEoCUgA",
-            "iAEBEiUKBXZhbHVlGAMgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlEhkK",
-            "DGlzX3NlbnNpdGl2ZRgEIAEoCEgBiAEBQg8KDV9kaXNwbGF5X25hbWVCDwoN",
-            "X2lzX3NlbnNpdGl2ZSLGBQoIUmVzb3VyY2USDAoEbmFtZRgBIAEoCRIVCg1y",
-            "ZXNvdXJjZV90eXBlGAIgASgJEhQKDGRpc3BsYXlfbmFtZRgDIAEoCRILCgN1",
-            "aWQYBCABKAkSEgoFc3RhdGUYBSABKAlIAIgBARIzCgpjcmVhdGVkX2F0GAYg",
-            "ASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgBiAEBEjMKC2Vudmly",
-            "b25tZW50GAcgAygLMh4uYXNwaXJlLnYxLkVudmlyb25tZW50VmFyaWFibGUS",
-            "LAoIY29tbWFuZHMYCyADKAsyGi5hc3BpcmUudjEuUmVzb3VyY2VDb21tYW5k",
-            "Ei8KCnByb3BlcnRpZXMYDCADKAsyGy5hc3BpcmUudjEuUmVzb3VyY2VQcm9w",
-            "ZXJ0eRIcCgR1cmxzGA0gAygLMg4uYXNwaXJlLnYxLlVybBIYCgtzdGF0ZV9z",
-            "dHlsZRgOIAEoCUgCiAEBEiIKB3ZvbHVtZXMYDyADKAsyES5hc3BpcmUudjEu",
-            "Vm9sdW1lEjMKDWhlYWx0aF9zdGF0dXMYECABKA4yFy5hc3BpcmUudjEuSGVh",
-            "bHRoU3RhdHVzSAOIAQESLwoOaGVhbHRoX3JlcG9ydHMYESADKAsyFy5hc3Bp",
-            "cmUudjEuSGVhbHRoUmVwb3J0EjMKCnN0YXJ0ZWRfYXQYEiABKAsyGi5nb29n",
-            "bGUucHJvdG9idWYuVGltZXN0YW1wSASIAQESMwoKc3RvcHBlZF9hdBgTIAEo",
-            "CzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIBYgBAUIICgZfc3RhdGVC",
-            "DQoLX2NyZWF0ZWRfYXRCDgoMX3N0YXRlX3N0eWxlQhAKDl9oZWFsdGhfc3Rh",
-            "dHVzQg0KC19zdGFydGVkX2F0Qg0KC19zdG9wcGVkX2F0SgQICBAJSgQICRAK",
-            "SgQIChALIm4KE0luaXRpYWxSZXNvdXJjZURhdGESJgoJcmVzb3VyY2VzGAEg",
-            "AygLMhMuYXNwaXJlLnYxLlJlc291cmNlEi8KDnJlc291cmNlX3R5cGVzGAIg",
-            "AygLMhcuYXNwaXJlLnYxLlJlc291cmNlVHlwZSJAChBSZXNvdXJjZURlbGV0",
-            "aW9uEhUKDXJlc291cmNlX25hbWUYASABKAkSFQoNcmVzb3VyY2VfdHlwZRgC",
-            "IAEoCSJ0ChRXYXRjaFJlc291cmNlc0NoYW5nZRItCgZkZWxldGUYASABKAsy",
-            "Gy5hc3BpcmUudjEuUmVzb3VyY2VEZWxldGlvbkgAEiUKBnVwc2VydBgCIAEo",
-            "CzITLmFzcGlyZS52MS5SZXNvdXJjZUgAQgYKBGtpbmQiRwoVV2F0Y2hSZXNv",
-            "dXJjZXNDaGFuZ2VzEi4KBXZhbHVlGAEgAygLMh8uYXNwaXJlLnYxLldhdGNo",
-            "UmVzb3VyY2VzQ2hhbmdlIkMKFVdhdGNoUmVzb3VyY2VzUmVxdWVzdBIZCgxp",
-            "c19yZWNvbm5lY3QYASABKAhIAIgBAUIPCg1faXNfcmVjb25uZWN0IosBChRX",
-            "YXRjaFJlc291cmNlc1VwZGF0ZRI2Cgxpbml0aWFsX2RhdGEYASABKAsyHi5h",
-            "c3BpcmUudjEuSW5pdGlhbFJlc291cmNlRGF0YUgAEjMKB2NoYW5nZXMYAiAB",
-            "KAsyIC5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXNDaGFuZ2VzSABCBgoEa2lu",
-            "ZCJbCg5Db25zb2xlTG9nTGluZRIMCgR0ZXh0GAEgASgJEhcKCmlzX3N0ZF9l",
-            "cnIYAiABKAhIAIgBARITCgtsaW5lX251bWJlchgDIAEoBUINCgtfaXNfc3Rk",
-            "X2VyciI4Ch9XYXRjaFJlc291cmNlQ29uc29sZUxvZ3NSZXF1ZXN0EhUKDXJl",
-            "c291cmNlX25hbWUYASABKAkiTgoeV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dz",
-            "VXBkYXRlEiwKCWxvZ19saW5lcxgBIAMoCzIZLmFzcGlyZS52MS5Db25zb2xl",
-            "TG9nTGluZSomCgtJY29uVmFyaWFudBILCgdSRUdVTEFSEAASCgoGRklMTEVE",
-            "EAEqPQoUUmVzb3VyY2VDb21tYW5kU3RhdGUSCwoHRU5BQkxFRBAAEgwKCERJ",
-            "U0FCTEVEEAESCgoGSElEREVOEAIqVgobUmVzb3VyY2VDb21tYW5kUmVzcG9u",
-            "c2VLaW5kEg0KCVVOREVGSU5FRBAAEg0KCVNVQ0NFRURFRBABEgoKBkZBSUxF",
-            "RBACEg0KCUNBTkNFTExFRBADKjgKDEhlYWx0aFN0YXR1cxILCgdIRUFMVEhZ",
-            "EAASDQoJVU5IRUFMVEhZEAESDAoIREVHUkFERUQQAjKxAwoQRGFzaGJvYXJk",
-            "U2VydmljZRJwChlHZXRBcHBsaWNhdGlvbkluZm9ybWF0aW9uEiguYXNwaXJl",
-            "LnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXF1ZXN0GikuYXNwaXJlLnYx",
-            "LkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXNwb25zZRJVCg5XYXRjaFJlc291",
-            "cmNlcxIgLmFzcGlyZS52MS5XYXRjaFJlc291cmNlc1JlcXVlc3QaHy5hc3Bp",
-            "cmUudjEuV2F0Y2hSZXNvdXJjZXNVcGRhdGUwARJzChhXYXRjaFJlc291cmNl",
-            "Q29uc29sZUxvZ3MSKi5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZUNvbnNvbGVM",
-            "b2dzUmVxdWVzdBopLmFzcGlyZS52MS5XYXRjaFJlc291cmNlQ29uc29sZUxv",
-            "Z3NVcGRhdGUwARJfChZFeGVjdXRlUmVzb3VyY2VDb21tYW5kEiEuYXNwaXJl",
-            "LnYxLlJlc291cmNlQ29tbWFuZFJlcXVlc3QaIi5hc3BpcmUudjEuUmVzb3Vy",
-            "Y2VDb21tYW5kUmVzcG9uc2VCIqoCH0FzcGlyZS5SZXNvdXJjZVNlcnZpY2Uu",
-            "UHJvdG8uVjFiBnByb3RvMw=="));
+            "GAoQYXBwbGljYXRpb25fbmFtZRgBIAEoCSKbAwoPUmVzb3VyY2VDb21tYW5k",
+            "EgwKBG5hbWUYASABKAkSFAoMZGlzcGxheV9uYW1lGAIgASgJEiEKFGNvbmZp",
+            "cm1hdGlvbl9tZXNzYWdlGAMgASgJSACIAQESLgoJcGFyYW1ldGVyGAQgASgL",
+            "MhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlSAGIAQESFgoOaXNfaGlnaGxpZ2h0",
+            "ZWQYBSABKAgSFgoJaWNvbl9uYW1lGAYgASgJSAKIAQESMQoMaWNvbl92YXJp",
+            "YW50GAcgASgOMhYuYXNwaXJlLnYxLkljb25WYXJpYW50SAOIAQESIAoTZGlz",
+            "cGxheV9kZXNjcmlwdGlvbhgIIAEoCUgEiAEBEi4KBXN0YXRlGAkgASgOMh8u",
+            "YXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFN0YXRlQhcKFV9jb25maXJtYXRp",
+            "b25fbWVzc2FnZUIMCgpfcGFyYW1ldGVyQgwKCl9pY29uX25hbWVCDwoNX2lj",
+            "b25fdmFyaWFudEIWChRfZGlzcGxheV9kZXNjcmlwdGlvbiKaAQoWUmVzb3Vy",
+            "Y2VDb21tYW5kUmVxdWVzdBIUCgxjb21tYW5kX25hbWUYASABKAkSFQoNcmVz",
+            "b3VyY2VfbmFtZRgCIAEoCRIVCg1yZXNvdXJjZV90eXBlGAMgASgJEi4KCXBh",
+            "cmFtZXRlchgEIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5WYWx1ZUgAiAEBQgwK",
+            "Cl9wYXJhbWV0ZXIifQoXUmVzb3VyY2VDb21tYW5kUmVzcG9uc2USNAoEa2lu",
+            "ZBgBIAEoDjImLmFzcGlyZS52MS5SZXNvdXJjZUNvbW1hbmRSZXNwb25zZUtp",
+            "bmQSGgoNZXJyb3JfbWVzc2FnZRgCIAEoCUgAiAEBQhAKDl9lcnJvcl9tZXNz",
+            "YWdlIn0KDFJlc291cmNlVHlwZRITCgt1bmlxdWVfbmFtZRgBIAEoCRIZCgxk",
+            "aXNwbGF5X25hbWUYAiABKAlIAIgBARIsCghjb21tYW5kcxgDIAMoCzIaLmFz",
+            "cGlyZS52MS5SZXNvdXJjZUNvbW1hbmRCDwoNX2Rpc3BsYXlfbmFtZSJXChNF",
+            "bnZpcm9ubWVudFZhcmlhYmxlEgwKBG5hbWUYASABKAkSEgoFdmFsdWUYAiAB",
+            "KAlIAIgBARIUCgxpc19mcm9tX3NwZWMYAyABKAhCCAoGX3ZhbHVlIjoKA1Vy",
+            "bBIMCgRuYW1lGAEgASgJEhAKCGZ1bGxfdXJsGAIgASgJEhMKC2lzX2ludGVy",
+            "bmFsGAMgASgIIlIKBlZvbHVtZRIOCgZzb3VyY2UYASABKAkSDgoGdGFyZ2V0",
+            "GAIgASgJEhIKCm1vdW50X3R5cGUYAyABKAkSFAoMaXNfcmVhZF9vbmx5GAQg",
+            "ASgIInwKDEhlYWx0aFJlcG9ydBIsCgZzdGF0dXMYASABKA4yFy5hc3BpcmUu",
+            "djEuSGVhbHRoU3RhdHVzSACIAQESCwoDa2V5GAIgASgJEhMKC2Rlc2NyaXB0",
+            "aW9uGAMgASgJEhEKCWV4Y2VwdGlvbhgEIAEoCUIJCgdfc3RhdHVzIjsKFFJl",
+            "c291cmNlUmVsYXRpb25zaGlwEhUKDXJlc291cmNlX25hbWUYASABKAkSDAoE",
+            "dHlwZRgCIAEoCSKfAQoQUmVzb3VyY2VQcm9wZXJ0eRIMCgRuYW1lGAEgASgJ",
+            "EhkKDGRpc3BsYXlfbmFtZRgCIAEoCUgAiAEBEiUKBXZhbHVlGAMgASgLMhYu",
+            "Z29vZ2xlLnByb3RvYnVmLlZhbHVlEhkKDGlzX3NlbnNpdGl2ZRgEIAEoCEgB",
+            "iAEBQg8KDV9kaXNwbGF5X25hbWVCDwoNX2lzX3NlbnNpdGl2ZSK9BQoIUmVz",
+            "b3VyY2USDAoEbmFtZRgBIAEoCRIVCg1yZXNvdXJjZV90eXBlGAIgASgJEhQK",
+            "DGRpc3BsYXlfbmFtZRgDIAEoCRILCgN1aWQYBCABKAkSEgoFc3RhdGUYBSAB",
+            "KAlIAIgBARIzCgpjcmVhdGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVm",
+            "LlRpbWVzdGFtcEgBiAEBEjMKC2Vudmlyb25tZW50GAcgAygLMh4uYXNwaXJl",
+            "LnYxLkVudmlyb25tZW50VmFyaWFibGUSLAoIY29tbWFuZHMYCyADKAsyGi5h",
+            "c3BpcmUudjEuUmVzb3VyY2VDb21tYW5kEi8KCnByb3BlcnRpZXMYDCADKAsy",
+            "Gy5hc3BpcmUudjEuUmVzb3VyY2VQcm9wZXJ0eRIcCgR1cmxzGA0gAygLMg4u",
+            "YXNwaXJlLnYxLlVybBIYCgtzdGF0ZV9zdHlsZRgOIAEoCUgCiAEBEiIKB3Zv",
+            "bHVtZXMYDyADKAsyES5hc3BpcmUudjEuVm9sdW1lEi8KDmhlYWx0aF9yZXBv",
+            "cnRzGBEgAygLMhcuYXNwaXJlLnYxLkhlYWx0aFJlcG9ydBIzCgpzdGFydGVk",
+            "X2F0GBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgDiAEBEjMK",
+            "CnN0b3BwZWRfYXQYEyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1w",
+            "SASIAQESNgoNcmVsYXRpb25zaGlwcxgUIAMoCzIfLmFzcGlyZS52MS5SZXNv",
+            "dXJjZVJlbGF0aW9uc2hpcEIICgZfc3RhdGVCDQoLX2NyZWF0ZWRfYXRCDgoM",
+            "X3N0YXRlX3N0eWxlQg0KC19zdGFydGVkX2F0Qg0KC19zdG9wcGVkX2F0SgQI",
+            "CBAJSgQICRAKSgQIChALSgQIEBARIm4KE0luaXRpYWxSZXNvdXJjZURhdGES",
+            "JgoJcmVzb3VyY2VzGAEgAygLMhMuYXNwaXJlLnYxLlJlc291cmNlEi8KDnJl",
+            "c291cmNlX3R5cGVzGAIgAygLMhcuYXNwaXJlLnYxLlJlc291cmNlVHlwZSJA",
+            "ChBSZXNvdXJjZURlbGV0aW9uEhUKDXJlc291cmNlX25hbWUYASABKAkSFQoN",
+            "cmVzb3VyY2VfdHlwZRgCIAEoCSJ0ChRXYXRjaFJlc291cmNlc0NoYW5nZRIt",
+            "CgZkZWxldGUYASABKAsyGy5hc3BpcmUudjEuUmVzb3VyY2VEZWxldGlvbkgA",
+            "EiUKBnVwc2VydBgCIAEoCzITLmFzcGlyZS52MS5SZXNvdXJjZUgAQgYKBGtp",
+            "bmQiRwoVV2F0Y2hSZXNvdXJjZXNDaGFuZ2VzEi4KBXZhbHVlGAEgAygLMh8u",
+            "YXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzQ2hhbmdlIkMKFVdhdGNoUmVzb3Vy",
+            "Y2VzUmVxdWVzdBIZCgxpc19yZWNvbm5lY3QYASABKAhIAIgBAUIPCg1faXNf",
+            "cmVjb25uZWN0IosBChRXYXRjaFJlc291cmNlc1VwZGF0ZRI2Cgxpbml0aWFs",
+            "X2RhdGEYASABKAsyHi5hc3BpcmUudjEuSW5pdGlhbFJlc291cmNlRGF0YUgA",
+            "EjMKB2NoYW5nZXMYAiABKAsyIC5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXND",
+            "aGFuZ2VzSABCBgoEa2luZCJbCg5Db25zb2xlTG9nTGluZRIMCgR0ZXh0GAEg",
+            "ASgJEhcKCmlzX3N0ZF9lcnIYAiABKAhIAIgBARITCgtsaW5lX251bWJlchgD",
+            "IAEoBUINCgtfaXNfc3RkX2VyciI4Ch9XYXRjaFJlc291cmNlQ29uc29sZUxv",
+            "Z3NSZXF1ZXN0EhUKDXJlc291cmNlX25hbWUYASABKAkiTgoeV2F0Y2hSZXNv",
+            "dXJjZUNvbnNvbGVMb2dzVXBkYXRlEiwKCWxvZ19saW5lcxgBIAMoCzIZLmFz",
+            "cGlyZS52MS5Db25zb2xlTG9nTGluZSomCgtJY29uVmFyaWFudBILCgdSRUdV",
+            "TEFSEAASCgoGRklMTEVEEAEqPQoUUmVzb3VyY2VDb21tYW5kU3RhdGUSCwoH",
+            "RU5BQkxFRBAAEgwKCERJU0FCTEVEEAESCgoGSElEREVOEAIqVgobUmVzb3Vy",
+            "Y2VDb21tYW5kUmVzcG9uc2VLaW5kEg0KCVVOREVGSU5FRBAAEg0KCVNVQ0NF",
+            "RURFRBABEgoKBkZBSUxFRBACEg0KCUNBTkNFTExFRBADKjgKDEhlYWx0aFN0",
+            "YXR1cxILCgdIRUFMVEhZEAASDQoJVU5IRUFMVEhZEAESDAoIREVHUkFERUQQ",
+            "AjKxAwoQRGFzaGJvYXJkU2VydmljZRJwChlHZXRBcHBsaWNhdGlvbkluZm9y",
+            "bWF0aW9uEiguYXNwaXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXF1",
+            "ZXN0GikuYXNwaXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXNwb25z",
+            "ZRJVCg5XYXRjaFJlc291cmNlcxIgLmFzcGlyZS52MS5XYXRjaFJlc291cmNl",
+            "c1JlcXVlc3QaHy5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXNVcGRhdGUwARJz",
+            "ChhXYXRjaFJlc291cmNlQ29uc29sZUxvZ3MSKi5hc3BpcmUudjEuV2F0Y2hS",
+            "ZXNvdXJjZUNvbnNvbGVMb2dzUmVxdWVzdBopLmFzcGlyZS52MS5XYXRjaFJl",
+            "c291cmNlQ29uc29sZUxvZ3NVcGRhdGUwARJfChZFeGVjdXRlUmVzb3VyY2VD",
+            "b21tYW5kEiEuYXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlcXVlc3QaIi5h",
+            "c3BpcmUudjEuUmVzb3VyY2VDb21tYW5kUmVzcG9uc2VCIqoCH0FzcGlyZS5S",
+            "ZXNvdXJjZVNlcnZpY2UuUHJvdG8uVjFiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.StructReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Aspire.ResourceService.Proto.V1.IconVariant), typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandState), typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind), typeof(global::Aspire.ResourceService.Proto.V1.HealthStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest), global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse), global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse.Parser, new[]{ "ApplicationName" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommand), global::Aspire.ResourceService.Proto.V1.ResourceCommand.Parser, new[]{ "CommandType", "DisplayName", "ConfirmationMessage", "Parameter", "IsHighlighted", "IconName", "IconVariant", "DisplayDescription", "State" }, new[]{ "ConfirmationMessage", "Parameter", "IconName", "IconVariant", "DisplayDescription" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest), global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest.Parser, new[]{ "CommandType", "ResourceName", "ResourceType", "Parameter" }, new[]{ "Parameter" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommand), global::Aspire.ResourceService.Proto.V1.ResourceCommand.Parser, new[]{ "Name", "DisplayName", "ConfirmationMessage", "Parameter", "IsHighlighted", "IconName", "IconVariant", "DisplayDescription", "State" }, new[]{ "ConfirmationMessage", "Parameter", "IconName", "IconVariant", "DisplayDescription" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest), global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest.Parser, new[]{ "CommandName", "ResourceName", "ResourceType", "Parameter" }, new[]{ "Parameter" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse), global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse.Parser, new[]{ "Kind", "ErrorMessage" }, new[]{ "ErrorMessage" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceType), global::Aspire.ResourceService.Proto.V1.ResourceType.Parser, new[]{ "UniqueName", "DisplayName", "Commands" }, new[]{ "DisplayName" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.EnvironmentVariable), global::Aspire.ResourceService.Proto.V1.EnvironmentVariable.Parser, new[]{ "Name", "Value", "IsFromSpec" }, new[]{ "Value" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Url), global::Aspire.ResourceService.Proto.V1.Url.Parser, new[]{ "Name", "FullUrl", "IsInternal" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Volume), global::Aspire.ResourceService.Proto.V1.Volume.Parser, new[]{ "Source", "Target", "MountType", "IsReadOnly" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.HealthReport), global::Aspire.ResourceService.Proto.V1.HealthReport.Parser, new[]{ "Status", "Key", "Description", "Exception" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.HealthReport), global::Aspire.ResourceService.Proto.V1.HealthReport.Parser, new[]{ "Status", "Key", "Description", "Exception" }, new[]{ "Status" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceRelationship), global::Aspire.ResourceService.Proto.V1.ResourceRelationship.Parser, new[]{ "ResourceName", "Type" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceProperty), global::Aspire.ResourceService.Proto.V1.ResourceProperty.Parser, new[]{ "Name", "DisplayName", "Value", "IsSensitive" }, new[]{ "DisplayName", "IsSensitive" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Resource), global::Aspire.ResourceService.Proto.V1.Resource.Parser, new[]{ "Name", "ResourceType", "DisplayName", "Uid", "State", "CreatedAt", "Environment", "Commands", "Properties", "Urls", "StateStyle", "Volumes", "HealthStatus", "HealthReports", "StartedAt", "StoppedAt" }, new[]{ "State", "CreatedAt", "StateStyle", "HealthStatus", "StartedAt", "StoppedAt" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Resource), global::Aspire.ResourceService.Proto.V1.Resource.Parser, new[]{ "Name", "ResourceType", "DisplayName", "Uid", "State", "CreatedAt", "Environment", "Commands", "Properties", "Urls", "StateStyle", "Volumes", "HealthReports", "StartedAt", "StoppedAt", "Relationships" }, new[]{ "State", "CreatedAt", "StateStyle", "StartedAt", "StoppedAt" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.InitialResourceData), global::Aspire.ResourceService.Proto.V1.InitialResourceData.Parser, new[]{ "Resources", "ResourceTypes" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceDeletion), global::Aspire.ResourceService.Proto.V1.ResourceDeletion.Parser, new[]{ "ResourceName", "ResourceType" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourcesChange), global::Aspire.ResourceService.Proto.V1.WatchResourcesChange.Parser, new[]{ "Delete", "Upsert" }, new[]{ "Kind" }, null, null, null),
@@ -568,7 +570,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ResourceCommand(ResourceCommand other) : this() {
       _hasBits0 = other._hasBits0;
-      commandType_ = other.commandType_;
+      name_ = other.name_;
       displayName_ = other.displayName_;
       confirmationMessage_ = other.confirmationMessage_;
       parameter_ = other.parameter_ != null ? other.parameter_.Clone() : null;
@@ -586,18 +588,18 @@ namespace Aspire.ResourceService.Proto.V1 {
       return new ResourceCommand(this);
     }
 
-    /// <summary>Field number for the "command_type" field.</summary>
-    public const int CommandTypeFieldNumber = 1;
-    private string commandType_ = "";
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 1;
+    private string name_ = "";
     /// <summary>
     /// Unique identifier for the command. Not intended for display.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string CommandType {
-      get { return commandType_; }
+    public string Name {
+      get { return name_; }
       set {
-        commandType_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -800,7 +802,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (CommandType != other.CommandType) return false;
+      if (Name != other.Name) return false;
       if (DisplayName != other.DisplayName) return false;
       if (ConfirmationMessage != other.ConfirmationMessage) return false;
       if (!object.Equals(Parameter, other.Parameter)) return false;
@@ -816,7 +818,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (CommandType.Length != 0) hash ^= CommandType.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (DisplayName.Length != 0) hash ^= DisplayName.GetHashCode();
       if (HasConfirmationMessage) hash ^= ConfirmationMessage.GetHashCode();
       if (parameter_ != null) hash ^= Parameter.GetHashCode();
@@ -843,9 +845,9 @@ namespace Aspire.ResourceService.Proto.V1 {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (CommandType.Length != 0) {
+      if (Name.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(CommandType);
+        output.WriteString(Name);
       }
       if (DisplayName.Length != 0) {
         output.WriteRawTag(18);
@@ -889,9 +891,9 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (CommandType.Length != 0) {
+      if (Name.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(CommandType);
+        output.WriteString(Name);
       }
       if (DisplayName.Length != 0) {
         output.WriteRawTag(18);
@@ -935,8 +937,8 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (CommandType.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(CommandType);
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
       if (DisplayName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(DisplayName);
@@ -974,8 +976,8 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (other == null) {
         return;
       }
-      if (other.CommandType.Length != 0) {
-        CommandType = other.CommandType;
+      if (other.Name.Length != 0) {
+        Name = other.Name;
       }
       if (other.DisplayName.Length != 0) {
         DisplayName = other.DisplayName;
@@ -1024,7 +1026,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            CommandType = input.ReadString();
+            Name = input.ReadString();
             break;
           }
           case 18: {
@@ -1082,7 +1084,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            CommandType = input.ReadString();
+            Name = input.ReadString();
             break;
           }
           case 18: {
@@ -1167,7 +1169,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public ResourceCommandRequest(ResourceCommandRequest other) : this() {
-      commandType_ = other.commandType_;
+      commandName_ = other.commandName_;
       resourceName_ = other.resourceName_;
       resourceType_ = other.resourceType_;
       parameter_ = other.parameter_ != null ? other.parameter_.Clone() : null;
@@ -1180,19 +1182,19 @@ namespace Aspire.ResourceService.Proto.V1 {
       return new ResourceCommandRequest(this);
     }
 
-    /// <summary>Field number for the "command_type" field.</summary>
-    public const int CommandTypeFieldNumber = 1;
-    private string commandType_ = "";
+    /// <summary>Field number for the "command_name" field.</summary>
+    public const int CommandNameFieldNumber = 1;
+    private string commandName_ = "";
     /// <summary>
     /// Unique identifier for the command.
     /// Copied from the ResourceCommand that this request object is initialized from.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string CommandType {
-      get { return commandType_; }
+    public string CommandName {
+      get { return commandName_; }
       set {
-        commandType_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        commandName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -1259,7 +1261,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (CommandType != other.CommandType) return false;
+      if (CommandName != other.CommandName) return false;
       if (ResourceName != other.ResourceName) return false;
       if (ResourceType != other.ResourceType) return false;
       if (!object.Equals(Parameter, other.Parameter)) return false;
@@ -1270,7 +1272,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (CommandType.Length != 0) hash ^= CommandType.GetHashCode();
+      if (CommandName.Length != 0) hash ^= CommandName.GetHashCode();
       if (ResourceName.Length != 0) hash ^= ResourceName.GetHashCode();
       if (ResourceType.Length != 0) hash ^= ResourceType.GetHashCode();
       if (parameter_ != null) hash ^= Parameter.GetHashCode();
@@ -1292,9 +1294,9 @@ namespace Aspire.ResourceService.Proto.V1 {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (CommandType.Length != 0) {
+      if (CommandName.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(CommandType);
+        output.WriteString(CommandName);
       }
       if (ResourceName.Length != 0) {
         output.WriteRawTag(18);
@@ -1318,9 +1320,9 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (CommandType.Length != 0) {
+      if (CommandName.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(CommandType);
+        output.WriteString(CommandName);
       }
       if (ResourceName.Length != 0) {
         output.WriteRawTag(18);
@@ -1344,8 +1346,8 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (CommandType.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(CommandType);
+      if (CommandName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(CommandName);
       }
       if (ResourceName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(ResourceName);
@@ -1368,8 +1370,8 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (other == null) {
         return;
       }
-      if (other.CommandType.Length != 0) {
-        CommandType = other.CommandType;
+      if (other.CommandName.Length != 0) {
+        CommandName = other.CommandName;
       }
       if (other.ResourceName.Length != 0) {
         ResourceName = other.ResourceName;
@@ -1403,7 +1405,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            CommandType = input.ReadString();
+            CommandName = input.ReadString();
             break;
           }
           case 18: {
@@ -1441,7 +1443,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            CommandType = input.ReadString();
+            CommandName = input.ReadString();
             break;
           }
           case 18: {
@@ -2907,6 +2909,7 @@ namespace Aspire.ResourceService.Proto.V1 {
   {
     private static readonly pb::MessageParser<HealthReport> _parser = new pb::MessageParser<HealthReport>(() => new HealthReport());
     private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pb::MessageParser<HealthReport> Parser { get { return _parser; } }
@@ -2934,6 +2937,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public HealthReport(HealthReport other) : this() {
+      _hasBits0 = other._hasBits0;
       status_ = other.status_;
       key_ = other.key_;
       description_ = other.description_;
@@ -2949,17 +2953,32 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "status" field.</summary>
     public const int StatusFieldNumber = 1;
-    private global::Aspire.ResourceService.Proto.V1.HealthStatus status_ = global::Aspire.ResourceService.Proto.V1.HealthStatus.Healthy;
+    private readonly static global::Aspire.ResourceService.Proto.V1.HealthStatus StatusDefaultValue = global::Aspire.ResourceService.Proto.V1.HealthStatus.Healthy;
+
+    private global::Aspire.ResourceService.Proto.V1.HealthStatus status_;
     /// <summary>
-    /// The health status of the resource.
+    /// The health status of the resource. Not provided if we have not yet received an initial report from the check.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::Aspire.ResourceService.Proto.V1.HealthStatus Status {
-      get { return status_; }
+      get { if ((_hasBits0 & 1) != 0) { return status_; } else { return StatusDefaultValue; } }
       set {
+        _hasBits0 |= 1;
         status_ = value;
       }
+    }
+    /// <summary>Gets whether the "status" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasStatus {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "status" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearStatus() {
+      _hasBits0 &= ~1;
     }
 
     /// <summary>Field number for the "key" field.</summary>
@@ -3033,7 +3052,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Status != global::Aspire.ResourceService.Proto.V1.HealthStatus.Healthy) hash ^= Status.GetHashCode();
+      if (HasStatus) hash ^= Status.GetHashCode();
       if (Key.Length != 0) hash ^= Key.GetHashCode();
       if (Description.Length != 0) hash ^= Description.GetHashCode();
       if (Exception.Length != 0) hash ^= Exception.GetHashCode();
@@ -3055,7 +3074,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Status != global::Aspire.ResourceService.Proto.V1.HealthStatus.Healthy) {
+      if (HasStatus) {
         output.WriteRawTag(8);
         output.WriteEnum((int) Status);
       }
@@ -3081,7 +3100,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Status != global::Aspire.ResourceService.Proto.V1.HealthStatus.Healthy) {
+      if (HasStatus) {
         output.WriteRawTag(8);
         output.WriteEnum((int) Status);
       }
@@ -3107,7 +3126,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Status != global::Aspire.ResourceService.Proto.V1.HealthStatus.Healthy) {
+      if (HasStatus) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Status);
       }
       if (Key.Length != 0) {
@@ -3131,7 +3150,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (other == null) {
         return;
       }
-      if (other.Status != global::Aspire.ResourceService.Proto.V1.HealthStatus.Healthy) {
+      if (other.HasStatus) {
         Status = other.Status;
       }
       if (other.Key.Length != 0) {
@@ -3221,6 +3240,247 @@ namespace Aspire.ResourceService.Proto.V1 {
   }
 
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class ResourceRelationship : pb::IMessage<ResourceRelationship>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ResourceRelationship> _parser = new pb::MessageParser<ResourceRelationship>(() => new ResourceRelationship());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<ResourceRelationship> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[10]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ResourceRelationship() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ResourceRelationship(ResourceRelationship other) : this() {
+      resourceName_ = other.resourceName_;
+      type_ = other.type_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ResourceRelationship Clone() {
+      return new ResourceRelationship(this);
+    }
+
+    /// <summary>Field number for the "resource_name" field.</summary>
+    public const int ResourceNameFieldNumber = 1;
+    private string resourceName_ = "";
+    /// <summary>
+    /// The name of the resource.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string ResourceName {
+      get { return resourceName_; }
+      set {
+        resourceName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "type" field.</summary>
+    public const int TypeFieldNumber = 2;
+    private string type_ = "";
+    /// <summary>
+    /// The type of relationship.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Type {
+      get { return type_; }
+      set {
+        type_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as ResourceRelationship);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(ResourceRelationship other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (ResourceName != other.ResourceName) return false;
+      if (Type != other.Type) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (ResourceName.Length != 0) hash ^= ResourceName.GetHashCode();
+      if (Type.Length != 0) hash ^= Type.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (ResourceName.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(ResourceName);
+      }
+      if (Type.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Type);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (ResourceName.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(ResourceName);
+      }
+      if (Type.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Type);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (ResourceName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(ResourceName);
+      }
+      if (Type.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Type);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(ResourceRelationship other) {
+      if (other == null) {
+        return;
+      }
+      if (other.ResourceName.Length != 0) {
+        ResourceName = other.ResourceName;
+      }
+      if (other.Type.Length != 0) {
+        Type = other.Type;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            ResourceName = input.ReadString();
+            break;
+          }
+          case 18: {
+            Type = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            ResourceName = input.ReadString();
+            break;
+          }
+          case 18: {
+            Type = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class ResourceProperty : pb::IMessage<ResourceProperty>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -3236,7 +3496,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3595,7 +3855,6 @@ namespace Aspire.ResourceService.Proto.V1 {
   {
     private static readonly pb::MessageParser<Resource> _parser = new pb::MessageParser<Resource>(() => new Resource());
     private pb::UnknownFieldSet _unknownFields;
-    private int _hasBits0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pb::MessageParser<Resource> Parser { get { return _parser; } }
@@ -3603,7 +3862,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3623,7 +3882,6 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public Resource(Resource other) : this() {
-      _hasBits0 = other._hasBits0;
       name_ = other.name_;
       resourceType_ = other.resourceType_;
       displayName_ = other.displayName_;
@@ -3636,10 +3894,10 @@ namespace Aspire.ResourceService.Proto.V1 {
       urls_ = other.urls_.Clone();
       stateStyle_ = other.stateStyle_;
       volumes_ = other.volumes_.Clone();
-      healthStatus_ = other.healthStatus_;
       healthReports_ = other.healthReports_.Clone();
       startedAt_ = other.startedAt_ != null ? other.startedAt_.Clone() : null;
       stoppedAt_ = other.stoppedAt_ != null ? other.stoppedAt_.Clone() : null;
+      relationships_ = other.relationships_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3782,7 +4040,7 @@ namespace Aspire.ResourceService.Proto.V1 {
         = pb::FieldCodec.ForMessage(106, global::Aspire.ResourceService.Proto.V1.Url.Parser);
     private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Url> urls_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Url>();
     /// <summary>
-    /// The list of urls that this resource exposes
+    /// The list of urls that this resource exposes.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3835,36 +4093,6 @@ namespace Aspire.ResourceService.Proto.V1 {
       get { return volumes_; }
     }
 
-    /// <summary>Field number for the "health_status" field.</summary>
-    public const int HealthStatusFieldNumber = 16;
-    private readonly static global::Aspire.ResourceService.Proto.V1.HealthStatus HealthStatusDefaultValue = global::Aspire.ResourceService.Proto.V1.HealthStatus.Healthy;
-
-    private global::Aspire.ResourceService.Proto.V1.HealthStatus healthStatus_;
-    /// <summary>
-    /// The aggregate health state of the resource. Generally reflects data from health_reports, but may differ.
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.HealthStatus HealthStatus {
-      get { if ((_hasBits0 & 1) != 0) { return healthStatus_; } else { return HealthStatusDefaultValue; } }
-      set {
-        _hasBits0 |= 1;
-        healthStatus_ = value;
-      }
-    }
-    /// <summary>Gets whether the "health_status" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasHealthStatus {
-      get { return (_hasBits0 & 1) != 0; }
-    }
-    /// <summary>Clears the value of the "health_status" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearHealthStatus() {
-      _hasBits0 &= ~1;
-    }
-
     /// <summary>Field number for the "health_reports" field.</summary>
     public const int HealthReportsFieldNumber = 17;
     private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.HealthReport> _repeated_healthReports_codec
@@ -3909,6 +4137,20 @@ namespace Aspire.ResourceService.Proto.V1 {
       }
     }
 
+    /// <summary>Field number for the "relationships" field.</summary>
+    public const int RelationshipsFieldNumber = 20;
+    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.ResourceRelationship> _repeated_relationships_codec
+        = pb::FieldCodec.ForMessage(162, global::Aspire.ResourceService.Proto.V1.ResourceRelationship.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceRelationship> relationships_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceRelationship>();
+    /// <summary>
+    /// The list of relationships for this resource.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceRelationship> Relationships {
+      get { return relationships_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -3936,10 +4178,10 @@ namespace Aspire.ResourceService.Proto.V1 {
       if(!urls_.Equals(other.urls_)) return false;
       if (StateStyle != other.StateStyle) return false;
       if(!volumes_.Equals(other.volumes_)) return false;
-      if (HealthStatus != other.HealthStatus) return false;
       if(!healthReports_.Equals(other.healthReports_)) return false;
       if (!object.Equals(StartedAt, other.StartedAt)) return false;
       if (!object.Equals(StoppedAt, other.StoppedAt)) return false;
+      if(!relationships_.Equals(other.relationships_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3959,10 +4201,10 @@ namespace Aspire.ResourceService.Proto.V1 {
       hash ^= urls_.GetHashCode();
       if (HasStateStyle) hash ^= StateStyle.GetHashCode();
       hash ^= volumes_.GetHashCode();
-      if (HasHealthStatus) hash ^= HealthStatus.GetHashCode();
       hash ^= healthReports_.GetHashCode();
       if (startedAt_ != null) hash ^= StartedAt.GetHashCode();
       if (stoppedAt_ != null) hash ^= StoppedAt.GetHashCode();
+      hash ^= relationships_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4014,10 +4256,6 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteString(StateStyle);
       }
       volumes_.WriteTo(output, _repeated_volumes_codec);
-      if (HasHealthStatus) {
-        output.WriteRawTag(128, 1);
-        output.WriteEnum((int) HealthStatus);
-      }
       healthReports_.WriteTo(output, _repeated_healthReports_codec);
       if (startedAt_ != null) {
         output.WriteRawTag(146, 1);
@@ -4027,6 +4265,7 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteRawTag(154, 1);
         output.WriteMessage(StoppedAt);
       }
+      relationships_.WriteTo(output, _repeated_relationships_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4070,10 +4309,6 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteString(StateStyle);
       }
       volumes_.WriteTo(ref output, _repeated_volumes_codec);
-      if (HasHealthStatus) {
-        output.WriteRawTag(128, 1);
-        output.WriteEnum((int) HealthStatus);
-      }
       healthReports_.WriteTo(ref output, _repeated_healthReports_codec);
       if (startedAt_ != null) {
         output.WriteRawTag(146, 1);
@@ -4083,6 +4318,7 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteRawTag(154, 1);
         output.WriteMessage(StoppedAt);
       }
+      relationships_.WriteTo(ref output, _repeated_relationships_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4119,9 +4355,6 @@ namespace Aspire.ResourceService.Proto.V1 {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(StateStyle);
       }
       size += volumes_.CalculateSize(_repeated_volumes_codec);
-      if (HasHealthStatus) {
-        size += 2 + pb::CodedOutputStream.ComputeEnumSize((int) HealthStatus);
-      }
       size += healthReports_.CalculateSize(_repeated_healthReports_codec);
       if (startedAt_ != null) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(StartedAt);
@@ -4129,6 +4362,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (stoppedAt_ != null) {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(StoppedAt);
       }
+      size += relationships_.CalculateSize(_repeated_relationships_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -4170,9 +4404,6 @@ namespace Aspire.ResourceService.Proto.V1 {
         StateStyle = other.StateStyle;
       }
       volumes_.Add(other.volumes_);
-      if (other.HasHealthStatus) {
-        HealthStatus = other.HealthStatus;
-      }
       healthReports_.Add(other.healthReports_);
       if (other.startedAt_ != null) {
         if (startedAt_ == null) {
@@ -4186,6 +4417,7 @@ namespace Aspire.ResourceService.Proto.V1 {
         }
         StoppedAt.MergeFrom(other.StoppedAt);
       }
+      relationships_.Add(other.relationships_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4256,10 +4488,6 @@ namespace Aspire.ResourceService.Proto.V1 {
             volumes_.AddEntriesFrom(input, _repeated_volumes_codec);
             break;
           }
-          case 128: {
-            HealthStatus = (global::Aspire.ResourceService.Proto.V1.HealthStatus) input.ReadEnum();
-            break;
-          }
           case 138: {
             healthReports_.AddEntriesFrom(input, _repeated_healthReports_codec);
             break;
@@ -4276,6 +4504,10 @@ namespace Aspire.ResourceService.Proto.V1 {
               StoppedAt = new global::Google.Protobuf.WellKnownTypes.Timestamp();
             }
             input.ReadMessage(StoppedAt);
+            break;
+          }
+          case 162: {
+            relationships_.AddEntriesFrom(input, _repeated_relationships_codec);
             break;
           }
         }
@@ -4348,10 +4580,6 @@ namespace Aspire.ResourceService.Proto.V1 {
             volumes_.AddEntriesFrom(ref input, _repeated_volumes_codec);
             break;
           }
-          case 128: {
-            HealthStatus = (global::Aspire.ResourceService.Proto.V1.HealthStatus) input.ReadEnum();
-            break;
-          }
           case 138: {
             healthReports_.AddEntriesFrom(ref input, _repeated_healthReports_codec);
             break;
@@ -4368,6 +4596,10 @@ namespace Aspire.ResourceService.Proto.V1 {
               StoppedAt = new global::Google.Protobuf.WellKnownTypes.Timestamp();
             }
             input.ReadMessage(StoppedAt);
+            break;
+          }
+          case 162: {
+            relationships_.AddEntriesFrom(ref input, _repeated_relationships_codec);
             break;
           }
         }
@@ -4395,7 +4627,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4608,7 +4840,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[13]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4843,7 +5075,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[14]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5137,7 +5369,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[15]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5328,7 +5560,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[16]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5548,7 +5780,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[17]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5850,7 +6082,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[18]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6144,7 +6376,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[19]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6349,7 +6581,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[20]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
