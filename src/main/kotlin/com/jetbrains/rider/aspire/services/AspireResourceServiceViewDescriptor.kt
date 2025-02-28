@@ -20,7 +20,8 @@ class AspireResourceServiceViewDescriptor(private val aspireResource: AspireReso
         ActionManager.getInstance().getAction("Aspire.Resource.Start"),
         ActionManager.getInstance().getAction("Aspire.Resource.Restart"),
         ActionManager.getInstance().getAction("Aspire.Resource.Stop"),
-        ActionManager.getInstance().getAction("Aspire.Resource.Attach")
+        ActionManager.getInstance().getAction("Aspire.Resource.Attach"),
+        ActionManager.getInstance().getAction("Aspire.Resource.NavigateToDebugTab")
     )
 
     override fun getPresentation() = PresentationData().apply {

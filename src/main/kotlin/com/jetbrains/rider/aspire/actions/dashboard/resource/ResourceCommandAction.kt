@@ -21,7 +21,7 @@ abstract class ResourceCommandAction : AspireResourceBaseAction() {
         }
     }
 
-    override fun updateAction(event: AnActionEvent, resourceService: AspireResource) {
+    override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
         val command = findCommand(resourceService)
         if (command == null || command.state == ResourceCommandState.Hidden) {
             event.presentation.isEnabledAndVisible = false

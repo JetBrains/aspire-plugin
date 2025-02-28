@@ -19,7 +19,7 @@ class AttachToProjectResourceAction : AspireResourceBaseAction() {
         }
     }
 
-    override fun updateAction(event: AnActionEvent, resourceService: AspireResource) {
+    override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
         val pid = resourceService.pid
         val isUnderDebugger = resourceService.isUnderDebugger
 
