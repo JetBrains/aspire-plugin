@@ -5,5 +5,5 @@ import com.jetbrains.rider.aspire.services.RestartResourceCommand
 
 class RestartResourceAction : ResourceCommandAction() {
     override fun findCommand(resource: AspireResource) =
-        resource.commands.firstOrNull { it.commandType.equals(RestartResourceCommand, true) }
+        resource.commands.firstOrNull { it.name.equals(RestartResourceCommand, true) }
 }
