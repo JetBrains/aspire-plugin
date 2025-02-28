@@ -31,10 +31,10 @@ abstract class AspireResourceBaseAction : AnAction() {
             return
         }
 
-        updateAction(event, resource)
+        updateAction(event, resource, project)
     }
 
-    protected abstract fun updateAction(event: AnActionEvent, resourceService: AspireResource)
+    protected abstract fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project)
 
     private fun getProjectResource(event: AnActionEvent): AspireResource? {
         val project = event.project ?: return null
