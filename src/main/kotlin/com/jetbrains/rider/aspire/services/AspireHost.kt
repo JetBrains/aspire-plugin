@@ -49,13 +49,10 @@ class AspireHost(
         private val LOG = logger<AspireHost>()
     }
 
-    private val lock = Any()
-
     private val descriptor by lazy { AspireHostServiceViewDescriptor(this) }
 
     private val resources = ConcurrentHashMap<String, AspireResource>()
-    private val projectResources = mutableMapOf<String, AspireResource>()
-    private val resourceProfileData = mutableMapOf<String, AspireProjectResourceProfileData>()
+    private val resourceProfileData = ConcurrentHashMap<String, AspireProjectResourceProfileData>()
 
     val hostProjectPathString = hostProjectPath.absolutePathString()
 
@@ -96,12 +93,17 @@ class AspireHost(
                 exitCode: Int
             ) {
                 val profile = env.runProfile
-                if (profile !is AspireHostConfiguration) return
+                if (profile is AspireHostConfiguration) {
+                    val projectFilePath = Path(profile.parameters.projectFilePath)
+                    if (hostProjectPath != projectFilePath) return
 
-                val projectFilePath = Path(profile.parameters.projectFilePath)
-                if (hostProjectPath != projectFilePath) return
+                    hostStopped()
+                } else if (profile is ProjectSessionProfile) {
+                    val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
+                    if (hostProjectPath != aspireHostProjectPath) return
 
-                hostStopped()
+                    removeProfileData(profile)
+                }
             }
         })
     }
@@ -278,43 +280,30 @@ class AspireHost(
         isActive = false
         dashboardUrl = null
 
-        synchronized(lock) {
-            resourceProfileData.clear()
-            projectResources.clear()
-        }
+        resources.clear()
+        resourceProfileData.clear()
 
         sendServiceChangedEvent()
     }
 
     private fun setProfileDataForResource(resource: AspireResource) {
-        val projectPath = resource.projectPath?.absolutePathString() ?: return
-
-        val profileData = synchronized(lock) {
-            val pd = resourceProfileData.remove(projectPath)
-            if (pd == null) {
-                projectResources[projectPath] = resource
-                return
-            }
-            pd
-        }
-
+        val projectPath = resource.projectPath ?: return
+        val profileData = resourceProfileData.values.firstOrNull { it.projectPath == projectPath } ?: return
         resource.setProfileData(profileData)
     }
 
     private fun setProfileDataForResource(profile: ProjectSessionProfile) {
-        val projectPath = profile.projectPath.absolutePathString()
         val profileData = AspireProjectResourceProfileData(profile.projectPath, profile.isDebugMode)
 
-        val resource = synchronized(lock) {
-            val r = projectResources.remove(projectPath)
-            if (r == null) {
-                resourceProfileData[projectPath] = profileData
-                return
-            }
-            r
-        }
+        resourceProfileData.put(profile.sessionId, profileData)
 
-        resource.setProfileData(profileData)
+        resources.values
+            .filter { it.projectPath == profileData.projectPath }
+            .forEach { it.setProfileData(profileData) }
+    }
+
+    private fun removeProfileData(profile: ProjectSessionProfile) {
+        resourceProfileData.remove(profile.sessionId)
     }
 
     private fun selectHost() {

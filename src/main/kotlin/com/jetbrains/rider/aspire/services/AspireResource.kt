@@ -244,7 +244,7 @@ class AspireResource(
     }
 
     fun setProfileData(profileData: AspireProjectResourceProfileData) {
-        if (type != ResourceType.Project) return
+        if (type != ResourceType.Project || isUnderDebugger == profileData.isDebugMode) return
 
         isUnderDebugger = profileData.isDebugMode
 

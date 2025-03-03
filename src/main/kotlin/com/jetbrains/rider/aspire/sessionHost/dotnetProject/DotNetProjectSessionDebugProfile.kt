@@ -11,14 +11,14 @@ import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
 
 class DotNetProjectSessionDebugProfile(
-    private val sessionId: String,
+    sessionId: String,
     projectPath: Path,
     dotnetExecutable: DotNetExecutable,
     private val dotnetRuntime: DotNetCoreRuntime,
     private val sessionProcessEventListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime,
     aspireHostProjectPath: Path?
-) : ProjectSessionProfile(projectPath, dotnetExecutable, aspireHostProjectPath, true) {
+) : ProjectSessionProfile(sessionId, projectPath, dotnetExecutable, aspireHostProjectPath, true) {
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment

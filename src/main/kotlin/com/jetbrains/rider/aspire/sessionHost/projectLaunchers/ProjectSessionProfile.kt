@@ -7,6 +7,7 @@ import java.nio.file.Path
 import kotlin.io.path.nameWithoutExtension
 
 abstract class ProjectSessionProfile(
+    val sessionId: String,
     val projectPath: Path,
     val dotnetExecutable: DotNetExecutable,
     val aspireHostProjectPath: Path?,
