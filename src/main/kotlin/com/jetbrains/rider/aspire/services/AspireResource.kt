@@ -251,9 +251,9 @@ class AspireResource(
         sendServiceChangedEvent()
     }
 
-    suspend fun executeCommand(commandType: String) = withContext(Dispatchers.EDT) {
+    suspend fun executeCommand(commandName: String) = withContext(Dispatchers.EDT) {
         val command = ResourceCommandRequest(
-            commandType,
+            commandName,
             name,
             type.toString()
         )
