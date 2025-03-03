@@ -5,6 +5,7 @@ package com.jetbrains.rider.aspire.actions.dashboard.resource
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.jetbrains.rider.aspire.services.AspireResource
@@ -18,10 +19,10 @@ abstract class AspireResourceBaseAction : AnAction() {
         val project = event.project ?: return
         val resource = event.getData(ASPIRE_RESOURCE) ?: getProjectResource(event) ?: return
 
-        performAction(resource, project)
+        performAction(resource, event.dataContext, project)
     }
 
-    protected abstract fun performAction(resourceService: AspireResource, project: Project)
+    protected abstract fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project)
 
     override fun update(event: AnActionEvent) {
         val project = event.project

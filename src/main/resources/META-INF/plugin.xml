@@ -110,6 +110,9 @@
         <action id="Aspire.Resource.Stop"
                 class="com.jetbrains.rider.aspire.actions.dashboard.resource.StopResourceAction"
                 icon="AllIcons.Actions.Suspend"/>
+        <action id="Aspire.Resource.Execute.Command"
+                class="com.jetbrains.rider.aspire.actions.dashboard.resource.PerformResourceAction"
+                icon="AllIcons.Actions.RunAnything"/>
         <action id="Aspire.Resource.Attach"
                 class="com.jetbrains.rider.aspire.actions.dashboard.resource.AttachToProjectResourceAction"
                 icon="AllIcons.Debugger.AttachToProcess"/>

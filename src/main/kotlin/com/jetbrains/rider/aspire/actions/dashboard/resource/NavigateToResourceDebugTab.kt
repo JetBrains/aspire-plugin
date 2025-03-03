@@ -5,6 +5,7 @@ package com.jetbrains.rider.aspire.actions.dashboard.resource
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.ui.RunContentManager
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
@@ -18,7 +19,7 @@ import kotlinx.coroutines.withContext
 import java.nio.file.Path
 
 class NavigateToResourceDebugTab : AspireResourceBaseAction() {
-    override fun performAction(resourceService: AspireResource, project: Project) {
+    override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
         val projectPath = resourceService.projectPath ?: return
         val debugSession = findDebugProfileByProject(projectPath, project) ?: return
         currentThreadCoroutineScope().launch {
@@ -27,16 +28,11 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
                 RunContentManager
                     .getInstance(project)
                     .toFrontRunContent(DefaultDebugExecutor.getDebugExecutorInstance(), contentDescriptor)
-                    //.selectRunContent(contentDescriptor)
             }
         }
     }
 
-    override fun updateAction(
-        event: AnActionEvent,
-        resourceService: AspireResource,
-        project: Project
-    ) {
+    override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
         val projectPath = resourceService.projectPath
         val isUnderDebugger = resourceService.isUnderDebugger
         if (projectPath == null || isUnderDebugger != true) {

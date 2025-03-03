@@ -7,6 +7,7 @@
 ### Added
 
 - Action to navigate to the resource project debug tab
+- Action to execute a custom command from the Services dashboard
 
 ## [1.7.5] - 2025-02-26
 
