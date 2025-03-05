@@ -16,6 +16,9 @@ import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.services.AspireResource
+import com.jetbrains.rider.aspire.services.RestartResourceCommand
+import com.jetbrains.rider.aspire.services.StartResourceCommand
+import com.jetbrains.rider.aspire.services.StopResourceCommand
 import com.jetbrains.rider.aspire.util.getIcon
 import kotlin.io.path.absolutePathString
 
@@ -97,6 +100,14 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             ) {
                 val attachAction = ActionManager.getInstance().getAction("Aspire.Resource.NavigateToDebugTab")
                 actionButton(attachAction)
+            }
+            if (resourceData.commands.any {
+                    !it.name.equals(StartResourceCommand, true) &&
+                            !it.name.equals(StopResourceCommand, true) &&
+                            !it.name.equals(RestartResourceCommand, true)
+                }) {
+                val executeCommandAction = ActionManager.getInstance().getAction("Aspire.Resource.Execute.Command")
+                actionButton(executeCommandAction)
             }
         }
         separator()

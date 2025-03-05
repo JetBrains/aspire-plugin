@@ -3,6 +3,7 @@
 package com.jetbrains.rider.aspire.actions.dashboard.resource
 
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.debugger.AttachDebuggerService
@@ -12,7 +13,7 @@ import com.jetbrains.rider.aspire.services.AspireResource
 import kotlinx.coroutines.launch
 
 class AttachToProjectResourceAction : AspireResourceBaseAction() {
-    override fun performAction(resourceService: AspireResource, project: Project) {
+    override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
         val pid = resourceService.pid ?: return
         currentThreadCoroutineScope().launch {
             AttachDebuggerService.getInstance(project).attach(pid)

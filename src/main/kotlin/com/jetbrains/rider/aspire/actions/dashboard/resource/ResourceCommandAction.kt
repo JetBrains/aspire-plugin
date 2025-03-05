@@ -3,6 +3,7 @@
 package com.jetbrains.rider.aspire.actions.dashboard.resource
 
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.generated.ResourceCommand
@@ -11,13 +12,13 @@ import com.jetbrains.rider.aspire.services.AspireResource
 import kotlinx.coroutines.launch
 
 abstract class ResourceCommandAction : AspireResourceBaseAction() {
-    override fun performAction(resourceService: AspireResource, project: Project) {
+    override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
         val command = findCommand(resourceService) ?: return
 
         if (command.state != ResourceCommandState.Enabled) return
 
         currentThreadCoroutineScope().launch {
-            resourceService.executeCommand(command.commandType)
+            resourceService.executeCommand(command.name)
         }
     }
 

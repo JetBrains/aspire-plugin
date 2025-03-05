@@ -152,7 +152,7 @@ internal sealed class AspireHostResourceWatcher(
         ResourceCommandRequest request) =>
         new()
         {
-            CommandType = request.CommandType,
+            CommandName = request.CommandName,
             ResourceName = request.ResourceName,
             ResourceType = request.ResourceType
         };

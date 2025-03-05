@@ -44,7 +44,7 @@ class AspireResource(
         private set
     var state: ResourceState?
         private set
-    var healthStatus: ResourceHealthStatus?
+    var healthStatus: ResourceHealthStatus? = null
         private set
     var urls: Array<ResourceUrl>
         private set
@@ -109,8 +109,8 @@ class AspireResource(
         type = model?.type ?: ResourceType.Unknown
         displayName = model?.displayName ?: ""
         state = model?.state
-        healthStatus = model?.healthStatus
 
+        fillHealthStatus(model?.healthReports ?: emptyArray())
         fillDates(model)
 
         urls = model?.urls ?: emptyArray()
@@ -204,6 +204,15 @@ class AspireResource(
         }
     }
 
+    private fun fillHealthStatus(healthReports: Array<ResourceHealthReport>) {
+        if (healthReports.isEmpty()) {
+            healthStatus = null
+            return
+        }
+
+        healthStatus = healthReports.last().status
+    }
+
     fun getViewDescriptor() = descriptor
 
     private fun update(model: ResourceModel) {
@@ -213,8 +222,8 @@ class AspireResource(
         type = model.type
         displayName = model.displayName
         state = if (state != ResourceState.Hidden) model.state else ResourceState.Hidden
-        healthStatus = model.healthStatus
 
+        fillHealthStatus(model.healthReports)
         fillDates(model)
 
         urls = model.urls
@@ -235,16 +244,16 @@ class AspireResource(
     }
 
     fun setProfileData(profileData: AspireProjectResourceProfileData) {
-        if (type != ResourceType.Project) return
+        if (type != ResourceType.Project || isUnderDebugger == profileData.isDebugMode) return
 
         isUnderDebugger = profileData.isDebugMode
 
         sendServiceChangedEvent()
     }
 
-    suspend fun executeCommand(commandType: String) = withContext(Dispatchers.EDT) {
+    suspend fun executeCommand(commandName: String) = withContext(Dispatchers.EDT) {
         val command = ResourceCommandRequest(
-            commandType,
+            commandName,
             name,
             type.toString()
         )

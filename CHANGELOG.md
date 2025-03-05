@@ -4,9 +4,12 @@
 
 ## [Unreleased]
 
+## [1.7.6] - 2025-03-03
+
 ### Added
 
 - Action to navigate to the resource project debug tab
+- Action to execute a custom command from the Services dashboard
 
 ## [1.7.5] - 2025-02-26
 
@@ -346,7 +349,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.5...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.6...HEAD
+[1.7.6]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.5...v1.7.6
 [1.7.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.4...v1.7.5
 [1.7.4]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.2...v1.7.3
