@@ -295,7 +295,7 @@ class AspireHost(
     private fun setProfileDataForResource(profile: ProjectSessionProfile) {
         val profileData = AspireProjectResourceProfileData(profile.projectPath, profile.isDebugMode)
 
-        resourceProfileData.put(profile.sessionId, profileData)
+        resourceProfileData[profile.sessionId] = profileData
 
         resources.values
             .filter { it.projectPath == profileData.projectPath }
