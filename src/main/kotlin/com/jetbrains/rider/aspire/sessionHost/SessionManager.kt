@@ -14,6 +14,7 @@ import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isAlive
 import com.jetbrains.rd.util.put
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
+import com.jetbrains.rider.aspire.util.DotNetBuildService
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -25,7 +26,10 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
 @Service(Service.Level.PROJECT)
 class SessionManager(private val project: Project, scope: CoroutineScope) {
@@ -67,12 +71,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val sessionLifetimeDefinition = command.aspireHostLifetime.createNested()
         sessionLifetimes.put(sessionLifetimeDefinition.lifetime, command.sessionId, sessionLifetimeDefinition)
 
-        val buildParameters = BuildParameters(
-            BuildTarget(),
-            listOf(command.createSessionRequest.projectPath),
-            silentMode = true
-        )
-        BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
+        buildProject(Path(command.createSessionRequest.projectPath))
 
         val processLauncher = SessionProcessLauncher.getInstance(project)
         val processLifetimeDefinition = sessionLifetimeDefinition.lifetime.createNested()
@@ -111,6 +110,21 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
                 LOG.trace { "Terminating session ${command.sessionId} lifetime" }
                 sessionLifetimeDefinition.terminate()
             }
+        }
+    }
+
+    private suspend fun buildProject(projectPath: Path) {
+        val runnableProject = findRunnableProjectByPath(projectPath, project)
+        if (runnableProject != null) {
+            val buildParameters = BuildParameters(
+                BuildTarget(),
+                listOf(projectPath.absolutePathString()),
+                silentMode = true
+            )
+            BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
+        } else {
+            val buildService = DotNetBuildService.getInstance(project)
+            buildService.buildProject(projectPath)
         }
     }
 

@@ -7,6 +7,7 @@
 ### Fixed
 
 - NavigateToDebugTab action text and description
+- [#364](https://github.com/JetBrains/aspire-plugin/issues/364) Aspire does not start projects referenced by path
 
 ## [1.7.6] - 2025-03-03
 

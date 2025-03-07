@@ -68,7 +68,7 @@ class MSBuildPropertyService(private val project: Project) {
     private suspend fun getProjectProperties(projectPath: Path, listOfProperties: String): String? {
         val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
         if (runtime == null) {
-            LOG.warn("Unable to find dotnet runtime")
+            LOG.warn("Unable to find active .NET runtime")
             return null
         }
 

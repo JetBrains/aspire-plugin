@@ -10,12 +10,14 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.DotNetProjectExecutableFactory
+import com.jetbrains.rider.aspire.sessionHost.findRunnableProjectByPath
 import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.DotNetExecutableWithHotReloadSessionProcessLauncher
 import com.jetbrains.rider.nuget.PackageVersionResolution
 import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 /**
  * Launches a Blazor WASM host project from an Aspire session request.
@@ -33,7 +35,13 @@ class WasmHostProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessi
     override val hotReloadExtension = WasmHostHotReloadConfigurationExtension()
 
     override suspend fun isApplicable(projectPath: String, project: Project): Boolean {
-        val nugetChecker = RiderNuGetInstalledPackageCheckerHost.Companion.getInstance(project)
+        val runnableProject = findRunnableProjectByPath(Path(projectPath), project)
+        if (runnableProject == null) {
+            LOG.warn("WASM Host external projects are not supported yet")
+            return false
+        }
+
+        val nugetChecker = RiderNuGetInstalledPackageCheckerHost.getInstance(project)
         return nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, DEV_SERVER_NUGET) ||
                 nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, SERVER_NUGET)
     }
