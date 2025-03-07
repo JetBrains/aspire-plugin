@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- NavigateToDebugTab action text and description
+
 ## [1.7.6] - 2025-03-03
 
 ### Added
