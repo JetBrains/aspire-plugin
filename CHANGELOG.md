@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.7.7] - 2025-03-07
+
 ### Fixed
 
 - NavigateToDebugTab action text and description
@@ -354,7 +356,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.6...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.7...HEAD
+[1.7.7]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.6...v1.7.7
 [1.7.6]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.5...v1.7.6
 [1.7.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.4...v1.7.5
 [1.7.4]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.3...v1.7.4
