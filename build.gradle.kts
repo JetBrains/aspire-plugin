@@ -1,4 +1,5 @@
 import com.jetbrains.plugin.structure.base.utils.isFile
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.Constants
@@ -18,6 +19,8 @@ plugins {
 
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
+val dotnetBuildConfiguration = providers.gradleProperty("dotnetBuildConfiguration").get()
+
 
 val riderSdkPath by lazy {
     val path = intellijPlatform.platformPath.resolve("lib/DotNetSdkForRdPlugins").absolute()
@@ -166,33 +169,28 @@ tasks {
         dependsOn(rdGen, generateDotNetSdkProperties, generateNuGetConfig)
     }
 
-    val dotnetBuildConfiguration = providers.gradleProperty("dotnetBuildConfiguration").get()
-    val compileDotNet by registering {
+    val compileDotNet by registering(Exec::class) {
         dependsOn(prepareDotNetPart)
-        doLast {
-            exec {
-                executable("dotnet")
-                args("build", "-c", dotnetBuildConfiguration, "/clp:ErrorsOnly", "aspire-plugin.sln")
-            }
-        }
+        inputs.property("dotnetBuildConfiguration", dotnetBuildConfiguration)
+
+        executable("dotnet")
+        args("build", "-consoleLoggerParameters:ErrorsOnly", "-c", dotnetBuildConfiguration, "aspire-plugin.sln")
     }
 
     withType<KotlinCompile> {
         dependsOn(rdGen)
     }
 
-    val publishSessionHost by registering {
+    val publishSessionHost by registering(Exec::class) {
         dependsOn(compileDotNet)
-        doLast {
-            exec {
-                executable("dotnet")
-                args(
-                    "publish",
-                    "src/dotnet/aspire-session-host/aspire-session-host.csproj",
-                    "--configuration", dotnetBuildConfiguration
-                )
-            }
-        }
+        inputs.property("dotnetBuildConfiguration", dotnetBuildConfiguration)
+
+        executable("dotnet")
+        args(
+            "publish",
+            "src/dotnet/aspire-session-host/aspire-session-host.csproj",
+            "--configuration", dotnetBuildConfiguration
+        )
     }
 
     buildPlugin {
@@ -226,6 +224,15 @@ tasks {
 
     publishPlugin {
         dependsOn(patchChangelog)
+    }
+
+    test {
+        useTestNG()
+        testLogging {
+            showStandardStreams = true
+            exceptionFormat = TestExceptionFormat.FULL
+        }
+        environment["LOCAL_ENV_RUN"] = "true"
     }
 }
 
