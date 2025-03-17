@@ -226,7 +226,16 @@ tasks {
         dependsOn(patchChangelog)
     }
 
+    prepareTestSandbox {
+        disabledPlugins.add("intellij.platform.ijent.impl") // Get rid of this after migration to 2025.1
+    }
+
     test {
+        classpath -= classpath.filter {
+            (it.name.startsWith("localization-") && it.name.endsWith(".jar")) // https://youtrack.jetbrains.com/issue/IJPL-178084/External-plugin-tests-break-due-to-localization-issues
+                    || it.name == "cwm-plugin.jar"
+        }
+
         useTestNG()
         testLogging {
             showStandardStreams = true
