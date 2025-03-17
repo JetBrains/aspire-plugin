@@ -3,7 +3,7 @@ Aspire Host run configuration count: 2
 Name: DefaultAspireSolution.AppHost: http
 Type: Aspire Host
 Project filePath: $PROJECT_DIR$/DefaultAspireSolution.AppHost/DefaultAspireSolution.AppHost.csproj
-Project TFM: net9.0
+Project TFM: net8.0
 Launch settings profile name: http
 Arguments: 
 Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost
@@ -17,7 +17,7 @@ Start browser browser name: null
 Name: DefaultAspireSolution.AppHost: https
 Type: Aspire Host
 Project filePath: $PROJECT_DIR$/DefaultAspireSolution.AppHost/DefaultAspireSolution.AppHost.csproj
-Project TFM: net9.0
+Project TFM: net8.0
 Launch settings profile name: https
 Arguments: 
 Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost
