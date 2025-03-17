@@ -6,7 +6,7 @@ Project filePath: $PROJECT_DIR$/DefaultAspireSolution.AppHost/DefaultAspireSolut
 Project TFM: net8.0
 Launch settings profile name: http
 Arguments: 
-Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost
+Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost/bin/Debug/net8.0
 Environment variables: {ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=http://localhost:15295, DOTNET_DASHBOARD_OTLP_ENDPOINT_URL=http://localhost:19275, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=http, DOTNET_RESOURCE_SERVICE_ENDPOINT_URL=http://localhost:20206}
 Use Podman: false
 Start browser on launch: true
@@ -20,7 +20,7 @@ Project filePath: $PROJECT_DIR$/DefaultAspireSolution.AppHost/DefaultAspireSolut
 Project TFM: net8.0
 Launch settings profile name: https
 Arguments: 
-Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost
+Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost/bin/Debug/net8.0
 Environment variables: {ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=https://localhost:17089;http://localhost:15295, DOTNET_DASHBOARD_OTLP_ENDPOINT_URL=https://localhost:21265, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=https, DOTNET_RESOURCE_SERVICE_ENDPOINT_URL=https://localhost:22078}
 Use Podman: false
 Start browser on launch: true
