@@ -1,0 +1,29 @@
+Aspire Host run configuration count: 2
+---
+Name: DefaultAspireSolution.AppHost: http
+Type: Aspire Host
+Project filePath: $PROJECT_DIR$/DefaultAspireSolution.AppHost/DefaultAspireSolution.AppHost.csproj
+Project TFM: net9.0
+Launch settings profile name: http
+Arguments: 
+Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost
+Environment variables: {ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=http://localhost:15295, DOTNET_DASHBOARD_OTLP_ENDPOINT_URL=http://localhost:19275, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=http, DOTNET_RESOURCE_SERVICE_ENDPOINT_URL=http://localhost:20206}
+Use Podman: false
+Start browser on launch: true
+Start browser url: http://localhost:15295
+Start browser is start JavaScript debugger: false
+Start browser browser name: null
+---
+Name: DefaultAspireSolution.AppHost: https
+Type: Aspire Host
+Project filePath: $PROJECT_DIR$/DefaultAspireSolution.AppHost/DefaultAspireSolution.AppHost.csproj
+Project TFM: net9.0
+Launch settings profile name: https
+Arguments: 
+Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost
+Environment variables: {ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=https://localhost:17089;http://localhost:15295, DOTNET_DASHBOARD_OTLP_ENDPOINT_URL=https://localhost:21265, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=https, DOTNET_RESOURCE_SERVICE_ENDPOINT_URL=https://localhost:22078}
+Use Podman: false
+Start browser on launch: true
+Start browser url: https://localhost:17089
+Start browser is start JavaScript debugger: false
+Start browser browser name: null
