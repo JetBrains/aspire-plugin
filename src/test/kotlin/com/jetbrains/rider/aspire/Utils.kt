@@ -1,14 +1,38 @@
 package com.jetbrains.rider.aspire
 
+import com.intellij.execution.RunManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.util.EnvironmentUtil
 import com.jetbrains.rd.util.string.printToString
+import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.jetbrains.rider.test.maskCustomDotnetPath
 import com.jetbrains.rider.test.scriptingApi.maskMachineSpecificPaths
 import java.io.PrintStream
 
-fun dumpEnvironment(
+fun dumpAspireHostRunConfigurations(project: Project, printStream: PrintStream) {
+    val runManagerEx = RunManagerEx.getInstanceEx(project)
+    val allSettings = runManagerEx.allSettings.filter { it.type.id == AspireHostConfigurationType.ID }
+    printStream.println("Aspire Host run configuration count: ${allSettings.size}")
+    allSettings.map { it.configuration }.filterIsInstance<AspireHostConfiguration>().forEach {
+        printStream.println("---")
+        printStream.println("Name: ${it.name}")
+        printStream.println("Type: ${it.type.displayName}")
+        with(it.parameters) {
+            printStream.println("Project filePath: ${maskMachineSpecificPaths(project, projectFilePath)}")
+            printStream.println("Project TFM: $projectTfm")
+            printStream.println("Launch settings profile name: $profileName")
+            printStream.println("Arguments: ${maskMachineSpecificPaths(project, arguments)}")
+            printStream.println("Working directory: ${maskMachineSpecificPaths(project, workingDirectory)}")
+            dumpEnvironment(project, "Environment variables", envs, printStream)
+            printStream.println("Use Podman: $usePodmanRuntime")
+            dumpStartBrowserParameters(startBrowserParameters, printStream)
+        }
+    }
+}
+
+private fun dumpEnvironment(
     project: Project,
     title: String,
     env: Map<String, String>,
@@ -41,7 +65,7 @@ private fun maskSystemPath(string: String): String {
     return string.replace(systemPath, "{SYSTEM_PATH}")
 }
 
-fun dumpStartBrowserParameters(startBrowserParameters: DotNetStartBrowserParameters, printStream: PrintStream) =
+private fun dumpStartBrowserParameters(startBrowserParameters: DotNetStartBrowserParameters, printStream: PrintStream) =
     with(startBrowserParameters) {
         printStream.println("Start browser on launch: $startAfterLaunch")
         printStream.println("Start browser url: $url")
