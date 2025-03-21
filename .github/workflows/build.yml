@@ -143,6 +143,10 @@ jobs:
         with:
           cache-disabled: true
 
+      # Install .NET Aspire templates
+      - name: Install templates
+        run: dotnet new install Aspire.ProjectTemplates
+
       # Run tests
       - name: Run Tests
         run: ./gradlew check
