@@ -1,0 +1,124 @@
+===================
+Opened
+
+-Project
+ -AspireEmpty * 2 projects
+  -AspireEmpty.AppHost
+   -Dependencies
+    -.NET 9.0
+     -Assemblies
+      -Implicit
+       ...
+     -Analyzers
+      Microsoft.AspNetCore.App.Analyzers
+      Microsoft.AspNetCore.App.CodeFixes
+      Microsoft.AspNetCore.Components.Analyzers
+      Microsoft.CodeAnalysis.CSharp.NetAnalyzers
+      Microsoft.CodeAnalysis.NetAnalyzers
+      Microsoft.Extensions.Logging.Generators
+      Microsoft.Extensions.Options.SourceGeneration
+      Microsoft.Interop.ComInterfaceGenerator
+      Microsoft.Interop.JavaScript.JSImportGenerator
+      Microsoft.Interop.LibraryImportGenerator
+      Microsoft.Interop.SourceGeneration
+      System.Text.Json.SourceGeneration
+      System.Text.RegularExpressions.Generator
+     -Packages
+      Aspire.Dashboard.Sdk.<os-arch>/9.1.0
+      Aspire.Hosting.AppHost/9.1.0
+      Aspire.Hosting.Orchestration.<os-arch>/9.1.0
+     -Frameworks
+      Microsoft.AspNetCore.App
+      Microsoft.NETCore.App
+   -Properties
+    launchSettings.json
+   appsettings.json
+   appsettings.Development.json
+   Program.cs
+  -AspireEmpty.ServiceDefaults
+   -Dependencies
+    -.NET 9.0
+     -Assemblies
+      -Implicit
+       ...
+     -Analyzers
+      Microsoft.AspNetCore.App.Analyzers
+      Microsoft.AspNetCore.App.CodeFixes
+      Microsoft.AspNetCore.Components.Analyzers
+      Microsoft.CodeAnalysis.CSharp.NetAnalyzers
+      Microsoft.CodeAnalysis.NetAnalyzers
+      Microsoft.Extensions.Options.SourceGeneration
+      Microsoft.Gen.Logging
+      Microsoft.Gen.Metrics
+      Microsoft.Interop.ComInterfaceGenerator
+      Microsoft.Interop.JavaScript.JSImportGenerator
+      Microsoft.Interop.LibraryImportGenerator
+      Microsoft.Interop.SourceGeneration
+      System.Text.Json.SourceGeneration
+      System.Text.RegularExpressions.Generator
+     -Packages
+      Microsoft.Extensions.Http.Resilience/9.2.0
+      Microsoft.Extensions.ServiceDiscovery/9.1.0
+      OpenTelemetry.Exporter.OpenTelemetryProtocol/1.9.0
+      OpenTelemetry.Extensions.Hosting/1.9.0
+      OpenTelemetry.Instrumentation.AspNetCore/1.9.0
+      OpenTelemetry.Instrumentation.Http/1.9.0
+      OpenTelemetry.Instrumentation.Runtime/1.9.0
+     -Frameworks
+      Microsoft.AspNetCore.App
+      Microsoft.NETCore.App
+   Extensions.cs
+
+
+Project [Name:&, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireEmpty.sln)[]
+
+Project [Name:AspireEmpty.AppHost, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireEmpty.AppHost.csproj)[]
+    ProjectFileImpl(Path : Program.cs)[COMPILE ]
+    Folder [Name:Properties, IsAppDesigner:true]
+      Child items:
+        ProjectFileImpl(Path : launchSettings.json)[NONE ]
+    ProjectFileImpl(Path : appsettings.Development.json)[NONE ]
+    ProjectFileImpl(Path : appsettings.json)[NONE ]
+    Folder [Name:config, Virtual:../../../../../../../../../../../Program Files/dotnet/sdk/9.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config, IsHidden:true]
+      Child items:
+        ProjectFileImpl(Path : analysislevel_9_default.globalconfig)[Hidden EDITORCONFIGFILES ]
+    Folder [Name:obj, IsHidden:true]
+      Child items:
+        Folder [Name:Debug, IsHidden:true]
+          Child items:
+            Folder [Name:net9.0, IsHidden:true]
+              Child items:
+                Folder [Name:Aspire, IsHidden:true]
+                  Child items:
+                    Folder [Name:references, IsHidden:true]
+                      Child items:
+                        ProjectFileImpl(Path : _AppHost.ProjectMetadata.g.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireEmpty.AppHost.AssemblyInfo.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireEmpty.AppHost.GeneratedMSBuildEditorConfig.editorconfig)[Hidden EDITORCONFIGFILES ]
+                ProjectFileImpl(Path : AspireEmpty.AppHost.GlobalUsings.g.cs)[Hidden COMPILE ]
+
+Project [Name:AspireEmpty.ServiceDefaults, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireEmpty.ServiceDefaults.csproj)[]
+    ProjectFileImpl(Path : Extensions.cs)[COMPILE ]
+    Folder [Name:config, Virtual:../../../../../../../../../../../Program Files/dotnet/sdk/9.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config, IsHidden:true]
+      Child items:
+        ProjectFileImpl(Path : analysislevel_9_default.globalconfig)[Hidden EDITORCONFIGFILES ]
+    Folder [Name:obj, IsHidden:true]
+      Child items:
+        Folder [Name:Debug, IsHidden:true]
+          Child items:
+            Folder [Name:net9.0, IsHidden:true]
+              Child items:
+                ProjectFileImpl(Path : AspireEmpty.ServiceDefaults.AssemblyInfo.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireEmpty.ServiceDefaults.GeneratedMSBuildEditorConfig.editorconfig)[Hidden EDITORCONFIGFILES ]
+                ProjectFileImpl(Path : AspireEmpty.ServiceDefaults.GlobalUsings.g.cs)[Hidden COMPILE ]
+
+Project [Name:Miscellaneous Files, GUID:GUID]
+
+
+

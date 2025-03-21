@@ -1,0 +1,65 @@
+===================
+Opened
+
+-Project
+ -AspireServiceDefaults * 1 project
+  -AspireServiceDefaults
+   -Dependencies
+    -.NET 9.0
+     -Assemblies
+      -Implicit
+       ...
+     -Analyzers
+      Microsoft.AspNetCore.App.Analyzers
+      Microsoft.AspNetCore.App.CodeFixes
+      Microsoft.AspNetCore.Components.Analyzers
+      Microsoft.CodeAnalysis.CSharp.NetAnalyzers
+      Microsoft.CodeAnalysis.NetAnalyzers
+      Microsoft.Extensions.Options.SourceGeneration
+      Microsoft.Gen.Logging
+      Microsoft.Gen.Metrics
+      Microsoft.Interop.ComInterfaceGenerator
+      Microsoft.Interop.JavaScript.JSImportGenerator
+      Microsoft.Interop.LibraryImportGenerator
+      Microsoft.Interop.SourceGeneration
+      System.Text.Json.SourceGeneration
+      System.Text.RegularExpressions.Generator
+     -Packages
+      Microsoft.Extensions.Http.Resilience/9.2.0
+      Microsoft.Extensions.ServiceDiscovery/9.1.0
+      OpenTelemetry.Exporter.OpenTelemetryProtocol/1.9.0
+      OpenTelemetry.Extensions.Hosting/1.9.0
+      OpenTelemetry.Instrumentation.AspNetCore/1.9.0
+      OpenTelemetry.Instrumentation.Http/1.9.0
+      OpenTelemetry.Instrumentation.Runtime/1.9.0
+     -Frameworks
+      Microsoft.AspNetCore.App
+      Microsoft.NETCore.App
+   Extensions.cs
+
+
+Project [Name:&, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireServiceDefaults.sln)[]
+
+Project [Name:AspireServiceDefaults, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireServiceDefaults.csproj)[]
+    ProjectFileImpl(Path : Extensions.cs)[COMPILE ]
+    Folder [Name:config, Virtual:../../../../../../../../../../Program Files/dotnet/sdk/9.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config, IsHidden:true]
+      Child items:
+        ProjectFileImpl(Path : analysislevel_9_default.globalconfig)[Hidden EDITORCONFIGFILES ]
+    Folder [Name:obj, IsHidden:true]
+      Child items:
+        Folder [Name:Debug, IsHidden:true]
+          Child items:
+            Folder [Name:net9.0, IsHidden:true]
+              Child items:
+                ProjectFileImpl(Path : AspireServiceDefaults.AssemblyInfo.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireServiceDefaults.GeneratedMSBuildEditorConfig.editorconfig)[Hidden EDITORCONFIGFILES ]
+                ProjectFileImpl(Path : AspireServiceDefaults.GlobalUsings.g.cs)[Hidden COMPILE ]
+
+Project [Name:Miscellaneous Files, GUID:GUID]
+
+
+

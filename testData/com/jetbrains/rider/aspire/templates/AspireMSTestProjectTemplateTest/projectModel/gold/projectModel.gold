@@ -1,0 +1,68 @@
+===================
+Opened
+
+-Project
+ -AspireMSTest * 1 project
+  -AspireMSTest
+   -Dependencies
+    -.NET 9.0
+     -Assemblies
+      -Implicit
+       ...
+     -Analyzers
+      Microsoft.AspNetCore.App.Analyzers
+      Microsoft.AspNetCore.App.CodeFixes
+      Microsoft.AspNetCore.Components.Analyzers
+      Microsoft.CodeAnalysis.CSharp.NetAnalyzers
+      Microsoft.CodeAnalysis.NetAnalyzers
+      Microsoft.Extensions.Options.SourceGeneration
+      Microsoft.Gen.Logging
+      Microsoft.Gen.Metrics
+      Microsoft.Interop.ComInterfaceGenerator
+      Microsoft.Interop.JavaScript.JSImportGenerator
+      Microsoft.Interop.LibraryImportGenerator
+      Microsoft.Interop.SourceGeneration
+      MSTest.Analyzers
+      MSTest.Analyzers.CodeFixes
+      System.Text.Json.SourceGeneration
+      System.Text.RegularExpressions.Generator
+     -Packages
+      Aspire.Hosting.Testing/9.1.0
+      MSTest/3.6.4
+     -Frameworks
+      Microsoft.AspNetCore.App
+      Microsoft.NETCore.App
+   IntegrationTest1.cs
+
+
+Project [Name:&, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireMSTest.sln)[]
+
+Project [Name:AspireMSTest, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireMSTest.csproj)[]
+    ProjectFileImpl(Path : IntegrationTest1.cs)[COMPILE ]
+    ProjectFileImpl(Path : Microsoft.TestPlatform.AdapterUtilities.dll (.nuget/packages))[Hidden NONE ]
+    ProjectFileImpl(Path : Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll (.nuget/packages))[Hidden NONE ]
+    Folder [Name:config, Virtual:../../../../../../../../../../Program Files/dotnet/sdk/9.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config, IsHidden:true]
+      Child items:
+        ProjectFileImpl(Path : analysislevel_9_default.globalconfig)[Hidden EDITORCONFIGFILES ]
+    Folder [Name:obj, IsHidden:true]
+      Child items:
+        Folder [Name:Debug, IsHidden:true]
+          Child items:
+            Folder [Name:net9.0, IsHidden:true]
+              Child items:
+                ProjectFileImpl(Path : AspireMSTest.AssemblyInfo.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireMSTest.GeneratedMSBuildEditorConfig.editorconfig)[Hidden EDITORCONFIGFILES ]
+                ProjectFileImpl(Path : AspireMSTest.GlobalUsings.g.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AutoRegisteredExtensions.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : TestPlatformEntryPoint.cs)[Hidden COMPILE ]
+    ProjectFileImpl(Path : testhost.dll (.nuget/packages))[Hidden CONTENT ]
+    ProjectFileImpl(Path : testhost.exe (.nuget/packages))[Hidden CONTENT ]
+
+Project [Name:Miscellaneous Files, GUID:GUID]
+
+
+

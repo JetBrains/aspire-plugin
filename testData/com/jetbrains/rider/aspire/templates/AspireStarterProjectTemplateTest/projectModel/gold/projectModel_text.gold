@@ -1,0 +1,266 @@
+===================
+Opened
+
+[Program.cs]
+var builder = WebApplication.CreateBuilder(args);
+
+// Add service defaults & Aspire client integrations.
+builder.AddServiceDefaults();
+
+// Add services to the container.
+builder.Services.AddProblemDetails();
+
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+app.UseExceptionHandler();
+
+if (app.Environment.IsDevelopment())
+{
+  app.MapOpenApi();
+}
+
+string[] summaries =
+  ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];
+
+app.MapGet("/weatherforecast", () =>
+  {
+    var forecast = Enumerable.Range(1, 5).Select(index =>
+        new WeatherForecast
+        (
+          DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+          Random.Shared.Next(-20, 55),
+          summaries[Random.Shared.Next(summaries.Length)]
+        ))
+      .ToArray();
+    return forecast;
+  })
+  .WithName("GetWeatherForecast");
+
+app.MapDefaultEndpoints();
+
+app.Run();
+
+record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+{
+  public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+
+[Program.cs]
+var builder = DistributedApplication.CreateBuilder(args);
+
+var apiService = builder.AddProject<Projects.AspireStarter_ApiService>("apiservice");
+
+builder.AddProject<Projects.AspireStarter_Web>("webfrontend")
+  .WithExternalHttpEndpoints()
+  .WithReference(apiService)
+  .WaitFor(apiService);
+
+builder.Build().Run();
+
+[Extensions.cs]
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ServiceDiscovery;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+
+namespace Microsoft.Extensions.Hosting;
+
+// Adds common .NET Aspire services: service discovery, resilience, health checks, and OpenTelemetry.
+// This project should be referenced by each service project in your solution.
+// To learn more about using this project, see https://aka.ms/dotnet/aspire/service-defaults
+public static class Extensions
+{
+  public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+  {
+    builder.ConfigureOpenTelemetry();
+
+    builder.AddDefaultHealthChecks();
+
+    builder.Services.AddServiceDiscovery();
+
+    builder.Services.ConfigureHttpClientDefaults(http =>
+    {
+      // Turn on resilience by default
+      http.AddStandardResilienceHandler();
+
+      // Turn on service discovery by default
+      http.AddServiceDiscovery();
+    });
+
+    // Uncomment the following to restrict the allowed schemes for service discovery.
+    // builder.Services.Configure<ServiceDiscoveryOptions>(options =>
+    // {
+    //     options.AllowedSchemes = ["https"];
+    // });
+
+    return builder;
+  }
+
+  public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder)
+    where TBuilder : IHostApplicationBuilder
+  {
+    builder.Logging.AddOpenTelemetry(logging =>
+    {
+      logging.IncludeFormattedMessage = true;
+      logging.IncludeScopes = true;
+    });
+
+    builder.Services.AddOpenTelemetry()
+      .WithMetrics(metrics =>
+      {
+        metrics.AddAspNetCoreInstrumentation()
+          .AddHttpClientInstrumentation()
+          .AddRuntimeInstrumentation();
+      })
+      .WithTracing(tracing =>
+      {
+        tracing.AddSource(builder.Environment.ApplicationName)
+          .AddAspNetCoreInstrumentation()
+          // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
+          //.AddGrpcClientInstrumentation()
+          .AddHttpClientInstrumentation();
+      });
+
+    builder.AddOpenTelemetryExporters();
+
+    return builder;
+  }
+
+  private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder)
+    where TBuilder : IHostApplicationBuilder
+  {
+    var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+
+    if (useOtlpExporter)
+    {
+      builder.Services.AddOpenTelemetry().UseOtlpExporter();
+    }
+
+    // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
+    //if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+    //{
+    //    builder.Services.AddOpenTelemetry()
+    //       .UseAzureMonitor();
+    //}
+
+    return builder;
+  }
+
+  public static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder)
+    where TBuilder : IHostApplicationBuilder
+  {
+    builder.Services.AddHealthChecks()
+      // Add a default liveness check to ensure app is responsive
+      .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+
+    return builder;
+  }
+
+  public static WebApplication MapDefaultEndpoints(this WebApplication app)
+  {
+    // Adding health checks endpoints to applications in non-development environments has security implications.
+    // See https://aka.ms/dotnet/aspire/healthchecks for details before enabling these endpoints in non-development environments.
+    if (app.Environment.IsDevelopment())
+    {
+      // All health checks must pass for app to be considered ready to accept traffic after starting
+      app.MapHealthChecks("/health");
+
+      // Only health checks tagged with the "live" tag must pass for app to be considered alive
+      app.MapHealthChecks("/alive", new HealthCheckOptions
+      {
+        Predicate = r => r.Tags.Contains("live")
+      });
+    }
+
+    return app;
+  }
+}
+
+[Program.cs]
+using AspireStarter.Web;
+using AspireStarter.Web.Components;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add service defaults & Aspire client integrations.
+builder.AddServiceDefaults();
+
+// Add services to the container.
+builder.Services.AddRazorComponents()
+  .AddInteractiveServerComponents();
+
+builder.Services.AddOutputCache();
+
+builder.Services.AddHttpClient<WeatherApiClient>(client =>
+{
+  // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
+  // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
+  client.BaseAddress = new("https+http://apiservice");
+});
+
+var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+  app.UseExceptionHandler("/Error", createScopeForErrors: true);
+  // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+  app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAntiforgery();
+
+app.UseOutputCache();
+
+app.MapStaticAssets();
+
+app.MapRazorComponents<App>()
+  .AddInteractiveServerRenderMode();
+
+app.MapDefaultEndpoints();
+
+app.Run();
+
+[WeatherApiClient.cs]
+namespace AspireStarter.Web;
+
+public class WeatherApiClient(HttpClient httpClient)
+{
+  public async Task<WeatherForecast[]> GetWeatherAsync(int maxItems = 10, CancellationToken cancellationToken = default)
+  {
+    List<WeatherForecast>? forecasts = null;
+
+    await foreach (var forecast in httpClient.GetFromJsonAsAsyncEnumerable<WeatherForecast>("/weatherforecast",
+                     cancellationToken))
+    {
+      if (forecasts?.Count >= maxItems)
+      {
+        break;
+      }
+
+      if (forecast is not null)
+      {
+        forecasts ??= [];
+        forecasts.Add(forecast);
+      }
+    }
+
+    return forecasts?.ToArray() ?? [];
+  }
+}
+
+public record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+{
+  public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+

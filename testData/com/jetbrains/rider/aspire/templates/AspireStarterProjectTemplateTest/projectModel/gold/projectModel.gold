@@ -1,0 +1,401 @@
+===================
+Opened
+
+-Project
+ -AspireStarter * 4 projects
+  -AspireStarter.ApiService
+   -Dependencies
+    -.NET 9.0
+     -Assemblies
+      -Implicit
+       ...
+     -Projects
+      AspireStarter.ServiceDefaults
+     -Analyzers
+      Microsoft.AspNetCore.Analyzers
+      Microsoft.AspNetCore.App.Analyzers
+      Microsoft.AspNetCore.App.CodeFixes
+      Microsoft.AspNetCore.Components.Analyzers
+      Microsoft.AspNetCore.Mvc.Analyzers
+      Microsoft.AspNetCore.Razor.Utilities.Shared
+      Microsoft.CodeAnalysis.CSharp.NetAnalyzers
+      Microsoft.CodeAnalysis.NetAnalyzers
+      Microsoft.CodeAnalysis.Razor.Compiler
+      Microsoft.Extensions.ObjectPool
+      Microsoft.Extensions.Options.SourceGeneration
+      Microsoft.Gen.Logging
+      Microsoft.Gen.Metrics
+      Microsoft.Interop.ComInterfaceGenerator
+      Microsoft.Interop.JavaScript.JSImportGenerator
+      Microsoft.Interop.LibraryImportGenerator
+      Microsoft.Interop.SourceGeneration
+      System.Collections.Immutable
+      System.Text.Json.SourceGeneration
+      System.Text.RegularExpressions.Generator
+     -Packages
+      Microsoft.AspNetCore.OpenApi/9.0.2
+     -Frameworks
+      Microsoft.AspNetCore.App
+      Microsoft.NETCore.App
+   -Properties
+    launchSettings.json
+   appsettings.json
+   appsettings.Development.json
+   Program.cs
+  -AspireStarter.AppHost
+   -Dependencies
+    -.NET 9.0
+     -Assemblies
+      -Implicit
+       ...
+     -Projects
+      AspireStarter.ApiService
+      AspireStarter.Web
+     -Analyzers
+      Microsoft.AspNetCore.App.Analyzers
+      Microsoft.AspNetCore.App.CodeFixes
+      Microsoft.AspNetCore.Components.Analyzers
+      Microsoft.CodeAnalysis.CSharp.NetAnalyzers
+      Microsoft.CodeAnalysis.NetAnalyzers
+      Microsoft.Extensions.Logging.Generators
+      Microsoft.Extensions.Options.SourceGeneration
+      Microsoft.Interop.ComInterfaceGenerator
+      Microsoft.Interop.JavaScript.JSImportGenerator
+      Microsoft.Interop.LibraryImportGenerator
+      Microsoft.Interop.SourceGeneration
+      System.Text.Json.SourceGeneration
+      System.Text.RegularExpressions.Generator
+     -Packages
+      Aspire.Dashboard.Sdk.<os-arch>/9.1.0
+      Aspire.Hosting.AppHost/9.1.0
+      Aspire.Hosting.Orchestration.<os-arch>/9.1.0
+     -Frameworks
+      Microsoft.AspNetCore.App
+      Microsoft.NETCore.App
+   -Properties
+    launchSettings.json
+   appsettings.json
+   appsettings.Development.json
+   Program.cs
+  -AspireStarter.ServiceDefaults
+   -Dependencies
+    -.NET 9.0
+     -Assemblies
+      -Implicit
+       ...
+     -Analyzers
+      Microsoft.AspNetCore.App.Analyzers
+      Microsoft.AspNetCore.App.CodeFixes
+      Microsoft.AspNetCore.Components.Analyzers
+      Microsoft.CodeAnalysis.CSharp.NetAnalyzers
+      Microsoft.CodeAnalysis.NetAnalyzers
+      Microsoft.Extensions.Options.SourceGeneration
+      Microsoft.Gen.Logging
+      Microsoft.Gen.Metrics
+      Microsoft.Interop.ComInterfaceGenerator
+      Microsoft.Interop.JavaScript.JSImportGenerator
+      Microsoft.Interop.LibraryImportGenerator
+      Microsoft.Interop.SourceGeneration
+      System.Text.Json.SourceGeneration
+      System.Text.RegularExpressions.Generator
+     -Packages
+      Microsoft.Extensions.Http.Resilience/9.2.0
+      Microsoft.Extensions.ServiceDiscovery/9.1.0
+      OpenTelemetry.Exporter.OpenTelemetryProtocol/1.9.0
+      OpenTelemetry.Extensions.Hosting/1.9.0
+      OpenTelemetry.Instrumentation.AspNetCore/1.9.0
+      OpenTelemetry.Instrumentation.Http/1.9.0
+      OpenTelemetry.Instrumentation.Runtime/1.9.0
+     -Frameworks
+      Microsoft.AspNetCore.App
+      Microsoft.NETCore.App
+   Extensions.cs
+  -AspireStarter.Web
+   -Dependencies
+    -.NET 9.0
+     -Assemblies
+      -Implicit
+       ...
+     -Projects
+      AspireStarter.ServiceDefaults
+     -Analyzers
+      Microsoft.AspNetCore.Analyzers
+      Microsoft.AspNetCore.App.Analyzers
+      Microsoft.AspNetCore.App.CodeFixes
+      Microsoft.AspNetCore.Components.Analyzers
+      Microsoft.AspNetCore.Mvc.Analyzers
+      Microsoft.AspNetCore.Razor.Utilities.Shared
+      Microsoft.CodeAnalysis.CSharp.NetAnalyzers
+      Microsoft.CodeAnalysis.NetAnalyzers
+      Microsoft.CodeAnalysis.Razor.Compiler
+      Microsoft.Extensions.ObjectPool
+      Microsoft.Extensions.Options.SourceGeneration
+      Microsoft.Gen.Logging
+      Microsoft.Gen.Metrics
+      Microsoft.Interop.ComInterfaceGenerator
+      Microsoft.Interop.JavaScript.JSImportGenerator
+      Microsoft.Interop.LibraryImportGenerator
+      Microsoft.Interop.SourceGeneration
+      System.Collections.Immutable
+      System.Text.Json.SourceGeneration
+      System.Text.RegularExpressions.Generator
+     -Frameworks
+      Microsoft.AspNetCore.App
+      Microsoft.NETCore.App
+   -Properties
+    launchSettings.json
+   -wwwroot
+    -lib
+     -bootstrap
+      -dist
+       -css
+        -bootstrap.css
+         bootstrap.css.map
+         bootstrap.min.css
+         bootstrap.min.css.map
+        -bootstrap-grid.css
+         bootstrap-grid.css.map
+         bootstrap-grid.min.css
+         bootstrap-grid.min.css.map
+        -bootstrap-grid.rtl.css
+         bootstrap-grid.rtl.css.map
+         bootstrap-grid.rtl.min.css
+         bootstrap-grid.rtl.min.css.map
+        -bootstrap-reboot.css
+         bootstrap-reboot.css.map
+         bootstrap-reboot.min.css
+         bootstrap-reboot.min.css.map
+        -bootstrap-reboot.rtl.css
+         bootstrap-reboot.rtl.css.map
+         bootstrap-reboot.rtl.min.css
+         bootstrap-reboot.rtl.min.css.map
+        -bootstrap-utilities.css
+         bootstrap-utilities.css.map
+         bootstrap-utilities.min.css
+         bootstrap-utilities.min.css.map
+        -bootstrap-utilities.rtl.css
+         bootstrap-utilities.rtl.css.map
+         bootstrap-utilities.rtl.min.css
+         bootstrap-utilities.rtl.min.css.map
+        -bootstrap.rtl.css
+         bootstrap.rtl.css.map
+         bootstrap.rtl.min.css
+         bootstrap.rtl.min.css.map
+       -js
+        -bootstrap.js
+         bootstrap.js.map
+         bootstrap.min.js
+         bootstrap.min.js.map
+        -bootstrap.bundle.js
+         bootstrap.bundle.js.map
+         bootstrap.bundle.min.js
+         bootstrap.bundle.min.js.map
+        -bootstrap.esm.js
+         bootstrap.esm.js.map
+         bootstrap.esm.min.js
+         bootstrap.esm.min.js.map
+    app.css
+    favicon.png
+   -Components
+    -Layout
+     -MainLayout.razor
+      MainLayout.razor.css
+     -NavMenu.razor
+      NavMenu.razor.css
+    -Pages
+     Counter.razor
+     Error.razor
+     Home.razor
+     Weather.razor
+    _Imports.razor
+    App.razor
+    Routes.razor
+   appsettings.json
+   appsettings.Development.json
+   Program.cs
+   WeatherApiClient.cs
+
+
+Project [Name:&, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireStarter.sln)[]
+
+Project [Name:AspireStarter.ApiService, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireStarter.ApiService.csproj)[]
+    ProjectFileImpl(Path : Program.cs)[COMPILE ]
+    Folder [Name:Properties, IsAppDesigner:true]
+      Child items:
+        ProjectFileImpl(Path : launchSettings.json)[NONE ]
+    ProjectFileImpl(Path : appsettings.Development.json)[CONTENT ]
+    ProjectFileImpl(Path : appsettings.json)[CONTENT ]
+    Folder [Name:config, Virtual:../../../../../../../../../../../Program Files/dotnet/sdk/9.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config, IsHidden:true]
+      Child items:
+        ProjectFileImpl(Path : analysislevel_9_default.globalconfig)[Hidden EDITORCONFIGFILES ]
+    Folder [Name:obj, IsHidden:true]
+      Child items:
+        Folder [Name:Debug, IsHidden:true]
+          Child items:
+            Folder [Name:net9.0, IsHidden:true]
+              Child items:
+                ProjectFileImpl(Path : AspireStarter.ApiService.AssemblyInfo.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireStarter.ApiService.GeneratedMSBuildEditorConfig.editorconfig)[Hidden EDITORCONFIGFILES ]
+                ProjectFileImpl(Path : AspireStarter.ApiService.GlobalUsings.g.cs)[Hidden COMPILE ]
+
+Project [Name:AspireStarter.AppHost, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireStarter.AppHost.csproj)[]
+    ProjectFileImpl(Path : Program.cs)[COMPILE ]
+    Folder [Name:Properties, IsAppDesigner:true]
+      Child items:
+        ProjectFileImpl(Path : launchSettings.json)[NONE ]
+    ProjectFileImpl(Path : appsettings.Development.json)[NONE ]
+    ProjectFileImpl(Path : appsettings.json)[NONE ]
+    Folder [Name:config, Virtual:../../../../../../../../../../../Program Files/dotnet/sdk/9.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config, IsHidden:true]
+      Child items:
+        ProjectFileImpl(Path : analysislevel_9_default.globalconfig)[Hidden EDITORCONFIGFILES ]
+    Folder [Name:obj, IsHidden:true]
+      Child items:
+        Folder [Name:Debug, IsHidden:true]
+          Child items:
+            Folder [Name:net9.0, IsHidden:true]
+              Child items:
+                Folder [Name:Aspire, IsHidden:true]
+                  Child items:
+                    Folder [Name:references, IsHidden:true]
+                      Child items:
+                        ProjectFileImpl(Path : AspireStarter_ApiService.ProjectMetadata.g.cs)[Hidden COMPILE ]
+                        ProjectFileImpl(Path : AspireStarter_Web.ProjectMetadata.g.cs)[Hidden COMPILE ]
+                        ProjectFileImpl(Path : _AppHost.ProjectMetadata.g.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireStarter.AppHost.AssemblyInfo.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireStarter.AppHost.GeneratedMSBuildEditorConfig.editorconfig)[Hidden EDITORCONFIGFILES ]
+                ProjectFileImpl(Path : AspireStarter.AppHost.GlobalUsings.g.cs)[Hidden COMPILE ]
+
+Project [Name:AspireStarter.ServiceDefaults, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireStarter.ServiceDefaults.csproj)[]
+    ProjectFileImpl(Path : Extensions.cs)[COMPILE ]
+    Folder [Name:config, Virtual:../../../../../../../../../../../Program Files/dotnet/sdk/9.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config, IsHidden:true]
+      Child items:
+        ProjectFileImpl(Path : analysislevel_9_default.globalconfig)[Hidden EDITORCONFIGFILES ]
+    Folder [Name:obj, IsHidden:true]
+      Child items:
+        Folder [Name:Debug, IsHidden:true]
+          Child items:
+            Folder [Name:net9.0, IsHidden:true]
+              Child items:
+                ProjectFileImpl(Path : AspireStarter.ServiceDefaults.AssemblyInfo.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireStarter.ServiceDefaults.GeneratedMSBuildEditorConfig.editorconfig)[Hidden EDITORCONFIGFILES ]
+                ProjectFileImpl(Path : AspireStarter.ServiceDefaults.GlobalUsings.g.cs)[Hidden COMPILE ]
+
+Project [Name:AspireStarter.Web, GUID:GUID]
+  Child items:
+    ProjectFileImpl(Path : AspireStarter.Web.csproj)[]
+    Folder [Name:Components]
+      Child items:
+        ProjectFileImpl(Path : App.razor)[CONTENT ]
+        ProjectFileImpl(Path : App.razor)[Hidden ADDITIONALFILES ]
+        Folder [Name:Layout]
+          Child items:
+            ProjectFileImpl(Path : MainLayout.razor)[CONTENT ]
+            ProjectFileImpl(Path : MainLayout.razor)[Hidden ADDITIONALFILES ]
+            ProjectFileImpl(Path : MainLayout.razor.css)[CONTENT ]
+            ProjectFileImpl(Path : NavMenu.razor)[CONTENT ]
+            ProjectFileImpl(Path : NavMenu.razor)[Hidden ADDITIONALFILES ]
+            ProjectFileImpl(Path : NavMenu.razor.css)[CONTENT ]
+        Folder [Name:Pages]
+          Child items:
+            ProjectFileImpl(Path : Counter.razor)[CONTENT ]
+            ProjectFileImpl(Path : Counter.razor)[Hidden ADDITIONALFILES ]
+            ProjectFileImpl(Path : Error.razor)[CONTENT ]
+            ProjectFileImpl(Path : Error.razor)[Hidden ADDITIONALFILES ]
+            ProjectFileImpl(Path : Home.razor)[CONTENT ]
+            ProjectFileImpl(Path : Home.razor)[Hidden ADDITIONALFILES ]
+            ProjectFileImpl(Path : Weather.razor)[CONTENT ]
+            ProjectFileImpl(Path : Weather.razor)[Hidden ADDITIONALFILES ]
+        ProjectFileImpl(Path : Routes.razor)[CONTENT ]
+        ProjectFileImpl(Path : Routes.razor)[Hidden ADDITIONALFILES ]
+        ProjectFileImpl(Path : _Imports.razor)[CONTENT ]
+        ProjectFileImpl(Path : _Imports.razor)[Hidden ADDITIONALFILES ]
+    ProjectFileImpl(Path : Program.cs)[COMPILE ]
+    Folder [Name:Properties, IsAppDesigner:true]
+      Child items:
+        ProjectFileImpl(Path : launchSettings.json)[NONE ]
+    ProjectFileImpl(Path : WeatherApiClient.cs)[COMPILE ]
+    ProjectFileImpl(Path : appsettings.Development.json)[CONTENT ]
+    ProjectFileImpl(Path : appsettings.json)[CONTENT ]
+    Folder [Name:config, Virtual:../../../../../../../../../../../Program Files/dotnet/sdk/9.0.200/Sdks/Microsoft.NET.Sdk/analyzers/build/config, IsHidden:true]
+      Child items:
+        ProjectFileImpl(Path : analysislevel_9_default.globalconfig)[Hidden EDITORCONFIGFILES ]
+    Folder [Name:obj, IsHidden:true]
+      Child items:
+        Folder [Name:Debug, IsHidden:true]
+          Child items:
+            Folder [Name:net9.0, IsHidden:true]
+              Child items:
+                ProjectFileImpl(Path : AspireStarter.Web.AssemblyInfo.cs)[Hidden COMPILE ]
+                ProjectFileImpl(Path : AspireStarter.Web.GeneratedMSBuildEditorConfig.editorconfig)[Hidden EDITORCONFIGFILES ]
+                ProjectFileImpl(Path : AspireStarter.Web.GlobalUsings.g.cs)[Hidden COMPILE ]
+    Folder [Name:wwwroot]
+      Child items:
+        ProjectFileImpl(Path : app.css)[CONTENT ]
+        ProjectFileImpl(Path : favicon.png)[CONTENT ]
+        Folder [Name:lib]
+          Child items:
+            Folder [Name:bootstrap]
+              Child items:
+                Folder [Name:dist]
+                  Child items:
+                    Folder [Name:css]
+                      Child items:
+                        ProjectFileImpl(Path : bootstrap-grid.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-grid.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-grid.min.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-grid.min.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-grid.rtl.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-grid.rtl.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-grid.rtl.min.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-grid.rtl.min.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-reboot.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-reboot.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-reboot.min.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-reboot.min.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-reboot.rtl.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-reboot.rtl.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-reboot.rtl.min.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-reboot.rtl.min.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-utilities.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-utilities.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-utilities.min.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-utilities.min.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-utilities.rtl.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-utilities.rtl.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-utilities.rtl.min.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap-utilities.rtl.min.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.min.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.min.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.rtl.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.rtl.css.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.rtl.min.css)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.rtl.min.css.map)[CONTENT ]
+                    Folder [Name:js]
+                      Child items:
+                        ProjectFileImpl(Path : bootstrap.bundle.js)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.bundle.js.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.bundle.min.js)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.bundle.min.js.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.esm.js)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.esm.js.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.esm.min.js)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.esm.min.js.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.js)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.js.map)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.min.js)[CONTENT ]
+                        ProjectFileImpl(Path : bootstrap.min.js.map)[CONTENT ]
+
+Project [Name:Miscellaneous Files, GUID:GUID]
+
+
+

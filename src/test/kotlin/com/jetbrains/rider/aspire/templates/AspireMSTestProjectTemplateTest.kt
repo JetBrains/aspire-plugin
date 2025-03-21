@@ -5,11 +5,11 @@ import com.jetbrains.rider.test.scriptingApi.ProjectTemplates.Sdk.Core31.VB.sdkT
 import com.jetbrains.rider.test.scriptingApi.TemplateIdWithVersion
 import org.testng.annotations.Test
 
-class AspireEmptyProjectTemplateTest : ProjectTemplateBaseTest() {
+class AspireMSTestProjectTemplateTest : ProjectTemplateBaseTest() {
     override val templateId: TemplateIdWithVersion
-        get() = sdkTemplate("Aspire.Empty.CSharp.8.0", false)
+        get() = sdkTemplate("Aspire.Tests.MSTest.CSharp.8.0", false)
     override val projectName: String
-        get() = "AspireEmpty"
+        get() = "AspireMSTest"
 
     @Test
     fun test() {
