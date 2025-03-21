@@ -2,9 +2,9 @@ package com.jetbrains.rider.aspire.services
 
 import com.intellij.execution.services.ServiceViewDescriptor
 import com.intellij.ide.projectView.PresentationData
+import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.DataProvider
-import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
 import com.jetbrains.rider.aspire.AspireBundle
@@ -16,14 +16,7 @@ import java.awt.BorderLayout
 import javax.swing.JPanel
 
 class AspireResourceServiceViewDescriptor(private val aspireResource: AspireResource) : ServiceViewDescriptor, DataProvider {
-    private val toolbarActions = DefaultActionGroup(
-        ActionManager.getInstance().getAction("Aspire.Resource.Start"),
-        ActionManager.getInstance().getAction("Aspire.Resource.Restart"),
-        ActionManager.getInstance().getAction("Aspire.Resource.Stop"),
-        ActionManager.getInstance().getAction("Aspire.Resource.Attach"),
-        ActionManager.getInstance().getAction("Aspire.Resource.NavigateToDebugTab"),
-        ActionManager.getInstance().getAction("Aspire.Resource.Execute.Command")
-    )
+    private val toolbarActions = ActionManager.getInstance().getAction("Aspire.Resource") as ActionGroup
 
     override fun getPresentation() = PresentationData().apply {
         val icon = getIcon(aspireResource)
