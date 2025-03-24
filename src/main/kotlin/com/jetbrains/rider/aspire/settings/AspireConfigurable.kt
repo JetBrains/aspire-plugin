@@ -5,7 +5,7 @@ import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import com.jetbrains.rider.aspire.AspireBundle
 
-class AspireConfigurable: BoundConfigurable(AspireBundle.message("configurable.Aspire")) {
+class AspireConfigurable : BoundConfigurable(AspireBundle.message("configurable.Aspire")) {
     private val settings get() = AspireSettings.getInstance()
 
     override fun createPanel() = panel {
@@ -17,9 +17,15 @@ class AspireConfigurable: BoundConfigurable(AspireBundle.message("configurable.A
             checkBox(AspireBundle.message("configurable.Aspire.connect.to.database"))
                 .bindSelected(settings::connectToDatabase)
         }
-        row {
-            checkBox(AspireBundle.message("configurable.Aspire.show.sensitive.properties"))
-                .bindSelected(settings::showSensitiveProperties)
+        group(AspireBundle.message("configurable.Aspire.dashboard")) {
+            row {
+                checkBox(AspireBundle.message("configurable.Aspire.show.sensitive.properties"))
+                    .bindSelected(settings::showSensitiveProperties)
+            }
+            row {
+                checkBox(AspireBundle.message("configurable.Aspire.open.console.view"))
+                    .bindSelected(settings::openConsoleView)
+            }
         }
     }
 }

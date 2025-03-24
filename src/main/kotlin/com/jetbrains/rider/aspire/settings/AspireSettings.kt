@@ -29,4 +29,10 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         set(value) {
             state.showSensitiveProperties = value
         }
+
+    var openConsoleView
+        get() = state.openConsoleView
+        set(value) {
+            state.openConsoleView = value
+        }
 }
