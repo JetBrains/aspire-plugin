@@ -18,7 +18,7 @@ import javax.swing.JPanel
 
 class AspireResourceServiceViewDescriptor(private val aspireResource: AspireResource) : ServiceViewDescriptor,
     DataProvider {
-    private val toolbarActions = ActionManager.getInstance().getAction("Aspire.Resource") as ActionGroup
+    private val resourceActions = ActionManager.getInstance().getAction("Aspire.Resource") as ActionGroup
 
     private val tabs = JBTabbedPane().apply {
         addTab(AspireBundle.message("service.tab.dashboard"), ResourceDashboardPanel(aspireResource))
@@ -43,7 +43,7 @@ class AspireResourceServiceViewDescriptor(private val aspireResource: AspireReso
         return panel
     }
 
-    override fun getToolbarActions() = toolbarActions
+    override fun getPopupActions() = resourceActions
 
     override fun getDataProvider() = this
 
