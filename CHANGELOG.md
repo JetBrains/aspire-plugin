@@ -4,6 +4,15 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Do not recreate the dashboard component each time
+
+### Added
+
+- Resource action toolbar to the resource console view
+- Setting to prefer resource console view
+
 ## [1.7.7] - 2025-03-07
 
 ### Fixed
