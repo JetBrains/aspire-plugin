@@ -48,8 +48,6 @@
 
         <webHelpProvider implementation="com.jetbrains.rider.aspire.AspireHelpProvider"/>
 
-        <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
-
         <dependencySupport kind="dotnet" coordinate="Aspire.Hosting" displayName="Aspire"/>
 
         <iconMapper mappingFile="AspireIconMappings.json"/>
