@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.7.8] - 2025-03-27
+
 ### Fixed
 
 - Do not recreate the dashboard component each time
@@ -365,7 +367,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.7...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.8...HEAD
+[1.7.8]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.7...v1.7.8
 [1.7.7]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.6...v1.7.7
 [1.7.6]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.5...v1.7.6
 [1.7.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.4...v1.7.5
