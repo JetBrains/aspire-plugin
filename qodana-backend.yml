@@ -2,7 +2,7 @@
 # https://www.jetbrains.com/help/qodana/qodana-yaml.html
 
 version: 1.0
-linter: jetbrains/qodana-dotnet:2024.2
+linter: jetbrains/qodana-dotnet:2024.3
 dotnet:
   solution: aspire-plugin.sln
 profile:
@@ -11,3 +11,4 @@ exclude:
   - name: All
     paths:
       - README.md
+      - testData
