@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://www.jetbrains.com/help/rider/NET_Aspire.html
+    about: Browse the .NET Aspire plugin documentation.
+  - name: Discussions
+    url: https://github.com/JetBrains/aspire-plugin/discussions
+    about: Please ask and answer questions here.
