@@ -3,7 +3,7 @@
 # https://search.maven.org/artifact/com.jetbrains.rd/rd-gen
 rdGen = "2025.1.1"
 opentest4j = "1.3.0"
-serialization = "1.8.0"
+serialization = "1.8.1"
 
 # plugins
 kotlin = "2.1.20"
