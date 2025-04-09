@@ -11,6 +11,6 @@ class ProjectSessionProgramRunner : DotNetProgramRunner() {
 
     override fun getRunnerId() = ID
 
-    override fun canRun(executorId: String, runProfile: RunProfile) =
-        executorId == DefaultRunExecutor.EXECUTOR_ID && runProfile is ProjectSessionProfile && !runProfile.isDebugMode
+    override fun canRun(executorId: String, runConfiguration: RunProfile) =
+        executorId == DefaultRunExecutor.EXECUTOR_ID && runConfiguration is ProjectSessionProfile && !runConfiguration.isDebugMode
 }

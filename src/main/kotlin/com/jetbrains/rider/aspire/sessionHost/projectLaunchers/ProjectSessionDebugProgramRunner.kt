@@ -15,8 +15,8 @@ class ProjectSessionDebugProgramRunner : DotNetDebugRunner() {
 
     override fun getRunnerId() = ID
 
-    override fun canRun(executorId: String, runProfile: RunProfile) =
-        executorId == DefaultDebugExecutor.EXECUTOR_ID && runProfile is ProjectSessionProfile && runProfile.isDebugMode
+    override fun canRun(executorId: String, runConfiguration: RunProfile) =
+        executorId == DefaultDebugExecutor.EXECUTOR_ID && runConfiguration is ProjectSessionProfile && runConfiguration.isDebugMode
 
     override suspend fun executeAsync(
         environment: ExecutionEnvironment,

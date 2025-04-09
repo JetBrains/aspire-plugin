@@ -27,8 +27,7 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
     override fun getRunnerId() = RUNNER_ID
 
     override fun canRun(executorId: String, runConfiguration: RunProfile) =
-        executorId == DefaultDebugExecutor.EXECUTOR_ID &&
-                runConfiguration is AspireHostConfiguration
+        executorId == DefaultDebugExecutor.EXECUTOR_ID && runConfiguration is AspireHostConfiguration
 
     override suspend fun createAndStartSession(
         environment: ExecutionEnvironment,
