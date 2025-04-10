@@ -1,10 +1,10 @@
 using JetBrains.Application.Parts;
+using JetBrains.Application.Threading;
 using JetBrains.Core;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Assemblies.Interfaces;
 using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
-using JetBrains.ReSharper.Resources.Shell;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Hosting;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Launch;
 using JetBrains.ReSharper.UnitTestFramework.Execution.TestRunner;
@@ -91,7 +91,7 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
 
     private IProject? GetAspireHostProject(IProject projectUnderTest, TargetFrameworkId targetFrameworkId)
     {
-        using (ReadLockCookie.Create())
+        using (solution.Locks.UsingReadLock())
         {
             var referenced = projectUnderTest.GetReferencedProjects(targetFrameworkId);
             foreach (var referencedProject in referenced)
