@@ -30,7 +30,7 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
         executorId == DefaultDebugExecutor.EXECUTOR_ID && runConfiguration is AspireHostConfiguration
 
     override suspend fun createAndStartSession(
-        environment: ExecutionEnvironment,
+        env: ExecutionEnvironment,
         state: IDotNetDebugProfileState,
         protocol: IProtocol,
         sessionLifetime: Lifetime,
@@ -45,19 +45,19 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
         }
 
         val aspireHostProcessHandlerLifetime = AspireService
-            .getInstance(environment.project)
+            .getInstance(env.project)
             .lifetime
             .createNested()
 
-        setUpAspireHostModelAndSaveRunConfig(environment, state, aspireHostProcessHandlerLifetime)
+        setUpAspireHostModelAndSaveRunConfig(env, state, aspireHostProcessHandlerLifetime)
 
-        val executionResult = state.execute(environment.executor, this, workerProcessHandler, sessionLifetime)
+        val executionResult = state.execute(env.executor, this, workerProcessHandler, sessionLifetime)
 
         connectExecutionHandlerAndLifetime(executionResult, aspireHostProcessHandlerLifetime)
 
         return com.jetbrains.rider.debugger.createAndStartSession(
             executionResult.executionConsole,
-            environment,
+            env,
             sessionLifetime,
             executionResult.processHandler,
             protocol,
@@ -65,7 +65,7 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
             state.getDebuggerOutputEventsListener(),
             false
         ) { xDebuggerManager, xDebugProcessStarter ->
-            xDebuggerManager.startSession(environment, xDebugProcessStarter)
+            xDebuggerManager.startSession(env, xDebugProcessStarter)
         }
     }
 }

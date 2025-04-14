@@ -26,8 +26,8 @@ class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
 
     override fun getRunnerId() = ID
 
-    override fun canRun(executorId: String, runProfile: RunProfile) =
-        executorId == DefaultDebugExecutor.EXECUTOR_ID && runProfile is WasmHostProjectSessionDebugProfile
+    override fun canRun(executorId: String, runConfiguration: RunProfile) =
+        executorId == DefaultDebugExecutor.EXECUTOR_ID && runConfiguration is WasmHostProjectSessionDebugProfile
 
     override suspend fun initDebuggerSession(
         helper: DebuggerHelperHost,
