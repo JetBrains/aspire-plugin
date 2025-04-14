@@ -1,23 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0"/>
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.2.0" />
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <IsAspireHost>true</IsAspireHost>
-        <UserSecretsId>1de82c87-2123-4504-ba5a-badac2f02391</UserSecretsId>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>8b265f05-892c-455b-a40b-bedb017c958c</UserSecretsId>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\DefaultAspireSolution.ApiService\DefaultAspireSolution.ApiService.csproj"/>
-        <ProjectReference Include="..\DefaultAspireSolution.Web\DefaultAspireSolution.Web.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DefaultAspireSolution.ApiService\DefaultAspireSolution.ApiService.csproj" />
+    <ProjectReference Include="..\DefaultAspireSolution.Web\DefaultAspireSolution.Web.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.0" />
+  </ItemGroup>
 
 </Project>
