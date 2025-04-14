@@ -157,10 +157,15 @@ class AspireHostExecutorFactory(
 
         //Set the DOTNET_RESOURCE_SERVICE_ENDPOINT_URL environment variable if not specified
         if (!envs.containsKey(DOTNET_RESOURCE_SERVICE_ENDPOINT_URL)) {
-            val resourceEndpointPort = NetUtils.findFreePort(47200)
-            envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] =
-                if (useHttp) "http://localhost:$resourceEndpointPort"
-                else "https://localhost:$resourceEndpointPort"
+            val aspireResourceServiceEndpoint = envs[ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL]
+            if (!aspireResourceServiceEndpoint.isNullOrEmpty()) {
+                envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] = aspireResourceServiceEndpoint
+            } else {
+                val resourceEndpointPort = NetUtils.findFreePort(47200)
+                envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] =
+                    if (useHttp) "http://localhost:$resourceEndpointPort"
+                    else "https://localhost:$resourceEndpointPort"
+            }
         }
 
         val allowAnonymousDashboard = envs[DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS]?.equals("true", true) == true
