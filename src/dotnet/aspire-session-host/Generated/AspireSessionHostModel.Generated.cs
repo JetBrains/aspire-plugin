@@ -67,7 +67,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     
     
-    protected override long SerializationHash => -2257813837946285985L;
+    protected override long SerializationHash => 3267915589602377516L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -108,7 +108,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:204</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:207</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
@@ -236,7 +236,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:186</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:189</p>
   /// </summary>
   public sealed class AspireHostModelConfig : IPrintable, IEquatable<AspireHostModelConfig>
   {
@@ -1094,7 +1094,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:145</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:148</p>
   /// </summary>
   public sealed class ResourceCommand : IPrintable, IEquatable<ResourceCommand>
   {
@@ -1230,7 +1230,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:170</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:173</p>
   /// </summary>
   public sealed class ResourceCommandRequest : IPrintable, IEquatable<ResourceCommandRequest>
   {
@@ -1333,7 +1333,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:176</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:179</p>
   /// </summary>
   public sealed class ResourceCommandResponse : IPrintable, IEquatable<ResourceCommandResponse>
   {
@@ -1426,7 +1426,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:177</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:180</p>
   /// </summary>
   public enum ResourceCommandResponseKind {
     Undefined,
@@ -1437,7 +1437,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:152</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:155</p>
   /// </summary>
   public enum ResourceCommandState {
     Enabled,
@@ -1542,7 +1542,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:138</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:141</p>
   /// </summary>
   public sealed class ResourceHealthReport : IPrintable, IEquatable<ResourceHealthReport>
   {
@@ -1655,7 +1655,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:132</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:135</p>
   /// </summary>
   public enum ResourceHealthStatus {
     Healthy,
@@ -1665,7 +1665,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:164</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:167</p>
   /// </summary>
   public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
   {
@@ -2113,7 +2113,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:159</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:162</p>
   /// </summary>
   public sealed class ResourceRelationship : IPrintable, IEquatable<ResourceRelationship>
   {
@@ -2250,50 +2250,70 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   {
     //fields
     //public fields
-    [NotNull] public string Name {get; private set;}
+    [CanBeNull] public string EndpointName {get; private set;}
     [NotNull] public string FullUrl {get; private set;}
     public bool IsInternal {get; private set;}
+    public bool IsInactive {get; private set;}
+    public int SortOrder {get; private set;}
+    [NotNull] public string DisplayName {get; private set;}
     
     //private fields
     //primary constructor
     public ResourceUrl(
-      [NotNull] string name,
+      [CanBeNull] string endpointName,
       [NotNull] string fullUrl,
-      bool isInternal
+      bool isInternal,
+      bool isInactive,
+      int sortOrder,
+      [NotNull] string displayName
     )
     {
-      if (name == null) throw new ArgumentNullException("name");
       if (fullUrl == null) throw new ArgumentNullException("fullUrl");
+      if (displayName == null) throw new ArgumentNullException("displayName");
       
-      Name = name;
+      EndpointName = endpointName;
       FullUrl = fullUrl;
       IsInternal = isInternal;
+      IsInactive = isInactive;
+      SortOrder = sortOrder;
+      DisplayName = displayName;
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string name, [NotNull] out string fullUrl, out bool isInternal)
+    public void Deconstruct([CanBeNull] out string endpointName, [NotNull] out string fullUrl, out bool isInternal, out bool isInactive, out int sortOrder, [NotNull] out string displayName)
     {
-      name = Name;
+      endpointName = EndpointName;
       fullUrl = FullUrl;
       isInternal = IsInternal;
+      isInactive = IsInactive;
+      sortOrder = SortOrder;
+      displayName = DisplayName;
     }
     //statics
     
     public static CtxReadDelegate<ResourceUrl> Read = (ctx, reader) => 
     {
-      var name = reader.ReadString();
+      var endpointName = ReadStringNullable(ctx, reader);
       var fullUrl = reader.ReadString();
       var isInternal = reader.ReadBool();
-      var _result = new ResourceUrl(name, fullUrl, isInternal);
+      var isInactive = reader.ReadBool();
+      var sortOrder = reader.ReadInt();
+      var displayName = reader.ReadString();
+      var _result = new ResourceUrl(endpointName, fullUrl, isInternal, isInactive, sortOrder, displayName);
       return _result;
     };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
     
     public static CtxWriteDelegate<ResourceUrl> Write = (ctx, writer, value) => 
     {
-      writer.Write(value.Name);
+      WriteStringNullable(ctx, writer, value.EndpointName);
       writer.Write(value.FullUrl);
       writer.Write(value.IsInternal);
+      writer.Write(value.IsInactive);
+      writer.Write(value.SortOrder);
+      writer.Write(value.DisplayName);
     };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
     
     //constants
     
@@ -2311,16 +2331,19 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Name == other.Name && FullUrl == other.FullUrl && IsInternal == other.IsInternal;
+      return Equals(EndpointName, other.EndpointName) && FullUrl == other.FullUrl && IsInternal == other.IsInternal && IsInactive == other.IsInactive && SortOrder == other.SortOrder && DisplayName == other.DisplayName;
     }
     //hash code trait
     public override int GetHashCode()
     {
       unchecked {
         var hash = 0;
-        hash = hash * 31 + Name.GetHashCode();
+        hash = hash * 31 + (EndpointName != null ? EndpointName.GetHashCode() : 0);
         hash = hash * 31 + FullUrl.GetHashCode();
         hash = hash * 31 + IsInternal.GetHashCode();
+        hash = hash * 31 + IsInactive.GetHashCode();
+        hash = hash * 31 + SortOrder.GetHashCode();
+        hash = hash * 31 + DisplayName.GetHashCode();
         return hash;
       }
     }
@@ -2329,9 +2352,12 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     {
       printer.Println("ResourceUrl (");
       using (printer.IndentCookie()) {
-        printer.Print("name = "); Name.PrintEx(printer); printer.Println();
+        printer.Print("endpointName = "); EndpointName.PrintEx(printer); printer.Println();
         printer.Print("fullUrl = "); FullUrl.PrintEx(printer); printer.Println();
         printer.Print("isInternal = "); IsInternal.PrintEx(printer); printer.Println();
+        printer.Print("isInactive = "); IsInactive.PrintEx(printer); printer.Println();
+        printer.Print("sortOrder = "); SortOrder.PrintEx(printer); printer.Println();
+        printer.Print("displayName = "); DisplayName.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -2346,7 +2372,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:125</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:128</p>
   /// </summary>
   public sealed class ResourceVolume : IPrintable, IEquatable<ResourceVolume>
   {

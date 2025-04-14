@@ -117,10 +117,14 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
                 label(AspireBundle.message("service.tab.dashboard.endpoints")).bold()
             }.bottomGap(BottomGap.SMALL)
             resourceData.urls
-                .sortedBy { it.name }
+                .sortedBy { it.sortOrder }
                 .forEach { url ->
                     if (!url.isInternal) {
-                        row(url.name) {
+                        val endpointName =
+                            if (url.displayName.isNotEmpty()) url.displayName
+                            else if (!url.endpointName.isNullOrEmpty()) url.endpointName
+                            else ""
+                        row(endpointName) {
                             link(url.fullUrl) {
                                 BrowserUtil.browse(url.fullUrl)
                             }

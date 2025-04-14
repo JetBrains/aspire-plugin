@@ -117,9 +117,12 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
     }
 
     private val ResourceUrl = structdef {
-        field("name", string)
+        field("endpointName", string.nullable)
         field("fullUrl", string)
         field("isInternal", bool)
+        field("isInactive", bool)
+        field("sortOrder", int)
+        field("displayName", string)
     }
 
     private val ResourceVolume = structdef {
