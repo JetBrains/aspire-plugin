@@ -75,7 +75,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = -2257813837946285985L
+        const val serializationHash = 3267915589602377516L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -120,7 +120,7 @@ val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionH
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:204]
+ * #### Generated from [AspireSessionHostModel.kt:207]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -235,7 +235,7 @@ class AspireHostModel private constructor(
  * @property resourceServiceApiKey `DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
  * @property isDebuggingMode Is Aspire Host running with debugger attached
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
- * #### Generated from [AspireSessionHostModel.kt:186]
+ * #### Generated from [AspireSessionHostModel.kt:189]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -810,7 +810,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:145]
+ * #### Generated from [AspireSessionHostModel.kt:148]
  */
 data class ResourceCommand (
     val name: String,
@@ -905,7 +905,7 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:170]
+ * #### Generated from [AspireSessionHostModel.kt:173]
  */
 data class ResourceCommandRequest (
     val commandName: String,
@@ -976,7 +976,7 @@ data class ResourceCommandRequest (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:176]
+ * #### Generated from [AspireSessionHostModel.kt:179]
  */
 data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
@@ -1041,7 +1041,7 @@ data class ResourceCommandResponse (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:177]
+ * #### Generated from [AspireSessionHostModel.kt:180]
  */
 enum class ResourceCommandResponseKind {
     Undefined, 
@@ -1068,7 +1068,7 @@ enum class ResourceCommandResponseKind {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:152]
+ * #### Generated from [AspireSessionHostModel.kt:155]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -1159,7 +1159,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:138]
+ * #### Generated from [AspireSessionHostModel.kt:141]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus?,
@@ -1236,7 +1236,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:132]
+ * #### Generated from [AspireSessionHostModel.kt:135]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -1262,7 +1262,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:164]
+ * #### Generated from [AspireSessionHostModel.kt:167]
  */
 data class ResourceLog (
     val text: String,
@@ -1559,7 +1559,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:159]
+ * #### Generated from [AspireSessionHostModel.kt:162]
  */
 data class ResourceRelationship (
     val resourceName: String,
@@ -1712,9 +1712,12 @@ enum class ResourceType {
  * #### Generated from [AspireSessionHostModel.kt:119]
  */
 data class ResourceUrl (
-    val name: String,
+    val endpointName: String?,
     val fullUrl: String,
-    val isInternal: Boolean
+    val isInternal: Boolean,
+    val isInactive: Boolean,
+    val sortOrder: Int,
+    val displayName: String
 ) : IPrintable {
     //companion
     
@@ -1724,16 +1727,22 @@ data class ResourceUrl (
         
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ResourceUrl  {
-            val name = buffer.readString()
+            val endpointName = buffer.readNullable { buffer.readString() }
             val fullUrl = buffer.readString()
             val isInternal = buffer.readBool()
-            return ResourceUrl(name, fullUrl, isInternal)
+            val isInactive = buffer.readBool()
+            val sortOrder = buffer.readInt()
+            val displayName = buffer.readString()
+            return ResourceUrl(endpointName, fullUrl, isInternal, isInactive, sortOrder, displayName)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceUrl)  {
-            buffer.writeString(value.name)
+            buffer.writeNullable(value.endpointName) { buffer.writeString(it) }
             buffer.writeString(value.fullUrl)
             buffer.writeBool(value.isInternal)
+            buffer.writeBool(value.isInactive)
+            buffer.writeInt(value.sortOrder)
+            buffer.writeString(value.displayName)
         }
         
         
@@ -1749,27 +1758,36 @@ data class ResourceUrl (
         
         other as ResourceUrl
         
-        if (name != other.name) return false
+        if (endpointName != other.endpointName) return false
         if (fullUrl != other.fullUrl) return false
         if (isInternal != other.isInternal) return false
+        if (isInactive != other.isInactive) return false
+        if (sortOrder != other.sortOrder) return false
+        if (displayName != other.displayName) return false
         
         return true
     }
     //hash code trait
     override fun hashCode(): Int  {
         var __r = 0
-        __r = __r*31 + name.hashCode()
+        __r = __r*31 + if (endpointName != null) endpointName.hashCode() else 0
         __r = __r*31 + fullUrl.hashCode()
         __r = __r*31 + isInternal.hashCode()
+        __r = __r*31 + isInactive.hashCode()
+        __r = __r*31 + sortOrder.hashCode()
+        __r = __r*31 + displayName.hashCode()
         return __r
     }
     //pretty print
     override fun print(printer: PrettyPrinter)  {
         printer.println("ResourceUrl (")
         printer.indent {
-            print("name = "); name.print(printer); println()
+            print("endpointName = "); endpointName.print(printer); println()
             print("fullUrl = "); fullUrl.print(printer); println()
             print("isInternal = "); isInternal.print(printer); println()
+            print("isInactive = "); isInactive.print(printer); println()
+            print("sortOrder = "); sortOrder.print(printer); println()
+            print("displayName = "); displayName.print(printer); println()
         }
         printer.print(")")
     }
@@ -1780,7 +1798,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:125]
+ * #### Generated from [AspireSessionHostModel.kt:128]
  */
 data class ResourceVolume (
     val source: String,

@@ -48,68 +48,72 @@ namespace Aspire.ResourceService.Proto.V1 {
             "aXNwbGF5X25hbWUYAiABKAlIAIgBARIsCghjb21tYW5kcxgDIAMoCzIaLmFz",
             "cGlyZS52MS5SZXNvdXJjZUNvbW1hbmRCDwoNX2Rpc3BsYXlfbmFtZSJXChNF",
             "bnZpcm9ubWVudFZhcmlhYmxlEgwKBG5hbWUYASABKAkSEgoFdmFsdWUYAiAB",
-            "KAlIAIgBARIUCgxpc19mcm9tX3NwZWMYAyABKAhCCAoGX3ZhbHVlIjoKA1Vy",
-            "bBIMCgRuYW1lGAEgASgJEhAKCGZ1bGxfdXJsGAIgASgJEhMKC2lzX2ludGVy",
-            "bmFsGAMgASgIIlIKBlZvbHVtZRIOCgZzb3VyY2UYASABKAkSDgoGdGFyZ2V0",
-            "GAIgASgJEhIKCm1vdW50X3R5cGUYAyABKAkSFAoMaXNfcmVhZF9vbmx5GAQg",
-            "ASgIInwKDEhlYWx0aFJlcG9ydBIsCgZzdGF0dXMYASABKA4yFy5hc3BpcmUu",
-            "djEuSGVhbHRoU3RhdHVzSACIAQESCwoDa2V5GAIgASgJEhMKC2Rlc2NyaXB0",
-            "aW9uGAMgASgJEhEKCWV4Y2VwdGlvbhgEIAEoCUIJCgdfc3RhdHVzIjsKFFJl",
-            "c291cmNlUmVsYXRpb25zaGlwEhUKDXJlc291cmNlX25hbWUYASABKAkSDAoE",
-            "dHlwZRgCIAEoCSKfAQoQUmVzb3VyY2VQcm9wZXJ0eRIMCgRuYW1lGAEgASgJ",
-            "EhkKDGRpc3BsYXlfbmFtZRgCIAEoCUgAiAEBEiUKBXZhbHVlGAMgASgLMhYu",
-            "Z29vZ2xlLnByb3RvYnVmLlZhbHVlEhkKDGlzX3NlbnNpdGl2ZRgEIAEoCEgB",
-            "iAEBQg8KDV9kaXNwbGF5X25hbWVCDwoNX2lzX3NlbnNpdGl2ZSK9BQoIUmVz",
-            "b3VyY2USDAoEbmFtZRgBIAEoCRIVCg1yZXNvdXJjZV90eXBlGAIgASgJEhQK",
-            "DGRpc3BsYXlfbmFtZRgDIAEoCRILCgN1aWQYBCABKAkSEgoFc3RhdGUYBSAB",
-            "KAlIAIgBARIzCgpjcmVhdGVkX2F0GAYgASgLMhouZ29vZ2xlLnByb3RvYnVm",
-            "LlRpbWVzdGFtcEgBiAEBEjMKC2Vudmlyb25tZW50GAcgAygLMh4uYXNwaXJl",
-            "LnYxLkVudmlyb25tZW50VmFyaWFibGUSLAoIY29tbWFuZHMYCyADKAsyGi5h",
-            "c3BpcmUudjEuUmVzb3VyY2VDb21tYW5kEi8KCnByb3BlcnRpZXMYDCADKAsy",
-            "Gy5hc3BpcmUudjEuUmVzb3VyY2VQcm9wZXJ0eRIcCgR1cmxzGA0gAygLMg4u",
-            "YXNwaXJlLnYxLlVybBIYCgtzdGF0ZV9zdHlsZRgOIAEoCUgCiAEBEiIKB3Zv",
-            "bHVtZXMYDyADKAsyES5hc3BpcmUudjEuVm9sdW1lEi8KDmhlYWx0aF9yZXBv",
-            "cnRzGBEgAygLMhcuYXNwaXJlLnYxLkhlYWx0aFJlcG9ydBIzCgpzdGFydGVk",
-            "X2F0GBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgDiAEBEjMK",
-            "CnN0b3BwZWRfYXQYEyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1w",
-            "SASIAQESNgoNcmVsYXRpb25zaGlwcxgUIAMoCzIfLmFzcGlyZS52MS5SZXNv",
-            "dXJjZVJlbGF0aW9uc2hpcEIICgZfc3RhdGVCDQoLX2NyZWF0ZWRfYXRCDgoM",
-            "X3N0YXRlX3N0eWxlQg0KC19zdGFydGVkX2F0Qg0KC19zdG9wcGVkX2F0SgQI",
-            "CBAJSgQICRAKSgQIChALSgQIEBARIm4KE0luaXRpYWxSZXNvdXJjZURhdGES",
-            "JgoJcmVzb3VyY2VzGAEgAygLMhMuYXNwaXJlLnYxLlJlc291cmNlEi8KDnJl",
-            "c291cmNlX3R5cGVzGAIgAygLMhcuYXNwaXJlLnYxLlJlc291cmNlVHlwZSJA",
-            "ChBSZXNvdXJjZURlbGV0aW9uEhUKDXJlc291cmNlX25hbWUYASABKAkSFQoN",
-            "cmVzb3VyY2VfdHlwZRgCIAEoCSJ0ChRXYXRjaFJlc291cmNlc0NoYW5nZRIt",
-            "CgZkZWxldGUYASABKAsyGy5hc3BpcmUudjEuUmVzb3VyY2VEZWxldGlvbkgA",
-            "EiUKBnVwc2VydBgCIAEoCzITLmFzcGlyZS52MS5SZXNvdXJjZUgAQgYKBGtp",
-            "bmQiRwoVV2F0Y2hSZXNvdXJjZXNDaGFuZ2VzEi4KBXZhbHVlGAEgAygLMh8u",
-            "YXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzQ2hhbmdlIkMKFVdhdGNoUmVzb3Vy",
-            "Y2VzUmVxdWVzdBIZCgxpc19yZWNvbm5lY3QYASABKAhIAIgBAUIPCg1faXNf",
-            "cmVjb25uZWN0IosBChRXYXRjaFJlc291cmNlc1VwZGF0ZRI2Cgxpbml0aWFs",
-            "X2RhdGEYASABKAsyHi5hc3BpcmUudjEuSW5pdGlhbFJlc291cmNlRGF0YUgA",
-            "EjMKB2NoYW5nZXMYAiABKAsyIC5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXND",
-            "aGFuZ2VzSABCBgoEa2luZCJbCg5Db25zb2xlTG9nTGluZRIMCgR0ZXh0GAEg",
-            "ASgJEhcKCmlzX3N0ZF9lcnIYAiABKAhIAIgBARITCgtsaW5lX251bWJlchgD",
-            "IAEoBUINCgtfaXNfc3RkX2VyciI4Ch9XYXRjaFJlc291cmNlQ29uc29sZUxv",
-            "Z3NSZXF1ZXN0EhUKDXJlc291cmNlX25hbWUYASABKAkiTgoeV2F0Y2hSZXNv",
-            "dXJjZUNvbnNvbGVMb2dzVXBkYXRlEiwKCWxvZ19saW5lcxgBIAMoCzIZLmFz",
-            "cGlyZS52MS5Db25zb2xlTG9nTGluZSomCgtJY29uVmFyaWFudBILCgdSRUdV",
-            "TEFSEAASCgoGRklMTEVEEAEqPQoUUmVzb3VyY2VDb21tYW5kU3RhdGUSCwoH",
-            "RU5BQkxFRBAAEgwKCERJU0FCTEVEEAESCgoGSElEREVOEAIqVgobUmVzb3Vy",
-            "Y2VDb21tYW5kUmVzcG9uc2VLaW5kEg0KCVVOREVGSU5FRBAAEg0KCVNVQ0NF",
-            "RURFRBABEgoKBkZBSUxFRBACEg0KCUNBTkNFTExFRBADKjgKDEhlYWx0aFN0",
-            "YXR1cxILCgdIRUFMVEhZEAASDQoJVU5IRUFMVEhZEAESDAoIREVHUkFERUQQ",
-            "AjKxAwoQRGFzaGJvYXJkU2VydmljZRJwChlHZXRBcHBsaWNhdGlvbkluZm9y",
-            "bWF0aW9uEiguYXNwaXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXF1",
-            "ZXN0GikuYXNwaXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXNwb25z",
-            "ZRJVCg5XYXRjaFJlc291cmNlcxIgLmFzcGlyZS52MS5XYXRjaFJlc291cmNl",
-            "c1JlcXVlc3QaHy5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXNVcGRhdGUwARJz",
-            "ChhXYXRjaFJlc291cmNlQ29uc29sZUxvZ3MSKi5hc3BpcmUudjEuV2F0Y2hS",
-            "ZXNvdXJjZUNvbnNvbGVMb2dzUmVxdWVzdBopLmFzcGlyZS52MS5XYXRjaFJl",
-            "c291cmNlQ29uc29sZUxvZ3NVcGRhdGUwARJfChZFeGVjdXRlUmVzb3VyY2VD",
-            "b21tYW5kEiEuYXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlcXVlc3QaIi5h",
-            "c3BpcmUudjEuUmVzb3VyY2VDb21tYW5kUmVzcG9uc2VCIqoCH0FzcGlyZS5S",
-            "ZXNvdXJjZVNlcnZpY2UuUHJvdG8uVjFiBnByb3RvMw=="));
+            "KAlIAIgBARIUCgxpc19mcm9tX3NwZWMYAyABKAhCCAoGX3ZhbHVlIqwBCgNV",
+            "cmwSGgoNZW5kcG9pbnRfbmFtZRgBIAEoCUgAiAEBEhAKCGZ1bGxfdXJsGAIg",
+            "ASgJEhMKC2lzX2ludGVybmFsGAMgASgIEhMKC2lzX2luYWN0aXZlGAQgASgI",
+            "EjsKEmRpc3BsYXlfcHJvcGVydGllcxgFIAEoCzIfLmFzcGlyZS52MS5VcmxE",
+            "aXNwbGF5UHJvcGVydGllc0IQCg5fZW5kcG9pbnRfbmFtZSJAChRVcmxEaXNw",
+            "bGF5UHJvcGVydGllcxISCgpzb3J0X29yZGVyGAEgASgFEhQKDGRpc3BsYXlf",
+            "bmFtZRgCIAEoCSJSCgZWb2x1bWUSDgoGc291cmNlGAEgASgJEg4KBnRhcmdl",
+            "dBgCIAEoCRISCgptb3VudF90eXBlGAMgASgJEhQKDGlzX3JlYWRfb25seRgE",
+            "IAEoCCJ8CgxIZWFsdGhSZXBvcnQSLAoGc3RhdHVzGAEgASgOMhcuYXNwaXJl",
+            "LnYxLkhlYWx0aFN0YXR1c0gAiAEBEgsKA2tleRgCIAEoCRITCgtkZXNjcmlw",
+            "dGlvbhgDIAEoCRIRCglleGNlcHRpb24YBCABKAlCCQoHX3N0YXR1cyI7ChRS",
+            "ZXNvdXJjZVJlbGF0aW9uc2hpcBIVCg1yZXNvdXJjZV9uYW1lGAEgASgJEgwK",
+            "BHR5cGUYAiABKAkinwEKEFJlc291cmNlUHJvcGVydHkSDAoEbmFtZRgBIAEo",
+            "CRIZCgxkaXNwbGF5X25hbWUYAiABKAlIAIgBARIlCgV2YWx1ZRgDIAEoCzIW",
+            "Lmdvb2dsZS5wcm90b2J1Zi5WYWx1ZRIZCgxpc19zZW5zaXRpdmUYBCABKAhI",
+            "AYgBAUIPCg1fZGlzcGxheV9uYW1lQg8KDV9pc19zZW5zaXRpdmUivQUKCFJl",
+            "c291cmNlEgwKBG5hbWUYASABKAkSFQoNcmVzb3VyY2VfdHlwZRgCIAEoCRIU",
+            "CgxkaXNwbGF5X25hbWUYAyABKAkSCwoDdWlkGAQgASgJEhIKBXN0YXRlGAUg",
+            "ASgJSACIAQESMwoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1",
+            "Zi5UaW1lc3RhbXBIAYgBARIzCgtlbnZpcm9ubWVudBgHIAMoCzIeLmFzcGly",
+            "ZS52MS5FbnZpcm9ubWVudFZhcmlhYmxlEiwKCGNvbW1hbmRzGAsgAygLMhou",
+            "YXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZBIvCgpwcm9wZXJ0aWVzGAwgAygL",
+            "MhsuYXNwaXJlLnYxLlJlc291cmNlUHJvcGVydHkSHAoEdXJscxgNIAMoCzIO",
+            "LmFzcGlyZS52MS5VcmwSGAoLc3RhdGVfc3R5bGUYDiABKAlIAogBARIiCgd2",
+            "b2x1bWVzGA8gAygLMhEuYXNwaXJlLnYxLlZvbHVtZRIvCg5oZWFsdGhfcmVw",
+            "b3J0cxgRIAMoCzIXLmFzcGlyZS52MS5IZWFsdGhSZXBvcnQSMwoKc3RhcnRl",
+            "ZF9hdBgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIA4gBARIz",
+            "CgpzdG9wcGVkX2F0GBMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFt",
+            "cEgEiAEBEjYKDXJlbGF0aW9uc2hpcHMYFCADKAsyHy5hc3BpcmUudjEuUmVz",
+            "b3VyY2VSZWxhdGlvbnNoaXBCCAoGX3N0YXRlQg0KC19jcmVhdGVkX2F0Qg4K",
+            "DF9zdGF0ZV9zdHlsZUINCgtfc3RhcnRlZF9hdEINCgtfc3RvcHBlZF9hdEoE",
+            "CAgQCUoECAkQCkoECAoQC0oECBAQESJuChNJbml0aWFsUmVzb3VyY2VEYXRh",
+            "EiYKCXJlc291cmNlcxgBIAMoCzITLmFzcGlyZS52MS5SZXNvdXJjZRIvCg5y",
+            "ZXNvdXJjZV90eXBlcxgCIAMoCzIXLmFzcGlyZS52MS5SZXNvdXJjZVR5cGUi",
+            "QAoQUmVzb3VyY2VEZWxldGlvbhIVCg1yZXNvdXJjZV9uYW1lGAEgASgJEhUK",
+            "DXJlc291cmNlX3R5cGUYAiABKAkidAoUV2F0Y2hSZXNvdXJjZXNDaGFuZ2US",
+            "LQoGZGVsZXRlGAEgASgLMhsuYXNwaXJlLnYxLlJlc291cmNlRGVsZXRpb25I",
+            "ABIlCgZ1cHNlcnQYAiABKAsyEy5hc3BpcmUudjEuUmVzb3VyY2VIAEIGCgRr",
+            "aW5kIkcKFVdhdGNoUmVzb3VyY2VzQ2hhbmdlcxIuCgV2YWx1ZRgBIAMoCzIf",
+            "LmFzcGlyZS52MS5XYXRjaFJlc291cmNlc0NoYW5nZSJDChVXYXRjaFJlc291",
+            "cmNlc1JlcXVlc3QSGQoMaXNfcmVjb25uZWN0GAEgASgISACIAQFCDwoNX2lz",
+            "X3JlY29ubmVjdCKLAQoUV2F0Y2hSZXNvdXJjZXNVcGRhdGUSNgoMaW5pdGlh",
+            "bF9kYXRhGAEgASgLMh4uYXNwaXJlLnYxLkluaXRpYWxSZXNvdXJjZURhdGFI",
+            "ABIzCgdjaGFuZ2VzGAIgASgLMiAuYXNwaXJlLnYxLldhdGNoUmVzb3VyY2Vz",
+            "Q2hhbmdlc0gAQgYKBGtpbmQiWwoOQ29uc29sZUxvZ0xpbmUSDAoEdGV4dBgB",
+            "IAEoCRIXCgppc19zdGRfZXJyGAIgASgISACIAQESEwoLbGluZV9udW1iZXIY",
+            "AyABKAVCDQoLX2lzX3N0ZF9lcnIiOAofV2F0Y2hSZXNvdXJjZUNvbnNvbGVM",
+            "b2dzUmVxdWVzdBIVCg1yZXNvdXJjZV9uYW1lGAEgASgJIk4KHldhdGNoUmVz",
+            "b3VyY2VDb25zb2xlTG9nc1VwZGF0ZRIsCglsb2dfbGluZXMYASADKAsyGS5h",
+            "c3BpcmUudjEuQ29uc29sZUxvZ0xpbmUqJgoLSWNvblZhcmlhbnQSCwoHUkVH",
+            "VUxBUhAAEgoKBkZJTExFRBABKj0KFFJlc291cmNlQ29tbWFuZFN0YXRlEgsK",
+            "B0VOQUJMRUQQABIMCghESVNBQkxFRBABEgoKBkhJRERFThACKlYKG1Jlc291",
+            "cmNlQ29tbWFuZFJlc3BvbnNlS2luZBINCglVTkRFRklORUQQABINCglTVUND",
+            "RUVERUQQARIKCgZGQUlMRUQQAhINCglDQU5DRUxMRUQQAyo4CgxIZWFsdGhT",
+            "dGF0dXMSCwoHSEVBTFRIWRAAEg0KCVVOSEVBTFRIWRABEgwKCERFR1JBREVE",
+            "EAIysQMKEERhc2hib2FyZFNlcnZpY2UScAoZR2V0QXBwbGljYXRpb25JbmZv",
+            "cm1hdGlvbhIoLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9ybWF0aW9uUmVx",
+            "dWVzdBopLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9ybWF0aW9uUmVzcG9u",
+            "c2USVQoOV2F0Y2hSZXNvdXJjZXMSIC5hc3BpcmUudjEuV2F0Y2hSZXNvdXJj",
+            "ZXNSZXF1ZXN0Gh8uYXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzVXBkYXRlMAES",
+            "cwoYV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dzEiouYXNwaXJlLnYxLldhdGNo",
+            "UmVzb3VyY2VDb25zb2xlTG9nc1JlcXVlc3QaKS5hc3BpcmUudjEuV2F0Y2hS",
+            "ZXNvdXJjZUNvbnNvbGVMb2dzVXBkYXRlMAESXwoWRXhlY3V0ZVJlc291cmNl",
+            "Q29tbWFuZBIhLmFzcGlyZS52MS5SZXNvdXJjZUNvbW1hbmRSZXF1ZXN0GiIu",
+            "YXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlc3BvbnNlQiKqAh9Bc3BpcmUu",
+            "UmVzb3VyY2VTZXJ2aWNlLlByb3RvLlYxYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.StructReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Aspire.ResourceService.Proto.V1.IconVariant), typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandState), typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind), typeof(global::Aspire.ResourceService.Proto.V1.HealthStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -120,7 +124,8 @@ namespace Aspire.ResourceService.Proto.V1 {
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse), global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse.Parser, new[]{ "Kind", "ErrorMessage" }, new[]{ "ErrorMessage" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceType), global::Aspire.ResourceService.Proto.V1.ResourceType.Parser, new[]{ "UniqueName", "DisplayName", "Commands" }, new[]{ "DisplayName" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.EnvironmentVariable), global::Aspire.ResourceService.Proto.V1.EnvironmentVariable.Parser, new[]{ "Name", "Value", "IsFromSpec" }, new[]{ "Value" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Url), global::Aspire.ResourceService.Proto.V1.Url.Parser, new[]{ "Name", "FullUrl", "IsInternal" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Url), global::Aspire.ResourceService.Proto.V1.Url.Parser, new[]{ "EndpointName", "FullUrl", "IsInternal", "IsInactive", "DisplayProperties" }, new[]{ "EndpointName" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties), global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties.Parser, new[]{ "SortOrder", "DisplayName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Volume), global::Aspire.ResourceService.Proto.V1.Volume.Parser, new[]{ "Source", "Target", "MountType", "IsReadOnly" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.HealthReport), global::Aspire.ResourceService.Proto.V1.HealthReport.Parser, new[]{ "Status", "Key", "Description", "Exception" }, new[]{ "Status" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceRelationship), global::Aspire.ResourceService.Proto.V1.ResourceRelationship.Parser, new[]{ "ResourceName", "Type" }, null, null, null, null),
@@ -2330,9 +2335,11 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public Url(Url other) : this() {
-      name_ = other.name_;
+      endpointName_ = other.endpointName_;
       fullUrl_ = other.fullUrl_;
       isInternal_ = other.isInternal_;
+      isInactive_ = other.isInactive_;
+      displayProperties_ = other.displayProperties_ != null ? other.displayProperties_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -2342,19 +2349,33 @@ namespace Aspire.ResourceService.Proto.V1 {
       return new Url(this);
     }
 
-    /// <summary>Field number for the "name" field.</summary>
-    public const int NameFieldNumber = 1;
-    private string name_ = "";
+    /// <summary>Field number for the "endpoint_name" field.</summary>
+    public const int EndpointNameFieldNumber = 1;
+    private readonly static string EndpointNameDefaultValue = "";
+
+    private string endpointName_;
     /// <summary>
-    /// The name of the url
+    /// The name of endpoint associated with the url
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
-      get { return name_; }
+    public string EndpointName {
+      get { return endpointName_ ?? EndpointNameDefaultValue; }
       set {
-        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        endpointName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
+    }
+    /// <summary>Gets whether the "endpoint_name" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasEndpointName {
+      get { return endpointName_ != null; }
+    }
+    /// <summary>Clears the value of the "endpoint_name" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearEndpointName() {
+      endpointName_ = null;
     }
 
     /// <summary>Field number for the "full_url" field.</summary>
@@ -2388,6 +2409,37 @@ namespace Aspire.ResourceService.Proto.V1 {
       }
     }
 
+    /// <summary>Field number for the "is_inactive" field.</summary>
+    public const int IsInactiveFieldNumber = 4;
+    private bool isInactive_;
+    /// <summary>
+    /// Indicates if this URL is inactive. A non-running resource may still return inactive URLs.
+    /// If true, the inactive url will not be shown in the dashboard.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool IsInactive {
+      get { return isInactive_; }
+      set {
+        isInactive_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "display_properties" field.</summary>
+    public const int DisplayPropertiesFieldNumber = 5;
+    private global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties displayProperties_;
+    /// <summary>
+    /// Display properties of the Url
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties DisplayProperties {
+      get { return displayProperties_; }
+      set {
+        displayProperties_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -2403,9 +2455,11 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Name != other.Name) return false;
+      if (EndpointName != other.EndpointName) return false;
       if (FullUrl != other.FullUrl) return false;
       if (IsInternal != other.IsInternal) return false;
+      if (IsInactive != other.IsInactive) return false;
+      if (!object.Equals(DisplayProperties, other.DisplayProperties)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2413,9 +2467,11 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (HasEndpointName) hash ^= EndpointName.GetHashCode();
       if (FullUrl.Length != 0) hash ^= FullUrl.GetHashCode();
       if (IsInternal != false) hash ^= IsInternal.GetHashCode();
+      if (IsInactive != false) hash ^= IsInactive.GetHashCode();
+      if (displayProperties_ != null) hash ^= DisplayProperties.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2434,9 +2490,9 @@ namespace Aspire.ResourceService.Proto.V1 {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Name.Length != 0) {
+      if (HasEndpointName) {
         output.WriteRawTag(10);
-        output.WriteString(Name);
+        output.WriteString(EndpointName);
       }
       if (FullUrl.Length != 0) {
         output.WriteRawTag(18);
@@ -2445,6 +2501,14 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (IsInternal != false) {
         output.WriteRawTag(24);
         output.WriteBool(IsInternal);
+      }
+      if (IsInactive != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(IsInactive);
+      }
+      if (displayProperties_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(DisplayProperties);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -2456,9 +2520,9 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Name.Length != 0) {
+      if (HasEndpointName) {
         output.WriteRawTag(10);
-        output.WriteString(Name);
+        output.WriteString(EndpointName);
       }
       if (FullUrl.Length != 0) {
         output.WriteRawTag(18);
@@ -2467,6 +2531,14 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (IsInternal != false) {
         output.WriteRawTag(24);
         output.WriteBool(IsInternal);
+      }
+      if (IsInactive != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(IsInactive);
+      }
+      if (displayProperties_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(DisplayProperties);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -2478,14 +2550,20 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      if (HasEndpointName) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(EndpointName);
       }
       if (FullUrl.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(FullUrl);
       }
       if (IsInternal != false) {
         size += 1 + 1;
+      }
+      if (IsInactive != false) {
+        size += 1 + 1;
+      }
+      if (displayProperties_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(DisplayProperties);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -2499,14 +2577,23 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (other == null) {
         return;
       }
-      if (other.Name.Length != 0) {
-        Name = other.Name;
+      if (other.HasEndpointName) {
+        EndpointName = other.EndpointName;
       }
       if (other.FullUrl.Length != 0) {
         FullUrl = other.FullUrl;
       }
       if (other.IsInternal != false) {
         IsInternal = other.IsInternal;
+      }
+      if (other.IsInactive != false) {
+        IsInactive = other.IsInactive;
+      }
+      if (other.displayProperties_ != null) {
+        if (displayProperties_ == null) {
+          DisplayProperties = new global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties();
+        }
+        DisplayProperties.MergeFrom(other.DisplayProperties);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -2528,7 +2615,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            Name = input.ReadString();
+            EndpointName = input.ReadString();
             break;
           }
           case 18: {
@@ -2537,6 +2624,17 @@ namespace Aspire.ResourceService.Proto.V1 {
           }
           case 24: {
             IsInternal = input.ReadBool();
+            break;
+          }
+          case 32: {
+            IsInactive = input.ReadBool();
+            break;
+          }
+          case 42: {
+            if (displayProperties_ == null) {
+              DisplayProperties = new global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties();
+            }
+            input.ReadMessage(DisplayProperties);
             break;
           }
         }
@@ -2559,7 +2657,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            Name = input.ReadString();
+            EndpointName = input.ReadString();
             break;
           }
           case 18: {
@@ -2568,6 +2666,258 @@ namespace Aspire.ResourceService.Proto.V1 {
           }
           case 24: {
             IsInternal = input.ReadBool();
+            break;
+          }
+          case 32: {
+            IsInactive = input.ReadBool();
+            break;
+          }
+          case 42: {
+            if (displayProperties_ == null) {
+              DisplayProperties = new global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties();
+            }
+            input.ReadMessage(DisplayProperties);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class UrlDisplayProperties : pb::IMessage<UrlDisplayProperties>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<UrlDisplayProperties> _parser = new pb::MessageParser<UrlDisplayProperties>(() => new UrlDisplayProperties());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<UrlDisplayProperties> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[8]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public UrlDisplayProperties() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public UrlDisplayProperties(UrlDisplayProperties other) : this() {
+      sortOrder_ = other.sortOrder_;
+      displayName_ = other.displayName_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public UrlDisplayProperties Clone() {
+      return new UrlDisplayProperties(this);
+    }
+
+    /// <summary>Field number for the "sort_order" field.</summary>
+    public const int SortOrderFieldNumber = 1;
+    private int sortOrder_;
+    /// <summary>
+    /// The sort order of the url. Lower values are displayed first in the UI. The absence of a value is treated as lowest order.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int SortOrder {
+      get { return sortOrder_; }
+      set {
+        sortOrder_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "display_name" field.</summary>
+    public const int DisplayNameFieldNumber = 2;
+    private string displayName_ = "";
+    /// <summary>
+    /// The display name of the url, to appear in the UI.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string DisplayName {
+      get { return displayName_; }
+      set {
+        displayName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as UrlDisplayProperties);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(UrlDisplayProperties other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (SortOrder != other.SortOrder) return false;
+      if (DisplayName != other.DisplayName) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (SortOrder != 0) hash ^= SortOrder.GetHashCode();
+      if (DisplayName.Length != 0) hash ^= DisplayName.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (SortOrder != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(SortOrder);
+      }
+      if (DisplayName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(DisplayName);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (SortOrder != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(SortOrder);
+      }
+      if (DisplayName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(DisplayName);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (SortOrder != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SortOrder);
+      }
+      if (DisplayName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(DisplayName);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(UrlDisplayProperties other) {
+      if (other == null) {
+        return;
+      }
+      if (other.SortOrder != 0) {
+        SortOrder = other.SortOrder;
+      }
+      if (other.DisplayName.Length != 0) {
+        DisplayName = other.DisplayName;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            SortOrder = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            DisplayName = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            SortOrder = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            DisplayName = input.ReadString();
             break;
           }
         }
@@ -2595,7 +2945,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[8]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2917,7 +3267,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[9]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3254,7 +3604,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3496,7 +3846,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3862,7 +4212,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4627,7 +4977,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[13]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4840,7 +5190,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[14]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5075,7 +5425,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[15]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5369,7 +5719,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[16]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5560,7 +5910,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[17]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5780,7 +6130,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[18]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6082,7 +6432,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[19]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6376,7 +6726,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[20]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6581,7 +6931,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[21]; }
+      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[22]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

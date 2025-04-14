@@ -107,9 +107,12 @@ internal static class ResourceExtensions
     );
 
     private static ResourceUrl ToModel(this Url url) => new(
-        url.Name,
+        url.HasEndpointName ? url.EndpointName : null,
         url.FullUrl,
-        url.IsInternal
+        url.IsInternal,
+        url.IsInactive,
+        url.DisplayProperties.SortOrder,
+        url.DisplayProperties.DisplayName
     );
 
     private static ResourceVolume ToModel(this Volume volume) => new(

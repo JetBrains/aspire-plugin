@@ -31,7 +31,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
             val urls = resource.urls
                 .mapNotNull { url ->
                     runCatching { URI(url.fullUrl) }.getOrNull()
-                        ?.let { DatabaseResourceUrl(url.name, it, url.isInternal) }
+                        ?.let { DatabaseResourceUrl(url.endpointName ?: "", it, url.isInternal) }
                 }
             if (urls.isEmpty()) return
             val isPersistent = resource.containerLifetime.equals("persistent", true)
