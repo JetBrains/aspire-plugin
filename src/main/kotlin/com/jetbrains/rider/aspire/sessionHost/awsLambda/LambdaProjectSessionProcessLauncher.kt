@@ -49,19 +49,19 @@ class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLaunch
             .getProjectModelEntities(path, project)
             .singleOrNull { it.isProject() }
         if (entity == null) {
-            LOG.trace { "Can't find a project entity for the path $projectPath" }
+            LOG.trace { "Can't find a project entity for the path $projectPath. Skip launcher" }
             return false
         }
 
         val descriptor = entity.descriptor as? RdProjectDescriptor
         if (descriptor == null) {
-            LOG.trace { "Can't find an RdProjectDescriptor for the path $projectPath" }
+            LOG.trace { "Can't find an RdProjectDescriptor for the path $projectPath. Skip launcher" }
             return false
         }
 
         val awsProjectType = descriptor.getUserData(AWS_PROJECT_TYPE)
         if (awsProjectType?.equals(LAMBDA, true) != true) {
-            LOG.trace { "Can't find AWS project type for the path $projectPath" }
+            LOG.trace { "Can't find AWS project type for the path $projectPath. Skip launcher" }
             return false
         }
 

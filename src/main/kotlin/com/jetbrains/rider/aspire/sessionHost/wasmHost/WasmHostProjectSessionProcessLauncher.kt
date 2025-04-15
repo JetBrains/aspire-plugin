@@ -5,6 +5,7 @@ import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
@@ -37,7 +38,7 @@ class WasmHostProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessi
     override suspend fun isApplicable(projectPath: String, project: Project): Boolean {
         val runnableProject = findRunnableProjectByPath(Path(projectPath), project)
         if (runnableProject == null) {
-            LOG.warn("WASM Host external projects are not supported yet")
+            LOG.trace { "Can't find runnable project with path: $projectPath. Skip launcher" }
             return false
         }
 
