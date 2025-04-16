@@ -41,6 +41,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
                 containerId,
                 resourceType,
                 urls,
+                resource.containerPorts,
                 isPersistent,
                 resource.lifetime
             )
