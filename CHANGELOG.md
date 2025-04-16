@@ -9,6 +9,10 @@
 - Support for .NET Aspire 9.2
 - Support for Rider 2025.1
 
+### Fixed
+
+- Debugging Blazor WASM projects
+
 ## [1.7.8] - 2025-03-27
 
 ### Fixed

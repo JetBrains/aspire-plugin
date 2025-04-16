@@ -1,14 +1,18 @@
 package com.jetbrains.rider.aspire.sessionHost.wasmHost
 
+import com.intellij.execution.CantRunException
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.ide.browsers.StartBrowserSettings
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
+import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.debugger.RiderDebugRunner
 import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentHost
@@ -54,11 +58,22 @@ private suspend fun startBrowser(
     browserStartSettings: StartBrowserSettings?,
     project: Project
 ): ChromiumDebuggableBrowser? {
-    val webBrowser = BlazorWasmCliOptionsProvider.resolveBrowser(browserStartSettings?.browser)
-    BlazorWasmBrowserUtil.checkBrowserSupported(webBrowser)
-    val appUrl = browserStartSettings?.url ?: return null
+    try {
+        val webBrowser = BlazorWasmCliOptionsProvider.resolveBrowser(browserStartSettings?.browser)
+        BlazorWasmBrowserUtil.checkBrowserSupported(webBrowser)
+        val appUrl = browserStartSettings?.url ?: return null
 
-    return ChromiumDebuggableBrowser.launch(webBrowser, URI.create(appUrl), project)
+        return ChromiumDebuggableBrowser.launch(webBrowser, URI.create(appUrl), project)
+    } catch (e: CantRunException) {
+        Notification(
+            "Aspire",
+            AspireBundle.message("notification.unable.to.launch.browser"),
+            e.message ?: "",
+            NotificationType.WARNING
+        )
+            .notify(project)
+        return null
+    }
 }
 
 suspend fun executeClient(
@@ -104,7 +119,6 @@ suspend fun executeClient(
                     ).build()
                     val clientRunner =
                         ProgramRunner.getRunner(DefaultDebugExecutor.EXECUTOR_ID, clientProfile) as? RiderDebugRunner
-                    @Suppress("UnstableApiUsage")
                     clientRunner?.execute(environment)
                 }
             }

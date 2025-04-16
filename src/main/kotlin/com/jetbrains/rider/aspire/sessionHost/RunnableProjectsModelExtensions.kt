@@ -22,7 +22,7 @@ fun RunnableProjectsModel.findBySessionProject(
 ): RunnableProject? {
     val runnableProjects = projects.valueOrNull ?: return null
     val sessionProjectPathString = sessionProjectPath.systemIndependentPath
-    return runnableProjects.singleOrNull {
+    return runnableProjects.firstOrNull {
         it.projectFilePath == sessionProjectPathString && runnablePredicate(it)
     }
 }
