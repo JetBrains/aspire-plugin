@@ -8,6 +8,7 @@ data class DatabaseResource(
     val containerId: String,
     val type: DatabaseType,
     val urls: List<DatabaseResourceUrl>,
+    val containerPorts: String?,
     val isPersistent: Boolean,
     val resourceLifetime: Lifetime
 )

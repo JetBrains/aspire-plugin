@@ -12,6 +12,7 @@
 ### Fixed
 
 - Debugging Blazor WASM projects
+- Database resource connection duplication
 
 ## [1.7.8] - 2025-03-27
 

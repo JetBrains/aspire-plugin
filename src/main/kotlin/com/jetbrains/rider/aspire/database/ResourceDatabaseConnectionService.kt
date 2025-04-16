@@ -8,6 +8,10 @@ import com.intellij.database.dataSource.LocalDataSourceManager
 import com.intellij.database.util.DbImplUtil
 import com.intellij.database.util.LoaderContext
 import com.intellij.database.util.performAutoIntrospection
+import com.intellij.docker.DockerServerRuntimesManager
+import com.intellij.docker.runtimes.DockerApplicationRuntime
+import com.intellij.docker.utils.findRuntimeById
+import com.intellij.docker.utils.getOrCreateDockerLocalServer
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -27,6 +31,7 @@ import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.fact
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.future.await
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
@@ -87,7 +92,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
     private suspend fun process(connectionString: SessionConnectionString, databaseResource: DatabaseResource) {
         if (databaseResource.resourceLifetime.isNotAlive) return
 
-        val modifiedConnectionString = modifyConnectionString(connectionString, databaseResource) ?: return
+        val modifiedConnectionString = modifyConnectionString(connectionString, databaseResource)
 
         LOG.trace { "Processing connection string $connectionString for $databaseResource" }
 
@@ -157,35 +162,74 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
         createdDataSource?.let { createdDataSources.tryEmit(it) }
     }
 
-    //We have to modify the connection string to use the iternal url because it doesn't change for the persistent resources
-    private fun modifyConnectionString(
+    //We have to modify the connection string to use the database container ports instead of proxy
+    //See also: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/networking-overview
+    private suspend fun modifyConnectionString(
         connectionString: SessionConnectionString,
         databaseResource: DatabaseResource
-    ): String? {
-        val targetUrl = databaseResource.urls.find {
+    ): String {
+        val resourceUrl = databaseResource.urls.find {
             connectionString.connectionString.contains(it.uri.port.toString())
         }
 
-        if (targetUrl == null) {
-            LOG.warn("Unable to find target url for ${connectionString.connectionString}")
-            return null
-        }
-
-        if (targetUrl.isInternal) return connectionString.connectionString
-
-        val targetInternalUrl = databaseResource.urls.find {
-            it.isInternal && it.name.startsWith(targetUrl.name)
-        }
-
-        if (targetInternalUrl == null) {
-            LOG.warn("Unable to find target internal url for ${connectionString.connectionString}")
+        if (resourceUrl == null) {
+            LOG.warn("Unable to find resource url for ${connectionString.connectionString}")
             return connectionString.connectionString
         }
 
-        return connectionString.connectionString.replace(
-            targetUrl.uri.port.toString(),
-            targetInternalUrl.uri.port.toString()
-        )
+        val containerPorts = getContainerPorts(databaseResource.containerId)
+        if (containerPorts.isEmpty()) {
+            LOG.info("Unable to get container ports for ${databaseResource.containerId}")
+            return connectionString.connectionString
+        }
+        LOG.trace { "Found container ports for ${containerPorts.joinToString()}" }
+
+        val resourcePort = getResourcePort(databaseResource)
+        if (resourcePort == null) {
+            LOG.info("Unable to find resource port for ${databaseResource.containerId}")
+            return connectionString.connectionString
+        }
+        LOG.trace { "Found resource port $resourcePort" }
+
+        val targetPort = containerPorts.firstOrNull { it.second == resourcePort }?.first?.toString()
+        if (targetPort == null) {
+            LOG.warn("Unable to find a corresponding resource port $resourcePort from container ports")
+            return connectionString.connectionString
+        }
+
+        val sourcePort = resourceUrl.uri.port.toString()
+
+        return connectionString.connectionString.replace(sourcePort, targetPort)
+    }
+
+    private suspend fun getContainerPorts(containerId: String): List<Pair<Int?, Int?>> {
+        try {
+            val localServer = getOrCreateDockerLocalServer()
+            val manager = DockerServerRuntimesManager.getInstance(project)
+            val serverRuntime = manager.getOrCreateConnection(localServer).await()
+            val container = serverRuntime.runtimesManager.findRuntimeById<DockerApplicationRuntime>(containerId)
+            if (container == null) {
+                LOG.trace { "Unable to find container runtime with id $containerId" }
+                return emptyList()
+            }
+
+            return container.agentContainer.container.ports.map { it.publicPort to it.privatePort }
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (e: Exception) {
+            LOG.warn("Unable to get container port for $containerId", e)
+            return emptyList()
+        }
+    }
+
+    private fun getResourcePort(databaseResource: DatabaseResource): Int? {
+        val portString = databaseResource.containerPorts ?: return null
+
+        return portString
+            .removePrefix("[")
+            .removeSuffix("]")
+            .split(",")
+            .firstNotNullOfOrNull { it.trim().toIntOrNull() }
     }
 
     private fun getDataProvider(type: DatabaseType): DotnetDataProvider =
