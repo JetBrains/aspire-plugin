@@ -45,6 +45,8 @@ class ManifestService(private val project: Project, private val scope: Coroutine
      * @param hostProjectPath the path of the Aspire host project for which the manifest needs to be generated
      */
     fun generateManifest(hostProjectPath: Path) {
+        LOG.info("Generating Aspire manifest")
+
         scope.launch(Dispatchers.Default) {
             withBackgroundProgress(project, AspireBundle.message("progress.generating.aspire.manifest")) {
                 val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
@@ -68,6 +70,8 @@ class ManifestService(private val project: Project, private val scope: Coroutine
 
                 val output = ExecUtil.execAndGetOutput(commandLine)
                 if (output.checkSuccess(LOG)) {
+                    LOG.info("Aspire manifest is generated")
+
                     val manifestPath = directoryPath.resolve(MANIFEST_FILE_NAME)
                     val file = LocalFileSystem.getInstance().refreshAndFindFileByPath(manifestPath.absolutePathString())
                     if (file != null && file.isValid) {

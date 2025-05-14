@@ -6,6 +6,7 @@ import com.jetbrains.rider.projectView.solutionDirectoryPath
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestEnvironment
+import com.jetbrains.rider.test.asserts.shouldBeTrue
 import com.jetbrains.rider.test.base.PerClassSolutionTestBase
 import com.jetbrains.rider.test.env.enums.BuildTool
 import com.jetbrains.rider.test.env.enums.SdkVersion
@@ -41,9 +42,11 @@ class ManifestGenerationTests : PerClassSolutionTestBase() {
             .resolve("DefaultAspireSolution.AppHost")
             .resolve("aspire-manifest.json")
 
-        waitAndPump(Duration.ofMinutes(1), {
+        waitAndPump(Duration.ofMinutes(5), {
             manifestFilePath.exists()
         })
+
+        manifestFilePath.exists().shouldBeTrue()
 
         executeWithGold(testGoldFile) { printStream ->
             printStream.print(manifestFilePath.readText())
