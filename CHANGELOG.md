@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Generate `aspire-manifest.json` manifest file instead of `manifest.json`
+
 ## [1.7.9] - 2025-04-16
 
 ### Changed
