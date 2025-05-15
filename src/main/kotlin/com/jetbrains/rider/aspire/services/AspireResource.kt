@@ -34,8 +34,8 @@ class AspireResource(
         private val LOG = logger<AspireResource>()
     }
 
-    private var uid: String
-
+    var uid: String
+        private set
     var name: String
         private set
     var type: ResourceType

@@ -112,18 +112,18 @@ class AspireHost(
 
     override fun getViewDescriptor(project: Project) = descriptor
 
-    override fun getServices(project: Project) = buildList {
+    override fun getServices(project: Project) = getResources()
+
+    override fun getServiceDescriptor(project: Project, aspireResource: AspireResource) =
+        aspireResource.getViewDescriptor()
+
+    fun getResources() = buildList {
         for (resource in resources) {
             if (resource.value.type != ResourceType.Unknown && resource.value.state != ResourceState.Hidden) {
                 add(resource.value)
             }
         }
     }.sortedWith(compareBy({ it.type }, { it.name }))
-
-    override fun getServiceDescriptor(
-        project: Project,
-        aspireResource: AspireResource
-    ) = aspireResource.getViewDescriptor()
 
     fun getProjectResource(projectPath: Path): AspireResource? {
         for (resource in resources) {

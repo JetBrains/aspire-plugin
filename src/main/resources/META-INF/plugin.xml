@@ -9,6 +9,7 @@
     <depends>com.intellij.database</depends>
     <depends>rider.intellij.plugin.appender</depends>
     <depends>Docker</depends>
+    <depends>com.intellij.diagram</depends>
 
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
