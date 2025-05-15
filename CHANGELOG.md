@@ -8,6 +8,10 @@
 
 - Generate `aspire-manifest.json` manifest file instead of `manifest.json`
 
+### Fixed
+
+- [#399](https://github.com/JetBrains/aspire-plugin/issues/399) Show resources even if the `DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS` variable is set
+
 ## [1.7.9] - 2025-04-16
 
 ### Changed
