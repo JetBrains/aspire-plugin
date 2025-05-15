@@ -1,0 +1,69 @@
+# Set default behavior to automatically normalize line endings and force LF
+* text=auto eol=lf
+
+# Explicitly declare text files you want to always be normalized and converted to LF line endings on checkout
+# Java/Kotlin files
+*.java text
+*.kt text
+*.kts text
+
+# C# files
+*.cs text
+*.cshtml text
+*.csx text
+*.sln text
+*.csproj text
+*.vbproj text
+*.fsproj text
+*.dbproj text
+
+# Web files
+*.xml text
+*.json text
+*.yaml text
+*.yml text
+*.html text
+*.css text
+*.scss text
+*.sass text
+*.less text
+*.js text
+*.ts text
+*.tsx text
+*.jsx text
+
+# Build files
+*.gradle text
+*.properties text
+*.targets text
+*.props text
+*.pubxml text
+*.config text
+*.nuspec text
+
+# Documentation
+*.md text
+*.txt text
+*.doc text
+
+# Declare files that will always have LF line endings on checkout
+*.sh text eol=lf
+
+# Declare files that will always have CRLF line endings on checkout (overrides the default)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Denote all files that are truly binary and should not be modified
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.psd binary
+*.jar binary
+*.zip binary
+*.dll binary
+*.exe binary
+*.pdb binary
