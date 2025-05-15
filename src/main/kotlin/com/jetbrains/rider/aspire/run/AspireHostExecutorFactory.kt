@@ -145,9 +145,10 @@ class AspireHostExecutorFactory(
 
         val urls = requireNotNull(envs[ASPNETCORE_URLS])
         val isHttpUrl = !urls.contains("https")
-        val allowUnsecuredTransport = envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT]?.equals("true", true) == true
+        val allowUnsecuredTransport = envs.getAspireAllowUnsecuredTransport()
 
         //Automatically set the `ASPIRE_ALLOW_UNSECURED_TRANSPORT` environment variable if the `http` protocol is used
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/app-host/configuration#common-configuration
         //see: https://learn.microsoft.com/en-us/dotnet/aspire/troubleshooting/allow-unsecure-transport
         if (isHttpUrl && !allowUnsecuredTransport) {
             envs[ASPIRE_ALLOW_UNSECURED_TRANSPORT] = "true"
@@ -155,7 +156,11 @@ class AspireHostExecutorFactory(
 
         val useHttp = isHttpUrl || allowUnsecuredTransport
 
-        //Set the DOTNET_RESOURCE_SERVICE_ENDPOINT_URL environment variable if not specified
+        //Set the `DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable if not specified to connect to the resource service
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/app-host/configuration#resource-service
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration?tabs=bash#common-configuration
+        //note: we have to replace `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL` with `DOTNET_RESOURCE_SERVICE_ENDPOINT_URL`
+        //otherwise the url won't be passed to the resource service
         if (!envs.containsKey(DOTNET_RESOURCE_SERVICE_ENDPOINT_URL)) {
             val aspireResourceServiceEndpoint = envs[ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL]
             if (!aspireResourceServiceEndpoint.isNullOrEmpty()) {
@@ -168,26 +173,30 @@ class AspireHostExecutorFactory(
             }
         }
 
-        val allowAnonymousDashboard = envs[DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS]?.equals("true", true) == true
+        val allowAnonymousDashboard = envs.getAspireDashboardUnsecuredAllowAnonymous()
 
-        //Configure Dashboard frontend authentication
+        //Set the `ASPIRE_DASHBOARD_FRONTEND_BROWSERTOKEN` environment variable to open a dashboard without login
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/app-host/configuration#dashboard
         //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#frontend-authentication
         var browserToken: String? = null
         if (!allowAnonymousDashboard) {
             browserToken = UUID.randomUUID().toString()
-            envs[DOTNET_DASHBOARD_FRONTEND_BROWSERTOKEN] = browserToken
+            envs[ASPIRE_DASHBOARD_FRONTEND_BROWSERTOKEN] = browserToken
         }
 
-        //Configure ApiKey for the Resource service
+        //Set the `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable to configure resource service API key
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/app-host/configuration#resource-service
         //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#resources
         if (!allowAnonymousDashboard) {
-            envs[DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY] = UUID.randomUUID().toString()
+            val apiKey = UUID.randomUUID().toString()
+            envs[ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY] = apiKey
         }
 
-        //Configure Podman container runtime
-        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling?tabs=linux&pivots=visual-studio#container-runtime
-        if (parameters.usePodmanRuntime && !envs.containsKey(DOTNET_ASPIRE_CONTAINER_RUNTIME)) {
-            envs[DOTNET_ASPIRE_CONTAINER_RUNTIME] = "podman"
+        //Set `ASPIRE_CONTAINER_RUNTIME` environment variable to `podman` if it is specified in the run parameters
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/app-host/configuration#common-configuration
+        val containerRuntime = envs.getAspireContainerRuntime()
+        if (parameters.usePodmanRuntime && !containerRuntime.equals("podman", true)) {
+            envs[ASPIRE_CONTAINER_RUNTIME] = "podman"
         }
 
         return EnvironmentVariableValues(browserToken)
