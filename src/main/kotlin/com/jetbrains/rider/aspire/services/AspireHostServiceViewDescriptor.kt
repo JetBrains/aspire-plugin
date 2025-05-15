@@ -21,8 +21,9 @@ class AspireHostServiceViewDescriptor(private val aspireHost: AspireHost) : Serv
         ActionManager.getInstance().getAction("Aspire.Host.Debug"),
         ActionManager.getInstance().getAction("Aspire.Host.Stop"),
         Separator(),
-        ActionManager.getInstance().getAction("Aspire.Manifest"),
-        ActionManager.getInstance().getAction("Aspire.Dashboard"),
+        ActionManager.getInstance().getAction("Aspire.Host.Manifest"),
+        ActionManager.getInstance().getAction("Aspire.Host.Dashboard"),
+        ActionManager.getInstance().getAction("Aspire.Host.ResourceGraph"),
         Separator(),
         ActionManager.getInstance().getAction("Aspire.Settings"),
         ActionManager.getInstance().getAction("Aspire.Help")
