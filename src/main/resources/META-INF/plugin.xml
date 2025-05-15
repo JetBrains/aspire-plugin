@@ -84,21 +84,35 @@
 
     <actions>
         <action id="Aspire.Settings"
-                class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireSettingsAction"
+                class="com.jetbrains.rider.aspire.actions.AspireSettingsAction"
                 icon="AllIcons.General.Settings"/>
         <action id="Aspire.Help"
-                class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireHelpAction"/>
-        <action id="Aspire.Dashboard"
-                class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireOpenDashboardAction"
-                icon="AllIcons.General.Web"/>
-        <action id="Aspire.Manifest"
-                class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireManifestAction"
-                icon="AllIcons.FileTypes.Json"/>
+                class="com.jetbrains.rider.aspire.actions.AspireHelpAction"/>
         <action id="Aspire.Solution.Manifest"
                 class="com.jetbrains.rider.aspire.actions.ManifestGenerationAction"
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
+        <group id="Aspire.Host">
+            <action id="Aspire.Host.Run"
+                    class="com.jetbrains.rider.aspire.actions.dashboard.host.RunHostAction"
+                    icon="AllIcons.Actions.Execute"/>
+            <action id="Aspire.Host.Debug"
+                    class="com.jetbrains.rider.aspire.actions.dashboard.host.DebugHostAction"
+                    icon="AllIcons.Actions.StartDebugger"/>
+            <action id="Aspire.Host.Stop"
+                    class="com.jetbrains.rider.aspire.actions.dashboard.host.StopHostAction"
+                    icon="AllIcons.Actions.Suspend"/>
+            <action id="Aspire.Host.Dashboard"
+                    class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireOpenDashboardAction"
+                    icon="AllIcons.General.Web"/>
+            <action id="Aspire.Host.Manifest"
+                    class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireManifestAction"
+                    icon="AllIcons.FileTypes.Json"/>
+            <action id="Aspire.Host.ResourceGraph"
+                    class="com.jetbrains.rider.aspire.actions.dashboard.host.ShowResourceGraphAction"
+                    icon="AllIcons.FileTypes.Diagram"/>
+        </group>
         <group id="Aspire.Resource">
             <action id="Aspire.Resource.Start"
                     class="com.jetbrains.rider.aspire.actions.dashboard.resource.StartResourceAction"
@@ -119,21 +133,14 @@
                     class="com.jetbrains.rider.aspire.actions.dashboard.resource.PerformResourceAction"
                     icon="AllIcons.Actions.RunAnything"/>
         </group>
-        <action id="Aspire.Host.Run"
-                class="com.jetbrains.rider.aspire.actions.dashboard.host.RunHostAction"
-                icon="AllIcons.Actions.Execute"/>
-        <action id="Aspire.Host.Debug"
-                class="com.jetbrains.rider.aspire.actions.dashboard.host.DebugHostAction"
-                icon="AllIcons.Actions.StartDebugger"/>
-        <action id="Aspire.Host.Stop"
-                class="com.jetbrains.rider.aspire.actions.dashboard.host.StopHostAction"
-                icon="AllIcons.Actions.Suspend"/>
-        <action id="Aspire.Session.Host.Start"
-                class="com.jetbrains.rider.aspire.actions.StartSessionHostAction"
-                icon="AllIcons.Actions.Execute"/>
-        <action id="Aspire.Session.Host.Stop"
-                class="com.jetbrains.rider.aspire.actions.StopSessionHostAction"
-                icon="AllIcons.Actions.Suspend"/>
+        <group id="Aspire.Session.Host">
+            <action id="Aspire.Session.Host.Start"
+                    class="com.jetbrains.rider.aspire.actions.StartSessionHostAction"
+                    icon="AllIcons.Actions.Execute"/>
+            <action id="Aspire.Session.Host.Stop"
+                    class="com.jetbrains.rider.aspire.actions.StopSessionHostAction"
+                    icon="AllIcons.Actions.Suspend"/>
+        </group>
     </actions>
 
 </idea-plugin>

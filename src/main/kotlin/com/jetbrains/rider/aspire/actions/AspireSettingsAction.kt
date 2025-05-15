@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.actions.dashboard.host
+package com.jetbrains.rider.aspire.actions
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction

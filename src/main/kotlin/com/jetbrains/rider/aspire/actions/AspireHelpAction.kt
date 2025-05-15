@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.actions.dashboard.host
+package com.jetbrains.rider.aspire.actions
 
 import com.intellij.ide.actions.ContextHelpAction
 import com.intellij.openapi.actionSystem.DataContext
