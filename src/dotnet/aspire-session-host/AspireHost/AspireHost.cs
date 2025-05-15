@@ -58,8 +58,7 @@ internal sealed class AspireHost
         InitializeSessionEventWatcher(lifetime);
 
         var config = model.Config;
-        if (!string.IsNullOrEmpty(config.ResourceServiceEndpointUrl) &&
-            !string.IsNullOrEmpty(config.ResourceServiceApiKey))
+        if (!string.IsNullOrEmpty(config.ResourceServiceEndpointUrl))
         {
             InitializeResourceWatchers(config.ResourceServiceEndpointUrl, config.ResourceServiceApiKey, lifetime);
         }
@@ -74,11 +73,12 @@ internal sealed class AspireHost
             async () => await sessionEventWatcher.WatchSessionEvents());
     }
 
-    private void InitializeResourceWatchers(string resourceServiceEndpointUrl, string resourceServiceApiKey, Lifetime lifetime)
+    private void InitializeResourceWatchers(string resourceServiceEndpointUrl, string? resourceServiceApiKey,
+        Lifetime lifetime)
     {
         _logger.LogInformation("Resource watching is enabled for the host {aspireHostId}", _id);
 
-        var metadata = new Metadata { { ApiKeyHeader, resourceServiceApiKey } };
+        var metadata = resourceServiceApiKey != null ? new Metadata { { ApiKeyHeader, resourceServiceApiKey } } : [];
         var client = CreateResourceClient(resourceServiceEndpointUrl, lifetime);
 
         _logger.LogDebug("Creating resource log watcher for {aspireHostId}", _id);
