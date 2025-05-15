@@ -52,6 +52,8 @@ class AspireResource(
         private set
     var volumes: Array<ResourceVolume>
         private set
+    var relationships: Array<ResourceRelationship>
+        private set
 
     var createdAt: LocalDateTime? = null
         private set
@@ -116,6 +118,7 @@ class AspireResource(
         urls = model?.urls ?: emptyArray()
         environment = model?.environment ?: emptyArray()
         volumes = model?.volumes ?: emptyArray()
+        relationships = model?.relationships ?: emptyArray()
 
         fillFromProperties(model?.properties ?: emptyArray())
 
@@ -229,6 +232,7 @@ class AspireResource(
         urls = model.urls
         environment = model.environment
         volumes = model.volumes
+        relationships = model.relationships
 
         fillFromProperties(model.properties)
 
