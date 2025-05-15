@@ -54,7 +54,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: zulu
+          distribution: jetbrains
           java-version: 21
 
       # Setup Gradle
@@ -128,7 +128,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: zulu
+          distribution: jetbrains
           java-version: 21
 
       # Setup .NET 8 environment for the next steps
@@ -183,7 +183,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: zulu
+          distribution: jetbrains
           java-version: 21
 
       # Setup .NET 8 environment for the next steps
@@ -230,7 +230,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: zulu
+          distribution: jetbrains
           java-version: 21
 
       # Setup .NET 8 environment for the next steps
@@ -270,7 +270,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: zulu
+          distribution: jetbrains
           java-version: 21
 
       # Setup .NET 8 environment for the next steps
