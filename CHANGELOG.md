@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.7.10] - 2025-05-16
+
 ### Added
 
 - Action to show Aspire resource diagram
@@ -391,7 +393,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.9...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.10...HEAD
+[1.7.10]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.9...v1.7.10
 [1.7.9]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.8...v1.7.9
 [1.7.8]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.7...v1.7.8
 [1.7.7]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.6...v1.7.7
