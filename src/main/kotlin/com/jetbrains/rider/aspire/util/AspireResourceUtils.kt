@@ -13,40 +13,40 @@ import icons.RiderIcons
 import javax.swing.Icon
 
 internal fun getIcon(aspireResource: AspireResource): Icon {
-    val type = aspireResource.type
-    val state = aspireResource.state
-    val healthStatus = aspireResource.healthStatus
+    val baseIcon = getBaseIcon(aspireResource.type, aspireResource.containerImage)
 
-    var icon = when (type) {
-        ResourceType.Project -> RiderIcons.RunConfigurations.DotNetProject
-        ResourceType.Container -> when {
-            aspireResource.containerImage?.contains("postgres") == true -> AllIcons.Providers.Postgresql
-            aspireResource.containerImage?.contains("mssql") == true -> AllIcons.Providers.SqlServer
-            aspireResource.containerImage?.contains("mysql") == true -> AllIcons.Providers.Mysql
-            aspireResource.containerImage?.contains("mongo") == true -> AllIcons.Providers.MongoDB
-            aspireResource.containerImage?.contains("elasticsearch") == true -> AllIcons.Providers.Elasticsearch
-            aspireResource.containerImage?.contains("redis") == true -> AllIcons.Providers.Redis
-            aspireResource.containerImage?.contains("rabbitmq") == true -> AllIcons.Providers.RabbitMQ
-            aspireResource.containerImage?.contains("confluent") == true -> AllIcons.Providers.Kafka
-            else -> DockerIcons.Docker
-        }
-        ResourceType.Executable -> AllIcons.Nodes.Console
-        ResourceType.Unknown -> AllIcons.RunConfigurations.TestUnknown
-    }
-
-    icon = when(state) {
-        ResourceState.Exited -> icon
-        ResourceState.Finished -> icon
-        ResourceState.FailedToStart -> BadgeIconSupplier(icon).errorIcon
+    val icon = when (aspireResource.state) {
+        ResourceState.Exited -> baseIcon
+        ResourceState.Finished -> baseIcon
+        ResourceState.FailedToStart -> BadgeIconSupplier(baseIcon).errorIcon
         ResourceState.Running -> {
-            if (healthStatus == ResourceHealthStatus.Healthy || healthStatus == null) {
-                BadgeIconSupplier(icon).liveIndicatorIcon
+            if (aspireResource.healthStatus == ResourceHealthStatus.Healthy || aspireResource.healthStatus == null) {
+                BadgeIconSupplier(baseIcon).liveIndicatorIcon
             } else {
-                BadgeIconSupplier(icon).warningIcon
+                BadgeIconSupplier(baseIcon).warningIcon
             }
         }
-        else -> icon
+
+        else -> baseIcon
     }
 
     return icon
+}
+
+internal fun getBaseIcon(type: ResourceType, containerImage: String?) = when (type) {
+    ResourceType.Project -> RiderIcons.RunConfigurations.DotNetProject
+    ResourceType.Container -> when {
+        containerImage?.contains("postgres") == true -> AllIcons.Providers.Postgresql
+        containerImage?.contains("mssql") == true -> AllIcons.Providers.SqlServer
+        containerImage?.contains("mysql") == true -> AllIcons.Providers.Mysql
+        containerImage?.contains("mongo") == true -> AllIcons.Providers.MongoDB
+        containerImage?.contains("elasticsearch") == true -> AllIcons.Providers.Elasticsearch
+        containerImage?.contains("redis") == true -> AllIcons.Providers.Redis
+        containerImage?.contains("rabbitmq") == true -> AllIcons.Providers.RabbitMQ
+        containerImage?.contains("confluent") == true -> AllIcons.Providers.Kafka
+        else -> DockerIcons.Docker
+    }
+
+    ResourceType.Executable -> AllIcons.Nodes.Console
+    ResourceType.Unknown -> AllIcons.RunConfigurations.Application
 }

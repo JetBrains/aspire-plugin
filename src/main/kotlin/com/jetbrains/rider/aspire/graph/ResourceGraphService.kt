@@ -16,6 +16,7 @@ import com.intellij.util.graph.GraphFactory
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.services.AspireHost
 import com.jetbrains.rider.aspire.services.AspireResource
+import com.jetbrains.rider.aspire.util.getBaseIcon
 
 /**
  * Service for building a resource graph.
@@ -30,9 +31,9 @@ class ResourceGraphService(private val project: Project) {
     }
 
     fun showResourceGraph(aspireHost: AspireHost) {
-        val resources = aspireHost.getResources()
+        val resources = aspireHost.getResources(false)
 
-        val resourceNodes = resources.associate { it.displayName to ResourceGraphNode(it.uid, it.displayName, it.type) }
+        val resourceNodes = resources.associate { it.displayName to createResourceGraphNode(it) }
         val resourceNodeEdges = calculateResourceNodeEdges(resources, resourceNodes)
 
         val graph = GraphFactory.getInstance()
@@ -53,6 +54,15 @@ class ResourceGraphService(private val project: Project) {
             }
         }
     }
+
+    private fun createResourceGraphNode(resource: AspireResource) = ResourceGraphNode(
+        resource.uid,
+        resource.displayName,
+        getBaseIcon(
+            resource.type,
+            resource.containerImage
+        )
+    )
 
     private fun calculateResourceNodeEdges(
         resources: List<AspireResource>,
@@ -78,21 +88,20 @@ class ResourceGraphService(private val project: Project) {
         chartTitle = AspireBundle.message("resource.graph.title")
 
         initialViewSettings {
-            showGrid = false
             mergeEdgeBySources = false
             mergeEdgeByTargets = false
             currentLayouter = GraphChartLayoutService.getInstance().hierarchicLayouter
-            currentLayoutOrientation = GraphChartLayoutOrientation.LEFT_TO_RIGHT //?BOTTOM_TO_TOP
+            currentLayoutOrientation = GraphChartLayoutOrientation.LEFT_TO_RIGHT
         }
 
         nodePainter {
             labelWithIconNodePainter { _, node ->
-                GraphChartPainterService.LabelWithIconNodeStyleProvider.LabelWithIcon(null, node.displayName, null)
+                GraphChartPainterService.LabelWithIconNodeStyleProvider.LabelWithIcon(node.icon, node.displayName, null)
             }
         }
 
         edgePainter {
-            defaultEdgePainter { _, edge ->
+            defaultEdgePainter { _, _ ->
                 GraphChartEdgeStyleKtBuilderFactory.getInstance().edgeStyle {
                     targetArrow = arrow(EdgeArrowType.STANDARD)
                 }

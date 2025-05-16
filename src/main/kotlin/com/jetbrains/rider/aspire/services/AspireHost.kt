@@ -112,14 +112,14 @@ class AspireHost(
 
     override fun getViewDescriptor(project: Project) = descriptor
 
-    override fun getServices(project: Project) = getResources()
+    override fun getServices(project: Project) = getResources(true)
 
     override fun getServiceDescriptor(project: Project, aspireResource: AspireResource) =
         aspireResource.getViewDescriptor()
 
-    fun getResources() = buildList {
+    fun getResources(filterUnknown: Boolean) = buildList {
         for (resource in resources) {
-            if (resource.value.type != ResourceType.Unknown && resource.value.state != ResourceState.Hidden) {
+            if (resource.value.state != ResourceState.Hidden && (!filterUnknown || resource.value.type != ResourceType.Unknown)) {
                 add(resource.value)
             }
         }
