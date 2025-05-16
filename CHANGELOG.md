@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Action to show Aspire resource diagram
+
 ### Changed
 
 - Generate `aspire-manifest.json` manifest file instead of `manifest.json`
