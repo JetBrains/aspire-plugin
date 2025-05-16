@@ -1,5 +1,9 @@
 package com.jetbrains.rider.aspire.graph
 
-import com.jetbrains.rider.aspire.generated.ResourceType
+import javax.swing.Icon
 
-data class ResourceGraphNode(val uid: String, val displayName: String, val type: ResourceType)
+data class ResourceGraphNode(
+    val uid: String,
+    val displayName: String,
+    val icon: Icon
+)
