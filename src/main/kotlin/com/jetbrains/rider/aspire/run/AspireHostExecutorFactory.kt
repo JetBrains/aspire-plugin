@@ -27,9 +27,9 @@ import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.util.NetUtils
-import java.io.File
 import java.net.URI
 import java.util.*
+import kotlin.io.path.Path
 
 class AspireHostExecutorFactory(
     private val project: Project,
@@ -99,8 +99,8 @@ class AspireHostExecutorFactory(
             else parameters.startBrowserParameters.startAfterLaunch
 
         val processOptions = ProjectProcessOptions(
-            File(runnableProject.projectFilePath),
-            File(effectiveWorkingDirectory)
+            Path(runnableProject.projectFilePath),
+            Path(effectiveWorkingDirectory)
         )
         val runParameters = ExecutableRunParameters(
             projectOutput.exePath,

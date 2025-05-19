@@ -199,7 +199,7 @@ class DotNetProjectExecutableFactory(private val project: Project) {
             tfm
         )
         val projectOptions = ProjectProcessOptions(
-            projectFilePath.toFile(),
+            projectFilePath,
             null
         )
         val parameterProcessor = ExecutableParameterProcessor.getInstance(project)

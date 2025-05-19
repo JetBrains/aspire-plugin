@@ -14,8 +14,8 @@ import com.jetbrains.rider.run.environment.ExecutableParameterProcessingResult
 import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
 import com.jetbrains.rider.run.environment.ExecutableRunParameters
 import com.jetbrains.rider.run.environment.ProjectProcessOptions
-import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 private const val DOTNET_LAUNCH_PROFILE = "DOTNET_LAUNCH_PROFILE"
 private val LOG = Logger.getInstance("#com.jetbrains.rider.aspire.sessionHost.SessionExecutableFactoryUtils")
@@ -45,7 +45,7 @@ suspend fun getLaunchProfile(
     val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
 
     val launchSettingsFile =
-        LaunchSettingsJsonService.getLaunchSettingsFileForProject(sessionProjectPath.toFile()) ?: return null
+        LaunchSettingsJsonService.getLaunchSettingsFileForProject(sessionProjectPath) ?: return null
     val launchSettings =
         LaunchSettingsJsonService.getInstance(project).loadLaunchSettingsSuspend(launchSettingsFile) ?: return null
 
@@ -118,8 +118,8 @@ suspend fun getExecutableParams(
     project: Project
 ): ExecutableParameterProcessingResult {
     val processOptions = ProjectProcessOptions(
-        sessionProjectPath.toFile(),
-        File(workingDirectory)
+        sessionProjectPath,
+        Path(workingDirectory)
     )
     val runParameters = ExecutableRunParameters(
         executablePath,
