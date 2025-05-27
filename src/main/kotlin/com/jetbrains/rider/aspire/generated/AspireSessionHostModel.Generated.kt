@@ -75,7 +75,7 @@ class AspireSessionHostModel private constructor(
         }
         
         
-        const val serializationHash = 3267915589602377516L
+        const val serializationHash = 7210025719111529073L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
@@ -120,7 +120,7 @@ val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionH
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:207]
+ * #### Generated from [AspireSessionHostModel.kt:212]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -235,7 +235,7 @@ class AspireHostModel private constructor(
  * @property resourceServiceApiKey `DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
  * @property isDebuggingMode Is Aspire Host running with debugger attached
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
- * #### Generated from [AspireSessionHostModel.kt:189]
+ * #### Generated from [AspireSessionHostModel.kt:194]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -810,7 +810,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:148]
+ * #### Generated from [AspireSessionHostModel.kt:153]
  */
 data class ResourceCommand (
     val name: String,
@@ -905,7 +905,7 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:173]
+ * #### Generated from [AspireSessionHostModel.kt:178]
  */
 data class ResourceCommandRequest (
     val commandName: String,
@@ -976,7 +976,7 @@ data class ResourceCommandRequest (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:179]
+ * #### Generated from [AspireSessionHostModel.kt:184]
  */
 data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
@@ -1041,7 +1041,7 @@ data class ResourceCommandResponse (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:180]
+ * #### Generated from [AspireSessionHostModel.kt:185]
  */
 enum class ResourceCommandResponseKind {
     Undefined, 
@@ -1068,7 +1068,7 @@ enum class ResourceCommandResponseKind {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:155]
+ * #### Generated from [AspireSessionHostModel.kt:160]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -1094,7 +1094,7 @@ enum class ResourceCommandState {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:114]
+ * #### Generated from [AspireSessionHostModel.kt:119]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -1159,7 +1159,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:141]
+ * #### Generated from [AspireSessionHostModel.kt:146]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus?,
@@ -1236,7 +1236,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:135]
+ * #### Generated from [AspireSessionHostModel.kt:140]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -1262,7 +1262,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:167]
+ * #### Generated from [AspireSessionHostModel.kt:172]
  */
 data class ResourceLog (
     val text: String,
@@ -1351,7 +1351,8 @@ data class ResourceModel (
     val volumes: Array<ResourceVolume>,
     val healthReports: Array<ResourceHealthReport>,
     val commands: Array<ResourceCommand>,
-    val relationships: Array<ResourceRelationship>
+    val relationships: Array<ResourceRelationship>,
+    val isHidden: Boolean
 ) : IPrintable {
     //companion
     
@@ -1377,7 +1378,8 @@ data class ResourceModel (
             val healthReports = buffer.readArray {ResourceHealthReport.read(ctx, buffer)}
             val commands = buffer.readArray {ResourceCommand.read(ctx, buffer)}
             val relationships = buffer.readArray {ResourceRelationship.read(ctx, buffer)}
-            return ResourceModel(name, type, displayName, uid, state, stateStyle, createdAt, startedAt, stoppedAt, properties, environment, urls, volumes, healthReports, commands, relationships)
+            val isHidden = buffer.readBool()
+            return ResourceModel(name, type, displayName, uid, state, stateStyle, createdAt, startedAt, stoppedAt, properties, environment, urls, volumes, healthReports, commands, relationships, isHidden)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceModel)  {
@@ -1397,6 +1399,7 @@ data class ResourceModel (
             buffer.writeArray(value.healthReports) { ResourceHealthReport.write(ctx, buffer, it) }
             buffer.writeArray(value.commands) { ResourceCommand.write(ctx, buffer, it) }
             buffer.writeArray(value.relationships) { ResourceRelationship.write(ctx, buffer, it) }
+            buffer.writeBool(value.isHidden)
         }
         
         
@@ -1428,6 +1431,7 @@ data class ResourceModel (
         if (!(healthReports contentDeepEquals other.healthReports)) return false
         if (!(commands contentDeepEquals other.commands)) return false
         if (!(relationships contentDeepEquals other.relationships)) return false
+        if (isHidden != other.isHidden) return false
         
         return true
     }
@@ -1450,6 +1454,7 @@ data class ResourceModel (
         __r = __r*31 + healthReports.contentDeepHashCode()
         __r = __r*31 + commands.contentDeepHashCode()
         __r = __r*31 + relationships.contentDeepHashCode()
+        __r = __r*31 + isHidden.hashCode()
         return __r
     }
     //pretty print
@@ -1472,6 +1477,7 @@ data class ResourceModel (
             print("healthReports = "); healthReports.print(printer); println()
             print("commands = "); commands.print(printer); println()
             print("relationships = "); relationships.print(printer); println()
+            print("isHidden = "); isHidden.print(printer); println()
         }
         printer.print(")")
     }
@@ -1482,7 +1488,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:107]
+ * #### Generated from [AspireSessionHostModel.kt:112]
  */
 data class ResourceProperty (
     val name: String,
@@ -1559,7 +1565,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:162]
+ * #### Generated from [AspireSessionHostModel.kt:167]
  */
 data class ResourceRelationship (
     val resourceName: String,
@@ -1627,11 +1633,15 @@ data class ResourceRelationship (
  * #### Generated from [AspireSessionHostModel.kt:79]
  */
 enum class ResourceState {
-    Finished, 
-    Exited, 
-    FailedToStart, 
     Starting, 
     Running, 
+    FailedToStart, 
+    RuntimeUnhealthy, 
+    Stopping, 
+    Exited, 
+    Finished, 
+    Waiting, 
+    NotStarted, 
     Hidden, 
     Unknown;
     
@@ -1654,7 +1664,7 @@ enum class ResourceState {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:88]
+ * #### Generated from [AspireSessionHostModel.kt:92]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -1709,7 +1719,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:119]
+ * #### Generated from [AspireSessionHostModel.kt:124]
  */
 data class ResourceUrl (
     val endpointName: String?,
@@ -1798,7 +1808,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:128]
+ * #### Generated from [AspireSessionHostModel.kt:133]
  */
 data class ResourceVolume (
     val source: String,

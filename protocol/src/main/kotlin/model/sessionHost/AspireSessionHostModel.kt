@@ -77,11 +77,15 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("displayName", string)
         field("uid", string)
         field("state", enum("ResourceState") {
-            +"Finished"
-            +"Exited"
-            +"FailedToStart"
             +"Starting"
             +"Running"
+            +"FailedToStart"
+            +"RuntimeUnhealthy"
+            +"Stopping"
+            +"Exited"
+            +"Finished"
+            +"Waiting"
+            +"NotStarted"
             +"Hidden"
             +"Unknown"
         }.nullable)
@@ -102,6 +106,7 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("healthReports", array(ResourceHealthReport))
         field("commands", array(ResourceCommand))
         field("relationships", array(ResourceRelationship))
+        field("isHidden", bool)
     }
 
     private val ResourceProperty = structdef {

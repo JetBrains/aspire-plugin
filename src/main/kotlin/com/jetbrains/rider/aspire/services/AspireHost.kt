@@ -119,7 +119,7 @@ class AspireHost(
 
     fun getResources(filterUnknown: Boolean) = buildList {
         for (resource in resources) {
-            if (resource.value.state != ResourceState.Hidden && (!filterUnknown || resource.value.type != ResourceType.Unknown)) {
+            if (!resource.value.isHidden && resource.value.state != ResourceState.Hidden && (!filterUnknown || resource.value.type != ResourceType.Unknown)) {
                 add(resource.value)
             }
         }
@@ -127,7 +127,7 @@ class AspireHost(
 
     fun getProjectResource(projectPath: Path): AspireResource? {
         for (resource in resources) {
-            if (resource.value.type != ResourceType.Project || resource.value.state == ResourceState.Hidden)
+            if (resource.value.type != ResourceType.Project || resource.value.isHidden || resource.value.state == ResourceState.Hidden)
                 continue
 
             if (resource.value.projectPath == projectPath) return resource.value
@@ -232,7 +232,7 @@ class AspireHost(
         Disposer.register(this, resource)
         resources.addUnique(resourceLifetime, resourceId, resource)
 
-        if (resource.state != ResourceState.Hidden) {
+        if (!resource.isHidden && resource.state != ResourceState.Hidden) {
             resourceLifetime.bracketIfAlive({
                 sendServiceChildrenChangedEvent()
             }, {

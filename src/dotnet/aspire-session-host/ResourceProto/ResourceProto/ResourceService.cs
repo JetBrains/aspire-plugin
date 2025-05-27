@@ -63,7 +63,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             "BHR5cGUYAiABKAkinwEKEFJlc291cmNlUHJvcGVydHkSDAoEbmFtZRgBIAEo",
             "CRIZCgxkaXNwbGF5X25hbWUYAiABKAlIAIgBARIlCgV2YWx1ZRgDIAEoCzIW",
             "Lmdvb2dsZS5wcm90b2J1Zi5WYWx1ZRIZCgxpc19zZW5zaXRpdmUYBCABKAhI",
-            "AYgBAUIPCg1fZGlzcGxheV9uYW1lQg8KDV9pc19zZW5zaXRpdmUivQUKCFJl",
+            "AYgBAUIPCg1fZGlzcGxheV9uYW1lQg8KDV9pc19zZW5zaXRpdmUi0AUKCFJl",
             "c291cmNlEgwKBG5hbWUYASABKAkSFQoNcmVzb3VyY2VfdHlwZRgCIAEoCRIU",
             "CgxkaXNwbGF5X25hbWUYAyABKAkSCwoDdWlkGAQgASgJEhIKBXN0YXRlGAUg",
             "ASgJSACIAQESMwoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1",
@@ -77,43 +77,44 @@ namespace Aspire.ResourceService.Proto.V1 {
             "ZF9hdBgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIA4gBARIz",
             "CgpzdG9wcGVkX2F0GBMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFt",
             "cEgEiAEBEjYKDXJlbGF0aW9uc2hpcHMYFCADKAsyHy5hc3BpcmUudjEuUmVz",
-            "b3VyY2VSZWxhdGlvbnNoaXBCCAoGX3N0YXRlQg0KC19jcmVhdGVkX2F0Qg4K",
-            "DF9zdGF0ZV9zdHlsZUINCgtfc3RhcnRlZF9hdEINCgtfc3RvcHBlZF9hdEoE",
-            "CAgQCUoECAkQCkoECAoQC0oECBAQESJuChNJbml0aWFsUmVzb3VyY2VEYXRh",
-            "EiYKCXJlc291cmNlcxgBIAMoCzITLmFzcGlyZS52MS5SZXNvdXJjZRIvCg5y",
-            "ZXNvdXJjZV90eXBlcxgCIAMoCzIXLmFzcGlyZS52MS5SZXNvdXJjZVR5cGUi",
-            "QAoQUmVzb3VyY2VEZWxldGlvbhIVCg1yZXNvdXJjZV9uYW1lGAEgASgJEhUK",
-            "DXJlc291cmNlX3R5cGUYAiABKAkidAoUV2F0Y2hSZXNvdXJjZXNDaGFuZ2US",
-            "LQoGZGVsZXRlGAEgASgLMhsuYXNwaXJlLnYxLlJlc291cmNlRGVsZXRpb25I",
-            "ABIlCgZ1cHNlcnQYAiABKAsyEy5hc3BpcmUudjEuUmVzb3VyY2VIAEIGCgRr",
-            "aW5kIkcKFVdhdGNoUmVzb3VyY2VzQ2hhbmdlcxIuCgV2YWx1ZRgBIAMoCzIf",
-            "LmFzcGlyZS52MS5XYXRjaFJlc291cmNlc0NoYW5nZSJDChVXYXRjaFJlc291",
-            "cmNlc1JlcXVlc3QSGQoMaXNfcmVjb25uZWN0GAEgASgISACIAQFCDwoNX2lz",
-            "X3JlY29ubmVjdCKLAQoUV2F0Y2hSZXNvdXJjZXNVcGRhdGUSNgoMaW5pdGlh",
-            "bF9kYXRhGAEgASgLMh4uYXNwaXJlLnYxLkluaXRpYWxSZXNvdXJjZURhdGFI",
-            "ABIzCgdjaGFuZ2VzGAIgASgLMiAuYXNwaXJlLnYxLldhdGNoUmVzb3VyY2Vz",
-            "Q2hhbmdlc0gAQgYKBGtpbmQiWwoOQ29uc29sZUxvZ0xpbmUSDAoEdGV4dBgB",
-            "IAEoCRIXCgppc19zdGRfZXJyGAIgASgISACIAQESEwoLbGluZV9udW1iZXIY",
-            "AyABKAVCDQoLX2lzX3N0ZF9lcnIiOAofV2F0Y2hSZXNvdXJjZUNvbnNvbGVM",
-            "b2dzUmVxdWVzdBIVCg1yZXNvdXJjZV9uYW1lGAEgASgJIk4KHldhdGNoUmVz",
-            "b3VyY2VDb25zb2xlTG9nc1VwZGF0ZRIsCglsb2dfbGluZXMYASADKAsyGS5h",
-            "c3BpcmUudjEuQ29uc29sZUxvZ0xpbmUqJgoLSWNvblZhcmlhbnQSCwoHUkVH",
-            "VUxBUhAAEgoKBkZJTExFRBABKj0KFFJlc291cmNlQ29tbWFuZFN0YXRlEgsK",
-            "B0VOQUJMRUQQABIMCghESVNBQkxFRBABEgoKBkhJRERFThACKlYKG1Jlc291",
-            "cmNlQ29tbWFuZFJlc3BvbnNlS2luZBINCglVTkRFRklORUQQABINCglTVUND",
-            "RUVERUQQARIKCgZGQUlMRUQQAhINCglDQU5DRUxMRUQQAyo4CgxIZWFsdGhT",
-            "dGF0dXMSCwoHSEVBTFRIWRAAEg0KCVVOSEVBTFRIWRABEgwKCERFR1JBREVE",
-            "EAIysQMKEERhc2hib2FyZFNlcnZpY2UScAoZR2V0QXBwbGljYXRpb25JbmZv",
-            "cm1hdGlvbhIoLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9ybWF0aW9uUmVx",
-            "dWVzdBopLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9ybWF0aW9uUmVzcG9u",
-            "c2USVQoOV2F0Y2hSZXNvdXJjZXMSIC5hc3BpcmUudjEuV2F0Y2hSZXNvdXJj",
-            "ZXNSZXF1ZXN0Gh8uYXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzVXBkYXRlMAES",
-            "cwoYV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dzEiouYXNwaXJlLnYxLldhdGNo",
-            "UmVzb3VyY2VDb25zb2xlTG9nc1JlcXVlc3QaKS5hc3BpcmUudjEuV2F0Y2hS",
-            "ZXNvdXJjZUNvbnNvbGVMb2dzVXBkYXRlMAESXwoWRXhlY3V0ZVJlc291cmNl",
-            "Q29tbWFuZBIhLmFzcGlyZS52MS5SZXNvdXJjZUNvbW1hbmRSZXF1ZXN0GiIu",
-            "YXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlc3BvbnNlQiKqAh9Bc3BpcmUu",
-            "UmVzb3VyY2VTZXJ2aWNlLlByb3RvLlYxYgZwcm90bzM="));
+            "b3VyY2VSZWxhdGlvbnNoaXASEQoJaXNfaGlkZGVuGBUgASgIQggKBl9zdGF0",
+            "ZUINCgtfY3JlYXRlZF9hdEIOCgxfc3RhdGVfc3R5bGVCDQoLX3N0YXJ0ZWRf",
+            "YXRCDQoLX3N0b3BwZWRfYXRKBAgIEAlKBAgJEApKBAgKEAtKBAgQEBEibgoT",
+            "SW5pdGlhbFJlc291cmNlRGF0YRImCglyZXNvdXJjZXMYASADKAsyEy5hc3Bp",
+            "cmUudjEuUmVzb3VyY2USLwoOcmVzb3VyY2VfdHlwZXMYAiADKAsyFy5hc3Bp",
+            "cmUudjEuUmVzb3VyY2VUeXBlIkAKEFJlc291cmNlRGVsZXRpb24SFQoNcmVz",
+            "b3VyY2VfbmFtZRgBIAEoCRIVCg1yZXNvdXJjZV90eXBlGAIgASgJInQKFFdh",
+            "dGNoUmVzb3VyY2VzQ2hhbmdlEi0KBmRlbGV0ZRgBIAEoCzIbLmFzcGlyZS52",
+            "MS5SZXNvdXJjZURlbGV0aW9uSAASJQoGdXBzZXJ0GAIgASgLMhMuYXNwaXJl",
+            "LnYxLlJlc291cmNlSABCBgoEa2luZCJHChVXYXRjaFJlc291cmNlc0NoYW5n",
+            "ZXMSLgoFdmFsdWUYASADKAsyHy5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXND",
+            "aGFuZ2UiQwoVV2F0Y2hSZXNvdXJjZXNSZXF1ZXN0EhkKDGlzX3JlY29ubmVj",
+            "dBgBIAEoCEgAiAEBQg8KDV9pc19yZWNvbm5lY3QiiwEKFFdhdGNoUmVzb3Vy",
+            "Y2VzVXBkYXRlEjYKDGluaXRpYWxfZGF0YRgBIAEoCzIeLmFzcGlyZS52MS5J",
+            "bml0aWFsUmVzb3VyY2VEYXRhSAASMwoHY2hhbmdlcxgCIAEoCzIgLmFzcGly",
+            "ZS52MS5XYXRjaFJlc291cmNlc0NoYW5nZXNIAEIGCgRraW5kIlsKDkNvbnNv",
+            "bGVMb2dMaW5lEgwKBHRleHQYASABKAkSFwoKaXNfc3RkX2VychgCIAEoCEgA",
+            "iAEBEhMKC2xpbmVfbnVtYmVyGAMgASgFQg0KC19pc19zdGRfZXJyIlEKH1dh",
+            "dGNoUmVzb3VyY2VDb25zb2xlTG9nc1JlcXVlc3QSFQoNcmVzb3VyY2VfbmFt",
+            "ZRgBIAEoCRIXCg9zdXBwcmVzc19mb2xsb3cYAiABKAgiTgoeV2F0Y2hSZXNv",
+            "dXJjZUNvbnNvbGVMb2dzVXBkYXRlEiwKCWxvZ19saW5lcxgBIAMoCzIZLmFz",
+            "cGlyZS52MS5Db25zb2xlTG9nTGluZSomCgtJY29uVmFyaWFudBILCgdSRUdV",
+            "TEFSEAASCgoGRklMTEVEEAEqPQoUUmVzb3VyY2VDb21tYW5kU3RhdGUSCwoH",
+            "RU5BQkxFRBAAEgwKCERJU0FCTEVEEAESCgoGSElEREVOEAIqVgobUmVzb3Vy",
+            "Y2VDb21tYW5kUmVzcG9uc2VLaW5kEg0KCVVOREVGSU5FRBAAEg0KCVNVQ0NF",
+            "RURFRBABEgoKBkZBSUxFRBACEg0KCUNBTkNFTExFRBADKjgKDEhlYWx0aFN0",
+            "YXR1cxILCgdIRUFMVEhZEAASDQoJVU5IRUFMVEhZEAESDAoIREVHUkFERUQQ",
+            "AjKxAwoQRGFzaGJvYXJkU2VydmljZRJwChlHZXRBcHBsaWNhdGlvbkluZm9y",
+            "bWF0aW9uEiguYXNwaXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXF1",
+            "ZXN0GikuYXNwaXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXNwb25z",
+            "ZRJVCg5XYXRjaFJlc291cmNlcxIgLmFzcGlyZS52MS5XYXRjaFJlc291cmNl",
+            "c1JlcXVlc3QaHy5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXNVcGRhdGUwARJz",
+            "ChhXYXRjaFJlc291cmNlQ29uc29sZUxvZ3MSKi5hc3BpcmUudjEuV2F0Y2hS",
+            "ZXNvdXJjZUNvbnNvbGVMb2dzUmVxdWVzdBopLmFzcGlyZS52MS5XYXRjaFJl",
+            "c291cmNlQ29uc29sZUxvZ3NVcGRhdGUwARJfChZFeGVjdXRlUmVzb3VyY2VD",
+            "b21tYW5kEiEuYXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlcXVlc3QaIi5h",
+            "c3BpcmUudjEuUmVzb3VyY2VDb21tYW5kUmVzcG9uc2VCIqoCH0FzcGlyZS5S",
+            "ZXNvdXJjZVNlcnZpY2UuUHJvdG8uVjFiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.StructReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Aspire.ResourceService.Proto.V1.IconVariant), typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandState), typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind), typeof(global::Aspire.ResourceService.Proto.V1.HealthStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -130,7 +131,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.HealthReport), global::Aspire.ResourceService.Proto.V1.HealthReport.Parser, new[]{ "Status", "Key", "Description", "Exception" }, new[]{ "Status" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceRelationship), global::Aspire.ResourceService.Proto.V1.ResourceRelationship.Parser, new[]{ "ResourceName", "Type" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceProperty), global::Aspire.ResourceService.Proto.V1.ResourceProperty.Parser, new[]{ "Name", "DisplayName", "Value", "IsSensitive" }, new[]{ "DisplayName", "IsSensitive" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Resource), global::Aspire.ResourceService.Proto.V1.Resource.Parser, new[]{ "Name", "ResourceType", "DisplayName", "Uid", "State", "CreatedAt", "Environment", "Commands", "Properties", "Urls", "StateStyle", "Volumes", "HealthReports", "StartedAt", "StoppedAt", "Relationships" }, new[]{ "State", "CreatedAt", "StateStyle", "StartedAt", "StoppedAt" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Resource), global::Aspire.ResourceService.Proto.V1.Resource.Parser, new[]{ "Name", "ResourceType", "DisplayName", "Uid", "State", "CreatedAt", "Environment", "Commands", "Properties", "Urls", "StateStyle", "Volumes", "HealthReports", "StartedAt", "StoppedAt", "Relationships", "IsHidden" }, new[]{ "State", "CreatedAt", "StateStyle", "StartedAt", "StoppedAt" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.InitialResourceData), global::Aspire.ResourceService.Proto.V1.InitialResourceData.Parser, new[]{ "Resources", "ResourceTypes" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceDeletion), global::Aspire.ResourceService.Proto.V1.ResourceDeletion.Parser, new[]{ "ResourceName", "ResourceType" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourcesChange), global::Aspire.ResourceService.Proto.V1.WatchResourcesChange.Parser, new[]{ "Delete", "Upsert" }, new[]{ "Kind" }, null, null, null),
@@ -138,7 +139,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest), global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest.Parser, new[]{ "IsReconnect" }, new[]{ "IsReconnect" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate), global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate.Parser, new[]{ "InitialData", "Changes" }, new[]{ "Kind" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ConsoleLogLine), global::Aspire.ResourceService.Proto.V1.ConsoleLogLine.Parser, new[]{ "Text", "IsStdErr", "LineNumber" }, new[]{ "IsStdErr" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest), global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest.Parser, new[]{ "ResourceName" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest), global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest.Parser, new[]{ "ResourceName", "SuppressFollow" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate), global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate.Parser, new[]{ "LogLines" }, null, null, null, null)
           }));
     }
@@ -4248,6 +4249,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       startedAt_ = other.startedAt_ != null ? other.startedAt_.Clone() : null;
       stoppedAt_ = other.stoppedAt_ != null ? other.stoppedAt_.Clone() : null;
       relationships_ = other.relationships_.Clone();
+      isHidden_ = other.isHidden_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4501,6 +4503,21 @@ namespace Aspire.ResourceService.Proto.V1 {
       get { return relationships_; }
     }
 
+    /// <summary>Field number for the "is_hidden" field.</summary>
+    public const int IsHiddenFieldNumber = 21;
+    private bool isHidden_;
+    /// <summary>
+    /// Whether the resource should be visually hidden in the dashboard.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool IsHidden {
+      get { return isHidden_; }
+      set {
+        isHidden_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -4532,6 +4549,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (!object.Equals(StartedAt, other.StartedAt)) return false;
       if (!object.Equals(StoppedAt, other.StoppedAt)) return false;
       if(!relationships_.Equals(other.relationships_)) return false;
+      if (IsHidden != other.IsHidden) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4555,6 +4573,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (startedAt_ != null) hash ^= StartedAt.GetHashCode();
       if (stoppedAt_ != null) hash ^= StoppedAt.GetHashCode();
       hash ^= relationships_.GetHashCode();
+      if (IsHidden != false) hash ^= IsHidden.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4616,6 +4635,10 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteMessage(StoppedAt);
       }
       relationships_.WriteTo(output, _repeated_relationships_codec);
+      if (IsHidden != false) {
+        output.WriteRawTag(168, 1);
+        output.WriteBool(IsHidden);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4669,6 +4692,10 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteMessage(StoppedAt);
       }
       relationships_.WriteTo(ref output, _repeated_relationships_codec);
+      if (IsHidden != false) {
+        output.WriteRawTag(168, 1);
+        output.WriteBool(IsHidden);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4713,6 +4740,9 @@ namespace Aspire.ResourceService.Proto.V1 {
         size += 2 + pb::CodedOutputStream.ComputeMessageSize(StoppedAt);
       }
       size += relationships_.CalculateSize(_repeated_relationships_codec);
+      if (IsHidden != false) {
+        size += 2 + 1;
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -4768,6 +4798,9 @@ namespace Aspire.ResourceService.Proto.V1 {
         StoppedAt.MergeFrom(other.StoppedAt);
       }
       relationships_.Add(other.relationships_);
+      if (other.IsHidden != false) {
+        IsHidden = other.IsHidden;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4860,6 +4893,10 @@ namespace Aspire.ResourceService.Proto.V1 {
             relationships_.AddEntriesFrom(input, _repeated_relationships_codec);
             break;
           }
+          case 168: {
+            IsHidden = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -4950,6 +4987,10 @@ namespace Aspire.ResourceService.Proto.V1 {
           }
           case 162: {
             relationships_.AddEntriesFrom(ref input, _repeated_relationships_codec);
+            break;
+          }
+          case 168: {
+            IsHidden = input.ReadBool();
             break;
           }
         }
@@ -6747,6 +6788,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public WatchResourceConsoleLogsRequest(WatchResourceConsoleLogsRequest other) : this() {
       resourceName_ = other.resourceName_;
+      suppressFollow_ = other.suppressFollow_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -6771,6 +6813,22 @@ namespace Aspire.ResourceService.Proto.V1 {
       }
     }
 
+    /// <summary>Field number for the "suppress_follow" field.</summary>
+    public const int SuppressFollowFieldNumber = 2;
+    private bool suppressFollow_;
+    /// <summary>
+    /// A flag that indicates whether to suppress following new logs.
+    /// The method completes once the current set of logs is received.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool SuppressFollow {
+      get { return suppressFollow_; }
+      set {
+        suppressFollow_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -6787,6 +6845,7 @@ namespace Aspire.ResourceService.Proto.V1 {
         return true;
       }
       if (ResourceName != other.ResourceName) return false;
+      if (SuppressFollow != other.SuppressFollow) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -6795,6 +6854,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     public override int GetHashCode() {
       int hash = 1;
       if (ResourceName.Length != 0) hash ^= ResourceName.GetHashCode();
+      if (SuppressFollow != false) hash ^= SuppressFollow.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -6817,6 +6877,10 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteRawTag(10);
         output.WriteString(ResourceName);
       }
+      if (SuppressFollow != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(SuppressFollow);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -6831,6 +6895,10 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteRawTag(10);
         output.WriteString(ResourceName);
       }
+      if (SuppressFollow != false) {
+        output.WriteRawTag(16);
+        output.WriteBool(SuppressFollow);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -6843,6 +6911,9 @@ namespace Aspire.ResourceService.Proto.V1 {
       int size = 0;
       if (ResourceName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(ResourceName);
+      }
+      if (SuppressFollow != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -6858,6 +6929,9 @@ namespace Aspire.ResourceService.Proto.V1 {
       }
       if (other.ResourceName.Length != 0) {
         ResourceName = other.ResourceName;
+      }
+      if (other.SuppressFollow != false) {
+        SuppressFollow = other.SuppressFollow;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -6882,6 +6956,10 @@ namespace Aspire.ResourceService.Proto.V1 {
             ResourceName = input.ReadString();
             break;
           }
+          case 16: {
+            SuppressFollow = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -6903,6 +6981,10 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           case 10: {
             ResourceName = input.ReadString();
+            break;
+          }
+          case 16: {
+            SuppressFollow = input.ReadBool();
             break;
           }
         }

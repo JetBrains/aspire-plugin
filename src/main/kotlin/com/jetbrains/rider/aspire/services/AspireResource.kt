@@ -44,6 +44,8 @@ class AspireResource(
         private set
     var state: ResourceState?
         private set
+    var isHidden: Boolean
+        private set
     var healthStatus: ResourceHealthStatus? = null
         private set
     var urls: Array<ResourceUrl>
@@ -111,6 +113,7 @@ class AspireResource(
         type = model?.type ?: ResourceType.Unknown
         displayName = model?.displayName ?: ""
         state = model?.state
+        isHidden = model?.isHidden ?: false
 
         fillHealthStatus(model?.healthReports ?: emptyArray())
         fillDates(model)
@@ -225,6 +228,7 @@ class AspireResource(
         type = model.type
         displayName = model.displayName
         state = if (state != ResourceState.Hidden) model.state else ResourceState.Hidden
+        isHidden = model.isHidden
 
         fillHealthStatus(model.healthReports)
         fillDates(model)
@@ -240,9 +244,9 @@ class AspireResource(
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
-        if (typeJustInitialised && state != ResourceState.Hidden) {
+        if (typeJustInitialised && !isHidden && state != ResourceState.Hidden) {
             sendServiceChildrenChangedEvent()
-        } else if (type != ResourceType.Unknown && state != ResourceState.Hidden) {
+        } else if (type != ResourceType.Unknown && !isHidden && state != ResourceState.Hidden) {
             sendServiceChangedEvent()
         }
     }
