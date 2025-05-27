@@ -16,9 +16,9 @@ internal fun getIcon(aspireResource: AspireResource): Icon {
     val baseIcon = getBaseIcon(aspireResource.type, aspireResource.containerImage)
 
     val icon = when (aspireResource.state) {
-        ResourceState.Exited -> baseIcon
-        ResourceState.Finished -> baseIcon
         ResourceState.FailedToStart -> BadgeIconSupplier(baseIcon).errorIcon
+        ResourceState.RuntimeUnhealthy -> BadgeIconSupplier(baseIcon).errorIcon
+        ResourceState.Waiting -> BadgeIconSupplier(baseIcon).warningIcon
         ResourceState.Running -> {
             if (aspireResource.healthStatus == ResourceHealthStatus.Healthy || aspireResource.healthStatus == null) {
                 BadgeIconSupplier(baseIcon).liveIndicatorIcon
