@@ -28,7 +28,8 @@ internal static class ResourceExtensions
         resource.Volumes.Select(it => it.ToModel()).ToArray(),
         resource.HealthReports.Select(it => it.ToModel()).ToArray(),
         resource.Commands.Select(it => it.ToModel()).ToArray(),
-        resource.Relationships.Select(it => it.ToModel()).ToArray()
+        resource.Relationships.Select(it => it.ToModel()).ToArray(),
+        resource.IsHidden
     );
 
     private static ResourceType MapType(string type) => type switch
