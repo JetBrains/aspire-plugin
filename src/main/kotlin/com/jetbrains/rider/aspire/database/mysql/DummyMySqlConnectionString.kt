@@ -5,12 +5,17 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rider.model.RdConnectionStringKeyValuePair
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shared.connectionStrings.ConnectionString
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shared.connectionStrings.DatabaseConnectionUrlProperty
+import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shared.connectionStrings.PotentialConnectionString
 
 class DummyMySqlConnectionString(project: Project, properties: List<RdConnectionStringKeyValuePair>) :
     ConnectionString(project, properties) {
 
     companion object {
         suspend fun parse(project: Project, connectionString: String): Result<DummyMySqlConnectionString> {
+            return parse(project, PotentialConnectionString(connectionString))
+        }
+
+        suspend fun parse(project: Project, connectionString: PotentialConnectionString): Result<DummyMySqlConnectionString> {
             return parseToProperties(project, connectionString).map { DummyMySqlConnectionString(project, it) }
         }
     }
@@ -18,6 +23,8 @@ class DummyMySqlConnectionString(project: Project, properties: List<RdConnection
     override fun getAllProperties(): Array<out DatabaseConnectionUrlProperty> {
         return Property.entries.toTypedArray()
     }
+
+    override fun getServer() = null
 
     override fun hasCredentials(): Boolean {
         if (username.isNotNullOrEmpty) return true
