@@ -35,6 +35,8 @@ class DummyMySqlJdbcUrl(properties: Collection<DriverPropertyInfo>) : JdbcUrl(pr
         return Property.entries.toTypedArray()
     }
 
+    override fun getServer() = serverName
+
     override fun hasCredentials(): Boolean {
         if (user.isNotNullOrEmpty) return true
         if (password.isNotNullOrEmpty) return true
