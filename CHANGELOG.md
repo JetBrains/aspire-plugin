@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade dependencies
+
 ## [1.8.1] - 2025-05-27
 
 ### Changed
