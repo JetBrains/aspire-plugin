@@ -1,11 +1,14 @@
 package com.jetbrains.rider.aspire.run
 
 import com.intellij.execution.CantRunException
+import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.SystemInfo
+import com.intellij.util.EnvironmentUtil
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.launchProfiles.*
@@ -26,15 +29,23 @@ import com.jetbrains.rider.run.environment.ExecutableRunParameters
 import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
+import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import com.jetbrains.rider.util.NetUtils
+import com.jetbrains.rider.utils.RiderEnvironmentAccessor
 import java.net.URI
 import java.util.*
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
 class AspireHostExecutorFactory(
     private val project: Project,
     private val parameters: AspireHostConfigurationParameters
 ) : AsyncExecutorFactory {
+    companion object {
+        private const val DOTNET_ROOT = "DOTNET_ROOT"
+
+    }
+
     override suspend fun create(
         executorId: String,
         environment: ExecutionEnvironment,
@@ -60,7 +71,7 @@ class AspireHostExecutorFactory(
             .getProjectLaunchProfileByName(runnableProject, parameters.profileName)
             ?: throw CantRunException("Profile ${parameters.profileName} not found")
 
-        val executable = getDotNetExecutable(runnableProject, projectOutput, profile)
+        val executable = getDotNetExecutable(runnableProject, projectOutput, profile, activeRuntime)
 
         return when (executorId) {
             DefaultRunExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
@@ -72,7 +83,8 @@ class AspireHostExecutorFactory(
     private suspend fun getDotNetExecutable(
         runnableProject: RunnableProject,
         projectOutput: ProjectOutput,
-        launchProfile: LaunchProfile
+        launchProfile: LaunchProfile,
+        activeRuntime: DotNetCoreRuntime
     ): DotNetExecutable {
         val effectiveArguments =
             if (parameters.trackArguments) getArguments(launchProfile.content, projectOutput)
@@ -85,7 +97,7 @@ class AspireHostExecutorFactory(
         val effectiveEnvs =
             if (parameters.trackEnvs) getEnvironmentVariables(launchProfile.name, launchProfile.content).toMutableMap()
             else parameters.envs.toMutableMap()
-        val environmentVariableValues = configureEnvironmentVariables(effectiveEnvs)
+        val environmentVariableValues = configureEnvironmentVariables(effectiveEnvs, activeRuntime)
 
         var effectiveUrl =
             if (parameters.trackUrl) getApplicationUrl(launchProfile.content)
@@ -131,7 +143,10 @@ class AspireHostExecutorFactory(
         )
     }
 
-    private suspend fun configureEnvironmentVariables(envs: MutableMap<String, String>): EnvironmentVariableValues {
+    private suspend fun configureEnvironmentVariables(
+        envs: MutableMap<String, String>,
+        activeRuntime: DotNetCoreRuntime
+    ): EnvironmentVariableValues {
         val sessionHost = SessionHostManager.getInstance(project).getOrStartSessionHost()
 
         //Switch DCP to the IDE mode
@@ -199,7 +214,36 @@ class AspireHostExecutorFactory(
             envs[ASPIRE_CONTAINER_RUNTIME] = "podman"
         }
 
+        val dotnetPath = RiderEnvironmentAccessor.getInstance(project).findFileInSystemPath("dotnet")
+        if (dotnetPath == null) {
+            setDotnetRootPathVariable(envs, activeRuntime)
+        }
+
         return EnvironmentVariableValues(browserToken)
+    }
+
+    private fun setDotnetRootPathVariable(envs: MutableMap<String, String>, activeRuntime: DotNetCoreRuntime) {
+        val dotnetRootPath = Path(activeRuntime.cliExePath).parent
+
+        val dotnetRootPathString = dotnetRootPath.absolutePathString()
+        val dotnetToolsPathString = dotnetRootPath.resolve("tools").absolutePathString()
+        val dotnetPaths =
+            if (SystemInfo.isUnix) "$dotnetRootPathString:$dotnetToolsPathString"
+            else "$dotnetRootPathString;$dotnetToolsPathString"
+
+        val pathVariable = PathEnvironmentVariableUtil.getPathVariableValue()
+        if (pathVariable != null) {
+            envs[RiderEnvironmentAccessor.PATH_VARIABLE] =
+                if (SystemInfo.isUnix) "$pathVariable:$dotnetPaths"
+                else "$pathVariable;$dotnetPaths"
+        } else {
+            envs[RiderEnvironmentAccessor.PATH_VARIABLE] = dotnetPaths
+        }
+
+        val dotnetRootEnvironmentVariable = EnvironmentUtil.getValue(DOTNET_ROOT)
+        if (dotnetRootEnvironmentVariable == null) {
+            envs[DOTNET_ROOT] = dotnetRootPathString
+        }
     }
 
     private fun configureUrl(urlValue: String, browserToken: String): String {
