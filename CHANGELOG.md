@@ -8,6 +8,10 @@
 
 - Upgrade dependencies
 
+### Fixed
+
+- [#411](https://github.com/JetBrains/aspire-plugin/issues/411) Set a dotnet root path to environment variables if it is not specified
+
 ## [1.8.1] - 2025-05-27
 
 ### Changed
