@@ -366,7 +366,7 @@ class AspireHostConfigurationViewModel(
         if (selectedProfile != null) {
             launchProfileSelector.profile.set(selectedProfile)
         } else {
-            val fakeLaunchProfile = LaunchProfile(launchProfile, LaunchSettingsJson.Profile.UNKNOWN)
+            val fakeLaunchProfile = LaunchProfile(launchProfile, LaunchSettingsJson.Profile.createUnknown())
             launchProfileSelector.profileList.add(fakeLaunchProfile)
             launchProfileSelector.profile.set(fakeLaunchProfile)
         }

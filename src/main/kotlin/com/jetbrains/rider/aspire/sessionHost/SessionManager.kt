@@ -133,7 +133,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         sessionEvents: MutableSharedFlow<SessionEvent>,
         processLifetimeDefinition: LifetimeDefinition
     ): ProcessListener =
-        object : ProcessAdapter() {
+        object : ProcessListener {
             override fun startNotified(event: ProcessEvent) {
                 LOG.info("Session $sessionId process was started")
                 val pid = when (val processHandler = event.processHandler) {
