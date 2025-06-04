@@ -1,4 +1,3 @@
-import com.jetbrains.plugin.structure.base.utils.isFile
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
@@ -9,6 +8,7 @@ import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.io.path.absolute
 import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
 
 plugins {
     alias(libs.plugins.kotlin)
@@ -245,8 +245,8 @@ val riderModel: Configuration by configurations.creating {
 artifacts {
     add(riderModel.name, provider {
         intellijPlatform.platformPath.resolve("lib/rd/rider-model.jar").also {
-            check(it.isFile) {
-                "rider-model.jar is not found at $riderModel"
+            check(it.isRegularFile()) {
+                "rider-model.jar is not found at \"$it\"."
             }
         }
     }) {
