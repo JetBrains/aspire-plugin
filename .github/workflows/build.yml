@@ -244,10 +244,6 @@ jobs:
         with:
           cache-disabled: true
 
-      # Run tests
-      - name: Run Tests
-        run: ./gradlew prepareDotNetPart
-
       # Run Qodana inspections
       - name: Qodana - Code Inspection
         uses: JetBrains/qodana-action@v2025.1
