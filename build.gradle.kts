@@ -55,11 +55,8 @@ dependencies {
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
         rider(providers.gradleProperty("platformVersion"), false)
-
         jetbrainsRuntime()
-
         bundledPlugins(listOf("Docker", "com.intellij.database", "rider.intellij.plugin.appender", "com.intellij.diagram"))
-
         testFramework(TestFrameworkType.Bundled)
     }
 }

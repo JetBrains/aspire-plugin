@@ -4,7 +4,7 @@
     </PropertyGroup>
 
     <Target BeforeTargets="CoreCompile" Name="CheckForGradlePrepared" Condition="!Exists('$(JetBrainsRiderRdBackendCommonReference)')">
-        <Error Text="Please run `./gradlew :prepare`"/>
+        <Error Text="Please run `./gradlew :prepareDotNetPart`"/>
     </Target>
 
     <Import Project="$(MSBuildThisFileDirectory)..\..\..\build\DotNetSdkPath.Generated.props" Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\build\DotNetSdkPath.Generated.props')"/>
