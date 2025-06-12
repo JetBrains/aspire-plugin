@@ -3,7 +3,7 @@
 
 version: 1.0
 bootstrap: sh ./prepare-qodana-backend.sh
-linter: jetbrains/qodana-dotnet:2025.1
+ide: QDNET
 dotnet:
   solution: aspire-plugin.sln
 profile:
