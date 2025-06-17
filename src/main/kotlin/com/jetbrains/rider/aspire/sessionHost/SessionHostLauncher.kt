@@ -57,9 +57,9 @@ class SessionHostLauncher {
         }
         processHandler.addProcessListener(object : ProcessListener {
             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                val text = decodeAnsiCommandsToString(event.text, outputType)
+                val text = decodeAnsiCommandsToString(event.text, outputType).trim()
                 if (outputType == ProcessOutputType.STDERR) {
-                    LOG.error(text)
+                    LOG.warn(text)
                 } else {
                     LOG.debug(text)
                 }
