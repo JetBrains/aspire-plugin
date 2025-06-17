@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <RootNamespace>JetBrains.Rider.Aspire.SessionHost</RootNamespace>
+        <RollForward>Major</RollForward>
     </PropertyGroup>
 
     <ItemGroup>
