@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.8.3] - 2025-06-23
+
 ### Changed
 
 - Support for Rider 2025.2 EAP 6
@@ -419,7 +421,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.2...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.3...HEAD
+[1.8.3]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.2...v1.8.3
 [1.8.2]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.1...v1.8.2
 [1.8.1]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/JetBrains/aspire-plugin/compare/v1.7.10...v1.8.0
