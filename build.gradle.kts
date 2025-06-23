@@ -22,7 +22,6 @@ group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
 val dotnetBuildConfiguration = providers.gradleProperty("dotnetBuildConfiguration").get()
 
-
 val riderSdkPath by lazy {
     val path = intellijPlatform.platformPath.resolve("lib/DotNetSdkForRdPlugins").absolute()
     if (!path.isDirectory()) error("$path does not exist or not a directory")
@@ -171,7 +170,7 @@ tasks {
         dependsOn(prepareDotNetPart)
         inputs.property("dotnetBuildConfiguration", dotnetBuildConfiguration)
 
-        executable("dotnet")
+        executable("./dotnet.cmd")
         args("build", "-consoleLoggerParameters:ErrorsOnly", "-c", dotnetBuildConfiguration, "aspire-plugin.sln")
     }
 
@@ -183,7 +182,7 @@ tasks {
         dependsOn(compileDotNet)
         inputs.property("dotnetBuildConfiguration", dotnetBuildConfiguration)
 
-        executable("dotnet")
+        executable("./dotnet.cmd")
         args(
             "publish",
             "src/dotnet/aspire-session-host/aspire-session-host.csproj",
