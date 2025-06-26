@@ -94,15 +94,7 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
         using (solution.Locks.UsingReadLock())
         {
             var referenced = projectUnderTest.GetReferencedProjects(targetFrameworkId);
-            foreach (var referencedProject in referenced)
-            {
-                if (referencedProject.IsAspireHostProject())
-                {
-                    return referencedProject;
-                }
-            }
-
-            return null;
+            return referenced.FirstOrDefault(referencedProject => referencedProject.IsAspireHostProject());
         }
     }
 }
