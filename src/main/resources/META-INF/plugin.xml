@@ -17,6 +17,9 @@
         <extensionPoint qualifiedName="com.jetbrains.rider.aspire.sessionProcessLauncherExtension"
                         interface="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.rider.aspire.openTelemetryProtocolServerExtension"
+                        interface="com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension"
+                        dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">

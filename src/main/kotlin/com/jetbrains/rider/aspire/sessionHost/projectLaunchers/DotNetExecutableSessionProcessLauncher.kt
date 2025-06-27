@@ -19,6 +19,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
+import com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
@@ -38,6 +39,8 @@ import kotlin.io.path.Path
 abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherExtension {
     companion object {
         private val LOG = logger<DotNetExecutableSessionProcessLauncher>()
+
+        private const val OTEL_EXPORTER_OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
     }
 
     override suspend fun launchRunProcess(
@@ -53,8 +56,9 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
         val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
         val (executable, _) = getDotNetExecutable(sessionModel, false, aspireHostRunConfig, project)
             ?: return
+        val executableWithOTLPEndpoint = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
         val (modifiedExecutable, callback) = modifyDotNetExecutable(
-            executable,
+            executableWithOTLPEndpoint,
             Path(sessionModel.projectPath),
             sessionModel.launchProfile,
             sessionProcessLifetime,
@@ -90,14 +94,15 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
         val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
         val (executable, browserSettings) = getDotNetExecutable(sessionModel, true, aspireHostRunConfig, project)
             ?: return
-        val runtime = getDotNetRuntime(executable, project) ?: return
+        val modifiedExecutable = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
+        val runtime = getDotNetRuntime(modifiedExecutable, project) ?: return
 
         val projectPath = Path(sessionModel.projectPath)
         val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
         val profile = getDebugProfile(
             sessionId,
             projectPath,
-            executable,
+            modifiedExecutable,
             runtime,
             browserSettings,
             sessionProcessEventListener,
@@ -144,6 +149,17 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>?
+
+    private fun modifyDotNetExecutableToUseCustomOTLPEndpoint(executable: DotNetExecutable): DotNetExecutable {
+        val extension = OpenTelemetryProtocolServerExtension.EP_NAME.extensionList.singleOrNull { it.enabled }
+        val otlpEndpoint = extension?.getOTLPServerEndpoint() ?: return executable
+
+        LOG.trace { "Setting OTEL_EXPORTER_OTLP_ENDPOINT variable to $otlpEndpoint" }
+        val envs = executable.environmentVariables.toMutableMap()
+        envs[OTEL_EXPORTER_OTLP_ENDPOINT] = otlpEndpoint
+
+        return executable.copy(environmentVariables = envs)
+    }
 
     protected open suspend fun modifyDotNetExecutable(
         executable: DotNetExecutable,
