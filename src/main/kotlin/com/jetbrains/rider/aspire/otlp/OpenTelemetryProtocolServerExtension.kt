@@ -13,4 +13,6 @@ interface OpenTelemetryProtocolServerExtension {
     fun getOTLPServerEndpoint(): String?
 
     fun setOTLPServerEndpointForProxying(endpoint: String)
+
+    fun removeOTLPServerEndpointForProxying(endpoint: String)
 }

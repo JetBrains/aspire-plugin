@@ -20,6 +20,7 @@ import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import com.jetbrains.rider.aspire.generated.*
+import com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessionHost.*
 import com.jetbrains.rider.aspire.sessionHost.SessionManager.CreateSessionCommand
@@ -140,6 +141,7 @@ class AspireHost(
         LOG.trace(" Subscribing to Aspire host model")
 
         setAspireHostUrl(model.config)
+        setOTLPEndpointUrl(model.config, aspireHostLifetime)
 
         val sessionEvents = MutableSharedFlow<SessionEvent>(
             onBufferOverflow = BufferOverflow.DROP_OLDEST,
@@ -251,6 +253,17 @@ class AspireHost(
         dashboardUrl = config.aspireHostProjectUrl
 
         sendServiceChangedEvent()
+    }
+
+    private fun setOTLPEndpointUrl(config: AspireHostModelConfig, lifetime: Lifetime) {
+        if (config.otlpEndpointUrl == null) return
+
+        val extension = OpenTelemetryProtocolServerExtension.EP_NAME.extensionList.singleOrNull { it.enabled } ?: return
+        lifetime.bracketIfAlive({
+            extension.setOTLPServerEndpointForProxying(config.otlpEndpointUrl)
+        }, {
+            extension.removeOTLPServerEndpointForProxying(config.otlpEndpointUrl)
+        })
     }
 
     private fun hostStarted(processHandler: ProcessHandler) {
