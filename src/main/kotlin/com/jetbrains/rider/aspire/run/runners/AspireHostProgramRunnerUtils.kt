@@ -60,6 +60,7 @@ private suspend fun setUpAspireHostModel(
     val dcpInstancePrefix = requireNotNull(state.getDcpInstancePrefix())
     val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
     val resourceServiceApiKey = state.getResourceServiceApiKey()
+    val otlpEndpointUrl = state.getOtlpEndpointUrl()
 
     val parameters = aspireHostConfiguration.parameters
     val aspireHostProjectPath = Path(parameters.projectFilePath)
@@ -77,6 +78,7 @@ private suspend fun setUpAspireHostModel(
         aspireHostProjectPath.absolutePathString(),
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
+        otlpEndpointUrl,
         isDebuggingMode,
         aspireHostProjectUrl
     )

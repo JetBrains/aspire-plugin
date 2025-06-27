@@ -64,6 +64,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                     aspireHostProjectPath.absolutePathString(),
                     null,
                     null,
+                    null,
                     request.underDebugger,
                     null
                 )

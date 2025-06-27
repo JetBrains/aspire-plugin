@@ -67,7 +67,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     
     
-    protected override long SerializationHash => 7210025719111529073L;
+    protected override long SerializationHash => 1011302472063179369L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -108,7 +108,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:212</p>
+  /// <p>Generated from: AspireSessionHostModel.kt:214</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
@@ -259,14 +259,19 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     [NotNull] public string AspireHostProjectPath {get; private set;}
     
     /// <summary>
-    /// `DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable
+    /// `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL` environment variable
     /// </summary>
     [CanBeNull] public string ResourceServiceEndpointUrl {get; private set;}
     
     /// <summary>
-    /// `DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
+    /// `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
     /// </summary>
     [CanBeNull] public string ResourceServiceApiKey {get; private set;}
+    
+    /// <summary>
+    /// `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable
+    /// </summary>
+    [CanBeNull] public string OtlpEndpointUrl {get; private set;}
     
     /// <summary>
     /// Is Aspire Host running with debugger attached
@@ -286,6 +291,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       [NotNull] string aspireHostProjectPath,
       [CanBeNull] string resourceServiceEndpointUrl,
       [CanBeNull] string resourceServiceApiKey,
+      [CanBeNull] string otlpEndpointUrl,
       bool isDebuggingMode,
       [CanBeNull] string aspireHostProjectUrl
     )
@@ -298,18 +304,20 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       AspireHostProjectPath = aspireHostProjectPath;
       ResourceServiceEndpointUrl = resourceServiceEndpointUrl;
       ResourceServiceApiKey = resourceServiceApiKey;
+      OtlpEndpointUrl = otlpEndpointUrl;
       IsDebuggingMode = isDebuggingMode;
       AspireHostProjectUrl = aspireHostProjectUrl;
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string id, [CanBeNull] out string runConfigName, [NotNull] out string aspireHostProjectPath, [CanBeNull] out string resourceServiceEndpointUrl, [CanBeNull] out string resourceServiceApiKey, out bool isDebuggingMode, [CanBeNull] out string aspireHostProjectUrl)
+    public void Deconstruct([NotNull] out string id, [CanBeNull] out string runConfigName, [NotNull] out string aspireHostProjectPath, [CanBeNull] out string resourceServiceEndpointUrl, [CanBeNull] out string resourceServiceApiKey, [CanBeNull] out string otlpEndpointUrl, out bool isDebuggingMode, [CanBeNull] out string aspireHostProjectUrl)
     {
       id = Id;
       runConfigName = RunConfigName;
       aspireHostProjectPath = AspireHostProjectPath;
       resourceServiceEndpointUrl = ResourceServiceEndpointUrl;
       resourceServiceApiKey = ResourceServiceApiKey;
+      otlpEndpointUrl = OtlpEndpointUrl;
       isDebuggingMode = IsDebuggingMode;
       aspireHostProjectUrl = AspireHostProjectUrl;
     }
@@ -322,9 +330,10 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       var aspireHostProjectPath = reader.ReadString();
       var resourceServiceEndpointUrl = ReadStringNullable(ctx, reader);
       var resourceServiceApiKey = ReadStringNullable(ctx, reader);
+      var otlpEndpointUrl = ReadStringNullable(ctx, reader);
       var isDebuggingMode = reader.ReadBool();
       var aspireHostProjectUrl = ReadStringNullable(ctx, reader);
-      var _result = new AspireHostModelConfig(id, runConfigName, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, isDebuggingMode, aspireHostProjectUrl);
+      var _result = new AspireHostModelConfig(id, runConfigName, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, otlpEndpointUrl, isDebuggingMode, aspireHostProjectUrl);
       return _result;
     };
     public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
@@ -336,6 +345,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
       writer.Write(value.AspireHostProjectPath);
       WriteStringNullable(ctx, writer, value.ResourceServiceEndpointUrl);
       WriteStringNullable(ctx, writer, value.ResourceServiceApiKey);
+      WriteStringNullable(ctx, writer, value.OtlpEndpointUrl);
       writer.Write(value.IsDebuggingMode);
       WriteStringNullable(ctx, writer, value.AspireHostProjectUrl);
     };
@@ -357,7 +367,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Id == other.Id && Equals(RunConfigName, other.RunConfigName) && AspireHostProjectPath == other.AspireHostProjectPath && Equals(ResourceServiceEndpointUrl, other.ResourceServiceEndpointUrl) && Equals(ResourceServiceApiKey, other.ResourceServiceApiKey) && IsDebuggingMode == other.IsDebuggingMode && Equals(AspireHostProjectUrl, other.AspireHostProjectUrl);
+      return Id == other.Id && Equals(RunConfigName, other.RunConfigName) && AspireHostProjectPath == other.AspireHostProjectPath && Equals(ResourceServiceEndpointUrl, other.ResourceServiceEndpointUrl) && Equals(ResourceServiceApiKey, other.ResourceServiceApiKey) && Equals(OtlpEndpointUrl, other.OtlpEndpointUrl) && IsDebuggingMode == other.IsDebuggingMode && Equals(AspireHostProjectUrl, other.AspireHostProjectUrl);
     }
     //hash code trait
     public override int GetHashCode()
@@ -369,6 +379,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
         hash = hash * 31 + AspireHostProjectPath.GetHashCode();
         hash = hash * 31 + (ResourceServiceEndpointUrl != null ? ResourceServiceEndpointUrl.GetHashCode() : 0);
         hash = hash * 31 + (ResourceServiceApiKey != null ? ResourceServiceApiKey.GetHashCode() : 0);
+        hash = hash * 31 + (OtlpEndpointUrl != null ? OtlpEndpointUrl.GetHashCode() : 0);
         hash = hash * 31 + IsDebuggingMode.GetHashCode();
         hash = hash * 31 + (AspireHostProjectUrl != null ? AspireHostProjectUrl.GetHashCode() : 0);
         return hash;
@@ -384,6 +395,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
         printer.Print("aspireHostProjectPath = "); AspireHostProjectPath.PrintEx(printer); printer.Println();
         printer.Print("resourceServiceEndpointUrl = "); ResourceServiceEndpointUrl.PrintEx(printer); printer.Println();
         printer.Print("resourceServiceApiKey = "); ResourceServiceApiKey.PrintEx(printer); printer.Println();
+        printer.Print("otlpEndpointUrl = "); OtlpEndpointUrl.PrintEx(printer); printer.Println();
         printer.Print("isDebuggingMode = "); IsDebuggingMode.PrintEx(printer); printer.Println();
         printer.Print("aspireHostProjectUrl = "); AspireHostProjectUrl.PrintEx(printer); printer.Println();
       }

@@ -200,9 +200,11 @@ object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
         field("aspireHostProjectPath", string)
             .documentation = "Path of the Aspire Host .csproj file"
         field("resourceServiceEndpointUrl", string.nullable)
-            .documentation = "`DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable"
+            .documentation = "`ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL` environment variable"
         field("resourceServiceApiKey", string.nullable)
-            .documentation = "`DOTNET_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable"
+            .documentation = "`ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable"
+        field("otlpEndpointUrl", string.nullable)
+            .documentation = "`ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable"
         field("isDebuggingMode", bool)
             .documentation = "Is Aspire Host running with debugger attached"
         field("aspireHostProjectUrl", string.nullable)

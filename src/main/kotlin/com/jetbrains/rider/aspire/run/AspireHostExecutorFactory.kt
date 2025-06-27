@@ -214,6 +214,17 @@ class AspireHostExecutorFactory(
             envs[ASPIRE_CONTAINER_RUNTIME] = "podman"
         }
 
+        //Set the `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable if not specified to connect to the resource service
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/app-host/configuration#dashboard
+        //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration?tabs=bash#common-configuration
+        val otlpEndpointUrl = envs.getAspireDashboardOtlpEndpointUrl()
+        if (otlpEndpointUrl.isNullOrEmpty()) {
+            val otlpEndpointPort = NetUtils.findFreePort(47300)
+            envs[ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL] =
+                if (useHttp) "http://localhost:$otlpEndpointPort"
+                else "https://localhost:$otlpEndpointPort"
+        }
+
         val dotnetPath = RiderEnvironmentAccessor.getInstance(project).findFileInSystemPath("dotnet")
         if (dotnetPath == null) {
             setDotnetRootPathVariable(envs, activeRuntime)
