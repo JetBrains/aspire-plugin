@@ -130,17 +130,17 @@ jobs:
           distribution: zulu
           java-version: 17
 
-      # Setup .NET 8 environment for the next steps
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
-
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-disabled: true
+
+      # Setup .NET 8 environment for the next steps
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
 
       # Run tests
       - name: Run Tests
@@ -184,6 +184,12 @@ jobs:
         with:
           distribution: zulu
           java-version: 17
+
+      # Setup Gradle
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
 
       # Setup .NET 8 environment for the next steps
       - name: Setup .NET
@@ -232,17 +238,17 @@ jobs:
           distribution: zulu
           java-version: 17
 
-      # Setup .NET 8 environment for the next steps
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
-
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-disabled: true
+
+      # Setup .NET 8 environment for the next steps
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
 
       # Run Qodana inspections
       - name: Qodana - Code Inspection
@@ -278,17 +284,17 @@ jobs:
           distribution: zulu
           java-version: 17
 
-      # Setup .NET 8 environment for the next steps
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
-
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-disabled: true
+
+      # Setup .NET 8 environment for the next steps
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
 
       # Run Verify Plugin task and IntelliJ Plugin Verifier tool
       - name: Run Plugin Verification tasks
