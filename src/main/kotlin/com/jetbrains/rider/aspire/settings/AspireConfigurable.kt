@@ -1,21 +1,32 @@
 package com.jetbrains.rider.aspire.settings
 
 import com.intellij.openapi.options.BoundConfigurable
+import com.intellij.ui.components.JBCheckBox
+import com.intellij.ui.dsl.builder.Cell
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.builder.selected
 import com.jetbrains.rider.aspire.AspireBundle
 
 class AspireConfigurable : BoundConfigurable(AspireBundle.message("configurable.Aspire")) {
     private val settings get() = AspireSettings.getInstance()
+
+    private lateinit var connectToDatabase: Cell<JBCheckBox>
 
     override fun createPanel() = panel {
         row {
             checkBox(AspireBundle.message("configurable.Aspire.do.not.launch.browser"))
                 .bindSelected(settings::doNotLaunchBrowserForProjects)
         }
-        row {
-            checkBox(AspireBundle.message("configurable.Aspire.connect.to.database"))
-                .bindSelected(settings::connectToDatabase)
+        group(AspireBundle.message("configurable.Aspire.databases")) {
+            row {
+                connectToDatabase = checkBox(AspireBundle.message("configurable.Aspire.connect.to.database"))
+                    .bindSelected(settings::connectToDatabase)
+            }
+            row {
+                checkBox(AspireBundle.message("configurable.Aspire.check.resource.name.for.database"))
+                    .bindSelected(settings::checkResourceNameForDatabase)
+            }.enabledIf(connectToDatabase.selected)
         }
         group(AspireBundle.message("configurable.Aspire.dashboard")) {
             row {
