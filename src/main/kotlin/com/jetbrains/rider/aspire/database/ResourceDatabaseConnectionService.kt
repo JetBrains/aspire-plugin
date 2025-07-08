@@ -308,7 +308,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
     private suspend fun waitForConnection(dataSource: LocalDataSource): Boolean {
         val credentials = DatabaseCredentialsUi.newUIInstance()
 
-        (1..<5).forEach { i ->
+        (1..<5).forEach { _ ->
             when (val connectionResult = connectionManager.testConnection(dataSource, credentials)) {
                 TestConnectionExecutionResult.Cancelled -> {
                     LOG.debug("Connection cancelled")

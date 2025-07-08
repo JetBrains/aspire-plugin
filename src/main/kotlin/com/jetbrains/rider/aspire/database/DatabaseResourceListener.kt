@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.services.AspireResource
 import com.jetbrains.rider.aspire.services.ResourceListener
+import com.jetbrains.rider.aspire.settings.AspireSettings
 import java.net.URI
 
 class DatabaseResourceListener(private val project: Project) : ResourceListener {
@@ -27,7 +28,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
     private fun applyChanges(resource: AspireResource) {
         if (resource.type == ResourceType.Container) {
             val containerId = resource.containerId ?: return
-            val resourceType = getType(resource.containerImage) ?: return
+            val resourceType = getType(resource.name, resource.containerImage) ?: return
             val urls = resource.urls
                 .mapNotNull { url ->
                     runCatching { URI(url.fullUrl) }.getOrNull()
@@ -49,14 +50,25 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
         }
     }
 
-    private fun getType(image: String?): DatabaseType? {
-        if (image == null) return null
-        if (image.contains(POSTGRES)) return DatabaseType.POSTGRES
-        if (image.contains(MYSQL)) return DatabaseType.MYSQL
-        if (image.contains(MSSQL)) return DatabaseType.MSSQL
-        if (image.contains(ORACLE)) return DatabaseType.ORACLE
-        if (image.contains(MONGO)) return DatabaseType.MONGO
-        if (image.contains(REDIS)) return DatabaseType.REDIS
+    private fun getType(resourceName: String, image: String?): DatabaseType? {
+        if (image != null) {
+            val databaseTypeByImage = findDatabaseType(image)
+            if (databaseTypeByImage != null) {
+                return databaseTypeByImage
+            }
+        }
+
+        return if (AspireSettings.getInstance().checkResourceNameForDatabase) findDatabaseType(resourceName)
+        else null
+    }
+
+    private fun findDatabaseType(value: String): DatabaseType? {
+        if (value.contains(POSTGRES)) return DatabaseType.POSTGRES
+        if (value.contains(MYSQL)) return DatabaseType.MYSQL
+        if (value.contains(MSSQL)) return DatabaseType.MSSQL
+        if (value.contains(ORACLE)) return DatabaseType.ORACLE
+        if (value.contains(MONGO)) return DatabaseType.MONGO
+        if (value.contains(REDIS)) return DatabaseType.REDIS
         return null
     }
 }
