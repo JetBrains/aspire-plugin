@@ -11,6 +11,7 @@
 ### Fixed
 
 - Setting does not disable automatic connection to the database
+- Database connection duplication issue
 
 ## [1.8.4] - 2025-06-27
 
