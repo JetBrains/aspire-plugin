@@ -26,6 +26,8 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
     }
 
     private fun applyChanges(resource: AspireResource) {
+        if (!AspireSettings.getInstance().connectToDatabase) return
+
         if (resource.type == ResourceType.Container) {
             val containerId = resource.containerId ?: return
             val resourceType = getType(resource.name, resource.containerImage) ?: return

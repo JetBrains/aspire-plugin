@@ -8,6 +8,10 @@
 
 - Ability to identify a database driver by a resource name
 
+### Fixed
+
+- Setting does not disable automatic connection to the database
+
 ## [1.8.4] - 2025-06-27
 
 ### Changed
