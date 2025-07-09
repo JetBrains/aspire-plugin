@@ -71,6 +71,8 @@ class ResourceDatabaseService(private val project: Project, scope: CoroutineScop
 
         LOG.trace { "Adding database resource $resource" }
 
+        //cannot use `putIfAbsent` because "under" the same resource there could start multiple containers
+        //with different ports (for example, #431)
         databaseResources[resource.containerId] = resource
         resource.resourceLifetime.onTerminationIfAlive {
             databaseResources.remove(resource.containerId)

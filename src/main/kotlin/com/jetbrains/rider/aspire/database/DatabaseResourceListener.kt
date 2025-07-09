@@ -1,6 +1,7 @@
 package com.jetbrains.rider.aspire.database
 
 import com.intellij.openapi.project.Project
+import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.services.AspireResource
 import com.jetbrains.rider.aspire.services.ResourceListener
@@ -28,7 +29,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
     private fun applyChanges(resource: AspireResource) {
         if (!AspireSettings.getInstance().connectToDatabase) return
 
-        if (resource.type == ResourceType.Container) {
+        if (resource.type == ResourceType.Container && resource.state == ResourceState.Running) {
             val containerId = resource.containerId ?: return
             val resourceType = getType(resource.name, resource.containerImage) ?: return
             val urls = resource.urls
