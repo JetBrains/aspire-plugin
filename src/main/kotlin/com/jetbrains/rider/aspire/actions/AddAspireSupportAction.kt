@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.DumbAwareAction
-import com.jetbrains.rider.aspire.projectTemplates.AspireProjectTemplateService
+import com.jetbrains.rider.aspire.projectTemplates.AspireProjectTemplateGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -14,7 +14,7 @@ internal class AddAspireSupportAction : DumbAwareAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         currentThreadCoroutineScope().launch(Dispatchers.Default) {
-            AspireProjectTemplateService.getInstance(project).createHotProjectFromTemplate()
+            AspireProjectTemplateGenerator.getInstance(project).generateAspireProjectsFromTemplates(true, true)
         }
     }
 
