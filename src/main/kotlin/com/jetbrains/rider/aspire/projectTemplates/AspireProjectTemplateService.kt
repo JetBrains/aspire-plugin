@@ -17,6 +17,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.jetbrains.rider.projectView.projectTemplates.utils.ProjectTemplatesExpanderUtils
+import com.jetbrains.rider.projectView.solutionDirectory
 
 @Service(Service.Level.PROJECT)
 class AspireProjectTemplateService(
@@ -34,17 +36,14 @@ class AspireProjectTemplateService(
     suspend fun createHotProjectFromTemplate() {
         LOG.info("Generate Aspire projects for the solution")
 
-        val (appHostTemplate, serviceDefaultsTemplate) = loadAspireTemplates()
+       loadAspireTemplates()
 
-        if (appHostTemplate == null || serviceDefaultsTemplate == null) {
-            LOG.warn("Unable to load Aspire project templates")
-            return
-        }
+
 
 
     }
 
-    private suspend fun loadAspireTemplates(): Pair<RdProjectTemplate?, RdProjectTemplate?> =
+    private suspend fun loadAspireTemplates() {
         withBackgroundProgress(project, AspireBundle.message("progress.load.aspire.templates")) {
             val model = project.protocol.projectTemplatesModel
             val session = RiderProjectTemplateProvider.createSession(createSolution = false, useCachedTemplates = true)
@@ -76,7 +75,26 @@ class AspireProjectTemplateService(
                 val appHostResult = appHostDeferredTemplate.await()
                 val serviceDefaultsResult = serviceDefaultsDeferredTemplate.await()
 
-                return@withBackgroundProgress appHostResult to serviceDefaultsResult
+                if (appHostResult == null || serviceDefaultsResult == null) {
+                    LOG.warn("Unable to load Aspire project templates")
+                    return@withBackgroundProgress
+                }
+
+                val solutionDirectory = project.solutionDirectory
+                val appHostDirectory = solutionDirectory.resolve("AppHost")
+
+                ProjectTemplatesExpanderUtils.expandProjectTemplate(
+                    session,
+                    project,
+                    appHostResult.id,
+                    appHostResult.sdk,
+                    "AppHost",
+                    appHostDirectory,
+                    solutionDirectory,
+                    mapOf(),
+                    false
+                )
             }
         }
+    }
 }
