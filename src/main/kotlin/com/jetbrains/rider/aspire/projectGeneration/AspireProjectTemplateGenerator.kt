@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.projectTemplates
+package com.jetbrains.rider.aspire.projectGeneration
 
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service

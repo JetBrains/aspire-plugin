@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.projectTemplates
+package com.jetbrains.rider.aspire.projectGeneration
 
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
