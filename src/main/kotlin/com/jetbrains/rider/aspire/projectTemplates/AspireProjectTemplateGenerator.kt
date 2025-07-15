@@ -98,9 +98,7 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
             application.invokeLater {
                 model.session.set(null)
             }
-        }
 
-        advisingLifetime.onTermination {
             if (!appHostDeferredTemplate.isCompleted) {
                 appHostDeferredTemplate.complete(null)
             }
