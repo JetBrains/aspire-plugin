@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.DumbAwareAction
-import com.jetbrains.rider.aspire.projectTemplates.AspireOrchestrationSupportService
+import com.jetbrains.rider.aspire.projectGeneration.AspireOrchestrationSupportService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
