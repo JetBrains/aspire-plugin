@@ -1,5 +1,7 @@
 using JetBrains.Application.Parts;
 using JetBrains.Application.Threading;
+using JetBrains.Core;
+using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Properties;
 using JetBrains.Rd.Tasks;
@@ -14,13 +16,17 @@ namespace JetBrains.Rider.Aspire;
 public class AspirePluginHost
 {
     private readonly ISolution _solution;
+    private readonly AspireProjectModelService _projectModelService;
 
-    public AspirePluginHost(ISolution solution)
+    public AspirePluginHost(ISolution solution, AspireProjectModelService projectModelService)
     {
         _solution = solution;
-        var model = solution.GetProtocolSolution().GetAspirePluginModel();
+        _projectModelService = projectModelService;
 
+        var model = solution.GetProtocolSolution().GetAspirePluginModel();
         model.GetProjectOutputType.SetSync(GetProjectOutputType);
+        model.ReferenceProjectsFromAppHost.SetSync((lt, req) => ReferenceProjectsFromAppHost(req, lt));
+        model.ReferenceServiceDefaultsFromProjects.SetSync((lt, req) => ReferenceServiceDefaultsFromProjects(req, lt));
     }
 
     private string? GetProjectOutputType(string projectPath)
@@ -33,5 +39,21 @@ public class AspirePluginHost
         }
 
         return project?.GetRequestedProjectProperties(OutputTypeProjectPropertyRequest.OutputType).FirstNotNull();
+    }
+
+    private Unit ReferenceProjectsFromAppHost(ReferenceProjectsFromAppHostRequest request,
+        Lifetime lifetime)
+    {
+        _projectModelService.ReferenceProjectsFromAppHost(request.HostProjectFilePath,
+            request.ProjectFilePaths, lifetime);
+        return Unit.Instance;
+    }
+
+    private Unit ReferenceServiceDefaultsFromProjects(ReferenceServiceDefaultsFromProjectsRequest request,
+        Lifetime lifetime)
+    {
+        _projectModelService.ReferenceServiceDefaultsFromProjects(request.SharedProjectFilePath,
+            request.ProjectFilePaths, lifetime);
+        return Unit.Instance;
     }
 }
