@@ -27,9 +27,12 @@ import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
 import com.jetbrains.rider.projectView.workspace.getId
 import com.jetbrains.rider.projectView.workspace.getSolutionEntity
+import com.jetbrains.rider.projectView.workspace.isProject
+import com.jetbrains.rider.run.configurations.runnableProjectsModelIfAvailable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**
@@ -41,22 +44,53 @@ import kotlin.io.path.absolutePathString
  * integration of these files with selected .NET project entities.
  */
 @Service(Service.Level.PROJECT)
-class AspireOrchestrationSupportService(private val project: Project) {
+class AspireOrchestrationService(private val project: Project) {
     companion object {
-        fun getInstance(project: Project): AspireOrchestrationSupportService = project.service()
-        private val LOG = logger<AspireOrchestrationSupportService>()
+        fun getInstance(project: Project): AspireOrchestrationService = project.service()
+        private val LOG = logger<AspireOrchestrationService>()
     }
 
     /**
-     * Adds Aspire Orchestration support to the specified .NET projects.
+     * Adds .NET Aspire Orchestration.
+     *
+     * This method identifies potential .NET project entities.
+     * A dialog is presented to a user for selecting specific projects to add .NET Aspire orchestration.
+     */
+    suspend fun addAspireOrchestration() {
+        val projectEntities = project.serviceAsync<WorkspaceModel>()
+            .findProjects()
+            .filter { it.isProject() && !it.isAspireHostProject() && !it.isAspireSharedProject() }
+        val runnableProjects = project.runnableProjectsModelIfAvailable?.projects?.valueOrNull
+            ?: emptyList()
+        val runnableProjectFilePaths = runnableProjects
+            .groupBy { it.projectFilePath }
+            .mapKeys { Path(it.key) }
+        val runnableProjectEntities = projectEntities
+            .filter { entity -> entity.url?.toPath()?.let { runnableProjectFilePaths.contains(it) } ?: false }
+
+        withContext(Dispatchers.EDT) {
+            val dialog = AddAspireOrchestrationDialog(project, runnableProjectEntities)
+            if (dialog.showAndGet()) {
+                val projectEntities = dialog.getSelectedItems()
+                if (projectEntities.isEmpty()) return@withContext
+
+                withContext(Dispatchers.Main) {
+                    addAspireOrchestration(projectEntities)
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds .NET Aspire Orchestration to the specified .NET projects.
      * This involves identifying existing Aspire projects,
      * generating necessary Aspire project files if they do not exist,
      * and referencing these projects from the provided list of .NET projects.
      *
-     * @param dotnetProjects A list of .NET project entities to which Aspire Orchestration support should be added.
+     * @param projectEntities A list of .NET project entities to which Aspire Orchestration should be added.
      */
-    suspend fun addAspireOrchestrationSupport(dotnetProjects: List<ProjectModelEntity>) =
-        withBackgroundProgress(project, AspireBundle.message("progress.adding.aspire.support")) {
+    suspend fun addAspireOrchestration(projectEntities: List<ProjectModelEntity>) =
+        withBackgroundProgress(project, AspireBundle.message("progress.adding.aspire.orchestration")) {
             var (hostProjectPath, sharedProjectPath) = findExistingAspireProjects()
 
             val needToGenerateAppHost = hostProjectPath == null
@@ -73,7 +107,7 @@ class AspireOrchestrationSupportService(private val project: Project) {
                 if (generatedSharedProjectPath != null) sharedProjectPath = generatedSharedProjectPath
             }
 
-            val projectFilePathStrings = dotnetProjects.mapNotNull { it.url?.toPath()?.absolutePathString() }
+            val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
             if (hostProjectPath != null) {
                 referenceByHostProject(hostProjectPath, projectFilePathStrings)
             }
