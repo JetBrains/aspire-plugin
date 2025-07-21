@@ -8,6 +8,16 @@ import com.jetbrains.rider.model.nova.ide.SolutionModel
 
 @Suppress("unused")
 object AspirePluginModel : Ext(SolutionModel.Solution) {
+    private val ReferenceProjectsFromAppHostRequest = structdef {
+        field("hostProjectFilePath", string)
+        field("projectFilePaths", immutableList(string))
+    }
+
+    private val ReferenceServiceDefaultsFromProjectsRequest = structdef {
+        field("sharedProjectFilePath", string)
+        field("projectFilePaths", immutableList(string))
+    }
+
     private val StartSessionHostRequest = structdef {
         field("unitTestRunId", string)
         field("aspireHostProjectPath", string)
@@ -32,6 +42,8 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Generated")
 
         call("getProjectOutputType", string, string.nullable)
+        call("referenceProjectsFromAppHost", ReferenceProjectsFromAppHostRequest, void)
+        call("referenceServiceDefaultsFromProjects", ReferenceServiceDefaultsFromProjectsRequest, void)
         callback("startSessionHost", StartSessionHostRequest, StartSessionHostResponse).async
         callback("stopSessionHost", StopSessionHostRequest, void).async
         sink("unitTestRunCancelled", string).async

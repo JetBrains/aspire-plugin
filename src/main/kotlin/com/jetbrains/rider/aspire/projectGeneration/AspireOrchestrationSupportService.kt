@@ -6,17 +6,24 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.components.serviceAsync
+import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.backend.workspace.virtualFile
+import com.intellij.platform.ide.progress.withBackgroundProgress
+import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.rd.ide.model.RdPostProcessParameters
 import com.jetbrains.rider.aspire.AspireBundle
-import com.jetbrains.rider.aspire.util.isAspireHost
+import com.jetbrains.rider.aspire.generated.ReferenceProjectsFromAppHostRequest
+import com.jetbrains.rider.aspire.generated.ReferenceServiceDefaultsFromProjectsRequest
+import com.jetbrains.rider.aspire.generated.aspirePluginModel
+import com.jetbrains.rider.aspire.util.isAspireHostProject
 import com.jetbrains.rider.aspire.util.isAspireSharedProject
 import com.jetbrains.rider.model.AddProjectCommand
 import com.jetbrains.rider.model.projectModelTasks
 import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
 import com.jetbrains.rider.projectView.workspace.getId
 import com.jetbrains.rider.projectView.workspace.getSolutionEntity
@@ -25,6 +32,14 @@ import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
+/**
+ * Service to provide Aspire Orchestration support.
+ *
+ * This service is responsible for adding Aspire Orchestration features
+ * to existing .NET projects by identifying existing Aspire-related projects,
+ * generating new Aspire project files when necessary, and ensuring proper
+ * integration of these files with selected .NET project entities.
+ */
 @Service(Service.Level.PROJECT)
 class AspireOrchestrationSupportService(private val project: Project) {
     companion object {
@@ -32,21 +47,40 @@ class AspireOrchestrationSupportService(private val project: Project) {
         private val LOG = logger<AspireOrchestrationSupportService>()
     }
 
-    suspend fun addAspireOrchestrationSupport() {
-        var (hostProjectPath, sharedProjectPath) = findExistingAspireProjects()
+    /**
+     * Adds Aspire Orchestration support to the specified .NET projects.
+     * This involves identifying existing Aspire projects,
+     * generating necessary Aspire project files if they do not exist,
+     * and referencing these projects from the provided list of .NET projects.
+     *
+     * @param dotnetProjects A list of .NET project entities to which Aspire Orchestration support should be added.
+     */
+    suspend fun addAspireOrchestrationSupport(dotnetProjects: List<ProjectModelEntity>) =
+        withBackgroundProgress(project, AspireBundle.message("progress.adding.aspire.support")) {
+            var (hostProjectPath, sharedProjectPath) = findExistingAspireProjects()
 
-        val needToGenerateAppHost = hostProjectPath == null
-        val needToGenerateServiceDefaults = sharedProjectPath == null
+            val needToGenerateAppHost = hostProjectPath == null
+            val needToGenerateServiceDefaults = sharedProjectPath == null
 
-        if (needToGenerateAppHost || needToGenerateServiceDefaults) {
-            val generatedProjects =
-                generateAspireProjects(needToGenerateAppHost, needToGenerateServiceDefaults) ?: return
+            if (needToGenerateAppHost || needToGenerateServiceDefaults) {
+                val (generatedHostProjectPath, generatedSharedProjectPath) =
+                    generateAspireProjects(needToGenerateAppHost, needToGenerateServiceDefaults)
+                        ?: return@withBackgroundProgress
 
-            val (generatedHostProjectPath, generatedSharedProjectPath) = generatedProjects
-            if (generatedHostProjectPath != null) hostProjectPath = generatedHostProjectPath
-            if (generatedSharedProjectPath != null) sharedProjectPath = generatedSharedProjectPath
+                LOG.debug { "Generated host: ${generatedHostProjectPath?.absolutePathString()}, generated shared project: ${generatedSharedProjectPath?.absolutePathString()}" }
+
+                if (generatedHostProjectPath != null) hostProjectPath = generatedHostProjectPath
+                if (generatedSharedProjectPath != null) sharedProjectPath = generatedSharedProjectPath
+            }
+
+            val projectFilePathStrings = dotnetProjects.mapNotNull { it.url?.toPath()?.absolutePathString() }
+            if (hostProjectPath != null) {
+                referenceByHostProject(hostProjectPath, projectFilePathStrings)
+            }
+            if (sharedProjectPath != null) {
+                referenceSharedProject(sharedProjectPath, projectFilePathStrings)
+            }
         }
-    }
 
     private suspend fun findExistingAspireProjects(): Pair<Path?, Path?> {
         var hostProjectPath: Path? = null
@@ -55,7 +89,7 @@ class AspireOrchestrationSupportService(private val project: Project) {
         val dotnetProjects = project.serviceAsync<WorkspaceModel>().findProjects()
 
         for (dotnetProject in dotnetProjects) {
-            if (dotnetProject.isAspireHost()) {
+            if (dotnetProject.isAspireHostProject()) {
                 val projectFile = dotnetProject.url?.virtualFile?.toNioPath()
                 if (projectFile == null) {
                     LOG.warn("Unable to find a virtual file for the Aspire AppHost")
@@ -77,7 +111,7 @@ class AspireOrchestrationSupportService(private val project: Project) {
 
     private suspend fun generateAspireProjects(
         needToGenerateAppHost: Boolean,
-        needToGenerateServiceDefaults: Boolean
+        needToGenerateServiceDefaults: Boolean,
     ): Pair<Path?, Path?>? {
         suspend fun notifyAboutFailedGeneration() = withContext(Dispatchers.EDT) {
             Notification(
@@ -109,12 +143,12 @@ class AspireOrchestrationSupportService(private val project: Project) {
             return null
         }
 
-        addGeneratedProjectToSolution(solutionId, generatedHostProjectPath, generatedSharedProjectPath)
+        addGeneratedAspireProjectToSolution(solutionId, generatedHostProjectPath, generatedSharedProjectPath)
 
         return generatedHostProjectPath to generatedSharedProjectPath
     }
 
-    private suspend fun addGeneratedProjectToSolution(
+    private suspend fun addGeneratedAspireProjectToSolution(
         solutionId: Int,
         generatedHostProjectPath: Path?,
         generatedSharedProjectPath: Path?
@@ -137,4 +171,24 @@ class AspireOrchestrationSupportService(private val project: Project) {
             project.solution.projectModelTasks.addProject.startSuspending(command)
         }
     }
+
+    private suspend fun referenceByHostProject(hostProjectPath: Path, projectFilePaths: List<String>) =
+        withContext(Dispatchers.EDT) {
+            val request = ReferenceProjectsFromAppHostRequest(
+                hostProjectPath.absolutePathString(),
+                projectFilePaths
+            )
+
+            project.solution.aspirePluginModel.referenceProjectsFromAppHost.startSuspending(request)
+        }
+
+    private suspend fun referenceSharedProject(sharedProjectPath: Path, projectFilePaths: List<String>) =
+        withContext(Dispatchers.EDT) {
+            val request = ReferenceServiceDefaultsFromProjectsRequest(
+                sharedProjectPath.absolutePathString(),
+                projectFilePaths
+            )
+
+            project.solution.aspirePluginModel.referenceServiceDefaultsFromProjects.startSuspending(request)
+        }
 }

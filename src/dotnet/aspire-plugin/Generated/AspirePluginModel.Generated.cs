@@ -43,12 +43,16 @@ namespace JetBrains.Rider.Aspire.Generated
     //fields
     //public fields
     [NotNull] public IRdEndpoint<string, string> GetProjectOutputType => _GetProjectOutputType;
+    [NotNull] public IRdEndpoint<ReferenceProjectsFromAppHostRequest, Unit> ReferenceProjectsFromAppHost => _ReferenceProjectsFromAppHost;
+    [NotNull] public IRdEndpoint<ReferenceServiceDefaultsFromProjectsRequest, Unit> ReferenceServiceDefaultsFromProjects => _ReferenceServiceDefaultsFromProjects;
     [NotNull] public IRdCall<StartSessionHostRequest, StartSessionHostResponse> StartSessionHost => _StartSessionHost;
     [NotNull] public IRdCall<StopSessionHostRequest, Unit> StopSessionHost => _StopSessionHost;
     [NotNull] public void UnitTestRunCancelled(string value) => _UnitTestRunCancelled.Fire(value);
     
     //private fields
     [NotNull] private readonly RdCall<string, string> _GetProjectOutputType;
+    [NotNull] private readonly RdCall<ReferenceProjectsFromAppHostRequest, Unit> _ReferenceProjectsFromAppHost;
+    [NotNull] private readonly RdCall<ReferenceServiceDefaultsFromProjectsRequest, Unit> _ReferenceServiceDefaultsFromProjects;
     [NotNull] private readonly RdCall<StartSessionHostRequest, StartSessionHostResponse> _StartSessionHost;
     [NotNull] private readonly RdCall<StopSessionHostRequest, Unit> _StopSessionHost;
     [NotNull] private readonly RdSignal<string> _UnitTestRunCancelled;
@@ -56,17 +60,23 @@ namespace JetBrains.Rider.Aspire.Generated
     //primary constructor
     private AspirePluginModel(
       [NotNull] RdCall<string, string> getProjectOutputType,
+      [NotNull] RdCall<ReferenceProjectsFromAppHostRequest, Unit> referenceProjectsFromAppHost,
+      [NotNull] RdCall<ReferenceServiceDefaultsFromProjectsRequest, Unit> referenceServiceDefaultsFromProjects,
       [NotNull] RdCall<StartSessionHostRequest, StartSessionHostResponse> startSessionHost,
       [NotNull] RdCall<StopSessionHostRequest, Unit> stopSessionHost,
       [NotNull] RdSignal<string> unitTestRunCancelled
     )
     {
       if (getProjectOutputType == null) throw new ArgumentNullException("getProjectOutputType");
+      if (referenceProjectsFromAppHost == null) throw new ArgumentNullException("referenceProjectsFromAppHost");
+      if (referenceServiceDefaultsFromProjects == null) throw new ArgumentNullException("referenceServiceDefaultsFromProjects");
       if (startSessionHost == null) throw new ArgumentNullException("startSessionHost");
       if (stopSessionHost == null) throw new ArgumentNullException("stopSessionHost");
       if (unitTestRunCancelled == null) throw new ArgumentNullException("unitTestRunCancelled");
       
       _GetProjectOutputType = getProjectOutputType;
+      _ReferenceProjectsFromAppHost = referenceProjectsFromAppHost;
+      _ReferenceServiceDefaultsFromProjects = referenceServiceDefaultsFromProjects;
       _StartSessionHost = startSessionHost;
       _StopSessionHost = stopSessionHost;
       _UnitTestRunCancelled = unitTestRunCancelled;
@@ -75,6 +85,8 @@ namespace JetBrains.Rider.Aspire.Generated
       _UnitTestRunCancelled.Async = true;
       _GetProjectOutputType.ValueCanBeNull = true;
       BindableChildren.Add(new KeyValuePair<string, object>("getProjectOutputType", _GetProjectOutputType));
+      BindableChildren.Add(new KeyValuePair<string, object>("referenceProjectsFromAppHost", _ReferenceProjectsFromAppHost));
+      BindableChildren.Add(new KeyValuePair<string, object>("referenceServiceDefaultsFromProjects", _ReferenceServiceDefaultsFromProjects));
       BindableChildren.Add(new KeyValuePair<string, object>("startSessionHost", _StartSessionHost));
       BindableChildren.Add(new KeyValuePair<string, object>("stopSessionHost", _StopSessionHost));
       BindableChildren.Add(new KeyValuePair<string, object>("unitTestRunCancelled", _UnitTestRunCancelled));
@@ -83,6 +95,8 @@ namespace JetBrains.Rider.Aspire.Generated
     internal AspirePluginModel (
     ) : this (
       new RdCall<string, string>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ReadStringNullable, WriteStringNullable),
+      new RdCall<ReferenceProjectsFromAppHostRequest, Unit>(ReferenceProjectsFromAppHostRequest.Read, ReferenceProjectsFromAppHostRequest.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid),
+      new RdCall<ReferenceServiceDefaultsFromProjectsRequest, Unit>(ReferenceServiceDefaultsFromProjectsRequest.Read, ReferenceServiceDefaultsFromProjectsRequest.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid),
       new RdCall<StartSessionHostRequest, StartSessionHostResponse>(StartSessionHostRequest.Read, StartSessionHostRequest.Write, StartSessionHostResponse.Read, StartSessionHostResponse.Write),
       new RdCall<StopSessionHostRequest, Unit>(StopSessionHostRequest.Read, StopSessionHostRequest.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid),
       new RdSignal<string>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString)
@@ -94,7 +108,7 @@ namespace JetBrains.Rider.Aspire.Generated
     
     public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
     
-    protected override long SerializationHash => -4698860226523395197L;
+    protected override long SerializationHash => -2721683938537739218L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -116,6 +130,8 @@ namespace JetBrains.Rider.Aspire.Generated
       printer.Println("AspirePluginModel (");
       using (printer.IndentCookie()) {
         printer.Print("getProjectOutputType = "); _GetProjectOutputType.PrintEx(printer); printer.Println();
+        printer.Print("referenceProjectsFromAppHost = "); _ReferenceProjectsFromAppHost.PrintEx(printer); printer.Println();
+        printer.Print("referenceServiceDefaultsFromProjects = "); _ReferenceServiceDefaultsFromProjects.PrintEx(printer); printer.Println();
         printer.Print("startSessionHost = "); _StartSessionHost.PrintEx(printer); printer.Println();
         printer.Print("stopSessionHost = "); _StopSessionHost.PrintEx(printer); printer.Println();
         printer.Print("unitTestRunCancelled = "); _UnitTestRunCancelled.PrintEx(printer); printer.Println();
@@ -140,7 +156,199 @@ namespace JetBrains.Rider.Aspire.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:17</p>
+  /// <p>Generated from: AspirePluginModel.kt:11</p>
+  /// </summary>
+  public sealed class ReferenceProjectsFromAppHostRequest : IPrintable, IEquatable<ReferenceProjectsFromAppHostRequest>
+  {
+    //fields
+    //public fields
+    [NotNull] public string HostProjectFilePath {get; private set;}
+    [NotNull] public List<string> ProjectFilePaths {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public ReferenceProjectsFromAppHostRequest(
+      [NotNull] string hostProjectFilePath,
+      [NotNull] List<string> projectFilePaths
+    )
+    {
+      if (hostProjectFilePath == null) throw new ArgumentNullException("hostProjectFilePath");
+      if (projectFilePaths == null) throw new ArgumentNullException("projectFilePaths");
+      
+      HostProjectFilePath = hostProjectFilePath;
+      ProjectFilePaths = projectFilePaths;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string hostProjectFilePath, [NotNull] out List<string> projectFilePaths)
+    {
+      hostProjectFilePath = HostProjectFilePath;
+      projectFilePaths = ProjectFilePaths;
+    }
+    //statics
+    
+    public static CtxReadDelegate<ReferenceProjectsFromAppHostRequest> Read = (ctx, reader) => 
+    {
+      var hostProjectFilePath = reader.ReadString();
+      var projectFilePaths = ReadStringList(ctx, reader);
+      var _result = new ReferenceProjectsFromAppHostRequest(hostProjectFilePath, projectFilePaths);
+      return _result;
+    };
+    public static CtxReadDelegate<List<string>> ReadStringList = JetBrains.Rd.Impl.Serializers.ReadString.List();
+    
+    public static CtxWriteDelegate<ReferenceProjectsFromAppHostRequest> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.HostProjectFilePath);
+      WriteStringList(ctx, writer, value.ProjectFilePaths);
+    };
+    public static  CtxWriteDelegate<List<string>> WriteStringList = JetBrains.Rd.Impl.Serializers.WriteString.List();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((ReferenceProjectsFromAppHostRequest) obj);
+    }
+    public bool Equals(ReferenceProjectsFromAppHostRequest other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return HostProjectFilePath == other.HostProjectFilePath && ProjectFilePaths.SequenceEqual(other.ProjectFilePaths);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + HostProjectFilePath.GetHashCode();
+        hash = hash * 31 + ProjectFilePaths.ContentHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("ReferenceProjectsFromAppHostRequest (");
+      using (printer.IndentCookie()) {
+        printer.Print("hostProjectFilePath = "); HostProjectFilePath.PrintEx(printer); printer.Println();
+        printer.Print("projectFilePaths = "); ProjectFilePaths.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspirePluginModel.kt:16</p>
+  /// </summary>
+  public sealed class ReferenceServiceDefaultsFromProjectsRequest : IPrintable, IEquatable<ReferenceServiceDefaultsFromProjectsRequest>
+  {
+    //fields
+    //public fields
+    [NotNull] public string SharedProjectFilePath {get; private set;}
+    [NotNull] public List<string> ProjectFilePaths {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public ReferenceServiceDefaultsFromProjectsRequest(
+      [NotNull] string sharedProjectFilePath,
+      [NotNull] List<string> projectFilePaths
+    )
+    {
+      if (sharedProjectFilePath == null) throw new ArgumentNullException("sharedProjectFilePath");
+      if (projectFilePaths == null) throw new ArgumentNullException("projectFilePaths");
+      
+      SharedProjectFilePath = sharedProjectFilePath;
+      ProjectFilePaths = projectFilePaths;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string sharedProjectFilePath, [NotNull] out List<string> projectFilePaths)
+    {
+      sharedProjectFilePath = SharedProjectFilePath;
+      projectFilePaths = ProjectFilePaths;
+    }
+    //statics
+    
+    public static CtxReadDelegate<ReferenceServiceDefaultsFromProjectsRequest> Read = (ctx, reader) => 
+    {
+      var sharedProjectFilePath = reader.ReadString();
+      var projectFilePaths = ReadStringList(ctx, reader);
+      var _result = new ReferenceServiceDefaultsFromProjectsRequest(sharedProjectFilePath, projectFilePaths);
+      return _result;
+    };
+    public static CtxReadDelegate<List<string>> ReadStringList = JetBrains.Rd.Impl.Serializers.ReadString.List();
+    
+    public static CtxWriteDelegate<ReferenceServiceDefaultsFromProjectsRequest> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.SharedProjectFilePath);
+      WriteStringList(ctx, writer, value.ProjectFilePaths);
+    };
+    public static  CtxWriteDelegate<List<string>> WriteStringList = JetBrains.Rd.Impl.Serializers.WriteString.List();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((ReferenceServiceDefaultsFromProjectsRequest) obj);
+    }
+    public bool Equals(ReferenceServiceDefaultsFromProjectsRequest other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return SharedProjectFilePath == other.SharedProjectFilePath && ProjectFilePaths.SequenceEqual(other.ProjectFilePaths);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + SharedProjectFilePath.GetHashCode();
+        hash = hash * 31 + ProjectFilePaths.ContentHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("ReferenceServiceDefaultsFromProjectsRequest (");
+      using (printer.IndentCookie()) {
+        printer.Print("sharedProjectFilePath = "); SharedProjectFilePath.PrintEx(printer); printer.Println();
+        printer.Print("projectFilePaths = "); ProjectFilePaths.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspirePluginModel.kt:27</p>
   /// </summary>
   public sealed class SessionHostEnvironmentVariable : IPrintable, IEquatable<SessionHostEnvironmentVariable>
   {
@@ -234,7 +442,7 @@ namespace JetBrains.Rider.Aspire.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:11</p>
+  /// <p>Generated from: AspirePluginModel.kt:21</p>
   /// </summary>
   public sealed class StartSessionHostRequest : IPrintable, IEquatable<StartSessionHostRequest>
   {
@@ -336,7 +544,7 @@ namespace JetBrains.Rider.Aspire.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:22</p>
+  /// <p>Generated from: AspirePluginModel.kt:32</p>
   /// </summary>
   public sealed class StartSessionHostResponse : IPrintable, IEquatable<StartSessionHostResponse>
   {
@@ -423,7 +631,7 @@ namespace JetBrains.Rider.Aspire.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:26</p>
+  /// <p>Generated from: AspirePluginModel.kt:36</p>
   /// </summary>
   public sealed class StopSessionHostRequest : IPrintable, IEquatable<StopSessionHostRequest>
   {

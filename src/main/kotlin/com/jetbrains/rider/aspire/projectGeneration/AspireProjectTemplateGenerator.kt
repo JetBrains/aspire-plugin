@@ -27,7 +27,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.nio.file.Path
 import java.time.Duration
 import kotlin.io.path.exists
@@ -150,7 +149,7 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
             session,
             template,
             projectName,
-            projectDirectoryPath.toFile()
+            projectDirectoryPath
         )
 
         if (result.errorMessage != null) {
@@ -165,14 +164,14 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
         session: RdProjectTemplateSession,
         template: RdProjectTemplate,
         projectName: String,
-        projectDirectory: File,
+        projectDirectory: Path,
     ) = ProjectTemplatesExpanderUtils.expandProjectTemplate(
         session,
         project,
         template.id,
         template.sdk,
         projectName,
-        projectDirectory,
+        projectDirectory.toFile(),
         project.solutionDirectory,
         mapOf(),
         false

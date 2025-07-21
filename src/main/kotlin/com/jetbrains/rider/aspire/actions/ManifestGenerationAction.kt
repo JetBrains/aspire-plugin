@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.platform.backend.workspace.virtualFile
 import com.jetbrains.rider.aspire.manifest.ManifestService
-import com.jetbrains.rider.aspire.util.isAspireHost
+import com.jetbrains.rider.aspire.util.isAspireHostProject
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ class ManifestGenerationAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val entity = event.dataContext.getProjectModelEntity() ?: return
-        if (!entity.isAspireHost()) return
+        if (!entity.isAspireHostProject()) return
         val file = entity.url?.virtualFile ?: return
 
         currentThreadCoroutineScope().launch(Dispatchers.Default) {
@@ -38,7 +38,7 @@ class ManifestGenerationAction : AnAction() {
         }
 
         val entity = event.dataContext.getProjectModelEntity()
-        if (entity == null || !entity.isAspireHost()) {
+        if (entity == null || !entity.isAspireHostProject()) {
             event.presentation.isEnabledAndVisible = false
             return
         }
