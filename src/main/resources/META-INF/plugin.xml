@@ -97,9 +97,18 @@
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
-        <action id="Aspire.AddSupport"
-                class="com.jetbrains.rider.aspire.actions.AddAspireSupportAction"
-                icon="RiderIcons.Templates.TemplateAspire"/>
+        <action id="Aspire.AddToSolution"
+                class="com.jetbrains.rider.aspire.actions.AddAspireToSolutionAction"
+                icon="RiderIcons.Templates.TemplateAspire">
+            <add-to-group group-id="SolutionViewAddGroup.SolutionSection" relative-to-action="NewRiderSolutionFolder"
+                          anchor="after"/>
+        </action>
+        <action id="Aspire.AddToProject"
+                class="com.jetbrains.rider.aspire.actions.AddAspireToProjectAction"
+                icon="RiderIcons.Templates.TemplateAspire">
+            <add-to-group group-id="SolutionViewAddGroup.TechnologySection" relative-to-action="AddScaffoldedItem"
+                          anchor="before"/>
+        </action>
         <group id="Aspire.Host">
             <action id="Aspire.Host.Run"
                     class="com.jetbrains.rider.aspire.actions.dashboard.host.RunHostAction"
