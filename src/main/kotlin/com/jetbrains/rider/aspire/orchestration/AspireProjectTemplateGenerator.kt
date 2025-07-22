@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.projectGeneration
+package com.jetbrains.rider.aspire.orchestration
 
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
