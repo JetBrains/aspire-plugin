@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.projectGeneration
+package com.jetbrains.rider.aspire.orchestration
 
 import com.intellij.execution.multilaunch.design.components.IconCheckBoxList
 import com.intellij.openapi.project.Project
@@ -19,7 +19,7 @@ import java.awt.Dimension
 import java.awt.event.ItemEvent
 import javax.swing.JPanel
 
-class AddAspireOrchestrationDialog(project: Project, private val projectEntities: List<ProjectModelEntity>) :
+class AddAspireOrchestrationDialog(project: Project, projectEntities: List<ProjectModelEntity>) :
     DialogWrapper(project) {
 
     private val selectAll = JBCheckBox(AspireBundle.message("dialog.add.orchestration.select.all")).apply {

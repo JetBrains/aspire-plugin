@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.projectGeneration
+package com.jetbrains.rider.aspire.orchestration
 
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
