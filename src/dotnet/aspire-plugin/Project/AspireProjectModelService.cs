@@ -30,7 +30,7 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
     public void ReferenceProjectsFromAppHost(string hostProjectFilePath, List<string> projectFilePaths,
         Lifetime lifetime)
     {
-        var hostProjectPath = hostProjectFilePath.ParseVirtualPath(InteractionContext.Local);
+        var hostProjectPath = hostProjectFilePath.ParseVirtualPath(InteractionContext.SolutionContext);
         if (hostProjectPath is null)
         {
             logger.Warn($"Unable to parse a host project file path: {hostProjectFilePath}");
@@ -38,7 +38,7 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
         }
 
         var projectPaths = projectFilePaths
-            .Select(it => it.ParseVirtualPath(InteractionContext.Local))
+            .Select(it => it.ParseVirtualPath(InteractionContext.SolutionContext))
             .WhereNotNull()
             .ToList();
         if (projectPaths.Count == 0)
@@ -73,7 +73,7 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
     public void ReferenceServiceDefaultsFromProjects(string sharedProjectFilePath, List<string> projectFilePaths,
         Lifetime lifetime)
     {
-        var sharedProjectPath = sharedProjectFilePath.ParseVirtualPath(InteractionContext.Local);
+        var sharedProjectPath = sharedProjectFilePath.ParseVirtualPath(InteractionContext.SolutionContext);
         if (sharedProjectPath is null)
         {
             logger.Warn($"Unable to parse a shared project file path: {sharedProjectFilePath}");
@@ -81,7 +81,7 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
         }
 
         var projectPaths = projectFilePaths
-            .Select(it => it.ParseVirtualPath(InteractionContext.Local))
+            .Select(it => it.ParseVirtualPath(InteractionContext.SolutionContext))
             .WhereNotNull()
             .ToList();
         if (projectPaths.Count == 0)
