@@ -1,6 +1,5 @@
 package com.jetbrains.rider.aspire
 
-import com.jetbrains.rdclient.util.idea.waitAndPump
 import com.jetbrains.rider.aspire.manifest.ManifestService
 import com.jetbrains.rider.projectView.solutionDirectoryPath
 import com.jetbrains.rider.test.OpenSolutionParams
@@ -13,10 +12,11 @@ import com.jetbrains.rider.test.env.enums.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.framework.executeWithGold
+import com.jetbrains.rider.test.scriptingApi.runBlockingWithFlushing
 import org.testng.annotations.Test
-import java.time.Duration
 import kotlin.io.path.exists
 import kotlin.io.path.readText
+import kotlin.time.Duration.Companion.minutes
 
 @TestEnvironment(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 @Solution("DefaultAspireSolution")
@@ -36,15 +36,14 @@ class ManifestGenerationTests : PerClassSolutionTestBase() {
         val hostPath = project.solutionDirectoryPath
             .resolve("DefaultAspireSolution.AppHost")
             .resolve("DefaultAspireSolution.AppHost.csproj")
-        service.generateManifest(hostPath)
+
+        runBlockingWithFlushing("Generating .NET Aspire manifest", 5.minutes) {
+            service.generateManifest(hostPath)
+        }
 
         val manifestFilePath = project.solutionDirectoryPath
             .resolve("DefaultAspireSolution.AppHost")
             .resolve("aspire-manifest.json")
-
-        waitAndPump(Duration.ofMinutes(5), {
-            manifestFilePath.exists()
-        })
 
         manifestFilePath.exists().shouldBeTrue()
 
