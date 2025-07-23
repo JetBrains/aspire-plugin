@@ -16,9 +16,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -29,7 +27,7 @@ import kotlin.io.path.absolutePathString
  * This service handles the creation of an Aspire manifest file (`aspire-manifest.json`) for a given Aspire Host project.
  */
 @Service(Service.Level.PROJECT)
-class ManifestService(private val project: Project, private val scope: CoroutineScope) {
+class ManifestService(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<ManifestService>()
         private val LOG = logger<ManifestService>()
@@ -44,51 +42,49 @@ class ManifestService(private val project: Project, private val scope: Coroutine
      *
      * @param hostProjectPath the path of the Aspire host project for which the manifest needs to be generated
      */
-    fun generateManifest(hostProjectPath: Path) {
+    suspend fun generateManifest(hostProjectPath: Path) {
         LOG.info("Generating Aspire manifest")
 
-        scope.launch(Dispatchers.Default) {
-            withBackgroundProgress(project, AspireBundle.message("progress.generating.aspire.manifest")) {
-                val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
-                if (runtime == null) {
-                    LOG.warn("Unable to find .NET runtime")
-                    return@withBackgroundProgress
-                }
+        withBackgroundProgress(project, AspireBundle.message("progress.generating.aspire.manifest")) {
+            val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
+            if (runtime == null) {
+                LOG.warn("Unable to find .NET runtime")
+                return@withBackgroundProgress
+            }
 
-                val commandLine = runtime.createCommandLine(
-                    listOf(
-                        "run",
-                        "--publisher",
-                        "manifest",
-                        "--output-path",
-                        MANIFEST_FILE_NAME
-                    )
+            val commandLine = runtime.createCommandLine(
+                listOf(
+                    "run",
+                    "--publisher",
+                    "manifest",
+                    "--output-path",
+                    MANIFEST_FILE_NAME
                 )
-                val directoryPath = hostProjectPath.parent
-                commandLine.workDirectory = directoryPath.toFile()
-                LOG.debug { commandLine.commandLineString }
+            )
+            val directoryPath = hostProjectPath.parent
+            commandLine.workDirectory = directoryPath.toFile()
+            LOG.debug { commandLine.commandLineString }
 
-                val output = ExecUtil.execAndGetOutput(commandLine)
-                if (output.checkSuccess(LOG)) {
-                    LOG.info("Aspire manifest is generated")
+            val output = ExecUtil.execAndGetOutput(commandLine)
+            if (output.checkSuccess(LOG)) {
+                LOG.info("Aspire manifest is generated")
 
-                    val manifestPath = directoryPath.resolve(MANIFEST_FILE_NAME)
-                    val file = LocalFileSystem.getInstance().refreshAndFindFileByPath(manifestPath.absolutePathString())
-                    if (file != null && file.isValid) {
-                        withContext(Dispatchers.EDT) {
-                            PsiNavigationSupport.getInstance().createNavigatable(project, file, -1).navigate(true)
-                        }
-                    }
-                } else {
+                val manifestPath = directoryPath.resolve(MANIFEST_FILE_NAME)
+                val file = LocalFileSystem.getInstance().refreshAndFindFileByPath(manifestPath.absolutePathString())
+                if (file != null && file.isValid) {
                     withContext(Dispatchers.EDT) {
-                        Notification(
-                            "Aspire",
-                            AspireBundle.message("notification.manifest.unable.to.generate"),
-                            output.stderr,
-                            NotificationType.WARNING
-                        )
-                            .notify(project)
+                        PsiNavigationSupport.getInstance().createNavigatable(project, file, -1).navigate(true)
                     }
+                }
+            } else {
+                withContext(Dispatchers.EDT) {
+                    Notification(
+                        "Aspire",
+                        AspireBundle.message("notification.manifest.unable.to.generate"),
+                        output.stderr,
+                        NotificationType.WARNING
+                    )
+                        .notify(project)
                 }
             }
         }

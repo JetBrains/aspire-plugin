@@ -3,12 +3,15 @@ package com.jetbrains.rider.aspire.actions
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.platform.backend.workspace.virtualFile
 import com.jetbrains.rider.aspire.manifest.ManifestService
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.nodes.getUserData
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ManifestGenerationAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
@@ -20,7 +23,9 @@ class ManifestGenerationAction : AnAction() {
         if (isAspireHost?.equals("true", true) != true) return
         val file = entity.url?.virtualFile ?: return
 
-        ManifestService.getInstance(project).generateManifest(file.toNioPath())
+        currentThreadCoroutineScope().launch(Dispatchers.Default) {
+            ManifestService.getInstance(project).generateManifest(file.toNioPath())
+        }
     }
 
     override fun update(event: AnActionEvent) {
