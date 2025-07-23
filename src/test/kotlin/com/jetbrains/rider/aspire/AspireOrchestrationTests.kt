@@ -26,7 +26,9 @@ class AspireOrchestrationTests : ProjectModelBaseTest() {
     fun `Add aspire orchestration for asp net core project`() {
         prepareProjectView(project)
 
-        val projectPath = activeSolutionDirectory.toPath().resolve(activeSolution).resolve("$activeSolution.csproj")
+        val solutionDirectoryPath = activeSolutionDirectory.toPath()
+        val solution = activeSolutionDirectory.resolve("$activeSolution.sln")
+        val projectPath = solutionDirectoryPath.resolve(activeSolution).resolve("$activeSolution.csproj")
 
         val service = AspireOrchestrationService.getInstance(project)
         runBlockingWithFlushing("Adding .NET Aspire Orchestration", 5.minutes) {
@@ -39,14 +41,17 @@ class AspireOrchestrationTests : ProjectModelBaseTest() {
         }
 
         val hostProjectFileName = "$activeSolution.AppHost"
-        val hostProjectPath = activeSolutionDirectory.toPath().resolve(hostProjectFileName).resolve("$hostProjectFileName.csproj")
+        val hostProjectPath = solutionDirectoryPath.resolve(hostProjectFileName).resolve("$hostProjectFileName.csproj")
         hostProjectPath.exists().shouldBeTrue()
 
         val sharedProjectFileName = "$activeSolution.ServiceDefaults"
-        val sharedProjectPath = activeSolutionDirectory.toPath().resolve(sharedProjectFileName).resolve("$sharedProjectFileName.csproj")
+        val sharedProjectPath = solutionDirectoryPath.resolve(sharedProjectFileName).resolve("$sharedProjectFileName.csproj")
         sharedProjectPath.exists().shouldBeTrue()
 
         executeWithGold(testGoldFile) { printStream ->
+            printStream.println("Sln:")
+            printStream.println()
+            printStream.println(solution.readText())
             printStream.println("AppHost:")
             printStream.println()
             printStream.println(hostProjectPath.readText())
