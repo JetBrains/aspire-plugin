@@ -1,3 +1,34 @@
+Sln:
+
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{GUID}") = "DefaultAspNetCoreSolution", "DefaultAspNetCoreSolution\DefaultAspNetCoreSolution.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "DefaultAspNetCoreSolution.AppHost", "DefaultAspNetCoreSolution.AppHost\DefaultAspNetCoreSolution.AppHost.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "DefaultAspNetCoreSolution.ServiceDefaults", "DefaultAspNetCoreSolution.ServiceDefaults\DefaultAspNetCoreSolution.ServiceDefaults.csproj", "{GUID}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
+
 AppHost:
 
 <Project Sdk="Microsoft.NET.Sdk">
