@@ -8,13 +8,17 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.rd.ide.model.RdPostProcessParameters
 import com.jetbrains.rider.aspire.AspireBundle
+import com.jetbrains.rider.aspire.generated.InsertDefaultMethodsIntoProjectProgramFileRequest
+import com.jetbrains.rider.aspire.generated.InsertProjectsIntoAppHostFileRequest
 import com.jetbrains.rider.aspire.generated.ReferenceProjectsFromAppHostRequest
 import com.jetbrains.rider.aspire.generated.ReferenceServiceDefaultsFromProjectsRequest
 import com.jetbrains.rider.aspire.generated.aspirePluginModel
@@ -23,17 +27,14 @@ import com.jetbrains.rider.aspire.util.isAspireSharedProject
 import com.jetbrains.rider.model.AddProjectCommand
 import com.jetbrains.rider.model.projectModelTasks
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
-import com.jetbrains.rider.projectView.workspace.findProjects
-import com.jetbrains.rider.projectView.workspace.getId
-import com.jetbrains.rider.projectView.workspace.getSolutionEntity
-import com.jetbrains.rider.projectView.workspace.isProject
+import com.jetbrains.rider.projectView.workspace.*
 import com.jetbrains.rider.run.configurations.runnableProjectsModelIfAvailable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
 
 /**
  * Service to provide Aspire Orchestration support.
@@ -109,10 +110,16 @@ class AspireOrchestrationService(private val project: Project) {
 
             val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
             if (hostProjectPath != null) {
-                referenceByHostProject(hostProjectPath, projectFilePathStrings)
+                val referenceByHostProjectResult = referenceByHostProject(hostProjectPath, projectFilePathStrings)
+                referenceByHostProjectResult?.let {
+                    insertProjectsIntoAppHostFile(hostProjectPath, it.referencedProjectFilePaths)
+                }
             }
             if (sharedProjectPath != null) {
-                referenceSharedProject(sharedProjectPath, projectFilePathStrings)
+                val referenceSharedProjectResult = referenceSharedProject(sharedProjectPath, projectFilePathStrings)
+                referenceSharedProjectResult?.let {
+                    insertDefaultMethodsIntoProjects(it.projectFilePathsWithReference)
+                }
             }
         }
 
@@ -225,4 +232,59 @@ class AspireOrchestrationService(private val project: Project) {
 
             project.solution.aspirePluginModel.referenceServiceDefaultsFromProjects.startSuspending(request)
         }
+
+    private suspend fun insertProjectsIntoAppHostFile(hostProjectPath: Path, projects: List<String>) {
+        if (projects.isEmpty()) return
+
+        val appHostFilePath = hostProjectPath.parent.resolve("AppHost.cs")
+        if (!appHostFilePath.exists()) {
+            LOG.info("Unable to find AppHost.cs file")
+            return
+        }
+
+        val appHostFile = VirtualFileManager.getInstance().findFileByNioPath(appHostFilePath)
+        if (appHostFile == null) {
+            LOG.warn("Unable to find AppHost.cs virtual file")
+            return
+        }
+
+        withContext(Dispatchers.EDT) {
+            FileEditorManager.getInstance(project).openFile(appHostFile, false)
+
+            val request = InsertProjectsIntoAppHostFileRequest(
+                hostProjectPath.absolutePathString(),
+                projects,
+            )
+            project.solution.aspirePluginModel.insertProjectsIntoAppHostFile.startSuspending(request)
+        }
+    }
+
+    private suspend fun insertDefaultMethodsIntoProjects(projectPaths: List<String>) {
+        if (projectPaths.isEmpty()) return
+
+        for (projectPath in projectPaths) {
+            val projectFilePath = Path(projectPath)
+
+            val projectProgramFilePath = projectFilePath.parent.resolve("Program.cs")
+            if (!projectProgramFilePath.exists()) {
+                LOG.info("Unable to Program.cs file for a project")
+                continue
+            }
+
+            val projectProgramFile = VirtualFileManager.getInstance().findFileByNioPath(projectProgramFilePath)
+            if (projectProgramFile == null) {
+                LOG.warn("Unable to find Program.cs virtual file for a project")
+                return
+            }
+
+            withContext(Dispatchers.EDT) {
+                FileEditorManager.getInstance(project).openFile(projectProgramFile, false)
+
+                val request = InsertDefaultMethodsIntoProjectProgramFileRequest(
+                    projectFilePath.absolutePathString()
+                )
+                project.solution.aspirePluginModel.insertDefaultMethodsIntoProjectProgramFile.startSuspending(request)
+            }
+        }
+    }
 }
