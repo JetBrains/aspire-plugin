@@ -13,9 +13,26 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("projectFilePaths", immutableList(string))
     }
 
+    private val ReferenceProjectsFromAppHostResponse = structdef {
+        field("referencedProjectFilePaths", immutableList(string))
+    }
+
     private val ReferenceServiceDefaultsFromProjectsRequest = structdef {
         field("sharedProjectFilePath", string)
         field("projectFilePaths", immutableList(string))
+    }
+
+    private val ReferenceServiceDefaultsFromProjectsResponse = structdef {
+        field("projectFilePathsWithReference", immutableList(string))
+    }
+
+    private val InsertProjectsIntoAppHostFileRequest = structdef {
+        field("hostProjectFilePath", string)
+        field("projectFilePaths", immutableList(string))
+    }
+
+    private val InsertDefaultMethodsIntoProjectProgramFileRequest = structdef {
+        field("projectFilePath", string)
     }
 
     private val StartSessionHostRequest = structdef {
@@ -42,8 +59,18 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Generated")
 
         call("getProjectOutputType", string, string.nullable)
-        call("referenceProjectsFromAppHost", ReferenceProjectsFromAppHostRequest, void)
-        call("referenceServiceDefaultsFromProjects", ReferenceServiceDefaultsFromProjectsRequest, void)
+        call(
+            "referenceProjectsFromAppHost",
+            ReferenceProjectsFromAppHostRequest,
+            ReferenceProjectsFromAppHostResponse.nullable
+        )
+        call(
+            "referenceServiceDefaultsFromProjects",
+            ReferenceServiceDefaultsFromProjectsRequest,
+            ReferenceServiceDefaultsFromProjectsResponse.nullable
+        )
+        call("insertProjectsIntoAppHostFile", InsertProjectsIntoAppHostFileRequest, void)
+        call("insertDefaultMethodsIntoProjectProgramFile", InsertDefaultMethodsIntoProjectProgramFileRequest, void)
         callback("startSessionHost", StartSessionHostRequest, StartSessionHostResponse).async
         callback("stopSessionHost", StopSessionHostRequest, void).async
         sink("unitTestRunCancelled", string).async
