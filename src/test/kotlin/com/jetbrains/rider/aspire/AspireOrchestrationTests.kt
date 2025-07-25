@@ -37,7 +37,7 @@ class AspireOrchestrationTests : ProjectModelBaseTest() {
                 .singleOrNull { it.url?.toPath() == projectPath }
             requireNotNull(projectEntity) { "No project entity found for $projectPath" }
 
-            service.addAspireOrchestration(listOf(projectEntity))
+            service.addAspireOrchestration(listOf(projectEntity), false)
         }
 
         val hostProjectFileName = "$activeSolution.AppHost"

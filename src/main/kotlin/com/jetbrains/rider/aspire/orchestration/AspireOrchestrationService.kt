@@ -57,7 +57,7 @@ class AspireOrchestrationService(private val project: Project) {
      * This method identifies potential .NET project entities.
      * A dialog is presented to a user for selecting specific projects to add .NET Aspire orchestration.
      */
-    suspend fun addAspireOrchestration() {
+    suspend fun addAspireOrchestration(insertDefaultMethods: Boolean = true) {
         val projectEntities = project.serviceAsync<WorkspaceModel>()
             .findProjects()
             .filter { it.isProject() && !it.isAspireHostProject() && !it.isAspireSharedProject() }
@@ -76,7 +76,7 @@ class AspireOrchestrationService(private val project: Project) {
                 if (projectEntities.isEmpty()) return@withContext
 
                 withContext(Dispatchers.Main) {
-                    addAspireOrchestration(projectEntities)
+                    addAspireOrchestration(projectEntities, insertDefaultMethods)
                 }
             }
         }
@@ -90,38 +90,44 @@ class AspireOrchestrationService(private val project: Project) {
      *
      * @param projectEntities A list of .NET project entities to which Aspire Orchestration should be added.
      */
-    suspend fun addAspireOrchestration(projectEntities: List<ProjectModelEntity>) =
-        withBackgroundProgress(project, AspireBundle.message("progress.adding.aspire.orchestration")) {
-            var (hostProjectPath, sharedProjectPath) = findExistingAspireProjects()
+    suspend fun addAspireOrchestration(
+        projectEntities: List<ProjectModelEntity>,
+        insertDefaultMethods: Boolean = true
+    ) = withBackgroundProgress(project, AspireBundle.message("progress.adding.aspire.orchestration")) {
+        var (hostProjectPath, sharedProjectPath) = findExistingAspireProjects()
 
-            val needToGenerateAppHost = hostProjectPath == null
-            val needToGenerateServiceDefaults = sharedProjectPath == null
+        val needToGenerateAppHost = hostProjectPath == null
+        val needToGenerateServiceDefaults = sharedProjectPath == null
 
-            if (needToGenerateAppHost || needToGenerateServiceDefaults) {
-                val (generatedHostProjectPath, generatedSharedProjectPath) =
-                    generateAspireProjects(needToGenerateAppHost, needToGenerateServiceDefaults)
-                        ?: return@withBackgroundProgress
+        if (needToGenerateAppHost || needToGenerateServiceDefaults) {
+            val (generatedHostProjectPath, generatedSharedProjectPath) =
+                generateAspireProjects(needToGenerateAppHost, needToGenerateServiceDefaults)
+                    ?: return@withBackgroundProgress
 
-                LOG.debug { "Generated host: ${generatedHostProjectPath?.absolutePathString()}, generated shared project: ${generatedSharedProjectPath?.absolutePathString()}" }
+            LOG.debug { "Generated host: ${generatedHostProjectPath?.absolutePathString()}, generated shared project: ${generatedSharedProjectPath?.absolutePathString()}" }
 
-                if (generatedHostProjectPath != null) hostProjectPath = generatedHostProjectPath
-                if (generatedSharedProjectPath != null) sharedProjectPath = generatedSharedProjectPath
-            }
+            if (generatedHostProjectPath != null) hostProjectPath = generatedHostProjectPath
+            if (generatedSharedProjectPath != null) sharedProjectPath = generatedSharedProjectPath
+        }
 
-            val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
-            if (hostProjectPath != null) {
-                val referenceByHostProjectResult = referenceByHostProject(hostProjectPath, projectFilePathStrings)
+        val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
+        if (hostProjectPath != null) {
+            val referenceByHostProjectResult = referenceByHostProject(hostProjectPath, projectFilePathStrings)
+            if (insertDefaultMethods) {
                 referenceByHostProjectResult?.let {
                     insertProjectsIntoAppHostFile(hostProjectPath, it.referencedProjectFilePaths)
                 }
             }
-            if (sharedProjectPath != null) {
-                val referenceSharedProjectResult = referenceSharedProject(sharedProjectPath, projectFilePathStrings)
+        }
+        if (sharedProjectPath != null) {
+            val referenceSharedProjectResult = referenceSharedProject(sharedProjectPath, projectFilePathStrings)
+            if (insertDefaultMethods) {
                 referenceSharedProjectResult?.let {
                     insertDefaultMethodsIntoProjects(it.projectFilePathsWithReference)
                 }
             }
         }
+    }
 
     private suspend fun findExistingAspireProjects(): Pair<Path?, Path?> {
         var hostProjectPath: Path? = null
