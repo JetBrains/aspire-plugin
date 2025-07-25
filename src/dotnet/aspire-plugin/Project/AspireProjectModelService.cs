@@ -3,10 +3,12 @@ using JetBrains.Application.Parts;
 using JetBrains.Application.Threading;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
+using JetBrains.ProjectModel.Impl;
 using JetBrains.ProjectModel.ProjectsHost.SolutionHost;
 using JetBrains.RdBackend.Common.Features.ProjectModel;
 using JetBrains.Rider.Aspire.Generated;
 using JetBrains.Util;
+using JetBrains.Util.Dotnet.TargetFrameworkIds;
 
 namespace JetBrains.Rider.Aspire.Project;
 
@@ -28,7 +30,8 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
     /// <param name="hostProjectFilePath">The file path of the Aspire Host project which will reference other projects.</param>
     /// <param name="projectFilePaths">A list of file paths for the projects to be referenced in the host project.</param>
     /// <param name="lifetime">The <see cref="Lifetime"/> object controlling the scope of the operation, allowing cancellation if needed.</param>
-    public ReferenceProjectsFromAppHostResponse? ReferenceProjectsFromAppHost(string hostProjectFilePath,
+    public ReferenceProjectsFromAppHostResponse? ReferenceProjectsFromAppHost(
+        string hostProjectFilePath,
         List<string> projectFilePaths,
         Lifetime lifetime)
     {
@@ -82,7 +85,8 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
     /// <param name="projectFilePaths">A list of file paths for the projects which will reference the shared project.</param>
     /// <param name="lifetime">The <see cref="Lifetime"/> object controlling the scope of the operation, allowing cancellation if needed.</param>
     public ReferenceServiceDefaultsFromProjectsResponse? ReferenceServiceDefaultsFromProjects(
-        string sharedProjectFilePath, List<string> projectFilePaths,
+        string sharedProjectFilePath,
+        List<string> projectFilePaths,
         Lifetime lifetime)
     {
         var sharedProjectPath = sharedProjectFilePath.ParseVirtualPath(InteractionContext.SolutionContext);
@@ -128,47 +132,67 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
         return new ReferenceServiceDefaultsFromProjectsResponse(projectPathsWithReference);
     }
 
-    private IProject? AddProjectReference(IProject fromProject, VirtualFileSystemPath toProjectPath)
+    private IProject? AddProjectReference(IProject targetProject, VirtualFileSystemPath projectToReference)
     {
         using (solution.Locks.UsingReadLock())
         {
-            var toProject = solution.FindProjectByProjectFilePath(toProjectPath);
+            var toProject = solution.FindProjectByProjectFilePath(projectToReference);
             if (toProject is null)
             {
                 logger.Warn("Unable to resolve project from a file path");
                 return null;
             }
 
-            AddProjectReference(fromProject, toProject);
+            AddProjectReference(targetProject, toProject);
 
             return toProject;
         }
     }
 
-    private IProject? AddProjectReference(VirtualFileSystemPath fromProjectPath, IProject toProject)
+    private IProject? AddProjectReference(VirtualFileSystemPath targetProject, IProject projectToReference)
     {
         using (solution.Locks.UsingReadLock())
         {
-            var fromProject = solution.FindProjectByProjectFilePath(fromProjectPath);
+            var fromProject = solution.FindProjectByProjectFilePath(targetProject);
             if (fromProject is null)
             {
                 logger.Warn("Unable to resolve project from a file path");
                 return null;
             }
 
-            AddProjectReference(fromProject, toProject);
+            AddProjectReference(fromProject, projectToReference);
 
             return fromProject;
         }
     }
 
-    private void AddProjectReference(IProject fromProject, IProject toProject)
+    private void AddProjectReference(IProject targetProject, IProject projectToReference)
     {
+        var existingReferences = new Dictionary<TargetFrameworkId, List<Guid>>(targetProject.TargetFrameworkIds.Count);
+        foreach (var tfm in targetProject.TargetFrameworkIds)
+        {
+            if (tfm is null) continue;
+            var references = targetProject.GetProjectReferences(tfm);
+            existingReferences[tfm] = references
+                .SelectNotNull(it =>
+                {
+                    if (it is GuidProjectReference gpr)
+                        return (Guid?)gpr.ReferencedProjectGuid;
+                    else
+                        return null;
+                }).ToList();
+        }
+
         solution.InvokeUnderTransaction(cookie =>
         {
-            foreach (var tfm in fromProject.TargetFrameworkIds)
+            foreach (var tfm in targetProject.TargetFrameworkIds)
             {
-                cookie.AddModuleReference(fromProject, toProject, tfm);
+                if (existingReferences[tfm].Contains(projectToReference.Guid))
+                {
+                    continue;
+                }
+
+                cookie.AddModuleReference(targetProject, projectToReference, tfm);
             }
         });
     }
