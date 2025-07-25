@@ -144,7 +144,7 @@ jobs:
 
       # Install Aspire templates
       - name: Install templates
-        run: dotnet new install Aspire.ProjectTemplates
+        run: dotnet new install Aspire.ProjectTemplates::8.2.2
 
       # Run tests
       - name: Run Tests

@@ -49,15 +49,15 @@ class AspireOrchestrationTests : ProjectModelBaseTest() {
         sharedProjectPath.exists().shouldBeTrue()
 
         executeWithGold(testGoldFile) { printStream ->
-            printStream.println("Sln:")
+            printStream.println("Solution file:")
             printStream.println()
             printStream.println(solution.readText())
             printStream.println("AppHost:")
             printStream.println()
             printStream.println(hostProjectPath.readText())
-            printStream.println("AppHost.AppHost.cs:")
+            printStream.println("AppHost.Program.cs:")
             printStream.println()
-            printStream.println(hostProjectPath.parent.resolve("AppHost.cs").readText())
+            printStream.println(hostProjectPath.parent.resolve("Program.cs").readText())
             printStream.println("ServiceDefaults:")
             printStream.println()
             printStream.println(sharedProjectPath.readText())
