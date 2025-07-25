@@ -6,6 +6,12 @@
 
 ### Added
 
+- [#148](https://github.com/JetBrains/aspire-plugin/issues/148) Actions to add .NET Aspire projects to the existing solution
+
+## [1.8.5] - 2025-07-09
+
+### Added
+
 - Ability to identify a database driver by a resource name
 
 ### Fixed
@@ -436,7 +442,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.4...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.5...HEAD
+[1.8.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.4...v1.8.5
 [1.8.4]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.3...v1.8.4
 [1.8.3]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.2...v1.8.3
 [1.8.2]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.1...v1.8.2
