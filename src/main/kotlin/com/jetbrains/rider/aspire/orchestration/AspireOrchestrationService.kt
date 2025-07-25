@@ -57,7 +57,7 @@ class AspireOrchestrationService(private val project: Project) {
      * This method identifies potential .NET project entities.
      * A dialog is presented to a user for selecting specific projects to add .NET Aspire orchestration.
      */
-    suspend fun addAspireOrchestration(insertDefaultMethods: Boolean = true) {
+    suspend fun addAspireOrchestration(insertDefaultMethods: Boolean = false) {
         val projectEntities = project.serviceAsync<WorkspaceModel>()
             .findProjects()
             .filter { it.isProject() && !it.isAspireHostProject() && !it.isAspireSharedProject() }
@@ -92,7 +92,7 @@ class AspireOrchestrationService(private val project: Project) {
      */
     suspend fun addAspireOrchestration(
         projectEntities: List<ProjectModelEntity>,
-        insertDefaultMethods: Boolean = true
+        insertDefaultMethods: Boolean = false
     ) = withBackgroundProgress(project, AspireBundle.message("progress.adding.aspire.orchestration")) {
         var (hostProjectPath, sharedProjectPath) = findExistingAspireProjects()
 
