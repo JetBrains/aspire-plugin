@@ -12,7 +12,7 @@ namespace JetBrains.Rider.Aspire.Files;
 
 /// A service that provides functionality for inserting default configurations
 /// and method calls into project files, such as `AppHost.cs` and `Program.cs`.
-[SolutionComponent(InstantiationEx.LegacyDefault)]
+[SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 public class AspireDefaultFileService(ISolution solution, ILogger logger)
 {
     private const string AddServiceDefaults = "builder.AddServiceDefaults();";

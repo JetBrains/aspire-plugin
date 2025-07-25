@@ -19,7 +19,7 @@ namespace JetBrains.Rider.Aspire.Project;
 /// solution's project model. It enables operations such as referencing multiple projects from a host project
 /// or referencing shared defaults from other projects.
 /// </remarks>
-[SolutionComponent(InstantiationEx.LegacyDefault)]
+[SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 public class AspireProjectModelService(ISolution solution, ILogger logger)
 {
     /// <summary>
