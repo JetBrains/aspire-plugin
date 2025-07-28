@@ -29,7 +29,8 @@ class SessionHostLauncher {
         private val LOG = logger<SessionHostLauncher>()
 
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
-        private const val RIDER_RD_PORT = "Rider_Connection__RdPort"
+        private const val RIDER_DCP_SESSION_TOKEN = "RIDER_DCP_SESSION__Token"
+        private const val RIDER_RD_PORT = "RIDER_CONNECTION__RdPort"
     }
 
     private val pluginId = PluginId.getId("me.rafaelldi.aspire")
@@ -88,6 +89,7 @@ class SessionHostLauncher {
                     put("Kestrel__Endpoints__Http__Url", "http://localhost:${config.debugSessionPort}/")
                     put(RIDER_RD_PORT, "${config.rdPort}")
                     put(RIDER_PARENT_PROCESS_ID, ProcessHandle.current().pid().toString())
+                    put(RIDER_DCP_SESSION_TOKEN, config.debugSessionToken)
                 }
             )
         return commandLine
