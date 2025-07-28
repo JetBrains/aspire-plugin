@@ -2,6 +2,7 @@
 using JetBrains.Lifetimes;
 using JetBrains.Rd;
 using JetBrains.Rd.Impl;
+using JetBrains.Rider.Aspire.SessionHost.Configuration;
 using JetBrains.Rider.Aspire.SessionHost.Generated;
 
 namespace JetBrains.Rider.Aspire.SessionHost;

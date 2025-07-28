@@ -1,13 +1,15 @@
 using System.Text.Json;
 using JetBrains.Rider.Aspire.SessionHost;
 using JetBrains.Rider.Aspire.SessionHost.AspireHost;
+using JetBrains.Rider.Aspire.SessionHost.Configuration;
 using JetBrains.Rider.Aspire.SessionHost.Sessions;
 
 ParentProcessWatchdog.StartNewIfAvailable();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddEnvironmentVariables("Rider_");
+builder.Configuration.AddEnvironmentVariables("RIDER_");
+builder.Services.ConfigureOptions<ConfigureDcpSessionOptions>();
 
 builder.Services.AddGrpc();
 
