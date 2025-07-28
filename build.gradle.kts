@@ -57,8 +57,6 @@ dependencies {
         jetbrainsRuntime()
         bundledPlugins(listOf("Docker", "com.intellij.database", "rider.intellij.plugin.appender", "com.intellij.diagram"))
         testFramework(TestFrameworkType.Bundled)
-
-        testBundledPlugins("intellij.grid.plugin", "com.intellij.platform.images", "com.intellij.modules.json")
     }
 }
 
