@@ -9,7 +9,7 @@ using pb = global::Google.Protobuf;
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
 using scg = global::System.Collections.Generic;
-namespace Aspire.ResourceService.Proto.V1 {
+namespace Aspire.DashboardService.Proto.V1 {
 
   /// <summary>Holder for reflection information generated from ResourceProto/resource_service.proto</summary>
   public static partial class ResourceServiceReflection {
@@ -63,7 +63,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             "BHR5cGUYAiABKAkinwEKEFJlc291cmNlUHJvcGVydHkSDAoEbmFtZRgBIAEo",
             "CRIZCgxkaXNwbGF5X25hbWUYAiABKAlIAIgBARIlCgV2YWx1ZRgDIAEoCzIW",
             "Lmdvb2dsZS5wcm90b2J1Zi5WYWx1ZRIZCgxpc19zZW5zaXRpdmUYBCABKAhI",
-            "AYgBAUIPCg1fZGlzcGxheV9uYW1lQg8KDV9pc19zZW5zaXRpdmUi0AUKCFJl",
+            "AYgBAUIPCg1fZGlzcGxheV9uYW1lQg8KDV9pc19zZW5zaXRpdmUi9QUKCFJl",
             "c291cmNlEgwKBG5hbWUYASABKAkSFQoNcmVzb3VyY2VfdHlwZRgCIAEoCRIU",
             "CgxkaXNwbGF5X25hbWUYAyABKAkSCwoDdWlkGAQgASgJEhIKBXN0YXRlGAUg",
             "ASgJSACIAQESMwoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1",
@@ -77,70 +77,126 @@ namespace Aspire.ResourceService.Proto.V1 {
             "ZF9hdBgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIA4gBARIz",
             "CgpzdG9wcGVkX2F0GBMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFt",
             "cEgEiAEBEjYKDXJlbGF0aW9uc2hpcHMYFCADKAsyHy5hc3BpcmUudjEuUmVz",
-            "b3VyY2VSZWxhdGlvbnNoaXASEQoJaXNfaGlkZGVuGBUgASgIQggKBl9zdGF0",
-            "ZUINCgtfY3JlYXRlZF9hdEIOCgxfc3RhdGVfc3R5bGVCDQoLX3N0YXJ0ZWRf",
-            "YXRCDQoLX3N0b3BwZWRfYXRKBAgIEAlKBAgJEApKBAgKEAtKBAgQEBEibgoT",
-            "SW5pdGlhbFJlc291cmNlRGF0YRImCglyZXNvdXJjZXMYASADKAsyEy5hc3Bp",
-            "cmUudjEuUmVzb3VyY2USLwoOcmVzb3VyY2VfdHlwZXMYAiADKAsyFy5hc3Bp",
-            "cmUudjEuUmVzb3VyY2VUeXBlIkAKEFJlc291cmNlRGVsZXRpb24SFQoNcmVz",
-            "b3VyY2VfbmFtZRgBIAEoCRIVCg1yZXNvdXJjZV90eXBlGAIgASgJInQKFFdh",
-            "dGNoUmVzb3VyY2VzQ2hhbmdlEi0KBmRlbGV0ZRgBIAEoCzIbLmFzcGlyZS52",
-            "MS5SZXNvdXJjZURlbGV0aW9uSAASJQoGdXBzZXJ0GAIgASgLMhMuYXNwaXJl",
-            "LnYxLlJlc291cmNlSABCBgoEa2luZCJHChVXYXRjaFJlc291cmNlc0NoYW5n",
-            "ZXMSLgoFdmFsdWUYASADKAsyHy5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXND",
-            "aGFuZ2UiQwoVV2F0Y2hSZXNvdXJjZXNSZXF1ZXN0EhkKDGlzX3JlY29ubmVj",
-            "dBgBIAEoCEgAiAEBQg8KDV9pc19yZWNvbm5lY3QiiwEKFFdhdGNoUmVzb3Vy",
-            "Y2VzVXBkYXRlEjYKDGluaXRpYWxfZGF0YRgBIAEoCzIeLmFzcGlyZS52MS5J",
-            "bml0aWFsUmVzb3VyY2VEYXRhSAASMwoHY2hhbmdlcxgCIAEoCzIgLmFzcGly",
-            "ZS52MS5XYXRjaFJlc291cmNlc0NoYW5nZXNIAEIGCgRraW5kIlsKDkNvbnNv",
-            "bGVMb2dMaW5lEgwKBHRleHQYASABKAkSFwoKaXNfc3RkX2VychgCIAEoCEgA",
-            "iAEBEhMKC2xpbmVfbnVtYmVyGAMgASgFQg0KC19pc19zdGRfZXJyIlEKH1dh",
-            "dGNoUmVzb3VyY2VDb25zb2xlTG9nc1JlcXVlc3QSFQoNcmVzb3VyY2VfbmFt",
-            "ZRgBIAEoCRIXCg9zdXBwcmVzc19mb2xsb3cYAiABKAgiTgoeV2F0Y2hSZXNv",
-            "dXJjZUNvbnNvbGVMb2dzVXBkYXRlEiwKCWxvZ19saW5lcxgBIAMoCzIZLmFz",
-            "cGlyZS52MS5Db25zb2xlTG9nTGluZSomCgtJY29uVmFyaWFudBILCgdSRUdV",
-            "TEFSEAASCgoGRklMTEVEEAEqPQoUUmVzb3VyY2VDb21tYW5kU3RhdGUSCwoH",
-            "RU5BQkxFRBAAEgwKCERJU0FCTEVEEAESCgoGSElEREVOEAIqVgobUmVzb3Vy",
-            "Y2VDb21tYW5kUmVzcG9uc2VLaW5kEg0KCVVOREVGSU5FRBAAEg0KCVNVQ0NF",
-            "RURFRBABEgoKBkZBSUxFRBACEg0KCUNBTkNFTExFRBADKjgKDEhlYWx0aFN0",
-            "YXR1cxILCgdIRUFMVEhZEAASDQoJVU5IRUFMVEhZEAESDAoIREVHUkFERUQQ",
-            "AjKxAwoQRGFzaGJvYXJkU2VydmljZRJwChlHZXRBcHBsaWNhdGlvbkluZm9y",
-            "bWF0aW9uEiguYXNwaXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXF1",
-            "ZXN0GikuYXNwaXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXNwb25z",
-            "ZRJVCg5XYXRjaFJlc291cmNlcxIgLmFzcGlyZS52MS5XYXRjaFJlc291cmNl",
-            "c1JlcXVlc3QaHy5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXNVcGRhdGUwARJz",
-            "ChhXYXRjaFJlc291cmNlQ29uc29sZUxvZ3MSKi5hc3BpcmUudjEuV2F0Y2hS",
-            "ZXNvdXJjZUNvbnNvbGVMb2dzUmVxdWVzdBopLmFzcGlyZS52MS5XYXRjaFJl",
-            "c291cmNlQ29uc29sZUxvZ3NVcGRhdGUwARJfChZFeGVjdXRlUmVzb3VyY2VD",
-            "b21tYW5kEiEuYXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlcXVlc3QaIi5h",
-            "c3BpcmUudjEuUmVzb3VyY2VDb21tYW5kUmVzcG9uc2VCIqoCH0FzcGlyZS5S",
-            "ZXNvdXJjZVNlcnZpY2UuUHJvdG8uVjFiBnByb3RvMw=="));
+            "b3VyY2VSZWxhdGlvbnNoaXASEQoJaXNfaGlkZGVuGBUgASgIEiMKG3N1cHBv",
+            "cnRzX2RldGFpbGVkX3RlbGVtZXRyeRgWIAEoCEIICgZfc3RhdGVCDQoLX2Ny",
+            "ZWF0ZWRfYXRCDgoMX3N0YXRlX3N0eWxlQg0KC19zdGFydGVkX2F0Qg0KC19z",
+            "dG9wcGVkX2F0SgQICBAJSgQICRAKSgQIChALSgQIEBARIm4KE0luaXRpYWxS",
+            "ZXNvdXJjZURhdGESJgoJcmVzb3VyY2VzGAEgAygLMhMuYXNwaXJlLnYxLlJl",
+            "c291cmNlEi8KDnJlc291cmNlX3R5cGVzGAIgAygLMhcuYXNwaXJlLnYxLlJl",
+            "c291cmNlVHlwZSJAChBSZXNvdXJjZURlbGV0aW9uEhUKDXJlc291cmNlX25h",
+            "bWUYASABKAkSFQoNcmVzb3VyY2VfdHlwZRgCIAEoCSJ0ChRXYXRjaFJlc291",
+            "cmNlc0NoYW5nZRItCgZkZWxldGUYASABKAsyGy5hc3BpcmUudjEuUmVzb3Vy",
+            "Y2VEZWxldGlvbkgAEiUKBnVwc2VydBgCIAEoCzITLmFzcGlyZS52MS5SZXNv",
+            "dXJjZUgAQgYKBGtpbmQiRwoVV2F0Y2hSZXNvdXJjZXNDaGFuZ2VzEi4KBXZh",
+            "bHVlGAEgAygLMh8uYXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzQ2hhbmdlIkMK",
+            "FVdhdGNoUmVzb3VyY2VzUmVxdWVzdBIZCgxpc19yZWNvbm5lY3QYASABKAhI",
+            "AIgBAUIPCg1faXNfcmVjb25uZWN0IosBChRXYXRjaFJlc291cmNlc1VwZGF0",
+            "ZRI2Cgxpbml0aWFsX2RhdGEYASABKAsyHi5hc3BpcmUudjEuSW5pdGlhbFJl",
+            "c291cmNlRGF0YUgAEjMKB2NoYW5nZXMYAiABKAsyIC5hc3BpcmUudjEuV2F0",
+            "Y2hSZXNvdXJjZXNDaGFuZ2VzSABCBgoEa2luZCJbCg5Db25zb2xlTG9nTGlu",
+            "ZRIMCgR0ZXh0GAEgASgJEhcKCmlzX3N0ZF9lcnIYAiABKAhIAIgBARITCgts",
+            "aW5lX251bWJlchgDIAEoBUINCgtfaXNfc3RkX2VyciJRCh9XYXRjaFJlc291",
+            "cmNlQ29uc29sZUxvZ3NSZXF1ZXN0EhUKDXJlc291cmNlX25hbWUYASABKAkS",
+            "FwoPc3VwcHJlc3NfZm9sbG93GAIgASgIIk4KHldhdGNoUmVzb3VyY2VDb25z",
+            "b2xlTG9nc1VwZGF0ZRIsCglsb2dfbGluZXMYASADKAsyGS5hc3BpcmUudjEu",
+            "Q29uc29sZUxvZ0xpbmUipgIKHldhdGNoSW50ZXJhY3Rpb25zUmVxdWVzdFVw",
+            "ZGF0ZRIWCg5pbnRlcmFjdGlvbl9pZBgBIAEoBRIyCghjb21wbGV0ZRgCIAEo",
+            "CzIeLmFzcGlyZS52MS5JbnRlcmFjdGlvbkNvbXBsZXRlSAASNwoLbWVzc2Fn",
+            "ZV9ib3gYAyABKAsyIC5hc3BpcmUudjEuSW50ZXJhY3Rpb25NZXNzYWdlQm94",
+            "SAASOwoNaW5wdXRzX2RpYWxvZxgEIAEoCzIiLmFzcGlyZS52MS5JbnRlcmFj",
+            "dGlvbklucHV0c0RpYWxvZ0gAEjoKDG5vdGlmaWNhdGlvbhgFIAEoCzIiLmFz",
+            "cGlyZS52MS5JbnRlcmFjdGlvbk5vdGlmaWNhdGlvbkgAQgYKBGtpbmQi2QMK",
+            "H1dhdGNoSW50ZXJhY3Rpb25zUmVzcG9uc2VVcGRhdGUSFgoOaW50ZXJhY3Rp",
+            "b25faWQYASABKAUSDQoFdGl0bGUYAiABKAkSDwoHbWVzc2FnZRgDIAEoCRIb",
+            "ChNwcmltYXJ5X2J1dHRvbl90ZXh0GAQgASgJEh0KFXNlY29uZGFyeV9idXR0",
+            "b25fdGV4dBgFIAEoCRIdChVzaG93X3NlY29uZGFyeV9idXR0b24YBiABKAgS",
+            "FAoMc2hvd19kaXNtaXNzGAcgASgIEh8KF2VuYWJsZV9tZXNzYWdlX21hcmtk",
+            "b3duGAggASgIEjIKCGNvbXBsZXRlGBAgASgLMh4uYXNwaXJlLnYxLkludGVy",
+            "YWN0aW9uQ29tcGxldGVIABI3CgttZXNzYWdlX2JveBgRIAEoCzIgLmFzcGly",
+            "ZS52MS5JbnRlcmFjdGlvbk1lc3NhZ2VCb3hIABI7Cg1pbnB1dHNfZGlhbG9n",
+            "GBIgASgLMiIuYXNwaXJlLnYxLkludGVyYWN0aW9uSW5wdXRzRGlhbG9nSAAS",
+            "OgoMbm90aWZpY2F0aW9uGBMgASgLMiIuYXNwaXJlLnYxLkludGVyYWN0aW9u",
+            "Tm90aWZpY2F0aW9uSABCBgoEa2luZCIVChNJbnRlcmFjdGlvbkNvbXBsZXRl",
+            "ImEKFUludGVyYWN0aW9uTWVzc2FnZUJveBIoCgZpbnRlbnQYASABKA4yGC5h",
+            "c3BpcmUudjEuTWVzc2FnZUludGVudBITCgZyZXN1bHQYAiABKAhIAIgBAUIJ",
+            "CgdfcmVzdWx0IogBChdJbnRlcmFjdGlvbk5vdGlmaWNhdGlvbhIoCgZpbnRl",
+            "bnQYASABKA4yGC5hc3BpcmUudjEuTWVzc2FnZUludGVudBITCgZyZXN1bHQY",
+            "AiABKAhIAIgBARIRCglsaW5rX3RleHQYAyABKAkSEAoIbGlua191cmwYBCAB",
+            "KAlCCQoHX3Jlc3VsdCJLChdJbnRlcmFjdGlvbklucHV0c0RpYWxvZxIwCgtp",
+            "bnB1dF9pdGVtcxgBIAMoCzIbLmFzcGlyZS52MS5JbnRlcmFjdGlvbklucHV0",
+            "ItUCChBJbnRlcmFjdGlvbklucHV0Eg0KBWxhYmVsGAEgASgJEhMKC3BsYWNl",
+            "aG9sZGVyGAIgASgJEigKCmlucHV0X3R5cGUYAyABKA4yFC5hc3BpcmUudjEu",
+            "SW5wdXRUeXBlEhAKCHJlcXVpcmVkGAQgASgIEjkKB29wdGlvbnMYBSADKAsy",
+            "KC5hc3BpcmUudjEuSW50ZXJhY3Rpb25JbnB1dC5PcHRpb25zRW50cnkSDQoF",
+            "dmFsdWUYBiABKAkSGQoRdmFsaWRhdGlvbl9lcnJvcnMYByADKAkSEwoLZGVz",
+            "Y3JpcHRpb24YCCABKAkSIwobZW5hYmxlX2Rlc2NyaXB0aW9uX21hcmtkb3du",
+            "GAkgASgIEhIKCm1heF9sZW5ndGgYCiABKAUaLgoMT3B0aW9uc0VudHJ5EgsK",
+            "A2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEqQAoLSWNvblZhcmlhbnQS",
+            "GAoUSUNPTl9WQVJJQU5UX1JFR1VMQVIQABIXChNJQ09OX1ZBUklBTlRfRklM",
+            "TEVEEAEqggEKFFJlc291cmNlQ29tbWFuZFN0YXRlEiIKHlJFU09VUkNFX0NP",
+            "TU1BTkRfU1RBVEVfRU5BQkxFRBAAEiMKH1JFU09VUkNFX0NPTU1BTkRfU1RB",
+            "VEVfRElTQUJMRUQQARIhCh1SRVNPVVJDRV9DT01NQU5EX1NUQVRFX0hJRERF",
+            "ThACKtIBChtSZXNvdXJjZUNvbW1hbmRSZXNwb25zZUtpbmQSLAooUkVTT1VS",
+            "Q0VfQ09NTUFORF9SRVNQT05TRV9LSU5EX1VOREVGSU5FRBAAEiwKKFJFU09V",
+            "UkNFX0NPTU1BTkRfUkVTUE9OU0VfS0lORF9TVUNDRUVERUQQARIpCiVSRVNP",
+            "VVJDRV9DT01NQU5EX1JFU1BPTlNFX0tJTkRfRkFJTEVEEAISLAooUkVTT1VS",
+            "Q0VfQ09NTUFORF9SRVNQT05TRV9LSU5EX0NBTkNFTExFRBADKmIKDEhlYWx0",
+            "aFN0YXR1cxIZChVIRUFMVEhfU1RBVFVTX0hFQUxUSFkQABIbChdIRUFMVEhf",
+            "U1RBVFVTX1VOSEVBTFRIWRABEhoKFkhFQUxUSF9TVEFUVVNfREVHUkFERUQQ",
+            "Aiq7AQoNTWVzc2FnZUludGVudBIXChNNRVNTQUdFX0lOVEVOVF9OT05FEAAS",
+            "GgoWTUVTU0FHRV9JTlRFTlRfU1VDQ0VTUxABEhoKFk1FU1NBR0VfSU5URU5U",
+            "X1dBUk5JTkcQAhIYChRNRVNTQUdFX0lOVEVOVF9FUlJPUhADEh4KGk1FU1NB",
+            "R0VfSU5URU5UX0lORk9STUFUSU9OEAQSHwobTUVTU0FHRV9JTlRFTlRfQ09O",
+            "RklSTUFUSU9OEAUqngEKCUlucHV0VHlwZRIaChZJTlBVVF9UWVBFX1VOU1BF",
+            "Q0lGSUVEEAASEwoPSU5QVVRfVFlQRV9URVhUEAESGgoWSU5QVVRfVFlQRV9T",
+            "RUNSRVRfVEVYVBACEhUKEUlOUFVUX1RZUEVfQ0hPSUNFEAMSFgoSSU5QVVRf",
+            "VFlQRV9CT09MRUFOEAQSFQoRSU5QVVRfVFlQRV9OVU1CRVIQBTKhBAoQRGFz",
+            "aGJvYXJkU2VydmljZRJwChlHZXRBcHBsaWNhdGlvbkluZm9ybWF0aW9uEigu",
+            "YXNwaXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXF1ZXN0GikuYXNw",
+            "aXJlLnYxLkFwcGxpY2F0aW9uSW5mb3JtYXRpb25SZXNwb25zZRJVCg5XYXRj",
+            "aFJlc291cmNlcxIgLmFzcGlyZS52MS5XYXRjaFJlc291cmNlc1JlcXVlc3Qa",
+            "Hy5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXNVcGRhdGUwARJzChhXYXRjaFJl",
+            "c291cmNlQ29uc29sZUxvZ3MSKi5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZUNv",
+            "bnNvbGVMb2dzUmVxdWVzdBopLmFzcGlyZS52MS5XYXRjaFJlc291cmNlQ29u",
+            "c29sZUxvZ3NVcGRhdGUwARJfChZFeGVjdXRlUmVzb3VyY2VDb21tYW5kEiEu",
+            "YXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlcXVlc3QaIi5hc3BpcmUudjEu",
+            "UmVzb3VyY2VDb21tYW5kUmVzcG9uc2USbgoRV2F0Y2hJbnRlcmFjdGlvbnMS",
+            "KS5hc3BpcmUudjEuV2F0Y2hJbnRlcmFjdGlvbnNSZXF1ZXN0VXBkYXRlGiou",
+            "YXNwaXJlLnYxLldhdGNoSW50ZXJhY3Rpb25zUmVzcG9uc2VVcGRhdGUoATAB",
+            "QiOqAiBBc3BpcmUuRGFzaGJvYXJkU2VydmljZS5Qcm90by5WMWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.StructReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Aspire.ResourceService.Proto.V1.IconVariant), typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandState), typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind), typeof(global::Aspire.ResourceService.Proto.V1.HealthStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest), global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest.Parser, null, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse), global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse.Parser, new[]{ "ApplicationName" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommand), global::Aspire.ResourceService.Proto.V1.ResourceCommand.Parser, new[]{ "Name", "DisplayName", "ConfirmationMessage", "Parameter", "IsHighlighted", "IconName", "IconVariant", "DisplayDescription", "State" }, new[]{ "ConfirmationMessage", "Parameter", "IconName", "IconVariant", "DisplayDescription" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest), global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest.Parser, new[]{ "CommandName", "ResourceName", "ResourceType", "Parameter" }, new[]{ "Parameter" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse), global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse.Parser, new[]{ "Kind", "ErrorMessage" }, new[]{ "ErrorMessage" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceType), global::Aspire.ResourceService.Proto.V1.ResourceType.Parser, new[]{ "UniqueName", "DisplayName", "Commands" }, new[]{ "DisplayName" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.EnvironmentVariable), global::Aspire.ResourceService.Proto.V1.EnvironmentVariable.Parser, new[]{ "Name", "Value", "IsFromSpec" }, new[]{ "Value" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Url), global::Aspire.ResourceService.Proto.V1.Url.Parser, new[]{ "EndpointName", "FullUrl", "IsInternal", "IsInactive", "DisplayProperties" }, new[]{ "EndpointName" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties), global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties.Parser, new[]{ "SortOrder", "DisplayName" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Volume), global::Aspire.ResourceService.Proto.V1.Volume.Parser, new[]{ "Source", "Target", "MountType", "IsReadOnly" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.HealthReport), global::Aspire.ResourceService.Proto.V1.HealthReport.Parser, new[]{ "Status", "Key", "Description", "Exception" }, new[]{ "Status" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceRelationship), global::Aspire.ResourceService.Proto.V1.ResourceRelationship.Parser, new[]{ "ResourceName", "Type" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceProperty), global::Aspire.ResourceService.Proto.V1.ResourceProperty.Parser, new[]{ "Name", "DisplayName", "Value", "IsSensitive" }, new[]{ "DisplayName", "IsSensitive" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.Resource), global::Aspire.ResourceService.Proto.V1.Resource.Parser, new[]{ "Name", "ResourceType", "DisplayName", "Uid", "State", "CreatedAt", "Environment", "Commands", "Properties", "Urls", "StateStyle", "Volumes", "HealthReports", "StartedAt", "StoppedAt", "Relationships", "IsHidden" }, new[]{ "State", "CreatedAt", "StateStyle", "StartedAt", "StoppedAt" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.InitialResourceData), global::Aspire.ResourceService.Proto.V1.InitialResourceData.Parser, new[]{ "Resources", "ResourceTypes" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ResourceDeletion), global::Aspire.ResourceService.Proto.V1.ResourceDeletion.Parser, new[]{ "ResourceName", "ResourceType" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourcesChange), global::Aspire.ResourceService.Proto.V1.WatchResourcesChange.Parser, new[]{ "Delete", "Upsert" }, new[]{ "Kind" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourcesChanges), global::Aspire.ResourceService.Proto.V1.WatchResourcesChanges.Parser, new[]{ "Value" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest), global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest.Parser, new[]{ "IsReconnect" }, new[]{ "IsReconnect" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate), global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate.Parser, new[]{ "InitialData", "Changes" }, new[]{ "Kind" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.ConsoleLogLine), global::Aspire.ResourceService.Proto.V1.ConsoleLogLine.Parser, new[]{ "Text", "IsStdErr", "LineNumber" }, new[]{ "IsStdErr" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest), global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest.Parser, new[]{ "ResourceName", "SuppressFollow" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate), global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate.Parser, new[]{ "LogLines" }, null, null, null, null)
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Aspire.DashboardService.Proto.V1.IconVariant), typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandState), typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind), typeof(global::Aspire.DashboardService.Proto.V1.HealthStatus), typeof(global::Aspire.DashboardService.Proto.V1.MessageIntent), typeof(global::Aspire.DashboardService.Proto.V1.InputType), }, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest), global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest.Parser, null, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse), global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse.Parser, new[]{ "ApplicationName" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommand), global::Aspire.DashboardService.Proto.V1.ResourceCommand.Parser, new[]{ "Name", "DisplayName", "ConfirmationMessage", "Parameter", "IsHighlighted", "IconName", "IconVariant", "DisplayDescription", "State" }, new[]{ "ConfirmationMessage", "Parameter", "IconName", "IconVariant", "DisplayDescription" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest), global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest.Parser, new[]{ "CommandName", "ResourceName", "ResourceType", "Parameter" }, new[]{ "Parameter" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse), global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse.Parser, new[]{ "Kind", "ErrorMessage" }, new[]{ "ErrorMessage" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceType), global::Aspire.DashboardService.Proto.V1.ResourceType.Parser, new[]{ "UniqueName", "DisplayName", "Commands" }, new[]{ "DisplayName" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.EnvironmentVariable), global::Aspire.DashboardService.Proto.V1.EnvironmentVariable.Parser, new[]{ "Name", "Value", "IsFromSpec" }, new[]{ "Value" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.Url), global::Aspire.DashboardService.Proto.V1.Url.Parser, new[]{ "EndpointName", "FullUrl", "IsInternal", "IsInactive", "DisplayProperties" }, new[]{ "EndpointName" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.UrlDisplayProperties), global::Aspire.DashboardService.Proto.V1.UrlDisplayProperties.Parser, new[]{ "SortOrder", "DisplayName" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.Volume), global::Aspire.DashboardService.Proto.V1.Volume.Parser, new[]{ "Source", "Target", "MountType", "IsReadOnly" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.HealthReport), global::Aspire.DashboardService.Proto.V1.HealthReport.Parser, new[]{ "Status", "Key", "Description", "Exception" }, new[]{ "Status" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceRelationship), global::Aspire.DashboardService.Proto.V1.ResourceRelationship.Parser, new[]{ "ResourceName", "Type" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceProperty), global::Aspire.DashboardService.Proto.V1.ResourceProperty.Parser, new[]{ "Name", "DisplayName", "Value", "IsSensitive" }, new[]{ "DisplayName", "IsSensitive" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.Resource), global::Aspire.DashboardService.Proto.V1.Resource.Parser, new[]{ "Name", "ResourceType", "DisplayName", "Uid", "State", "CreatedAt", "Environment", "Commands", "Properties", "Urls", "StateStyle", "Volumes", "HealthReports", "StartedAt", "StoppedAt", "Relationships", "IsHidden", "SupportsDetailedTelemetry" }, new[]{ "State", "CreatedAt", "StateStyle", "StartedAt", "StoppedAt" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InitialResourceData), global::Aspire.DashboardService.Proto.V1.InitialResourceData.Parser, new[]{ "Resources", "ResourceTypes" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceDeletion), global::Aspire.DashboardService.Proto.V1.ResourceDeletion.Parser, new[]{ "ResourceName", "ResourceType" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchResourcesChange), global::Aspire.DashboardService.Proto.V1.WatchResourcesChange.Parser, new[]{ "Delete", "Upsert" }, new[]{ "Kind" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchResourcesChanges), global::Aspire.DashboardService.Proto.V1.WatchResourcesChanges.Parser, new[]{ "Value" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest), global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest.Parser, new[]{ "IsReconnect" }, new[]{ "IsReconnect" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate), global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate.Parser, new[]{ "InitialData", "Changes" }, new[]{ "Kind" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ConsoleLogLine), global::Aspire.DashboardService.Proto.V1.ConsoleLogLine.Parser, new[]{ "Text", "IsStdErr", "LineNumber" }, new[]{ "IsStdErr" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest), global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest.Parser, new[]{ "ResourceName", "SuppressFollow" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate), global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate.Parser, new[]{ "LogLines" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate), global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate.Parser, new[]{ "InteractionId", "Complete", "MessageBox", "InputsDialog", "Notification" }, new[]{ "Kind" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate), global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate.Parser, new[]{ "InteractionId", "Title", "Message", "PrimaryButtonText", "SecondaryButtonText", "ShowSecondaryButton", "ShowDismiss", "EnableMessageMarkdown", "Complete", "MessageBox", "InputsDialog", "Notification" }, new[]{ "Kind" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionComplete), global::Aspire.DashboardService.Proto.V1.InteractionComplete.Parser, null, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionMessageBox), global::Aspire.DashboardService.Proto.V1.InteractionMessageBox.Parser, new[]{ "Intent", "Result" }, new[]{ "Result" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionNotification), global::Aspire.DashboardService.Proto.V1.InteractionNotification.Parser, new[]{ "Intent", "Result", "LinkText", "LinkUrl" }, new[]{ "Result" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog), global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog.Parser, new[]{ "InputItems" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionInput), global::Aspire.DashboardService.Proto.V1.InteractionInput.Parser, new[]{ "Label", "Placeholder", "InputType", "Required", "Options", "Value", "ValidationErrors", "Description", "EnableDescriptionMarkdown", "MaxLength" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
     }
     #endregion
@@ -148,27 +204,45 @@ namespace Aspire.ResourceService.Proto.V1 {
   }
   #region Enums
   public enum IconVariant {
-    [pbr::OriginalName("REGULAR")] Regular = 0,
-    [pbr::OriginalName("FILLED")] Filled = 1,
+    [pbr::OriginalName("ICON_VARIANT_REGULAR")] Regular = 0,
+    [pbr::OriginalName("ICON_VARIANT_FILLED")] Filled = 1,
   }
 
   public enum ResourceCommandState {
-    [pbr::OriginalName("ENABLED")] Enabled = 0,
-    [pbr::OriginalName("DISABLED")] Disabled = 1,
-    [pbr::OriginalName("HIDDEN")] Hidden = 2,
+    [pbr::OriginalName("RESOURCE_COMMAND_STATE_ENABLED")] Enabled = 0,
+    [pbr::OriginalName("RESOURCE_COMMAND_STATE_DISABLED")] Disabled = 1,
+    [pbr::OriginalName("RESOURCE_COMMAND_STATE_HIDDEN")] Hidden = 2,
   }
 
   public enum ResourceCommandResponseKind {
-    [pbr::OriginalName("UNDEFINED")] Undefined = 0,
-    [pbr::OriginalName("SUCCEEDED")] Succeeded = 1,
-    [pbr::OriginalName("FAILED")] Failed = 2,
-    [pbr::OriginalName("CANCELLED")] Cancelled = 3,
+    [pbr::OriginalName("RESOURCE_COMMAND_RESPONSE_KIND_UNDEFINED")] Undefined = 0,
+    [pbr::OriginalName("RESOURCE_COMMAND_RESPONSE_KIND_SUCCEEDED")] Succeeded = 1,
+    [pbr::OriginalName("RESOURCE_COMMAND_RESPONSE_KIND_FAILED")] Failed = 2,
+    [pbr::OriginalName("RESOURCE_COMMAND_RESPONSE_KIND_CANCELLED")] Cancelled = 3,
   }
 
   public enum HealthStatus {
-    [pbr::OriginalName("HEALTHY")] Healthy = 0,
-    [pbr::OriginalName("UNHEALTHY")] Unhealthy = 1,
-    [pbr::OriginalName("DEGRADED")] Degraded = 2,
+    [pbr::OriginalName("HEALTH_STATUS_HEALTHY")] Healthy = 0,
+    [pbr::OriginalName("HEALTH_STATUS_UNHEALTHY")] Unhealthy = 1,
+    [pbr::OriginalName("HEALTH_STATUS_DEGRADED")] Degraded = 2,
+  }
+
+  public enum MessageIntent {
+    [pbr::OriginalName("MESSAGE_INTENT_NONE")] None = 0,
+    [pbr::OriginalName("MESSAGE_INTENT_SUCCESS")] Success = 1,
+    [pbr::OriginalName("MESSAGE_INTENT_WARNING")] Warning = 2,
+    [pbr::OriginalName("MESSAGE_INTENT_ERROR")] Error = 3,
+    [pbr::OriginalName("MESSAGE_INTENT_INFORMATION")] Information = 4,
+    [pbr::OriginalName("MESSAGE_INTENT_CONFIRMATION")] Confirmation = 5,
+  }
+
+  public enum InputType {
+    [pbr::OriginalName("INPUT_TYPE_UNSPECIFIED")] Unspecified = 0,
+    [pbr::OriginalName("INPUT_TYPE_TEXT")] Text = 1,
+    [pbr::OriginalName("INPUT_TYPE_SECRET_TEXT")] SecretText = 2,
+    [pbr::OriginalName("INPUT_TYPE_CHOICE")] Choice = 3,
+    [pbr::OriginalName("INPUT_TYPE_BOOLEAN")] Boolean = 4,
+    [pbr::OriginalName("INPUT_TYPE_NUMBER")] Number = 5,
   }
 
   #endregion
@@ -189,7 +263,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[0]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -350,7 +424,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[1]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -555,7 +629,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[2]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -719,15 +793,15 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "icon_variant" field.</summary>
     public const int IconVariantFieldNumber = 7;
-    private readonly static global::Aspire.ResourceService.Proto.V1.IconVariant IconVariantDefaultValue = global::Aspire.ResourceService.Proto.V1.IconVariant.Regular;
+    private readonly static global::Aspire.DashboardService.Proto.V1.IconVariant IconVariantDefaultValue = global::Aspire.DashboardService.Proto.V1.IconVariant.Regular;
 
-    private global::Aspire.ResourceService.Proto.V1.IconVariant iconVariant_;
+    private global::Aspire.DashboardService.Proto.V1.IconVariant iconVariant_;
     /// <summary>
     /// Optional icon variant.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.IconVariant IconVariant {
+    public global::Aspire.DashboardService.Proto.V1.IconVariant IconVariant {
       get { if ((_hasBits0 & 1) != 0) { return iconVariant_; } else { return IconVariantDefaultValue; } }
       set {
         _hasBits0 |= 1;
@@ -779,14 +853,14 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "state" field.</summary>
     public const int StateFieldNumber = 9;
-    private global::Aspire.ResourceService.Proto.V1.ResourceCommandState state_ = global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Enabled;
+    private global::Aspire.DashboardService.Proto.V1.ResourceCommandState state_ = global::Aspire.DashboardService.Proto.V1.ResourceCommandState.Enabled;
     /// <summary>
     /// The state of the command. Controls whether the command is enabled, disabled,
     /// or hidden in the UI.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.ResourceCommandState State {
+    public global::Aspire.DashboardService.Proto.V1.ResourceCommandState State {
       get { return state_; }
       set {
         state_ = value;
@@ -832,7 +906,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (HasIconName) hash ^= IconName.GetHashCode();
       if (HasIconVariant) hash ^= IconVariant.GetHashCode();
       if (HasDisplayDescription) hash ^= DisplayDescription.GetHashCode();
-      if (State != global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Enabled) hash ^= State.GetHashCode();
+      if (State != global::Aspire.DashboardService.Proto.V1.ResourceCommandState.Enabled) hash ^= State.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -883,7 +957,7 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteRawTag(66);
         output.WriteString(DisplayDescription);
       }
-      if (State != global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Enabled) {
+      if (State != global::Aspire.DashboardService.Proto.V1.ResourceCommandState.Enabled) {
         output.WriteRawTag(72);
         output.WriteEnum((int) State);
       }
@@ -929,7 +1003,7 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteRawTag(66);
         output.WriteString(DisplayDescription);
       }
-      if (State != global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Enabled) {
+      if (State != global::Aspire.DashboardService.Proto.V1.ResourceCommandState.Enabled) {
         output.WriteRawTag(72);
         output.WriteEnum((int) State);
       }
@@ -967,7 +1041,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (HasDisplayDescription) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(DisplayDescription);
       }
-      if (State != global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Enabled) {
+      if (State != global::Aspire.DashboardService.Proto.V1.ResourceCommandState.Enabled) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) State);
       }
       if (_unknownFields != null) {
@@ -1009,7 +1083,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (other.HasDisplayDescription) {
         DisplayDescription = other.DisplayDescription;
       }
-      if (other.State != global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Enabled) {
+      if (other.State != global::Aspire.DashboardService.Proto.V1.ResourceCommandState.Enabled) {
         State = other.State;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -1059,7 +1133,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           }
           case 56: {
-            IconVariant = (global::Aspire.ResourceService.Proto.V1.IconVariant) input.ReadEnum();
+            IconVariant = (global::Aspire.DashboardService.Proto.V1.IconVariant) input.ReadEnum();
             break;
           }
           case 66: {
@@ -1067,7 +1141,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           }
           case 72: {
-            State = (global::Aspire.ResourceService.Proto.V1.ResourceCommandState) input.ReadEnum();
+            State = (global::Aspire.DashboardService.Proto.V1.ResourceCommandState) input.ReadEnum();
             break;
           }
         }
@@ -1117,7 +1191,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           }
           case 56: {
-            IconVariant = (global::Aspire.ResourceService.Proto.V1.IconVariant) input.ReadEnum();
+            IconVariant = (global::Aspire.DashboardService.Proto.V1.IconVariant) input.ReadEnum();
             break;
           }
           case 66: {
@@ -1125,7 +1199,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           }
           case 72: {
-            State = (global::Aspire.ResourceService.Proto.V1.ResourceCommandState) input.ReadEnum();
+            State = (global::Aspire.DashboardService.Proto.V1.ResourceCommandState) input.ReadEnum();
             break;
           }
         }
@@ -1155,7 +1229,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[3]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1489,7 +1563,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[4]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1522,10 +1596,10 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "kind" field.</summary>
     public const int KindFieldNumber = 1;
-    private global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind kind_ = global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Undefined;
+    private global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind kind_ = global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Undefined;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind Kind {
+    public global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind Kind {
       get { return kind_; }
       set {
         kind_ = value;
@@ -1582,7 +1656,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Kind != global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Undefined) hash ^= Kind.GetHashCode();
+      if (Kind != global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Undefined) hash ^= Kind.GetHashCode();
       if (HasErrorMessage) hash ^= ErrorMessage.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -1602,7 +1676,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Kind != global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Undefined) {
+      if (Kind != global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Undefined) {
         output.WriteRawTag(8);
         output.WriteEnum((int) Kind);
       }
@@ -1620,7 +1694,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Kind != global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Undefined) {
+      if (Kind != global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Undefined) {
         output.WriteRawTag(8);
         output.WriteEnum((int) Kind);
       }
@@ -1638,7 +1712,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Kind != global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Undefined) {
+      if (Kind != global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Undefined) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Kind);
       }
       if (HasErrorMessage) {
@@ -1656,7 +1730,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (other == null) {
         return;
       }
-      if (other.Kind != global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Undefined) {
+      if (other.Kind != global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Undefined) {
         Kind = other.Kind;
       }
       if (other.HasErrorMessage) {
@@ -1682,7 +1756,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Kind = (global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind) input.ReadEnum();
+            Kind = (global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind) input.ReadEnum();
             break;
           }
           case 18: {
@@ -1709,7 +1783,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Kind = (global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind) input.ReadEnum();
+            Kind = (global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind) input.ReadEnum();
             break;
           }
           case 18: {
@@ -1738,7 +1812,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[5]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1818,9 +1892,9 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "commands" field.</summary>
     public const int CommandsFieldNumber = 3;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.ResourceCommand> _repeated_commands_codec
-        = pb::FieldCodec.ForMessage(26, global::Aspire.ResourceService.Proto.V1.ResourceCommand.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceCommand> commands_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceCommand>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.ResourceCommand> _repeated_commands_codec
+        = pb::FieldCodec.ForMessage(26, global::Aspire.DashboardService.Proto.V1.ResourceCommand.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceCommand> commands_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceCommand>();
     /// <summary>
     /// Any commands that may be executed against resources of this type, avoiding
     /// the need to copy the value to every Resource instance.
@@ -1832,7 +1906,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceCommand> Commands {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceCommand> Commands {
       get { return commands_; }
     }
 
@@ -2030,7 +2104,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[6]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2316,7 +2390,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[7]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2428,13 +2502,13 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "display_properties" field.</summary>
     public const int DisplayPropertiesFieldNumber = 5;
-    private global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties displayProperties_;
+    private global::Aspire.DashboardService.Proto.V1.UrlDisplayProperties displayProperties_;
     /// <summary>
     /// Display properties of the Url
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties DisplayProperties {
+    public global::Aspire.DashboardService.Proto.V1.UrlDisplayProperties DisplayProperties {
       get { return displayProperties_; }
       set {
         displayProperties_ = value;
@@ -2592,7 +2666,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       }
       if (other.displayProperties_ != null) {
         if (displayProperties_ == null) {
-          DisplayProperties = new global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties();
+          DisplayProperties = new global::Aspire.DashboardService.Proto.V1.UrlDisplayProperties();
         }
         DisplayProperties.MergeFrom(other.DisplayProperties);
       }
@@ -2633,7 +2707,7 @@ namespace Aspire.ResourceService.Proto.V1 {
           }
           case 42: {
             if (displayProperties_ == null) {
-              DisplayProperties = new global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties();
+              DisplayProperties = new global::Aspire.DashboardService.Proto.V1.UrlDisplayProperties();
             }
             input.ReadMessage(DisplayProperties);
             break;
@@ -2675,7 +2749,7 @@ namespace Aspire.ResourceService.Proto.V1 {
           }
           case 42: {
             if (displayProperties_ == null) {
-              DisplayProperties = new global::Aspire.ResourceService.Proto.V1.UrlDisplayProperties();
+              DisplayProperties = new global::Aspire.DashboardService.Proto.V1.UrlDisplayProperties();
             }
             input.ReadMessage(DisplayProperties);
             break;
@@ -2702,7 +2776,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[8]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2946,7 +3020,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[9]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3268,7 +3342,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3304,15 +3378,15 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "status" field.</summary>
     public const int StatusFieldNumber = 1;
-    private readonly static global::Aspire.ResourceService.Proto.V1.HealthStatus StatusDefaultValue = global::Aspire.ResourceService.Proto.V1.HealthStatus.Healthy;
+    private readonly static global::Aspire.DashboardService.Proto.V1.HealthStatus StatusDefaultValue = global::Aspire.DashboardService.Proto.V1.HealthStatus.Healthy;
 
-    private global::Aspire.ResourceService.Proto.V1.HealthStatus status_;
+    private global::Aspire.DashboardService.Proto.V1.HealthStatus status_;
     /// <summary>
     /// The health status of the resource. Not provided if we have not yet received an initial report from the check.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.HealthStatus Status {
+    public global::Aspire.DashboardService.Proto.V1.HealthStatus Status {
       get { if ((_hasBits0 & 1) != 0) { return status_; } else { return StatusDefaultValue; } }
       set {
         _hasBits0 |= 1;
@@ -3533,7 +3607,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Status = (global::Aspire.ResourceService.Proto.V1.HealthStatus) input.ReadEnum();
+            Status = (global::Aspire.DashboardService.Proto.V1.HealthStatus) input.ReadEnum();
             break;
           }
           case 18: {
@@ -3568,7 +3642,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Status = (global::Aspire.ResourceService.Proto.V1.HealthStatus) input.ReadEnum();
+            Status = (global::Aspire.DashboardService.Proto.V1.HealthStatus) input.ReadEnum();
             break;
           }
           case 18: {
@@ -3605,7 +3679,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3847,7 +3921,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4213,7 +4287,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[13]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4250,6 +4324,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       stoppedAt_ = other.stoppedAt_ != null ? other.stoppedAt_.Clone() : null;
       relationships_ = other.relationships_.Clone();
       isHidden_ = other.isHidden_;
+      supportsDetailedTelemetry_ = other.supportsDetailedTelemetry_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4347,31 +4422,31 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "environment" field.</summary>
     public const int EnvironmentFieldNumber = 7;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.EnvironmentVariable> _repeated_environment_codec
-        = pb::FieldCodec.ForMessage(58, global::Aspire.ResourceService.Proto.V1.EnvironmentVariable.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.EnvironmentVariable> environment_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.EnvironmentVariable>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.EnvironmentVariable> _repeated_environment_codec
+        = pb::FieldCodec.ForMessage(58, global::Aspire.DashboardService.Proto.V1.EnvironmentVariable.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.EnvironmentVariable> environment_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.EnvironmentVariable>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.EnvironmentVariable> Environment {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.EnvironmentVariable> Environment {
       get { return environment_; }
     }
 
     /// <summary>Field number for the "commands" field.</summary>
     public const int CommandsFieldNumber = 11;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.ResourceCommand> _repeated_commands_codec
-        = pb::FieldCodec.ForMessage(90, global::Aspire.ResourceService.Proto.V1.ResourceCommand.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceCommand> commands_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceCommand>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.ResourceCommand> _repeated_commands_codec
+        = pb::FieldCodec.ForMessage(90, global::Aspire.DashboardService.Proto.V1.ResourceCommand.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceCommand> commands_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceCommand>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceCommand> Commands {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceCommand> Commands {
       get { return commands_; }
     }
 
     /// <summary>Field number for the "properties" field.</summary>
     public const int PropertiesFieldNumber = 12;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.ResourceProperty> _repeated_properties_codec
-        = pb::FieldCodec.ForMessage(98, global::Aspire.ResourceService.Proto.V1.ResourceProperty.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceProperty> properties_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceProperty>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.ResourceProperty> _repeated_properties_codec
+        = pb::FieldCodec.ForMessage(98, global::Aspire.DashboardService.Proto.V1.ResourceProperty.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceProperty> properties_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceProperty>();
     /// <summary>
     /// Properties holding data not modeled directly on the message.
     ///
@@ -4382,21 +4457,21 @@ namespace Aspire.ResourceService.Proto.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceProperty> Properties {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceProperty> Properties {
       get { return properties_; }
     }
 
     /// <summary>Field number for the "urls" field.</summary>
     public const int UrlsFieldNumber = 13;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.Url> _repeated_urls_codec
-        = pb::FieldCodec.ForMessage(106, global::Aspire.ResourceService.Proto.V1.Url.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Url> urls_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Url>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.Url> _repeated_urls_codec
+        = pb::FieldCodec.ForMessage(106, global::Aspire.DashboardService.Proto.V1.Url.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.Url> urls_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.Url>();
     /// <summary>
     /// The list of urls that this resource exposes.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Url> Urls {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.Url> Urls {
       get { return urls_; }
     }
 
@@ -4433,29 +4508,29 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "volumes" field.</summary>
     public const int VolumesFieldNumber = 15;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.Volume> _repeated_volumes_codec
-        = pb::FieldCodec.ForMessage(122, global::Aspire.ResourceService.Proto.V1.Volume.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Volume> volumes_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Volume>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.Volume> _repeated_volumes_codec
+        = pb::FieldCodec.ForMessage(122, global::Aspire.DashboardService.Proto.V1.Volume.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.Volume> volumes_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.Volume>();
     /// <summary>
     /// The set of volumes mounted to the resource. Only applies to containers.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Volume> Volumes {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.Volume> Volumes {
       get { return volumes_; }
     }
 
     /// <summary>Field number for the "health_reports" field.</summary>
     public const int HealthReportsFieldNumber = 17;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.HealthReport> _repeated_healthReports_codec
-        = pb::FieldCodec.ForMessage(138, global::Aspire.ResourceService.Proto.V1.HealthReport.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.HealthReport> healthReports_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.HealthReport>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.HealthReport> _repeated_healthReports_codec
+        = pb::FieldCodec.ForMessage(138, global::Aspire.DashboardService.Proto.V1.HealthReport.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.HealthReport> healthReports_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.HealthReport>();
     /// <summary>
     /// Reports from health checks, about this resource.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.HealthReport> HealthReports {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.HealthReport> HealthReports {
       get { return healthReports_; }
     }
 
@@ -4491,15 +4566,15 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "relationships" field.</summary>
     public const int RelationshipsFieldNumber = 20;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.ResourceRelationship> _repeated_relationships_codec
-        = pb::FieldCodec.ForMessage(162, global::Aspire.ResourceService.Proto.V1.ResourceRelationship.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceRelationship> relationships_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceRelationship>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.ResourceRelationship> _repeated_relationships_codec
+        = pb::FieldCodec.ForMessage(162, global::Aspire.DashboardService.Proto.V1.ResourceRelationship.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceRelationship> relationships_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceRelationship>();
     /// <summary>
     /// The list of relationships for this resource.
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceRelationship> Relationships {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceRelationship> Relationships {
       get { return relationships_; }
     }
 
@@ -4515,6 +4590,21 @@ namespace Aspire.ResourceService.Proto.V1 {
       get { return isHidden_; }
       set {
         isHidden_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "supports_detailed_telemetry" field.</summary>
+    public const int SupportsDetailedTelemetryFieldNumber = 22;
+    private bool supportsDetailedTelemetry_;
+    /// <summary>
+    /// Whether the resource is built into Aspire and supports more detailed telemetry.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool SupportsDetailedTelemetry {
+      get { return supportsDetailedTelemetry_; }
+      set {
+        supportsDetailedTelemetry_ = value;
       }
     }
 
@@ -4550,6 +4640,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (!object.Equals(StoppedAt, other.StoppedAt)) return false;
       if(!relationships_.Equals(other.relationships_)) return false;
       if (IsHidden != other.IsHidden) return false;
+      if (SupportsDetailedTelemetry != other.SupportsDetailedTelemetry) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4574,6 +4665,7 @@ namespace Aspire.ResourceService.Proto.V1 {
       if (stoppedAt_ != null) hash ^= StoppedAt.GetHashCode();
       hash ^= relationships_.GetHashCode();
       if (IsHidden != false) hash ^= IsHidden.GetHashCode();
+      if (SupportsDetailedTelemetry != false) hash ^= SupportsDetailedTelemetry.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4639,6 +4731,10 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteRawTag(168, 1);
         output.WriteBool(IsHidden);
       }
+      if (SupportsDetailedTelemetry != false) {
+        output.WriteRawTag(176, 1);
+        output.WriteBool(SupportsDetailedTelemetry);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4696,6 +4792,10 @@ namespace Aspire.ResourceService.Proto.V1 {
         output.WriteRawTag(168, 1);
         output.WriteBool(IsHidden);
       }
+      if (SupportsDetailedTelemetry != false) {
+        output.WriteRawTag(176, 1);
+        output.WriteBool(SupportsDetailedTelemetry);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4741,6 +4841,9 @@ namespace Aspire.ResourceService.Proto.V1 {
       }
       size += relationships_.CalculateSize(_repeated_relationships_codec);
       if (IsHidden != false) {
+        size += 2 + 1;
+      }
+      if (SupportsDetailedTelemetry != false) {
         size += 2 + 1;
       }
       if (_unknownFields != null) {
@@ -4800,6 +4903,9 @@ namespace Aspire.ResourceService.Proto.V1 {
       relationships_.Add(other.relationships_);
       if (other.IsHidden != false) {
         IsHidden = other.IsHidden;
+      }
+      if (other.SupportsDetailedTelemetry != false) {
+        SupportsDetailedTelemetry = other.SupportsDetailedTelemetry;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -4895,6 +5001,10 @@ namespace Aspire.ResourceService.Proto.V1 {
           }
           case 168: {
             IsHidden = input.ReadBool();
+            break;
+          }
+          case 176: {
+            SupportsDetailedTelemetry = input.ReadBool();
             break;
           }
         }
@@ -4993,6 +5103,10 @@ namespace Aspire.ResourceService.Proto.V1 {
             IsHidden = input.ReadBool();
             break;
           }
+          case 176: {
+            SupportsDetailedTelemetry = input.ReadBool();
+            break;
+          }
         }
       }
     }
@@ -5018,7 +5132,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[14]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5051,23 +5165,23 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "resources" field.</summary>
     public const int ResourcesFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.Resource> _repeated_resources_codec
-        = pb::FieldCodec.ForMessage(10, global::Aspire.ResourceService.Proto.V1.Resource.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Resource> resources_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Resource>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.Resource> _repeated_resources_codec
+        = pb::FieldCodec.ForMessage(10, global::Aspire.DashboardService.Proto.V1.Resource.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.Resource> resources_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.Resource>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.Resource> Resources {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.Resource> Resources {
       get { return resources_; }
     }
 
     /// <summary>Field number for the "resource_types" field.</summary>
     public const int ResourceTypesFieldNumber = 2;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.ResourceType> _repeated_resourceTypes_codec
-        = pb::FieldCodec.ForMessage(18, global::Aspire.ResourceService.Proto.V1.ResourceType.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceType> resourceTypes_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceType>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.ResourceType> _repeated_resourceTypes_codec
+        = pb::FieldCodec.ForMessage(18, global::Aspire.DashboardService.Proto.V1.ResourceType.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceType> resourceTypes_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceType>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ResourceType> ResourceTypes {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ResourceType> ResourceTypes {
       get { return resourceTypes_; }
     }
 
@@ -5231,7 +5345,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[15]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5466,7 +5580,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[16]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5508,8 +5622,8 @@ namespace Aspire.ResourceService.Proto.V1 {
     public const int DeleteFieldNumber = 1;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.ResourceDeletion Delete {
-      get { return kindCase_ == KindOneofCase.Delete ? (global::Aspire.ResourceService.Proto.V1.ResourceDeletion) kind_ : null; }
+    public global::Aspire.DashboardService.Proto.V1.ResourceDeletion Delete {
+      get { return kindCase_ == KindOneofCase.Delete ? (global::Aspire.DashboardService.Proto.V1.ResourceDeletion) kind_ : null; }
       set {
         kind_ = value;
         kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.Delete;
@@ -5520,8 +5634,8 @@ namespace Aspire.ResourceService.Proto.V1 {
     public const int UpsertFieldNumber = 2;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.Resource Upsert {
-      get { return kindCase_ == KindOneofCase.Upsert ? (global::Aspire.ResourceService.Proto.V1.Resource) kind_ : null; }
+    public global::Aspire.DashboardService.Proto.V1.Resource Upsert {
+      get { return kindCase_ == KindOneofCase.Upsert ? (global::Aspire.DashboardService.Proto.V1.Resource) kind_ : null; }
       set {
         kind_ = value;
         kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.Upsert;
@@ -5652,13 +5766,13 @@ namespace Aspire.ResourceService.Proto.V1 {
       switch (other.KindCase) {
         case KindOneofCase.Delete:
           if (Delete == null) {
-            Delete = new global::Aspire.ResourceService.Proto.V1.ResourceDeletion();
+            Delete = new global::Aspire.DashboardService.Proto.V1.ResourceDeletion();
           }
           Delete.MergeFrom(other.Delete);
           break;
         case KindOneofCase.Upsert:
           if (Upsert == null) {
-            Upsert = new global::Aspire.ResourceService.Proto.V1.Resource();
+            Upsert = new global::Aspire.DashboardService.Proto.V1.Resource();
           }
           Upsert.MergeFrom(other.Upsert);
           break;
@@ -5684,7 +5798,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            global::Aspire.ResourceService.Proto.V1.ResourceDeletion subBuilder = new global::Aspire.ResourceService.Proto.V1.ResourceDeletion();
+            global::Aspire.DashboardService.Proto.V1.ResourceDeletion subBuilder = new global::Aspire.DashboardService.Proto.V1.ResourceDeletion();
             if (kindCase_ == KindOneofCase.Delete) {
               subBuilder.MergeFrom(Delete);
             }
@@ -5693,7 +5807,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           }
           case 18: {
-            global::Aspire.ResourceService.Proto.V1.Resource subBuilder = new global::Aspire.ResourceService.Proto.V1.Resource();
+            global::Aspire.DashboardService.Proto.V1.Resource subBuilder = new global::Aspire.DashboardService.Proto.V1.Resource();
             if (kindCase_ == KindOneofCase.Upsert) {
               subBuilder.MergeFrom(Upsert);
             }
@@ -5721,7 +5835,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            global::Aspire.ResourceService.Proto.V1.ResourceDeletion subBuilder = new global::Aspire.ResourceService.Proto.V1.ResourceDeletion();
+            global::Aspire.DashboardService.Proto.V1.ResourceDeletion subBuilder = new global::Aspire.DashboardService.Proto.V1.ResourceDeletion();
             if (kindCase_ == KindOneofCase.Delete) {
               subBuilder.MergeFrom(Delete);
             }
@@ -5730,7 +5844,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           }
           case 18: {
-            global::Aspire.ResourceService.Proto.V1.Resource subBuilder = new global::Aspire.ResourceService.Proto.V1.Resource();
+            global::Aspire.DashboardService.Proto.V1.Resource subBuilder = new global::Aspire.DashboardService.Proto.V1.Resource();
             if (kindCase_ == KindOneofCase.Upsert) {
               subBuilder.MergeFrom(Upsert);
             }
@@ -5760,7 +5874,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[17]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5792,12 +5906,12 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "value" field.</summary>
     public const int ValueFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.WatchResourcesChange> _repeated_value_codec
-        = pb::FieldCodec.ForMessage(10, global::Aspire.ResourceService.Proto.V1.WatchResourcesChange.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.WatchResourcesChange> value_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.WatchResourcesChange>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.WatchResourcesChange> _repeated_value_codec
+        = pb::FieldCodec.ForMessage(10, global::Aspire.DashboardService.Proto.V1.WatchResourcesChange.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.WatchResourcesChange> value_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.WatchResourcesChange>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.WatchResourcesChange> Value {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.WatchResourcesChange> Value {
       get { return value_; }
     }
 
@@ -5951,7 +6065,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[18]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6171,7 +6285,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[19]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6217,8 +6331,8 @@ namespace Aspire.ResourceService.Proto.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.InitialResourceData InitialData {
-      get { return kindCase_ == KindOneofCase.InitialData ? (global::Aspire.ResourceService.Proto.V1.InitialResourceData) kind_ : null; }
+    public global::Aspire.DashboardService.Proto.V1.InitialResourceData InitialData {
+      get { return kindCase_ == KindOneofCase.InitialData ? (global::Aspire.DashboardService.Proto.V1.InitialResourceData) kind_ : null; }
       set {
         kind_ = value;
         kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.InitialData;
@@ -6232,8 +6346,8 @@ namespace Aspire.ResourceService.Proto.V1 {
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Aspire.ResourceService.Proto.V1.WatchResourcesChanges Changes {
-      get { return kindCase_ == KindOneofCase.Changes ? (global::Aspire.ResourceService.Proto.V1.WatchResourcesChanges) kind_ : null; }
+    public global::Aspire.DashboardService.Proto.V1.WatchResourcesChanges Changes {
+      get { return kindCase_ == KindOneofCase.Changes ? (global::Aspire.DashboardService.Proto.V1.WatchResourcesChanges) kind_ : null; }
       set {
         kind_ = value;
         kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.Changes;
@@ -6364,13 +6478,13 @@ namespace Aspire.ResourceService.Proto.V1 {
       switch (other.KindCase) {
         case KindOneofCase.InitialData:
           if (InitialData == null) {
-            InitialData = new global::Aspire.ResourceService.Proto.V1.InitialResourceData();
+            InitialData = new global::Aspire.DashboardService.Proto.V1.InitialResourceData();
           }
           InitialData.MergeFrom(other.InitialData);
           break;
         case KindOneofCase.Changes:
           if (Changes == null) {
-            Changes = new global::Aspire.ResourceService.Proto.V1.WatchResourcesChanges();
+            Changes = new global::Aspire.DashboardService.Proto.V1.WatchResourcesChanges();
           }
           Changes.MergeFrom(other.Changes);
           break;
@@ -6396,7 +6510,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            global::Aspire.ResourceService.Proto.V1.InitialResourceData subBuilder = new global::Aspire.ResourceService.Proto.V1.InitialResourceData();
+            global::Aspire.DashboardService.Proto.V1.InitialResourceData subBuilder = new global::Aspire.DashboardService.Proto.V1.InitialResourceData();
             if (kindCase_ == KindOneofCase.InitialData) {
               subBuilder.MergeFrom(InitialData);
             }
@@ -6405,7 +6519,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           }
           case 18: {
-            global::Aspire.ResourceService.Proto.V1.WatchResourcesChanges subBuilder = new global::Aspire.ResourceService.Proto.V1.WatchResourcesChanges();
+            global::Aspire.DashboardService.Proto.V1.WatchResourcesChanges subBuilder = new global::Aspire.DashboardService.Proto.V1.WatchResourcesChanges();
             if (kindCase_ == KindOneofCase.Changes) {
               subBuilder.MergeFrom(Changes);
             }
@@ -6433,7 +6547,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            global::Aspire.ResourceService.Proto.V1.InitialResourceData subBuilder = new global::Aspire.ResourceService.Proto.V1.InitialResourceData();
+            global::Aspire.DashboardService.Proto.V1.InitialResourceData subBuilder = new global::Aspire.DashboardService.Proto.V1.InitialResourceData();
             if (kindCase_ == KindOneofCase.InitialData) {
               subBuilder.MergeFrom(InitialData);
             }
@@ -6442,7 +6556,7 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           }
           case 18: {
-            global::Aspire.ResourceService.Proto.V1.WatchResourcesChanges subBuilder = new global::Aspire.ResourceService.Proto.V1.WatchResourcesChanges();
+            global::Aspire.DashboardService.Proto.V1.WatchResourcesChanges subBuilder = new global::Aspire.DashboardService.Proto.V1.WatchResourcesChanges();
             if (kindCase_ == KindOneofCase.Changes) {
               subBuilder.MergeFrom(Changes);
             }
@@ -6473,7 +6587,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[20]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6767,7 +6881,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[21]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7013,7 +7127,7 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[22]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[22]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7045,12 +7159,12 @@ namespace Aspire.ResourceService.Proto.V1 {
 
     /// <summary>Field number for the "log_lines" field.</summary>
     public const int LogLinesFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::Aspire.ResourceService.Proto.V1.ConsoleLogLine> _repeated_logLines_codec
-        = pb::FieldCodec.ForMessage(10, global::Aspire.ResourceService.Proto.V1.ConsoleLogLine.Parser);
-    private readonly pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ConsoleLogLine> logLines_ = new pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ConsoleLogLine>();
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.ConsoleLogLine> _repeated_logLines_codec
+        = pb::FieldCodec.ForMessage(10, global::Aspire.DashboardService.Proto.V1.ConsoleLogLine.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ConsoleLogLine> logLines_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ConsoleLogLine>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Aspire.ResourceService.Proto.V1.ConsoleLogLine> LogLines {
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.ConsoleLogLine> LogLines {
       get { return logLines_; }
     }
 
@@ -7176,6 +7290,2601 @@ namespace Aspire.ResourceService.Proto.V1 {
             break;
           case 10: {
             logLines_.AddEntriesFrom(ref input, _repeated_logLines_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// A message sent to the server to update interaction state. Has multiple types of payload.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class WatchInteractionsRequestUpdate : pb::IMessage<WatchInteractionsRequestUpdate>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<WatchInteractionsRequestUpdate> _parser = new pb::MessageParser<WatchInteractionsRequestUpdate>(() => new WatchInteractionsRequestUpdate());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<WatchInteractionsRequestUpdate> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[23]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public WatchInteractionsRequestUpdate() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public WatchInteractionsRequestUpdate(WatchInteractionsRequestUpdate other) : this() {
+      interactionId_ = other.interactionId_;
+      switch (other.KindCase) {
+        case KindOneofCase.Complete:
+          Complete = other.Complete.Clone();
+          break;
+        case KindOneofCase.MessageBox:
+          MessageBox = other.MessageBox.Clone();
+          break;
+        case KindOneofCase.InputsDialog:
+          InputsDialog = other.InputsDialog.Clone();
+          break;
+        case KindOneofCase.Notification:
+          Notification = other.Notification.Clone();
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public WatchInteractionsRequestUpdate Clone() {
+      return new WatchInteractionsRequestUpdate(this);
+    }
+
+    /// <summary>Field number for the "interaction_id" field.</summary>
+    public const int InteractionIdFieldNumber = 1;
+    private int interactionId_;
+    /// <summary>
+    /// The interaction id.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int InteractionId {
+      get { return interactionId_; }
+      set {
+        interactionId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "complete" field.</summary>
+    public const int CompleteFieldNumber = 2;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.InteractionComplete Complete {
+      get { return kindCase_ == KindOneofCase.Complete ? (global::Aspire.DashboardService.Proto.V1.InteractionComplete) kind_ : null; }
+      set {
+        kind_ = value;
+        kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.Complete;
+      }
+    }
+
+    /// <summary>Field number for the "message_box" field.</summary>
+    public const int MessageBoxFieldNumber = 3;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.InteractionMessageBox MessageBox {
+      get { return kindCase_ == KindOneofCase.MessageBox ? (global::Aspire.DashboardService.Proto.V1.InteractionMessageBox) kind_ : null; }
+      set {
+        kind_ = value;
+        kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.MessageBox;
+      }
+    }
+
+    /// <summary>Field number for the "inputs_dialog" field.</summary>
+    public const int InputsDialogFieldNumber = 4;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog InputsDialog {
+      get { return kindCase_ == KindOneofCase.InputsDialog ? (global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog) kind_ : null; }
+      set {
+        kind_ = value;
+        kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.InputsDialog;
+      }
+    }
+
+    /// <summary>Field number for the "notification" field.</summary>
+    public const int NotificationFieldNumber = 5;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.InteractionNotification Notification {
+      get { return kindCase_ == KindOneofCase.Notification ? (global::Aspire.DashboardService.Proto.V1.InteractionNotification) kind_ : null; }
+      set {
+        kind_ = value;
+        kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.Notification;
+      }
+    }
+
+    private object kind_;
+    /// <summary>Enum of possible cases for the "kind" oneof.</summary>
+    public enum KindOneofCase {
+      None = 0,
+      Complete = 2,
+      MessageBox = 3,
+      InputsDialog = 4,
+      Notification = 5,
+    }
+    private KindOneofCase kindCase_ = KindOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public KindOneofCase KindCase {
+      get { return kindCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearKind() {
+      kindCase_ = KindOneofCase.None;
+      kind_ = null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as WatchInteractionsRequestUpdate);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(WatchInteractionsRequestUpdate other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (InteractionId != other.InteractionId) return false;
+      if (!object.Equals(Complete, other.Complete)) return false;
+      if (!object.Equals(MessageBox, other.MessageBox)) return false;
+      if (!object.Equals(InputsDialog, other.InputsDialog)) return false;
+      if (!object.Equals(Notification, other.Notification)) return false;
+      if (KindCase != other.KindCase) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (InteractionId != 0) hash ^= InteractionId.GetHashCode();
+      if (kindCase_ == KindOneofCase.Complete) hash ^= Complete.GetHashCode();
+      if (kindCase_ == KindOneofCase.MessageBox) hash ^= MessageBox.GetHashCode();
+      if (kindCase_ == KindOneofCase.InputsDialog) hash ^= InputsDialog.GetHashCode();
+      if (kindCase_ == KindOneofCase.Notification) hash ^= Notification.GetHashCode();
+      hash ^= (int) kindCase_;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (InteractionId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(InteractionId);
+      }
+      if (kindCase_ == KindOneofCase.Complete) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Complete);
+      }
+      if (kindCase_ == KindOneofCase.MessageBox) {
+        output.WriteRawTag(26);
+        output.WriteMessage(MessageBox);
+      }
+      if (kindCase_ == KindOneofCase.InputsDialog) {
+        output.WriteRawTag(34);
+        output.WriteMessage(InputsDialog);
+      }
+      if (kindCase_ == KindOneofCase.Notification) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Notification);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (InteractionId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(InteractionId);
+      }
+      if (kindCase_ == KindOneofCase.Complete) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Complete);
+      }
+      if (kindCase_ == KindOneofCase.MessageBox) {
+        output.WriteRawTag(26);
+        output.WriteMessage(MessageBox);
+      }
+      if (kindCase_ == KindOneofCase.InputsDialog) {
+        output.WriteRawTag(34);
+        output.WriteMessage(InputsDialog);
+      }
+      if (kindCase_ == KindOneofCase.Notification) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Notification);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (InteractionId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(InteractionId);
+      }
+      if (kindCase_ == KindOneofCase.Complete) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Complete);
+      }
+      if (kindCase_ == KindOneofCase.MessageBox) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(MessageBox);
+      }
+      if (kindCase_ == KindOneofCase.InputsDialog) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(InputsDialog);
+      }
+      if (kindCase_ == KindOneofCase.Notification) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Notification);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(WatchInteractionsRequestUpdate other) {
+      if (other == null) {
+        return;
+      }
+      if (other.InteractionId != 0) {
+        InteractionId = other.InteractionId;
+      }
+      switch (other.KindCase) {
+        case KindOneofCase.Complete:
+          if (Complete == null) {
+            Complete = new global::Aspire.DashboardService.Proto.V1.InteractionComplete();
+          }
+          Complete.MergeFrom(other.Complete);
+          break;
+        case KindOneofCase.MessageBox:
+          if (MessageBox == null) {
+            MessageBox = new global::Aspire.DashboardService.Proto.V1.InteractionMessageBox();
+          }
+          MessageBox.MergeFrom(other.MessageBox);
+          break;
+        case KindOneofCase.InputsDialog:
+          if (InputsDialog == null) {
+            InputsDialog = new global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog();
+          }
+          InputsDialog.MergeFrom(other.InputsDialog);
+          break;
+        case KindOneofCase.Notification:
+          if (Notification == null) {
+            Notification = new global::Aspire.DashboardService.Proto.V1.InteractionNotification();
+          }
+          Notification.MergeFrom(other.Notification);
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            InteractionId = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            global::Aspire.DashboardService.Proto.V1.InteractionComplete subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionComplete();
+            if (kindCase_ == KindOneofCase.Complete) {
+              subBuilder.MergeFrom(Complete);
+            }
+            input.ReadMessage(subBuilder);
+            Complete = subBuilder;
+            break;
+          }
+          case 26: {
+            global::Aspire.DashboardService.Proto.V1.InteractionMessageBox subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionMessageBox();
+            if (kindCase_ == KindOneofCase.MessageBox) {
+              subBuilder.MergeFrom(MessageBox);
+            }
+            input.ReadMessage(subBuilder);
+            MessageBox = subBuilder;
+            break;
+          }
+          case 34: {
+            global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog();
+            if (kindCase_ == KindOneofCase.InputsDialog) {
+              subBuilder.MergeFrom(InputsDialog);
+            }
+            input.ReadMessage(subBuilder);
+            InputsDialog = subBuilder;
+            break;
+          }
+          case 42: {
+            global::Aspire.DashboardService.Proto.V1.InteractionNotification subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionNotification();
+            if (kindCase_ == KindOneofCase.Notification) {
+              subBuilder.MergeFrom(Notification);
+            }
+            input.ReadMessage(subBuilder);
+            Notification = subBuilder;
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            InteractionId = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            global::Aspire.DashboardService.Proto.V1.InteractionComplete subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionComplete();
+            if (kindCase_ == KindOneofCase.Complete) {
+              subBuilder.MergeFrom(Complete);
+            }
+            input.ReadMessage(subBuilder);
+            Complete = subBuilder;
+            break;
+          }
+          case 26: {
+            global::Aspire.DashboardService.Proto.V1.InteractionMessageBox subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionMessageBox();
+            if (kindCase_ == KindOneofCase.MessageBox) {
+              subBuilder.MergeFrom(MessageBox);
+            }
+            input.ReadMessage(subBuilder);
+            MessageBox = subBuilder;
+            break;
+          }
+          case 34: {
+            global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog();
+            if (kindCase_ == KindOneofCase.InputsDialog) {
+              subBuilder.MergeFrom(InputsDialog);
+            }
+            input.ReadMessage(subBuilder);
+            InputsDialog = subBuilder;
+            break;
+          }
+          case 42: {
+            global::Aspire.DashboardService.Proto.V1.InteractionNotification subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionNotification();
+            if (kindCase_ == KindOneofCase.Notification) {
+              subBuilder.MergeFrom(Notification);
+            }
+            input.ReadMessage(subBuilder);
+            Notification = subBuilder;
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// A message received from the server when watching interactions. Has multiple types of payload.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class WatchInteractionsResponseUpdate : pb::IMessage<WatchInteractionsResponseUpdate>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<WatchInteractionsResponseUpdate> _parser = new pb::MessageParser<WatchInteractionsResponseUpdate>(() => new WatchInteractionsResponseUpdate());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<WatchInteractionsResponseUpdate> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[24]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public WatchInteractionsResponseUpdate() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public WatchInteractionsResponseUpdate(WatchInteractionsResponseUpdate other) : this() {
+      interactionId_ = other.interactionId_;
+      title_ = other.title_;
+      message_ = other.message_;
+      primaryButtonText_ = other.primaryButtonText_;
+      secondaryButtonText_ = other.secondaryButtonText_;
+      showSecondaryButton_ = other.showSecondaryButton_;
+      showDismiss_ = other.showDismiss_;
+      enableMessageMarkdown_ = other.enableMessageMarkdown_;
+      switch (other.KindCase) {
+        case KindOneofCase.Complete:
+          Complete = other.Complete.Clone();
+          break;
+        case KindOneofCase.MessageBox:
+          MessageBox = other.MessageBox.Clone();
+          break;
+        case KindOneofCase.InputsDialog:
+          InputsDialog = other.InputsDialog.Clone();
+          break;
+        case KindOneofCase.Notification:
+          Notification = other.Notification.Clone();
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public WatchInteractionsResponseUpdate Clone() {
+      return new WatchInteractionsResponseUpdate(this);
+    }
+
+    /// <summary>Field number for the "interaction_id" field.</summary>
+    public const int InteractionIdFieldNumber = 1;
+    private int interactionId_;
+    /// <summary>
+    /// The interaction id.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int InteractionId {
+      get { return interactionId_; }
+      set {
+        interactionId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "title" field.</summary>
+    public const int TitleFieldNumber = 2;
+    private string title_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Title {
+      get { return title_; }
+      set {
+        title_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "message" field.</summary>
+    public const int MessageFieldNumber = 3;
+    private string message_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Message {
+      get { return message_; }
+      set {
+        message_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "primary_button_text" field.</summary>
+    public const int PrimaryButtonTextFieldNumber = 4;
+    private string primaryButtonText_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string PrimaryButtonText {
+      get { return primaryButtonText_; }
+      set {
+        primaryButtonText_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "secondary_button_text" field.</summary>
+    public const int SecondaryButtonTextFieldNumber = 5;
+    private string secondaryButtonText_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string SecondaryButtonText {
+      get { return secondaryButtonText_; }
+      set {
+        secondaryButtonText_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "show_secondary_button" field.</summary>
+    public const int ShowSecondaryButtonFieldNumber = 6;
+    private bool showSecondaryButton_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool ShowSecondaryButton {
+      get { return showSecondaryButton_; }
+      set {
+        showSecondaryButton_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "show_dismiss" field.</summary>
+    public const int ShowDismissFieldNumber = 7;
+    private bool showDismiss_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool ShowDismiss {
+      get { return showDismiss_; }
+      set {
+        showDismiss_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "enable_message_markdown" field.</summary>
+    public const int EnableMessageMarkdownFieldNumber = 8;
+    private bool enableMessageMarkdown_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool EnableMessageMarkdown {
+      get { return enableMessageMarkdown_; }
+      set {
+        enableMessageMarkdown_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "complete" field.</summary>
+    public const int CompleteFieldNumber = 16;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.InteractionComplete Complete {
+      get { return kindCase_ == KindOneofCase.Complete ? (global::Aspire.DashboardService.Proto.V1.InteractionComplete) kind_ : null; }
+      set {
+        kind_ = value;
+        kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.Complete;
+      }
+    }
+
+    /// <summary>Field number for the "message_box" field.</summary>
+    public const int MessageBoxFieldNumber = 17;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.InteractionMessageBox MessageBox {
+      get { return kindCase_ == KindOneofCase.MessageBox ? (global::Aspire.DashboardService.Proto.V1.InteractionMessageBox) kind_ : null; }
+      set {
+        kind_ = value;
+        kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.MessageBox;
+      }
+    }
+
+    /// <summary>Field number for the "inputs_dialog" field.</summary>
+    public const int InputsDialogFieldNumber = 18;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog InputsDialog {
+      get { return kindCase_ == KindOneofCase.InputsDialog ? (global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog) kind_ : null; }
+      set {
+        kind_ = value;
+        kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.InputsDialog;
+      }
+    }
+
+    /// <summary>Field number for the "notification" field.</summary>
+    public const int NotificationFieldNumber = 19;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.InteractionNotification Notification {
+      get { return kindCase_ == KindOneofCase.Notification ? (global::Aspire.DashboardService.Proto.V1.InteractionNotification) kind_ : null; }
+      set {
+        kind_ = value;
+        kindCase_ = value == null ? KindOneofCase.None : KindOneofCase.Notification;
+      }
+    }
+
+    private object kind_;
+    /// <summary>Enum of possible cases for the "kind" oneof.</summary>
+    public enum KindOneofCase {
+      None = 0,
+      Complete = 16,
+      MessageBox = 17,
+      InputsDialog = 18,
+      Notification = 19,
+    }
+    private KindOneofCase kindCase_ = KindOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public KindOneofCase KindCase {
+      get { return kindCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearKind() {
+      kindCase_ = KindOneofCase.None;
+      kind_ = null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as WatchInteractionsResponseUpdate);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(WatchInteractionsResponseUpdate other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (InteractionId != other.InteractionId) return false;
+      if (Title != other.Title) return false;
+      if (Message != other.Message) return false;
+      if (PrimaryButtonText != other.PrimaryButtonText) return false;
+      if (SecondaryButtonText != other.SecondaryButtonText) return false;
+      if (ShowSecondaryButton != other.ShowSecondaryButton) return false;
+      if (ShowDismiss != other.ShowDismiss) return false;
+      if (EnableMessageMarkdown != other.EnableMessageMarkdown) return false;
+      if (!object.Equals(Complete, other.Complete)) return false;
+      if (!object.Equals(MessageBox, other.MessageBox)) return false;
+      if (!object.Equals(InputsDialog, other.InputsDialog)) return false;
+      if (!object.Equals(Notification, other.Notification)) return false;
+      if (KindCase != other.KindCase) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (InteractionId != 0) hash ^= InteractionId.GetHashCode();
+      if (Title.Length != 0) hash ^= Title.GetHashCode();
+      if (Message.Length != 0) hash ^= Message.GetHashCode();
+      if (PrimaryButtonText.Length != 0) hash ^= PrimaryButtonText.GetHashCode();
+      if (SecondaryButtonText.Length != 0) hash ^= SecondaryButtonText.GetHashCode();
+      if (ShowSecondaryButton != false) hash ^= ShowSecondaryButton.GetHashCode();
+      if (ShowDismiss != false) hash ^= ShowDismiss.GetHashCode();
+      if (EnableMessageMarkdown != false) hash ^= EnableMessageMarkdown.GetHashCode();
+      if (kindCase_ == KindOneofCase.Complete) hash ^= Complete.GetHashCode();
+      if (kindCase_ == KindOneofCase.MessageBox) hash ^= MessageBox.GetHashCode();
+      if (kindCase_ == KindOneofCase.InputsDialog) hash ^= InputsDialog.GetHashCode();
+      if (kindCase_ == KindOneofCase.Notification) hash ^= Notification.GetHashCode();
+      hash ^= (int) kindCase_;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (InteractionId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(InteractionId);
+      }
+      if (Title.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Title);
+      }
+      if (Message.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Message);
+      }
+      if (PrimaryButtonText.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(PrimaryButtonText);
+      }
+      if (SecondaryButtonText.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(SecondaryButtonText);
+      }
+      if (ShowSecondaryButton != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(ShowSecondaryButton);
+      }
+      if (ShowDismiss != false) {
+        output.WriteRawTag(56);
+        output.WriteBool(ShowDismiss);
+      }
+      if (EnableMessageMarkdown != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(EnableMessageMarkdown);
+      }
+      if (kindCase_ == KindOneofCase.Complete) {
+        output.WriteRawTag(130, 1);
+        output.WriteMessage(Complete);
+      }
+      if (kindCase_ == KindOneofCase.MessageBox) {
+        output.WriteRawTag(138, 1);
+        output.WriteMessage(MessageBox);
+      }
+      if (kindCase_ == KindOneofCase.InputsDialog) {
+        output.WriteRawTag(146, 1);
+        output.WriteMessage(InputsDialog);
+      }
+      if (kindCase_ == KindOneofCase.Notification) {
+        output.WriteRawTag(154, 1);
+        output.WriteMessage(Notification);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (InteractionId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(InteractionId);
+      }
+      if (Title.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Title);
+      }
+      if (Message.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Message);
+      }
+      if (PrimaryButtonText.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(PrimaryButtonText);
+      }
+      if (SecondaryButtonText.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(SecondaryButtonText);
+      }
+      if (ShowSecondaryButton != false) {
+        output.WriteRawTag(48);
+        output.WriteBool(ShowSecondaryButton);
+      }
+      if (ShowDismiss != false) {
+        output.WriteRawTag(56);
+        output.WriteBool(ShowDismiss);
+      }
+      if (EnableMessageMarkdown != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(EnableMessageMarkdown);
+      }
+      if (kindCase_ == KindOneofCase.Complete) {
+        output.WriteRawTag(130, 1);
+        output.WriteMessage(Complete);
+      }
+      if (kindCase_ == KindOneofCase.MessageBox) {
+        output.WriteRawTag(138, 1);
+        output.WriteMessage(MessageBox);
+      }
+      if (kindCase_ == KindOneofCase.InputsDialog) {
+        output.WriteRawTag(146, 1);
+        output.WriteMessage(InputsDialog);
+      }
+      if (kindCase_ == KindOneofCase.Notification) {
+        output.WriteRawTag(154, 1);
+        output.WriteMessage(Notification);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (InteractionId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(InteractionId);
+      }
+      if (Title.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Title);
+      }
+      if (Message.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Message);
+      }
+      if (PrimaryButtonText.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(PrimaryButtonText);
+      }
+      if (SecondaryButtonText.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SecondaryButtonText);
+      }
+      if (ShowSecondaryButton != false) {
+        size += 1 + 1;
+      }
+      if (ShowDismiss != false) {
+        size += 1 + 1;
+      }
+      if (EnableMessageMarkdown != false) {
+        size += 1 + 1;
+      }
+      if (kindCase_ == KindOneofCase.Complete) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(Complete);
+      }
+      if (kindCase_ == KindOneofCase.MessageBox) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(MessageBox);
+      }
+      if (kindCase_ == KindOneofCase.InputsDialog) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(InputsDialog);
+      }
+      if (kindCase_ == KindOneofCase.Notification) {
+        size += 2 + pb::CodedOutputStream.ComputeMessageSize(Notification);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(WatchInteractionsResponseUpdate other) {
+      if (other == null) {
+        return;
+      }
+      if (other.InteractionId != 0) {
+        InteractionId = other.InteractionId;
+      }
+      if (other.Title.Length != 0) {
+        Title = other.Title;
+      }
+      if (other.Message.Length != 0) {
+        Message = other.Message;
+      }
+      if (other.PrimaryButtonText.Length != 0) {
+        PrimaryButtonText = other.PrimaryButtonText;
+      }
+      if (other.SecondaryButtonText.Length != 0) {
+        SecondaryButtonText = other.SecondaryButtonText;
+      }
+      if (other.ShowSecondaryButton != false) {
+        ShowSecondaryButton = other.ShowSecondaryButton;
+      }
+      if (other.ShowDismiss != false) {
+        ShowDismiss = other.ShowDismiss;
+      }
+      if (other.EnableMessageMarkdown != false) {
+        EnableMessageMarkdown = other.EnableMessageMarkdown;
+      }
+      switch (other.KindCase) {
+        case KindOneofCase.Complete:
+          if (Complete == null) {
+            Complete = new global::Aspire.DashboardService.Proto.V1.InteractionComplete();
+          }
+          Complete.MergeFrom(other.Complete);
+          break;
+        case KindOneofCase.MessageBox:
+          if (MessageBox == null) {
+            MessageBox = new global::Aspire.DashboardService.Proto.V1.InteractionMessageBox();
+          }
+          MessageBox.MergeFrom(other.MessageBox);
+          break;
+        case KindOneofCase.InputsDialog:
+          if (InputsDialog == null) {
+            InputsDialog = new global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog();
+          }
+          InputsDialog.MergeFrom(other.InputsDialog);
+          break;
+        case KindOneofCase.Notification:
+          if (Notification == null) {
+            Notification = new global::Aspire.DashboardService.Proto.V1.InteractionNotification();
+          }
+          Notification.MergeFrom(other.Notification);
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            InteractionId = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            Title = input.ReadString();
+            break;
+          }
+          case 26: {
+            Message = input.ReadString();
+            break;
+          }
+          case 34: {
+            PrimaryButtonText = input.ReadString();
+            break;
+          }
+          case 42: {
+            SecondaryButtonText = input.ReadString();
+            break;
+          }
+          case 48: {
+            ShowSecondaryButton = input.ReadBool();
+            break;
+          }
+          case 56: {
+            ShowDismiss = input.ReadBool();
+            break;
+          }
+          case 64: {
+            EnableMessageMarkdown = input.ReadBool();
+            break;
+          }
+          case 130: {
+            global::Aspire.DashboardService.Proto.V1.InteractionComplete subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionComplete();
+            if (kindCase_ == KindOneofCase.Complete) {
+              subBuilder.MergeFrom(Complete);
+            }
+            input.ReadMessage(subBuilder);
+            Complete = subBuilder;
+            break;
+          }
+          case 138: {
+            global::Aspire.DashboardService.Proto.V1.InteractionMessageBox subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionMessageBox();
+            if (kindCase_ == KindOneofCase.MessageBox) {
+              subBuilder.MergeFrom(MessageBox);
+            }
+            input.ReadMessage(subBuilder);
+            MessageBox = subBuilder;
+            break;
+          }
+          case 146: {
+            global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog();
+            if (kindCase_ == KindOneofCase.InputsDialog) {
+              subBuilder.MergeFrom(InputsDialog);
+            }
+            input.ReadMessage(subBuilder);
+            InputsDialog = subBuilder;
+            break;
+          }
+          case 154: {
+            global::Aspire.DashboardService.Proto.V1.InteractionNotification subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionNotification();
+            if (kindCase_ == KindOneofCase.Notification) {
+              subBuilder.MergeFrom(Notification);
+            }
+            input.ReadMessage(subBuilder);
+            Notification = subBuilder;
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            InteractionId = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            Title = input.ReadString();
+            break;
+          }
+          case 26: {
+            Message = input.ReadString();
+            break;
+          }
+          case 34: {
+            PrimaryButtonText = input.ReadString();
+            break;
+          }
+          case 42: {
+            SecondaryButtonText = input.ReadString();
+            break;
+          }
+          case 48: {
+            ShowSecondaryButton = input.ReadBool();
+            break;
+          }
+          case 56: {
+            ShowDismiss = input.ReadBool();
+            break;
+          }
+          case 64: {
+            EnableMessageMarkdown = input.ReadBool();
+            break;
+          }
+          case 130: {
+            global::Aspire.DashboardService.Proto.V1.InteractionComplete subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionComplete();
+            if (kindCase_ == KindOneofCase.Complete) {
+              subBuilder.MergeFrom(Complete);
+            }
+            input.ReadMessage(subBuilder);
+            Complete = subBuilder;
+            break;
+          }
+          case 138: {
+            global::Aspire.DashboardService.Proto.V1.InteractionMessageBox subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionMessageBox();
+            if (kindCase_ == KindOneofCase.MessageBox) {
+              subBuilder.MergeFrom(MessageBox);
+            }
+            input.ReadMessage(subBuilder);
+            MessageBox = subBuilder;
+            break;
+          }
+          case 146: {
+            global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog();
+            if (kindCase_ == KindOneofCase.InputsDialog) {
+              subBuilder.MergeFrom(InputsDialog);
+            }
+            input.ReadMessage(subBuilder);
+            InputsDialog = subBuilder;
+            break;
+          }
+          case 154: {
+            global::Aspire.DashboardService.Proto.V1.InteractionNotification subBuilder = new global::Aspire.DashboardService.Proto.V1.InteractionNotification();
+            if (kindCase_ == KindOneofCase.Notification) {
+              subBuilder.MergeFrom(Notification);
+            }
+            input.ReadMessage(subBuilder);
+            Notification = subBuilder;
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Represents the completion of an interaction.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class InteractionComplete : pb::IMessage<InteractionComplete>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<InteractionComplete> _parser = new pb::MessageParser<InteractionComplete>(() => new InteractionComplete());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<InteractionComplete> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[25]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionComplete() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionComplete(InteractionComplete other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionComplete Clone() {
+      return new InteractionComplete(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as InteractionComplete);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(InteractionComplete other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(InteractionComplete other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Represents a message box interaction, which is a modal dialog with a message and buttons.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class InteractionMessageBox : pb::IMessage<InteractionMessageBox>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<InteractionMessageBox> _parser = new pb::MessageParser<InteractionMessageBox>(() => new InteractionMessageBox());
+    private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<InteractionMessageBox> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[26]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionMessageBox() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionMessageBox(InteractionMessageBox other) : this() {
+      _hasBits0 = other._hasBits0;
+      intent_ = other.intent_;
+      result_ = other.result_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionMessageBox Clone() {
+      return new InteractionMessageBox(this);
+    }
+
+    /// <summary>Field number for the "intent" field.</summary>
+    public const int IntentFieldNumber = 1;
+    private global::Aspire.DashboardService.Proto.V1.MessageIntent intent_ = global::Aspire.DashboardService.Proto.V1.MessageIntent.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.MessageIntent Intent {
+      get { return intent_; }
+      set {
+        intent_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "result" field.</summary>
+    public const int ResultFieldNumber = 2;
+    private readonly static bool ResultDefaultValue = false;
+
+    private bool result_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Result {
+      get { if ((_hasBits0 & 1) != 0) { return result_; } else { return ResultDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        result_ = value;
+      }
+    }
+    /// <summary>Gets whether the "result" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasResult {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "result" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearResult() {
+      _hasBits0 &= ~1;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as InteractionMessageBox);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(InteractionMessageBox other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Intent != other.Intent) return false;
+      if (Result != other.Result) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) hash ^= Intent.GetHashCode();
+      if (HasResult) hash ^= Result.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Intent);
+      }
+      if (HasResult) {
+        output.WriteRawTag(16);
+        output.WriteBool(Result);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Intent);
+      }
+      if (HasResult) {
+        output.WriteRawTag(16);
+        output.WriteBool(Result);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Intent);
+      }
+      if (HasResult) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(InteractionMessageBox other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) {
+        Intent = other.Intent;
+      }
+      if (other.HasResult) {
+        Result = other.Result;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Intent = (global::Aspire.DashboardService.Proto.V1.MessageIntent) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            Result = input.ReadBool();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Intent = (global::Aspire.DashboardService.Proto.V1.MessageIntent) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            Result = input.ReadBool();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Represents a notification interaction, which is a non-modal message with an optional link.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class InteractionNotification : pb::IMessage<InteractionNotification>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<InteractionNotification> _parser = new pb::MessageParser<InteractionNotification>(() => new InteractionNotification());
+    private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<InteractionNotification> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[27]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionNotification() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionNotification(InteractionNotification other) : this() {
+      _hasBits0 = other._hasBits0;
+      intent_ = other.intent_;
+      result_ = other.result_;
+      linkText_ = other.linkText_;
+      linkUrl_ = other.linkUrl_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionNotification Clone() {
+      return new InteractionNotification(this);
+    }
+
+    /// <summary>Field number for the "intent" field.</summary>
+    public const int IntentFieldNumber = 1;
+    private global::Aspire.DashboardService.Proto.V1.MessageIntent intent_ = global::Aspire.DashboardService.Proto.V1.MessageIntent.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.MessageIntent Intent {
+      get { return intent_; }
+      set {
+        intent_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "result" field.</summary>
+    public const int ResultFieldNumber = 2;
+    private readonly static bool ResultDefaultValue = false;
+
+    private bool result_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Result {
+      get { if ((_hasBits0 & 1) != 0) { return result_; } else { return ResultDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        result_ = value;
+      }
+    }
+    /// <summary>Gets whether the "result" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasResult {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "result" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearResult() {
+      _hasBits0 &= ~1;
+    }
+
+    /// <summary>Field number for the "link_text" field.</summary>
+    public const int LinkTextFieldNumber = 3;
+    private string linkText_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string LinkText {
+      get { return linkText_; }
+      set {
+        linkText_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "link_url" field.</summary>
+    public const int LinkUrlFieldNumber = 4;
+    private string linkUrl_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string LinkUrl {
+      get { return linkUrl_; }
+      set {
+        linkUrl_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as InteractionNotification);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(InteractionNotification other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Intent != other.Intent) return false;
+      if (Result != other.Result) return false;
+      if (LinkText != other.LinkText) return false;
+      if (LinkUrl != other.LinkUrl) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) hash ^= Intent.GetHashCode();
+      if (HasResult) hash ^= Result.GetHashCode();
+      if (LinkText.Length != 0) hash ^= LinkText.GetHashCode();
+      if (LinkUrl.Length != 0) hash ^= LinkUrl.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Intent);
+      }
+      if (HasResult) {
+        output.WriteRawTag(16);
+        output.WriteBool(Result);
+      }
+      if (LinkText.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(LinkText);
+      }
+      if (LinkUrl.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(LinkUrl);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Intent);
+      }
+      if (HasResult) {
+        output.WriteRawTag(16);
+        output.WriteBool(Result);
+      }
+      if (LinkText.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(LinkText);
+      }
+      if (LinkUrl.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(LinkUrl);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Intent);
+      }
+      if (HasResult) {
+        size += 1 + 1;
+      }
+      if (LinkText.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(LinkText);
+      }
+      if (LinkUrl.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(LinkUrl);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(InteractionNotification other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Intent != global::Aspire.DashboardService.Proto.V1.MessageIntent.None) {
+        Intent = other.Intent;
+      }
+      if (other.HasResult) {
+        Result = other.Result;
+      }
+      if (other.LinkText.Length != 0) {
+        LinkText = other.LinkText;
+      }
+      if (other.LinkUrl.Length != 0) {
+        LinkUrl = other.LinkUrl;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Intent = (global::Aspire.DashboardService.Proto.V1.MessageIntent) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            Result = input.ReadBool();
+            break;
+          }
+          case 26: {
+            LinkText = input.ReadString();
+            break;
+          }
+          case 34: {
+            LinkUrl = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Intent = (global::Aspire.DashboardService.Proto.V1.MessageIntent) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            Result = input.ReadBool();
+            break;
+          }
+          case 26: {
+            LinkText = input.ReadString();
+            break;
+          }
+          case 34: {
+            LinkUrl = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Represents a dialog that collects inputs from the user.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class InteractionInputsDialog : pb::IMessage<InteractionInputsDialog>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<InteractionInputsDialog> _parser = new pb::MessageParser<InteractionInputsDialog>(() => new InteractionInputsDialog());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<InteractionInputsDialog> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[28]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionInputsDialog() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionInputsDialog(InteractionInputsDialog other) : this() {
+      inputItems_ = other.inputItems_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionInputsDialog Clone() {
+      return new InteractionInputsDialog(this);
+    }
+
+    /// <summary>Field number for the "input_items" field.</summary>
+    public const int InputItemsFieldNumber = 1;
+    private static readonly pb::FieldCodec<global::Aspire.DashboardService.Proto.V1.InteractionInput> _repeated_inputItems_codec
+        = pb::FieldCodec.ForMessage(10, global::Aspire.DashboardService.Proto.V1.InteractionInput.Parser);
+    private readonly pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.InteractionInput> inputItems_ = new pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.InteractionInput>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Aspire.DashboardService.Proto.V1.InteractionInput> InputItems {
+      get { return inputItems_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as InteractionInputsDialog);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(InteractionInputsDialog other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!inputItems_.Equals(other.inputItems_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= inputItems_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      inputItems_.WriteTo(output, _repeated_inputItems_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      inputItems_.WriteTo(ref output, _repeated_inputItems_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      size += inputItems_.CalculateSize(_repeated_inputItems_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(InteractionInputsDialog other) {
+      if (other == null) {
+        return;
+      }
+      inputItems_.Add(other.inputItems_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            inputItems_.AddEntriesFrom(input, _repeated_inputItems_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            inputItems_.AddEntriesFrom(ref input, _repeated_inputItems_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Represents an input item in an interaction dialog.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class InteractionInput : pb::IMessage<InteractionInput>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<InteractionInput> _parser = new pb::MessageParser<InteractionInput>(() => new InteractionInput());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<InteractionInput> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.MessageTypes[29]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionInput() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionInput(InteractionInput other) : this() {
+      label_ = other.label_;
+      placeholder_ = other.placeholder_;
+      inputType_ = other.inputType_;
+      required_ = other.required_;
+      options_ = other.options_.Clone();
+      value_ = other.value_;
+      validationErrors_ = other.validationErrors_.Clone();
+      description_ = other.description_;
+      enableDescriptionMarkdown_ = other.enableDescriptionMarkdown_;
+      maxLength_ = other.maxLength_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public InteractionInput Clone() {
+      return new InteractionInput(this);
+    }
+
+    /// <summary>Field number for the "label" field.</summary>
+    public const int LabelFieldNumber = 1;
+    private string label_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Label {
+      get { return label_; }
+      set {
+        label_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "placeholder" field.</summary>
+    public const int PlaceholderFieldNumber = 2;
+    private string placeholder_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Placeholder {
+      get { return placeholder_; }
+      set {
+        placeholder_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "input_type" field.</summary>
+    public const int InputTypeFieldNumber = 3;
+    private global::Aspire.DashboardService.Proto.V1.InputType inputType_ = global::Aspire.DashboardService.Proto.V1.InputType.Unspecified;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.InputType InputType {
+      get { return inputType_; }
+      set {
+        inputType_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "required" field.</summary>
+    public const int RequiredFieldNumber = 4;
+    private bool required_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Required {
+      get { return required_; }
+      set {
+        required_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "options" field.</summary>
+    public const int OptionsFieldNumber = 5;
+    private static readonly pbc::MapField<string, string>.Codec _map_options_codec
+        = new pbc::MapField<string, string>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForString(18, ""), 42);
+    private readonly pbc::MapField<string, string> options_ = new pbc::MapField<string, string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::MapField<string, string> Options {
+      get { return options_; }
+    }
+
+    /// <summary>Field number for the "value" field.</summary>
+    public const int ValueFieldNumber = 6;
+    private string value_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Value {
+      get { return value_; }
+      set {
+        value_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "validation_errors" field.</summary>
+    public const int ValidationErrorsFieldNumber = 7;
+    private static readonly pb::FieldCodec<string> _repeated_validationErrors_codec
+        = pb::FieldCodec.ForString(58);
+    private readonly pbc::RepeatedField<string> validationErrors_ = new pbc::RepeatedField<string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> ValidationErrors {
+      get { return validationErrors_; }
+    }
+
+    /// <summary>Field number for the "description" field.</summary>
+    public const int DescriptionFieldNumber = 8;
+    private string description_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Description {
+      get { return description_; }
+      set {
+        description_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "enable_description_markdown" field.</summary>
+    public const int EnableDescriptionMarkdownFieldNumber = 9;
+    private bool enableDescriptionMarkdown_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool EnableDescriptionMarkdown {
+      get { return enableDescriptionMarkdown_; }
+      set {
+        enableDescriptionMarkdown_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "max_length" field.</summary>
+    public const int MaxLengthFieldNumber = 10;
+    private int maxLength_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int MaxLength {
+      get { return maxLength_; }
+      set {
+        maxLength_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as InteractionInput);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(InteractionInput other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Label != other.Label) return false;
+      if (Placeholder != other.Placeholder) return false;
+      if (InputType != other.InputType) return false;
+      if (Required != other.Required) return false;
+      if (!Options.Equals(other.Options)) return false;
+      if (Value != other.Value) return false;
+      if(!validationErrors_.Equals(other.validationErrors_)) return false;
+      if (Description != other.Description) return false;
+      if (EnableDescriptionMarkdown != other.EnableDescriptionMarkdown) return false;
+      if (MaxLength != other.MaxLength) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Label.Length != 0) hash ^= Label.GetHashCode();
+      if (Placeholder.Length != 0) hash ^= Placeholder.GetHashCode();
+      if (InputType != global::Aspire.DashboardService.Proto.V1.InputType.Unspecified) hash ^= InputType.GetHashCode();
+      if (Required != false) hash ^= Required.GetHashCode();
+      hash ^= Options.GetHashCode();
+      if (Value.Length != 0) hash ^= Value.GetHashCode();
+      hash ^= validationErrors_.GetHashCode();
+      if (Description.Length != 0) hash ^= Description.GetHashCode();
+      if (EnableDescriptionMarkdown != false) hash ^= EnableDescriptionMarkdown.GetHashCode();
+      if (MaxLength != 0) hash ^= MaxLength.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Label.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Label);
+      }
+      if (Placeholder.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Placeholder);
+      }
+      if (InputType != global::Aspire.DashboardService.Proto.V1.InputType.Unspecified) {
+        output.WriteRawTag(24);
+        output.WriteEnum((int) InputType);
+      }
+      if (Required != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Required);
+      }
+      options_.WriteTo(output, _map_options_codec);
+      if (Value.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(Value);
+      }
+      validationErrors_.WriteTo(output, _repeated_validationErrors_codec);
+      if (Description.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(Description);
+      }
+      if (EnableDescriptionMarkdown != false) {
+        output.WriteRawTag(72);
+        output.WriteBool(EnableDescriptionMarkdown);
+      }
+      if (MaxLength != 0) {
+        output.WriteRawTag(80);
+        output.WriteInt32(MaxLength);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Label.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Label);
+      }
+      if (Placeholder.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Placeholder);
+      }
+      if (InputType != global::Aspire.DashboardService.Proto.V1.InputType.Unspecified) {
+        output.WriteRawTag(24);
+        output.WriteEnum((int) InputType);
+      }
+      if (Required != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Required);
+      }
+      options_.WriteTo(ref output, _map_options_codec);
+      if (Value.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(Value);
+      }
+      validationErrors_.WriteTo(ref output, _repeated_validationErrors_codec);
+      if (Description.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(Description);
+      }
+      if (EnableDescriptionMarkdown != false) {
+        output.WriteRawTag(72);
+        output.WriteBool(EnableDescriptionMarkdown);
+      }
+      if (MaxLength != 0) {
+        output.WriteRawTag(80);
+        output.WriteInt32(MaxLength);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Label.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Label);
+      }
+      if (Placeholder.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Placeholder);
+      }
+      if (InputType != global::Aspire.DashboardService.Proto.V1.InputType.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) InputType);
+      }
+      if (Required != false) {
+        size += 1 + 1;
+      }
+      size += options_.CalculateSize(_map_options_codec);
+      if (Value.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Value);
+      }
+      size += validationErrors_.CalculateSize(_repeated_validationErrors_codec);
+      if (Description.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Description);
+      }
+      if (EnableDescriptionMarkdown != false) {
+        size += 1 + 1;
+      }
+      if (MaxLength != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(MaxLength);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(InteractionInput other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Label.Length != 0) {
+        Label = other.Label;
+      }
+      if (other.Placeholder.Length != 0) {
+        Placeholder = other.Placeholder;
+      }
+      if (other.InputType != global::Aspire.DashboardService.Proto.V1.InputType.Unspecified) {
+        InputType = other.InputType;
+      }
+      if (other.Required != false) {
+        Required = other.Required;
+      }
+      options_.MergeFrom(other.options_);
+      if (other.Value.Length != 0) {
+        Value = other.Value;
+      }
+      validationErrors_.Add(other.validationErrors_);
+      if (other.Description.Length != 0) {
+        Description = other.Description;
+      }
+      if (other.EnableDescriptionMarkdown != false) {
+        EnableDescriptionMarkdown = other.EnableDescriptionMarkdown;
+      }
+      if (other.MaxLength != 0) {
+        MaxLength = other.MaxLength;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Label = input.ReadString();
+            break;
+          }
+          case 18: {
+            Placeholder = input.ReadString();
+            break;
+          }
+          case 24: {
+            InputType = (global::Aspire.DashboardService.Proto.V1.InputType) input.ReadEnum();
+            break;
+          }
+          case 32: {
+            Required = input.ReadBool();
+            break;
+          }
+          case 42: {
+            options_.AddEntriesFrom(input, _map_options_codec);
+            break;
+          }
+          case 50: {
+            Value = input.ReadString();
+            break;
+          }
+          case 58: {
+            validationErrors_.AddEntriesFrom(input, _repeated_validationErrors_codec);
+            break;
+          }
+          case 66: {
+            Description = input.ReadString();
+            break;
+          }
+          case 72: {
+            EnableDescriptionMarkdown = input.ReadBool();
+            break;
+          }
+          case 80: {
+            MaxLength = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Label = input.ReadString();
+            break;
+          }
+          case 18: {
+            Placeholder = input.ReadString();
+            break;
+          }
+          case 24: {
+            InputType = (global::Aspire.DashboardService.Proto.V1.InputType) input.ReadEnum();
+            break;
+          }
+          case 32: {
+            Required = input.ReadBool();
+            break;
+          }
+          case 42: {
+            options_.AddEntriesFrom(ref input, _map_options_codec);
+            break;
+          }
+          case 50: {
+            Value = input.ReadString();
+            break;
+          }
+          case 58: {
+            validationErrors_.AddEntriesFrom(ref input, _repeated_validationErrors_codec);
+            break;
+          }
+          case 66: {
+            Description = input.ReadString();
+            break;
+          }
+          case 72: {
+            EnableDescriptionMarkdown = input.ReadBool();
+            break;
+          }
+          case 80: {
+            MaxLength = input.ReadInt32();
             break;
           }
         }

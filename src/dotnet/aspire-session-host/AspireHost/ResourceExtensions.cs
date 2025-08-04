@@ -1,5 +1,5 @@
 using System.Globalization;
-using Aspire.ResourceService.Proto.V1;
+using Aspire.DashboardService.Proto.V1;
 using Google.Protobuf.WellKnownTypes;
 using JetBrains.Rider.Aspire.SessionHost.Generated;
 using ResourceCommand = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommand;
@@ -68,7 +68,7 @@ internal static class ResourceExtensions
         _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
     };
 
-    private static ResourceProperty ToModel(this global::Aspire.ResourceService.Proto.V1.ResourceProperty property) =>
+    private static ResourceProperty ToModel(this global::Aspire.DashboardService.Proto.V1.ResourceProperty property) =>
         new(
             property.Name,
             property.HasDisplayName ? property.DisplayName : null,
@@ -130,7 +130,7 @@ internal static class ResourceExtensions
         report.Exception
     );
 
-    private static ResourceCommand ToModel(this global::Aspire.ResourceService.Proto.V1.ResourceCommand command) => new(
+    private static ResourceCommand ToModel(this global::Aspire.DashboardService.Proto.V1.ResourceCommand command) => new(
         command.Name,
         command.DisplayName,
         command.HasConfirmationMessage ? command.ConfirmationMessage : null,
@@ -141,16 +141,16 @@ internal static class ResourceExtensions
     );
 
     private static ResourceCommandState MapCommandState(
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandState state) => state switch
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandState state) => state switch
     {
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Enabled => ResourceCommandState.Enabled,
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Disabled => ResourceCommandState.Disabled,
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandState.Hidden => ResourceCommandState.Hidden,
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandState.Enabled => ResourceCommandState.Enabled,
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandState.Disabled => ResourceCommandState.Disabled,
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandState.Hidden => ResourceCommandState.Hidden,
         _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
     };
 
     private static ResourceRelationship ToModel(
-        this global::Aspire.ResourceService.Proto.V1.ResourceRelationship relationship) => new(
+        this global::Aspire.DashboardService.Proto.V1.ResourceRelationship relationship) => new(
         relationship.ResourceName,
         relationship.Type
     );

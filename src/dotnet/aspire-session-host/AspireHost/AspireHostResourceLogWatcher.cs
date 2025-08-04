@@ -1,4 +1,4 @@
-using Aspire.ResourceService.Proto.V1;
+using Aspire.DashboardService.Proto.V1;
 using Grpc.Core;
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
