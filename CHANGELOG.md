@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#319](https://github.com/JetBrains/aspire-plugin/issues/319) BackgroundService `StopAsync` never called
+
+## [1.8.6] - 2025-07-25
+
 ### Added
 
 - [#148](https://github.com/JetBrains/aspire-plugin/issues/148) Actions to add .NET Aspire projects to the existing solution
@@ -442,7 +448,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.5...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.6...HEAD
+[1.8.6]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.5...v1.8.6
 [1.8.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.4...v1.8.5
 [1.8.4]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.3...v1.8.4
 [1.8.3]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.2...v1.8.3
