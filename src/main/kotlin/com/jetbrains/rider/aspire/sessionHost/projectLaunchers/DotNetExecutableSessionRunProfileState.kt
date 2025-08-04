@@ -52,6 +52,14 @@ class DotNetExecutableSessionRunProfileState(
             commandLine.commandLineString,
             originalExecutable = originalExecutable
         ) {
+            init {
+                @Suppress("removal", "DEPRECATION")
+                // It's said that the graceful termination with WinP is enabled by default,
+                // but fo Rider it's not enabled, so we have to use this flag
+                // TODO: Ask the platform to provide a way for opt-in WinP termination
+                setShouldKillProcessSoftlyWithWinP(true)
+            }
+
             override fun notifyTextAvailable(text: String, outputType: Key<*>) {
                 val modifiedText = text.lineSequence().joinToString("\r\n")
                 super.notifyTextAvailable(modifiedText, outputType)
