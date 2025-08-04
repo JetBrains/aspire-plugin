@@ -4,7 +4,7 @@ using JetBrains.ReSharper.Features.Running;
 using JetBrains.Rider.Model;
 using JetBrains.Util;
 
-namespace JetBrains.Rider.Aspire.RunnableProject;
+namespace JetBrains.Rider.Aspire.Plugin.RunnableProject;
 
 [SolutionComponent(Instantiation.DemandAnyThreadUnsafe)]
 public class AspireRunnableProjectProvider(

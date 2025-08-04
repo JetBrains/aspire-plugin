@@ -8,12 +8,12 @@ using JetBrains.ReSharper.Feature.Services.Protocol;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Hosting;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Launch;
 using JetBrains.ReSharper.UnitTestFramework.Execution.TestRunner;
-using JetBrains.Rider.Aspire.Generated;
+using JetBrains.Rider.Aspire.Plugin.Generated;
 using JetBrains.Util.Dotnet.TargetFrameworkIds;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 
-namespace JetBrains.Rider.Aspire.UnitTest;
+namespace JetBrains.Rider.Aspire.Plugin.UnitTest;
 
 [SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRunnerHostControllerExtension

@@ -6,11 +6,11 @@ using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Impl;
 using JetBrains.ProjectModel.ProjectsHost.SolutionHost;
 using JetBrains.RdBackend.Common.Features.ProjectModel;
-using JetBrains.Rider.Aspire.Generated;
+using JetBrains.Rider.Aspire.Plugin.Generated;
 using JetBrains.Util;
 using JetBrains.Util.Dotnet.TargetFrameworkIds;
 
-namespace JetBrains.Rider.Aspire.Project;
+namespace JetBrains.Rider.Aspire.Plugin.Project;
 
 /// <summary>
 /// A service providing project model manipulation capabilities, primarily for handling project
