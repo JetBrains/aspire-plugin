@@ -273,8 +273,16 @@ class AspireResource(
     }
 
     private fun logReceived(log: ResourceLog) {
+        LOG.trace { "Received log: $log for the resource $uid" }
         val outputType = if (!log.isError) ProcessOutputTypes.STDOUT else ProcessOutputTypes.STDERR
-        val (_, logContent) = parseLogEntry(log.text) ?: return
+
+        val (_, logContent) = parseLogEntry(log.text) ?: run {
+            // In some situations (when receiving a huge multiline string in one go),
+            // Aspire will send us all strings NOT prefixed by timestamp, but with line endings preserved.
+            // Let's just trim those.
+            null to log.text
+        }
+
         logProcessHandler.notifyTextAvailable(logContent + "\r\n", outputType)
     }
 
