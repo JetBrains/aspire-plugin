@@ -5,10 +5,10 @@ using JetBrains.DocumentManagers;
 using JetBrains.DocumentModel;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
-using JetBrains.Rider.Aspire.Project;
+using JetBrains.Rider.Aspire.Plugin.Project;
 using JetBrains.Util;
 
-namespace JetBrains.Rider.Aspire.Files;
+namespace JetBrains.Rider.Aspire.Plugin.Files;
 
 /// A service that provides functionality for inserting default configurations
 /// and method calls into project files, such as `AppHost.cs` and `Program.cs`.

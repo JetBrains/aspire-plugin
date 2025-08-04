@@ -2,7 +2,7 @@ using JetBrains.Application;
 using JetBrains.Application.Parts;
 using JetBrains.ProjectModel.Properties;
 
-namespace JetBrains.Rider.Aspire.AWSLambda;
+namespace JetBrains.Rider.Aspire.Plugin.AWSLambda;
 
 [ShellComponent(Instantiation.DemandAnyThreadSafe)]
 public class AWSProjectPropertyRequest : IProjectPropertiesRequest

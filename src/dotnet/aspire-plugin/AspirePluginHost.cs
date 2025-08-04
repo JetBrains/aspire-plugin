@@ -6,12 +6,12 @@ using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Properties;
 using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
-using JetBrains.Rider.Aspire.Files;
-using JetBrains.Rider.Aspire.Generated;
-using JetBrains.Rider.Aspire.Project;
+using JetBrains.Rider.Aspire.Plugin.Files;
+using JetBrains.Rider.Aspire.Plugin.Generated;
+using JetBrains.Rider.Aspire.Plugin.Project;
 using JetBrains.Util;
 
-namespace JetBrains.Rider.Aspire;
+namespace JetBrains.Rider.Aspire.Plugin;
 
 [SolutionComponent(InstantiationEx.LegacyDefault)]
 public class AspirePluginHost

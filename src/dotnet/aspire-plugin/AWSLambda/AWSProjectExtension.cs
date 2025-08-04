@@ -6,7 +6,7 @@ using JetBrains.ProjectModel.Properties;
 using JetBrains.RdBackend.Common.Features.ProjectModel.View;
 using JetBrains.Util;
 
-namespace JetBrains.Rider.Aspire.AWSLambda;
+namespace JetBrains.Rider.Aspire.Plugin.AWSLambda;
 
 [ShellComponent(Instantiation.DemandAnyThreadSafe)]
 public class AWSProjectExtension: ProjectModelViewPresenterExtension
