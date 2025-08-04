@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Support for .NET Aspire 9.4
+
 ### Fixed
 
 - [#319](https://github.com/JetBrains/aspire-plugin/issues/319) BackgroundService `StopAsync` never called
