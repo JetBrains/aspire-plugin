@@ -11,7 +11,7 @@
 
 using grpc = global::Grpc.Core;
 
-namespace Aspire.ResourceService.Proto.V1 {
+namespace Aspire.DashboardService.Proto.V1 {
   public static partial class DashboardService
   {
     static readonly string __ServiceName = "aspire.v1.DashboardService";
@@ -50,24 +50,28 @@ namespace Aspire.ResourceService.Proto.V1 {
     }
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest> __Marshaller_aspire_v1_ApplicationInformationRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest.Parser));
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest> __Marshaller_aspire_v1_ApplicationInformationRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse> __Marshaller_aspire_v1_ApplicationInformationResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse.Parser));
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse> __Marshaller_aspire_v1_ApplicationInformationResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest> __Marshaller_aspire_v1_WatchResourcesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest.Parser));
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest> __Marshaller_aspire_v1_WatchResourcesRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate> __Marshaller_aspire_v1_WatchResourcesUpdate = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate.Parser));
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate> __Marshaller_aspire_v1_WatchResourcesUpdate = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest> __Marshaller_aspire_v1_WatchResourceConsoleLogsRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest.Parser));
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest> __Marshaller_aspire_v1_WatchResourceConsoleLogsRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate> __Marshaller_aspire_v1_WatchResourceConsoleLogsUpdate = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate.Parser));
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate> __Marshaller_aspire_v1_WatchResourceConsoleLogsUpdate = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest> __Marshaller_aspire_v1_ResourceCommandRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest.Parser));
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest> __Marshaller_aspire_v1_ResourceCommandRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Marshaller<global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse> __Marshaller_aspire_v1_ResourceCommandResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse.Parser));
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse> __Marshaller_aspire_v1_ResourceCommandResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate> __Marshaller_aspire_v1_WatchInteractionsRequestUpdate = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate> __Marshaller_aspire_v1_WatchInteractionsResponseUpdate = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest, global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse> __Method_GetApplicationInformation = new grpc::Method<global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest, global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse>(
+    static readonly grpc::Method<global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest, global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse> __Method_GetApplicationInformation = new grpc::Method<global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest, global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
         "GetApplicationInformation",
@@ -75,7 +79,7 @@ namespace Aspire.ResourceService.Proto.V1 {
         __Marshaller_aspire_v1_ApplicationInformationResponse);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest, global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate> __Method_WatchResources = new grpc::Method<global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest, global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate>(
+    static readonly grpc::Method<global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest, global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate> __Method_WatchResources = new grpc::Method<global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest, global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate>(
         grpc::MethodType.ServerStreaming,
         __ServiceName,
         "WatchResources",
@@ -83,7 +87,7 @@ namespace Aspire.ResourceService.Proto.V1 {
         __Marshaller_aspire_v1_WatchResourcesUpdate);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest, global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate> __Method_WatchResourceConsoleLogs = new grpc::Method<global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest, global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate>(
+    static readonly grpc::Method<global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest, global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate> __Method_WatchResourceConsoleLogs = new grpc::Method<global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest, global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate>(
         grpc::MethodType.ServerStreaming,
         __ServiceName,
         "WatchResourceConsoleLogs",
@@ -91,17 +95,25 @@ namespace Aspire.ResourceService.Proto.V1 {
         __Marshaller_aspire_v1_WatchResourceConsoleLogsUpdate);
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-    static readonly grpc::Method<global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest, global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse> __Method_ExecuteResourceCommand = new grpc::Method<global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest, global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse>(
+    static readonly grpc::Method<global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest, global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse> __Method_ExecuteResourceCommand = new grpc::Method<global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest, global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse>(
         grpc::MethodType.Unary,
         __ServiceName,
         "ExecuteResourceCommand",
         __Marshaller_aspire_v1_ResourceCommandRequest,
         __Marshaller_aspire_v1_ResourceCommandResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate, global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate> __Method_WatchInteractions = new grpc::Method<global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate, global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate>(
+        grpc::MethodType.DuplexStreaming,
+        __ServiceName,
+        "WatchInteractions",
+        __Marshaller_aspire_v1_WatchInteractionsRequestUpdate,
+        __Marshaller_aspire_v1_WatchInteractionsResponseUpdate);
+
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
-      get { return global::Aspire.ResourceService.Proto.V1.ResourceServiceReflection.Descriptor.Services[0]; }
+      get { return global::Aspire.DashboardService.Proto.V1.ResourceServiceReflection.Descriptor.Services[0]; }
     }
 
     /// <summary>Base class for server-side implementations of DashboardService</summary>
@@ -109,25 +121,31 @@ namespace Aspire.ResourceService.Proto.V1 {
     public abstract partial class DashboardServiceBase
     {
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse> GetApplicationInformation(global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse> GetApplicationInformation(global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task WatchResources(global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest request, grpc::IServerStreamWriter<global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate> responseStream, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task WatchResources(global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest request, grpc::IServerStreamWriter<global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate> responseStream, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task WatchResourceConsoleLogs(global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest request, grpc::IServerStreamWriter<global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate> responseStream, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task WatchResourceConsoleLogs(global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest request, grpc::IServerStreamWriter<global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate> responseStream, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::System.Threading.Tasks.Task<global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse> ExecuteResourceCommand(global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest request, grpc::ServerCallContext context)
+      public virtual global::System.Threading.Tasks.Task<global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse> ExecuteResourceCommand(global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task WatchInteractions(grpc::IAsyncStreamReader<global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate> requestStream, grpc::IServerStreamWriter<global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate> responseStream, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -162,64 +180,74 @@ namespace Aspire.ResourceService.Proto.V1 {
       }
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse GetApplicationInformation(global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse GetApplicationInformation(global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetApplicationInformation(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse GetApplicationInformation(global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest request, grpc::CallOptions options)
+      public virtual global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse GetApplicationInformation(global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_GetApplicationInformation, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse> GetApplicationInformationAsync(global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse> GetApplicationInformationAsync(global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return GetApplicationInformationAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse> GetApplicationInformationAsync(global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse> GetApplicationInformationAsync(global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_GetApplicationInformation, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncServerStreamingCall<global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate> WatchResources(global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncServerStreamingCall<global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate> WatchResources(global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return WatchResources(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncServerStreamingCall<global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate> WatchResources(global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncServerStreamingCall<global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate> WatchResources(global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncServerStreamingCall(__Method_WatchResources, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncServerStreamingCall<global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate> WatchResourceConsoleLogs(global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncServerStreamingCall<global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate> WatchResourceConsoleLogs(global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return WatchResourceConsoleLogs(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncServerStreamingCall<global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate> WatchResourceConsoleLogs(global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncServerStreamingCall<global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate> WatchResourceConsoleLogs(global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncServerStreamingCall(__Method_WatchResourceConsoleLogs, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse ExecuteResourceCommand(global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse ExecuteResourceCommand(global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return ExecuteResourceCommand(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse ExecuteResourceCommand(global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest request, grpc::CallOptions options)
+      public virtual global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse ExecuteResourceCommand(global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest request, grpc::CallOptions options)
       {
         return CallInvoker.BlockingUnaryCall(__Method_ExecuteResourceCommand, null, options, request);
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse> ExecuteResourceCommandAsync(global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      public virtual grpc::AsyncUnaryCall<global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse> ExecuteResourceCommandAsync(global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return ExecuteResourceCommandAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
-      public virtual grpc::AsyncUnaryCall<global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse> ExecuteResourceCommandAsync(global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest request, grpc::CallOptions options)
+      public virtual grpc::AsyncUnaryCall<global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse> ExecuteResourceCommandAsync(global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest request, grpc::CallOptions options)
       {
         return CallInvoker.AsyncUnaryCall(__Method_ExecuteResourceCommand, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncDuplexStreamingCall<global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate, global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate> WatchInteractions(grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return WatchInteractions(new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncDuplexStreamingCall<global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate, global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate> WatchInteractions(grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncDuplexStreamingCall(__Method_WatchInteractions, null, options);
       }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
@@ -238,7 +266,8 @@ namespace Aspire.ResourceService.Proto.V1 {
           .AddMethod(__Method_GetApplicationInformation, serviceImpl.GetApplicationInformation)
           .AddMethod(__Method_WatchResources, serviceImpl.WatchResources)
           .AddMethod(__Method_WatchResourceConsoleLogs, serviceImpl.WatchResourceConsoleLogs)
-          .AddMethod(__Method_ExecuteResourceCommand, serviceImpl.ExecuteResourceCommand).Build();
+          .AddMethod(__Method_ExecuteResourceCommand, serviceImpl.ExecuteResourceCommand)
+          .AddMethod(__Method_WatchInteractions, serviceImpl.WatchInteractions).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
@@ -248,10 +277,11 @@ namespace Aspire.ResourceService.Proto.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     public static void BindService(grpc::ServiceBinderBase serviceBinder, DashboardServiceBase serviceImpl)
     {
-      serviceBinder.AddMethod(__Method_GetApplicationInformation, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Aspire.ResourceService.Proto.V1.ApplicationInformationRequest, global::Aspire.ResourceService.Proto.V1.ApplicationInformationResponse>(serviceImpl.GetApplicationInformation));
-      serviceBinder.AddMethod(__Method_WatchResources, serviceImpl == null ? null : new grpc::ServerStreamingServerMethod<global::Aspire.ResourceService.Proto.V1.WatchResourcesRequest, global::Aspire.ResourceService.Proto.V1.WatchResourcesUpdate>(serviceImpl.WatchResources));
-      serviceBinder.AddMethod(__Method_WatchResourceConsoleLogs, serviceImpl == null ? null : new grpc::ServerStreamingServerMethod<global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsRequest, global::Aspire.ResourceService.Proto.V1.WatchResourceConsoleLogsUpdate>(serviceImpl.WatchResourceConsoleLogs));
-      serviceBinder.AddMethod(__Method_ExecuteResourceCommand, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest, global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse>(serviceImpl.ExecuteResourceCommand));
+      serviceBinder.AddMethod(__Method_GetApplicationInformation, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest, global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse>(serviceImpl.GetApplicationInformation));
+      serviceBinder.AddMethod(__Method_WatchResources, serviceImpl == null ? null : new grpc::ServerStreamingServerMethod<global::Aspire.DashboardService.Proto.V1.WatchResourcesRequest, global::Aspire.DashboardService.Proto.V1.WatchResourcesUpdate>(serviceImpl.WatchResources));
+      serviceBinder.AddMethod(__Method_WatchResourceConsoleLogs, serviceImpl == null ? null : new grpc::ServerStreamingServerMethod<global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest, global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate>(serviceImpl.WatchResourceConsoleLogs));
+      serviceBinder.AddMethod(__Method_ExecuteResourceCommand, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest, global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse>(serviceImpl.ExecuteResourceCommand));
+      serviceBinder.AddMethod(__Method_WatchInteractions, serviceImpl == null ? null : new grpc::DuplexStreamingServerMethod<global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate, global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate>(serviceImpl.WatchInteractions));
     }
 
   }

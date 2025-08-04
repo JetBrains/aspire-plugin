@@ -1,4 +1,4 @@
-using Aspire.ResourceService.Proto.V1;
+using Aspire.DashboardService.Proto.V1;
 using Grpc.Core;
 using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
@@ -148,7 +148,7 @@ internal sealed class AspireHostResourceWatcher(
         return MapResponse(response);
     }
 
-    private static global::Aspire.ResourceService.Proto.V1.ResourceCommandRequest MapRequest(
+    private static global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest MapRequest(
         ResourceCommandRequest request) =>
         new()
         {
@@ -158,22 +158,22 @@ internal sealed class AspireHostResourceWatcher(
         };
 
     private static ResourceCommandResponse MapResponse(
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponse response) =>
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse response) =>
         new(
             MapResponseKind(response.Kind),
             response.HasErrorMessage ? response.ErrorMessage : null
         );
 
     private static ResourceCommandResponseKind MapResponseKind(
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind kind) => kind switch
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind kind) => kind switch
     {
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Undefined =>
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Undefined =>
             ResourceCommandResponseKind.Undefined,
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Succeeded =>
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Succeeded =>
             ResourceCommandResponseKind.Succeeded,
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Failed =>
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Failed =>
             ResourceCommandResponseKind.Failed,
-        global::Aspire.ResourceService.Proto.V1.ResourceCommandResponseKind.Cancelled =>
+        global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Cancelled =>
             ResourceCommandResponseKind.Canceled,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null)
     };
