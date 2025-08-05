@@ -84,7 +84,7 @@ open class DotNetExecutableSessionDebugProfileState(
         sessionProcessLifetime.onTerminationIfAlive {
             if (!debuggerWorkerProcessHandler.isProcessTerminating && !debuggerWorkerProcessHandler.isProcessTerminated) {
                 LOG.trace("Killing debugger worker session process handler (id: $sessionId)")
-                debuggerWorkerProcessHandler.killProcess()
+                debuggerWorkerProcessHandler.destroyProcess()
             }
         }
 

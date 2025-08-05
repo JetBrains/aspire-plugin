@@ -53,7 +53,7 @@ class AspireWorkerLauncher {
         lifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
                 LOG.info("Aspire worker lifetime was terminated; killing the process")
-                processHandler.killProcess()
+                processHandler.destroyProcess()
             }
         }
         processHandler.addProcessListener(object : ProcessListener {
