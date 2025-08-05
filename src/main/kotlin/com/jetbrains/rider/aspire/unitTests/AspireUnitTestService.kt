@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.toTypedArray
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
@@ -37,12 +38,12 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
 
     fun startAspireHost(
         lifetime: Lifetime,
-        request: StartSessionHostRequest,
-        rdTask: RdTask<StartSessionHostResponse>
+        request: StartAspireHostRequest,
+        rdTask: RdTask<StartAspireHostResponse>
     ) {
         val existingAspireHost = aspireUnitTestHosts[request.unitTestRunId]
         if (existingAspireHost != null) {
-            val response = StartSessionHostResponse(existingAspireHost.environmentVariables.toTypedArray())
+            val response = StartAspireHostResponse(existingAspireHost.environmentVariables.toTypedArray())
             rdTask.set(response)
             return
         }
@@ -70,15 +71,15 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                 )
 
                 val environmentVariables = listOf(
-                    SessionHostEnvironmentVariable(
+                    AspireHostEnvironmentVariable(
                         DEBUG_SESSION_TOKEN,
                         debugSessionToken
                     ),
-                    SessionHostEnvironmentVariable(
+                    AspireHostEnvironmentVariable(
                         DEBUG_SESSION_PORT,
                         debugSessionUrl
                     ),
-                    SessionHostEnvironmentVariable(
+                    AspireHostEnvironmentVariable(
                         DCP_INSTANCE_ID_PREFIX,
                         dcpInstancePrefix
                     )
@@ -96,17 +97,17 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                     withContext(Dispatchers.EDT) {
                         aspireWorker.startAspireHostModel(aspireHostConfig)
                     }
-                    val response = StartSessionHostResponse(environmentVariables.toTypedArray())
+                    val response = StartAspireHostResponse(environmentVariables.toTypedArray())
                     rdTask.set(response)
                 } else {
-                    val response = StartSessionHostResponse(currentAspireHost.environmentVariables.toTypedArray())
+                    val response = StartAspireHostResponse(currentAspireHost.environmentVariables.toTypedArray())
                     rdTask.set(response)
                 }
             }
         }
     }
 
-    fun stopAspireHost(request: StopSessionHostRequest, rdTask: RdTask<Unit>) {
+    fun stopAspireHost(request: StopAspireHostRequest, rdTask: RdTask<Unit>) {
         val aspireHost = aspireUnitTestHosts.remove(request.unitTestRunId)
         if (aspireHost == null) {
             LOG.info("Unable to find Aspire host for unitTestRunId ${request.unitTestRunId}")
@@ -134,6 +135,6 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
 
     private data class AspireHostForUnitTestRun(
         val aspireHostId: String,
-        val environmentVariables: List<SessionHostEnvironmentVariable>
+        val environmentVariables: List<AspireHostEnvironmentVariable>
     )
 }

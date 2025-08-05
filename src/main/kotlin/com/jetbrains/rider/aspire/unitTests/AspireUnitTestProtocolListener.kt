@@ -8,16 +8,16 @@ import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.protocol.SolutionExtListener
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.AspirePluginModel
-import com.jetbrains.rider.aspire.generated.StartSessionHostRequest
-import com.jetbrains.rider.aspire.generated.StartSessionHostResponse
-import com.jetbrains.rider.aspire.generated.StopSessionHostRequest
+import com.jetbrains.rider.aspire.generated.StartAspireHostRequest
+import com.jetbrains.rider.aspire.generated.StartAspireHostResponse
+import com.jetbrains.rider.aspire.generated.StopAspireHostRequest
 
 class AspireUnitTestProtocolListener : SolutionExtListener<AspirePluginModel> {
     override fun extensionCreated(lifetime: Lifetime, session: ClientProjectSession, model: AspirePluginModel) {
-        model.startSessionHost.set { callLifetime, request ->
+        model.startAspireHost.set { callLifetime, request ->
             startAspireHost(callLifetime, request, session.project)
         }
-        model.stopSessionHost.set { request ->
+        model.stopAspireHost.set { request ->
             stopAspireHost(request, session.project)
         }
         model.unitTestRunCancelled.advise(lifetime) {
@@ -27,15 +27,15 @@ class AspireUnitTestProtocolListener : SolutionExtListener<AspirePluginModel> {
 
     private fun startAspireHost(
         lifetime: Lifetime,
-        request: StartSessionHostRequest,
+        request: StartAspireHostRequest,
         project: Project
-    ): RdTask<StartSessionHostResponse> {
-        val rdTask = RdTask<StartSessionHostResponse>()
+    ): RdTask<StartAspireHostResponse> {
+        val rdTask = RdTask<StartAspireHostResponse>()
         AspireUnitTestService.getInstance(project).startAspireHost(lifetime, request, rdTask)
         return rdTask
     }
 
-    private fun stopAspireHost(request: StopSessionHostRequest, project: Project): RdTask<Unit> {
+    private fun stopAspireHost(request: StopAspireHostRequest, project: Project): RdTask<Unit> {
         val rdTask = RdTask<Unit>()
         AspireUnitTestService.getInstance(project).stopAspireHost(request, rdTask)
         return rdTask
