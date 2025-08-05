@@ -10,7 +10,7 @@ using JetBrains.Rider.Aspire.Plugin.Generated;
 using JetBrains.Util;
 using JetBrains.Util.Dotnet.TargetFrameworkIds;
 
-namespace JetBrains.Rider.Aspire.Plugin.Project;
+namespace JetBrains.Rider.Aspire.Plugin.ProjectModel;
 
 /// <summary>
 /// A service providing project model manipulation capabilities, primarily for handling project

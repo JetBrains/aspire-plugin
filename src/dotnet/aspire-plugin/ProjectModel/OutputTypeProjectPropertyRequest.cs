@@ -2,7 +2,7 @@ using JetBrains.Application;
 using JetBrains.Application.Parts;
 using JetBrains.ProjectModel.Properties;
 
-namespace JetBrains.Rider.Aspire.Plugin.Project;
+namespace JetBrains.Rider.Aspire.Plugin.ProjectModel;
 
 [ShellComponent(Instantiation.DemandAnyThreadSafe)]
 public class OutputTypeProjectPropertyRequest : IProjectPropertiesRequest

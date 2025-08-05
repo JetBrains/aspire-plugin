@@ -2,7 +2,7 @@ using JetBrains.Application.Threading;
 using JetBrains.ProjectModel;
 using JetBrains.Util;
 
-namespace JetBrains.Rider.Aspire.Plugin.Project;
+namespace JetBrains.Rider.Aspire.Plugin.ProjectModel;
 
 public static class SolutionExtensions
 {

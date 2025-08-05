@@ -8,7 +8,7 @@ using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
 using JetBrains.Rider.Aspire.Plugin.Files;
 using JetBrains.Rider.Aspire.Plugin.Generated;
-using JetBrains.Rider.Aspire.Plugin.Project;
+using JetBrains.Rider.Aspire.Plugin.ProjectModel;
 using JetBrains.Util;
 
 namespace JetBrains.Rider.Aspire.Plugin;

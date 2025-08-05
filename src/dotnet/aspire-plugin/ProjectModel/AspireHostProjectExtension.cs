@@ -7,20 +7,20 @@ using JetBrains.ProjectModel.Properties;
 using JetBrains.RdBackend.Common.Features.ProjectModel.View;
 using JetBrains.Util;
 
-namespace JetBrains.Rider.Aspire.Plugin.Project;
+namespace JetBrains.Rider.Aspire.Plugin.ProjectModel;
 
 [ShellComponent(Instantiation.DemandAnyThreadSafe)]
-public class AspireSharedProjectExtension : ProjectModelViewPresenterExtension
+public class AspireHostProjectExtension : ProjectModelViewPresenterExtension
 {
     public override bool TryAddUserData(IProjectMark projectMark, IProject? project, out string name, out string value)
     {
-        var property = project?.GetUniqueRequestedProjectProperty(MSBuildProjectUtil.IsAspireSharedProjectProperty);
+        var property = project?.GetUniqueRequestedProjectProperty(MSBuildProjectUtil.IsAspireHostProperty);
         if (property.IsNullOrEmpty())
         {
             return base.TryAddUserData(projectMark, project, out name, out value);
         }
 
-        name = MSBuildProjectUtil.IsAspireSharedProjectProperty;
+        name = MSBuildProjectUtil.IsAspireHostProperty;
         value = property;
 
         return true;

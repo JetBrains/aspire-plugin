@@ -5,7 +5,7 @@ using JetBrains.DocumentManagers;
 using JetBrains.DocumentModel;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
-using JetBrains.Rider.Aspire.Plugin.Project;
+using JetBrains.Rider.Aspire.Plugin.ProjectModel;
 using JetBrains.Util;
 
 namespace JetBrains.Rider.Aspire.Plugin.Files;
