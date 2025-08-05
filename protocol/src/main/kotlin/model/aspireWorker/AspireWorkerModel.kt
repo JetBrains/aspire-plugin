@@ -1,19 +1,19 @@
-package model.sessionHost
+package model.aspireWorker
 
 import com.jetbrains.rd.generator.nova.*
 import com.jetbrains.rd.generator.nova.PredefinedType.*
 import com.jetbrains.rd.generator.nova.csharp.CSharp50Generator
 import com.jetbrains.rd.generator.nova.kotlin.Kotlin11Generator
 
-object AspireSessionHostRoot : Root() {
+object AspireWorkerRoot : Root() {
     init {
         setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.aspire.generated")
-        setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.SessionHost.Generated")
+        setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Worker.Generated")
     }
 }
 
 @Suppress("unused")
-object AspireSessionHostModel : Ext(AspireSessionHostRoot) {
+object AspireWorkerModel : Ext(AspireWorkerRoot) {
     private val ProcessStarted = structdef {
         field("id", string)
         field("pid", long)

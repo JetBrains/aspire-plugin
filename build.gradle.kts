@@ -181,24 +181,24 @@ tasks {
         dependsOn(rdGen)
     }
 
-    val publishSessionHost by registering(Exec::class) {
+    val publishAspireWorker by registering(Exec::class) {
         dependsOn(compileDotNet)
         inputs.property("dotnetBuildConfiguration", dotnetBuildConfiguration)
 
         executable("./dotnet.cmd")
         args(
             "publish",
-            "src/dotnet/aspire-session-host/aspire-session-host.csproj",
+            "src/dotnet/aspire-worker/aspire-worker.csproj",
             "--configuration", dotnetBuildConfiguration
         )
     }
 
     buildPlugin {
-        dependsOn(publishSessionHost)
+        dependsOn(publishAspireWorker)
     }
 
     withType<PrepareSandboxTask> {
-        dependsOn(publishSessionHost)
+        dependsOn(publishAspireWorker)
 
         val outputFolder = file("$projectDir/src/dotnet/aspire-plugin/bin/$dotnetBuildConfiguration")
         val pluginFiles = listOf(
@@ -217,8 +217,8 @@ tasks {
             }
         }
 
-        from("$projectDir/src/dotnet/aspire-session-host/bin/$dotnetBuildConfiguration/publish") {
-            into("${rootProject.name}/aspire-session-host")
+        from("$projectDir/src/dotnet/aspire-worker/bin/$dotnetBuildConfiguration/publish") {
+            into("${rootProject.name}/aspire-worker")
         }
     }
 

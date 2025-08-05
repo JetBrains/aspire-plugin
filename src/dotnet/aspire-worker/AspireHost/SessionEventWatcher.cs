@@ -1,9 +1,9 @@
 using System.Threading.Channels;
 using JetBrains.Lifetimes;
-using JetBrains.Rider.Aspire.SessionHost.Generated;
-using JetBrains.Rider.Aspire.SessionHost.Sessions;
+using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.Sessions;
 
-namespace JetBrains.Rider.Aspire.SessionHost.AspireHost;
+namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class SessionEventWatcher(
     Connection connection,

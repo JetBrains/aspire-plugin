@@ -16,28 +16,28 @@ import kotlin.jvm.JvmStatic
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:8]
+ * #### Generated from [AspireWorkerModel.kt:8]
  */
-class AspireSessionHostRoot private constructor(
+class AspireWorkerRoot private constructor(
 ) : RdExtBase() {
     //companion
     
     companion object : ISerializersOwner {
         
         override fun registerSerializersCore(serializers: ISerializers)  {
-            AspireSessionHostRoot.register(serializers)
-            AspireSessionHostModel.register(serializers)
+            AspireWorkerRoot.register(serializers)
+            AspireWorkerModel.register(serializers)
         }
         
         
         
         
         
-        const val serializationHash = -8489210090490017120L
+        const val serializationHash = 94432900187606592L
         
     }
-    override val serializersOwner: ISerializersOwner get() = AspireSessionHostRoot
-    override val serializationHash: Long get() = AspireSessionHostRoot.serializationHash
+    override val serializersOwner: ISerializersOwner get() = AspireWorkerRoot
+    override val serializationHash: Long get() = AspireWorkerRoot.serializationHash
     
     //fields
     //methods
@@ -47,12 +47,12 @@ class AspireSessionHostRoot private constructor(
     //hash code trait
     //pretty print
     override fun print(printer: PrettyPrinter)  {
-        printer.println("AspireSessionHostRoot (")
+        printer.println("AspireWorkerRoot (")
         printer.print(")")
     }
     //deepClone
-    override fun deepClone(): AspireSessionHostRoot   {
-        return AspireSessionHostRoot(
+    override fun deepClone(): AspireWorkerRoot   {
+        return AspireWorkerRoot(
         )
     }
     //contexts

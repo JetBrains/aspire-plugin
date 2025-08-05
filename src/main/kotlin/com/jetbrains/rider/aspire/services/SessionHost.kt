@@ -21,8 +21,8 @@ import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.aspire.generated.AspireHostModel
 import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
-import com.jetbrains.rider.aspire.generated.AspireSessionHostModel
-import com.jetbrains.rider.aspire.generated.aspireSessionHostModel
+import com.jetbrains.rider.aspire.generated.AspireWorkerModel
+import com.jetbrains.rider.aspire.generated.aspireWorkerModel
 import com.jetbrains.rider.aspire.sessionHost.SessionHostConfig
 import com.jetbrains.rider.aspire.sessionHost.SessionHostLauncher
 import com.jetbrains.rider.util.NetUtils
@@ -51,7 +51,7 @@ class SessionHost(
     }
     private val mutex = Mutex()
 
-    private var model: AspireSessionHostModel? = null
+    private var model: AspireWorkerModel? = null
 
     private val descriptor by lazy { SessionHostServiceViewDescriptor() }
 
@@ -91,9 +91,9 @@ class SessionHost(
             LOG.trace("Starting session host")
             val sessionHostLifetime = sessionHostLifetimes.next()
             val protocol = startSessionHostProtocol(sessionHostLifetime.lifetime)
-            model = protocol.aspireSessionHostModel
+            model = protocol.aspireWorkerModel
 
-            subscribeToModel(protocol.aspireSessionHostModel, sessionHostLifetime.lifetime)
+            subscribeToModel(protocol.aspireWorkerModel, sessionHostLifetime.lifetime)
 
             debugSessionToken = UUID.randomUUID().toString()
             debugSessionPort = NetUtils.findFreePort(47100)
@@ -124,13 +124,13 @@ class SessionHost(
     }
 
     private suspend fun subscribeToModel(
-        sessionHostModel: AspireSessionHostModel,
+        sessionHostModel: AspireWorkerModel,
         lifetime: Lifetime
     ) {
         LOG.trace("Subscribing to Session host model")
 
         withContext(Dispatchers.EDT) {
-            sessionHostModel.aspireHosts.view(lifetime) { hostLifetime, hostId, hostModel ->
+            sessionHostModel.aspireHosts.view(lifetime) { hostLifetime, _, hostModel ->
                 viewAspireHost(hostModel, hostLifetime)
             }
         }

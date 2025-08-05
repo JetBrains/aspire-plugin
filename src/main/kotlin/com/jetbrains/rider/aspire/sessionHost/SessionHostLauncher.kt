@@ -38,7 +38,7 @@ class SessionHostLauncher {
     private val hostAssemblyPath: Path = run {
         val plugin = PluginManagerCore.getPlugin(pluginId) ?: error("Plugin $pluginId could not be found.")
         val basePath = plugin.pluginPath ?: error("Could not detect path of plugin $plugin on disk.")
-        basePath / "aspire-session-host" / "aspire-session-host.dll"
+        basePath / "aspire-worker" / "aspire-worker.dll"
     }
 
     fun launchSessionHost(config: SessionHostConfig, lifetime: LifetimeDefinition) {

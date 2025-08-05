@@ -1,6 +1,6 @@
 ﻿using JetBrains.Diagnostics;
 
-namespace JetBrains.Rider.Aspire.SessionHost;
+namespace JetBrains.Rider.Aspire.Worker;
 
 internal static class ParentProcessWatchdog
 {

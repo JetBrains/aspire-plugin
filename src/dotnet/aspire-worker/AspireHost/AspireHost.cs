@@ -4,11 +4,11 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
 using JetBrains.Lifetimes;
-using JetBrains.Rider.Aspire.SessionHost.Generated;
-using JetBrains.Rider.Aspire.SessionHost.Sessions;
+using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.Sessions;
 using Polly.Registry;
 
-namespace JetBrains.Rider.Aspire.SessionHost.AspireHost;
+namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class AspireHost
 {
