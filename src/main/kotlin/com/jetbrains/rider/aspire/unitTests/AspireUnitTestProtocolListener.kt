@@ -15,33 +15,33 @@ import com.jetbrains.rider.aspire.generated.StopSessionHostRequest
 class AspireUnitTestProtocolListener : SolutionExtListener<AspirePluginModel> {
     override fun extensionCreated(lifetime: Lifetime, session: ClientProjectSession, model: AspirePluginModel) {
         model.startSessionHost.set { callLifetime, request ->
-            startSessionHost(callLifetime, request, session.project)
+            startAspireHost(callLifetime, request, session.project)
         }
         model.stopSessionHost.set { request ->
-            stopSessionHost(request, session.project)
+            stopAspireHost(request, session.project)
         }
         model.unitTestRunCancelled.advise(lifetime) {
-            stopSessionHost(it, session.project)
+            stopAspireHost(it, session.project)
         }
     }
 
-    private fun startSessionHost(
+    private fun startAspireHost(
         lifetime: Lifetime,
         request: StartSessionHostRequest,
         project: Project
     ): RdTask<StartSessionHostResponse> {
         val rdTask = RdTask<StartSessionHostResponse>()
-        AspireUnitTestService.getInstance(project).startSessionHost(lifetime, request, rdTask)
+        AspireUnitTestService.getInstance(project).startAspireHost(lifetime, request, rdTask)
         return rdTask
     }
 
-    private fun stopSessionHost(request: StopSessionHostRequest, project: Project): RdTask<Unit> {
+    private fun stopAspireHost(request: StopSessionHostRequest, project: Project): RdTask<Unit> {
         val rdTask = RdTask<Unit>()
-        AspireUnitTestService.getInstance(project).stopSessionHost(request, rdTask)
+        AspireUnitTestService.getInstance(project).stopAspireHost(request, rdTask)
         return rdTask
     }
 
-    private fun stopSessionHost(unitTestRunId: String, project: Project) {
-        AspireUnitTestService.getInstance(project).stopSessionHost(unitTestRunId)
+    private fun stopAspireHost(unitTestRunId: String, project: Project) {
+        AspireUnitTestService.getInstance(project).stopAspireHost(unitTestRunId)
     }
 }

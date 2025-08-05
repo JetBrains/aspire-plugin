@@ -5,16 +5,16 @@ package com.jetbrains.rider.aspire.actions
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
-import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
+import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class StopSessionHostAction: AnAction() {
+class StartAspireWorkerAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        val manager = SessionHostManager.getInstance(project)
+        val manager = AspireWorkerManager.getInstance(project)
         currentThreadCoroutineScope().launch(Dispatchers.Default) {
-            manager.stopSessionHost()
+            manager.getOrStartAspireWorker()
         }
     }
 }

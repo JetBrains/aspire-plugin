@@ -13,7 +13,7 @@ import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import com.jetbrains.rider.aspire.generated.*
-import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
+import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
 import com.jetbrains.rider.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_PORT
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_TOKEN
@@ -35,25 +35,25 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
 
     private val aspireUnitTestHosts = ConcurrentHashMap<String, AspireHostForUnitTestRun>()
 
-    fun startSessionHost(
+    fun startAspireHost(
         lifetime: Lifetime,
         request: StartSessionHostRequest,
         rdTask: RdTask<StartSessionHostResponse>
     ) {
-        val existingSessionHost = aspireUnitTestHosts[request.unitTestRunId]
-        if (existingSessionHost != null) {
-            val response = StartSessionHostResponse(existingSessionHost.environmentVariables.toTypedArray())
+        val existingAspireHost = aspireUnitTestHosts[request.unitTestRunId]
+        if (existingAspireHost != null) {
+            val response = StartSessionHostResponse(existingAspireHost.environmentVariables.toTypedArray())
             rdTask.set(response)
             return
         }
 
         scope.launch(Dispatchers.Default) {
             lifetimedCoroutineScope(lifetime) {
-                LOG.trace("Starting a session host for a unit test session")
-                val sessionHost = SessionHostManager.getInstance(project).getOrStartSessionHost()
+                LOG.trace("Starting an Aspire host for a unit test session")
+                val aspireWorker = AspireWorkerManager.getInstance(project).getOrStartAspireWorker()
 
-                val debugSessionToken = requireNotNull(sessionHost.debugSessionToken)
-                val debugSessionPort = requireNotNull(sessionHost.debugSessionPort)
+                val debugSessionToken = requireNotNull(aspireWorker.debugSessionToken)
+                val debugSessionPort = requireNotNull(aspireWorker.debugSessionPort)
                 val debugSessionUrl = "localhost:$debugSessionPort"
                 val dcpInstancePrefix = generateDcpInstancePrefix()
                 val aspireHostProjectPath = Path(request.aspireHostProjectPath)
@@ -94,7 +94,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
 
                 if (currentAspireHost == null) {
                     withContext(Dispatchers.EDT) {
-                        sessionHost.startAspireHostModel(aspireHostConfig)
+                        aspireWorker.startAspireHostModel(aspireHostConfig)
                     }
                     val response = StartSessionHostResponse(environmentVariables.toTypedArray())
                     rdTask.set(response)
@@ -106,29 +106,29 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
         }
     }
 
-    fun stopSessionHost(request: StopSessionHostRequest, rdTask: RdTask<Unit>) {
+    fun stopAspireHost(request: StopSessionHostRequest, rdTask: RdTask<Unit>) {
         val aspireHost = aspireUnitTestHosts.remove(request.unitTestRunId)
         if (aspireHost == null) {
             LOG.info("Unable to find Aspire host for unitTestRunId ${request.unitTestRunId}")
             rdTask.set(Unit)
             return
         }
-        val sessionHost = SessionHostManager.getInstance(project).sessionHost
+        val aspireWorker = AspireWorkerManager.getInstance(project).aspireWorker
         application.invokeLater {
-            sessionHost.stopAspireHostModel(aspireHost.aspireHostId)
+            aspireWorker.stopAspireHostModel(aspireHost.aspireHostId)
         }
         rdTask.set(Unit)
     }
 
-    fun stopSessionHost(unitTestRunId: String) {
+    fun stopAspireHost(unitTestRunId: String) {
         val aspireHost = aspireUnitTestHosts.remove(unitTestRunId)
         if (aspireHost == null) {
             LOG.info("Unable to find Aspire host for unitTestRunId $unitTestRunId")
             return
         }
-        val sessionHost = SessionHostManager.getInstance(project).sessionHost
+        val aspireWorker = AspireWorkerManager.getInstance(project).aspireWorker
         application.invokeLater {
-            sessionHost.stopAspireHostModel(aspireHost.aspireHostId)
+            aspireWorker.stopAspireHostModel(aspireHost.aspireHostId)
         }
     }
 

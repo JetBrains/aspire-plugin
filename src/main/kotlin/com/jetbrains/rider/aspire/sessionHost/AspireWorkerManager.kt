@@ -17,43 +17,43 @@ import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.services.AspireMainServiceViewContributor
-import com.jetbrains.rider.aspire.services.SessionHost
+import com.jetbrains.rider.aspire.services.AspireWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
-class SessionHostManager(private val project: Project, scope: CoroutineScope) : LifetimedService() {
+class AspireWorkerManager(private val project: Project, scope: CoroutineScope) : LifetimedService() {
     companion object {
-        fun getInstance(project: Project) = project.service<SessionHostManager>()
+        fun getInstance(project: Project) = project.service<AspireWorkerManager>()
 
-        private val LOG = logger<SessionHostManager>()
+        private val LOG = logger<AspireWorkerManager>()
     }
 
-    val sessionHost: SessionHost = SessionHost(serviceLifetime, scope.childScope("Aspire Session Host"), project)
+    val aspireWorker: AspireWorker = AspireWorker(serviceLifetime, scope.childScope("Aspire Worker"), project)
 
     init {
-        Disposer.register(this, sessionHost)
+        Disposer.register(this, aspireWorker)
     }
 
-    fun getSessionHosts(): List<SessionHost> {
-        if (!sessionHost.hasAspireHosts) return emptyList()
-        return listOf(sessionHost)
+    fun getAspireWorkers(): List<AspireWorker> {
+        if (!aspireWorker.hasAspireHosts) return emptyList()
+        return listOf(aspireWorker)
     }
 
-    suspend fun getOrStartSessionHost(): SessionHost {
-        LOG.trace("Starting session host")
-        sessionHost.start()
-        return sessionHost
+    suspend fun getOrStartAspireWorker(): AspireWorker {
+        LOG.trace("Starting Aspire worker")
+        aspireWorker.start()
+        return aspireWorker
     }
 
-    suspend fun stopSessionHost() {
-        LOG.trace("Stopping session host")
-        sessionHost.stop()
+    suspend fun stopAspireWorker() {
+        LOG.trace("Stopping Aspire worker")
+        aspireWorker.stop()
     }
 
     fun addAspireHost(projectFilePath: String) {
-        val hasAspireHosts = sessionHost.hasAspireHosts
-        sessionHost.addAspireHostProject(Path(projectFilePath))
+        val hasAspireHosts = aspireWorker.hasAspireHosts
+        aspireWorker.addAspireHostProject(Path(projectFilePath))
         if (!hasAspireHosts) {
             sendServiceResetEvent()
         }
@@ -66,8 +66,8 @@ class SessionHostManager(private val project: Project, scope: CoroutineScope) : 
             .filter { it is AspireHostConfiguration && it.parameters.projectFilePath == projectFilePath }
         if (configurations.isNotEmpty()) return
 
-        sessionHost.removeAspireHostProject(Path(projectFilePath))
-        if (!sessionHost.hasAspireHosts) {
+        aspireWorker.removeAspireHostProject(Path(projectFilePath))
+        if (!aspireWorker.hasAspireHosts) {
             sendServiceResetEvent()
         }
     }
