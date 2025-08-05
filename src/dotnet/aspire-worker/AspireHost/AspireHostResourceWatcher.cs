@@ -3,14 +3,14 @@ using Grpc.Core;
 using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
 using JetBrains.Rd.Tasks;
-using JetBrains.Rider.Aspire.SessionHost.Generated;
+using JetBrains.Rider.Aspire.Worker.Generated;
 using Polly;
 using Polly.Registry;
-using ResourceCommandRequest = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandRequest;
-using ResourceCommandResponse = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandResponse;
-using ResourceCommandResponseKind = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandResponseKind;
+using ResourceCommandRequest = JetBrains.Rider.Aspire.Worker.Generated.ResourceCommandRequest;
+using ResourceCommandResponse = JetBrains.Rider.Aspire.Worker.Generated.ResourceCommandResponse;
+using ResourceCommandResponseKind = JetBrains.Rider.Aspire.Worker.Generated.ResourceCommandResponseKind;
 
-namespace JetBrains.Rider.Aspire.SessionHost.AspireHost;
+namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class AspireHostResourceWatcher(
     DashboardService.DashboardServiceClient client,

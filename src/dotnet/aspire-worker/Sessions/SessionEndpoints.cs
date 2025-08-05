@@ -2,13 +2,13 @@
 using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
-using JetBrains.Rider.Aspire.SessionHost.AspireHost;
-using JetBrains.Rider.Aspire.SessionHost.Configuration;
+using JetBrains.Rider.Aspire.Worker.AspireHost;
+using JetBrains.Rider.Aspire.Worker.Configuration;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace JetBrains.Rider.Aspire.SessionHost.Sessions;
+namespace JetBrains.Rider.Aspire.Worker.Sessions;
 
 internal static class SessionEndpoints
 {

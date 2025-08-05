@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <RootNamespace>JetBrains.Rider.Aspire.SessionHost</RootNamespace>
+        <RootNamespace>JetBrains.Rider.Aspire.Worker</RootNamespace>
         <RollForward>Major</RollForward>
     </PropertyGroup>
 

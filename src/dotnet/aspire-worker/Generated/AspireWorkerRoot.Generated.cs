@@ -31,21 +31,21 @@ using JetBrains.Rd.Text;
 // ReSharper disable RedundantOverflowCheckingContext
 
 
-namespace JetBrains.Rider.Aspire.SessionHost.Generated
+namespace JetBrains.Rider.Aspire.Worker.Generated
 {
   
   
   /// <summary>
-  /// <p>Generated from: AspireSessionHostModel.kt:8</p>
+  /// <p>Generated from: AspireWorkerModel.kt:8</p>
   /// </summary>
-  public class AspireSessionHostRoot : RdExtBase
+  public class AspireWorkerRoot : RdExtBase
   {
     //fields
     //public fields
     
     //private fields
     //primary constructor
-    private AspireSessionHostRoot(
+    private AspireWorkerRoot(
     )
     {
     }
@@ -55,20 +55,20 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     
     
     
-    protected override long SerializationHash => -8489210090490017120L;
+    protected override long SerializationHash => 94432900187606592L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
     {
       
-      serializers.RegisterToplevelOnce(typeof(AspireSessionHostRoot), AspireSessionHostRoot.RegisterDeclaredTypesSerializers);
-      serializers.RegisterToplevelOnce(typeof(AspireSessionHostModel), AspireSessionHostModel.RegisterDeclaredTypesSerializers);
+      serializers.RegisterToplevelOnce(typeof(AspireWorkerRoot), AspireWorkerRoot.RegisterDeclaredTypesSerializers);
+      serializers.RegisterToplevelOnce(typeof(AspireWorkerModel), AspireWorkerModel.RegisterDeclaredTypesSerializers);
     }
     
-    public AspireSessionHostRoot(Lifetime lifetime, IProtocol protocol) : this()
+    public AspireWorkerRoot(Lifetime lifetime, IProtocol protocol) : this()
     {
-      Identify(protocol.Identities, RdId.Root.Mix("AspireSessionHostRoot"));
-      this.BindTopLevel(lifetime, protocol, "AspireSessionHostRoot");
+      Identify(protocol.Identities, RdId.Root.Mix("AspireWorkerRoot"));
+      this.BindTopLevel(lifetime, protocol, "AspireWorkerRoot");
     }
     
     //constants
@@ -80,7 +80,7 @@ namespace JetBrains.Rider.Aspire.SessionHost.Generated
     //pretty print
     public override void Print(PrettyPrinter printer)
     {
-      printer.Println("AspireSessionHostRoot (");
+      printer.Println("AspireWorkerRoot (");
       printer.Print(")");
     }
     //toString

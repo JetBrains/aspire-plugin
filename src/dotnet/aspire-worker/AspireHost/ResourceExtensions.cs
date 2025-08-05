@@ -1,14 +1,14 @@
 using System.Globalization;
 using Aspire.DashboardService.Proto.V1;
 using Google.Protobuf.WellKnownTypes;
-using JetBrains.Rider.Aspire.SessionHost.Generated;
-using ResourceCommand = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommand;
-using ResourceCommandState = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceCommandState;
-using ResourceProperty = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceProperty;
-using ResourceRelationship = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceRelationship;
-using ResourceType = JetBrains.Rider.Aspire.SessionHost.Generated.ResourceType;
+using JetBrains.Rider.Aspire.Worker.Generated;
+using ResourceCommand = JetBrains.Rider.Aspire.Worker.Generated.ResourceCommand;
+using ResourceCommandState = JetBrains.Rider.Aspire.Worker.Generated.ResourceCommandState;
+using ResourceProperty = JetBrains.Rider.Aspire.Worker.Generated.ResourceProperty;
+using ResourceRelationship = JetBrains.Rider.Aspire.Worker.Generated.ResourceRelationship;
+using ResourceType = JetBrains.Rider.Aspire.Worker.Generated.ResourceType;
 
-namespace JetBrains.Rider.Aspire.SessionHost.AspireHost;
+namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal static class ResourceExtensions
 {

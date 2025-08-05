@@ -26,23 +26,23 @@ rdgen {
     val pluginSourcePath = projectDir.resolve("../src")
 
     verbose = true
-    packages = "model.sessionHost,model.aspirePlugin"
+    packages = "model.aspireWorker,model.aspirePlugin"
 
-    val ktSessionHostOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/aspire/generated")
-    val csSessionHostOutput = pluginSourcePath.resolve("dotnet/aspire-session-host/Generated")
+    val ktWorkerOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/aspire/generated")
+    val csWorkerOutput = pluginSourcePath.resolve("dotnet/aspire-worker/Generated")
 
     generator {
         language = "kotlin"
         transform = "asis"
-        root = "model.sessionHost.AspireSessionHostRoot"
-        directory = ktSessionHostOutput.canonicalPath
+        root = "model.aspireWorker.AspireWorkerRoot"
+        directory = ktWorkerOutput.canonicalPath
     }
 
     generator {
         language = "csharp"
         transform = "reversed"
-        root = "model.sessionHost.AspireSessionHostRoot"
-        directory = csSessionHostOutput.canonicalPath
+        root = "model.aspireWorker.AspireWorkerRoot"
+        directory = csWorkerOutput.canonicalPath
     }
 
     val ktPluginOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/aspire/generated")

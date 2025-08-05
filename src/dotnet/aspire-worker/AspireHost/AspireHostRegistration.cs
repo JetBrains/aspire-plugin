@@ -1,7 +1,7 @@
 using Polly;
 using Polly.Retry;
 
-namespace JetBrains.Rider.Aspire.SessionHost.AspireHost;
+namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal static class AspireHostRegistration
 {

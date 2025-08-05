@@ -2,7 +2,7 @@ using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
 using Polly.Registry;
 
-namespace JetBrains.Rider.Aspire.SessionHost.AspireHost;
+namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class AspireHostService(
     Connection connection,

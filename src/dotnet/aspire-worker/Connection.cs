@@ -2,10 +2,10 @@
 using JetBrains.Lifetimes;
 using JetBrains.Rd;
 using JetBrains.Rd.Impl;
-using JetBrains.Rider.Aspire.SessionHost.Configuration;
-using JetBrains.Rider.Aspire.SessionHost.Generated;
+using JetBrains.Rider.Aspire.Worker.Configuration;
+using JetBrains.Rider.Aspire.Worker.Generated;
 
-namespace JetBrains.Rider.Aspire.SessionHost;
+namespace JetBrains.Rider.Aspire.Worker;
 
 internal sealed class Connection : IDisposable
 {
@@ -13,7 +13,7 @@ internal sealed class Connection : IDisposable
     private readonly Lifetime _lifetime;
     private readonly SingleThreadScheduler _scheduler;
     private readonly IProtocol _protocol;
-    private readonly Task<AspireSessionHostModel> _model;
+    private readonly Task<AspireWorkerModel> _model;
 
     internal Connection(ConfigurationManager configuration)
     {
@@ -35,14 +35,14 @@ internal sealed class Connection : IDisposable
         _model = InitializeModelAsync();
     }
 
-    private Task<AspireSessionHostModel> InitializeModelAsync()
+    private Task<AspireWorkerModel> InitializeModelAsync()
     {
-        var tcs = new TaskCompletionSource<AspireSessionHostModel>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var tcs = new TaskCompletionSource<AspireWorkerModel>(TaskCreationOptions.RunContinuationsAsynchronously);
         _scheduler.Queue(() =>
         {
             try
             {
-                tcs.SetResult(new AspireSessionHostModel(_lifetime, _protocol));
+                tcs.SetResult(new AspireWorkerModel(_lifetime, _protocol));
             }
             catch (Exception ex)
             {
@@ -52,7 +52,7 @@ internal sealed class Connection : IDisposable
         return tcs.Task;
     }
 
-    internal async Task<T> DoWithModel<T>(Func<AspireSessionHostModel, T> action)
+    internal async Task<T> DoWithModel<T>(Func<AspireWorkerModel, T> action)
     {
         var model = await _model;
         var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -70,7 +70,7 @@ internal sealed class Connection : IDisposable
         return await tcs.Task;
     }
 
-    internal Task DoWithModel(Action<AspireSessionHostModel> action) =>
+    internal Task DoWithModel(Action<AspireWorkerModel> action) =>
         DoWithModel(model =>
         {
             action(model);

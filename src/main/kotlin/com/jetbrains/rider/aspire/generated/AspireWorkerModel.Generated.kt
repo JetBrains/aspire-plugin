@@ -16,9 +16,9 @@ import kotlin.jvm.JvmStatic
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:16]
+ * #### Generated from [AspireWorkerModel.kt:16]
  */
-class AspireSessionHostModel private constructor(
+class AspireWorkerModel private constructor(
     private val _aspireHosts: RdMap<String, AspireHostModel>
 ) : RdExtBase() {
     //companion
@@ -61,25 +61,25 @@ class AspireSessionHostModel private constructor(
         @JvmStatic
         @JvmName("internalCreateModel")
         @Deprecated("Use create instead", ReplaceWith("create(lifetime, protocol)"))
-        internal fun createModel(lifetime: Lifetime, protocol: IProtocol): AspireSessionHostModel  {
+        internal fun createModel(lifetime: Lifetime, protocol: IProtocol): AspireWorkerModel  {
             @Suppress("DEPRECATION")
             return create(lifetime, protocol)
         }
         
         @JvmStatic
-        @Deprecated("Use protocol.aspireSessionHostModel or revise the extension scope instead", ReplaceWith("protocol.aspireSessionHostModel"))
-        fun create(lifetime: Lifetime, protocol: IProtocol): AspireSessionHostModel  {
-            AspireSessionHostRoot.register(protocol.serializers)
+        @Deprecated("Use protocol.aspireWorkerModel or revise the extension scope instead", ReplaceWith("protocol.aspireWorkerModel"))
+        fun create(lifetime: Lifetime, protocol: IProtocol): AspireWorkerModel  {
+            AspireWorkerRoot.register(protocol.serializers)
             
-            return AspireSessionHostModel()
+            return AspireWorkerModel()
         }
         
         
-        const val serializationHash = 1011302472063179369L
+        const val serializationHash = -7701841830578628649L
         
     }
-    override val serializersOwner: ISerializersOwner get() = AspireSessionHostModel
-    override val serializationHash: Long get() = AspireSessionHostModel.serializationHash
+    override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
+    override val serializationHash: Long get() = AspireWorkerModel.serializationHash
     
     //fields
     val aspireHosts: IMutableViewableMap<String, AspireHostModel> get() = _aspireHosts
@@ -99,15 +99,15 @@ class AspireSessionHostModel private constructor(
     //hash code trait
     //pretty print
     override fun print(printer: PrettyPrinter)  {
-        printer.println("AspireSessionHostModel (")
+        printer.println("AspireWorkerModel (")
         printer.indent {
             print("aspireHosts = "); _aspireHosts.print(printer); println()
         }
         printer.print(")")
     }
     //deepClone
-    override fun deepClone(): AspireSessionHostModel   {
-        return AspireSessionHostModel(
+    override fun deepClone(): AspireWorkerModel   {
+        return AspireWorkerModel(
             _aspireHosts.deepClonePolymorphic()
         )
     }
@@ -115,12 +115,12 @@ class AspireSessionHostModel private constructor(
     //threading
     override val extThreading: ExtThreadingKind get() = ExtThreadingKind.Default
 }
-val IProtocol.aspireSessionHostModel get() = getOrCreateExtension(AspireSessionHostModel::class) { @Suppress("DEPRECATION") AspireSessionHostModel.create(lifetime, this) }
+val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::class) { @Suppress("DEPRECATION") AspireWorkerModel.create(lifetime, this) }
 
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:214]
+ * #### Generated from [AspireWorkerModel.kt:214]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -236,7 +236,7 @@ class AspireHostModel private constructor(
  * @property otlpEndpointUrl `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable
  * @property isDebuggingMode Is Aspire Host running with debugger attached
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
- * #### Generated from [AspireSessionHostModel.kt:194]
+ * #### Generated from [AspireWorkerModel.kt:194]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -337,7 +337,7 @@ data class AspireHostModelConfig (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:38]
+ * #### Generated from [AspireWorkerModel.kt:38]
  */
 data class CreateSessionRequest (
     val projectPath: String,
@@ -426,7 +426,7 @@ data class CreateSessionRequest (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:47]
+ * #### Generated from [AspireWorkerModel.kt:47]
  */
 data class CreateSessionResponse (
     val sessionId: String?,
@@ -491,7 +491,7 @@ data class CreateSessionResponse (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:52]
+ * #### Generated from [AspireWorkerModel.kt:52]
  */
 data class DeleteSessionRequest (
     val sessionId: String
@@ -551,7 +551,7 @@ data class DeleteSessionRequest (
 
 /**
  * @property sessionId The field will be null if the session cannot be found
- * #### Generated from [AspireSessionHostModel.kt:56]
+ * #### Generated from [AspireWorkerModel.kt:56]
  */
 data class DeleteSessionResponse (
     val sessionId: String?,
@@ -616,7 +616,7 @@ data class DeleteSessionResponse (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:27]
+ * #### Generated from [AspireWorkerModel.kt:27]
  */
 data class LogReceived (
     val id: String,
@@ -687,7 +687,7 @@ data class LogReceived (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:17]
+ * #### Generated from [AspireWorkerModel.kt:17]
  */
 data class ProcessStarted (
     val id: String,
@@ -752,7 +752,7 @@ data class ProcessStarted (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:22]
+ * #### Generated from [AspireWorkerModel.kt:22]
  */
 data class ProcessTerminated (
     val id: String,
@@ -817,7 +817,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:153]
+ * #### Generated from [AspireWorkerModel.kt:153]
  */
 data class ResourceCommand (
     val name: String,
@@ -912,7 +912,7 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:178]
+ * #### Generated from [AspireWorkerModel.kt:178]
  */
 data class ResourceCommandRequest (
     val commandName: String,
@@ -983,7 +983,7 @@ data class ResourceCommandRequest (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:184]
+ * #### Generated from [AspireWorkerModel.kt:184]
  */
 data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
@@ -1048,7 +1048,7 @@ data class ResourceCommandResponse (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:185]
+ * #### Generated from [AspireWorkerModel.kt:185]
  */
 enum class ResourceCommandResponseKind {
     Undefined, 
@@ -1075,7 +1075,7 @@ enum class ResourceCommandResponseKind {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:160]
+ * #### Generated from [AspireWorkerModel.kt:160]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -1101,7 +1101,7 @@ enum class ResourceCommandState {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:119]
+ * #### Generated from [AspireWorkerModel.kt:119]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -1166,7 +1166,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:146]
+ * #### Generated from [AspireWorkerModel.kt:146]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus?,
@@ -1243,7 +1243,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:140]
+ * #### Generated from [AspireWorkerModel.kt:140]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -1269,7 +1269,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:172]
+ * #### Generated from [AspireWorkerModel.kt:172]
  */
 data class ResourceLog (
     val text: String,
@@ -1340,7 +1340,7 @@ data class ResourceLog (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:69]
+ * #### Generated from [AspireWorkerModel.kt:69]
  */
 data class ResourceModel (
     val name: String,
@@ -1495,7 +1495,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:112]
+ * #### Generated from [AspireWorkerModel.kt:112]
  */
 data class ResourceProperty (
     val name: String,
@@ -1572,7 +1572,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:167]
+ * #### Generated from [AspireWorkerModel.kt:167]
  */
 data class ResourceRelationship (
     val resourceName: String,
@@ -1637,7 +1637,7 @@ data class ResourceRelationship (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:79]
+ * #### Generated from [AspireWorkerModel.kt:79]
  */
 enum class ResourceState {
     Starting, 
@@ -1671,7 +1671,7 @@ enum class ResourceState {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:92]
+ * #### Generated from [AspireWorkerModel.kt:92]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -1699,7 +1699,7 @@ enum class ResourceStateStyle {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:71]
+ * #### Generated from [AspireWorkerModel.kt:71]
  */
 enum class ResourceType {
     Project, 
@@ -1726,7 +1726,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:124]
+ * #### Generated from [AspireWorkerModel.kt:124]
  */
 data class ResourceUrl (
     val endpointName: String?,
@@ -1815,7 +1815,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:133]
+ * #### Generated from [AspireWorkerModel.kt:133]
  */
 data class ResourceVolume (
     val source: String,
@@ -1892,7 +1892,7 @@ data class ResourceVolume (
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:62]
+ * #### Generated from [AspireWorkerModel.kt:62]
  */
 class ResourceWrapper private constructor(
     private val _model: RdOptionalProperty<ResourceModel>,
@@ -1986,7 +1986,7 @@ class ResourceWrapper private constructor(
 
 
 /**
- * #### Generated from [AspireSessionHostModel.kt:33]
+ * #### Generated from [AspireWorkerModel.kt:33]
  */
 data class SessionEnvironmentVariable (
     val key: String,

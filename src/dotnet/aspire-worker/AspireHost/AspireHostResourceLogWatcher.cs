@@ -2,11 +2,11 @@ using Aspire.DashboardService.Proto.V1;
 using Grpc.Core;
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
-using JetBrains.Rider.Aspire.SessionHost.Generated;
+using JetBrains.Rider.Aspire.Worker.Generated;
 using Polly;
 using Polly.Registry;
 
-namespace JetBrains.Rider.Aspire.SessionHost.AspireHost;
+namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class AspireHostResourceLogWatcher(
     DashboardService.DashboardServiceClient client,

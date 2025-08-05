@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace JetBrains.Rider.Aspire.SessionHost.Configuration;
+namespace JetBrains.Rider.Aspire.Worker.Configuration;
 
 public class DcpSessionOptions
 {
