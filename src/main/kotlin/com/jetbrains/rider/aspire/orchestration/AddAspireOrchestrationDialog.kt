@@ -41,9 +41,9 @@ class AddAspireOrchestrationDialog(project: Project, projectEntities: List<Proje
     init {
         title = AspireBundle.message("dialog.add.orchestration.title")
 
-        projectEntities.forEach {
-            selector.addItem(it, it.name, false)
-        }
+        projectEntities
+            .sortedBy { it.name }
+            .forEach { selector.addItem(it, it.name, false) }
 
         selectAll.addItemListener {
             if (it.stateChange == ItemEvent.SELECTED) {
