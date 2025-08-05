@@ -17,7 +17,7 @@ import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostRunManager
 import com.jetbrains.rider.aspire.run.states.*
-import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
+import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -83,16 +83,16 @@ private suspend fun setUpAspireHostModel(
         aspireHostProjectUrl
     )
 
-    val sessionHost = SessionHostManager.getInstance(environment.project).sessionHost
+    val aspireWorker = AspireWorkerManager.getInstance(environment.project).aspireWorker
 
     aspireHostProcessHandlerLifetime.onTermination {
         application.invokeLater {
-            sessionHost.stopAspireHostModel(aspireHostConfig.id)
+            aspireWorker.stopAspireHostModel(aspireHostConfig.id)
         }
     }
 
     withContext(Dispatchers.EDT) {
-        sessionHost.startAspireHostModel(aspireHostConfig)
+        aspireWorker.startAspireHostModel(aspireHostConfig)
     }
 
     return aspireHostConfig

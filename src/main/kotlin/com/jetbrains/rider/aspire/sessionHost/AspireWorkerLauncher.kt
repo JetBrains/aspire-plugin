@@ -22,11 +22,11 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 @Service(Service.Level.PROJECT)
-class SessionHostLauncher {
+class AspireWorkerLauncher {
     companion object {
-        fun getInstance(project: Project) = project.service<SessionHostLauncher>()
+        fun getInstance(project: Project) = project.service<AspireWorkerLauncher>()
 
-        private val LOG = logger<SessionHostLauncher>()
+        private val LOG = logger<AspireWorkerLauncher>()
 
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
         private const val RIDER_DCP_SESSION_TOKEN = "RIDER_DCP_SESSION__Token"
@@ -41,8 +41,8 @@ class SessionHostLauncher {
         basePath / "aspire-worker" / "aspire-worker.dll"
     }
 
-    fun launchSessionHost(config: SessionHostConfig, lifetime: LifetimeDefinition) {
-        LOG.info("Starting Aspire session host")
+    fun launchWorker(config: AspireWorkerConfig, lifetime: LifetimeDefinition) {
+        LOG.info("Starting Aspire worker")
 
         val dotnetCliPath = NetCoreRuntime.cliPath.value
 
@@ -52,7 +52,7 @@ class SessionHostLauncher {
         val processHandler = KillableColoredProcessHandler.Silent(commandLine)
         lifetime.onTermination {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
-                LOG.info("Aspire session host lifetime was terminated; killing the process")
+                LOG.info("Aspire worker lifetime was terminated; killing the process")
                 processHandler.killProcess()
             }
         }
@@ -68,17 +68,17 @@ class SessionHostLauncher {
 
             override fun processTerminated(event: ProcessEvent) {
                 lifetime.executeIfAlive {
-                    LOG.info("Aspire session host process was terminated; terminating the lifetime")
+                    LOG.info("Aspire worker process was terminated; terminating the lifetime")
                     lifetime.terminate(true)
                 }
             }
         }, lifetime.createNestedDisposable())
 
         processHandler.startNotify()
-        LOG.trace("Aspire session host started")
+        LOG.trace("Aspire worker started")
     }
 
-    private fun getCommandLine(dotnetCliPath: String, config: SessionHostConfig): GeneralCommandLine {
+    private fun getCommandLine(dotnetCliPath: String, config: AspireWorkerConfig): GeneralCommandLine {
         val commandLine = GeneralCommandLine()
             .withExePath(dotnetCliPath)
             .withCharset(StandardCharsets.UTF_8)

@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.services.AspireHost
-import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
+import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
 import com.jetbrains.rider.aspire.util.ASPIRE_HOST
 import java.nio.file.Path
 
@@ -38,8 +38,8 @@ abstract class AspireHostBaseAction : AnAction() {
     }
 
     private fun getAspireHost(hostPath: Path, project: Project): AspireHost? {
-        val sessionHost = SessionHostManager.getInstance(project).sessionHost
-        return sessionHost.getAspireHost(hostPath)
+        val aspireWorker = AspireWorkerManager.getInstance(project).aspireWorker
+        return aspireWorker.getAspireHost(hostPath)
     }
 
     protected abstract fun updateAction(event: AnActionEvent, hostService: AspireHost)

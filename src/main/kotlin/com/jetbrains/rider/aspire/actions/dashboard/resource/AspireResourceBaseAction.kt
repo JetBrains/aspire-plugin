@@ -9,7 +9,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.jetbrains.rider.aspire.services.AspireResource
-import com.jetbrains.rider.aspire.sessionHost.SessionHostManager
+import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
 import com.jetbrains.rider.aspire.util.ASPIRE_RESOURCE
 import com.jetbrains.rider.projectView.workspace.containingProjectEntity
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
@@ -41,8 +41,8 @@ abstract class AspireResourceBaseAction : AnAction() {
         val project = event.project ?: return null
         val projectEntity = event.dataContext.getProjectModelEntity(true)?.containingProjectEntity() ?: return null
         val projectPath = projectEntity.url?.toPath() ?: return null
-        val sessionHost = SessionHostManager.getInstance(project).sessionHost
-        for (aspireHost in sessionHost.getServices(project)) {
+        val aspireWorker = AspireWorkerManager.getInstance(project).aspireWorker
+        for (aspireHost in aspireWorker.getServices(project)) {
             val resource = aspireHost.getProjectResource(projectPath) ?: continue
             return resource
         }

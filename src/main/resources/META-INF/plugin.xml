@@ -82,7 +82,7 @@
                   topic="com.jetbrains.rider.aspire.sessionHost.SessionListener"/>
         <listener class="com.jetbrains.rider.aspire.database.ResourceDatabaseConnectionService$DataSourceListener"
                   topic="com.intellij.database.dataSource.DataSourceStorage$Listener"/>
-        <listener class="com.jetbrains.rider.aspire.sessionHost.SessionHostManager$RunListener"
+        <listener class="com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager$RunListener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
 
@@ -150,11 +150,11 @@
                     icon="AllIcons.Actions.RunAnything"/>
         </group>
         <group id="Aspire.Session.Host">
-            <action id="Aspire.Session.Host.Start"
-                    class="com.jetbrains.rider.aspire.actions.StartSessionHostAction"
+            <action id="Aspire.Worker.Start"
+                    class="com.jetbrains.rider.aspire.actions.StartAspireWorkerAction"
                     icon="AllIcons.Actions.Execute"/>
-            <action id="Aspire.Session.Host.Stop"
-                    class="com.jetbrains.rider.aspire.actions.StopSessionHostAction"
+            <action id="Aspire.Worker.Stop"
+                    class="com.jetbrains.rider.aspire.actions.StopAspireWorkerAction"
                     icon="AllIcons.Actions.Suspend"/>
         </group>
     </actions>

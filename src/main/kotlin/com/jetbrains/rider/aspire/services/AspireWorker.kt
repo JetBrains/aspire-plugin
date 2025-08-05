@@ -23,8 +23,8 @@ import com.jetbrains.rider.aspire.generated.AspireHostModel
 import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
 import com.jetbrains.rider.aspire.generated.AspireWorkerModel
 import com.jetbrains.rider.aspire.generated.aspireWorkerModel
-import com.jetbrains.rider.aspire.sessionHost.SessionHostConfig
-import com.jetbrains.rider.aspire.sessionHost.SessionHostLauncher
+import com.jetbrains.rider.aspire.sessionHost.AspireWorkerConfig
+import com.jetbrains.rider.aspire.sessionHost.AspireWorkerLauncher
 import com.jetbrains.rider.util.NetUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,28 +37,28 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
-class SessionHost(
+class AspireWorker(
     lifetime: Lifetime,
     private val scope: CoroutineScope,
     private val project: Project
-) : ServiceViewProvidingContributor<AspireHost, SessionHost>, Disposable {
+) : ServiceViewProvidingContributor<AspireHost, AspireWorker>, Disposable {
     companion object {
-        private val LOG = logger<SessionHost>()
+        private val LOG = logger<AspireWorker>()
     }
 
-    private val sessionHostLifetimes = SequentialLifetimes(lifetime).apply {
+    private val workerLifetimes = SequentialLifetimes(lifetime).apply {
         terminateCurrent()
     }
     private val mutex = Mutex()
 
     private var model: AspireWorkerModel? = null
 
-    private val descriptor by lazy { SessionHostServiceViewDescriptor() }
+    private val descriptor by lazy { AspireWorkerServiceViewDescriptor() }
 
     private val aspireHosts = ConcurrentHashMap<Path, AspireHost>()
 
     private val isActive: Boolean
-        get() = !sessionHostLifetimes.isTerminated
+        get() = !workerLifetimes.isTerminated
     val hasAspireHosts: Boolean
         get() = aspireHosts.any()
     var debugSessionToken: String? = null
@@ -66,7 +66,7 @@ class SessionHost(
     var debugSessionPort: Int? = null
         private set
 
-    override fun asService(): SessionHost = this
+    override fun asService(): AspireWorker = this
 
     override fun getViewDescriptor(project: Project) = descriptor
 
@@ -88,32 +88,32 @@ class SessionHost(
         mutex.withLock {
             if (isActive) return
 
-            LOG.trace("Starting session host")
-            val sessionHostLifetime = sessionHostLifetimes.next()
-            val protocol = startSessionHostProtocol(sessionHostLifetime.lifetime)
+            LOG.trace("Starting Aspire worker")
+            val workerLifetime = workerLifetimes.next()
+            val protocol = startAspireWorkerProtocol(workerLifetime.lifetime)
             model = protocol.aspireWorkerModel
 
-            subscribeToModel(protocol.aspireWorkerModel, sessionHostLifetime.lifetime)
+            subscribeToModel(protocol.aspireWorkerModel, workerLifetime.lifetime)
 
             debugSessionToken = UUID.randomUUID().toString()
             debugSessionPort = NetUtils.findFreePort(47100)
 
-            val sessionHostConfig = SessionHostConfig(
+            val aspireWorkerConfig = AspireWorkerConfig(
                 protocol.wire.serverPort,
                 requireNotNull(debugSessionToken),
                 requireNotNull(debugSessionPort)
             )
-            LOG.trace { "Starting a new session host with launcher $sessionHostConfig" }
-            val sessionHostLauncher = SessionHostLauncher.getInstance(project)
-            sessionHostLauncher.launchSessionHost(sessionHostConfig, sessionHostLifetime)
+            LOG.trace { "Starting a new session host with launcher $aspireWorkerConfig" }
+            val aspireWorkerLauncher = AspireWorkerLauncher.getInstance(project)
+            aspireWorkerLauncher.launchWorker(aspireWorkerConfig, workerLifetime)
         }
     }
 
-    private suspend fun startSessionHostProtocol(lifetime: Lifetime) = withContext(Dispatchers.EDT) {
+    private suspend fun startAspireWorkerProtocol(lifetime: Lifetime) = withContext(Dispatchers.EDT) {
         val dispatcher = RdDispatcher(lifetime)
         val wire = SocketWire.Server(lifetime, dispatcher, null)
         val protocol = Protocol(
-            "AspireSessionHost::protocol",
+            "AspireWorker::protocol",
             Serializers(IdeRootMarshallersProvider),
             Identities(IdKind.Server),
             dispatcher,
@@ -123,14 +123,11 @@ class SessionHost(
         return@withContext protocol
     }
 
-    private suspend fun subscribeToModel(
-        sessionHostModel: AspireWorkerModel,
-        lifetime: Lifetime
-    ) {
-        LOG.trace("Subscribing to Session host model")
+    private suspend fun subscribeToModel(aspireWorkerModel: AspireWorkerModel, lifetime: Lifetime) {
+        LOG.trace("Subscribing to Aspire worker model")
 
         withContext(Dispatchers.EDT) {
-            sessionHostModel.aspireHosts.view(lifetime) { hostLifetime, _, hostModel ->
+            aspireWorkerModel.aspireHosts.view(lifetime) { hostLifetime, _, hostModel ->
                 viewAspireHost(hostModel, hostLifetime)
             }
         }
@@ -154,11 +151,11 @@ class SessionHost(
         mutex.withLock {
             if (!isActive) return
 
-            LOG.trace("Stopping session host")
+            LOG.trace("Stopping Aspire worker")
             model = null
             debugSessionToken = null
             debugSessionPort = null
-            sessionHostLifetimes.terminateCurrent()
+            workerLifetimes.terminateCurrent()
         }
     }
 
