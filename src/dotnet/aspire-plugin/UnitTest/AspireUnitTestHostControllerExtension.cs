@@ -50,13 +50,13 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
             if (aspireHostProjectPath is not null)
             {
                 var isDebugging = run.Launch.HostProvider is DebugHostProvider;
-                var request = new StartSessionHostRequest(
+                var request = new StartAspireHostRequest(
                     run.Id,
                     aspireHostProjectPath,
                     isDebugging
                 );
                 var model = solution.GetProtocolSolution().GetAspirePluginModel();
-                if (model.StartSessionHost.Start(run.Lifetime, request) is RdTask<StartSessionHostResponse> task)
+                if (model.StartAspireHost.Start(run.Lifetime, request) is RdTask<StartAspireHostResponse> task)
                 {
                     var response = await task.AsTask();
                     var envVariables = run.Settings.TestRunner.EnvironmentVariables;
@@ -74,8 +74,8 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
     public async Task CleanupAfterRun(IUnitTestRun run, ITaskRunnerHostController next)
     {
         var model = solution.GetProtocolSolution().GetAspirePluginModel();
-        var request = new StopSessionHostRequest(run.Id);
-        if (model.StopSessionHost.Start(run.Lifetime, request) is RdTask<Unit> task)
+        var request = new StopAspireHostRequest(run.Id);
+        if (model.StopAspireHost.Start(run.Lifetime, request) is RdTask<Unit> task)
         {
             await task.AsTask();
         }

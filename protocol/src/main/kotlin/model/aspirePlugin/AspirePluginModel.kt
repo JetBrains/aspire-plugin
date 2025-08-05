@@ -35,22 +35,22 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("projectFilePath", string)
     }
 
-    private val StartSessionHostRequest = structdef {
+    private val StartAspireHostRequest = structdef {
         field("unitTestRunId", string)
         field("aspireHostProjectPath", string)
         field("underDebugger", bool)
     }
 
-    private val SessionHostEnvironmentVariable = structdef {
+    private val AspireHostEnvironmentVariable = structdef {
         field("key", string)
         field("value", string)
     }
 
-    private val StartSessionHostResponse = structdef {
-        field("environmentVariables", array(SessionHostEnvironmentVariable))
+    private val StartAspireHostResponse = structdef {
+        field("environmentVariables", array(AspireHostEnvironmentVariable))
     }
 
-    private val StopSessionHostRequest = structdef {
+    private val StopAspireHostRequest = structdef {
         field("unitTestRunId", string)
     }
 
@@ -71,8 +71,8 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         )
         call("insertProjectsIntoAppHostFile", InsertProjectsIntoAppHostFileRequest, void)
         call("insertDefaultMethodsIntoProjectProgramFile", InsertDefaultMethodsIntoProjectProgramFileRequest, void)
-        callback("startSessionHost", StartSessionHostRequest, StartSessionHostResponse).async
-        callback("stopSessionHost", StopSessionHostRequest, void).async
+        callback("startAspireHost", StartAspireHostRequest, StartAspireHostResponse).async
+        callback("stopAspireHost", StopAspireHostRequest, void).async
         sink("unitTestRunCancelled", string).async
     }
 }
