@@ -69,7 +69,7 @@ class DotNetExecutableSessionRunProfileState(
         sessionProcessLifetime.onTerminationIfAlive {
             if (!processHandler.isProcessTerminating && !processHandler.isProcessTerminated) {
                 LOG.trace("Killing run session process handler (id: $sessionId)")
-                processHandler.killProcess()
+                processHandler.destroyProcess()
             }
         }
 
