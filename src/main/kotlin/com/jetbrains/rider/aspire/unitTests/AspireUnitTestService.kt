@@ -13,7 +13,7 @@ import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import com.jetbrains.rider.aspire.generated.*
-import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
+import com.jetbrains.rider.aspire.worker.AspireWorkerManager
 import com.jetbrains.rider.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_PORT
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_TOKEN

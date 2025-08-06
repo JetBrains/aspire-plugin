@@ -23,8 +23,8 @@ import com.jetbrains.rider.aspire.generated.AspireHostModel
 import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
 import com.jetbrains.rider.aspire.generated.AspireWorkerModel
 import com.jetbrains.rider.aspire.generated.aspireWorkerModel
-import com.jetbrains.rider.aspire.sessionHost.AspireWorkerConfig
-import com.jetbrains.rider.aspire.sessionHost.AspireWorkerLauncher
+import com.jetbrains.rider.aspire.worker.AspireWorkerConfig
+import com.jetbrains.rider.aspire.worker.AspireWorkerLauncher
 import com.jetbrains.rider.util.NetUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

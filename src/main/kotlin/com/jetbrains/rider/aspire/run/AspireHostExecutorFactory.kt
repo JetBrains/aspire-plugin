@@ -14,7 +14,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.launchProfiles.*
 import com.jetbrains.rider.aspire.run.states.AspireHostDebugProfileState
 import com.jetbrains.rider.aspire.run.states.AspireHostRunProfileState
-import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
+import com.jetbrains.rider.aspire.worker.AspireWorkerManager
 import com.jetbrains.rider.aspire.util.*
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject

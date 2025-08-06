@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.sessionHost
+package com.jetbrains.rider.aspire.worker
 
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.KillableColoredProcessHandler
@@ -22,7 +22,7 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 @Service(Service.Level.PROJECT)
-class AspireWorkerLauncher {
+class AspireWorkerLauncher(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<AspireWorkerLauncher>()
 

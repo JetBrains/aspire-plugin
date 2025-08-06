@@ -5,7 +5,7 @@ import com.intellij.execution.services.ServiceViewLazyContributor
 import com.intellij.execution.services.SimpleServiceViewDescriptor
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.AspireIcons
-import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
+import com.jetbrains.rider.aspire.worker.AspireWorkerManager
 
 class AspireMainServiceViewContributor : ServiceViewContributor<AspireWorker>, ServiceViewLazyContributor {
     override fun getViewDescriptor(project: Project) =
