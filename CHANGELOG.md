@@ -7,6 +7,7 @@
 ### Changed
 
 - Support for .NET Aspire 9.4
+- Improve adding Aspire orchestration — generate default methods
 
 ### Fixed
 
