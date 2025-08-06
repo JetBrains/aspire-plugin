@@ -43,7 +43,6 @@ class AspireHostExecutorFactory(
 ) : AsyncExecutorFactory {
     companion object {
         private const val DOTNET_ROOT = "DOTNET_ROOT"
-
     }
 
     override suspend fun create(

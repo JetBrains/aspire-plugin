@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [#262](https://github.com/JetBrains/aspire-plugin/issues/262) Better Notification When Docker Daemon is not started
+
 ### Changed
 
 - Support for .NET Aspire 9.4
