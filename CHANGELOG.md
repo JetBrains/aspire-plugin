@@ -17,6 +17,7 @@
 
 - [#319](https://github.com/JetBrains/aspire-plugin/issues/319) BackgroundService `StopAsync` never called
 - Logs can be empty if they are not in the proper format
+- [#395](https://github.com/JetBrains/aspire-plugin/issues/395) Stop button not gracefully shutting down
 
 ## [1.8.6] - 2025-07-25
 
