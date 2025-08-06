@@ -52,7 +52,7 @@ class AspireOrchestrationService(private val project: Project) {
      * This method identifies potential .NET project entities.
      * A dialog is presented to a user for selecting specific projects to add .NET Aspire orchestration.
      */
-    suspend fun addAspireOrchestration(insertDefaultMethods: Boolean = true) {
+    suspend fun addAspireOrchestration() {
         val projectEntities = project.serviceAsync<WorkspaceModel>()
             .findProjects()
             .filter { it.isProject() && !it.isAspireHostProject() && !it.isAspireSharedProject() }
@@ -71,7 +71,7 @@ class AspireOrchestrationService(private val project: Project) {
                 if (projectEntities.isEmpty()) return@withContext
 
                 withContext(Dispatchers.Default) {
-                    addAspireOrchestration(projectEntities, insertDefaultMethods)
+                    addAspireOrchestration(projectEntities)
                 }
             }
         }
@@ -87,7 +87,6 @@ class AspireOrchestrationService(private val project: Project) {
      */
     suspend fun addAspireOrchestration(
         projectEntities: List<ProjectModelEntity>,
-        insertDefaultMethods: Boolean = true
     ) = withBackgroundProgress(project, AspireBundle.message("progress.adding.aspire.orchestration")) {
         var (hostProjectPath, sharedProjectPath) = findExistingAspireProjects()
 
@@ -108,22 +107,18 @@ class AspireOrchestrationService(private val project: Project) {
         val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
         if (hostProjectPath != null) {
             val referenceByHostProjectResult = referenceByHostProject(hostProjectPath, projectFilePathStrings)
-            if (insertDefaultMethods) {
-                referenceByHostProjectResult?.let {
-                    AspireDefaultFileModificationService
-                        .getInstance(project)
-                        .insertProjectsIntoAppHostFile(hostProjectPath, it.referencedProjectFilePaths)
-                }
+            referenceByHostProjectResult?.let {
+                AspireDefaultFileModificationService
+                    .getInstance(project)
+                    .insertProjectsIntoAppHostFile(hostProjectPath, it.referencedProjectFilePaths)
             }
         }
         if (sharedProjectPath != null) {
             val referenceSharedProjectResult = referenceSharedProject(sharedProjectPath, projectFilePathStrings)
-            if (insertDefaultMethods) {
-                referenceSharedProjectResult?.let {
-                    AspireDefaultFileModificationService
-                        .getInstance(project)
-                        .insertAspireDefaultMethodsIntoProjects(it.projectFilePathsWithReference)
-                }
+            referenceSharedProjectResult?.let {
+                AspireDefaultFileModificationService
+                    .getInstance(project)
+                    .insertAspireDefaultMethodsIntoProjects(it.projectFilePathsWithReference)
             }
         }
     }
