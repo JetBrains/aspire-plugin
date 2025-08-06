@@ -9,7 +9,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.jetbrains.rider.aspire.services.AspireResource
-import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
+import com.jetbrains.rider.aspire.worker.AspireWorkerManager
 import com.jetbrains.rider.aspire.util.ASPIRE_RESOURCE
 import com.jetbrains.rider.projectView.workspace.containingProjectEntity
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity

@@ -17,7 +17,7 @@ import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostRunManager
 import com.jetbrains.rider.aspire.run.states.*
-import com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager
+import com.jetbrains.rider.aspire.worker.AspireWorkerManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path

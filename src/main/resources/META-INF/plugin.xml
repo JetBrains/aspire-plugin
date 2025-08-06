@@ -82,7 +82,7 @@
                   topic="com.jetbrains.rider.aspire.sessionHost.SessionListener"/>
         <listener class="com.jetbrains.rider.aspire.database.ResourceDatabaseConnectionService$DataSourceListener"
                   topic="com.intellij.database.dataSource.DataSourceStorage$Listener"/>
-        <listener class="com.jetbrains.rider.aspire.sessionHost.AspireWorkerManager$RunListener"
+        <listener class="com.jetbrains.rider.aspire.worker.AspireWorkerManager$RunListener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
 

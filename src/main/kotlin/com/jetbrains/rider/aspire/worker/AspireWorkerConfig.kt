@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.sessionHost
+package com.jetbrains.rider.aspire.worker
 
 data class AspireWorkerConfig(
     val rdPort: Int,
