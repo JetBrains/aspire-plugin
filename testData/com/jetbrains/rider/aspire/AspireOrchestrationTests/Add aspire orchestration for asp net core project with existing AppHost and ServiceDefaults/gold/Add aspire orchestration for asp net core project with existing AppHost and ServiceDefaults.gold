@@ -2,11 +2,11 @@ Solution file:
 
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{GUID}") = "DefaultAspNetCoreSolution", "DefaultAspNetCoreSolution\DefaultAspNetCoreSolution.csproj", "{GUID}"
+Project("{GUID}") = "DefaultAspNetCoreSolutionWithAppHost", "DefaultAspNetCoreSolutionWithAppHost\DefaultAspNetCoreSolutionWithAppHost.csproj", "{GUID}"
 EndProject
-Project("{GUID}") = "DefaultAspNetCoreSolution.AppHost", "DefaultAspNetCoreSolution.AppHost\DefaultAspNetCoreSolution.AppHost.csproj", "{GUID}"
+Project("{GUID}") = "AppHost", "AppHost\AppHost.csproj", "{GUID}"
 EndProject
-Project("{GUID}") = "DefaultAspNetCoreSolution.ServiceDefaults", "DefaultAspNetCoreSolution.ServiceDefaults\DefaultAspNetCoreSolution.ServiceDefaults.csproj", "{GUID}"
+Project("{GUID}") = "ServiceDefaults", "ServiceDefaults\ServiceDefaults.csproj", "{GUID}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,7 +48,7 @@ AppHost:
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DefaultAspNetCoreSolution\DefaultAspNetCoreSolution.csproj" />
+      <ProjectReference Include="..\DefaultAspNetCoreSolutionWithAppHost\DefaultAspNetCoreSolutionWithAppHost.csproj" />
     </ItemGroup>
 
 </Project>
@@ -58,10 +58,9 @@ AppHost.Program.cs:
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.DefaultAspNetCoreSolution>("defaultaspnetcoresolution");
+builder.AddProject<Projects.DefaultAspNetCoreSolutionWithAppHost>("defaultaspnetcoresolutionwithapphost");
 
 builder.Build().Run();
-
 
 ServiceDefaults:
 
@@ -89,7 +88,7 @@ ServiceDefaults:
 </Project>
 
 
-Project(DefaultAspNetCoreSolution.csproj):
+Project(DefaultAspNetCoreSolutionWithAppHost.csproj):
 
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
@@ -100,13 +99,13 @@ Project(DefaultAspNetCoreSolution.csproj):
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DefaultAspNetCoreSolution.ServiceDefaults\DefaultAspNetCoreSolution.ServiceDefaults.csproj" />
+      <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
     </ItemGroup>
 
 </Project>
 
 
-Project(DefaultAspNetCoreSolution.csproj) Program.cs:
+Project(DefaultAspNetCoreSolutionWithAppHost.csproj) Program.cs:
 
 var builder = WebApplication.CreateBuilder(args);
 
