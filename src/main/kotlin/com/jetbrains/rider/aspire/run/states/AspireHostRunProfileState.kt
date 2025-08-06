@@ -12,6 +12,7 @@ import com.jetbrains.rider.run.createConsole
 import com.jetbrains.rider.run.createRunCommandLine
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.Path
 
 class AspireHostRunProfileState(
@@ -21,6 +22,8 @@ class AspireHostRunProfileState(
 ) : RunProfileState, AspireHostProfileState {
 
     override val environmentVariables: Map<String, String> = dotnetExecutable.environmentVariables
+
+    private val containerRuntimeNotificationCount = AtomicInteger()
 
     override fun execute(
         executor: Executor?,
@@ -35,6 +38,10 @@ class AspireHostRunProfileState(
             commandLine,
             commandLine.commandLineString,
             originalExecutable = originalExecutable
+        )
+        processHandler.addStoppedContainerRuntimeProcessListener(
+            containerRuntimeNotificationCount,
+            environment.project
         )
         val console = createConsole(
             ConsoleKind.Normal,
