@@ -2,11 +2,15 @@ Solution file:
 
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{GUID}") = "DefaultAspNetCoreSolution", "DefaultAspNetCoreSolution\DefaultAspNetCoreSolution.csproj", "{GUID}"
+Project("{GUID}") = "Project1", "Project1\Project1.csproj", "{GUID}"
 EndProject
-Project("{GUID}") = "DefaultAspNetCoreSolution.AppHost", "DefaultAspNetCoreSolution.AppHost\DefaultAspNetCoreSolution.AppHost.csproj", "{GUID}"
+Project("{GUID}") = "Project2", "Project2\Project2.csproj", "{GUID}"
 EndProject
-Project("{GUID}") = "DefaultAspNetCoreSolution.ServiceDefaults", "DefaultAspNetCoreSolution.ServiceDefaults\DefaultAspNetCoreSolution.ServiceDefaults.csproj", "{GUID}"
+Project("{GUID}") = "Project3", "Project3\Project3.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "SolutionWithMultipleAspNetCoreProjects.AppHost", "SolutionWithMultipleAspNetCoreProjects.AppHost\SolutionWithMultipleAspNetCoreProjects.AppHost.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "SolutionWithMultipleAspNetCoreProjects.ServiceDefaults", "SolutionWithMultipleAspNetCoreProjects.ServiceDefaults\SolutionWithMultipleAspNetCoreProjects.ServiceDefaults.csproj", "{GUID}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,6 +18,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
 		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,7 +60,9 @@ AppHost:
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DefaultAspNetCoreSolution\DefaultAspNetCoreSolution.csproj" />
+      <ProjectReference Include="..\Project1\Project1.csproj" />
+      <ProjectReference Include="..\Project2\Project2.csproj" />
+      <ProjectReference Include="..\Project3\Project3.csproj" />
     </ItemGroup>
 
 </Project>
@@ -58,7 +72,11 @@ AppHost.Program.cs:
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.DefaultAspNetCoreSolution>("defaultaspnetcoresolution");
+builder.AddProject<Projects.Project1>("project1");
+
+builder.AddProject<Projects.Project2>("project2");
+
+builder.AddProject<Projects.Project3>("project3");
 
 builder.Build().Run();
 
@@ -89,7 +107,7 @@ ServiceDefaults:
 </Project>
 
 
-Project(DefaultAspNetCoreSolution.csproj):
+Project(Project1.csproj):
 
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
@@ -100,13 +118,73 @@ Project(DefaultAspNetCoreSolution.csproj):
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DefaultAspNetCoreSolution.ServiceDefaults\DefaultAspNetCoreSolution.ServiceDefaults.csproj" />
+      <ProjectReference Include="..\SolutionWithMultipleAspNetCoreProjects.ServiceDefaults\SolutionWithMultipleAspNetCoreProjects.ServiceDefaults.csproj" />
     </ItemGroup>
 
 </Project>
 
 
-Project(DefaultAspNetCoreSolution.csproj) Program.cs:
+Project(Project1.csproj) Program.cs:
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
+var app = builder.Build();
+
+app.MapDefaultEndpoints();
+
+app.MapGet("/", () => "Hello World!");
+
+app.Run();
+
+Project(Project2.csproj):
+
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SolutionWithMultipleAspNetCoreProjects.ServiceDefaults\SolutionWithMultipleAspNetCoreProjects.ServiceDefaults.csproj" />
+    </ItemGroup>
+
+</Project>
+
+
+Project(Project2.csproj) Program.cs:
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
+var app = builder.Build();
+
+app.MapDefaultEndpoints();
+
+app.MapGet("/", () => "Hello World!");
+
+app.Run();
+
+Project(Project3.csproj):
+
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SolutionWithMultipleAspNetCoreProjects.ServiceDefaults\SolutionWithMultipleAspNetCoreProjects.ServiceDefaults.csproj" />
+    </ItemGroup>
+
+</Project>
+
+
+Project(Project3.csproj) Program.cs:
 
 var builder = WebApplication.CreateBuilder(args);
 

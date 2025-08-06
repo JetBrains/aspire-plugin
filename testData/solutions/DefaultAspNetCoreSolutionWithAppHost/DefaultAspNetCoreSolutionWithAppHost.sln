@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultAspNetCoreSolutionWithAppHost", "DefaultAspNetCoreSolutionWithAppHost\DefaultAspNetCoreSolutionWithAppHost.csproj", "{D4F9B362-DE3F-4238-B950-D04185FD51FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "AppHost\AppHost.csproj", "{864C9742-E3B0-4DB6-841C-D29F0B985E4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceDefaults", "ServiceDefaults\ServiceDefaults.csproj", "{5AAA0BC3-A314-4FE3-931A-E4437D7EDBA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D4F9B362-DE3F-4238-B950-D04185FD51FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4F9B362-DE3F-4238-B950-D04185FD51FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4F9B362-DE3F-4238-B950-D04185FD51FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4F9B362-DE3F-4238-B950-D04185FD51FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{864C9742-E3B0-4DB6-841C-D29F0B985E4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{864C9742-E3B0-4DB6-841C-D29F0B985E4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{864C9742-E3B0-4DB6-841C-D29F0B985E4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{864C9742-E3B0-4DB6-841C-D29F0B985E4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AAA0BC3-A314-4FE3-931A-E4437D7EDBA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AAA0BC3-A314-4FE3-931A-E4437D7EDBA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AAA0BC3-A314-4FE3-931A-E4437D7EDBA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AAA0BC3-A314-4FE3-931A-E4437D7EDBA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
