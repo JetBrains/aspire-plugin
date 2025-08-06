@@ -22,8 +22,6 @@ class AspirePluginModel private constructor(
     private val _getProjectOutputType: RdCall<String, String?>,
     private val _referenceProjectsFromAppHost: RdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse?>,
     private val _referenceServiceDefaultsFromProjects: RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?>,
-    private val _insertProjectsIntoAppHostFile: RdCall<InsertProjectsIntoAppHostFileRequest, Unit>,
-    private val _insertDefaultMethodsIntoProjectProgramFile: RdCall<InsertDefaultMethodsIntoProjectProgramFileRequest, Unit>,
     private val _startAspireHost: RdCall<StartAspireHostRequest, StartAspireHostResponse>,
     private val _stopAspireHost: RdCall<StopAspireHostRequest, Unit>,
     private val _unitTestRunCancelled: RdSignal<String>
@@ -38,8 +36,6 @@ class AspirePluginModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(371074459503752014), classLoader, "com.jetbrains.rider.aspire.generated.ReferenceProjectsFromAppHostResponse"))
             serializers.register(LazyCompanionMarshaller(RdId(8169256003235604124), classLoader, "com.jetbrains.rider.aspire.generated.ReferenceServiceDefaultsFromProjectsRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(-5007480931577060908), classLoader, "com.jetbrains.rider.aspire.generated.ReferenceServiceDefaultsFromProjectsResponse"))
-            serializers.register(LazyCompanionMarshaller(RdId(-8520499780433304144), classLoader, "com.jetbrains.rider.aspire.generated.InsertProjectsIntoAppHostFileRequest"))
-            serializers.register(LazyCompanionMarshaller(RdId(8529689687563153355), classLoader, "com.jetbrains.rider.aspire.generated.InsertDefaultMethodsIntoProjectProgramFileRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(4011588048384607098), classLoader, "com.jetbrains.rider.aspire.generated.StartAspireHostRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(-7704547362275130218), classLoader, "com.jetbrains.rider.aspire.generated.AspireHostEnvironmentVariable"))
             serializers.register(LazyCompanionMarshaller(RdId(-4767979015991107402), classLoader, "com.jetbrains.rider.aspire.generated.StartAspireHostResponse"))
@@ -53,7 +49,7 @@ class AspirePluginModel private constructor(
         private val __ReferenceProjectsFromAppHostResponseNullableSerializer = ReferenceProjectsFromAppHostResponse.nullable()
         private val __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer = ReferenceServiceDefaultsFromProjectsResponse.nullable()
         
-        const val serializationHash = 564651792104130552L
+        const val serializationHash = -8787297446117979330L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspirePluginModel
@@ -63,8 +59,6 @@ class AspirePluginModel private constructor(
     val getProjectOutputType: IRdCall<String, String?> get() = _getProjectOutputType
     val referenceProjectsFromAppHost: IRdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse?> get() = _referenceProjectsFromAppHost
     val referenceServiceDefaultsFromProjects: IRdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?> get() = _referenceServiceDefaultsFromProjects
-    val insertProjectsIntoAppHostFile: IRdCall<InsertProjectsIntoAppHostFileRequest, Unit> get() = _insertProjectsIntoAppHostFile
-    val insertDefaultMethodsIntoProjectProgramFile: IRdCall<InsertDefaultMethodsIntoProjectProgramFileRequest, Unit> get() = _insertDefaultMethodsIntoProjectProgramFile
     val startAspireHost: IRdEndpoint<StartAspireHostRequest, StartAspireHostResponse> get() = _startAspireHost
     val stopAspireHost: IRdEndpoint<StopAspireHostRequest, Unit> get() = _stopAspireHost
     val unitTestRunCancelled: IAsyncSource<String> get() = _unitTestRunCancelled
@@ -80,8 +74,6 @@ class AspirePluginModel private constructor(
         bindableChildren.add("getProjectOutputType" to _getProjectOutputType)
         bindableChildren.add("referenceProjectsFromAppHost" to _referenceProjectsFromAppHost)
         bindableChildren.add("referenceServiceDefaultsFromProjects" to _referenceServiceDefaultsFromProjects)
-        bindableChildren.add("insertProjectsIntoAppHostFile" to _insertProjectsIntoAppHostFile)
-        bindableChildren.add("insertDefaultMethodsIntoProjectProgramFile" to _insertDefaultMethodsIntoProjectProgramFile)
         bindableChildren.add("startAspireHost" to _startAspireHost)
         bindableChildren.add("stopAspireHost" to _stopAspireHost)
         bindableChildren.add("unitTestRunCancelled" to _unitTestRunCancelled)
@@ -93,8 +85,6 @@ class AspirePluginModel private constructor(
         RdCall<String, String?>(FrameworkMarshallers.String, __StringNullableSerializer),
         RdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse?>(ReferenceProjectsFromAppHostRequest, __ReferenceProjectsFromAppHostResponseNullableSerializer),
         RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?>(ReferenceServiceDefaultsFromProjectsRequest, __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer),
-        RdCall<InsertProjectsIntoAppHostFileRequest, Unit>(InsertProjectsIntoAppHostFileRequest, FrameworkMarshallers.Void),
-        RdCall<InsertDefaultMethodsIntoProjectProgramFileRequest, Unit>(InsertDefaultMethodsIntoProjectProgramFileRequest, FrameworkMarshallers.Void),
         RdCall<StartAspireHostRequest, StartAspireHostResponse>(StartAspireHostRequest, StartAspireHostResponse),
         RdCall<StopAspireHostRequest, Unit>(StopAspireHostRequest, FrameworkMarshallers.Void),
         RdSignal<String>(FrameworkMarshallers.String)
@@ -109,8 +99,6 @@ class AspirePluginModel private constructor(
             print("getProjectOutputType = "); _getProjectOutputType.print(printer); println()
             print("referenceProjectsFromAppHost = "); _referenceProjectsFromAppHost.print(printer); println()
             print("referenceServiceDefaultsFromProjects = "); _referenceServiceDefaultsFromProjects.print(printer); println()
-            print("insertProjectsIntoAppHostFile = "); _insertProjectsIntoAppHostFile.print(printer); println()
-            print("insertDefaultMethodsIntoProjectProgramFile = "); _insertDefaultMethodsIntoProjectProgramFile.print(printer); println()
             print("startAspireHost = "); _startAspireHost.print(printer); println()
             print("stopAspireHost = "); _stopAspireHost.print(printer); println()
             print("unitTestRunCancelled = "); _unitTestRunCancelled.print(printer); println()
@@ -123,8 +111,6 @@ class AspirePluginModel private constructor(
             _getProjectOutputType.deepClonePolymorphic(),
             _referenceProjectsFromAppHost.deepClonePolymorphic(),
             _referenceServiceDefaultsFromProjects.deepClonePolymorphic(),
-            _insertProjectsIntoAppHostFile.deepClonePolymorphic(),
-            _insertDefaultMethodsIntoProjectProgramFile.deepClonePolymorphic(),
             _startAspireHost.deepClonePolymorphic(),
             _stopAspireHost.deepClonePolymorphic(),
             _unitTestRunCancelled.deepClonePolymorphic()
@@ -139,7 +125,7 @@ val com.jetbrains.rd.ide.model.Solution.aspirePluginModel get() = getOrCreateExt
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:44]
+ * #### Generated from [AspirePluginModel.kt:35]
  */
 data class AspireHostEnvironmentVariable (
     val key: String,
@@ -194,130 +180,6 @@ data class AspireHostEnvironmentVariable (
         printer.indent {
             print("key = "); key.print(printer); println()
             print("value = "); value.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspirePluginModel.kt:34]
- */
-data class InsertDefaultMethodsIntoProjectProgramFileRequest (
-    val projectFilePath: String
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<InsertDefaultMethodsIntoProjectProgramFileRequest> {
-        override val _type: KClass<InsertDefaultMethodsIntoProjectProgramFileRequest> = InsertDefaultMethodsIntoProjectProgramFileRequest::class
-        override val id: RdId get() = RdId(8529689687563153355)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): InsertDefaultMethodsIntoProjectProgramFileRequest  {
-            val projectFilePath = buffer.readString()
-            return InsertDefaultMethodsIntoProjectProgramFileRequest(projectFilePath)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: InsertDefaultMethodsIntoProjectProgramFileRequest)  {
-            buffer.writeString(value.projectFilePath)
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as InsertDefaultMethodsIntoProjectProgramFileRequest
-        
-        if (projectFilePath != other.projectFilePath) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + projectFilePath.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("InsertDefaultMethodsIntoProjectProgramFileRequest (")
-        printer.indent {
-            print("projectFilePath = "); projectFilePath.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    //contexts
-    //threading
-}
-
-
-/**
- * #### Generated from [AspirePluginModel.kt:29]
- */
-data class InsertProjectsIntoAppHostFileRequest (
-    val hostProjectFilePath: String,
-    val projectFilePaths: List<String>
-) : IPrintable {
-    //companion
-    
-    companion object : IMarshaller<InsertProjectsIntoAppHostFileRequest> {
-        override val _type: KClass<InsertProjectsIntoAppHostFileRequest> = InsertProjectsIntoAppHostFileRequest::class
-        override val id: RdId get() = RdId(-8520499780433304144)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): InsertProjectsIntoAppHostFileRequest  {
-            val hostProjectFilePath = buffer.readString()
-            val projectFilePaths = buffer.readList { buffer.readString() }
-            return InsertProjectsIntoAppHostFileRequest(hostProjectFilePath, projectFilePaths)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: InsertProjectsIntoAppHostFileRequest)  {
-            buffer.writeString(value.hostProjectFilePath)
-            buffer.writeList(value.projectFilePaths) { v -> buffer.writeString(v) }
-        }
-        
-        
-    }
-    //fields
-    //methods
-    //initializer
-    //secondary constructor
-    //equals trait
-    override fun equals(other: Any?): Boolean  {
-        if (this === other) return true
-        if (other == null || other::class != this::class) return false
-        
-        other as InsertProjectsIntoAppHostFileRequest
-        
-        if (hostProjectFilePath != other.hostProjectFilePath) return false
-        if (projectFilePaths != other.projectFilePaths) return false
-        
-        return true
-    }
-    //hash code trait
-    override fun hashCode(): Int  {
-        var __r = 0
-        __r = __r*31 + hostProjectFilePath.hashCode()
-        __r = __r*31 + projectFilePaths.hashCode()
-        return __r
-    }
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("InsertProjectsIntoAppHostFileRequest (")
-        printer.indent {
-            print("hostProjectFilePath = "); hostProjectFilePath.print(printer); println()
-            print("projectFilePaths = "); projectFilePaths.print(printer); println()
         }
         printer.print(")")
     }
@@ -576,7 +438,7 @@ data class ReferenceServiceDefaultsFromProjectsResponse (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:38]
+ * #### Generated from [AspirePluginModel.kt:29]
  */
 data class StartAspireHostRequest (
     val unitTestRunId: String,
@@ -647,7 +509,7 @@ data class StartAspireHostRequest (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:49]
+ * #### Generated from [AspirePluginModel.kt:40]
  */
 data class StartAspireHostResponse (
     val environmentVariables: Array<AspireHostEnvironmentVariable>
@@ -706,7 +568,7 @@ data class StartAspireHostResponse (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:53]
+ * #### Generated from [AspirePluginModel.kt:44]
  */
 data class StopAspireHostRequest (
     val unitTestRunId: String
