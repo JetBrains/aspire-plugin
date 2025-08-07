@@ -20,7 +20,7 @@ import java.nio.file.Path
 
 class NavigateToResourceDebugTab : AspireResourceBaseAction() {
     override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
-        val projectPath = resourceService.projectPath ?: return
+        val projectPath = resourceService.projectPath?.value ?: return
         val debugSession = findDebugProfileByProject(projectPath, project) ?: return
         currentThreadCoroutineScope().launch {
             withContext(Dispatchers.EDT) {
@@ -33,7 +33,7 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
     }
 
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
-        val projectPath = resourceService.projectPath
+        val projectPath = resourceService.projectPath?.value
         val isUnderDebugger = resourceService.isUnderDebugger
         if (projectPath == null || isUnderDebugger != true) {
             event.presentation.isEnabledAndVisible = false

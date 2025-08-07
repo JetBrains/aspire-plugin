@@ -63,29 +63,29 @@ class AspireResource(
         private set
     var stoppedAt: LocalDateTime? = null
         private set
-    var exitCode: Int? = null
+    var exitCode: AspireResourceProperty<Int>? = null
         private set
-    var pid: Int? = null
+    var pid: AspireResourceProperty<Int>? = null
         private set
-    var projectPath: Path? = null
+    var projectPath: AspireResourceProperty<Path>? = null
         private set
-    var executablePath: Path? = null
+    var executablePath: AspireResourceProperty<Path>? = null
         private set
-    var executableWorkDir: Path? = null
+    var executableWorkDir: AspireResourceProperty<Path>? = null
         private set
-    var args: String? = null
+    var args: AspireResourceProperty<String>? = null
         private set
-    var containerImage: String? = null
+    var containerImage: AspireResourceProperty<String>? = null
         private set
-    var containerId: String? = null
+    var containerId: AspireResourceProperty<String>? = null
         private set
-    var containerPorts: String? = null
+    var containerPorts: AspireResourceProperty<String>? = null
         private set
-    var containerCommand: String? = null
+    var containerCommand: AspireResourceProperty<String>? = null
         private set
-    var containerArgs: String? = null
+    var containerArgs: AspireResourceProperty<String>? = null
         private set
-    var containerLifetime: String? = null
+    var containerLifetime: AspireResourceProperty<String>? = null
         private set
 
     var commands: Array<ResourceCommand>
@@ -160,51 +160,51 @@ class AspireResource(
             when (property.name) {
 
                 "resource.exitCode" -> {
-                    property.value?.let { exitCode = it.toDouble().roundToInt() }
+                    property.value?.let { exitCode = AspireResourceProperty(it.toDouble().roundToInt(), property.isSensitive == true) }
                 }
 
                 "project.path" -> {
-                    property.value?.let { projectPath = Path(it) }
+                    property.value?.let { projectPath = AspireResourceProperty(Path(it), property.isSensitive == true) }
                 }
 
                 "executable.path" -> {
-                    property.value?.let { executablePath = Path(it) }
+                    property.value?.let { executablePath = AspireResourceProperty(Path(it), property.isSensitive == true) }
                 }
 
                 "executable.pid" -> {
-                    property.value?.let { pid = it.toInt() }
+                    property.value?.let { pid = AspireResourceProperty(it.toInt(), property.isSensitive == true) }
                 }
 
                 "executable.workDir" -> {
-                    property.value?.let { executableWorkDir = Path(it) }
+                    property.value?.let { executableWorkDir = AspireResourceProperty(Path(it), property.isSensitive == true) }
                 }
 
                 "executable.args" -> {
-                    property.value?.let { args = it }
+                    property.value?.let { args = AspireResourceProperty(it, property.isSensitive == true) }
                 }
 
                 "container.id" -> {
-                    property.value?.let { containerId = it }
+                    property.value?.let { containerId = AspireResourceProperty(it, property.isSensitive == true) }
                 }
 
                 "container.image" -> {
-                    property.value?.let { containerImage = it }
+                    property.value?.let { containerImage = AspireResourceProperty(it, property.isSensitive == true) }
                 }
 
                 "container.ports" -> {
-                    property.value?.let { containerPorts = it }
+                    property.value?.let { containerPorts = AspireResourceProperty(it, property.isSensitive == true) }
                 }
 
                 "container.command" -> {
-                    property.value?.let { containerCommand = it }
+                    property.value?.let { containerCommand = AspireResourceProperty(it, property.isSensitive == true) }
                 }
 
                 "container.args" -> {
-                    property.value?.let { containerArgs = it }
+                    property.value?.let { containerArgs = AspireResourceProperty(it, property.isSensitive == true) }
                 }
 
                 "container.lifetime" -> {
-                    property.value?.let { containerLifetime = it }
+                    property.value?.let { containerLifetime = AspireResourceProperty(it, property.isSensitive == true) }
                 }
             }
         }
@@ -306,4 +306,6 @@ class AspireResource(
 
     override fun dispose() {
     }
+
+    data class AspireResourceProperty<T>(val value: T, val isSensitive: Boolean)
 }

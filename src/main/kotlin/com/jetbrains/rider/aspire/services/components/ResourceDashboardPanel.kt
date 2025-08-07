@@ -40,21 +40,21 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
                 .gap(RightGap.SMALL)
 
             if (resourceData.type == ResourceType.Project) {
-                resourceData.projectPath?.let {
+                resourceData.projectPath?.value?.let {
                     copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
             }
 
             if (resourceData.type == ResourceType.Container) {
-                resourceData.containerImage?.let {
+                resourceData.containerImage?.value?.let {
                     copyableLabel(it, color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
             }
 
             if (resourceData.type == ResourceType.Executable) {
-                resourceData.executablePath?.let {
+                resourceData.executablePath?.value?.let {
                     copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
@@ -88,7 +88,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             actionButton(stopAction)
             if (resourceData.type == ResourceType.Project &&
                 resourceData.state == ResourceState.Running &&
-                resourceData.pid != null &&
+                resourceData.pid?.value != null &&
                 resourceData.isUnderDebugger == false
             ) {
                 val attachAction = ActionManager.getInstance().getAction("Aspire.Resource.Attach")
@@ -152,39 +152,39 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         resourceData.stoppedAt?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.stop.time")) { copyableLabel(it.toString()) }
         }
-        resourceData.pid?.let {
+        resourceData.pid?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.pid")) { copyableLabel(it.toString()) }
         }
-        resourceData.exitCode?.let {
+        resourceData.exitCode?.value?.let {
             if (it != -1) {
                 row(AspireBundle.message("service.tab.dashboard.properties.exit.code")) { copyableLabel(it.toString()) }
             }
         }
-        resourceData.projectPath?.let {
+        resourceData.projectPath?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.project")) { copyableLabel(it.absolutePathString()) }
         }
-        resourceData.executablePath?.let {
+        resourceData.executablePath?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.executable")) { copyableLabel(it.absolutePathString()) }
         }
-        resourceData.executableWorkDir?.let {
+        resourceData.executableWorkDir?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.working.dir")) { copyableLabel(it.absolutePathString()) }
         }
-        resourceData.args?.let {
+        resourceData.args?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.args")) { copyableLabel(it) }
         }
-        resourceData.containerImage?.let {
+        resourceData.containerImage?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.image")) { copyableLabel(it) }
         }
-        resourceData.containerId?.let {
+        resourceData.containerId?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.id")) { copyableLabel(it) }
         }
-        resourceData.containerPorts?.let {
+        resourceData.containerPorts?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.ports")) { copyableLabel(it) }
         }
-        resourceData.containerCommand?.let {
+        resourceData.containerCommand?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.command")) { copyableLabel(it) }
         }
-        resourceData.containerArgs?.let {
+        resourceData.containerArgs?.value?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.args")) { copyableLabel(it) }
         }
         separator()

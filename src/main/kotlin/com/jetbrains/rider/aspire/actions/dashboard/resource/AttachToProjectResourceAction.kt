@@ -14,14 +14,14 @@ import kotlinx.coroutines.launch
 
 class AttachToProjectResourceAction : AspireResourceBaseAction() {
     override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
-        val pid = resourceService.pid ?: return
+        val pid = resourceService.pid?.value ?: return
         currentThreadCoroutineScope().launch {
             AttachDebuggerService.getInstance(project).attach(pid)
         }
     }
 
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
-        val pid = resourceService.pid
+        val pid = resourceService.pid?.value
         val isUnderDebugger = resourceService.isUnderDebugger
 
         if (resourceService.type != ResourceType.Project ||
