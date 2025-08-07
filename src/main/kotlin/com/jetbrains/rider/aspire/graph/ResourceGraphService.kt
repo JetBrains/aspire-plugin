@@ -31,7 +31,7 @@ class ResourceGraphService(private val project: Project) {
     }
 
     fun showResourceGraph(aspireHost: AspireHost) {
-        val resources = aspireHost.getResources(false)
+        val resources = aspireHost.getResources()
 
         val resourceNodes = resources.associate { it.displayName to createResourceGraphNode(it) }
         val resourceNodeEdges = calculateResourceNodeEdges(resources, resourceNodes)
@@ -73,7 +73,7 @@ class ResourceGraphService(private val project: Project) {
                 val sourceNode = resourceNodes[resource.displayName] ?: continue
 
                 val relationships = resource.relationships
-                    .filter { it.resourceName != sourceNode.displayName }
+                    .filter { it.resourceName != resource.displayName }
                     .groupBy { it.resourceName }
                 for (relationship in relationships) {
                     val targetNode = resourceNodes[relationship.key] ?: continue

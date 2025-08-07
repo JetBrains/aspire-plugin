@@ -3,6 +3,7 @@ package com.jetbrains.rider.aspire.services
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.services.ServiceEventListener
+import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
@@ -28,7 +29,7 @@ class AspireResource(
     private val aspireHost: AspireHost,
     val lifetime: Lifetime,
     private val project: Project
-) : Disposable {
+) : ServiceViewProvidingContributor<AspireResource, AspireResource>, Disposable {
     companion object {
         private val LOG = logger<AspireResource>()
     }
@@ -55,6 +56,9 @@ class AspireResource(
         private set
     var relationships: Array<ResourceRelationship>
         private set
+
+    val parentResourceName: String?
+        get() = relationships.firstOrNull { it.type.equals("parent", true) }?.resourceName
 
     var createdAt: LocalDateTime? = null
         private set
@@ -246,7 +250,18 @@ class AspireResource(
         healthStatus = healthReports.last().status
     }
 
-    fun getViewDescriptor() = descriptor
+    override fun asService() = this
+
+    override fun getViewDescriptor(project: Project) = descriptor
+
+    override fun getServices(project: Project) = getChildResources()
+
+    override fun getServiceDescriptor(project: Project, aspireResource: AspireResource) =
+        aspireResource.getViewDescriptor(project)
+
+    private fun getChildResources(): List<AspireResource> {
+        return aspireHost.getChildResourcesFor(displayName)
+    }
 
     private fun update(model: ResourceModel) {
         uid = model.uid
