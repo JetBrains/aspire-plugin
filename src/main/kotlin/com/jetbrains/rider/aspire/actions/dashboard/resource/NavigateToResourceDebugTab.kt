@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.xdebugger.XDebugSession
 import com.intellij.xdebugger.XDebuggerManager
 import com.jetbrains.rider.aspire.services.AspireResource
-import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProfile
+import com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

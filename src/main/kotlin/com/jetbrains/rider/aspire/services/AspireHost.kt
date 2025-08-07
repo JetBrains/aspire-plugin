@@ -22,10 +22,10 @@ import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessionHost.*
-import com.jetbrains.rider.aspire.sessionHost.SessionManager.CreateSessionCommand
-import com.jetbrains.rider.aspire.sessionHost.SessionManager.DeleteSessionCommand
-import com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProfile
+import com.jetbrains.rider.aspire.sessions.*
+import com.jetbrains.rider.aspire.sessions.SessionManager.CreateSessionCommand
+import com.jetbrains.rider.aspire.sessions.SessionManager.DeleteSessionCommand
+import com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProfile
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole

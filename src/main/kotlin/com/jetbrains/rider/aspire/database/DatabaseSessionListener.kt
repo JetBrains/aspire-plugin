@@ -2,8 +2,8 @@ package com.jetbrains.rider.aspire.database
 
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.sessionHost.SessionListener
-import com.jetbrains.rider.aspire.sessionHost.SessionManager
+import com.jetbrains.rider.aspire.sessions.SessionListener
+import com.jetbrains.rider.aspire.sessions.SessionManager
 import com.jetbrains.rider.aspire.settings.AspireSettings
 
 class DatabaseSessionListener(private val project: Project) : SessionListener {

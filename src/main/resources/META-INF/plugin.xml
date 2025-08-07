@@ -15,7 +15,7 @@
 
     <extensionPoints>
         <extensionPoint qualifiedName="com.jetbrains.rider.aspire.sessionProcessLauncherExtension"
-                        interface="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.SessionProcessLauncherExtension"
+                        interface="com.jetbrains.rider.aspire.sessions.projectLaunchers.SessionProcessLauncherExtension"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.rider.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension"
@@ -30,11 +30,11 @@
         <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunner"/>
         <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostDebugProgramRunner"/>
         <programRunner
-                implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionProgramRunner"/>
+                implementation="com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProgramRunner"/>
         <programRunner
-                implementation="com.jetbrains.rider.aspire.sessionHost.projectLaunchers.ProjectSessionDebugProgramRunner"/>
+                implementation="com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionDebugProgramRunner"/>
         <programRunner
-                implementation="com.jetbrains.rider.aspire.sessionHost.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
+                implementation="com.jetbrains.rider.aspire.sessions.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
 
         <serviceViewContributor implementation="com.jetbrains.rider.aspire.services.AspireMainServiceViewContributor"/>
 
@@ -68,18 +68,18 @@
 
     <extensions defaultExtensionNs="com.jetbrains.rider.aspire">
         <sessionProcessLauncherExtension
-                implementation="com.jetbrains.rider.aspire.sessionHost.wasmHost.WasmHostProjectSessionProcessLauncher"/>
+                implementation="com.jetbrains.rider.aspire.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
         <sessionProcessLauncherExtension
-                implementation="com.jetbrains.rider.aspire.sessionHost.dotnetProject.DotNetProjectSessionProcessLauncher"/>
+                implementation="com.jetbrains.rider.aspire.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
         <sessionProcessLauncherExtension
-                implementation="com.jetbrains.rider.aspire.sessionHost.awsLambda.LambdaProjectSessionProcessLauncher"/>
+                implementation="com.jetbrains.rider.aspire.sessions.awsLambda.LambdaProjectSessionProcessLauncher"/>
     </extensions>
 
     <projectListeners>
         <listener class="com.jetbrains.rider.aspire.database.DatabaseResourceListener"
                   topic="com.jetbrains.rider.aspire.services.ResourceListener"/>
         <listener class="com.jetbrains.rider.aspire.database.DatabaseSessionListener"
-                  topic="com.jetbrains.rider.aspire.sessionHost.SessionListener"/>
+                  topic="com.jetbrains.rider.aspire.sessions.SessionListener"/>
         <listener class="com.jetbrains.rider.aspire.database.ResourceDatabaseConnectionService$DataSourceListener"
                   topic="com.intellij.database.dataSource.DataSourceStorage$Listener"/>
         <listener class="com.jetbrains.rider.aspire.worker.AspireWorkerManager$RunListener"
