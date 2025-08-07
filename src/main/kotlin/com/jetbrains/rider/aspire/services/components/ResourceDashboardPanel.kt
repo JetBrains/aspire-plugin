@@ -19,6 +19,7 @@ import com.jetbrains.rider.aspire.services.AspireResource
 import com.jetbrains.rider.aspire.services.RestartResourceCommand
 import com.jetbrains.rider.aspire.services.StartResourceCommand
 import com.jetbrains.rider.aspire.services.StopResourceCommand
+import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.getIcon
 import kotlin.io.path.absolutePathString
 
@@ -30,7 +31,12 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         add(ScrollPaneFactory.createScrollPane(panel, SideBorder.NONE))
     }
 
-    private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel {
+    private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel { 
+        val showSensitive = AspireSettings.getInstance().showSensitiveProperties
+
+        fun <T> takeProperty(property: AspireResource.AspireResourceProperty<T>?): T? =
+            property?.takeIf { showSensitive || !it.isSensitive }?.value
+
         row {
             val resourceIcon = getIcon(resourceData)
             icon(resourceIcon)
@@ -40,21 +46,21 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
                 .gap(RightGap.SMALL)
 
             if (resourceData.type == ResourceType.Project) {
-                resourceData.projectPath?.value?.let {
+                takeProperty(resourceData.projectPath)?.let {
                     copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
             }
 
             if (resourceData.type == ResourceType.Container) {
-                resourceData.containerImage?.value?.let {
+                takeProperty(resourceData.containerImage)?.let {
                     copyableLabel(it, color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
             }
 
             if (resourceData.type == ResourceType.Executable) {
-                resourceData.executablePath?.value?.let {
+                takeProperty(resourceData.executablePath)?.let {
                     copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                         .gap(RightGap.SMALL)
                 }
@@ -152,39 +158,39 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         resourceData.stoppedAt?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.stop.time")) { copyableLabel(it.toString()) }
         }
-        resourceData.pid?.value?.let {
+        takeProperty(resourceData.pid)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.pid")) { copyableLabel(it.toString()) }
         }
-        resourceData.exitCode?.value?.let {
+        takeProperty(resourceData.exitCode)?.let {
             if (it != -1) {
                 row(AspireBundle.message("service.tab.dashboard.properties.exit.code")) { copyableLabel(it.toString()) }
             }
         }
-        resourceData.projectPath?.value?.let {
+        takeProperty(resourceData.projectPath)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.project")) { copyableLabel(it.absolutePathString()) }
         }
-        resourceData.executablePath?.value?.let {
+        takeProperty(resourceData.executablePath)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.executable")) { copyableLabel(it.absolutePathString()) }
         }
-        resourceData.executableWorkDir?.value?.let {
+        takeProperty(resourceData.executableWorkDir)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.working.dir")) { copyableLabel(it.absolutePathString()) }
         }
-        resourceData.args?.value?.let {
+        takeProperty(resourceData.args)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.args")) { copyableLabel(it) }
         }
-        resourceData.containerImage?.value?.let {
+        takeProperty(resourceData.containerImage)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.image")) { copyableLabel(it) }
         }
-        resourceData.containerId?.value?.let {
+        takeProperty(resourceData.containerId)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.id")) { copyableLabel(it) }
         }
-        resourceData.containerPorts?.value?.let {
+        takeProperty(resourceData.containerPorts)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.ports")) { copyableLabel(it) }
         }
-        resourceData.containerCommand?.value?.let {
+        takeProperty(resourceData.containerCommand)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.command")) { copyableLabel(it) }
         }
-        resourceData.containerArgs?.value?.let {
+        takeProperty(resourceData.containerArgs)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.args")) { copyableLabel(it) }
         }
         separator()
