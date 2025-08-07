@@ -7,5 +7,6 @@ class AspireSettingsState : BaseState() {
     var connectToDatabase by property(true)
     var checkResourceNameForDatabase by property(false)
     var showSensitiveProperties by property(false)
+    var showEnvironmentVariables by property(true)
     var openConsoleView by property(false)
 }
