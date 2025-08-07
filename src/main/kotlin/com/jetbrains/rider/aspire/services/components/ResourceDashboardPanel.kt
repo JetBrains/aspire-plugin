@@ -240,7 +240,8 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
     }
 
     private fun Panel.addEnvironmentVariables(resourceData: AspireResource) {
-        if (resourceData.environment.isNotEmpty()) {
+        val showEnvironment = AspireSettings.getInstance().showEnvironmentVariables
+        if (showEnvironment && resourceData.environment.isNotEmpty()) {
             row {
                 label(AspireBundle.message("service.tab.dashboard.environment")).bold()
             }.bottomGap(BottomGap.SMALL)

@@ -34,6 +34,10 @@ class AspireConfigurable : BoundConfigurable(AspireBundle.message("configurable.
                     .bindSelected(settings::showSensitiveProperties)
             }
             row {
+                checkBox(AspireBundle.message("configurable.Aspire.show.environment.variables"))
+                    .bindSelected(settings::showEnvironmentVariables)
+            }
+            row {
                 checkBox(AspireBundle.message("configurable.Aspire.open.console.view"))
                     .bindSelected(settings::openConsoleView)
             }

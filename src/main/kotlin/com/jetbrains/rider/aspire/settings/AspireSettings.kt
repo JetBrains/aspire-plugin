@@ -36,6 +36,12 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
             state.showSensitiveProperties = value
         }
 
+    var showEnvironmentVariables
+        get() = state.showEnvironmentVariables
+        set(value) {
+            state.showEnvironmentVariables = value
+        }
+
     var openConsoleView
         get() = state.openConsoleView
         set(value) {
