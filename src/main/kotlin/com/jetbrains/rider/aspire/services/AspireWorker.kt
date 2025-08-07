@@ -23,6 +23,8 @@ import com.jetbrains.rider.aspire.generated.AspireHostModel
 import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
 import com.jetbrains.rider.aspire.generated.AspireWorkerModel
 import com.jetbrains.rider.aspire.generated.aspireWorkerModel
+import com.jetbrains.rider.aspire.util.checkDevCertificate
+import com.jetbrains.rider.aspire.util.exportCertificate
 import com.jetbrains.rider.aspire.worker.AspireWorkerConfig
 import com.jetbrains.rider.aspire.worker.AspireWorkerLauncher
 import com.jetbrains.rider.util.NetUtils
@@ -65,6 +67,8 @@ class AspireWorker(
         private set
     var debugSessionPort: Int? = null
         private set
+    var debugSessionServerCertificate: String? = null
+        private set
 
     override fun asService(): AspireWorker = this
 
@@ -97,11 +101,13 @@ class AspireWorker(
 
             debugSessionToken = UUID.randomUUID().toString()
             debugSessionPort = NetUtils.findFreePort(47100)
+            debugSessionServerCertificate = calculateServerCertificate(workerLifetime)
 
             val aspireWorkerConfig = AspireWorkerConfig(
                 protocol.wire.serverPort,
                 requireNotNull(debugSessionToken),
-                requireNotNull(debugSessionPort)
+                requireNotNull(debugSessionPort),
+                debugSessionServerCertificate != null
             )
             LOG.trace { "Starting a new session host with launcher $aspireWorkerConfig" }
             val aspireWorkerLauncher = AspireWorkerLauncher.getInstance(project)
@@ -143,6 +149,13 @@ class AspireWorker(
 
         LOG.trace { "Setting Aspire host model to $aspireHostProjectPath" }
         aspireHost.setAspireHostModel(model, aspireHostLifetime)
+    }
+
+    private suspend fun calculateServerCertificate(workerLifetime: Lifetime): String? {
+        val hasTrustedCertificate = checkDevCertificate(workerLifetime, project)
+        if (!hasTrustedCertificate) return null
+
+        return exportCertificate(workerLifetime, project)
     }
 
     suspend fun stop() {

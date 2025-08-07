@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.rider.aspire.worker
 
 import com.intellij.execution.RunManager
@@ -59,7 +61,7 @@ class AspireWorkerManager(private val project: Project, scope: CoroutineScope) :
 
     fun removeAspireHost(projectFilePath: String) {
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
-        val configurations = RunManager.Companion.getInstance(project)
+        val configurations = RunManager.getInstance(project)
             .getConfigurationsList(configurationType)
             .filter { it is AspireHostConfiguration && it.parameters.projectFilePath == projectFilePath }
         if (configurations.isNotEmpty()) return
