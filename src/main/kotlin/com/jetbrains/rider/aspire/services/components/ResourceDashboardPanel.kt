@@ -35,8 +35,8 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
 
     private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel {
         addHeader(resourceData)
-        addEndpoints(resourceData)
         addProperties(resourceData)
+        addEndpoints(resourceData)
         addVolumes(resourceData)
         addEnvironmentVariables(resourceData)
     }
@@ -211,6 +211,9 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         }
         takeProperty(resourceData.containerArgs)?.let {
             row(AspireBundle.message("service.tab.dashboard.properties.container.args")) { copyableLabel(it) }
+        }
+        takeProperty(resourceData.connectionString)?.let {
+            row(AspireBundle.message("service.tab.dashboard.properties.connection.string")) { copyableLabel(it) }
         }
         separator()
     }
