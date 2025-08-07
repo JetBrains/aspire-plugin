@@ -35,6 +35,8 @@ internal fun getIcon(aspireResource: AspireResource): Icon {
 
 internal fun getBaseIcon(type: ResourceType, containerImage: String?) = when (type) {
     ResourceType.Project -> RiderIcons.RunConfigurations.DotNetProject
+    ResourceType.Executable -> AllIcons.Nodes.Console
+
     ResourceType.Container -> when {
         containerImage?.contains("postgres") == true -> AllIcons.Providers.Postgresql
         containerImage?.contains("mssql") == true -> AllIcons.Providers.SqlServer
@@ -47,6 +49,9 @@ internal fun getBaseIcon(type: ResourceType, containerImage: String?) = when (ty
         else -> DockerIcons.Docker
     }
 
-    ResourceType.Executable -> AllIcons.Nodes.Console
+    ResourceType.MongoDB -> AllIcons.Providers.MongoDB
+    ResourceType.MySql -> AllIcons.Providers.Mysql
+    ResourceType.Postgres -> AllIcons.Providers.Postgresql
+    ResourceType.SqlServer -> AllIcons.Providers.SqlServer
     ResourceType.Unknown -> AllIcons.RunConfigurations.Application
 }

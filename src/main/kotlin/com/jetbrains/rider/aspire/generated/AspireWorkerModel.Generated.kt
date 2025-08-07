@@ -75,7 +75,7 @@ class AspireWorkerModel private constructor(
         }
         
         
-        const val serializationHash = -7701841830578628649L
+        const val serializationHash = 8292314052904486643L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
@@ -120,7 +120,7 @@ val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:214]
+ * #### Generated from [AspireWorkerModel.kt:218]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -236,7 +236,7 @@ class AspireHostModel private constructor(
  * @property otlpEndpointUrl `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable
  * @property isDebuggingMode Is Aspire Host running with debugger attached
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
- * #### Generated from [AspireWorkerModel.kt:194]
+ * #### Generated from [AspireWorkerModel.kt:198]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -817,7 +817,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:153]
+ * #### Generated from [AspireWorkerModel.kt:157]
  */
 data class ResourceCommand (
     val name: String,
@@ -912,7 +912,7 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:178]
+ * #### Generated from [AspireWorkerModel.kt:182]
  */
 data class ResourceCommandRequest (
     val commandName: String,
@@ -983,7 +983,7 @@ data class ResourceCommandRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:184]
+ * #### Generated from [AspireWorkerModel.kt:188]
  */
 data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
@@ -1048,7 +1048,7 @@ data class ResourceCommandResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:185]
+ * #### Generated from [AspireWorkerModel.kt:189]
  */
 enum class ResourceCommandResponseKind {
     Undefined, 
@@ -1075,7 +1075,7 @@ enum class ResourceCommandResponseKind {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:160]
+ * #### Generated from [AspireWorkerModel.kt:164]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -1101,7 +1101,7 @@ enum class ResourceCommandState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:119]
+ * #### Generated from [AspireWorkerModel.kt:123]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -1166,7 +1166,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:146]
+ * #### Generated from [AspireWorkerModel.kt:150]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus?,
@@ -1243,7 +1243,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:140]
+ * #### Generated from [AspireWorkerModel.kt:144]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -1269,7 +1269,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:172]
+ * #### Generated from [AspireWorkerModel.kt:176]
  */
 data class ResourceLog (
     val text: String,
@@ -1495,7 +1495,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:112]
+ * #### Generated from [AspireWorkerModel.kt:116]
  */
 data class ResourceProperty (
     val name: String,
@@ -1572,7 +1572,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:167]
+ * #### Generated from [AspireWorkerModel.kt:171]
  */
 data class ResourceRelationship (
     val resourceName: String,
@@ -1637,7 +1637,7 @@ data class ResourceRelationship (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:79]
+ * #### Generated from [AspireWorkerModel.kt:83]
  */
 enum class ResourceState {
     Starting, 
@@ -1671,7 +1671,7 @@ enum class ResourceState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:92]
+ * #### Generated from [AspireWorkerModel.kt:96]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -1705,6 +1705,10 @@ enum class ResourceType {
     Project, 
     Container, 
     Executable, 
+    MongoDB, 
+    MySql, 
+    Postgres, 
+    SqlServer, 
     Unknown;
     
     companion object : IMarshaller<ResourceType> {
@@ -1726,7 +1730,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:124]
+ * #### Generated from [AspireWorkerModel.kt:128]
  */
 data class ResourceUrl (
     val endpointName: String?,
@@ -1815,7 +1819,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:133]
+ * #### Generated from [AspireWorkerModel.kt:137]
  */
 data class ResourceVolume (
     val source: String,
