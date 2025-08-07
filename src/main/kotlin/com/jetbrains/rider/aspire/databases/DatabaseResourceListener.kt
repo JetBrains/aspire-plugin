@@ -48,7 +48,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
             resource.lifetime
         )
 
-        ResourceDatabaseConnectionService.getInstance(project).processDatabaseResource(databaseResource)
+        DatabaseResourceConnectionService.getInstance(project).processDatabaseResource(databaseResource)
     }
 
     private fun findDatabaseType(resourceName: String, resourceType: ResourceType, image: String?): DatabaseType? {
