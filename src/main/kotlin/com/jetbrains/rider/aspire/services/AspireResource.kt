@@ -12,7 +12,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.terminal.TerminalExecutionConsole
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
-import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.parseLogEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
