@@ -22,7 +22,7 @@ import java.nio.file.Path
 import kotlin.io.path.div
 
 @Service(Service.Level.PROJECT)
-class AspireWorkerLauncher(private val project: Project) {
+class AspireWorkerLauncher() {
     companion object {
         fun getInstance(project: Project) = project.service<AspireWorkerLauncher>()
 
@@ -86,7 +86,11 @@ class AspireWorkerLauncher(private val project: Project) {
             .withWorkDirectory(hostAssemblyPath.parent.toFile())
             .withEnvironment(
                 buildMap {
-                    put("Kestrel__Endpoints__Http__Url", "http://localhost:${config.debugSessionPort}/")
+                    if (config.useHttps) {
+                        put("Kestrel__Endpoints__Https__Url", "https://localhost:${config.debugSessionPort}/")
+                    } else {
+                        put("Kestrel__Endpoints__Http__Url", "http://localhost:${config.debugSessionPort}/")
+                    }
                     put(RIDER_RD_PORT, "${config.rdPort}")
                     put(RIDER_PARENT_PROCESS_ID, ProcessHandle.current().pid().toString())
                     put(RIDER_DCP_SESSION_TOKEN, config.debugSessionToken)
