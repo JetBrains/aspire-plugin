@@ -1,6 +1,6 @@
 @file:Suppress("DuplicatedCode")
 
-package com.jetbrains.rider.aspire.database
+package com.jetbrains.rider.aspire.databases
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service

@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.database
+package com.jetbrains.rider.aspire.databases
 
 import com.intellij.database.Dbms
 import com.intellij.openapi.project.Project

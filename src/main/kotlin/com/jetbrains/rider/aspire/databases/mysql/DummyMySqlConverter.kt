@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.database.mysql
+package com.jetbrains.rider.aspire.databases.mysql
 
 import com.intellij.database.dataSource.DatabaseDriver
 import com.intellij.openapi.project.Project
