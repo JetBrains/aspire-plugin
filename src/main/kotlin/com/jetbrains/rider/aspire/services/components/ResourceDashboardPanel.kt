@@ -6,7 +6,9 @@ import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SideBorder
 import com.intellij.ui.dsl.builder.BottomGap
+import com.intellij.ui.dsl.builder.Panel
 import com.intellij.ui.dsl.builder.RightGap
+import com.intellij.ui.dsl.builder.Row
 import com.intellij.ui.dsl.builder.actionButton
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.util.ui.JBUI
@@ -31,93 +33,108 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         add(ScrollPaneFactory.createScrollPane(panel, SideBorder.NONE))
     }
 
-    private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel { 
-        val showSensitive = AspireSettings.getInstance().showSensitiveProperties
+    private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel {
+        addHeader(resourceData)
+        addEndpoints(resourceData)
+        addProperties(resourceData)
+        addVolumes(resourceData)
+        addEnvironmentVariables(resourceData)
+    }
 
-        fun <T> takeProperty(property: AspireResource.AspireResourceProperty<T>?): T? =
-            property?.takeIf { showSensitive || !it.isSensitive }?.value
-
+    private fun Panel.addHeader(resourceData: AspireResource) {
         row {
-            val resourceIcon = getIcon(resourceData)
-            icon(resourceIcon)
-                .gap(RightGap.SMALL)
-            copyableLabel(resourceData.displayName)
-                .bold()
-                .gap(RightGap.SMALL)
-
-            if (resourceData.type == ResourceType.Project) {
-                takeProperty(resourceData.projectPath)?.let {
-                    copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
-                        .gap(RightGap.SMALL)
-                }
-            }
-
-            if (resourceData.type == ResourceType.Container) {
-                takeProperty(resourceData.containerImage)?.let {
-                    copyableLabel(it, color = UIUtil.FontColor.BRIGHTER)
-                        .gap(RightGap.SMALL)
-                }
-            }
-
-            if (resourceData.type == ResourceType.Executable) {
-                takeProperty(resourceData.executablePath)?.let {
-                    copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
-                        .gap(RightGap.SMALL)
-                }
-            }
-
-            val state = resourceData.state
-            if (state != null) {
-                separator()
-                    .gap(RightGap.SMALL)
-
-                val healthStatus = resourceData.healthStatus
-                val hasHealthStatus = state == ResourceState.Running && healthStatus != null
-
-                copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
-                    .apply {
-                        if (hasHealthStatus) gap(RightGap.SMALL)
-                        else gap(RightGap.COLUMNS)
-                    }
-
-                if (hasHealthStatus) {
-                    copyableLabel("(${healthStatus.name})", color = UIUtil.FontColor.BRIGHTER)
-                        .gap(RightGap.COLUMNS)
-                }
-            }
-
-            val startAction = ActionManager.getInstance().getAction("Aspire.Resource.Start")
-            actionButton(startAction)
-            val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
-            actionButton(restartAction)
-            val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
-            actionButton(stopAction)
-            if (resourceData.type == ResourceType.Project &&
-                resourceData.state == ResourceState.Running &&
-                resourceData.pid?.value != null &&
-                resourceData.isUnderDebugger == false
-            ) {
-                val attachAction = ActionManager.getInstance().getAction("Aspire.Resource.Attach")
-                actionButton(attachAction)
-            }
-            if (resourceData.type == ResourceType.Project &&
-                resourceData.state == ResourceState.Running &&
-                resourceData.isUnderDebugger == true
-            ) {
-                val attachAction = ActionManager.getInstance().getAction("Aspire.Resource.NavigateToDebugTab")
-                actionButton(attachAction)
-            }
-            if (resourceData.commands.any {
-                    !it.name.equals(StartResourceCommand, true) &&
-                            !it.name.equals(StopResourceCommand, true) &&
-                            !it.name.equals(RestartResourceCommand, true)
-                }) {
-                val executeCommandAction = ActionManager.getInstance().getAction("Aspire.Resource.Execute.Command")
-                actionButton(executeCommandAction)
-            }
+            addIconAndTitle(resourceData)
+            addStateAndHealth(resourceData)
+            addActionButtons(resourceData)
         }
         separator()
+    }
 
+    private fun Row.addIconAndTitle(resourceData: AspireResource) {
+        val resourceIcon = getIcon(resourceData)
+        icon(resourceIcon)
+            .gap(RightGap.SMALL)
+        copyableLabel(resourceData.displayName)
+            .bold()
+            .gap(RightGap.SMALL)
+
+        if (resourceData.type == ResourceType.Project) {
+            takeProperty(resourceData.projectPath)?.let {
+                copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
+                    .gap(RightGap.SMALL)
+            }
+        }
+
+        if (resourceData.type == ResourceType.Container) {
+            takeProperty(resourceData.containerImage)?.let {
+                copyableLabel(it, color = UIUtil.FontColor.BRIGHTER)
+                    .gap(RightGap.SMALL)
+            }
+        }
+
+        if (resourceData.type == ResourceType.Executable) {
+            takeProperty(resourceData.executablePath)?.let {
+                copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
+                    .gap(RightGap.SMALL)
+            }
+        }
+    }
+
+    private fun Row.addStateAndHealth(resourceData: AspireResource) {
+        val state = resourceData.state
+        if (state != null) {
+            separator()
+                .gap(RightGap.SMALL)
+
+            val healthStatus = resourceData.healthStatus
+            val hasHealthStatus = state == ResourceState.Running && healthStatus != null
+
+            copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
+                .apply {
+                    if (hasHealthStatus) gap(RightGap.SMALL)
+                    else gap(RightGap.COLUMNS)
+                }
+
+            if (hasHealthStatus) {
+                copyableLabel("(${healthStatus.name})", color = UIUtil.FontColor.BRIGHTER)
+                    .gap(RightGap.COLUMNS)
+            }
+        }
+    }
+
+    private fun Row.addActionButtons(resourceData: AspireResource) {
+        val startAction = ActionManager.getInstance().getAction("Aspire.Resource.Start")
+        actionButton(startAction)
+        val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
+        actionButton(restartAction)
+        val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
+        actionButton(stopAction)
+        if (resourceData.type == ResourceType.Project &&
+            resourceData.state == ResourceState.Running &&
+            resourceData.pid?.value != null &&
+            resourceData.isUnderDebugger == false
+        ) {
+            val attachAction = ActionManager.getInstance().getAction("Aspire.Resource.Attach")
+            actionButton(attachAction)
+        }
+        if (resourceData.type == ResourceType.Project &&
+            resourceData.state == ResourceState.Running &&
+            resourceData.isUnderDebugger == true
+        ) {
+            val attachAction = ActionManager.getInstance().getAction("Aspire.Resource.NavigateToDebugTab")
+            actionButton(attachAction)
+        }
+        if (resourceData.commands.any {
+                !it.name.equals(StartResourceCommand, true) &&
+                        !it.name.equals(StopResourceCommand, true) &&
+                        !it.name.equals(RestartResourceCommand, true)
+            }) {
+            val executeCommandAction = ActionManager.getInstance().getAction("Aspire.Resource.Execute.Command")
+            actionButton(executeCommandAction)
+        }
+    }
+
+    private fun Panel.addEndpoints(resourceData: AspireResource) {
         if (resourceData.urls.isNotEmpty()) {
             row {
                 label(AspireBundle.message("service.tab.dashboard.endpoints")).bold()
@@ -139,7 +156,9 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
                 }
             separator()
         }
+    }
 
+    private fun Panel.addProperties(resourceData: AspireResource) {
         row {
             label(AspireBundle.message("service.tab.dashboard.properties")).bold()
         }.bottomGap(BottomGap.SMALL)
@@ -194,7 +213,9 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             row(AspireBundle.message("service.tab.dashboard.properties.container.args")) { copyableLabel(it) }
         }
         separator()
+    }
 
+    private fun Panel.addVolumes(resourceData: AspireResource) {
         if (resourceData.volumes.isNotEmpty()) {
             row {
                 label(AspireBundle.message("service.tab.dashboard.volumes")).bold()
@@ -216,7 +237,9 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
                 }
             separator()
         }
+    }
 
+    private fun Panel.addEnvironmentVariables(resourceData: AspireResource) {
         if (resourceData.environment.isNotEmpty()) {
             row {
                 label(AspireBundle.message("service.tab.dashboard.environment")).bold()
@@ -227,5 +250,10 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
                 }
             }
         }
+    }
+
+    private fun <T> takeProperty(property: AspireResource.AspireResourceProperty<T>?): T? {
+        val showSensitive = AspireSettings.getInstance().showSensitiveProperties
+        return property?.takeIf { showSensitive || !it.isSensitive }?.value
     }
 }
