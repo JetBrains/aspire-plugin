@@ -6,7 +6,7 @@ class AspireSettingsState : BaseState() {
     var doNotLaunchBrowserForProjects by property(false)
     var connectToDatabase by property(true)
     var checkResourceNameForDatabase by property(false)
-    var showSensitiveProperties by property(false)
+    var showSensitiveProperties by property(true)
     var showEnvironmentVariables by property(true)
     var openConsoleView by property(false)
 }
