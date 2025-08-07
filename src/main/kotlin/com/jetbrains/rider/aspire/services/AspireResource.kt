@@ -87,6 +87,8 @@ class AspireResource(
         private set
     var containerLifetime: AspireResourceProperty<String>? = null
         private set
+    var connectionString: AspireResourceProperty<String>? = null
+        private set
 
     var commands: Array<ResourceCommand>
         private set
@@ -224,6 +226,12 @@ class AspireResource(
                 "container.lifetime" -> {
                     property.value?.let {
                         containerLifetime = AspireResourceProperty(it, property.isSensitive == true)
+                    }
+                }
+
+                "resource.connectionString" -> {
+                    property.value?.let {
+                        connectionString = AspireResourceProperty(it, property.isSensitive == true)
                     }
                 }
             }
