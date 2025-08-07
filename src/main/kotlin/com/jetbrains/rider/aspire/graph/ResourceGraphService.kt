@@ -60,7 +60,7 @@ class ResourceGraphService(private val project: Project) {
         resource.displayName,
         getBaseIcon(
             resource.type,
-            resource.containerImage
+            resource.containerImage?.value
         )
     )
 

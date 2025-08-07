@@ -30,22 +30,22 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
         if (!AspireSettings.getInstance().connectToDatabase) return
 
         if (resource.type == ResourceType.Container && resource.state == ResourceState.Running) {
-            val containerId = resource.containerId ?: return
-            val resourceType = getType(resource.name, resource.containerImage) ?: return
+            val containerId = resource.containerId?.value ?: return
+            val resourceType = getType(resource.name, resource.containerImage?.value) ?: return
             val urls = resource.urls
                 .mapNotNull { url ->
                     runCatching { URI(url.fullUrl) }.getOrNull()
                         ?.let { DatabaseResourceUrl(url.endpointName ?: "", it, url.isInternal) }
                 }
             if (urls.isEmpty()) return
-            val isPersistent = resource.containerLifetime.equals("persistent", true)
+            val isPersistent = resource.containerLifetime?.value.equals("persistent", true)
 
             val databaseResource = DatabaseResource(
                 resource.name,
                 containerId,
                 resourceType,
                 urls,
-                resource.containerPorts,
+                resource.containerPorts?.value,
                 isPersistent,
                 resource.lifetime
             )

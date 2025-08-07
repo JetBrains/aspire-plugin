@@ -13,7 +13,7 @@ import icons.RiderIcons
 import javax.swing.Icon
 
 internal fun getIcon(aspireResource: AspireResource): Icon {
-    val baseIcon = getBaseIcon(aspireResource.type, aspireResource.containerImage)
+    val baseIcon = getBaseIcon(aspireResource.type, aspireResource.containerImage?.value)
 
     val icon = when (aspireResource.state) {
         ResourceState.FailedToStart -> BadgeIconSupplier(baseIcon).errorIcon
