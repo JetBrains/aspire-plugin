@@ -47,11 +47,11 @@ import kotlin.time.Duration.Companion.milliseconds
  * so we have to "fix" the connection string.
  */
 @Service(Service.Level.PROJECT)
-class ResourceDatabaseConnectionService(private val project: Project, scope: CoroutineScope) {
+class DatabaseResourceConnectionService(private val project: Project, scope: CoroutineScope) {
     companion object {
-        fun getInstance(project: Project): ResourceDatabaseConnectionService = project.service()
+        fun getInstance(project: Project): DatabaseResourceConnectionService = project.service()
 
-        private val LOG = logger<ResourceDatabaseConnectionService>()
+        private val LOG = logger<DatabaseResourceConnectionService>()
 
         private const val REDIS_CONNECTION_STRING_PATTERN =
             "(?<host>\\w*):(?<port>\\d*)(,user=(?<user>\\w*))?(,password=(?<password>\\w*))?"

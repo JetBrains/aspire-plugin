@@ -78,7 +78,7 @@
     <projectListeners>
         <listener class="com.jetbrains.rider.aspire.databases.DatabaseResourceListener"
                   topic="com.jetbrains.rider.aspire.services.ResourceListener"/>
-        <listener class="com.jetbrains.rider.aspire.databases.ResourceDatabaseConnectionService$DataSourceListener"
+        <listener class="com.jetbrains.rider.aspire.databases.DatabaseResourceConnectionService$DataSourceListener"
                   topic="com.intellij.database.dataSource.DataSourceStorage$Listener"/>
         <listener class="com.jetbrains.rider.aspire.worker.AspireWorkerManager$RunListener"
                   topic="com.intellij.execution.RunManagerListener"/>
