@@ -113,16 +113,31 @@ class AspireHost(
 
     override fun getViewDescriptor(project: Project) = descriptor
 
-    override fun getServices(project: Project) = getResources(true)
+    override fun getServices(project: Project) = getParentResources()
 
     override fun getServiceDescriptor(project: Project, aspireResource: AspireResource) =
-        aspireResource.getViewDescriptor()
+        aspireResource.getViewDescriptor(project)
 
-    fun getResources(filterUnknown: Boolean) = buildList {
-        for (resource in resources) {
-            if (!resource.value.isHidden && resource.value.state != ResourceState.Hidden && (!filterUnknown || resource.value.type != ResourceType.Unknown)) {
-                add(resource.value)
-            }
+    fun getResources() = buildList {
+        for (resource in resources.values) {
+            if (resource.isHidden || resource.state == ResourceState.Hidden) continue
+            add(resource)
+        }
+    }.sortedWith(compareBy({ it.type }, { it.name }))
+
+    fun getParentResources() = buildList {
+        for (resource in resources.values) {
+            if (resource.isHidden || resource.state == ResourceState.Hidden) continue
+            val parentResourceName = resource.parentResourceName
+            if (parentResourceName == null) add(resource)
+        }
+    }.sortedWith(compareBy({ it.type }, { it.name }))
+
+    fun getChildResourcesFor(resourceName: String) = buildList {
+        for (resource in resources.values) {
+            if (resource.isHidden || resource.state == ResourceState.Hidden) continue
+            val parentResourceName = resource.parentResourceName
+            if (parentResourceName == resourceName) add(resource)
         }
     }.sortedWith(compareBy({ it.type }, { it.name }))
 
