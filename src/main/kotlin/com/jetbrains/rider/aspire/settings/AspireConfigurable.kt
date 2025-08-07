@@ -18,16 +18,6 @@ class AspireConfigurable : BoundConfigurable(AspireBundle.message("configurable.
             checkBox(AspireBundle.message("configurable.Aspire.do.not.launch.browser"))
                 .bindSelected(settings::doNotLaunchBrowserForProjects)
         }
-        group(AspireBundle.message("configurable.Aspire.databases")) {
-            row {
-                connectToDatabase = checkBox(AspireBundle.message("configurable.Aspire.connect.to.database"))
-                    .bindSelected(settings::connectToDatabase)
-            }
-            row {
-                checkBox(AspireBundle.message("configurable.Aspire.check.resource.name.for.database"))
-                    .bindSelected(settings::checkResourceNameForDatabase)
-            }.enabledIf(connectToDatabase.selected)
-        }
         group(AspireBundle.message("configurable.Aspire.dashboard")) {
             row {
                 checkBox(AspireBundle.message("configurable.Aspire.show.sensitive.properties"))
@@ -41,6 +31,16 @@ class AspireConfigurable : BoundConfigurable(AspireBundle.message("configurable.
                 checkBox(AspireBundle.message("configurable.Aspire.open.console.view"))
                     .bindSelected(settings::openConsoleView)
             }
+        }
+        group(AspireBundle.message("configurable.Aspire.databases")) {
+            row {
+                connectToDatabase = checkBox(AspireBundle.message("configurable.Aspire.connect.to.database"))
+                    .bindSelected(settings::connectToDatabase)
+            }
+            row {
+                checkBox(AspireBundle.message("configurable.Aspire.check.resource.name.for.database"))
+                    .bindSelected(settings::checkResourceNameForDatabase)
+            }.enabledIf(connectToDatabase.selected)
         }
     }
 }
