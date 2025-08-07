@@ -146,7 +146,7 @@ class AspireHostExecutorFactory(
         envs: MutableMap<String, String>,
         activeRuntime: DotNetCoreRuntime
     ): EnvironmentVariableValues {
-        val aspireWorker = AspireWorkerManager.getInstance(project).getOrStartAspireWorker()
+        val aspireWorker = AspireWorkerManager.getInstance(project).startAspireWorker()
 
         //Switch DCP to the IDE mode
         //see: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#enabling-ide-execution

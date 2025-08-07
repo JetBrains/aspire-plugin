@@ -21,6 +21,16 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import kotlin.io.path.div
 
+/**
+ * Service responsible for launching an Aspire worker.
+ *
+ * The worker is launched as an external .NET process.
+ * It acts like a proxy between the plugin and aspire services.
+ * It receives commands from DCP to run/debug projects, sends project logs back,
+ * connects to the resource-endpoint, and converts everything to the RD model.
+ *
+ * @see <a href="https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md">.NET Aspire IDE execution</a>
+ */
 @Service(Service.Level.PROJECT)
 class AspireWorkerLauncher() {
     companion object {
@@ -41,6 +51,12 @@ class AspireWorkerLauncher() {
         basePath / "aspire-worker" / "aspire-worker.dll"
     }
 
+    /**
+     * Launches the Aspire worker process with the specified configuration and lifetime management.
+     *
+     * @param config The configuration parameters for the Aspire worker, such as port details, session details, and HTTPS usage.
+     * @param lifetime The lifetime definition to control the lifecycle of the Aspire worker process, ensuring proper termination and cleanup.
+     */
     fun launchWorker(config: AspireWorkerConfig, lifetime: LifetimeDefinition) {
         LOG.info("Starting Aspire worker")
 

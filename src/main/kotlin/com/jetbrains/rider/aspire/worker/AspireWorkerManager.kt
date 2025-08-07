@@ -21,6 +21,10 @@ import com.jetbrains.rider.aspire.services.AspireWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlin.io.path.Path
 
+/**
+ * Manages the lifecycle of an `AspireWorker` within a project.
+ * This service is responsible for starting, stopping, and updating the state of the `AspireWorker`.
+ */
 @Service(Service.Level.PROJECT)
 class AspireWorkerManager(private val project: Project, scope: CoroutineScope) : LifetimedService() {
     companion object {
@@ -35,23 +39,26 @@ class AspireWorkerManager(private val project: Project, scope: CoroutineScope) :
         Disposer.register(this, aspireWorker)
     }
 
-    fun getAspireWorkers(): List<AspireWorker> {
-        if (!aspireWorker.hasAspireHosts) return emptyList()
-        return listOf(aspireWorker)
-    }
-
-    suspend fun getOrStartAspireWorker(): AspireWorker {
+    /**
+     * Starts the Aspire worker.
+     *
+     * @return The instance of the `AspireWorker` that has been started.
+     */
+    suspend fun startAspireWorker(): AspireWorker {
         LOG.trace("Starting Aspire worker")
         aspireWorker.start()
         return aspireWorker
     }
 
+    /**
+     * Stops the Aspire worker.
+     */
     suspend fun stopAspireWorker() {
         LOG.trace("Stopping Aspire worker")
         aspireWorker.stop()
     }
 
-    fun addAspireHost(projectFilePath: String) {
+    private fun addAspireHost(projectFilePath: String) {
         val hasAspireHosts = aspireWorker.hasAspireHosts
         aspireWorker.addAspireHostProject(Path(projectFilePath))
         if (!hasAspireHosts) {
@@ -59,7 +66,7 @@ class AspireWorkerManager(private val project: Project, scope: CoroutineScope) :
         }
     }
 
-    fun removeAspireHost(projectFilePath: String) {
+    private fun removeAspireHost(projectFilePath: String) {
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
         val configurations = RunManager.getInstance(project)
             .getConfigurationsList(configurationType)

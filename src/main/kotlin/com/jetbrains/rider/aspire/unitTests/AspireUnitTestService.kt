@@ -51,7 +51,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
         scope.launch(Dispatchers.Default) {
             lifetimedCoroutineScope(lifetime) {
                 LOG.trace("Starting an Aspire host for a unit test session")
-                val aspireWorker = AspireWorkerManager.getInstance(project).getOrStartAspireWorker()
+                val aspireWorker = AspireWorkerManager.getInstance(project).startAspireWorker()
 
                 val debugSessionToken = requireNotNull(aspireWorker.debugSessionToken)
                 val debugSessionPort = requireNotNull(aspireWorker.debugSessionPort)

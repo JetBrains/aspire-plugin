@@ -14,7 +14,7 @@ class StartAspireWorkerAction : AnAction() {
         val project = event.project ?: return
         val manager = AspireWorkerManager.getInstance(project)
         currentThreadCoroutineScope().launch(Dispatchers.Default) {
-            manager.getOrStartAspireWorker()
+            manager.startAspireWorker()
         }
     }
 }

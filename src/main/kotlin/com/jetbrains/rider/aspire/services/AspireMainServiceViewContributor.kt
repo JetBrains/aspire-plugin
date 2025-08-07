@@ -11,8 +11,10 @@ class AspireMainServiceViewContributor : ServiceViewContributor<AspireWorker>, S
     override fun getViewDescriptor(project: Project) =
         SimpleServiceViewDescriptor(".NET Aspire", AspireIcons.Service)
 
-    override fun getServices(project: Project) =
-        AspireWorkerManager.getInstance(project).getAspireWorkers()
+    override fun getServices(project: Project): List<AspireWorker> {
+        val worker = AspireWorkerManager.getInstance(project).aspireWorker
+        return if (worker.hasAspireHosts) listOf(worker) else emptyList()
+    }
 
     override fun getServiceDescriptor(project: Project, service: AspireWorker) =
         service.getViewDescriptor(project)
