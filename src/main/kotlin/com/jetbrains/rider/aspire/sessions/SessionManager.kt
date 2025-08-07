@@ -1,6 +1,9 @@
 package com.jetbrains.rider.aspire.sessions
 
-import com.intellij.execution.process.*
+import com.intellij.execution.process.ProcessEvent
+import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.process.ProcessListener
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -90,10 +93,6 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.isAspireHostUnderDebug,
             command.aspireHostRunConfigName
         )
-
-        project.messageBus
-            .syncPublisher(SessionListener.TOPIC)
-            .sessionCreated(command, sessionLifetimeDefinition.lifetime)
     }
 
     private suspend fun handleDeleteCommand(command: DeleteSessionCommand) {

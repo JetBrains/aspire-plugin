@@ -7,7 +7,8 @@ data class DatabaseResource(
     val name: String,
     val containerId: String,
     val type: DatabaseType,
-    val urls: List<DatabaseResourceUrl>,
+    val connectionString: String,
+    val urls: List<URI>,
     val containerPorts: String?,
     val isPersistent: Boolean,
     val resourceLifetime: Lifetime
@@ -16,5 +17,3 @@ data class DatabaseResource(
 enum class DatabaseType {
     POSTGRES, MYSQL, MSSQL, ORACLE, MONGO, REDIS
 }
-
-data class DatabaseResourceUrl(val name: String, val uri: URI, val isInternal: Boolean)

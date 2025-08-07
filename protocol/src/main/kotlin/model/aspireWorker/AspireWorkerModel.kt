@@ -72,6 +72,10 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
             +"Project"
             +"Container"
             +"Executable"
+            +"MongoDB"
+            +"MySql"
+            +"Postgres"
+            +"SqlServer"
             +"Unknown"
         })
         field("displayName", string)

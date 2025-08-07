@@ -39,14 +39,12 @@ import kotlin.time.Duration.Companion.milliseconds
 /**
  * Service for managing database connections and associated Aspire resources.
  *
- * This service attempts
- * to create a new [LocalDataSource] based on the provided [DatabaseResource] and [SessionConnectionString].
+ * This service attempts to create a new [LocalDataSource] based on the provided [DatabaseResource].
  *
- * 1. The service tries to use the internal ports of [DatabaseResource],
- * as they remain the same for persistent resources.
- * 2. If a [LocalDataSource] has been created, the service attempts to connect to it.
- * 3. If the [DatabaseResource] is not persistent,
- * the created [LocalDataSource] will be deleted when the lifetime of the resource terminates.
+ * It tries to "fix" the original resource connection string by the container ports.
+ * Aspire often uses proxy for the resource ports, and so they change after each restart.
+ * For persistent resources we don't want to recreate the data sources each time,
+ * so we have to "fix" the connection string.
  */
 @Service(Service.Level.PROJECT)
 class ResourceDatabaseConnectionService(private val project: Project, scope: CoroutineScope) {
@@ -67,7 +65,7 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
 
     private val connectionManager = ConnectionManager(project)
 
-    private val connectionToProcess = MutableSharedFlow<Pair<SessionConnectionString, DatabaseResource>>(
+    private val databaseResourcesToProcess = MutableSharedFlow<DatabaseResource>(
         onBufferOverflow = BufferOverflow.SUSPEND,
         extraBufferCapacity = 100
     )
@@ -78,79 +76,84 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
 
     init {
         scope.launch {
-            connectionToProcess.collect { process(it.first, it.second) }
+            databaseResourcesToProcess.collect { process(it) }
         }
         scope.launch {
             createdDataSources.collect { connectToDataSource(it) }
         }
     }
 
-    suspend fun processConnection(connectionString: SessionConnectionString, databaseResource: DatabaseResource) {
-        connectionToProcess.emit(connectionString to databaseResource)
+    fun processDatabaseResource(databaseResource: DatabaseResource) {
+        databaseResourcesToProcess.tryEmit(databaseResource)
     }
 
-    private suspend fun process(connectionString: SessionConnectionString, databaseResource: DatabaseResource) {
+    private suspend fun process(databaseResource: DatabaseResource) {
         if (databaseResource.resourceLifetime.isNotAlive) return
 
-        val modifiedConnectionString = modifyConnectionString(connectionString, databaseResource)
+        val modifyConnectionStringResult = modifyConnectionString(databaseResource)
 
-        LOG.trace { "Processing connection string $connectionString for $databaseResource" }
+        //If the connection string wasn't modified, use the resource one
+        val connectionString = modifyConnectionStringResult.getOrDefault(databaseResource.connectionString)
 
-        if (connectionStrings.putIfAbsent(modifiedConnectionString, Unit) != null) {
-            LOG.trace { "Connection string $modifiedConnectionString is already in use" }
+        LOG.trace { "Processing connection string for $databaseResource" }
+
+        if (connectionStrings.putIfAbsent(connectionString, Unit) != null) {
+            LOG.trace { "Connection string $connectionString is already in use" }
             return
         }
 
         try {
-            createDataSource(databaseResource, modifiedConnectionString, connectionString)
+            createDataSource(connectionString, modifyConnectionStringResult.isSuccess, databaseResource)
         } catch (ce: CancellationException) {
-            connectionStrings.remove(modifiedConnectionString)
-            LOG.trace { "Connecting with $modifiedConnectionString was cancelled" }
+            connectionStrings.remove(connectionString)
+            LOG.trace { "Connecting with $connectionString was cancelled" }
             throw ce
         } catch (e: Exception) {
-            LOG.warn("Unable to connect to database $modifiedConnectionString", e)
-            connectionStrings.remove(modifiedConnectionString)
+            LOG.warn("Unable to connect to database $connectionString", e)
+            connectionStrings.remove(connectionString)
         }
     }
 
     private suspend fun createDataSource(
-        databaseResource: DatabaseResource,
-        modifiedConnectionString: String,
-        connectionString: SessionConnectionString
+        connectionString: String,
+        connectionStringWasModified: Boolean,
+        databaseResource: DatabaseResource
     ) {
         val dataProvider = getDataProvider(databaseResource.type)
         val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
         if (driver == null) {
             LOG.info("Unable to guess database driver")
-            connectionStrings.remove(modifiedConnectionString)
+            connectionStrings.remove(connectionString)
             return
         }
 
-        val url = getConnectionUrl(modifiedConnectionString, databaseResource, dataProvider, driver)
+        val url = getConnectionUrl(connectionString, databaseResource, dataProvider, driver)
         if (url == null) {
-            LOG.info("Unable to convert $modifiedConnectionString to url")
-            connectionStrings.remove(modifiedConnectionString)
+            LOG.info("Unable to convert $connectionString to url")
+            connectionStrings.remove(connectionString)
             return
         }
-        urlToConnectionStrings[url] = modifiedConnectionString
+        urlToConnectionStrings[url] = connectionString
 
         val dataSourceManager = LocalDataSourceManager.getInstance(project)
-        val createdDataSource = if (dataSourceManager.dataSources.any { it.url == url }) {
+        if (dataSourceManager.dataSources.any { it.url == url }) {
             LOG.trace { "Data source with $url is already in use" }
-            null
-        } else {
-            LOG.trace { "Creating a new data source with $url" }
-            val dataSource = LocalDataSource.fromDriver(driver, url, true).apply {
-                name = connectionString.connectionName
-                isAutoSynchronize = true
-            }
-            withContext(Dispatchers.EDT) {
-                dataSourceManager.addDataSource(dataSource)
-            }
-            dataSource
+            return
         }
 
-        if (!databaseResource.isPersistent && createdDataSource != null) {
+        LOG.trace { "Creating a new data source with $url" }
+        val createdDataSource = LocalDataSource.fromDriver(driver, url, true).apply {
+            name = databaseResource.name
+            isAutoSynchronize = true
+        }
+        withContext(Dispatchers.EDT) {
+            dataSourceManager.addDataSource(createdDataSource)
+        }
+
+        // If we use the original resource connection string, or it is not a persistent resource,
+        // the ports will be different after the aspire restart.
+        // So for such resources we have to remove old data sources and recreate them after each start.
+        if (!connectionStringWasModified || !databaseResource.isPersistent) {
             databaseResource.resourceLifetime.onTerminationIfAlive {
                 LOG.trace { "Removing data source $url" }
                 application.invokeLater {
@@ -159,47 +162,44 @@ class ResourceDatabaseConnectionService(private val project: Project, scope: Cor
             }
         }
 
-        createdDataSource?.let { createdDataSources.tryEmit(it) }
+        createdDataSources.tryEmit(createdDataSource)
     }
 
     //We have to modify the connection string to use the database container ports instead of proxy
     //See also: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/networking-overview
-    private suspend fun modifyConnectionString(
-        connectionString: SessionConnectionString,
-        databaseResource: DatabaseResource
-    ): String {
-        val resourceUrl = databaseResource.urls.find {
-            connectionString.connectionString.contains(it.uri.port.toString())
+    private suspend fun modifyConnectionString(databaseResource: DatabaseResource): Result<String> {
+        val resourceUrl = databaseResource.urls.find { url ->
+            databaseResource.connectionString.contains(url.port.toString())
         }
 
         if (resourceUrl == null) {
-            LOG.warn("Unable to find resource url for ${connectionString.connectionString}")
-            return connectionString.connectionString
+            LOG.warn("Unable to find resource url for ${databaseResource.connectionString}")
+            return Result.failure(IllegalStateException())
         }
 
         val containerPorts = getContainerPorts(databaseResource.containerId)
         if (containerPorts.isEmpty()) {
             LOG.info("Unable to get container ports for ${databaseResource.containerId}")
-            return connectionString.connectionString
+            return Result.failure(IllegalStateException())
         }
         LOG.trace { "Found container ports for ${containerPorts.joinToString()}" }
 
         val resourcePort = getResourcePort(databaseResource)
         if (resourcePort == null) {
             LOG.info("Unable to find resource port for ${databaseResource.containerId}")
-            return connectionString.connectionString
+            return Result.failure(IllegalStateException())
         }
         LOG.trace { "Found resource port $resourcePort" }
 
         val targetPort = containerPorts.firstOrNull { it.second == resourcePort }?.first?.toString()
         if (targetPort == null) {
             LOG.warn("Unable to find a corresponding resource port $resourcePort from container ports")
-            return connectionString.connectionString
+            return Result.failure(IllegalStateException())
         }
 
-        val sourcePort = resourceUrl.uri.port.toString()
+        val sourcePort = resourceUrl.port.toString()
 
-        return connectionString.connectionString.replace(sourcePort, targetPort)
+        return Result.success(databaseResource.connectionString.replace(sourcePort, targetPort))
     }
 
     private suspend fun getContainerPorts(containerId: String): List<Pair<Int?, Int?>> {

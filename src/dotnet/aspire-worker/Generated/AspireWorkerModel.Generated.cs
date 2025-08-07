@@ -67,7 +67,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     
     
-    protected override long SerializationHash => -7701841830578628649L;
+    protected override long SerializationHash => 8292314052904486643L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -108,7 +108,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:214</p>
+  /// <p>Generated from: AspireWorkerModel.kt:218</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
@@ -236,7 +236,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:194</p>
+  /// <p>Generated from: AspireWorkerModel.kt:198</p>
   /// </summary>
   public sealed class AspireHostModelConfig : IPrintable, IEquatable<AspireHostModelConfig>
   {
@@ -1106,7 +1106,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:153</p>
+  /// <p>Generated from: AspireWorkerModel.kt:157</p>
   /// </summary>
   public sealed class ResourceCommand : IPrintable, IEquatable<ResourceCommand>
   {
@@ -1242,7 +1242,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:178</p>
+  /// <p>Generated from: AspireWorkerModel.kt:182</p>
   /// </summary>
   public sealed class ResourceCommandRequest : IPrintable, IEquatable<ResourceCommandRequest>
   {
@@ -1345,7 +1345,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:184</p>
+  /// <p>Generated from: AspireWorkerModel.kt:188</p>
   /// </summary>
   public sealed class ResourceCommandResponse : IPrintable, IEquatable<ResourceCommandResponse>
   {
@@ -1438,7 +1438,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:185</p>
+  /// <p>Generated from: AspireWorkerModel.kt:189</p>
   /// </summary>
   public enum ResourceCommandResponseKind {
     Undefined,
@@ -1449,7 +1449,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:160</p>
+  /// <p>Generated from: AspireWorkerModel.kt:164</p>
   /// </summary>
   public enum ResourceCommandState {
     Enabled,
@@ -1459,7 +1459,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:119</p>
+  /// <p>Generated from: AspireWorkerModel.kt:123</p>
   /// </summary>
   public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
   {
@@ -1554,7 +1554,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:146</p>
+  /// <p>Generated from: AspireWorkerModel.kt:150</p>
   /// </summary>
   public sealed class ResourceHealthReport : IPrintable, IEquatable<ResourceHealthReport>
   {
@@ -1667,7 +1667,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:140</p>
+  /// <p>Generated from: AspireWorkerModel.kt:144</p>
   /// </summary>
   public enum ResourceHealthStatus {
     Healthy,
@@ -1677,7 +1677,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:172</p>
+  /// <p>Generated from: AspireWorkerModel.kt:176</p>
   /// </summary>
   public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
   {
@@ -2020,7 +2020,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:112</p>
+  /// <p>Generated from: AspireWorkerModel.kt:116</p>
   /// </summary>
   public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
   {
@@ -2133,7 +2133,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:167</p>
+  /// <p>Generated from: AspireWorkerModel.kt:171</p>
   /// </summary>
   public sealed class ResourceRelationship : IPrintable, IEquatable<ResourceRelationship>
   {
@@ -2227,7 +2227,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:79</p>
+  /// <p>Generated from: AspireWorkerModel.kt:83</p>
   /// </summary>
   public enum ResourceState {
     Starting,
@@ -2245,7 +2245,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:92</p>
+  /// <p>Generated from: AspireWorkerModel.kt:96</p>
   /// </summary>
   public enum ResourceStateStyle {
     Success,
@@ -2263,12 +2263,16 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     Project,
     Container,
     Executable,
+    MongoDB,
+    MySql,
+    Postgres,
+    SqlServer,
     Unknown
   }
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:124</p>
+  /// <p>Generated from: AspireWorkerModel.kt:128</p>
   /// </summary>
   public sealed class ResourceUrl : IPrintable, IEquatable<ResourceUrl>
   {
@@ -2396,7 +2400,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:133</p>
+  /// <p>Generated from: AspireWorkerModel.kt:137</p>
   /// </summary>
   public sealed class ResourceVolume : IPrintable, IEquatable<ResourceVolume>
   {
