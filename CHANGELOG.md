@@ -12,6 +12,8 @@
 
 - Support for .NET Aspire 9.4
 - Improve adding Aspire orchestration — generate default methods
+- Show parent-child resource relations in the Services dashboard
+- Automatically create data sources for the entire database resource, not the separate databases
 
 ### Fixed
 
