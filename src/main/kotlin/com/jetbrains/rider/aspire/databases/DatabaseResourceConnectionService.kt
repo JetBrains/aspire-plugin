@@ -29,8 +29,8 @@ import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.conv
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.*
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.factories.ConnectionStringsFactory
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.future.await
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
@@ -65,26 +65,24 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
 
     private val connectionManager = ConnectionManager(project)
 
-    private val databaseResourcesToProcess = MutableSharedFlow<DatabaseResource>(
-        onBufferOverflow = BufferOverflow.SUSPEND,
-        extraBufferCapacity = 100
-    )
-    private val createdDataSources = MutableSharedFlow<LocalDataSource>(
-        onBufferOverflow = BufferOverflow.SUSPEND,
-        extraBufferCapacity = 100
-    )
+    private val databaseResourcesToProcess = Channel<DatabaseResource>(capacity = 100)
+    private val createdDataSources = Channel<LocalDataSource>(capacity = 100)
 
     init {
         scope.launch {
-            databaseResourcesToProcess.collect { process(it) }
+            databaseResourcesToProcess.consumeAsFlow().collect { resource ->
+                process(resource)
+            }
         }
         scope.launch {
-            createdDataSources.collect { connectToDataSource(it) }
+            createdDataSources.consumeAsFlow().collect { ds ->
+                connectToDataSource(ds)
+            }
         }
     }
 
     fun processDatabaseResource(databaseResource: DatabaseResource) {
-        databaseResourcesToProcess.tryEmit(databaseResource)
+        databaseResourcesToProcess.trySend(databaseResource)
     }
 
     private suspend fun process(databaseResource: DatabaseResource) {
@@ -162,7 +160,7 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
             }
         }
 
-        createdDataSources.tryEmit(createdDataSource)
+        createdDataSources.trySend(createdDataSource)
     }
 
     //We have to modify the connection string to use the database container ports instead of proxy
