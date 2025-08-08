@@ -49,9 +49,10 @@ internal fun getBaseIcon(type: ResourceType, containerImage: String?) = when (ty
         else -> DockerIcons.Docker
     }
 
-    ResourceType.MongoDB -> AllIcons.Providers.MongoDB
-    ResourceType.MySql -> AllIcons.Providers.Mysql
-    ResourceType.Postgres -> AllIcons.Providers.Postgresql
+    ResourceType.Postgres ->  AllIcons.Providers.Postgresql
     ResourceType.SqlServer -> AllIcons.Providers.SqlServer
-    ResourceType.Unknown -> AllIcons.RunConfigurations.Application
+    ResourceType.MySql -> AllIcons.Providers.Mysql
+    ResourceType.MongoDB -> AllIcons.Providers.MongoDB
+
+    ResourceType.Unknown -> AllIcons.FileTypes.Unknown
 }

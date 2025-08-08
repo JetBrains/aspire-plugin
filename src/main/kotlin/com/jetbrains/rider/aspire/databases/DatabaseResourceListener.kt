@@ -1,5 +1,7 @@
 package com.jetbrains.rider.aspire.databases
 
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
@@ -10,6 +12,8 @@ import java.net.URI
 
 class DatabaseResourceListener(private val project: Project) : ResourceListener {
     companion object {
+        private val LOG = logger<DatabaseResourceListener>()
+
         private const val POSTGRES = "postgres"
         private const val MYSQL = "mysql"
         private const val MSSQL = "mssql"
@@ -48,15 +52,13 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
             resource.lifetime
         )
 
+        LOG.trace { "Created database resource: $databaseResource" }
+
         DatabaseResourceConnectionService.getInstance(project).processDatabaseResource(databaseResource)
     }
 
     private fun findDatabaseType(resourceName: String, resourceType: ResourceType, image: String?): DatabaseType? {
         return when (resourceType) {
-            ResourceType.MongoDB -> DatabaseType.MONGO
-            ResourceType.MySql -> DatabaseType.MYSQL
-            ResourceType.Postgres -> DatabaseType.POSTGRES
-            ResourceType.SqlServer -> DatabaseType.MSSQL
             ResourceType.Container -> {
                 if (image != null) {
                     val databaseTypeByImage = findDatabaseType(image)
