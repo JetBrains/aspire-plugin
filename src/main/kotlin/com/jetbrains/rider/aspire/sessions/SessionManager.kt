@@ -25,8 +25,7 @@ import com.jetbrains.rider.model.BuildTarget
 import com.jetbrains.rider.run.pid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -44,20 +43,18 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
     private val sessionLifetimes = ConcurrentHashMap<String, LifetimeDefinition>()
 
-    private val commands = MutableSharedFlow<LaunchSessionCommand>(
-        onBufferOverflow = BufferOverflow.SUSPEND,
-        extraBufferCapacity = 100,
-        replay = 20
-    )
+    private val commands = Channel<LaunchSessionCommand>(Channel.UNLIMITED)
 
     init {
         scope.launch {
-            commands.collect { handleCommand(it) }
+            for (command in commands) {
+                handleCommand(command)
+            }
         }
     }
 
     suspend fun submitCommand(command: LaunchSessionCommand) {
-        commands.emit(command)
+        commands.send(command)
     }
 
     private suspend fun handleCommand(command: LaunchSessionCommand) {
@@ -129,7 +126,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
     private fun createSessionProcessEventListener(
         sessionId: String,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
+        sessionEvents: Channel<SessionEvent>,
         processLifetimeDefinition: LifetimeDefinition
     ): ProcessListener =
         object : ProcessListener {
@@ -145,8 +142,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
                     terminateSession(-1)
                 } else {
                     LOG.trace { "Session $sessionId process id = $pid" }
-                    val eventSendingResult = sessionEvents.tryEmit(SessionStarted(sessionId, pid))
-                    if (!eventSendingResult) {
+                    val eventSendingResult = sessionEvents.trySend(SessionStarted(sessionId, pid))
+                    if (!eventSendingResult.isSuccess) {
                         LOG.warn("Unable to send an event for session $sessionId start")
                     }
                 }
@@ -154,8 +151,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
                 val isStdErr = outputType == ProcessOutputType.STDERR
-                val eventSendingResult = sessionEvents.tryEmit(SessionLogReceived(sessionId, isStdErr, event.text))
-                if (!eventSendingResult) {
+                val eventSendingResult = sessionEvents.trySend(SessionLogReceived(sessionId, isStdErr, event.text))
+                if (!eventSendingResult.isSuccess) {
                     LOG.warn("Unable to send an event for session $sessionId log")
                 }
             }
@@ -172,8 +169,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
             private fun terminateSession(exitCode: Int) {
                 LOG.trace { "Terminating session $sessionId with exitCode $exitCode" }
-                val eventSendingResult = sessionEvents.tryEmit(SessionTerminated(sessionId, exitCode))
-                if (!eventSendingResult) {
+                val eventSendingResult = sessionEvents.trySend(SessionTerminated(sessionId, exitCode))
+                if (!eventSendingResult.isSuccess) {
                     LOG.warn("Unable to send an event for session $sessionId termination")
                 }
                 if (processLifetimeDefinition.isAlive) {
@@ -190,7 +187,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
     data class CreateSessionCommand(
         val sessionId: String,
         val createSessionRequest: CreateSessionRequest,
-        val sessionEvents: MutableSharedFlow<SessionEvent>,
+        val sessionEvents: Channel<SessionEvent>,
         val isAspireHostUnderDebug: Boolean,
         val aspireHostRunConfigName: String?,
         val aspireHostLifetime: Lifetime

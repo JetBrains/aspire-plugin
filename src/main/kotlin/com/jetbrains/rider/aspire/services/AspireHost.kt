@@ -32,7 +32,7 @@ import com.jetbrains.rider.run.createConsole
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import java.nio.file.Path
 import java.util.*
@@ -158,11 +158,7 @@ class AspireHost(
         setAspireHostUrl(model.config)
         setOTLPEndpointUrl(model.config, aspireHostLifetime)
 
-        val sessionEvents = MutableSharedFlow<SessionEvent>(
-            onBufferOverflow = BufferOverflow.DROP_OLDEST,
-            extraBufferCapacity = 100,
-            replay = 20
-        )
+        val sessionEvents = Channel<SessionEvent>(Channel.UNLIMITED)
 
         scope.launch(Dispatchers.EDT) {
             model.createSession.setSuspend { _, request ->
@@ -174,8 +170,8 @@ class AspireHost(
             }
 
             lifetimedCoroutineScope(aspireHostLifetime) {
-                sessionEvents.collect {
-                    handleSessionEvent(it, model)
+                for (event in sessionEvents) {
+                    handleSessionEvent(event, model)
                 }
             }
         }
@@ -187,7 +183,7 @@ class AspireHost(
 
     private suspend fun createSession(
         createSessionRequest: CreateSessionRequest,
-        sessionEvents: MutableSharedFlow<SessionEvent>,
+        sessionEvents: Channel<SessionEvent>,
         aspireHostConfig: AspireHostModelConfig,
         aspireHostLifetime: Lifetime
     ): CreateSessionResponse {
