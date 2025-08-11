@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Some actions are missing in the resource dashboard
+
+## [1.8.7] - 2025-08-11
+
 ### Added
 
 - [#262](https://github.com/JetBrains/aspire-plugin/issues/262) Better Notification When Docker Daemon is not started
@@ -461,7 +467,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.6...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.7...HEAD
+[1.8.7]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.6...v1.8.7
 [1.8.6]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.5...v1.8.6
 [1.8.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.4...v1.8.5
 [1.8.4]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.3...v1.8.4
