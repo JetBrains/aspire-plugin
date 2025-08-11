@@ -146,7 +146,7 @@ class AspireHost(
             if (resource.value.type != ResourceType.Project || resource.value.isHidden || resource.value.state == ResourceState.Hidden)
                 continue
 
-            if (resource.value.projectPath == projectPath) return resource.value
+            if (resource.value.projectPath?.value == projectPath) return resource.value
         }
 
         return null
@@ -316,7 +316,7 @@ class AspireHost(
 
     private fun setProfileDataForResource(resource: AspireResource) {
         val projectPath = resource.projectPath ?: return
-        val profileData = resourceProfileData.values.firstOrNull { it.projectPath == projectPath } ?: return
+        val profileData = resourceProfileData.values.firstOrNull { it.projectPath == projectPath.value } ?: return
         resource.setProfileData(profileData)
     }
 
@@ -326,7 +326,7 @@ class AspireHost(
         resourceProfileData[profile.sessionId] = profileData
 
         resources.values
-            .filter { it.projectPath == profileData.projectPath }
+            .filter { it.projectPath?.value == profileData.projectPath }
             .forEach { it.setProfileData(profileData) }
     }
 
