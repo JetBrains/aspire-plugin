@@ -30,7 +30,6 @@ import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.data
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.factories.ConnectionStringsFactory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.future.await
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
@@ -61,31 +60,33 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
     private val rawConnectionStringTypes = listOf(DatabaseType.MSSQL, DatabaseType.MONGO)
 
     private val connectionStrings = ConcurrentHashMap<String, Unit>()
-    private val urlToConnectionStrings = ConcurrentHashMap<String, String>()
+    private val urlToConnectionString = ConcurrentHashMap<String, String>()
 
     private val connectionManager = ConnectionManager(project)
 
-    private val databaseResourcesToProcess = Channel<DatabaseResource>(capacity = 100)
-    private val createdDataSources = Channel<LocalDataSource>(capacity = 100)
+    private val connectionCommands = Channel<DatabaseResourceConnectionCommand>(Channel.UNLIMITED)
+    private val createdDataSources = Channel<LocalDataSource>(Channel.UNLIMITED)
 
     init {
         scope.launch {
-            databaseResourcesToProcess.consumeAsFlow().collect { resource ->
-                process(resource)
+            for (command in connectionCommands) {
+                when (command) {
+                    is AddDatabaseResourceConnection -> addConnection(command.resource)
+                }
             }
         }
         scope.launch {
-            createdDataSources.consumeAsFlow().collect { ds ->
+            for (ds in createdDataSources) {
                 connectToDataSource(ds)
             }
         }
     }
 
-    fun processDatabaseResource(databaseResource: DatabaseResource) {
-        databaseResourcesToProcess.trySend(databaseResource)
+    fun sendConnectionCommand(command: DatabaseResourceConnectionCommand) {
+        connectionCommands.trySend(command)
     }
 
-    private suspend fun process(databaseResource: DatabaseResource) {
+    private suspend fun addConnection(databaseResource: DatabaseResource) {
         if (databaseResource.resourceLifetime.isNotAlive) return
 
         val modifyConnectionStringResult = modifyConnectionString(databaseResource)
@@ -131,7 +132,8 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
             connectionStrings.remove(connectionString)
             return
         }
-        urlToConnectionStrings[url] = connectionString
+
+        urlToConnectionString[url] = connectionString
 
         val dataSourceManager = LocalDataSourceManager.getInstance(project)
         if (dataSourceManager.dataSources.any { it.url == url }) {
@@ -327,9 +329,12 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
 
     private fun removeConnectionStringByUrl(url: String?) {
         if (url == null) return
-        val connectionString = urlToConnectionStrings.remove(url) ?: return
+        val connectionString = urlToConnectionString.remove(url) ?: return
         connectionStrings.remove(connectionString)
     }
+
+    sealed interface DatabaseResourceConnectionCommand
+    data class AddDatabaseResourceConnection(val resource: DatabaseResource) : DatabaseResourceConnectionCommand
 
     class DataSourceListener(private val project: Project) : DataSourceStorage.Listener {
         override fun dataSourceRemoved(dataSource: LocalDataSource) {

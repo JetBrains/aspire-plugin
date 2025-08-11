@@ -32,45 +32,44 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
 
     private fun applyChanges(resource: AspireResource) {
         if (!AspireSettings.getInstance().connectToDatabase) return
-        if (resource.state != ResourceState.Running) return
-
-        val containerId = resource.containerId?.value ?: return
-        val resourceType = findDatabaseType(resource.name, resource.type, resource.containerImage?.value) ?: return
+        if (resource.type != ResourceType.Container) return
         val connectionString = resource.connectionString?.value ?: return
-        val urls = resource.urls.mapNotNull { url -> runCatching { URI(url.fullUrl) }.getOrNull() }
-        if (urls.isEmpty()) return
-        val isPersistent = resource.containerLifetime?.value.equals("persistent", true)
 
-        val databaseResource = DatabaseResource(
-            resource.displayName,
-            containerId,
-            resourceType,
-            connectionString,
-            urls,
-            resource.containerPorts?.value,
-            isPersistent,
-            resource.lifetime
-        )
+        if (resource.state == ResourceState.Running) {
+            val containerId = resource.containerId?.value ?: return
+            val resourceType = findDatabaseType(resource.name, resource.containerImage?.value) ?: return
+            val urls = resource.urls.mapNotNull { url -> runCatching { URI(url.fullUrl) }.getOrNull() }
+            if (urls.isEmpty()) return
+            val isPersistent = resource.containerLifetime?.value.equals("persistent", true)
 
-        LOG.trace { "Created database resource: $databaseResource" }
+            val databaseResource = DatabaseResource(
+                resource.displayName,
+                containerId,
+                resourceType,
+                connectionString,
+                urls,
+                resource.containerPorts?.value,
+                isPersistent,
+                resource.lifetime
+            )
 
-        DatabaseResourceConnectionService.getInstance(project).processDatabaseResource(databaseResource)
+            LOG.trace { "Created database resource: $databaseResource" }
+
+            val command = DatabaseResourceConnectionService.AddDatabaseResourceConnection(databaseResource)
+            DatabaseResourceConnectionService.getInstance(project).sendConnectionCommand(command)
+        }
     }
 
-    private fun findDatabaseType(resourceName: String, resourceType: ResourceType, image: String?): DatabaseType? {
-        return when (resourceType) {
-            ResourceType.Container -> {
-                if (image != null) {
-                    val databaseTypeByImage = findDatabaseType(image)
-                    if (databaseTypeByImage != null) {
-                        return databaseTypeByImage
-                    }
-                }
-                if (AspireSettings.getInstance().checkResourceNameForDatabase) findDatabaseType(resourceName)
-                else null
+    private fun findDatabaseType(resourceName: String, resourceImage: String?): DatabaseType? {
+        if (resourceImage != null) {
+            val databaseTypeByImage = findDatabaseType(resourceImage)
+            if (databaseTypeByImage != null) {
+                return databaseTypeByImage
             }
-            else -> null
         }
+
+        return if (AspireSettings.getInstance().checkResourceNameForDatabase) findDatabaseType(resourceName)
+        else null
     }
 
     private fun findDatabaseType(value: String): DatabaseType? {
