@@ -50,6 +50,7 @@ repositories {
 dependencies {
     implementation(libs.serializationJson)
     testImplementation(libs.opentest4j)
+    testImplementation(libs.junit)
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
