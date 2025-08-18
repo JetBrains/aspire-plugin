@@ -184,7 +184,7 @@ jobs:
 
       # Run Qodana inspections
       - name: Qodana - Code Inspection
-        uses: JetBrains/qodana-action@v2025.1
+        uses: JetBrains/qodana-action@v2025.2
         with:
           args: --config,qodana-frontend.yml
           artifact-name: qodana-frontend
@@ -237,7 +237,7 @@ jobs:
 
       # Run Qodana inspections
       - name: Qodana - Code Inspection
-        uses: JetBrains/qodana-action@v2025.1
+        uses: JetBrains/qodana-action@v2025.2
         with:
           args: --config,qodana-backend.yml
           artifact-name: qodana-backend
