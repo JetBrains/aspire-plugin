@@ -23,28 +23,26 @@ internal suspend fun exportCertificate(lifetime: Lifetime, project: Project): St
     val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value ?: return null
     val certificateFile = DotNetSslCerts.getAspNetCoreCertificateFolder().resolve("aspire-worker.crt")
 
-    if (!certificateFile.exists()) {
-        val commandLine = runtime.createCommandLine(
-            listOf(
-                "dev-certs",
-                "https",
-                "--export-path",
-                certificateFile.absolutePathString(),
-                "--format",
-                "PEM"
-            )
+    val commandLine = runtime.createCommandLine(
+        listOf(
+            "dev-certs",
+            "https",
+            "--export-path",
+            certificateFile.absolutePathString(),
+            "--format",
+            "PEM"
         )
-        val exitCode = commandLine.runWithProgress(
-            project,
-            lifetime,
-            RiderWebBundle.message("DotNetSslCerts.progress.title.certificate.export"),
-            LOG
-        ).await()
+    )
+    val exitCode = commandLine.runWithProgress(
+        project,
+        lifetime,
+        RiderWebBundle.message("DotNetSslCerts.progress.title.certificate.export"),
+        LOG
+    ).await()
 
-        if (exitCode != 0 || !certificateFile.exists()) {
-            LOG.info("Failed to export certificate, exitCode=$exitCode")
-            return null
-        }
+    if (exitCode != 0 || !certificateFile.exists()) {
+        LOG.info("Failed to export certificate, exitCode=$exitCode")
+        return null
     }
 
     val text = certificateFile.readText()
@@ -53,6 +51,8 @@ internal suspend fun exportCertificate(lifetime: Lifetime, project: Project): St
     val cleaned = text
         .removePrefix("-----BEGIN CERTIFICATE-----")
         .removeSuffix("-----END CERTIFICATE-----")
+        .lines()
+        .joinToString("")
         .trim()
 
     return cleaned
