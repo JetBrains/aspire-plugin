@@ -6,6 +6,12 @@
 
 ### Fixed
 
+- [#464](https://github.com/JetBrains/aspire-plugin/issues/464) Re-export dotnet dev certificate before each aspire worker run
+
+## [1.8.8] - 2025-08-11
+
+### Fixed
+
 - Some actions are missing in the resource dashboard
 
 ## [1.8.7] - 2025-08-11
@@ -467,7 +473,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.7...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.8.8...HEAD
+[1.8.8]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.7...v1.8.8
 [1.8.7]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.6...v1.8.7
 [1.8.6]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.5...v1.8.6
 [1.8.5]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.4...v1.8.5
