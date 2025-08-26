@@ -132,11 +132,14 @@ class AspireDefaultFileModificationService(private val project: Project) {
 
     private fun createAddProjectMethodsToInsert(projectNames: List<String>) = buildList {
         for (projectName in projectNames.sorted()) {
+            val projectType = projectName.replace('.', '_')
+            val projectResourceName = projectName.replace('.', '-').lowercase()
+
             val methodToInsert = buildString {
                 append("builder.AddProject<Projects.")
-                append(projectName)
+                append(projectType)
                 append(">(\"")
-                append(projectName.lowercase())
+                append(projectResourceName)
                 append("\");")
             }
             add(methodToInsert)
