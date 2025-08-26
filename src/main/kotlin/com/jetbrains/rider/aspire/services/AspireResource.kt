@@ -15,6 +15,8 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.util.parseLogEntry
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -99,6 +101,7 @@ class AspireResource(
     var isUnderDebugger: Boolean? = null
         private set
 
+    private val resourceLogs = Channel<ResourceLog>(Channel.UNLIMITED)
     private val logProcessHandler = object : ProcessHandler() {
         override fun destroyProcessImpl() {}
         override fun detachProcessImpl() {}
@@ -131,6 +134,12 @@ class AspireResource(
         fillFromProperties(model?.properties ?: emptyArray())
 
         commands = model?.commands ?: emptyArray()
+
+        lifetime.coroutineScope.launch {
+            for (resourceLog in resourceLogs) {
+                processResourceLog(resourceLog)
+            }
+        }
 
         modelWrapper.model.advise(lifetime, ::update)
         modelWrapper.logReceived.advise(lifetime, ::logReceived)
@@ -315,6 +324,10 @@ class AspireResource(
     }
 
     private fun logReceived(log: ResourceLog) {
+        resourceLogs.trySend(log)
+    }
+
+    private fun processResourceLog(log: ResourceLog) {
         LOG.trace { "Received log: $log for the resource $uid" }
         val outputType = if (!log.isError) ProcessOutputTypes.STDOUT else ProcessOutputTypes.STDERR
 

@@ -31,7 +31,6 @@ import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import java.nio.file.Path
