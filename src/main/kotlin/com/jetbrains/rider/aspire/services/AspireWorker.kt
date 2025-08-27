@@ -11,7 +11,6 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.application
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.rd.framework.*
@@ -28,7 +27,6 @@ import com.jetbrains.rider.aspire.util.exportCertificate
 import com.jetbrains.rider.aspire.worker.AspireWorkerConfig
 import com.jetbrains.rider.aspire.worker.AspireWorkerLauncher
 import com.jetbrains.rider.util.NetUtils
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -41,7 +39,6 @@ import kotlin.io.path.absolutePathString
 
 class AspireWorker(
     lifetime: Lifetime,
-    private val scope: CoroutineScope,
     private val project: Project
 ) : ServiceViewProvidingContributor<AspireHost, AspireWorker>, Disposable {
     companion object {
@@ -94,6 +91,7 @@ class AspireWorker(
 
             LOG.trace("Starting Aspire worker")
             val workerLifetime = workerLifetimes.next()
+
             val protocol = startAspireWorkerProtocol(workerLifetime.lifetime)
             model = protocol.aspireWorkerModel
 
@@ -177,7 +175,7 @@ class AspireWorker(
 
         LOG.trace { "Adding a new Aspire host ${aspireHostProjectPath.absolutePathString()}" }
 
-        val aspireHost = AspireHost(aspireHostProjectPath, scope.childScope("Aspire Host"), project)
+        val aspireHost = AspireHost(aspireHostProjectPath, project)
         Disposer.register(this, aspireHost)
 
         aspireHosts[aspireHostProjectPath] = aspireHost

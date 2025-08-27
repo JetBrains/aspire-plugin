@@ -12,13 +12,11 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.platform.util.coroutines.childScope
 import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.services.AspireMainServiceViewContributor
 import com.jetbrains.rider.aspire.services.AspireWorker
-import kotlinx.coroutines.CoroutineScope
 import kotlin.io.path.Path
 
 /**
@@ -26,14 +24,14 @@ import kotlin.io.path.Path
  * This service is responsible for starting, stopping, and updating the state of the `AspireWorker`.
  */
 @Service(Service.Level.PROJECT)
-class AspireWorkerManager(private val project: Project, scope: CoroutineScope) : LifetimedService() {
+class AspireWorkerManager(private val project: Project) : LifetimedService() {
     companion object {
         fun getInstance(project: Project) = project.service<AspireWorkerManager>()
 
         private val LOG = logger<AspireWorkerManager>()
     }
 
-    val aspireWorker: AspireWorker = AspireWorker(serviceLifetime, scope.childScope("Aspire Worker"), project)
+    val aspireWorker: AspireWorker = AspireWorker(serviceLifetime.createNested(), project)
 
     init {
         Disposer.register(this, aspireWorker)

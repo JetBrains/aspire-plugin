@@ -15,10 +15,8 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.application
-import com.jetbrains.rd.framework.util.setSuspend
 import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
@@ -29,10 +27,10 @@ import com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProfil
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -42,7 +40,6 @@ import kotlin.io.path.nameWithoutExtension
 
 class AspireHost(
     val hostProjectPath: Path,
-    private val scope: CoroutineScope,
     private val project: Project
 ) : ServiceViewProvidingContributor<AspireResource, AspireHost>, Disposable {
     companion object {
@@ -159,19 +156,17 @@ class AspireHost(
 
         val sessionEvents = Channel<SessionEvent>(Channel.UNLIMITED)
 
-        scope.launch(Dispatchers.EDT) {
-            model.createSession.setSuspend { _, request ->
-                createSession(request, sessionEvents, model.config, aspireHostLifetime)
-            }
+        model.createSession.set { request ->
+            createSession(request, sessionEvents, model.config, aspireHostLifetime)
+        }
 
-            model.deleteSession.setSuspend { _, request ->
-                deleteSession(request)
-            }
+        model.deleteSession.set { request ->
+            deleteSession(request)
+        }
 
-            lifetimedCoroutineScope(aspireHostLifetime) {
-                for (event in sessionEvents) {
-                    handleSessionEvent(event, model)
-                }
+        aspireHostLifetime.coroutineScope.launch {
+            for (event in sessionEvents) {
+                handleSessionEvent(event, model)
             }
         }
 
@@ -180,7 +175,7 @@ class AspireHost(
         }
     }
 
-    private suspend fun createSession(
+    private fun createSession(
         createSessionRequest: CreateSessionRequest,
         sessionEvents: Channel<SessionEvent>,
         aspireHostConfig: AspireHostModelConfig,
@@ -204,7 +199,7 @@ class AspireHost(
         return CreateSessionResponse(sessionId, null)
     }
 
-    private suspend fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
+    private fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
         LOG.trace { "Deleting session with id: ${deleteSessionRequest.sessionId}" }
 
         val command = DeleteSessionCommand(deleteSessionRequest.sessionId)
@@ -214,21 +209,27 @@ class AspireHost(
         return DeleteSessionResponse(deleteSessionRequest.sessionId, null)
     }
 
-    private fun handleSessionEvent(sessionEvent: SessionEvent, model: AspireHostModel) {
+    private suspend fun handleSessionEvent(sessionEvent: SessionEvent, model: AspireHostModel) {
         when (sessionEvent) {
             is SessionStarted -> {
                 LOG.trace { "Aspire session started (${sessionEvent.id}, ${sessionEvent.pid})" }
-                model.processStarted.fire(ProcessStarted(sessionEvent.id, sessionEvent.pid))
+                withContext(Dispatchers.EDT) {
+                    model.processStarted.fire(ProcessStarted(sessionEvent.id, sessionEvent.pid))
+                }
             }
 
             is SessionTerminated -> {
                 LOG.trace { "Aspire session terminated (${sessionEvent.id}, ${sessionEvent.exitCode})" }
-                model.processTerminated.fire(ProcessTerminated(sessionEvent.id, sessionEvent.exitCode))
+                withContext(Dispatchers.EDT) {
+                    model.processTerminated.fire(ProcessTerminated(sessionEvent.id, sessionEvent.exitCode))
+                }
             }
 
             is SessionLogReceived -> {
                 LOG.trace { "Aspire session log received (${sessionEvent.id}, ${sessionEvent.isStdErr}, ${sessionEvent.message})" }
-                model.logReceived.fire(LogReceived(sessionEvent.id, sessionEvent.isStdErr, sessionEvent.message))
+                withContext(Dispatchers.EDT) {
+                    model.logReceived.fire(LogReceived(sessionEvent.id, sessionEvent.isStdErr, sessionEvent.message))
+                }
             }
         }
     }
