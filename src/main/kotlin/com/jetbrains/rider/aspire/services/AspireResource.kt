@@ -4,12 +4,11 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewProvidingContributor
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.rd.attachAsChildTo
 import com.intellij.terminal.TerminalExecutionConsole
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
@@ -31,7 +30,7 @@ class AspireResource(
     private val aspireHost: AspireHost,
     val lifetime: Lifetime,
     private val project: Project
-) : ServiceViewProvidingContributor<AspireResource, AspireResource>, Disposable {
+) : ServiceViewProvidingContributor<AspireResource, AspireResource> {
     companion object {
         private val LOG = logger<AspireResource>()
     }
@@ -146,7 +145,7 @@ class AspireResource(
 
         logProcessHandler.startNotify()
 
-        Disposer.register(this, logConsole)
+        logConsole.attachAsChildTo(lifetime)
     }
 
     private fun fillDates(model: ResourceModel?) {
@@ -357,9 +356,6 @@ class AspireResource(
             AspireMainServiceViewContributor::class.java
         )
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
-    }
-
-    override fun dispose() {
     }
 
     data class AspireResourceProperty<T>(val value: T, val isSensitive: Boolean)

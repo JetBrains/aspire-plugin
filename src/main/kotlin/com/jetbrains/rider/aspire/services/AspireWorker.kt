@@ -93,19 +93,30 @@ class AspireWorker(
             val workerLifetime = workerLifetimes.next()
 
             val protocol = startAspireWorkerProtocol(workerLifetime.lifetime)
-            model = protocol.aspireWorkerModel
 
             subscribeToModel(protocol.aspireWorkerModel, workerLifetime.lifetime)
 
-            debugSessionToken = UUID.randomUUID().toString()
-            debugSessionPort = NetUtils.findFreePort(47100)
-            debugSessionServerCertificate = calculateServerCertificate(workerLifetime)
+            val token = UUID.randomUUID().toString()
+            val port = NetUtils.findFreePort(47100)
+            val certificate = calculateServerCertificate(workerLifetime)
+
+            workerLifetime.bracketIfAlive({
+                model = protocol.aspireWorkerModel
+                debugSessionToken = token
+                debugSessionPort = port
+                debugSessionServerCertificate = certificate
+            }, {
+                model = null
+                debugSessionToken = null
+                debugSessionPort = null
+                debugSessionServerCertificate = null
+            })
 
             val aspireWorkerConfig = AspireWorkerConfig(
                 protocol.wire.serverPort,
-                requireNotNull(debugSessionToken),
-                requireNotNull(debugSessionPort),
-                debugSessionServerCertificate != null
+                token,
+                port,
+                certificate != null
             )
             LOG.trace { "Starting a new session host with launcher $aspireWorkerConfig" }
             val aspireWorkerLauncher = AspireWorkerLauncher.getInstance(project)
@@ -163,9 +174,6 @@ class AspireWorker(
             if (!isActive) return
 
             LOG.trace("Stopping Aspire worker")
-            model = null
-            debugSessionToken = null
-            debugSessionPort = null
             workerLifetimes.terminateCurrent()
         }
     }
