@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.8.10] - 2025-08-27
+
 ### Fixed
 
 - [RIDER-129251](https://youtrack.jetbrains.com/issue/RIDER-129251) Process resource log records asynchronously with the default dispatcher
@@ -479,7 +481,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.8.9...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.8.10...HEAD
+[1.8.10]: https://github.com/JetBrains/aspire-plugin/compare/1.8.9...1.8.10
 [1.8.9]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.8...1.8.9
 [1.8.8]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.7...v1.8.8
 [1.8.7]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.6...v1.8.7
