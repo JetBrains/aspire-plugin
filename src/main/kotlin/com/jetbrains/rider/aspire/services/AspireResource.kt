@@ -107,8 +107,11 @@ class AspireResource(
         override fun detachIsDefault() = false
         override fun getProcessInput() = null
     }
-    private val logConsole = TerminalExecutionConsole(project, logProcessHandler)
-    val logConsoleComponent = logConsole.component
+    private val logConsole = TerminalExecutionConsole(project, logProcessHandler).apply {
+        attachAsChildTo(lifetime)
+    }
+    val logConsoleComponent
+        get() = logConsole.component
 
     private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
 
@@ -144,8 +147,6 @@ class AspireResource(
         modelWrapper.logReceived.advise(lifetime, ::logReceived)
 
         logProcessHandler.startNotify()
-
-        logConsole.attachAsChildTo(lifetime)
     }
 
     private fun fillDates(model: ResourceModel?) {
