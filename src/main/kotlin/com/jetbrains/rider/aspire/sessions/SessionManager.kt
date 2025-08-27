@@ -53,8 +53,8 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         }
     }
 
-    suspend fun submitCommand(command: LaunchSessionCommand) {
-        commands.send(command)
+    fun submitCommand(command: LaunchSessionCommand) {
+        commands.trySend(command)
     }
 
     private suspend fun handleCommand(command: LaunchSessionCommand) {
