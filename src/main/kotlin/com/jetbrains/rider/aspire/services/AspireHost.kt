@@ -242,7 +242,6 @@ class AspireHost(
         LOG.trace { "Adding a new resource with id $resourceId to the host $hostProjectPathString" }
 
         val resource = AspireResource(resourceModel, this, resourceLifetime, project)
-        Disposer.register(this, resource)
         resources.addUnique(resourceLifetime, resourceId, resource)
 
         if (!resource.isHidden && resource.state != ResourceState.Hidden) {
@@ -291,6 +290,10 @@ class AspireHost(
             project
         )
         Disposer.register(this, console)
+        val previousConsole = consoleView
+        if (previousConsole != null) {
+            Disposer.dispose(previousConsole)
+        }
         consoleView = console
 
         selectHost()
