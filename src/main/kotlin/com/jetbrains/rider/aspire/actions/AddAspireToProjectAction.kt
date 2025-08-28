@@ -5,6 +5,8 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.jetbrains.rider.aspire.orchestration.AspireOrchestrationService
+import com.jetbrains.rider.aspire.util.isAspireHostProject
+import com.jetbrains.rider.aspire.util.isAspireSharedProject
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.actions.isProjectModelReady
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
@@ -34,7 +36,13 @@ class AddAspireToProjectAction : AnAction() {
             return
         }
 
-        val descriptor = e.dataContext.getProjectModelEntity()?.descriptor
+        val entity = e.dataContext.getProjectModelEntity()
+        if (entity == null || entity.isAspireHostProject() || entity.isAspireSharedProject()) {
+            e.presentation.isEnabledAndVisible = false
+            return
+        }
+
+        val descriptor = entity.descriptor
 
         e.presentation.isEnabledAndVisible = descriptor is RdProjectDescriptor && descriptor.isDotNetCore
     }
