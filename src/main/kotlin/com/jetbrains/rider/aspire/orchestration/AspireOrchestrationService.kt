@@ -55,7 +55,7 @@ class AspireOrchestrationService(private val project: Project) {
     suspend fun addAspireOrchestration() {
         val projectEntities = project.serviceAsync<WorkspaceModel>()
             .findProjects()
-            .filter { it.isProject() && !it.isAspireHostProject() && !it.isAspireSharedProject() }
+            .filter { it.isAspireOrchestrationSupported() }
         val runnableProjects = project.runnableProjectsModelIfAvailable?.projects?.valueOrNull
             ?: emptyList()
         val runnableProjectFilePaths = runnableProjects
