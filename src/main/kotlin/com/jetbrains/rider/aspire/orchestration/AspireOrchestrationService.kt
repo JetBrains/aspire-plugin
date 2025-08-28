@@ -105,21 +105,25 @@ class AspireOrchestrationService(private val project: Project) {
         }
 
         val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
-        if (hostProjectPath != null) {
+        val appHostFileWasModified = if (hostProjectPath != null) {
             val referenceByHostProjectResult = referenceByHostProject(hostProjectPath, projectFilePathStrings)
             referenceByHostProjectResult?.let {
                 AspireDefaultFileModificationService
                     .getInstance(project)
                     .insertProjectsIntoAppHostFile(hostProjectPath, it.referencedProjectFilePaths)
-            }
-        }
-        if (sharedProjectPath != null) {
+            } ?: false
+        } else false
+        val projectProgramFilesWereModified = if (sharedProjectPath != null) {
             val referenceSharedProjectResult = referenceSharedProject(sharedProjectPath, projectFilePathStrings)
             referenceSharedProjectResult?.let {
                 AspireDefaultFileModificationService
                     .getInstance(project)
                     .insertAspireDefaultMethodsIntoProjects(it.projectFilePathsWithReference)
-            }
+            } ?: false
+        } else false
+
+        if (!needToGenerateAppHost && !needToGenerateServiceDefaults && !appHostFileWasModified && !projectProgramFilesWereModified) {
+            notifyAboutAlreadyAddedOrchestration()
         }
     }
 
@@ -232,4 +236,16 @@ class AspireOrchestrationService(private val project: Project) {
 
             project.solution.aspirePluginModel.referenceServiceDefaultsFromProjects.startSuspending(request)
         }
+
+    private suspend fun notifyAboutAlreadyAddedOrchestration() {
+        withContext(Dispatchers.EDT) {
+            Notification(
+                "Aspire",
+                AspireBundle.message("notification.selected.projects.contains.orchestration"),
+                "",
+                NotificationType.INFORMATION
+            )
+                .notify(project)
+        }
+    }
 }

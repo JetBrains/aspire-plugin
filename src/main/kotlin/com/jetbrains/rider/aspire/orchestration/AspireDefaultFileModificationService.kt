@@ -53,25 +53,26 @@ class AspireDefaultFileModificationService(private val project: Project) {
      *
      * @param hostProjectPath a file path to an Aspire host project file
      * @param projects a list of project file paths to be integrated into the host project
+     * @return a flag whether the methods were inserted into the `AppHost` file
      */
-    suspend fun insertProjectsIntoAppHostFile(hostProjectPath: Path, projects: List<String>) {
-        if (projects.isEmpty()) return
+    suspend fun insertProjectsIntoAppHostFile(hostProjectPath: Path, projects: List<String>): Boolean {
+        if (projects.isEmpty()) return false
 
         val appHostFile = findAppHostFile(hostProjectPath)
         if (appHostFile == null) {
             LOG.warn("Unable to find AppHost.cs (or Program.cs) file in the host project")
-            return
+            return false
         }
 
         val projectNames = projects.map { Path(it).nameWithoutExtension }
         val methodsToInsert = createAddProjectMethodsToInsert(projectNames)
-        if (methodsToInsert.isEmpty()) return
+        if (methodsToInsert.isEmpty()) return false
 
-        readAndEdtWriteAction {
+        return readAndEdtWriteAction {
             val document = appHostFile.findDocument()
             if (document == null) {
                 LOG.warn("Unable to find AppHost.cs (or Program.cs) file document")
-                return@readAndEdtWriteAction value(Unit)
+                return@readAndEdtWriteAction value(false)
             }
 
             val text = document.text
@@ -81,7 +82,7 @@ class AspireDefaultFileModificationService(private val project: Project) {
                 val builderIndex = text.indexOf(CREATE_BUILDER_METHOD)
                 if (builderIndex == -1) {
                     LOG.info("Unable to find a method for creating a distributed builder")
-                    return@readAndEdtWriteAction value(Unit)
+                    return@readAndEdtWriteAction value(false)
                 }
                 text.indexOf(';', builderIndex)
             } else {
@@ -90,7 +91,7 @@ class AspireDefaultFileModificationService(private val project: Project) {
 
             if (semicolonIndex == -1) {
                 LOG.info("Unable to find an index to insert an `AddProject` method")
-                return@readAndEdtWriteAction value(Unit)
+                return@readAndEdtWriteAction value(false)
             }
 
             val psiFile = appHostFile.findPsiFile(project)
@@ -100,6 +101,7 @@ class AspireDefaultFileModificationService(private val project: Project) {
                     if (psiFile != null) calculateIndent(psiFile, document, semicolonIndex)
                     else ""
 
+                var methodsWereInserted = false
                 for (methodToInsert in methodsToInsert) {
                     if (text.contains(methodToInsert)) continue
 
@@ -111,7 +113,10 @@ class AspireDefaultFileModificationService(private val project: Project) {
                     }
                     document.insertString(semicolonIndex + 1, textToInsert)
                     semicolonIndex += textToInsert.length
+                    methodsWereInserted = true
                 }
+
+                return@writeCommandAction methodsWereInserted
             }
         }
     }
@@ -152,10 +157,12 @@ class AspireDefaultFileModificationService(private val project: Project) {
      *
      * @param projectPaths a list of file paths representing projects into which
      * default Aspire methods need to be inserted
+     * @return a flag whether the defaults methods were inserted into any of the projects
      */
-    suspend fun insertAspireDefaultMethodsIntoProjects(projectPaths: List<String>) {
-        if (projectPaths.isEmpty()) return
+    suspend fun insertAspireDefaultMethodsIntoProjects(projectPaths: List<String>) : Boolean {
+        if (projectPaths.isEmpty()) return false
 
+        var methodsWereInserted = false
         for (projectPath in projectPaths) {
             val projectFilePath = Path(projectPath)
 
@@ -168,19 +175,21 @@ class AspireDefaultFileModificationService(private val project: Project) {
             val projectProgramFile = VirtualFileManager.getInstance().findFileByNioPath(projectProgramFilePath)
             if (projectProgramFile == null) {
                 LOG.warn("Unable to find Program.cs virtual file for a project ${projectFilePath.name}")
-                return
+                continue
             }
 
-            insertAspireDefaultMethodsIntoProgramFile(projectProgramFile)
+            methodsWereInserted = methodsWereInserted || insertAspireDefaultMethodsIntoProgramFile(projectProgramFile)
         }
+
+        return methodsWereInserted
     }
 
-    private suspend fun insertAspireDefaultMethodsIntoProgramFile(programFile: VirtualFile) {
+    private suspend fun insertAspireDefaultMethodsIntoProgramFile(programFile: VirtualFile) : Boolean =
         readAndEdtWriteAction {
             val document = programFile.findDocument()
             if (document == null) {
                 LOG.warn("Unable to find Program.cs file document")
-                return@readAndEdtWriteAction value(Unit)
+                return@readAndEdtWriteAction value(false)
             }
 
             val text = document.text
@@ -192,7 +201,7 @@ class AspireDefaultFileModificationService(private val project: Project) {
 
             if (serviceDefaultsIndex == -1 && defaultEndpointsIndex == -1) {
                 LOG.warn("Unable to find a place for the default methods in `Program.cs` file")
-                return@readAndEdtWriteAction value(Unit)
+                return@readAndEdtWriteAction value(false)
             }
 
             val psiFile = programFile.findPsiFile(project)
@@ -222,9 +231,9 @@ class AspireDefaultFileModificationService(private val project: Project) {
                     }
                     document.insertString(serviceDefaultsIndex + 1, textToInsert)
                 }
+                return@writeCommandAction true
             }
         }
-    }
 
     private fun findSemicolonIndexAfterMethod(text: String, methodToInsert: String, insertAfterMethod: String): Int {
         if (text.contains(methodToInsert)) return -1
