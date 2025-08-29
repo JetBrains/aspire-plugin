@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.jetbrains.rider.aspire.orchestration.AspireOrchestrationService
 import com.jetbrains.rider.projectView.actions.isProjectModelReady
+import com.jetbrains.rider.projectView.isDirectorySolution
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.isSolution
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,7 @@ class AddAspireToSolutionAction : AnAction() {
 
     override fun update(e: AnActionEvent) {
         val project = e.project
-        if (project == null || !project.isProjectModelReady()) {
+        if (project == null || project.isDirectorySolution || !project.isProjectModelReady()) {
             e.presentation.isEnabledAndVisible = false
             return
         }
