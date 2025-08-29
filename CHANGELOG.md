@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Issues with `Add .NET Aspire orchestration` action
+
 ## [1.8.10] - 2025-08-27
 
 ### Fixed
