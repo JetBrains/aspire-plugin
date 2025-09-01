@@ -23,8 +23,10 @@ import com.jetbrains.rider.aspire.util.isAspireSharedProject
 import com.jetbrains.rider.model.AddProjectCommand
 import com.jetbrains.rider.model.projectModelTasks
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.projectView.workspace.*
-import com.jetbrains.rider.run.configurations.runnableProjectsModelIfAvailable
+import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
+import com.jetbrains.rider.projectView.workspace.findProjects
+import com.jetbrains.rider.projectView.workspace.getId
+import com.jetbrains.rider.projectView.workspace.getSolutionEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -56,16 +58,9 @@ class AspireOrchestrationService(private val project: Project) {
         val projectEntities = project.serviceAsync<WorkspaceModel>()
             .findProjects()
             .filter { it.isAspireOrchestrationSupported() }
-        val runnableProjects = project.runnableProjectsModelIfAvailable?.projects?.valueOrNull
-            ?: emptyList()
-        val runnableProjectFilePaths = runnableProjects
-            .groupBy { it.projectFilePath }
-            .mapKeys { Path(it.key) }
-        val runnableProjectEntities = projectEntities
-            .filter { entity -> entity.url?.toPath()?.let { runnableProjectFilePaths.contains(it) } ?: false }
 
         withContext(Dispatchers.EDT) {
-            val dialog = AddAspireOrchestrationDialog(project, runnableProjectEntities)
+            val dialog = AddAspireOrchestrationDialog(project, projectEntities)
             if (dialog.showAndGet()) {
                 val projectEntities = dialog.getSelectedItems()
                 if (projectEntities.isEmpty()) return@withContext
