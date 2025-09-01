@@ -175,13 +175,19 @@ class AspireOrchestrationService(private val project: Project) {
             return null
         }
 
-        val (generatedHostProjectPath, generatedSharedProjectPath) = AspireProjectTemplateGenerator
+        val generatedProjectPaths = AspireProjectTemplateGenerator
             .getInstance(project)
             .generateAspireProjectsFromTemplates(
                 needToGenerateAppHost,
                 needToGenerateServiceDefaults
             )
 
+        if (generatedProjectPaths == null) {
+            LOG.warn("Unable to generate .NET Aspire projects")
+            return null
+        }
+
+        val (generatedHostProjectPath, generatedSharedProjectPath) = generatedProjectPaths
         if (needToGenerateAppHost && generatedHostProjectPath == null || needToGenerateServiceDefaults && generatedSharedProjectPath == null) {
             LOG.warn("Some of the requested projects were not generated")
             notifyAboutFailedGeneration()
