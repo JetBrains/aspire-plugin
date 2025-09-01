@@ -108,17 +108,23 @@ class AspireOrchestrationService(private val project: Project) {
         val appHostFileWasModified = if (hostProjectPath != null) {
             val referenceByHostProjectResult = referenceByHostProject(hostProjectPath, projectFilePathStrings)
             referenceByHostProjectResult?.let {
+                val referencedProjectFilePaths = it.referencedProjectFilePaths.map { path -> Path(path) }
                 AspireDefaultFileModificationService
                     .getInstance(project)
-                    .insertProjectsIntoAppHostFile(hostProjectPath, it.referencedProjectFilePaths)
+                    .insertProjectsIntoAppHostFile(hostProjectPath, referencedProjectFilePaths)
             } ?: false
         } else false
         val projectProgramFilesWereModified = if (sharedProjectPath != null) {
             val referenceSharedProjectResult = referenceSharedProject(sharedProjectPath, projectFilePathStrings)
             referenceSharedProjectResult?.let {
+                val projectsWithReference = it.projectFilePathsWithReference.map { path ->
+                    val projectPath = Path(path)
+                    val entity = projectEntities.firstOrNull { entity -> entity.url?.toPath() == projectPath }
+                    projectPath to entity
+                }
                 AspireDefaultFileModificationService
                     .getInstance(project)
-                    .insertAspireDefaultMethodsIntoProjects(it.projectFilePathsWithReference)
+                    .insertAspireDefaultMethodsIntoProjects(projectsWithReference)
             } ?: false
         } else false
 
