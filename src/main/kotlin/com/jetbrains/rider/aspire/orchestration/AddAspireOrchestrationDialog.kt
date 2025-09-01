@@ -8,6 +8,7 @@ import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SeparatorComponent
 import com.intellij.ui.SeparatorOrientation
 import com.intellij.ui.components.JBCheckBox
+import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.rider.aspire.AspireBundle
@@ -15,9 +16,10 @@ import com.jetbrains.rider.projectView.calculateIcon
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.ui.px
 import java.awt.BorderLayout
-import java.awt.Dimension
 import java.awt.event.ItemEvent
 import javax.swing.JPanel
+import javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+import javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
 
 class AddAspireOrchestrationDialog(project: Project, projectEntities: List<ProjectModelEntity>) :
     DialogWrapper(project) {
@@ -69,7 +71,11 @@ class AddAspireOrchestrationDialog(project: Project, projectEntities: List<Proje
         }
 
         val scrollPane = ScrollPaneFactory.createScrollPane(panel).apply {
-            minimumSize = Dimension(350.px, 200.px)
+            minimumSize = JBDimension(350.px, 200.px)
+            preferredSize = JBDimension(350.px, 400.px)
+            maximumSize = JBDimension(500.px, 600.px)
+            verticalScrollBarPolicy = VERTICAL_SCROLLBAR_AS_NEEDED
+            horizontalScrollBarPolicy = HORIZONTAL_SCROLLBAR_AS_NEEDED
         }
 
         add(scrollPane, BorderLayout.CENTER)
