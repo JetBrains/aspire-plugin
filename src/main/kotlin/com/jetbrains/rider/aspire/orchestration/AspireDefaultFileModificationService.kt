@@ -22,8 +22,10 @@ import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.RiderTextConten
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.CsIndentingNaiveRulesSet
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.RiderIndentingEditorSettings
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.calculateCsIndent
+import com.jetbrains.rider.model.RdProjectDescriptor
+import com.jetbrains.rider.model.RdProjectType
+import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.nameWithoutExtension
@@ -43,6 +45,7 @@ class AspireDefaultFileModificationService(private val project: Project) {
         private const val PROGRAM_FILE = "Program.cs"
         private const val ADD_PROJECT_METHOD = ".AddProject("
         private const val CREATE_BUILDER_METHOD = ".CreateBuilder("
+        private const val CREATE_APPLICATION_BUILDER_METHOD = ".CreateApplicationBuilder("
         private const val BUILD_METHOD = ".Build("
         private const val ADD_SERVICE_DEFAULTS_METHOD = "builder.AddServiceDefaults();"
         private const val MAP_DEFAULT_ENDPOINTS = "app.MapDefaultEndpoints();"
@@ -55,7 +58,7 @@ class AspireDefaultFileModificationService(private val project: Project) {
      * @param projects a list of project file paths to be integrated into the host project
      * @return a flag whether the methods were inserted into the `AppHost` file
      */
-    suspend fun insertProjectsIntoAppHostFile(hostProjectPath: Path, projects: List<String>): Boolean {
+    suspend fun insertProjectsIntoAppHostFile(hostProjectPath: Path, projects: List<Path>): Boolean {
         if (projects.isEmpty()) return false
 
         val appHostFile = findAppHostFile(hostProjectPath)
@@ -64,7 +67,7 @@ class AspireDefaultFileModificationService(private val project: Project) {
             return false
         }
 
-        val projectNames = projects.map { Path(it).nameWithoutExtension }
+        val projectNames = projects.map { it.nameWithoutExtension }
         val methodsToInsert = createAddProjectMethodsToInsert(projectNames)
         if (methodsToInsert.isEmpty()) return false
 
@@ -155,17 +158,15 @@ class AspireDefaultFileModificationService(private val project: Project) {
      * Inserts default Aspire methods (`AddServiceDefaults` and `MapDefaultEndpoints`)
      * into the `Program.cs` file of the requested projects.
      *
-     * @param projectPaths a list of file paths representing projects into which
+     * @param project a list of pairs of project file path and project entity representing projects into which
      * default Aspire methods need to be inserted
      * @return a flag whether the defaults methods were inserted into any of the projects
      */
-    suspend fun insertAspireDefaultMethodsIntoProjects(projectPaths: List<String>) : Boolean {
-        if (projectPaths.isEmpty()) return false
+    suspend fun insertAspireDefaultMethodsIntoProjects(project: List<Pair<Path, ProjectModelEntity?>>): Boolean {
+        if (project.isEmpty()) return false
 
         var methodsWereInserted = false
-        for (projectPath in projectPaths) {
-            val projectFilePath = Path(projectPath)
-
+        for ((projectFilePath, projectEntity) in project) {
             val projectProgramFilePath = projectFilePath.parent.resolve(PROGRAM_FILE)
             if (!projectProgramFilePath.exists()) {
                 LOG.info("Unable to Program.cs file for a project ${projectFilePath.name}")
@@ -178,13 +179,20 @@ class AspireDefaultFileModificationService(private val project: Project) {
                 continue
             }
 
-            methodsWereInserted = methodsWereInserted || insertAspireDefaultMethodsIntoProgramFile(projectProgramFile)
+            val descriptor = projectEntity?.descriptor
+            val isWebProject = descriptor is RdProjectDescriptor && descriptor.specificType == RdProjectType.Web
+
+            methodsWereInserted =
+                methodsWereInserted || insertAspireDefaultMethodsIntoProgramFile(projectProgramFile, isWebProject)
         }
 
         return methodsWereInserted
     }
 
-    private suspend fun insertAspireDefaultMethodsIntoProgramFile(programFile: VirtualFile) : Boolean =
+    private suspend fun insertAspireDefaultMethodsIntoProgramFile(
+        programFile: VirtualFile,
+        isWebProject: Boolean
+    ): Boolean =
         readAndEdtWriteAction {
             val document = programFile.findDocument()
             if (document == null) {
@@ -194,10 +202,15 @@ class AspireDefaultFileModificationService(private val project: Project) {
 
             val text = document.text
 
-            val serviceDefaultsIndex =
+            var serviceDefaultsIndex =
                 findSemicolonIndexAfterMethod(text, ADD_SERVICE_DEFAULTS_METHOD, CREATE_BUILDER_METHOD)
+            if (serviceDefaultsIndex == -1) {
+                serviceDefaultsIndex =
+                    findSemicolonIndexAfterMethod(text, ADD_SERVICE_DEFAULTS_METHOD, CREATE_APPLICATION_BUILDER_METHOD)
+            }
             val defaultEndpointsIndex =
-                findSemicolonIndexAfterMethod(text, MAP_DEFAULT_ENDPOINTS, BUILD_METHOD)
+                if (isWebProject) findSemicolonIndexAfterMethod(text, MAP_DEFAULT_ENDPOINTS, BUILD_METHOD)
+                else -1
 
             if (serviceDefaultsIndex == -1 && defaultEndpointsIndex == -1) {
                 LOG.warn("Unable to find a place for the default methods in `Program.cs` file")
