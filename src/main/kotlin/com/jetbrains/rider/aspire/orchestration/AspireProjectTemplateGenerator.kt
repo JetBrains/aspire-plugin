@@ -1,5 +1,10 @@
 package com.jetbrains.rider.aspire.orchestration
 
+import com.intellij.ide.BrowserUtil
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationAction
+import com.intellij.notification.NotificationType
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -62,6 +67,7 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
 
         serviceLifetime.usingNested { lifetime ->
             val (appHostTemplate, serviceDefaultsTemplate) = findAspireTemplates(model, session, lifetime)
+                ?: return@withBackgroundProgress null
 
             val appHostProjectPath = if (generateAppHost) async {
                 generateProjectFromTemplate(
@@ -87,7 +93,7 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
         model: ProjectTemplatesModel,
         session: RdProjectTemplateSession,
         lifetime: Lifetime
-    ): Pair<RdProjectTemplate?, RdProjectTemplate?> {
+    ): Pair<RdProjectTemplate?, RdProjectTemplate?>? {
         val appHostDeferredTemplate = CompletableDeferred<RdProjectTemplate?>()
         val serviceDefaultsDeferredTemplate = CompletableDeferred<RdProjectTemplate?>()
 
@@ -122,6 +128,11 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
 
         val appHostResult = appHostDeferredTemplate.await()
         val serviceDefaultsResult = serviceDefaultsDeferredTemplate.await()
+
+        if (appHostResult == null || serviceDefaultsResult == null) {
+            notifyAboutMissingTemplates()
+            return null
+        }
 
         return appHostResult to serviceDefaultsResult
     }
@@ -176,4 +187,20 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
         mapOf(),
         false
     )
+
+    private suspend fun notifyAboutMissingTemplates() = withContext(Dispatchers.EDT) {
+        Notification(
+            "Aspire",
+            AspireBundle.message("notification.unable.to.find.aspire.templates"),
+            "",
+            NotificationType.WARNING
+        )
+            .addAction(object :
+                NotificationAction(AspireBundle.message("notification.how.to.install.aspire.templates")) {
+                override fun actionPerformed(e: AnActionEvent, n: Notification) {
+                    BrowserUtil.browse("https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/aspire-sdk-templates?pivots=dotnet-cli#install-the-net-aspire-templates")
+                }
+            })
+            .notify(project)
+    }
 }
