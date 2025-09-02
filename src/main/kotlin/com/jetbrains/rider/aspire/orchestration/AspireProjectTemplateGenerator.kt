@@ -63,7 +63,7 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
         LOG.info("Generating Aspire projects for the solution")
 
         val model = project.protocol.projectTemplatesModel
-        val session = RiderProjectTemplateProvider.createSession(createSolution = false, useCachedTemplates = true)
+        val session = RiderProjectTemplateProvider.createSession(createSolution = false)
 
         serviceLifetime.usingNested { lifetime ->
             val (appHostTemplate, serviceDefaultsTemplate) = findAspireTemplates(model, session, lifetime)
