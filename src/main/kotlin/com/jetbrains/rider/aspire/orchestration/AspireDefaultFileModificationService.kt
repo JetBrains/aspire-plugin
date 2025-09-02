@@ -182,8 +182,8 @@ class AspireDefaultFileModificationService(private val project: Project) {
             val descriptor = projectEntity?.descriptor
             val isWebProject = descriptor is RdProjectDescriptor && descriptor.specificType == RdProjectType.Web
 
-            methodsWereInserted =
-                methodsWereInserted || insertAspireDefaultMethodsIntoProgramFile(projectProgramFile, isWebProject)
+            val insertionResult = insertAspireDefaultMethodsIntoProgramFile(projectProgramFile, isWebProject)
+            methodsWereInserted = methodsWereInserted || insertionResult
         }
 
         return methodsWereInserted
@@ -192,61 +192,60 @@ class AspireDefaultFileModificationService(private val project: Project) {
     private suspend fun insertAspireDefaultMethodsIntoProgramFile(
         programFile: VirtualFile,
         isWebProject: Boolean
-    ): Boolean =
-        readAndEdtWriteAction {
-            val document = programFile.findDocument()
-            if (document == null) {
-                LOG.warn("Unable to find Program.cs file document")
-                return@readAndEdtWriteAction value(false)
-            }
-
-            val text = document.text
-
-            var serviceDefaultsIndex =
-                findSemicolonIndexAfterMethod(text, ADD_SERVICE_DEFAULTS_METHOD, CREATE_BUILDER_METHOD)
-            if (serviceDefaultsIndex == -1) {
-                serviceDefaultsIndex =
-                    findSemicolonIndexAfterMethod(text, ADD_SERVICE_DEFAULTS_METHOD, CREATE_APPLICATION_BUILDER_METHOD)
-            }
-            val defaultEndpointsIndex =
-                if (isWebProject) findSemicolonIndexAfterMethod(text, MAP_DEFAULT_ENDPOINTS, BUILD_METHOD)
-                else -1
-
-            if (serviceDefaultsIndex == -1 && defaultEndpointsIndex == -1) {
-                LOG.warn("Unable to find a place for the default methods in `Program.cs` file")
-                return@readAndEdtWriteAction value(false)
-            }
-
-            val psiFile = programFile.findPsiFile(project)
-
-            writeCommandAction(project, AspireBundle.message("write.command.insert.default.methods")) {
-                if (defaultEndpointsIndex != -1) {
-                    val indent =
-                        if (psiFile != null) calculateIndent(psiFile, document, defaultEndpointsIndex)
-                        else ""
-                    val textToInsert = buildString {
-                        append('\n')
-                        append('\n')
-                        append(indent)
-                        append(MAP_DEFAULT_ENDPOINTS)
-                    }
-                    document.insertString(defaultEndpointsIndex + 1, textToInsert)
-                }
-                if (serviceDefaultsIndex != -1) {
-                    val indent =
-                        if (psiFile != null) calculateIndent(psiFile, document, serviceDefaultsIndex)
-                        else ""
-                    val textToInsert = buildString {
-                        append('\n')
-                        append('\n')
-                        append(indent)
-                        append(ADD_SERVICE_DEFAULTS_METHOD)
-                    }
-                    document.insertString(serviceDefaultsIndex + 1, textToInsert)
-                }
-                return@writeCommandAction true
-            }
+    ): Boolean = readAndEdtWriteAction {
+        val document = programFile.findDocument()
+        if (document == null) {
+            LOG.warn("Unable to find Program.cs file document")
+            return@readAndEdtWriteAction value(false)
         }
+
+        val text = document.text
+
+        var serviceDefaultsIndex =
+            findSemicolonIndexAfterMethod(text, ADD_SERVICE_DEFAULTS_METHOD, CREATE_BUILDER_METHOD)
+        if (serviceDefaultsIndex == -1) {
+            serviceDefaultsIndex =
+                findSemicolonIndexAfterMethod(text, ADD_SERVICE_DEFAULTS_METHOD, CREATE_APPLICATION_BUILDER_METHOD)
+        }
+        val defaultEndpointsIndex =
+            if (isWebProject) findSemicolonIndexAfterMethod(text, MAP_DEFAULT_ENDPOINTS, BUILD_METHOD)
+            else -1
+
+        if (serviceDefaultsIndex == -1 && defaultEndpointsIndex == -1) {
+            LOG.warn("Unable to find a place for the default methods in `Program.cs` file")
+            return@readAndEdtWriteAction value(false)
+        }
+
+        val psiFile = programFile.findPsiFile(project)
+
+        writeCommandAction(project, AspireBundle.message("write.command.insert.default.methods")) {
+            if (defaultEndpointsIndex != -1) {
+                val indent =
+                    if (psiFile != null) calculateIndent(psiFile, document, defaultEndpointsIndex)
+                    else ""
+                val textToInsert = buildString {
+                    append('\n')
+                    append('\n')
+                    append(indent)
+                    append(MAP_DEFAULT_ENDPOINTS)
+                }
+                document.insertString(defaultEndpointsIndex + 1, textToInsert)
+            }
+            if (serviceDefaultsIndex != -1) {
+                val indent =
+                    if (psiFile != null) calculateIndent(psiFile, document, serviceDefaultsIndex)
+                    else ""
+                val textToInsert = buildString {
+                    append('\n')
+                    append('\n')
+                    append(indent)
+                    append(ADD_SERVICE_DEFAULTS_METHOD)
+                }
+                document.insertString(serviceDefaultsIndex + 1, textToInsert)
+            }
+            return@writeCommandAction true
+        }
+    }
 
     private fun findSemicolonIndexAfterMethod(text: String, methodToInsert: String, insertAfterMethod: String): Int {
         if (text.contains(methodToInsert)) return -1

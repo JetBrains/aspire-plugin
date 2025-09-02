@@ -13,9 +13,11 @@ import com.jetbrains.rider.test.base.PerTestSolutionTestBase
 import com.jetbrains.rider.test.env.enums.BuildTool
 import com.jetbrains.rider.test.env.enums.SdkVersion
 import com.jetbrains.rider.test.framework.executeWithGold
+import com.jetbrains.rider.test.framework.persistAllFilesOnDisk
 import com.jetbrains.rider.test.scriptingApi.prepareProjectView
+import com.jetbrains.rider.test.scriptingApi.refreshFileSystem
 import com.jetbrains.rider.test.scriptingApi.runBlockingWithFlushing
-import kotlinx.coroutines.delay
+import com.jetbrains.rider.test.scriptingApi.waitAllCommandsFinished
 import org.testng.annotations.Test
 import java.io.File
 import java.io.PrintStream
@@ -24,7 +26,6 @@ import kotlin.io.path.exists
 import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @TestEnvironment(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 class AspireOrchestrationTests : PerTestSolutionTestBase() {
@@ -52,6 +53,10 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
 
         val solutionDirectoryPath = activeSolutionDirectory.toPath()
         val solution = activeSolutionDirectory.resolve("$activeSolution.sln")
+        val hostProjectPath =
+            solutionDirectoryPath.resolve(appHostName).resolve("$appHostName.csproj")
+        val sharedProjectPath =
+            solutionDirectoryPath.resolve(serviceDefaultsName).resolve("$serviceDefaultsName.csproj")
         val projectPaths = projectNames
             .map { solutionDirectoryPath.resolve(it).resolve("$it.csproj") }
 
@@ -63,15 +68,13 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
             projectEntities.size.shouldBe(projectNames.size)
 
             service.addAspireOrchestration(projectEntities)
-
-            delay(10.seconds)
         }
 
-        val hostProjectPath = solutionDirectoryPath.resolve(appHostName).resolve("$appHostName.csproj")
-        hostProjectPath.exists().shouldBeTrue()
+        waitAllCommandsFinished()
+        refreshFileSystem(project)
+        persistAllFilesOnDisk()
 
-        val sharedProjectPath =
-            solutionDirectoryPath.resolve(serviceDefaultsName).resolve("$serviceDefaultsName.csproj")
+        hostProjectPath.exists().shouldBeTrue()
         sharedProjectPath.exists().shouldBeTrue()
 
         executeWithGold(testGoldFile) { printStream ->
