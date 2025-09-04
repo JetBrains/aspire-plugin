@@ -104,8 +104,6 @@
         <action id="Aspire.AddToProject"
                 class="com.jetbrains.rider.aspire.actions.AddAspireToProjectAction"
                 icon="RiderIcons.Templates.TemplateAspire">
-            <add-to-group group-id="SolutionViewAddGroup.TechnologySection" relative-to-action="AddScaffoldedItem"
-                          anchor="before"/>
         </action>
         <group id="Aspire.Host">
             <action id="Aspire.Host.Run"
