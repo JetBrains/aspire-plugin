@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.8.11] - 2025-09-04
+
 ### Fixed
 
 - Issues with `Add .NET Aspire orchestration` action
@@ -485,7 +487,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.8.10...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.8.11...HEAD
+[1.8.11]: https://github.com/JetBrains/aspire-plugin/compare/1.8.10...1.8.11
 [1.8.10]: https://github.com/JetBrains/aspire-plugin/compare/1.8.9...1.8.10
 [1.8.9]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.8...1.8.9
 [1.8.8]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.7...v1.8.8
