@@ -76,19 +76,19 @@ internal sealed class AspireHost
     private void InitializeResourceWatchers(string resourceServiceEndpointUrl, string? resourceServiceApiKey,
         Lifetime lifetime)
     {
-        _logger.LogInformation("Resource watching is enabled for the host {aspireHostId}", _id);
+        _logger.ResourceWatchingIsEnabled(_id);
 
         var metadata = resourceServiceApiKey != null ? new Metadata { { ApiKeyHeader, resourceServiceApiKey } } : [];
         var client = CreateResourceClient(resourceServiceEndpointUrl, lifetime);
 
-        _logger.LogDebug("Creating resource log watcher for {aspireHostId}", _id);
+        _logger.CreatingResourceLogWatcher(_id);
         var resourceLogWatcherLogger = _loggerFactory.CreateLogger<AspireHostResourceLogWatcher>();
         var resourceLogWatcher = new AspireHostResourceLogWatcher(client, metadata, _connection, _aspireHostModel,
             _resiliencePipelineProvider, resourceLogWatcherLogger, lifetime.CreateNested().Lifetime);
         lifetime.StartAttachedAsync(TaskScheduler.Default,
             async () => await resourceLogWatcher.WatchResourceLogs());
 
-        _logger.LogDebug("Creating resource watcher for {aspireHostId}", _id);
+        _logger.CreatingResourceWatcher(_id);
         var resourceWatcherLogger = _loggerFactory.CreateLogger<AspireHostResourceWatcher>();
         var resourceWatcher = new AspireHostResourceWatcher(client, metadata, _connection, _aspireHostModel,
             _resiliencePipelineProvider, resourceWatcherLogger, lifetime.CreateNested().Lifetime);
@@ -132,13 +132,13 @@ internal sealed class AspireHost
         );
         if (launchConfiguration == null)
         {
-            _logger.LogWarning("Only a single project launch configuration is supported.");
+            _logger.OnlySingleProjectLaunchConfigurationIsSupported();
             return (null, _multipleProjectLaunchConfigurations);
         }
 
         if (!File.Exists(launchConfiguration.ProjectPath))
         {
-            _logger.LogWarning("Project file doesn't exist");
+            _logger.ProjectFileDoesntExist();
             return (null, _projectNotFound);
         }
 
@@ -158,28 +158,30 @@ internal sealed class AspireHost
             envs
         );
 
-        _logger.LogInformation("Creating a new session {createSessionRequest}", request);
+        _logger.CreateNewSessionRequestReceived(request.ProjectPath);
+        _logger.SessionCreationRequestBuilt(request);
 
         var result = await _connection.DoWithModel(_ => _aspireHostModel.CreateSession.Sync(request));
-        _logger.LogDebug("Session creation response: {sessionCreationResponse}", result);
+        _logger.SessionCreationResponseReceived(result);
 
-        var error = result.Error is not null ? BuildErrorResponse(result.Error) : null;
+        var error = result?.Error is not null ? BuildErrorResponse(result.Error) : null;
 
-        return (result.SessionId, error);
+        return (result?.SessionId, error);
     }
 
     internal async Task<(string? sessionId, ErrorResponse? error)> Delete(string id)
     {
         var request = new DeleteSessionRequest(id);
 
-        _logger.LogInformation("Deleting the session {deleteSessionRequest}", request);
+        _logger.DeleteSessionRequestReceived(id);
+        _logger.SessionDeletionRequestBuilt(request);
 
         var result = await _connection.DoWithModel(_ => _aspireHostModel.DeleteSession.Sync(request));
-        _logger.LogDebug("Session deletion response: {sessionDeletionResponse}", result);
+        _logger.SessionDeletionResponseReceived(result);
 
-        var error = result.Error is not null ? BuildErrorResponse(result.Error) : null;
+        var error = result?.Error is not null ? BuildErrorResponse(result.Error) : null;
 
-        return (result.SessionId, error);
+        return (result?.SessionId, error);
     }
 
     private static ErrorResponse BuildErrorResponse(string message) => new(new ErrorDetail("BadRequest", message));

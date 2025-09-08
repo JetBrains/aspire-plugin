@@ -18,22 +18,22 @@ internal sealed class SessionEventWatcher(
         {
             hostModel.ProcessStarted.Advise(lifetime, it =>
             {
-                logger.LogTrace("Process started {startedProcess}", it);
+                logger.ProcessStarted(it);
                 var writingResult =
                     sessionEventWriter.TryWrite(new ProcessStartedEvent(it.Id, "processRestarted", it.Pid));
                 if (!writingResult)
                 {
-                    logger.LogWarning("Failed to write process started event");
+                    logger.FailedToWriteProcessStartedEvent();
                 }
             });
 
             hostModel.LogReceived.Advise(lifetime, it =>
             {
-                logger.LogTrace("Log received {log}", it);
+                logger.LogReceived(it);
                 var message = ModifyText(it.Message);
                 if (string.IsNullOrWhiteSpace(message))
                 {
-                    logger.LogTrace("Message is empty after processing");
+                    logger.MessageIsEmptyAfterProcessing();
                     return;
                 }
 
@@ -41,18 +41,18 @@ internal sealed class SessionEventWatcher(
                     sessionEventWriter.TryWrite(new LogReceivedEvent(it.Id, "serviceLogs", it.IsStdErr, message));
                 if (!writingResult)
                 {
-                    logger.LogWarning("Failed to write log received event");
+                    logger.FailedToWriteLogReceivedEvent();
                 }
             });
 
             hostModel.ProcessTerminated.Advise(lifetime, it =>
             {
-                logger.LogTrace("Process terminated {terminatedProcess}", it);
+                logger.ProcessTerminated(it);
                 var writingResult =
                     sessionEventWriter.TryWrite(new ProcessTerminatedEvent(it.Id, "sessionTerminated", it.ExitCode));
                 if (!writingResult)
                 {
-                    logger.LogWarning("Failed to write process terminated event");
+                    logger.FailedToWriteProcessTerminatedEvent();
                 }
             });
         });
@@ -65,7 +65,8 @@ internal sealed class SessionEventWatcher(
         if (modified.StartsWith("\r\n"))
         {
             modified = modified[2..];
-        } else if (modified.StartsWith('\n'))
+        }
+        else if (modified.StartsWith('\n'))
         {
             modified = modified[1..];
         }
@@ -73,7 +74,8 @@ internal sealed class SessionEventWatcher(
         if (modified.EndsWith("\r\n"))
         {
             modified = modified[..^2];
-        } else if (modified.EndsWith('\n'))
+        }
+        else if (modified.EndsWith('\n'))
         {
             modified = modified[..^1];
         }

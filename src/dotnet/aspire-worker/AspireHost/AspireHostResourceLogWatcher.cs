@@ -38,7 +38,7 @@ internal sealed class AspireHostResourceLogWatcher(
     {
         try
         {
-            logger.LogInformation("Start log watching for the resource {resourceName}", resourceName);
+            logger.StartLogWatchingForResource(resourceName);
 
             if (!resource.IsInitialized.HasTrueValue())
             {
@@ -50,12 +50,11 @@ internal sealed class AspireHostResourceLogWatcher(
             await _pipeline.ExecuteAsync(
                 async token => await SendWatchResourceLogsRequest(resourceName, resource, token), resourceLifetime);
 
-            logger.LogInformation("Stop log watching for the resource {resourceName}, lifetime is alive {isAlive}",
-                resourceName, resourceLifetime);
+            logger.StopLogWatchingForResource(resourceName, resourceLifetime.IsAlive);
         }
         catch (OperationCanceledException)
         {
-            logger.LogInformation("Resource log watching was cancelled");
+            logger.ResourceLogWatchingWasCancelled();
         }
     }
 
@@ -64,7 +63,7 @@ internal sealed class AspireHostResourceLogWatcher(
         ResourceWrapper resource,
         CancellationToken ct)
     {
-        logger.LogTrace("Sending log watching request for the resource {resourceName}", resourceName);
+        logger.SendingLogWatchingRequestForResource(resourceName);
 
         try
         {
@@ -78,7 +77,7 @@ internal sealed class AspireHostResourceLogWatcher(
 
                     if (string.IsNullOrEmpty(logLine.Text)) continue;
 
-                    logger.LogTrace("Log line received {logLine}", logLine);
+                    logger.ResourceLogLineReceived(logLine);
                     await connection.DoWithModel(_ =>
                         resource.LogReceived(
                             new ResourceLog(
@@ -92,9 +91,9 @@ internal sealed class AspireHostResourceLogWatcher(
                 }
             }
         }
-        catch (OperationCanceledException) when(ct.IsCancellationRequested)
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            logger.LogTrace("Log watching request was cancelled");
+            logger.LogWatchingRequestWasCancelled();
         }
     }
 }
