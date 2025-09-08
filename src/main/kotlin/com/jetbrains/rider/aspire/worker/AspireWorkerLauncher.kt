@@ -48,7 +48,7 @@ class AspireWorkerLauncher() {
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
         private const val RIDER_DCP_SESSION_TOKEN = "RIDER_DCP_SESSION__Token"
         private const val RIDER_RD_PORT = "RIDER_CONNECTION__RdPort"
-        private const val SERILOG_FILE_PATH = "Serilog__WriteTo__0__Args__path"
+        private const val SERILOG_FILE_PATH = "Serilog__WriteTo__0__Args__configure__0__Args__path"
     }
 
     private val pluginId = PluginId.getId("me.rafaelldi.aspire")
