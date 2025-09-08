@@ -4,6 +4,7 @@ using JetBrains.Rd;
 using JetBrains.Rd.Impl;
 using JetBrains.Rider.Aspire.Worker.Configuration;
 using JetBrains.Rider.Aspire.Worker.Generated;
+using ILogger = Serilog.ILogger;
 
 namespace JetBrains.Rider.Aspire.Worker;
 
@@ -11,17 +12,23 @@ internal sealed class Connection : IDisposable
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
     private readonly Lifetime _lifetime;
-    private readonly SingleThreadScheduler _scheduler;
-    private readonly IProtocol _protocol;
-    private readonly Task<AspireWorkerModel> _model;
+    private readonly SingleThreadScheduler? _scheduler;
+    private readonly IProtocol? _protocol;
+    private readonly Task<AspireWorkerModel>? _model;
 
-    internal Connection(ConfigurationManager configuration)
+    public bool IsConnected => _model is not null;
+
+    internal Connection(ConfigurationManager configuration, ILogger startupLogger)
     {
+        _lifetime = _lifetimeDef.Lifetime;
+
         var connectionOptions = configuration.GetSection(ConnectionOptions.SectionName).Get<ConnectionOptions>();
         if (connectionOptions?.RdPort == null)
-            throw new ApplicationException("Unable to find RD port environment variable");
+        {
+            startupLogger.Warning("Unable to find RD port environment variable. Skip connecting to Rider.");
+            return;
+        }
 
-        _lifetime = _lifetimeDef.Lifetime;
         _scheduler = SingleThreadScheduler.RunOnSeparateThread(_lifetime, "AspireSessionHost Protocol Connection");
         var wire = new SocketWire.Client(_lifetime, _scheduler, connectionOptions.RdPort.Value);
         _protocol = new Protocol(
@@ -32,17 +39,17 @@ internal sealed class Connection : IDisposable
             wire,
             _lifetime
         );
-        _model = InitializeModelAsync();
+        _model = InitializeModelAsync(_scheduler, _protocol);
     }
 
-    private Task<AspireWorkerModel> InitializeModelAsync()
+    private Task<AspireWorkerModel> InitializeModelAsync(SingleThreadScheduler scheduler, IProtocol protocol)
     {
         var tcs = new TaskCompletionSource<AspireWorkerModel>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _scheduler.Queue(() =>
+        scheduler.Queue(() =>
         {
             try
             {
-                tcs.SetResult(new AspireWorkerModel(_lifetime, _protocol));
+                tcs.SetResult(new AspireWorkerModel(_lifetime, protocol));
             }
             catch (Exception ex)
             {
@@ -52,8 +59,13 @@ internal sealed class Connection : IDisposable
         return tcs.Task;
     }
 
-    internal async Task<T> DoWithModel<T>(Func<AspireWorkerModel, T> action)
+    internal async Task<T?> DoWithModel<T>(Func<AspireWorkerModel, T> action)
     {
+        if (_scheduler is null || _protocol is null || _model is null)
+        {
+            return default;
+        }
+
         var model = await _model;
         var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
         _scheduler.Queue(() =>
