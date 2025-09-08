@@ -28,18 +28,18 @@ internal sealed class AspireHostResourceWatcher(
     {
         try
         {
-            logger.LogInformation("Start resource watching");
+            logger.StartResourceWatching();
 
             await Task.Delay(TimeSpan.FromSeconds(5), lifetime);
 
             var retryCout = 1;
             await _pipeline.ExecuteAsync(async token => await SendWatchResourcesRequest(retryCout++, token), lifetime);
 
-            logger.LogInformation("Stop resource watching, lifetime is alive {isAlive}", lifetime.IsAlive);
+            logger.StopResourceWatching(lifetime.IsAlive);
         }
         catch (OperationCanceledException)
         {
-            logger.LogInformation("Resource watching was cancelled");
+            logger.ResourceWatchingWasCancelled();
         }
     }
 
@@ -68,13 +68,13 @@ internal sealed class AspireHostResourceWatcher(
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            logger.LogTrace("Resource watching request was cancelled");
+            logger.ResourceWatchingRequestWasCancelled();
         }
     }
 
     private async Task HandleInitialData(InitialResourceData initialResourceData, CancellationToken ct)
     {
-        logger.LogTrace("Handle initial resource data");
+        logger.HandleInitialResourceData();
 
         await connection.DoWithModel(_ => hostModel.Resources.Clear());
 
@@ -92,7 +92,7 @@ internal sealed class AspireHostResourceWatcher(
 
     private async Task HandleChanges(WatchResourcesChanges watchResourcesChanges, CancellationToken ct)
     {
-        logger.LogTrace("Handle resource changes");
+        logger.HandleResourceChanges();
 
         foreach (var change in watchResourcesChanges.Value)
         {
