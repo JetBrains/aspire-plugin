@@ -4,7 +4,6 @@ using JetBrains.Rider.Aspire.Worker.AspireHost;
 using JetBrains.Rider.Aspire.Worker.Configuration;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 using Serilog;
-using Serilog.Events;
 
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()

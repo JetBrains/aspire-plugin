@@ -3,6 +3,7 @@
     <PropertyGroup>
         <RootNamespace>JetBrains.Rider.Aspire.Worker</RootNamespace>
         <RollForward>Major</RollForward>
+        <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
     </PropertyGroup>
 
     <ItemGroup>
