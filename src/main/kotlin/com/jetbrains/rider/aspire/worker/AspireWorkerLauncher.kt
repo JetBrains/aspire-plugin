@@ -14,11 +14,18 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
 import com.intellij.openapi.util.Key
+import com.intellij.util.io.createDirectories
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rider.NetCoreRuntime
+import com.jetbrains.rider.RiderEnvironment
 import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
+import java.text.SimpleDateFormat
+import java.util.Date
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 
 /**
@@ -41,6 +48,7 @@ class AspireWorkerLauncher() {
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
         private const val RIDER_DCP_SESSION_TOKEN = "RIDER_DCP_SESSION__Token"
         private const val RIDER_RD_PORT = "RIDER_CONNECTION__RdPort"
+        private const val SERILOG_FILE_PATH = "Serilog__WriteTo__0__Args__path"
     }
 
     private val pluginId = PluginId.getId("me.rafaelldi.aspire")
@@ -57,7 +65,7 @@ class AspireWorkerLauncher() {
      * @param config The configuration parameters for the Aspire worker, such as port details, session details, and HTTPS usage.
      * @param lifetime The lifetime definition to control the lifecycle of the Aspire worker process, ensuring proper termination and cleanup.
      */
-    fun launchWorker(config: AspireWorkerConfig, lifetime: LifetimeDefinition) {
+    suspend fun launchWorker(config: AspireWorkerConfig, lifetime: LifetimeDefinition) {
         LOG.info("Starting Aspire worker")
 
         val dotnetCliPath = NetCoreRuntime.cliPath.value
@@ -94,7 +102,8 @@ class AspireWorkerLauncher() {
         LOG.trace("Aspire worker started")
     }
 
-    private fun getCommandLine(dotnetCliPath: String, config: AspireWorkerConfig): GeneralCommandLine {
+    private suspend fun getCommandLine(dotnetCliPath: String, config: AspireWorkerConfig): GeneralCommandLine {
+        val logFile = getLogFile()
         val commandLine = GeneralCommandLine()
             .withExePath(dotnetCliPath)
             .withCharset(StandardCharsets.UTF_8)
@@ -110,8 +119,20 @@ class AspireWorkerLauncher() {
                     put(RIDER_RD_PORT, "${config.rdPort}")
                     put(RIDER_PARENT_PROCESS_ID, ProcessHandle.current().pid().toString())
                     put(RIDER_DCP_SESSION_TOKEN, config.debugSessionToken)
+                    put(SERILOG_FILE_PATH, logFile.absolutePathString())
                 }
             )
         return commandLine
+    }
+
+    private suspend fun getLogFile(): Path {
+        val aspireWorkerLogFolder = RiderEnvironment.logDirectory.toPath().resolve("AspireWorker")
+        withContext(Dispatchers.IO) {
+            aspireWorkerLogFolder.createDirectories()
+        }
+        val format = SimpleDateFormat("yyyy_M_dd_HH_mm_ss")
+        val currentTimeString = format.format(Date())
+        val logFileName = "$currentTimeString.log"
+        return aspireWorkerLogFolder.resolve(logFileName)
     }
 }
