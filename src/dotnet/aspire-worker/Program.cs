@@ -22,7 +22,7 @@ try
 
     builder.Services.AddGrpc();
 
-    var connection = new Connection(builder.Configuration);
+    var connection = new Connection(builder.Configuration, Log.Logger);
     builder.Services.AddSingleton(connection);
 
     builder.Services.AddAspireHostServices();

@@ -14,6 +14,9 @@ internal sealed class AspireHostService(
 
     internal async Task Initialize()
     {
+        if (!connection.IsConnected)
+            return;
+
         await connection.DoWithModel(model =>
         {
             model.AspireHosts.View(_lifetimeDef.Lifetime, (lifetime, id, host) =>
