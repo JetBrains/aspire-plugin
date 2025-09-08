@@ -65,7 +65,7 @@ class AspireWorkerLauncher() {
      * @param config The configuration parameters for the Aspire worker, such as port details, session details, and HTTPS usage.
      * @param lifetime The lifetime definition to control the lifecycle of the Aspire worker process, ensuring proper termination and cleanup.
      */
-    suspend fun launchWorker(config: AspireWorkerConfig, lifetime: LifetimeDefinition) {
+    fun launchWorker(config: AspireWorkerConfig, lifetime: LifetimeDefinition) {
         LOG.info("Starting Aspire worker")
 
         val dotnetCliPath = NetCoreRuntime.cliPath.value
@@ -102,7 +102,7 @@ class AspireWorkerLauncher() {
         LOG.trace("Aspire worker started")
     }
 
-    private suspend fun getCommandLine(dotnetCliPath: String, config: AspireWorkerConfig): GeneralCommandLine {
+    private fun getCommandLine(dotnetCliPath: String, config: AspireWorkerConfig): GeneralCommandLine {
         val logFile = getLogFile()
         val commandLine = GeneralCommandLine()
             .withExePath(dotnetCliPath)
@@ -125,11 +125,8 @@ class AspireWorkerLauncher() {
         return commandLine
     }
 
-    private suspend fun getLogFile(): Path {
+    private fun getLogFile(): Path {
         val aspireWorkerLogFolder = RiderEnvironment.logDirectory.toPath().resolve("AspireWorker")
-        withContext(Dispatchers.IO) {
-            aspireWorkerLogFolder.createDirectories()
-        }
         val format = SimpleDateFormat("yyyy_M_dd_HH_mm_ss")
         val currentTimeString = format.format(Date())
         val logFileName = "$currentTimeString.log"
