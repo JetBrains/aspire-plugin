@@ -56,14 +56,11 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
                     isDebugging
                 );
                 var model = solution.GetProtocolSolution().GetAspirePluginModel();
-                if (model.StartAspireHost.Start(run.Lifetime, request) is RdTask<StartAspireHostResponse> task)
+                var response = await model.StartAspireHost.Start(run.Lifetime, request).AsTask();
+                var envVariables = run.Settings.TestRunner.EnvironmentVariables;
+                foreach (var hostEnvironmentVariable in response.EnvironmentVariables)
                 {
-                    var response = await task.AsTask();
-                    var envVariables = run.Settings.TestRunner.EnvironmentVariables;
-                    foreach (var hostEnvironmentVariable in response.EnvironmentVariables)
-                    {
-                        envVariables.Value[hostEnvironmentVariable.Key] = hostEnvironmentVariable.Value;
-                    }
+                    envVariables.Value[hostEnvironmentVariable.Key] = hostEnvironmentVariable.Value;
                 }
             }
         }

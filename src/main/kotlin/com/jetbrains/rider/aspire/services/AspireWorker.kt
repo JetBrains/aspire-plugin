@@ -22,6 +22,9 @@ import com.jetbrains.rider.aspire.generated.AspireHostModel
 import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
 import com.jetbrains.rider.aspire.generated.AspireWorkerModel
 import com.jetbrains.rider.aspire.generated.aspireWorkerModel
+import com.jetbrains.rider.aspire.util.DEBUG_SESSION_PORT
+import com.jetbrains.rider.aspire.util.DEBUG_SESSION_SERVER_CERTIFICATE
+import com.jetbrains.rider.aspire.util.DEBUG_SESSION_TOKEN
 import com.jetbrains.rider.aspire.util.checkDevCertificate
 import com.jetbrains.rider.aspire.util.exportCertificate
 import com.jetbrains.rider.aspire.worker.AspireWorkerConfig
@@ -34,6 +37,7 @@ import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.set
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
@@ -60,12 +64,10 @@ class AspireWorker(
         get() = !workerLifetimes.isTerminated
     val hasAspireHosts: Boolean
         get() = aspireHosts.any()
-    var debugSessionToken: String? = null
-        private set
-    var debugSessionPort: Int? = null
-        private set
-    var debugSessionServerCertificate: String? = null
-        private set
+
+    private var debugSessionToken: String? = null
+    private var debugSessionPort: Int? = null
+    private var debugSessionServerCertificate: String? = null
 
     override fun asService(): AspireWorker = this
 
@@ -81,6 +83,18 @@ class AspireWorker(
 
     fun getAspireHost(aspireHostProjectPath: Path): AspireHost? {
         return aspireHosts[aspireHostProjectPath]
+    }
+
+    //Switch DCP to the IDE mode
+    //see: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#enabling-ide-execution
+    fun getEnvironmentVariablesForDcpConnection() = buildMap {
+        val debugSessionToken = requireNotNull(debugSessionToken)
+        val debugSessionPort = requireNotNull(debugSessionPort)
+        val debugSessionServerCertificate = debugSessionServerCertificate
+
+        put(DEBUG_SESSION_TOKEN, debugSessionToken)
+        put(DEBUG_SESSION_PORT, "localhost:$debugSessionPort")
+        debugSessionServerCertificate?.also { put(DEBUG_SESSION_SERVER_CERTIFICATE, it) }
     }
 
     suspend fun start() {

@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [RIDER-129073](https://youtrack.jetbrains.com/issue/RIDER-129073) Fail to run an Aspire Test project
+
 ## [1.8.11] - 2025-09-04
 
 ### Fixed
