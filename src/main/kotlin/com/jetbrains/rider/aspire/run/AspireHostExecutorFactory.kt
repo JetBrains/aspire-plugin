@@ -148,15 +148,10 @@ class AspireHostExecutorFactory(
     ): EnvironmentVariableValues {
         val aspireWorker = AspireWorkerManager.getInstance(project).startAspireWorker()
 
-        //Switch DCP to the IDE mode
-        //see: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#enabling-ide-execution
-        val debugSessionToken = requireNotNull(aspireWorker.debugSessionToken)
-        val debugSessionPort = requireNotNull(aspireWorker.debugSessionPort)
-        val debugSessionServerCertificate = aspireWorker.debugSessionServerCertificate
+        val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
+        envs.putAll(dcpEnvironmentVariables)
+
         val dcpInstancePrefix = generateDcpInstancePrefix()
-        envs[DEBUG_SESSION_TOKEN] = debugSessionToken
-        envs[DEBUG_SESSION_PORT] = "localhost:$debugSessionPort"
-        debugSessionServerCertificate?.also { envs[DEBUG_SESSION_SERVER_CERTIFICATE] = it }
         envs[DCP_INSTANCE_ID_PREFIX] = dcpInstancePrefix
 
         val urls = requireNotNull(envs[ASPNETCORE_URLS])
