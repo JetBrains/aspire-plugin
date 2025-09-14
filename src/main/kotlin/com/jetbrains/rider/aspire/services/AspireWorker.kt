@@ -22,6 +22,7 @@ import com.jetbrains.rider.aspire.generated.AspireHostModel
 import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
 import com.jetbrains.rider.aspire.generated.AspireWorkerModel
 import com.jetbrains.rider.aspire.generated.aspireWorkerModel
+import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_PORT
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_SERVER_CERTIFICATE
 import com.jetbrains.rider.aspire.util.DEBUG_SESSION_TOKEN
@@ -175,6 +176,8 @@ class AspireWorker(
     }
 
     private suspend fun calculateServerCertificate(workerLifetime: Lifetime): String? {
+        if (!AspireSettings.getInstance().connectToDcpViaHttps) return null
+
         val hasTrustedCertificate = checkDevCertificate(workerLifetime, project)
         if (!hasTrustedCertificate) return null
 

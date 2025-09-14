@@ -18,6 +18,12 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
             state.doNotLaunchBrowserForProjects = value
         }
 
+    var connectToDcpViaHttps
+        get() = state.connectToDcpViaHttps
+        set(value) {
+            state.connectToDcpViaHttps = value
+        }
+
     var connectToDatabase
         get() = state.connectToDatabase
         set(value) {

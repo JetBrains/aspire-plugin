@@ -18,6 +18,10 @@ class AspireConfigurable : BoundConfigurable(AspireBundle.message("configurable.
             checkBox(AspireBundle.message("configurable.Aspire.do.not.launch.browser"))
                 .bindSelected(settings::doNotLaunchBrowserForProjects)
         }
+        row {
+            checkBox(AspireBundle.message("configurable.Aspire.connect.to.dcp.via.https"))
+                .bindSelected(settings::connectToDcpViaHttps)
+        }
         group(AspireBundle.message("configurable.Aspire.dashboard")) {
             row {
                 checkBox(AspireBundle.message("configurable.Aspire.show.sensitive.properties"))

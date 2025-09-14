@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- A setting to disable HTTPS connection with DCP
+
 ### Fixed
 
 - [RIDER-129073](https://youtrack.jetbrains.com/issue/RIDER-129073) Fail to run an Aspire Test project
