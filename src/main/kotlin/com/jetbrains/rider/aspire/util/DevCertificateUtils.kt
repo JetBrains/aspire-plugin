@@ -2,6 +2,7 @@ package com.jetbrains.rider.aspire.util
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.util.io.createDirectories
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.run.configurations.runWithProgress
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
@@ -21,8 +22,12 @@ internal suspend fun checkDevCertificate(lifetime: Lifetime, project: Project): 
 
 internal suspend fun exportCertificate(lifetime: Lifetime, project: Project): String? {
     val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value ?: return null
-    val certificateFile = DotNetSslCerts.getAspNetCoreCertificateFolder().resolve("aspire-worker.crt")
+    val certificateFolder = DotNetSslCerts.getAspNetCoreCertificateFolder()
+    if (!certificateFolder.exists()) {
+        certificateFolder.createDirectories()
+    }
 
+    val certificateFile = certificateFolder.resolve("aspire-worker.crt")
     val commandLine = runtime.createCommandLine(
         listOf(
             "dev-certs",
