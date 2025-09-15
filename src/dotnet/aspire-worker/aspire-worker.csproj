@@ -13,7 +13,7 @@
         <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.1"/>
         <PackageReference Include="JetBrains.RdFramework" Version="2025.2.3" />
-        <PackageReference Include="Microsoft.Extensions.Resilience" Version="9.8.0" />
+        <PackageReference Include="Microsoft.Extensions.Resilience" Version="9.9.0" />
     </ItemGroup>
 
 </Project>
