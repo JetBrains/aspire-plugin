@@ -29,11 +29,4 @@ internal static class AspireHostRegistration
             });
         });
     }
-
-    internal static async Task InitializeAspireHostServices(this IServiceProvider services)
-    {
-        using var scope = services.CreateScope();
-        var sessionEventService = scope.ServiceProvider.GetRequiredService<AspireHostService>();
-        await sessionEventService.Initialize();
-    }
 }
