@@ -11,11 +11,12 @@ namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 internal sealed class AspireHostService(
     Connection connection,
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
-    ILoggerFactory loggerFactory)
+    ILoggerFactory loggerFactory
+) : IAspireHostService
 {
     private readonly Dictionary<string, AspireHost> _hosts = new();
 
-    internal void AddNewHost(string id, AspireHostModel host, Lifetime lifetime)
+    public void AddNewHost(string id, AspireHostModel host, Lifetime lifetime)
     {
         var aspireHost = new AspireHost(
             id,
@@ -28,7 +29,7 @@ internal sealed class AspireHostService(
         _hosts.AddLifetimed(lifetime, new KeyValuePair<string, AspireHost>(id, aspireHost));
     }
 
-    internal async Task<(string? sessionId, ErrorResponse? error)?> CreateSession(string aspireHostId, Session session)
+    public async Task<(string? sessionId, ErrorResponse? error)?> CreateSession(string aspireHostId, Session session)
     {
         var aspireHost = _hosts.GetValueOrDefault(aspireHostId);
         if (aspireHost is null)
@@ -39,7 +40,7 @@ internal sealed class AspireHostService(
         return await aspireHost.Create(session);
     }
 
-    internal async Task<(string? sessionId, ErrorResponse? error)?> DeleteSession(string aspireHostId, string sessionId)
+    public async Task<(string? sessionId, ErrorResponse? error)?> DeleteSession(string aspireHostId, string sessionId)
     {
         var aspireHost = _hosts.GetValueOrDefault(aspireHostId);
         if (aspireHost is null)
@@ -50,7 +51,7 @@ internal sealed class AspireHostService(
         return await aspireHost.Delete(sessionId);
     }
 
-    internal ChannelReader<ISessionEvent>? GetSessionEventReader(string aspireHostId)
+    public ChannelReader<ISessionEvent>? GetSessionEventReader(string aspireHostId)
     {
         var aspireHost = _hosts.GetValueOrDefault(aspireHostId);
 
