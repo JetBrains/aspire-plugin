@@ -1,6 +1,7 @@
 using System.Threading.Channels;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 
 namespace JetBrains.Rider.Aspire.Worker.AspireHost;
