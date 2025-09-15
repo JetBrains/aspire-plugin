@@ -2,6 +2,7 @@ using System.Text.Json;
 using JetBrains.Rider.Aspire.Worker;
 using JetBrains.Rider.Aspire.Worker.AspireHost;
 using JetBrains.Rider.Aspire.Worker.Configuration;
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 using Serilog;
 using Log = Serilog.Log;
@@ -24,6 +25,8 @@ try
 
     var connection = new Connection(builder.Configuration, Log.Logger);
     builder.Services.AddSingleton(connection);
+builder.Services.AddRdConnectionServices(builder.Configuration);
+
 
     builder.Services.AddAspireHostServices();
 
@@ -38,9 +41,7 @@ try
 
     var app = builder.Build();
 
-    await app.Services.InitializeAspireHostServices();
-
-    app.UseWebSockets();
+app.UseWebSockets();
 
     app.MapSessionEndpoints();
 
