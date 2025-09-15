@@ -4,6 +4,7 @@ using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
 using JetBrains.Rd.Tasks;
 using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using Polly;
 using Polly.Registry;
 using ResourceCommandRequest = JetBrains.Rider.Aspire.Worker.Generated.ResourceCommandRequest;

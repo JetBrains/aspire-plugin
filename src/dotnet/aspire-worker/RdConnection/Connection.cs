@@ -6,7 +6,7 @@ using JetBrains.Rider.Aspire.Worker.Configuration;
 using JetBrains.Rider.Aspire.Worker.Generated;
 using ILogger = Serilog.ILogger;
 
-namespace JetBrains.Rider.Aspire.Worker;
+namespace JetBrains.Rider.Aspire.Worker.RdConnection;
 
 internal sealed class Connection : IDisposable
 {
