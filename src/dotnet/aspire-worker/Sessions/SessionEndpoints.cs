@@ -57,19 +57,20 @@ internal static class SessionEndpoints
         }
 
         var aspireHostId = GetAspireHostId(dcpInstanceId);
-        var aspireHost = hostService.GetAspireHost(aspireHostId);
-        if (aspireHost is null)
+
+        var createdSession = await hostService.CreateSession(aspireHostId, session);
+        if (createdSession is null)
         {
             return TypedResults.BadRequest(AspireHostIsNotFound);
         }
 
-        var (sessionId, error) = await aspireHost.Create(session);
-        if (sessionId != null)
+        var (sessionId, error) = createdSession.Value;
+        if (sessionId is not null)
         {
             return TypedResults.Created($"/run_session/{sessionId}", session);
         }
 
-        if (error != null)
+        if (error is not null)
         {
             return TypedResults.BadRequest(error);
         }
@@ -98,19 +99,20 @@ internal static class SessionEndpoints
         }
 
         var aspireHostId = GetAspireHostId(dcpInstanceId);
-        var aspireHost = hostService.GetAspireHost(aspireHostId);
-        if (aspireHost is null)
+
+        var deletedSession = await hostService.DeleteSession(aspireHostId, sessionId);
+        if (deletedSession is null)
         {
             return TypedResults.BadRequest(AspireHostIsNotFound);
         }
 
-        var (deletedSessionId, error) = await aspireHost.Delete(sessionId);
-        if (deletedSessionId != null)
+        var (deletedSessionId, error) = deletedSession.Value;
+        if (deletedSessionId is not null)
         {
             return TypedResults.Ok();
         }
 
-        if (error != null)
+        if (error is not null)
         {
             return TypedResults.BadRequest(error);
         }
@@ -140,8 +142,9 @@ internal static class SessionEndpoints
         }
 
         var aspireHostId = GetAspireHostId(dcpInstanceId);
-        var aspireHost = hostService.GetAspireHost(aspireHostId);
-        if (aspireHost is null)
+
+        var sessionEventReader = hostService.GetSessionEventReader(aspireHostId);
+        if (sessionEventReader is null)
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
             return;
@@ -150,7 +153,7 @@ internal static class SessionEndpoints
         if (context.WebSockets.IsWebSocketRequest)
         {
             using var ws = await context.WebSockets.AcceptWebSocketAsync();
-            await Receive(ws, aspireHost.SessionEventReader);
+            await Receive(ws, sessionEventReader);
         }
         else
         {
