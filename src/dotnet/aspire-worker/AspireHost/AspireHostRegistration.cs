@@ -1,3 +1,4 @@
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using Polly;
 using Polly.Retry;
 
@@ -7,7 +8,9 @@ internal static class AspireHostRegistration
 {
     internal static void AddAspireHostServices(this IServiceCollection services)
     {
-        services.AddSingleton<AspireHostService>();
+        services.AddHostedService<AspireHostListener>();
+
+        services.AddSingleton<IAspireHostService, AspireHostService>();
 
         services.AddResiliencePipeline(nameof(AspireHostResourceWatcher), builder =>
         {

@@ -43,7 +43,7 @@ internal static class SessionEndpoints
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
         [FromHeader(Name = "Authorization")] string authorization,
-        AspireHostService hostService,
+        IAspireHostService hostService,
         IOptions<DcpSessionOptions> dcpSessionOptions)
     {
         if (!IsProtocolVersionSupported(apiVersion))
@@ -85,7 +85,7 @@ internal static class SessionEndpoints
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
         [FromHeader(Name = "Authorization")] string authorization,
-        AspireHostService hostService,
+        IAspireHostService hostService,
         IOptions<DcpSessionOptions> dcpSessionOptions)
     {
         if (!IsProtocolVersionSupported(apiVersion))
@@ -126,7 +126,7 @@ internal static class SessionEndpoints
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
         [FromHeader(Name = "Authorization")] string authorization,
-        AspireHostService hostService,
+        IAspireHostService hostService,
         IOptions<DcpSessionOptions> dcpSessionOptions)
     {
         if (!IsProtocolVersionSupported(apiVersion))

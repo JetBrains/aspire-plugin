@@ -1,10 +1,10 @@
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
-using JetBrains.Rider.Aspire.Worker.AspireHost;
 
-namespace JetBrains.Rider.Aspire.Worker.RdConnection;
+namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
-internal sealed class AspireHostListener(RdConnection connection, AspireHostService hostService) : IHostedService
+internal sealed class AspireHostListener(RdConnection.RdConnection connection, IAspireHostService hostService)
+    : IHostedService
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
 
@@ -12,10 +12,8 @@ internal sealed class AspireHostListener(RdConnection connection, AspireHostServ
     {
         await connection.DoWithModel(model =>
         {
-            model.AspireHosts.View(_lifetimeDef.Lifetime, (lifetime, id, host) =>
-            {
-                hostService.AddNewHost(id, host, lifetime);
-            });
+            model.AspireHosts.View(_lifetimeDef.Lifetime,
+                (lifetime, id, host) => { hostService.AddNewHost(id, host, lifetime); });
         });
     }
 
