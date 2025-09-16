@@ -4,7 +4,7 @@ using JetBrains.Rider.Aspire.Worker.AspireHost;
 
 namespace JetBrains.Rider.Aspire.Worker.RdConnection;
 
-internal sealed class AspireHostListener(Connection connection, AspireHostService hostService) : IHostedService
+internal sealed class AspireHostListener(RdConnection connection, AspireHostService hostService) : IHostedService
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
 
