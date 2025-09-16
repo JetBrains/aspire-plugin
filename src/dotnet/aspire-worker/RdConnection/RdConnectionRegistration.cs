@@ -6,7 +6,5 @@ internal static class RdConnectionRegistration
     {
         var connection = new RdConnection(configuration);
         services.AddSingleton(connection);
-
-        services.AddHostedService<AspireHostListener>();
     }
 }
