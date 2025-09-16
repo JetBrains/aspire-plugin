@@ -16,7 +16,7 @@ namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 internal sealed class AspireHostResourceWatcher(
     DashboardService.DashboardServiceClient client,
     Metadata headers,
-    Connection connection,
+    RdConnection.RdConnection connection,
     AspireHostModel hostModel,
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
     ILogger logger,

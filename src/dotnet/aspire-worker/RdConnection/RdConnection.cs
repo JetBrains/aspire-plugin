@@ -8,7 +8,7 @@ using ILogger = Serilog.ILogger;
 
 namespace JetBrains.Rider.Aspire.Worker.RdConnection;
 
-internal sealed class Connection : IDisposable
+internal sealed class RdConnection : IDisposable
 {
     private readonly LifetimeDefinition _lifetimeDef = new();
     private readonly Lifetime _lifetime;
@@ -18,7 +18,7 @@ internal sealed class Connection : IDisposable
 
     public bool IsConnected => _model is not null;
 
-    internal Connection(ConfigurationManager configuration, ILogger startupLogger)
+    internal RdConnection(ConfigurationManager configuration, ILogger startupLogger)
     {
         _lifetime = _lifetimeDef.Lifetime;
 

@@ -9,7 +9,7 @@ using Polly.Registry;
 namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class AspireHostService(
-    Connection connection,
+    RdConnection.RdConnection connection,
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
     ILoggerFactory loggerFactory
 ) : IAspireHostService

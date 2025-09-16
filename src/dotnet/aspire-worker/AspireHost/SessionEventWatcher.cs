@@ -1,13 +1,12 @@
 using System.Threading.Channels;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
-using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 
 namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class SessionEventWatcher(
-    Connection connection,
+    RdConnection.RdConnection connection,
     AspireHostModel hostModel,
     ChannelWriter<ISessionEvent> sessionEventWriter,
     ILogger logger,
