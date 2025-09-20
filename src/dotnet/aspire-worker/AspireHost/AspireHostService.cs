@@ -2,7 +2,6 @@ using System.Threading.Channels;
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
-using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 using Polly.Registry;
 

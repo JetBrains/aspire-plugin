@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Channels;
+using System.Threading.Tasks;
+using JetBrains.Lifetimes;
+using JetBrains.Rider.Aspire.Worker.AspireHost;
+using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.Sessions;
+
+namespace JetBrains.Rider.Aspire.Worker.IntegrationTests;
+
+internal class InMemoryAspireHostService : IAspireHostService
+{
+    private readonly Dictionary<string, (string HostId, Session Session)> _sessions = new();
+
+    public void AddNewHost(string id, AspireHostModel host, Lifetime lifetime)
+    {
+    }
+
+    public Task<(string? sessionId, ErrorResponse? error)?> CreateSession(string aspireHostId, Session session)
+    {
+        var sessionId = Guid.NewGuid().ToString();
+        _sessions[sessionId] = (aspireHostId, session);
+        return Task.FromResult<(string? sessionId, ErrorResponse? error)?>((sessionId, null));
+    }
+
+    public Task<(string? sessionId, ErrorResponse? error)?> DeleteSession(string aspireHostId, string sessionId)
+    {
+        var sessionWasRemoved = _sessions.Remove(sessionId);
+        if (sessionWasRemoved)
+        {
+            return Task.FromResult<(string? sessionId, ErrorResponse? error)?>((sessionId, null));
+        }
+        else
+        {
+            return Task.FromResult<(string? sessionId, ErrorResponse? error)?>(null);
+        }
+    }
+
+    public ChannelReader<ISessionEvent> GetSessionEventReader(string aspireHostId)
+    {
+        return Channel.CreateUnbounded<ISessionEvent>();
+    }
+
+    internal (string HostId, Session Session)? GetSession(string sessionId) => _sessions[sessionId];
+}
