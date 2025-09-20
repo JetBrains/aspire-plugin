@@ -23,10 +23,7 @@ try
 
     builder.Services.AddGrpc();
 
-    var connection = new Connection(builder.Configuration, Log.Logger);
-    builder.Services.AddSingleton(connection);
-builder.Services.AddRdConnectionServices(builder.Configuration);
-
+    builder.Services.AddRdConnectionServices(builder.Configuration);
 
     builder.Services.AddAspireHostServices();
 
@@ -41,7 +38,7 @@ builder.Services.AddRdConnectionServices(builder.Configuration);
 
     var app = builder.Build();
 
-app.UseWebSockets();
+    app.UseWebSockets();
 
     app.MapSessionEndpoints();
 
