@@ -2,11 +2,8 @@
 
     <PropertyGroup>
         <RootNamespace>JetBrains.Rider.Aspire.Worker.IntegrationTests</RootNamespace>
-        <TargetFramework>net8.0</TargetFramework>
-
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\src\dotnet\aspire-worker\aspire-worker.csproj" />
+      <ProjectReference Include="..\aspire-worker\aspire-worker.csproj" />
     </ItemGroup>
 
 </Project>
