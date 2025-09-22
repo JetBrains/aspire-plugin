@@ -14,17 +14,14 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
 import com.intellij.openapi.util.Key
-import com.intellij.util.io.createDirectories
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rider.NetCoreRuntime
 import com.jetbrains.rider.RiderEnvironment
 import com.jetbrains.rider.aspire.util.decodeAnsiCommandsToString
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.div
 
@@ -39,7 +36,7 @@ import kotlin.io.path.div
  * @see <a href="https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md">.NET Aspire IDE execution</a>
  */
 @Service(Service.Level.PROJECT)
-class AspireWorkerLauncher() {
+class AspireWorkerLauncher {
     companion object {
         fun getInstance(project: Project) = project.service<AspireWorkerLauncher>()
 
