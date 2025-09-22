@@ -24,7 +24,7 @@ class WasmHostHotReloadConfigurationExtension : RiderHotReloadRunConfigurationEx
         profile: LaunchSettingsJson.Profile?
     ): Boolean {
         if (profile?.hotReloadEnabled == false) return false
-        if (HotReloadHost.Companion.getInstance(hotReloadRunInfo.project).blazorWasmHotReloadEnabled.valueOrNull != true) return false
+        if (HotReloadHost.getInstance(hotReloadRunInfo.project).blazorWasmHotReloadEnabled.valueOrNull != true) return false
 
         return withContext(Dispatchers.EDT) { isRuntimeHotReloadAvailable(lifetime, hotReloadRunInfo) }
     }
