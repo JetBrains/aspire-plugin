@@ -27,12 +27,4 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         var version = Assert.Single(info.ProtocolsSupported);
         Assert.Equal("2024-03-03", version);
     }
-
-    [Fact]
-    public async Task CreateSessionRequestReturnSuccess()
-    {
-        var client = factory.CreateDefaultClient();
-
-        var aspireHostService = factory.Services.GetService<InMemoryAspireHostService>();
-    }
 }

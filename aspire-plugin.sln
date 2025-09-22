@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aspire-worker", "src\dotnet\aspire-worker\aspire-worker.csproj", "{B52C8D2D-4AD8-48E5-9DBD-F856CA054369}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireWorkerIntegrationTests", "AspireWorkerIntegrationTests\AspireWorkerIntegrationTests.csproj", "{EAFCA01E-9A09-46D0-9744-A62BF48D4E6F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireWorkerIntegrationTests", "src\dotnet\AspireWorkerIntegrationTests\AspireWorkerIntegrationTests.csproj", "{EAFCA01E-9A09-46D0-9744-A62BF48D4E6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
