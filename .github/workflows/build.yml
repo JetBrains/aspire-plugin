@@ -317,7 +317,7 @@ jobs:
 
       # Run tests
       - name: Run Tests
-        run: dotnet test ${{ github.workspace }}/dotnet/AspireWorkerIntegrationTests/AspireWorkerIntegrationTests.csproj --logger "trx;LogFileName=testResults.trx" --results-directory ${{ github.workspace }}/AspireWorkerTestResults
+        run: dotnet test ${{ github.workspace }}/src/dotnet/AspireWorkerIntegrationTests/AspireWorkerIntegrationTests.csproj --logger "trx;LogFileName=testResults.trx" --results-directory ${{ github.workspace }}/AspireWorkerTestResults
 
       # Collect Tests Result of failed tests
       - name: Collect Tests Result
