@@ -5,7 +5,6 @@ using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
-using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 using Polly.Registry;
 

@@ -1,4 +1,3 @@
-using System.Linq;
 using JetBrains.Rider.Aspire.Worker.AspireHost;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -19,4 +18,4 @@ public class AspireWorkerWebApplicationFactory<TProgram> : WebApplicationFactory
             services.AddSingleton(inMemoryAspireHostService);
         });
     }
-};
+}
