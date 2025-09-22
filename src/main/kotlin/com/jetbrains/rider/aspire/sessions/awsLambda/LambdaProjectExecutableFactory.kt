@@ -46,7 +46,7 @@ class LambdaProjectExecutableFactory(private val project: Project) {
         val arguments = launchProfile.commandLineArgs
 
         if (executablePath.isNullOrEmpty() || workingDirectory.isNullOrEmpty() || arguments.isNullOrEmpty()) {
-            LOG.warn("")
+            LOG.warn("Some launch profile properties are empty or null")
             return null
         }
 

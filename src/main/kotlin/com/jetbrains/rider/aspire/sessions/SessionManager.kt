@@ -66,7 +66,7 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
 
     private suspend fun handleCreateCommand(command: CreateSessionCommand) {
         LOG.info("Creating session ${command.sessionId}")
-        LOG.trace { "Session details ${command.createSessionRequest}" }
+        logCreateSessionRequest(command.createSessionRequest)
 
         val sessionLifetimeDefinition = command.aspireHostLifetime.createNested()
         sessionLifetimes.put(sessionLifetimeDefinition.lifetime, command.sessionId, sessionLifetimeDefinition)
@@ -90,6 +90,15 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
             command.isAspireHostUnderDebug,
             command.aspireHostRunConfigName
         )
+    }
+
+    private fun logCreateSessionRequest(createSessionRequest: CreateSessionRequest) {
+        LOG.trace { "Session project path: ${createSessionRequest.projectPath}" }
+        LOG.trace { "Session debug flag: ${createSessionRequest.debug}" }
+        LOG.trace { "Session launch profile: ${createSessionRequest.launchProfile}" }
+        LOG.trace { "Session disable launch profile flag: ${createSessionRequest.disableLaunchProfile}" }
+        LOG.trace { "Session args: ${createSessionRequest.args?.joinToString(", ")}" }
+        LOG.trace { "Session env keys: ${createSessionRequest.envs?.joinToString(", ") { it.key }}" }
     }
 
     private suspend fun handleDeleteCommand(command: DeleteSessionCommand) {

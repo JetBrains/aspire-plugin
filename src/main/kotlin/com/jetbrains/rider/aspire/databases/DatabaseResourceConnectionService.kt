@@ -94,10 +94,10 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
         //If the connection string wasn't modified, use the resource one
         val connectionString = modifyConnectionStringResult.getOrDefault(databaseResource.connectionString)
 
-        LOG.trace { "Processing connection string for $databaseResource" }
+        LOG.trace { "Processing connection string for ${databaseResource.name}" }
 
         if (connectionStrings.putIfAbsent(connectionString, Unit) != null) {
-            LOG.trace { "Connection string $connectionString is already in use" }
+            LOG.trace { "Connection string for ${databaseResource.name} is already in use" }
             return
         }
 
@@ -105,10 +105,10 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
             createDataSource(connectionString, modifyConnectionStringResult.isSuccess, databaseResource)
         } catch (ce: CancellationException) {
             connectionStrings.remove(connectionString)
-            LOG.trace { "Connecting with $connectionString was cancelled" }
+            LOG.trace { "Connecting with to database resource ${databaseResource.name} was cancelled" }
             throw ce
         } catch (e: Exception) {
-            LOG.warn("Unable to connect to database $connectionString", e)
+            LOG.warn("Unable to connect to database ${databaseResource.name}", e)
             connectionStrings.remove(connectionString)
         }
     }
@@ -121,14 +121,14 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
         val dataProvider = getDataProvider(databaseResource.type)
         val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
         if (driver == null) {
-            LOG.info("Unable to guess database driver")
+            LOG.info("Unable to guess database driver for ${databaseResource.name}")
             connectionStrings.remove(connectionString)
             return
         }
 
         val url = getConnectionUrl(connectionString, databaseResource, dataProvider, driver)
         if (url == null) {
-            LOG.info("Unable to convert $connectionString to url")
+            LOG.info("Unable to convert a connection string to an url for ${databaseResource.name}")
             connectionStrings.remove(connectionString)
             return
         }
@@ -137,11 +137,11 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
 
         val dataSourceManager = LocalDataSourceManager.getInstance(project)
         if (dataSourceManager.dataSources.any { it.url == url }) {
-            LOG.trace { "Data source with $url is already in use" }
+            LOG.trace { "Data source for ${databaseResource.name} is already in use" }
             return
         }
 
-        LOG.trace { "Creating a new data source with $url" }
+        LOG.trace { "Creating a new data source for ${databaseResource.name}" }
         val createdDataSource = LocalDataSource.fromDriver(driver, url, true).apply {
             name = databaseResource.name
             isAutoSynchronize = true
@@ -155,7 +155,7 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
         // So for such resources we have to remove old data sources and recreate them after each start.
         if (!connectionStringWasModified || !databaseResource.isPersistent) {
             databaseResource.resourceLifetime.onTerminationIfAlive {
-                LOG.trace { "Removing data source $url" }
+                LOG.trace { "Removing data source for ${databaseResource.name}" }
                 application.invokeLater {
                     dataSourceManager.removeDataSource(createdDataSource)
                 }
@@ -173,7 +173,7 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
         }
 
         if (resourceUrl == null) {
-            LOG.warn("Unable to find resource url for ${databaseResource.connectionString}")
+            LOG.warn("Unable to find resource url for ${databaseResource.name}")
             return Result.failure(IllegalStateException())
         }
 
@@ -261,7 +261,7 @@ class DatabaseResourceConnectionService(private val project: Project, scope: Cor
             val parsedConnectionString =
                 factory.create(connectionString, dataProvider).getOrNull()
             if (parsedConnectionString == null) {
-                LOG.warn("Unable to parse connection string $connectionString")
+                LOG.warn("Unable to parse connection string for ${databaseResource.name}")
                 return null
             }
             ConnectionStringToJdbcUrlConverter.convert(parsedConnectionString, driver, project)

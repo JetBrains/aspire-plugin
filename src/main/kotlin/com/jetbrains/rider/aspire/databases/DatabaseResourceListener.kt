@@ -53,7 +53,7 @@ class DatabaseResourceListener(private val project: Project) : ResourceListener 
                 resource.lifetime
             )
 
-            LOG.trace { "Created database resource: $databaseResource" }
+            LOG.trace { "Created database resource: ${databaseResource.name}" }
 
             val command = DatabaseResourceConnectionService.AddDatabaseResourceConnection(databaseResource)
             DatabaseResourceConnectionService.getInstance(project).sendConnectionCommand(command)
