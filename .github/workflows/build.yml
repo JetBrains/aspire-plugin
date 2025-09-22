@@ -298,7 +298,7 @@ jobs:
   releaseDraft:
     name: Release draft
     if: github.event_name != 'pull_request'
-    needs: [ build, verify ]
+    needs: [ build, verify, test, qodanaFrontend, qodanaBackend ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
