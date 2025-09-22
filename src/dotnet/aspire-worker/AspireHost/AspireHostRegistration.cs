@@ -1,4 +1,3 @@
-using JetBrains.Rider.Aspire.Worker.RdConnection;
 using Polly;
 using Polly.Retry;
 

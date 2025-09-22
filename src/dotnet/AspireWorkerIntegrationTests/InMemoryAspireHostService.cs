@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.AspireHost;
 using JetBrains.Rider.Aspire.Worker.Generated;
@@ -27,14 +24,9 @@ internal class InMemoryAspireHostService : IAspireHostService
     public Task<(string? sessionId, ErrorResponse? error)?> DeleteSession(string aspireHostId, string sessionId)
     {
         var sessionWasRemoved = _sessions.Remove(sessionId);
-        if (sessionWasRemoved)
-        {
-            return Task.FromResult<(string? sessionId, ErrorResponse? error)?>((sessionId, null));
-        }
-        else
-        {
-            return Task.FromResult<(string? sessionId, ErrorResponse? error)?>(null);
-        }
+        return sessionWasRemoved
+            ? Task.FromResult<(string? sessionId, ErrorResponse? error)?>((sessionId, null))
+            : Task.FromResult<(string? sessionId, ErrorResponse? error)?>(null);
     }
 
     public ChannelReader<ISessionEvent> GetSessionEventReader(string aspireHostId)

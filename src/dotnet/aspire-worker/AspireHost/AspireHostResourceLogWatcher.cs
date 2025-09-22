@@ -3,7 +3,6 @@ using Grpc.Core;
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
-using JetBrains.Rider.Aspire.Worker.RdConnection;
 using Polly;
 using Polly.Registry;
 
