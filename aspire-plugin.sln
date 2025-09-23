@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 		src\dotnet\Directory.Build.props = src\dotnet\Directory.Build.props
 		global.json = global.json
+		src\dotnet\Directory.Packages.props = src\dotnet\Directory.Packages.props
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aspire-worker", "src\dotnet\aspire-worker\aspire-worker.csproj", "{B52C8D2D-4AD8-48E5-9DBD-F856CA054369}"
