@@ -14,7 +14,7 @@
         <PackageReference Include="Grpc.AspNetCore" Version="2.70.0" />
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.1"/>
         <PackageReference Include="JetBrains.RdFramework" Version="2025.3.0" />
-        <PackageReference Include="Microsoft.Extensions.Resilience" Version="9.8.0" />
+        <PackageReference Include="Microsoft.Extensions.Resilience" Version="9.9.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
         <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     </ItemGroup>
