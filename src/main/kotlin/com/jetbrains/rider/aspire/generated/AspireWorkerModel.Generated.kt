@@ -16,7 +16,7 @@ import kotlin.jvm.JvmStatic
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:16]
+ * #### Generated from [AspireWorkerModel.kt:15]
  */
 class AspireWorkerModel private constructor(
     private val _aspireHosts: RdMap<String, AspireHostModel>

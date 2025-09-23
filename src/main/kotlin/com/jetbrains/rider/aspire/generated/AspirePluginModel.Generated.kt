@@ -16,7 +16,7 @@ import kotlin.jvm.JvmStatic
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:10]
+ * #### Generated from [AspirePluginModel.kt:9]
  */
 class AspirePluginModel private constructor(
     private val _getProjectOutputType: RdCall<String, String?>,
