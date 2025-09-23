@@ -6,7 +6,7 @@
     <File Path="global.json" />
     <File Path="src\dotnet\Directory.Packages.props" />
   </Folder>
-  <Project Path="src\dotnet\aspire-worker\aspire-worker.csproj" Type="Classic C#" />
   <Project Path="src\dotnet\AspirePlugin\AspirePlugin.csproj" Type="Classic C#" />
   <Project Path="src\dotnet\AspireWorkerIntegrationTests\AspireWorkerIntegrationTests.csproj" Type="Classic C#" />
+  <Project Path="src\dotnet\AspireWorker\AspireWorker.csproj" Type="Classic C#" />
 </Solution>

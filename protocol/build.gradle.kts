@@ -29,7 +29,7 @@ rdgen {
     packages = "model.aspireWorker,model.aspirePlugin"
 
     val ktWorkerOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/aspire/generated")
-    val csWorkerOutput = pluginSourcePath.resolve("dotnet/aspire-worker/Generated")
+    val csWorkerOutput = pluginSourcePath.resolve("dotnet/AspireWorker/Generated")
 
     generator {
         language = "kotlin"
@@ -46,7 +46,7 @@ rdgen {
     }
 
     val ktPluginOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/aspire/generated")
-    val csPluginOutput = pluginSourcePath.resolve("dotnet/aspire-plugin/Generated")
+    val csPluginOutput = pluginSourcePath.resolve("dotnet/AspirePlugin/Generated")
 
     generator {
         language = "kotlin"

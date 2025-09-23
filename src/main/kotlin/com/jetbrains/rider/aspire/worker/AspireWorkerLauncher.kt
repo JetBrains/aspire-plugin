@@ -53,7 +53,7 @@ class AspireWorkerLauncher {
     private val hostAssemblyPath: Path = run {
         val plugin = PluginManagerCore.getPlugin(pluginId) ?: error("Plugin $pluginId could not be found.")
         val basePath = plugin.pluginPath ?: error("Could not detect path of plugin $plugin on disk.")
-        basePath / "aspire-worker" / "aspire-worker.dll"
+        basePath / "AspireWorker" / "AspireWorker.dll"
     }
 
     /**
