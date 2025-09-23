@@ -17,7 +17,7 @@ fun ProjectModelEntity.isAspireOrchestrationSupported(): Boolean {
     if (extension != "csproj" && extension != "fsproj") return false
 
     val type = entityDescriptor.specificType
-    if (type != RdProjectType.Default && type != RdProjectType.Web && type != RdProjectType.XamlProject) return false
+    if (type != RdProjectType.Default && type != RdProjectType.Web && type != RdProjectType.XamlProject && type != RdProjectType.MAUI) return false
 
     return entityDescriptor.isDotNetCore
 }
