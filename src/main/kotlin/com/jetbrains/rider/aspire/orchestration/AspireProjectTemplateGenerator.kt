@@ -44,8 +44,10 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
 
         private const val APP_HOST_TEMPLATE_ID = "Aspire.AppHost.CSharp"
         private const val SERVICE_DEFAULTS_TEMPLATE_ID = "Aspire.ServiceDefaults.CSharp"
+        private const val MAUI_SERVICE_DEFAULTS_TEMPLATE_ID = "MauiAspire.ServiceDefaults.CSharp"
         private const val APP_HOST_PROJECT_DEFAULT_SUFFIX = "AppHost"
         private const val SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX = "ServiceDefaults"
+        private const val MAUI_SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX = "Maui.ServiceDefaults"
     }
 
     /**
@@ -54,11 +56,13 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
      *
      * @param generateAppHost defines whether to generate the App Host project.
      * @param generateServiceDefaults defines whether to generate the Service Defaults project.
+     * @param generateMauiServiceDefaults defines whether to generate the Service Defaults project for MAUI projects.
      * @return paths of the generated project files.
      */
     suspend fun generateAspireProjectsFromTemplates(
         generateAppHost: Boolean,
-        generateServiceDefaults: Boolean
+        generateServiceDefaults: Boolean,
+        generateMauiServiceDefaults: Boolean
     ) = withBackgroundProgress(project, AspireBundle.message("progress.generating.aspire.projects")) {
         LOG.info("Generating Aspire projects for the solution")
 
@@ -66,13 +70,13 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
         val session = RiderProjectTemplateProvider.createSession(createSolution = false)
 
         serviceLifetime.usingNested { lifetime ->
-            val (appHostTemplate, serviceDefaultsTemplate) = findAspireTemplates(model, session, lifetime)
+            val templates = findAspireTemplates(model, session, lifetime)
                 ?: return@withBackgroundProgress null
 
             val appHostProjectPath = if (generateAppHost) async {
                 generateProjectFromTemplate(
                     session,
-                    appHostTemplate,
+                    templates.appHost,
                     APP_HOST_PROJECT_DEFAULT_SUFFIX
                 )
             } else null
@@ -80,12 +84,24 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
             val serviceDefaultsProjectPath = if (generateServiceDefaults) async {
                 generateProjectFromTemplate(
                     session,
-                    serviceDefaultsTemplate,
+                    templates.serviceDefaults,
                     SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX
                 )
             } else null
 
-            return@withBackgroundProgress appHostProjectPath?.await() to serviceDefaultsProjectPath?.await()
+            val mauiServiceDefaultsProjectPath = if (generateMauiServiceDefaults) async {
+                generateProjectFromTemplate(
+                    session,
+                    templates.mauiServiceDefaults,
+                    MAUI_SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX
+                )
+            } else null
+
+            return@withBackgroundProgress GeneratedAspireProjects(
+                appHostProjectPath?.await(),
+                serviceDefaultsProjectPath?.await(),
+                mauiServiceDefaultsProjectPath?.await()
+            )
         }
     }
 
@@ -93,9 +109,10 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
         model: ProjectTemplatesModel,
         session: RdProjectTemplateSession,
         lifetime: Lifetime
-    ): Pair<RdProjectTemplate?, RdProjectTemplate?>? {
+    ): AspireProjectTemplates? {
         val appHostDeferredTemplate = CompletableDeferred<RdProjectTemplate?>()
         val serviceDefaultsDeferredTemplate = CompletableDeferred<RdProjectTemplate?>()
+        val mauiServiceDefaultsDeferredTemplate = CompletableDeferred<RdProjectTemplate?>()
 
         val advisingLifetime = lifetime.createTerminatedAfter(Duration.ofSeconds(30), Dispatchers.Default)
 
@@ -110,6 +127,9 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
             if (!serviceDefaultsDeferredTemplate.isCompleted) {
                 serviceDefaultsDeferredTemplate.complete(null)
             }
+            if (!mauiServiceDefaultsDeferredTemplate.isCompleted) {
+                mauiServiceDefaultsDeferredTemplate.complete(null)
+            }
         }
 
         session.templatesRaw.adviseNotNullOnce(advisingLifetime) { templates ->
@@ -120,6 +140,10 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
             val serviceDefaultsTemplate =
                 templates.firstOrNull { it.id.contains(SERVICE_DEFAULTS_TEMPLATE_ID) }
             serviceDefaultsDeferredTemplate.complete(serviceDefaultsTemplate)
+
+            val mauiServiceDefaultsTemplate =
+                templates.firstOrNull { it.id.contains(MAUI_SERVICE_DEFAULTS_TEMPLATE_ID) }
+            mauiServiceDefaultsDeferredTemplate.complete(mauiServiceDefaultsTemplate)
         }
 
         withContext(Dispatchers.EDT) {
@@ -128,14 +152,21 @@ class AspireProjectTemplateGenerator(private val project: Project) : LifetimedSe
 
         val appHostResult = appHostDeferredTemplate.await()
         val serviceDefaultsResult = serviceDefaultsDeferredTemplate.await()
+        val mauiServiceDefaultsResult = mauiServiceDefaultsDeferredTemplate.await()
 
         if (appHostResult == null || serviceDefaultsResult == null) {
             notifyAboutMissingTemplates()
             return null
         }
 
-        return appHostResult to serviceDefaultsResult
+        return AspireProjectTemplates(appHostResult, serviceDefaultsResult, mauiServiceDefaultsResult)
     }
+
+    private data class AspireProjectTemplates(
+        val appHost: RdProjectTemplate,
+        val serviceDefaults: RdProjectTemplate,
+        val mauiServiceDefaults: RdProjectTemplate?
+    )
 
     private suspend fun generateProjectFromTemplate(
         session: RdProjectTemplateSession,
