@@ -43,6 +43,7 @@ class AspireDefaultFileModificationService(private val project: Project) {
 
         private const val APP_HOST_FILE = "AppHost.cs"
         private const val PROGRAM_FILE = "Program.cs"
+        private const val MAUI_PROGRAM_FILE = "MauiProgram.cs"
         private const val ADD_PROJECT_METHOD = ".AddProject("
         private const val CREATE_BUILDER_METHOD = ".CreateBuilder("
         private const val CREATE_APPLICATION_BUILDER_METHOD = ".CreateApplicationBuilder("
@@ -167,9 +168,16 @@ class AspireDefaultFileModificationService(private val project: Project) {
 
         var methodsWereInserted = false
         for ((projectFilePath, projectEntity) in project) {
-            val projectProgramFilePath = projectFilePath.parent.resolve(PROGRAM_FILE)
+            val descriptor = projectEntity?.descriptor
+            val projectType = (descriptor as? RdProjectDescriptor)?.specificType
+            val isWebProject = projectType == RdProjectType.Web
+            val isMauiProject = projectType == RdProjectType.MAUI
+
+            val projectProgramFilePath =
+                if (!isMauiProject) projectFilePath.parent.resolve(PROGRAM_FILE)
+                else projectFilePath.parent.resolve(MAUI_PROGRAM_FILE)
             if (!projectProgramFilePath.exists()) {
-                LOG.info("Unable to Program.cs file for a project ${projectFilePath.name}")
+                LOG.info("Unable to find Program.cs file for a project ${projectFilePath.name}")
                 continue
             }
 
@@ -178,9 +186,6 @@ class AspireDefaultFileModificationService(private val project: Project) {
                 LOG.warn("Unable to find Program.cs virtual file for a project ${projectFilePath.name}")
                 continue
             }
-
-            val descriptor = projectEntity?.descriptor
-            val isWebProject = descriptor is RdProjectDescriptor && descriptor.specificType == RdProjectType.Web
 
             val insertionResult = insertAspireDefaultMethodsIntoProgramFile(projectProgramFile, isWebProject)
             methodsWereInserted = methodsWereInserted || insertionResult
