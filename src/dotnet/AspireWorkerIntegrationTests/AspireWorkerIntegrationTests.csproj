@@ -26,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\aspire-worker\aspire-worker.csproj" />
+      <ProjectReference Include="..\AspireWorker\AspireWorker.csproj" />
     </ItemGroup>
 
 </Project>

@@ -191,7 +191,7 @@ tasks {
         executable("./dotnet.cmd")
         args(
             "publish",
-            "src/dotnet/aspire-worker/aspire-worker.csproj",
+            "src/dotnet/AspireWorker/AspireWorker.csproj",
             "--configuration", dotnetBuildConfiguration
         )
     }
@@ -220,8 +220,8 @@ tasks {
             }
         }
 
-        from("$projectDir/src/dotnet/aspire-worker/bin/$dotnetBuildConfiguration/publish") {
-            into("${rootProject.name}/aspire-worker")
+        from("$projectDir/src/dotnet/AspireWorker/bin/$dotnetBuildConfiguration/publish") {
+            into("${rootProject.name}/AspireWorker")
         }
     }
 
