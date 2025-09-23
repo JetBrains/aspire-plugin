@@ -36,7 +36,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:16</p>
+  /// <p>Generated from: AspireWorkerModel.kt:15</p>
   /// </summary>
   public class AspireWorkerModel : RdExtBase
   {

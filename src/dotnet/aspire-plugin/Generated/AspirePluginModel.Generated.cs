@@ -36,7 +36,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:10</p>
+  /// <p>Generated from: AspirePluginModel.kt:9</p>
   /// </summary>
   public class AspirePluginModel : RdExtBase
   {
