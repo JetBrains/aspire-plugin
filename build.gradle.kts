@@ -203,10 +203,10 @@ tasks {
     withType<PrepareSandboxTask> {
         dependsOn(publishAspireWorker)
 
-        val outputFolder = file("$projectDir/src/dotnet/aspire-plugin/bin/$dotnetBuildConfiguration")
+        val outputFolder = file("$projectDir/src/dotnet/AspirePlugin/bin/$dotnetBuildConfiguration")
         val pluginFiles = listOf(
-            "$outputFolder/aspire-plugin.dll",
-            "$outputFolder/aspire-plugin.pdb"
+            "$outputFolder/AspirePlugin.dll",
+            "$outputFolder/AspirePlugin.pdb"
         )
 
         for (f in pluginFiles) {
