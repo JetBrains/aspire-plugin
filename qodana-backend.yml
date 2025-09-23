@@ -5,7 +5,7 @@ version: 1.0
 bootstrap: sh ./prepare-qodana-backend.sh
 ide: QDNET
 dotnet:
-  solution: aspire-plugin.sln
+  solution: AspirePlugin.slnx
 profile:
   name: qodana.recommended
 exclude:

@@ -4,7 +4,7 @@
 
 # Development
 * To develop Kotlin part, open the root folder.
-* To develop C# part, open `aspire-plugin.sln` file in the root folder.
+* To develop C# part, open `AspirePlugin.slnx` file in the root folder.
 * To connect them, there is a `protocol` subfolder. To read more about this protocol, see [this library](https://github.com/JetBrains/rd).
 
 # Run/Debug
