@@ -48,6 +48,12 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
         runTest(listOf(activeSolution), "AppHost", "ServiceDefaults")
     }
 
+    @Test
+    @Solution("DefaultWorkerSolution")
+    fun `Add aspire orchestration for worker project`() {
+        runTest(listOf(activeSolution), "$activeSolution.AppHost", "$activeSolution.ServiceDefaults")
+    }
+
     private fun runTest(projectNames: List<String>, appHostName: String, serviceDefaultsName: String) {
         prepareProjectView(project)
 

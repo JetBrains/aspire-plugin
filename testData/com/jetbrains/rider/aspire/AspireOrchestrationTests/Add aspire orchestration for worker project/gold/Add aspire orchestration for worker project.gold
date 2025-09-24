@@ -1,0 +1,124 @@
+Solution file:
+
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{GUID}") = "DefaultWorkerSolution", "DefaultWorkerSolution\DefaultWorkerSolution.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "DefaultWorkerSolution.AppHost", "DefaultWorkerSolution.AppHost\DefaultWorkerSolution.AppHost.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "DefaultWorkerSolution.ServiceDefaults", "DefaultWorkerSolution.ServiceDefaults\DefaultWorkerSolution.ServiceDefaults.csproj", "{GUID}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
+
+
+AppHost:
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsAspireHost>true</IsAspireHost>
+        <UserSecretsId>GUID</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="8.2.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\DefaultWorkerSolution\DefaultWorkerSolution.csproj" />
+    </ItemGroup>
+
+</Project>
+
+
+AppHost.Program.cs:
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+builder.AddProject<Projects.DefaultWorkerSolution>("defaultworkersolution");
+
+builder.Build().Run();
+
+
+ServiceDefaults:
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsAspireSharedProject>true</IsAspireSharedProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.10.0"/>
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="8.2.2"/>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0"/>
+    </ItemGroup>
+
+</Project>
+
+
+Project(DefaultWorkerSolution.csproj):
+
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-DefaultWorkerSolution-GUID</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\DefaultWorkerSolution.ServiceDefaults\DefaultWorkerSolution.ServiceDefaults.csproj" />
+    </ItemGroup>
+</Project>
+
+
+Project(DefaultWorkerSolution.csproj) Program.cs:
+
+using DefaultWorkerSolution;
+
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.AddServiceDefaults();
+builder.Services.AddHostedService<Worker>();
+
+var host = builder.Build();
+host.Run();
+
