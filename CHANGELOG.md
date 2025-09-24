@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Launching projects from an Aspire request in parallel
+
+## [1.8.12] - 2025-09-14
+
 ### Added
 
 - A setting to disable HTTPS connection with DCP
@@ -495,7 +501,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.8.11...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.8.12...HEAD
+[1.8.12]: https://github.com/JetBrains/aspire-plugin/compare/1.8.11...1.8.12
 [1.8.11]: https://github.com/JetBrains/aspire-plugin/compare/1.8.10...1.8.11
 [1.8.10]: https://github.com/JetBrains/aspire-plugin/compare/1.8.9...1.8.10
 [1.8.9]: https://github.com/JetBrains/aspire-plugin/compare/v1.8.8...1.8.9
