@@ -16,6 +16,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isAlive
 import com.jetbrains.rd.util.put
+import com.jetbrains.rd.util.threading.coroutines.launch
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.util.DotNetBuildService
 import com.jetbrains.rider.build.BuildParameters
@@ -64,32 +65,34 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         }
     }
 
-    private suspend fun handleCreateCommand(command: CreateSessionCommand) {
+    private fun handleCreateCommand(command: CreateSessionCommand) {
         LOG.info("Creating session ${command.sessionId}")
         logCreateSessionRequest(command.createSessionRequest)
 
         val sessionLifetimeDefinition = command.aspireHostLifetime.createNested()
         sessionLifetimes.put(sessionLifetimeDefinition.lifetime, command.sessionId, sessionLifetimeDefinition)
 
-        buildProject(Path(command.createSessionRequest.projectPath))
+        sessionLifetimeDefinition.lifetime.launch {
+            buildProject(Path(command.createSessionRequest.projectPath))
 
-        val processLauncher = SessionProcessLauncher.getInstance(project)
-        val processLifetimeDefinition = sessionLifetimeDefinition.lifetime.createNested()
+            val processLauncher = SessionProcessLauncher.getInstance(project)
+            val processLifetimeDefinition = sessionLifetimeDefinition.lifetime.createNested()
 
-        val sessionProcessListener = createSessionProcessEventListener(
-            command.sessionId,
-            command.sessionEvents,
-            processLifetimeDefinition
-        )
+            val sessionProcessListener = createSessionProcessEventListener(
+                command.sessionId,
+                command.sessionEvents,
+                processLifetimeDefinition
+            )
 
-        processLauncher.launchSessionProcess(
-            command.sessionId,
-            command.createSessionRequest,
-            sessionProcessListener,
-            processLifetimeDefinition.lifetime,
-            command.isAspireHostUnderDebug,
-            command.aspireHostRunConfigName
-        )
+            processLauncher.launchSessionProcess(
+                command.sessionId,
+                command.createSessionRequest,
+                sessionProcessListener,
+                processLifetimeDefinition.lifetime,
+                command.isAspireHostUnderDebug,
+                command.aspireHostRunConfigName
+            )
+        }
     }
 
     private fun logCreateSessionRequest(createSessionRequest: CreateSessionRequest) {
