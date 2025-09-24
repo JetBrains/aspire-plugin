@@ -34,5 +34,8 @@ internal class InMemoryAspireHostService : IAspireHostService
         return Channel.CreateUnbounded<ISessionEvent>();
     }
 
-    internal (string HostId, Session Session)? GetSession(string sessionId) => _sessions[sessionId];
+    internal (string HostId, Session Session)? GetSession(string sessionId)
+    {
+        return _sessions.TryGetValue(sessionId, out var session) ?  session : null;
+    }
 }
