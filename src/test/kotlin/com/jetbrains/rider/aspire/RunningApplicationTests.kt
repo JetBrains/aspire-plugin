@@ -5,16 +5,17 @@ import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestEnvironment
-import com.jetbrains.rider.test.base.PerClassSolutionTestBase
+import com.jetbrains.rider.test.base.PerTestSolutionTestBase
 import com.jetbrains.rider.test.env.enums.BuildTool
 import com.jetbrains.rider.test.env.enums.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
+import com.jetbrains.rider.test.scriptingApi.buildSolutionWithReSharperBuild
 import org.testng.annotations.Test
+import java.net.URL
 
 @TestEnvironment(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
-@Solution("DefaultAspireSolution")
-class LaunchingApplicationTests : PerClassSolutionTestBase() {
+class RunningApplicationTests : PerTestSolutionTestBase() {
     override val solutionApiFacade: SolutionApiFacade = object : RiderSolutionApiFacade() {
         override fun waitForSolution(params: OpenSolutionParams) {
             // This may sometimes take a long time on CI agents.
@@ -31,17 +32,31 @@ class LaunchingApplicationTests : PerClassSolutionTestBase() {
     }
 
     @Test
-    fun `Launch application from a generated run config`() {
+    @Solution("DefaultAspireSolution")
+    fun `Running application from a generated run config launches dashboard`() {
+        runTest(URL("http://localhost:15273"))
+    }
+
+    @Test
+    @Solution("DefaultAspireSolution")
+    fun `Running application from a generated run config launches web application`() {
+        runTest(URL("http://localhost:5183"))
+    }
+
+    @Test
+    @Solution("DefaultAspireSolution")
+    fun `Running application from a generated run config launches api application`() {
+        runTest(URL("http://localhost:5592/weatherforecast"))
+    }
+
+    private fun runTest(urlToCheck: URL) {
         val runManager = RunManager.getInstance(project)
         val configuration = runManager.allConfigurationsList
             .filterIsInstance<AspireHostConfiguration>()
             .singleOrNull { it.name == "DefaultAspireSolution.AppHost: http" }
         requireNotNull(configuration)
-        configuration.parameters.apply {
-            startBrowserParameters.apply {
-                startAfterLaunch = false
-            }
-        }
         runManager.selectedConfiguration = runManager.findSettings(configuration)
+        buildSolutionWithReSharperBuild()
+        runAspireProgram(project, urlToCheck)
     }
 }

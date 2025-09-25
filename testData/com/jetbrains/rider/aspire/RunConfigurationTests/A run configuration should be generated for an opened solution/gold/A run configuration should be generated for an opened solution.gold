@@ -9,7 +9,7 @@ Arguments:
 Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost/bin/Debug/net8.0
 Environment variables: {ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=http://localhost:19125, ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL=http://localhost:20263, ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=http://localhost:15273, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=http}
 Use Podman: false
-Start browser on launch: true
+Start browser on launch: false
 Start browser url: http://localhost:15273
 Start browser is start JavaScript debugger: false
 Start browser browser name: null
@@ -23,7 +23,7 @@ Arguments:
 Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost/bin/Debug/net8.0
 Environment variables: {ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=https://localhost:21098, ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL=https://localhost:22043, ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=https://localhost:17142;http://localhost:15273, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=https}
 Use Podman: false
-Start browser on launch: true
+Start browser on launch: false
 Start browser url: https://localhost:17142
 Start browser is start JavaScript debugger: false
 Start browser browser name: null
