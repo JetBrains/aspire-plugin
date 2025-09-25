@@ -32,7 +32,7 @@ val riderSdkPath by lazy {
 
 // Set the JVM language level used to build the project.
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 // Configure project's dependencies

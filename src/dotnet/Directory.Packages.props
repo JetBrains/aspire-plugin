@@ -1,19 +1,19 @@
 <Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageVersion Include="Grpc.AspNetCore" Version="2.70.0" />
-        <PackageVersion Include="JetBrains.Annotations" Version="2025.2.2"/>
-        <PackageVersion Include="JetBrains.RdFramework" Version="2025.3.0" />
-        <PackageVersion Include="Microsoft.Extensions.Resilience" Version="9.9.0" />
-        <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
-        <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
-        <PackageVersion Include="AutoFixture" Version="4.18.1" />
-        <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.20" />
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-        <PackageVersion Include="xunit" Version="2.9.3" />
-        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
-    </ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Grpc.AspNetCore" Version="2.70.0" />
+    <PackageVersion Include="JetBrains.Annotations" Version="2025.2.2" />
+    <PackageVersion Include="JetBrains.RdFramework" Version="2025.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Resilience" Version="9.9.0" />
+    <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
+    <PackageVersion Include="AutoFixture" Version="4.18.1" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
 </Project>
