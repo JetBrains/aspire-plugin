@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultWorkerSolution", "DefaultWorkerSolution\DefaultWorkerSolution.csproj", "{C8EBBBA1-BDAB-4CC4-A080-218D66E757C5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultWorkerSolution", "DefaultWorkerSolution\DefaultWorkerSolution.csproj", "{19FAE900-59D3-43DF-9BFD-0566E5AC6574}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,9 +8,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C8EBBBA1-BDAB-4CC4-A080-218D66E757C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8EBBBA1-BDAB-4CC4-A080-218D66E757C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8EBBBA1-BDAB-4CC4-A080-218D66E757C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8EBBBA1-BDAB-4CC4-A080-218D66E757C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19FAE900-59D3-43DF-9BFD-0566E5AC6574}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19FAE900-59D3-43DF-9BFD-0566E5AC6574}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19FAE900-59D3-43DF-9BFD-0566E5AC6574}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19FAE900-59D3-43DF-9BFD-0566E5AC6574}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
