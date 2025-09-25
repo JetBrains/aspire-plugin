@@ -4,7 +4,7 @@
 version: 1.0
 bootstrap: sh ./prepare-qodana-frontend.sh
 ide: QDJVM
-projectJDK: "17"
+projectJDK: "21"
 profile:
   name: qodana.recommended
 exclude:
