@@ -4,17 +4,17 @@ import com.intellij.execution.RunManager
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
-import com.jetbrains.rider.test.annotations.TestEnvironment
+import com.jetbrains.rider.test.annotations.TestSettings
 import com.jetbrains.rider.test.base.PerTestSolutionTestBase
-import com.jetbrains.rider.test.env.enums.BuildTool
-import com.jetbrains.rider.test.env.enums.SdkVersion
+import com.jetbrains.rider.test.enums.BuildTool
+import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.scriptingApi.buildSolutionWithReSharperBuild
 import org.testng.annotations.Test
 import java.net.URL
 
-@TestEnvironment(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
+@TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 class RunningApplicationTests : PerTestSolutionTestBase() {
     override val solutionApiFacade: SolutionApiFacade = object : RiderSolutionApiFacade() {
         override fun waitForSolution(params: OpenSolutionParams) {

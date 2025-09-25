@@ -46,17 +46,18 @@ AppHost:
 
 <Project Sdk="Microsoft.NET.Sdk">
 
+    <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.0"/>
+
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <IsAspireHost>true</IsAspireHost>
         <UserSecretsId>GUID</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="8.2.2"/>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -68,7 +69,7 @@ AppHost:
 </Project>
 
 
-AppHost.Program.cs:
+AppHost.AppHost.cs:
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -86,7 +87,7 @@ ServiceDefaults:
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsAspireSharedProject>true</IsAspireSharedProject>
@@ -95,13 +96,13 @@ ServiceDefaults:
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
 
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.10.0"/>
-        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="8.2.2"/>
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0"/>
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0"/>
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0"/>
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0"/>
-        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0"/>
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.7.0"/>
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.4.0"/>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0"/>
     </ItemGroup>
 
 </Project>
@@ -112,7 +113,7 @@ Project(Project1.csproj):
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
@@ -142,7 +143,7 @@ Project(Project2.csproj):
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
@@ -172,7 +173,7 @@ Project(Project3.csproj):
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>

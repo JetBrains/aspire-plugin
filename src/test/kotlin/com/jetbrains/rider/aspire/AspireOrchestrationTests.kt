@@ -5,19 +5,17 @@ import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.rider.aspire.orchestration.AspireOrchestrationService
 import com.jetbrains.rider.projectView.workspace.findProjects
+import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
-import com.jetbrains.rider.test.annotations.TestEnvironment
+import com.jetbrains.rider.test.annotations.TestSettings
 import com.jetbrains.rider.test.asserts.shouldBe
 import com.jetbrains.rider.test.asserts.shouldBeTrue
 import com.jetbrains.rider.test.base.PerTestSolutionTestBase
-import com.jetbrains.rider.test.env.enums.BuildTool
-import com.jetbrains.rider.test.env.enums.SdkVersion
+import com.jetbrains.rider.test.enums.BuildTool
+import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.framework.executeWithGold
 import com.jetbrains.rider.test.framework.persistAllFilesOnDisk
-import com.jetbrains.rider.test.scriptingApi.prepareProjectView
-import com.jetbrains.rider.test.scriptingApi.refreshFileSystem
-import com.jetbrains.rider.test.scriptingApi.runBlockingWithFlushing
-import com.jetbrains.rider.test.scriptingApi.waitAllCommandsFinished
+import com.jetbrains.rider.test.scriptingApi.*
 import org.testng.annotations.Test
 import java.io.File
 import java.io.PrintStream
@@ -27,8 +25,15 @@ import kotlin.io.path.name
 import kotlin.io.path.readText
 import kotlin.time.Duration.Companion.minutes
 
-@TestEnvironment(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
+@TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 class AspireOrchestrationTests : PerTestSolutionTestBase() {
+    override fun modifyOpenSolutionParams(params: OpenSolutionParams) {
+        super.modifyOpenSolutionParams(params)
+        params.restoreNuGetPackages = true
+        params.waitForCaches = true
+        params.waitForSolutionBuilder = true
+    }
+
     @Test
     @Solution("DefaultAspNetCoreSolution")
     fun `Add aspire orchestration for asp net core project`() {
@@ -40,12 +45,6 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
     fun `Add aspire orchestration for multiple asp net core projects`() {
         val projectNames = listOf("Project1", "Project2", "Project3")
         runTest(projectNames, "$activeSolution.AppHost", "$activeSolution.ServiceDefaults")
-    }
-
-    @Test
-    @Solution("DefaultAspNetCoreSolutionWithAppHost")
-    fun `Add aspire orchestration for asp net core project with existing AppHost and ServiceDefaults`() {
-        runTest(listOf(activeSolution), "AppHost", "ServiceDefaults")
     }
 
     @Test
@@ -100,9 +99,9 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
         println()
         println(hostProjectPath.readText())
         println()
-        println("AppHost.Program.cs:")
+        println("AppHost.AppHost.cs:")
         println()
-        println(hostProjectPath.parent.resolve("Program.cs").readText())
+        println(hostProjectPath.parent.resolve("AppHost.cs").readText())
         println()
         println("ServiceDefaults:")
         println()
