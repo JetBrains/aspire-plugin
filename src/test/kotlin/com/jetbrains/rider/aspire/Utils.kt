@@ -1,15 +1,29 @@
 package com.jetbrains.rider.aspire
 
 import com.intellij.execution.RunManagerEx
+import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.project.Project
 import com.intellij.util.EnvironmentUtil
+import com.jetbrains.rd.platform.util.TimeoutTracker
+import com.jetbrains.rd.util.reactive.hasValue
+import com.jetbrains.rd.util.reactive.valueOrThrow
 import com.jetbrains.rd.util.string.printToString
+import com.jetbrains.rdclient.util.idea.waitAndPump
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
+import com.jetbrains.rider.test.framework.flushQueues
+import com.jetbrains.rider.test.framework.frameworkLogger
 import com.jetbrains.rider.test.maskCustomDotnetPath
+import com.jetbrains.rider.test.scriptingApi.ProcessOutputLogger
+import com.jetbrains.rider.test.scriptingApi.connectToUrlOnBackgroundThread
 import com.jetbrains.rider.test.scriptingApi.maskMachineSpecificPaths
+import com.jetbrains.rider.test.scriptingApi.startRunConfigurationProcess
+import com.jetbrains.rider.test.scriptingApi.stop
 import java.io.PrintStream
+import java.net.URL
+import java.time.Duration
+import kotlin.text.contains
 
 fun dumpAspireHostRunConfigurations(project: Project, printStream: PrintStream) {
     val runManagerEx = RunManagerEx.getInstanceEx(project)
@@ -72,3 +86,38 @@ private fun dumpStartBrowserParameters(startBrowserParameters: DotNetStartBrowse
         printStream.println("Start browser is start JavaScript debugger: $withJavaScriptDebugger")
         printStream.println("Start browser browser name: ${browser?.name}")
     }
+
+fun runAspireProgram(project: Project, url: URL) {
+    val settings = RunManagerEx.getInstanceEx(project).selectedConfiguration
+        ?: throw AssertionError("No configuration selected")
+
+    var isApplicationReady = false
+    val output = StringBuilder()
+    val processHandler = startRunConfigurationProcess(
+        project,
+        settings,
+        Duration.ofSeconds(30),
+        ProcessOutputLogger(
+            {
+                output.append(it)
+                if (it.contains("Distributed application started")) isApplicationReady = true
+            },
+            ProcessOutputType::isStdout,
+            allowOutputBuffering = false
+        )
+    )
+
+    val timeoutTracker = TimeoutTracker(Duration.ofSeconds(30))
+    while (!isApplicationReady) {
+        flushQueues()
+        timeoutTracker.throwIfExpired { "Application didn't start in time" }
+    }
+
+    try {
+        val trigger = connectToUrlOnBackgroundThread(url)
+        waitAndPump(Duration.ofSeconds(30), { trigger.hasValue })
+        frameworkLogger.trace(trigger.valueOrThrow.unwrap())
+    } finally {
+        processHandler.stop()
+    }
+}
