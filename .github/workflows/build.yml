@@ -51,7 +51,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 17
+          java-version: 21
 
       # Setup Gradle
       - name: Setup Gradle
@@ -63,7 +63,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       # Build plugin
       - name: Build plugin
@@ -109,7 +109,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 17
+          java-version: 21
 
       # Setup Gradle
       - name: Setup Gradle
@@ -121,11 +121,11 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       # Install Aspire templates
       - name: Install templates
-        run: dotnet new install Aspire.ProjectTemplates::8.2.2
+        run: dotnet new install Aspire.ProjectTemplates::9.4.2
 
       # Run tests
       - name: Run Tests
@@ -168,7 +168,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 17
+          java-version: 21
 
       # Setup Gradle
       - name: Setup Gradle
@@ -180,7 +180,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       # Run Qodana inspections
       - name: Qodana - Code Inspection
@@ -221,7 +221,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 17
+          java-version: 21
 
       # Setup Gradle
       - name: Setup Gradle
@@ -233,7 +233,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       # Run Qodana inspections
       - name: Qodana - Code Inspection
@@ -267,7 +267,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: zulu
-          java-version: 17
+          java-version: 21
 
       # Setup Gradle
       - name: Setup Gradle
@@ -279,7 +279,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       # Run Verify Plugin task and IntelliJ Plugin Verifier tool
       - name: Run Plugin Verification tasks
@@ -313,7 +313,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       # Run tests
       - name: Run Tests
