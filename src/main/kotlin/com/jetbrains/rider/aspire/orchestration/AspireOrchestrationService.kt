@@ -21,6 +21,8 @@ import com.jetbrains.rider.aspire.generated.aspirePluginModel
 import com.jetbrains.rider.aspire.util.isAspireHostProject
 import com.jetbrains.rider.aspire.util.isAspireSharedProject
 import com.jetbrains.rider.model.AddProjectCommand
+import com.jetbrains.rider.model.RdProjectDescriptor
+import com.jetbrains.rider.model.RdProjectType
 import com.jetbrains.rider.model.projectModelTasks
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
@@ -84,46 +86,28 @@ class AspireOrchestrationService(private val project: Project) {
         projectEntities: List<ProjectModelEntity>,
     ) = withBackgroundProgress(project, AspireBundle.message("progress.adding.aspire.orchestration")) {
         var (hostProjectPath, sharedProjectPath) = findExistingAspireProjects()
+        var mauiSharedProjectPath: Path? = null
 
-        val needToGenerateAppHost = hostProjectPath == null
-        val needToGenerateServiceDefaults = sharedProjectPath == null
+        val hasAppHost = hostProjectPath != null
+        val hasServiceDefaults = sharedProjectPath != null
 
-        if (needToGenerateAppHost || needToGenerateServiceDefaults) {
-            val (generatedHostProjectPath, generatedSharedProjectPath) =
-                generateAspireProjects(needToGenerateAppHost, needToGenerateServiceDefaults)
-                    ?: return@withBackgroundProgress
+        if (!hasAppHost || !hasServiceDefaults) {
+            val generatedAspireProjects = generateAspireProjects(projectEntities, hasAppHost, hasServiceDefaults)
+                ?: return@withBackgroundProgress
 
-            LOG.debug { "Generated host: ${generatedHostProjectPath?.absolutePathString()}, generated shared project: ${generatedSharedProjectPath?.absolutePathString()}" }
-
-            if (generatedHostProjectPath != null) hostProjectPath = generatedHostProjectPath
-            if (generatedSharedProjectPath != null) sharedProjectPath = generatedSharedProjectPath
+            if (generatedAspireProjects.appHostProjectPath != null) hostProjectPath =
+                generatedAspireProjects.appHostProjectPath
+            if (generatedAspireProjects.serviceDefaultsProjectPath != null) sharedProjectPath =
+                generatedAspireProjects.serviceDefaultsProjectPath
+            if (generatedAspireProjects.mauiServiceDefaultsProjectPath != null) mauiSharedProjectPath =
+                generatedAspireProjects.mauiServiceDefaultsProjectPath
         }
 
-        val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
-        val appHostFileWasModified = if (hostProjectPath != null) {
-            val referenceByHostProjectResult = referenceByHostProject(hostProjectPath, projectFilePathStrings)
-            referenceByHostProjectResult?.let {
-                val referencedProjectFilePaths = it.referencedProjectFilePaths.map { path -> Path(path) }
-                AspireDefaultFileModificationService
-                    .getInstance(project)
-                    .insertProjectsIntoAppHostFile(hostProjectPath, referencedProjectFilePaths)
-            } ?: false
-        } else false
-        val projectProgramFilesWereModified = if (sharedProjectPath != null) {
-            val referenceSharedProjectResult = referenceSharedProject(sharedProjectPath, projectFilePathStrings)
-            referenceSharedProjectResult?.let {
-                val projectsWithReference = it.projectFilePathsWithReference.map { path ->
-                    val projectPath = Path(path)
-                    val entity = projectEntities.firstOrNull { entity -> entity.url?.toPath() == projectPath }
-                    projectPath to entity
-                }
-                AspireDefaultFileModificationService
-                    .getInstance(project)
-                    .insertAspireDefaultMethodsIntoProjects(projectsWithReference)
-            } ?: false
-        } else false
+        val appHostFileWasModified = updateAppHostProject(hostProjectPath, projectEntities)
+        val projectProgramFilesWereModified =
+            updateProjectsWithSharedProjects(sharedProjectPath, mauiSharedProjectPath, projectEntities)
 
-        if (!needToGenerateAppHost && !needToGenerateServiceDefaults && !appHostFileWasModified && !projectProgramFilesWereModified) {
+        if (hasAppHost && hasServiceDefaults && !appHostFileWasModified && !projectProgramFilesWereModified) {
             notifyAboutAlreadyAddedOrchestration()
         }
     }
@@ -156,9 +140,40 @@ class AspireOrchestrationService(private val project: Project) {
     }
 
     private suspend fun generateAspireProjects(
+        projectEntities: List<ProjectModelEntity>,
+        hasAppHost: Boolean,
+        hasServiceDefaults: Boolean
+    ): GeneratedAspireProjects? {
+        val needToGenerateAppHost = !hasAppHost
+        val needToGenerateServiceDefaults = !hasServiceDefaults && projectEntities.any {
+            val descriptor = it.descriptor
+            descriptor is RdProjectDescriptor && descriptor.specificType != RdProjectType.MAUI
+        }
+        val needToGenerateMauiServiceDefaults = !hasServiceDefaults && projectEntities.any {
+            val descriptor = it.descriptor
+            descriptor is RdProjectDescriptor && descriptor.specificType == RdProjectType.MAUI
+        }
+
+        val generatedAspireProjects = generateAspireProjects(
+            needToGenerateAppHost,
+            needToGenerateServiceDefaults,
+            needToGenerateMauiServiceDefaults
+        ) ?: return null
+
+        LOG.debug {
+            "Generated host: ${generatedAspireProjects.appHostProjectPath?.absolutePathString()}, " +
+                    "generated shared project: ${generatedAspireProjects.serviceDefaultsProjectPath?.absolutePathString()}, " +
+                    "generated maui shared project: ${generatedAspireProjects.mauiServiceDefaultsProjectPath?.absolutePathString()}"
+        }
+
+        return generatedAspireProjects
+    }
+
+    private suspend fun generateAspireProjects(
         needToGenerateAppHost: Boolean,
         needToGenerateServiceDefaults: Boolean,
-    ): Pair<Path?, Path?>? {
+        needToGenerateMauiServiceDefaults: Boolean
+    ): GeneratedAspireProjects? {
         suspend fun notifyAboutFailedGeneration() = withContext(Dispatchers.EDT) {
             Notification(
                 "Aspire",
@@ -180,34 +195,38 @@ class AspireOrchestrationService(private val project: Project) {
             .getInstance(project)
             .generateAspireProjectsFromTemplates(
                 needToGenerateAppHost,
-                needToGenerateServiceDefaults
+                needToGenerateServiceDefaults,
+                needToGenerateMauiServiceDefaults
             )
 
         if (generatedProjectPaths == null) {
             LOG.warn("Unable to generate .NET Aspire projects")
+            notifyAboutFailedGeneration()
             return null
         }
 
-        val (generatedHostProjectPath, generatedSharedProjectPath) = generatedProjectPaths
-        if (needToGenerateAppHost && generatedHostProjectPath == null || needToGenerateServiceDefaults && generatedSharedProjectPath == null) {
+        val (hostProjectPath, sharedProjectPath, mauiSharedProjectPath) = generatedProjectPaths
+        if (needToGenerateAppHost && hostProjectPath == null || needToGenerateServiceDefaults && sharedProjectPath == null) {
             LOG.warn("Some of the requested projects were not generated")
             notifyAboutFailedGeneration()
             return null
         }
 
-        addGeneratedAspireProjectToSolution(solutionId, generatedHostProjectPath, generatedSharedProjectPath)
+        addGeneratedAspireProjectToSolution(solutionId, hostProjectPath, sharedProjectPath, mauiSharedProjectPath)
 
-        return generatedHostProjectPath to generatedSharedProjectPath
+        return generatedProjectPaths
     }
 
     private suspend fun addGeneratedAspireProjectToSolution(
         solutionId: Int,
-        generatedHostProjectPath: Path?,
-        generatedSharedProjectPath: Path?
+        hostProjectPath: Path?,
+        sharedProjectPath: Path?,
+        mauiSharedProjectPath: Path?
     ) {
         val projects = buildList {
-            generatedHostProjectPath?.let { add(it.absolutePathString()) }
-            generatedSharedProjectPath?.let { add(it.absolutePathString()) }
+            hostProjectPath?.let { add(it.absolutePathString()) }
+            sharedProjectPath?.let { add(it.absolutePathString()) }
+            mauiSharedProjectPath?.let { add(it.absolutePathString()) }
         }
         val parameters = RdPostProcessParameters(false, listOf())
 
@@ -224,6 +243,25 @@ class AspireOrchestrationService(private val project: Project) {
         }
     }
 
+    private suspend fun updateAppHostProject(
+        hostProjectPath: Path?,
+        projectEntities: List<ProjectModelEntity>
+    ): Boolean {
+        if (hostProjectPath == null) return false
+
+        val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
+        val referenceByHostProjectResult =
+            referenceByHostProject(hostProjectPath, projectFilePathStrings) ?: return false
+
+        val referencedProjectFilePaths =
+            referenceByHostProjectResult.referencedProjectFilePaths.map { path -> Path(path) }
+
+        return AspireDefaultFileModificationService
+            .getInstance(project)
+            .insertProjectsIntoAppHostFile(hostProjectPath, referencedProjectFilePaths)
+
+    }
+
     private suspend fun referenceByHostProject(hostProjectPath: Path, projectFilePaths: List<String>) =
         withContext(Dispatchers.EDT) {
             val request = ReferenceProjectsFromAppHostRequest(
@@ -233,6 +271,55 @@ class AspireOrchestrationService(private val project: Project) {
 
             project.solution.aspirePluginModel.referenceProjectsFromAppHost.startSuspending(request)
         }
+
+    private suspend fun updateProjectsWithSharedProjects(
+        sharedProjectPath: Path?,
+        mauiSharedProjectPath: Path?,
+        projectEntities: List<ProjectModelEntity>
+    ): Boolean {
+        if (sharedProjectPath == null && mauiSharedProjectPath == null) return false
+
+        var mauiProjectProgramFilesWereModified = false
+        if (mauiSharedProjectPath != null) {
+            val mauiProjects = projectEntities.filter {
+                val descriptor = it.descriptor
+                descriptor is RdProjectDescriptor && descriptor.specificType == RdProjectType.MAUI
+            }
+
+            mauiProjectProgramFilesWereModified = updateProjectsWithSharedProject(mauiSharedProjectPath, mauiProjects)
+        }
+
+        var projectProgramFilesWereModified = false
+        if (sharedProjectPath != null) {
+            val projects = projectEntities.filter {
+                val descriptor = it.descriptor
+                descriptor is RdProjectDescriptor && descriptor.specificType != RdProjectType.MAUI
+            }
+
+            projectProgramFilesWereModified = updateProjectsWithSharedProject(sharedProjectPath, projects)
+        }
+
+        return mauiProjectProgramFilesWereModified || projectProgramFilesWereModified
+    }
+
+    private suspend fun updateProjectsWithSharedProject(
+        sharedProjectPath: Path,
+        projectEntities: List<ProjectModelEntity>
+    ): Boolean {
+        val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
+        val referenceSharedProjectResult =
+            referenceSharedProject(sharedProjectPath, projectFilePathStrings) ?: return false
+
+        val projectsWithReference = referenceSharedProjectResult.projectFilePathsWithReference.map { path ->
+            val projectPath = Path(path)
+            val entity = projectEntities.firstOrNull { entity -> entity.url?.toPath() == projectPath }
+            projectPath to entity
+        }
+
+        return AspireDefaultFileModificationService
+            .getInstance(project)
+            .insertAspireDefaultMethodsIntoProjects(projectsWithReference)
+    }
 
     private suspend fun referenceSharedProject(sharedProjectPath: Path, projectFilePaths: List<String>) =
         withContext(Dispatchers.EDT) {
