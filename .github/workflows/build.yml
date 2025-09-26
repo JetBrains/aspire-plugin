@@ -125,7 +125,7 @@ jobs:
 
       # Install Aspire templates
       - name: Install templates
-        run: dotnet new install Aspire.ProjectTemplates::9.4.2
+        run: dotnet new install Aspire.ProjectTemplates::9.5.0
 
       # Run tests
       - name: Run Tests

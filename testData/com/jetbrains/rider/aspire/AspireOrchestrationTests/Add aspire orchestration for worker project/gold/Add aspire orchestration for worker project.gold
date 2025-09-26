@@ -34,7 +34,7 @@ AppHost:
 
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.2"/>
+    <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.0"/>
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -45,7 +45,7 @@ AppHost:
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.2"/>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -78,8 +78,8 @@ ServiceDefaults:
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
 
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.7.0"/>
-        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.4.2"/>
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.9.0"/>
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.0"/>
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0"/>
         <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0"/>
         <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0"/>
