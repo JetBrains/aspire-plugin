@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.services.components
+package com.jetbrains.rider.aspire.dashboard.components
 
 import com.intellij.ui.SeparatorComponent
 import com.intellij.ui.SeparatorOrientation

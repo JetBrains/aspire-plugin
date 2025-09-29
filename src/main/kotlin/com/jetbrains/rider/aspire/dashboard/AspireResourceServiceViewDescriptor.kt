@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.services
+package com.jetbrains.rider.aspire.dashboard
 
 import com.intellij.execution.services.ServiceViewDescriptor
 import com.intellij.ide.projectView.PresentationData
@@ -8,8 +8,8 @@ import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
 import com.jetbrains.rider.aspire.AspireBundle
-import com.jetbrains.rider.aspire.services.components.ResourceConsolePanel
-import com.jetbrains.rider.aspire.services.components.ResourceDashboardPanel
+import com.jetbrains.rider.aspire.dashboard.components.ResourceConsolePanel
+import com.jetbrains.rider.aspire.dashboard.components.ResourceDashboardPanel
 import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.ASPIRE_RESOURCE
 import com.jetbrains.rider.aspire.util.getIcon

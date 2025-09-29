@@ -1,11 +1,11 @@
-package com.jetbrains.rider.aspire.services.components
+package com.jetbrains.rider.aspire.dashboard.components
 
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
-import com.jetbrains.rider.aspire.services.AspireResource
+import com.jetbrains.rider.aspire.dashboard.AspireResource
 import java.awt.BorderLayout
 
 class ResourceConsolePanel(resourceService: AspireResource) : BorderLayoutPanel() {

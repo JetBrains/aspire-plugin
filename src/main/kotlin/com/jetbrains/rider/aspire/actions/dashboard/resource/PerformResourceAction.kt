@@ -16,10 +16,10 @@ import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.generated.ResourceCommand
 import com.jetbrains.rider.aspire.generated.ResourceCommandState
-import com.jetbrains.rider.aspire.services.AspireResource
-import com.jetbrains.rider.aspire.services.RestartResourceCommand
-import com.jetbrains.rider.aspire.services.StartResourceCommand
-import com.jetbrains.rider.aspire.services.StopResourceCommand
+import com.jetbrains.rider.aspire.dashboard.AspireResource
+import com.jetbrains.rider.aspire.dashboard.RestartResourceCommand
+import com.jetbrains.rider.aspire.dashboard.StartResourceCommand
+import com.jetbrains.rider.aspire.dashboard.StopResourceCommand
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

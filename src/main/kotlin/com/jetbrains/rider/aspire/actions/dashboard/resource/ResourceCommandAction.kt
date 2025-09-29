@@ -8,7 +8,7 @@ import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.generated.ResourceCommand
 import com.jetbrains.rider.aspire.generated.ResourceCommandState
-import com.jetbrains.rider.aspire.services.AspireResource
+import com.jetbrains.rider.aspire.dashboard.AspireResource
 import kotlinx.coroutines.launch
 
 abstract class ResourceCommandAction : AspireResourceBaseAction() {

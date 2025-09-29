@@ -1,7 +1,7 @@
 package com.jetbrains.rider.aspire.actions.dashboard.resource
 
-import com.jetbrains.rider.aspire.services.AspireResource
-import com.jetbrains.rider.aspire.services.StopResourceCommand
+import com.jetbrains.rider.aspire.dashboard.AspireResource
+import com.jetbrains.rider.aspire.dashboard.StopResourceCommand
 
 class StopResourceAction : ResourceCommandAction() {
     override fun findCommand(resource: AspireResource) =

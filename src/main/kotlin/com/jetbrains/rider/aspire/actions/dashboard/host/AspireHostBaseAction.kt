@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
-import com.jetbrains.rider.aspire.services.AspireHost
+import com.jetbrains.rider.aspire.dashboard.AspireHost
 import com.jetbrains.rider.aspire.worker.AspireWorkerManager
 import com.jetbrains.rider.aspire.util.ASPIRE_HOST
 import java.nio.file.Path

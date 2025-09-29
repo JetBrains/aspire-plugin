@@ -5,8 +5,8 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
-import com.jetbrains.rider.aspire.services.AspireResource
-import com.jetbrains.rider.aspire.services.ResourceListener
+import com.jetbrains.rider.aspire.dashboard.AspireResource
+import com.jetbrains.rider.aspire.dashboard.ResourceListener
 import com.jetbrains.rider.aspire.settings.AspireSettings
 import java.net.URI
 

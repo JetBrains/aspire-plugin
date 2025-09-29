@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.debugger.AttachDebuggerService
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
-import com.jetbrains.rider.aspire.services.AspireResource
+import com.jetbrains.rider.aspire.dashboard.AspireResource
 import kotlinx.coroutines.launch
 
 class AttachToProjectResourceAction : AspireResourceBaseAction() {

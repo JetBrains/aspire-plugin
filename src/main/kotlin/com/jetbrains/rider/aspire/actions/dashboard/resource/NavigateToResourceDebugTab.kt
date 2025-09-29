@@ -11,7 +11,7 @@ import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.intellij.xdebugger.XDebugSession
 import com.intellij.xdebugger.XDebuggerManager
-import com.jetbrains.rider.aspire.services.AspireResource
+import com.jetbrains.rider.aspire.dashboard.AspireResource
 import com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

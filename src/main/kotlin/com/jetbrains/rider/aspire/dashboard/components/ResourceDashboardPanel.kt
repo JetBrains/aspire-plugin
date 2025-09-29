@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.services.components
+package com.jetbrains.rider.aspire.dashboard.components
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.ActionManager
@@ -17,10 +17,10 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
-import com.jetbrains.rider.aspire.services.AspireResource
-import com.jetbrains.rider.aspire.services.RestartResourceCommand
-import com.jetbrains.rider.aspire.services.StartResourceCommand
-import com.jetbrains.rider.aspire.services.StopResourceCommand
+import com.jetbrains.rider.aspire.dashboard.AspireResource
+import com.jetbrains.rider.aspire.dashboard.RestartResourceCommand
+import com.jetbrains.rider.aspire.dashboard.StartResourceCommand
+import com.jetbrains.rider.aspire.dashboard.StopResourceCommand
 import com.jetbrains.rider.aspire.settings.AspireSettings
 import com.jetbrains.rider.aspire.util.getIcon
 import kotlin.io.path.absolutePathString

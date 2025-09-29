@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.aspire.run.AspireHostRunManager
-import com.jetbrains.rider.aspire.services.AspireHost
+import com.jetbrains.rider.aspire.dashboard.AspireHost
 import kotlinx.coroutines.launch
 
 class StopHostAction : AspireHostBaseAction() {

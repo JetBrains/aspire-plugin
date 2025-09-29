@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.services
+package com.jetbrains.rider.aspire.dashboard
 
 const val StartResourceCommand = "resource-start"
 const val StopResourceCommand = "resource-stop"

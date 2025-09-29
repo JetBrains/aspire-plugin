@@ -3,7 +3,7 @@ package com.jetbrains.rider.aspire.actions.dashboard.host
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
-import com.jetbrains.rider.aspire.services.AspireHost
+import com.jetbrains.rider.aspire.dashboard.AspireHost
 
 class AspireOpenDashboardAction : AspireHostBaseAction() {
     override fun performAction(hostService: AspireHost, project: Project) {

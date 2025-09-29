@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.manifest.ManifestService
-import com.jetbrains.rider.aspire.services.AspireHost
+import com.jetbrains.rider.aspire.dashboard.AspireHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

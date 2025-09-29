@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.services
+package com.jetbrains.rider.aspire.dashboard
 
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputTypes

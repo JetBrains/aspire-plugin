@@ -14,8 +14,8 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.util.graph.GraphFactory
 import com.jetbrains.rider.aspire.AspireBundle
-import com.jetbrains.rider.aspire.services.AspireHost
-import com.jetbrains.rider.aspire.services.AspireResource
+import com.jetbrains.rider.aspire.dashboard.AspireHost
+import com.jetbrains.rider.aspire.dashboard.AspireResource
 import com.jetbrains.rider.aspire.util.getBaseIcon
 
 /**
