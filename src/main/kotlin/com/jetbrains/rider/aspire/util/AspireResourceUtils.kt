@@ -9,6 +9,7 @@ import com.jetbrains.rider.aspire.generated.ResourceHealthStatus
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.services.AspireResource
+import icons.ReSharperIcons
 import icons.RiderIcons
 import javax.swing.Icon
 
@@ -36,6 +37,8 @@ internal fun getIcon(aspireResource: AspireResource): Icon {
 internal fun getBaseIcon(type: ResourceType, containerImage: String?) = when (type) {
     ResourceType.Project -> RiderIcons.RunConfigurations.DotNetProject
     ResourceType.Executable -> AllIcons.Nodes.Console
+    ResourceType.Parameter -> ReSharperIcons.PsiSymbols.Parameter
+    ResourceType.ExternalService -> AllIcons.General.Web
 
     ResourceType.Container -> when {
         containerImage?.contains("postgres") == true -> AllIcons.Providers.Postgresql

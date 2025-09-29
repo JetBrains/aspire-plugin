@@ -72,6 +72,8 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
             +"Project"
             +"Container"
             +"Executable"
+            +"Parameter"
+            +"ExternalService"
             +"MongoDB"
             +"MySql"
             +"Postgres"

@@ -93,6 +93,10 @@ class AspireResource(
         private set
     var connectionString: AspireResourceProperty<String>? = null
         private set
+    var source: AspireResourceProperty<String>? = null
+        private set
+    var value: AspireResourceProperty<String>? = null
+        private set
 
     var commands: Array<ResourceCommand>
         private set
@@ -244,6 +248,18 @@ class AspireResource(
                 "resource.connectionString" -> {
                     property.value?.let {
                         connectionString = AspireResourceProperty(it, property.isSensitive == true)
+                    }
+                }
+
+                "resource.source" -> {
+                    property.value?.let {
+                        source = AspireResourceProperty(it, property.isSensitive == true)
+                    }
+                }
+
+                "Value" -> {
+                    property.value?.let {
+                        value = AspireResourceProperty(it, property.isSensitive == true)
                     }
                 }
             }

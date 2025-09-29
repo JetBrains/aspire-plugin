@@ -147,7 +147,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
                         val endpointName =
                             if (url.displayName.isNotEmpty()) url.displayName
                             else if (!url.endpointName.isNullOrEmpty()) url.endpointName
-                            else ""
+                            else "-"
                         row(endpointName) {
                             link(url.fullUrl) {
                                 BrowserUtil.browse(url.fullUrl)
@@ -191,6 +191,8 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.container.command"), containerCommand)
             stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.container.args"), containerArgs)
             stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.connection.string"), connectionString)
+            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.source"), source)
+            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.value"), value)
             separator()
         }
     }

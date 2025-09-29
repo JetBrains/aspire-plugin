@@ -37,6 +37,8 @@ internal static class ResourceExtensions
         "Project" => ResourceType.Project,
         "Container" => ResourceType.Container,
         "Executable" => ResourceType.Executable,
+        "Parameter" => ResourceType.Parameter,
+        "ExternalService" => ResourceType.ExternalService,
         "MongoDBDatabaseResource" => ResourceType.MongoDB,
         "MySqlDatabaseResource" => ResourceType.MySql,
         "PostgresDatabaseResource" => ResourceType.Postgres,
