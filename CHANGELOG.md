@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [#488](https://github.com/JetBrains/aspire-plugin/issues/488) Support for library projects with `Executable` launch profile
+
 ### Changed
 
 - Improve presentation for parameter and external service resources
