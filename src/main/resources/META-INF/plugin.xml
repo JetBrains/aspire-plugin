@@ -72,7 +72,7 @@
         <sessionProcessLauncherExtension
                 implementation="com.jetbrains.rider.aspire.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
         <sessionProcessLauncherExtension
-                implementation="com.jetbrains.rider.aspire.sessions.awsLambda.LambdaProjectSessionProcessLauncher"/>
+                implementation="com.jetbrains.rider.aspire.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
     </extensions>
 
     <projectListeners>
