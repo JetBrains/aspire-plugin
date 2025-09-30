@@ -33,8 +33,6 @@ class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLaunch
     companion object {
         private val LOG = logger<LambdaProjectSessionProcessLauncher>()
 
-        private const val AWS_PROJECT_TYPE = "AWSProjectType"
-        private const val LAMBDA = "Lambda"
         private const val LIBRARY = "library"
     }
 
@@ -56,12 +54,6 @@ class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLaunch
         val descriptor = entity.descriptor as? RdProjectDescriptor
         if (descriptor == null) {
             LOG.trace { "Can't find an RdProjectDescriptor for the path $projectPath. Skip launcher" }
-            return false
-        }
-
-        val awsProjectType = descriptor.getUserData(AWS_PROJECT_TYPE)
-        if (awsProjectType?.equals(LAMBDA, true) != true) {
-            LOG.trace { "Can't find AWS project type for the path $projectPath. Skip launcher" }
             return false
         }
 
