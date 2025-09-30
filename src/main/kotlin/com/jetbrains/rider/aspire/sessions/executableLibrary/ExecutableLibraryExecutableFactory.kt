@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.sessions.awsLambda
+package com.jetbrains.rider.aspire.sessions.executableLibrary
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -21,10 +21,10 @@ import kotlin.io.path.absolutePathString
  * that has an `Executable` launch profile.
  */
 @Service(Service.Level.PROJECT)
-class LambdaProjectExecutableFactory(private val project: Project) {
+class ExecutableLibraryExecutableFactory(private val project: Project) {
     companion object {
-        fun getInstance(project: Project): LambdaProjectExecutableFactory = project.service()
-        private val LOG = logger<LambdaProjectExecutableFactory>()
+        fun getInstance(project: Project): ExecutableLibraryExecutableFactory = project.service()
+        private val LOG = logger<ExecutableLibraryExecutableFactory>()
     }
 
     suspend fun createExecutable(sessionModel: CreateSessionRequest): DotNetExecutable? {
@@ -37,7 +37,7 @@ class LambdaProjectExecutableFactory(private val project: Project) {
         }
 
         if (!launchProfile.commandName.equals(ExecutableCommand.COMMAND_NAME, true)) {
-            LOG.warn("Launch profile command name for AWS Lambda library project should be `${ExecutableCommand.COMMAND_NAME}`")
+            LOG.warn("Launch profile command name for library project should be `${ExecutableCommand.COMMAND_NAME}`")
             return null
         }
 
@@ -75,7 +75,7 @@ class LambdaProjectExecutableFactory(private val project: Project) {
             project
         )
 
-        LOG.trace { "Executable parameters for AWS Lambda project (${sessionProjectPath.absolutePathString()}): $executableParams" }
+        LOG.trace { "Executable parameters for the project (${sessionProjectPath.absolutePathString()}): $executableParams" }
 
         return DotNetExecutable(
             executableParams.executablePath ?: executablePath,

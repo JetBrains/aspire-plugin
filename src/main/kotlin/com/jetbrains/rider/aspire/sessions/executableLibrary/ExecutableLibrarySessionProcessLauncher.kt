@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.sessions.awsLambda
+package com.jetbrains.rider.aspire.sessions.executableLibrary
 
 import com.intellij.execution.process.ProcessListener
 import com.intellij.ide.browsers.StartBrowserSettings
@@ -14,7 +14,6 @@ import com.jetbrains.rider.aspire.generated.aspirePluginModel
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessions.projectLaunchers.DotNetExecutableSessionProcessLauncher
 import com.jetbrains.rider.model.RdProjectDescriptor
-import com.jetbrains.rider.projectView.nodes.getUserData
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntities
 import com.jetbrains.rider.projectView.workspace.isProject
@@ -28,9 +27,9 @@ import kotlin.io.path.Path
 /**
  * Launches a .NET library project that has an `Executable` launch profile from an Aspire session request.
  */
-class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLauncher() {
+class ExecutableLibrarySessionProcessLauncher : DotNetExecutableSessionProcessLauncher() {
     companion object {
-        private val LOG = logger<LambdaProjectSessionProcessLauncher>()
+        private val LOG = logger<ExecutableLibrarySessionProcessLauncher>()
 
         private const val LIBRARY = "library"
     }
@@ -69,10 +68,10 @@ class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLaunch
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
-        val factory = LambdaProjectExecutableFactory.getInstance(project)
+        val factory = ExecutableLibraryExecutableFactory.getInstance(project)
         val executable = factory.createExecutable(sessionModel)
         if (executable == null) {
-            LOG.warn("Unable to create AWS Lambda executable for project: ${sessionModel.projectPath}")
+            LOG.warn("Unable to create library executable for project: ${sessionModel.projectPath}")
             return null
         }
 
@@ -87,7 +86,7 @@ class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLaunch
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
-    ) = LambdaProjectSessionRunProfile(
+    ) = ExecutableLibrarySessionRunProfile(
         sessionId,
         projectPath,
         dotnetExecutable,
@@ -106,7 +105,7 @@ class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLaunch
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostProjectPath: Path?
-    ) = LambdaProjectSessionDebugProfile(
+    ) = ExecutableLibrarySessionDebugProfile(
         sessionId,
         projectPath,
         dotnetExecutable,
