@@ -2,7 +2,7 @@
   "profiles": {
     "Library": {
       "commandName": "Executable",
-      "executablePath": "$(SolutionDir)WebApplication1/bin/Debug/net9.0/WebApplication1.exe",
+      "executablePath": "$(SolutionDir)WebApplication1/bin/Debug/net9.0/WebApplication1",
       "workingDirectory": "$(SolutionDir)WebApplication1/bin/Debug/net9.0"
     }
   }
