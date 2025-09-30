@@ -43,9 +43,9 @@ class ExecutableLibraryExecutableFactory(private val project: Project) {
 
         val executablePath = launchProfile.executablePath
         val workingDirectory = launchProfile.workingDirectory
-        val arguments = launchProfile.commandLineArgs
+        val arguments = launchProfile.commandLineArgs ?: ""
 
-        if (executablePath.isNullOrEmpty() || workingDirectory.isNullOrEmpty() || arguments.isNullOrEmpty()) {
+        if (executablePath.isNullOrEmpty() || workingDirectory.isNullOrEmpty()) {
             LOG.warn("Some launch profile properties are empty or null")
             return null
         }
