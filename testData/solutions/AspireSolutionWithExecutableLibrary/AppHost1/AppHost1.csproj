@@ -7,16 +7,15 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <UserSecretsId>ca56a6fb-aa3f-409b-a03d-84c7361d038a</UserSecretsId>
+        <UserSecretsId>815bdf30-e3c9-4b12-85ca-425e8ac0efd5</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DefaultAspireSolution.ApiService\DefaultAspireSolution.ApiService.csproj"/>
-        <ProjectReference Include="..\DefaultAspireSolution.Web\DefaultAspireSolution.Web.csproj"/>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0"/>
+      <ProjectReference Include="..\ClassLibrary1\ClassLibrary1.csproj" />
     </ItemGroup>
 
 </Project>

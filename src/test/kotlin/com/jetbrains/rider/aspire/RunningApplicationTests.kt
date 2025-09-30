@@ -12,6 +12,7 @@ import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.scriptingApi.buildSolutionWithReSharperBuild
 import org.testng.annotations.Test
+import java.net.URI
 import java.net.URL
 
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
@@ -33,27 +34,39 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
 
     @Test
     @Solution("DefaultAspireSolution")
-    fun `Running application from a generated run config launches dashboard`() {
-        runTest(URL("http://localhost:15273"))
+    fun `Running default aspire solution launches dashboard`() {
+        runTest("DefaultAspireSolution.AppHost: http", URI("http://localhost:15273").toURL())
     }
 
     @Test
     @Solution("DefaultAspireSolution")
-    fun `Running application from a generated run config launches web application`() {
-        runTest(URL("http://localhost:5183"))
+    fun `Running default aspire solution launches web application`() {
+        runTest("DefaultAspireSolution.AppHost: http", URI("http://localhost:5183").toURL())
     }
 
     @Test
     @Solution("DefaultAspireSolution")
-    fun `Running application from a generated run config launches api application`() {
-        runTest(URL("http://localhost:5592/weatherforecast"))
+    fun `Running default aspire solution launches api application`() {
+        runTest("DefaultAspireSolution.AppHost: http", URI("http://localhost:5592/weatherforecast").toURL())
     }
 
-    private fun runTest(urlToCheck: URL) {
+    @Test
+    @Solution("AspireSolutionWithExternalProject")
+    fun `Running aspire solution with external project launches api application`() {
+        runTest("AppHost1: http", URI("http://localhost:5123").toURL())
+    }
+
+    @Test
+    @Solution("AspireSolutionWithExecutableLibrary")
+    fun `Running aspire solution with executable library launches api application`() {
+        runTest("AppHost1: http", URI("http://localhost:5000").toURL())
+    }
+
+    private fun runTest(runConfigName: String, urlToCheck: URL) {
         val runManager = RunManager.getInstance(project)
         val configuration = runManager.allConfigurationsList
             .filterIsInstance<AspireHostConfiguration>()
-            .singleOrNull { it.name == "DefaultAspireSolution.AppHost: http" }
+            .singleOrNull { it.name == runConfigName }
         requireNotNull(configuration)
         runManager.selectedConfiguration = runManager.findSettings(configuration)
         buildSolutionWithReSharperBuild()
