@@ -50,11 +50,15 @@ class LambdaProjectExecutableFactory(private val project: Project) {
             return null
         }
 
-        val workingDirectoryPath = Path(workingDirectory)
-        val workingDirectoryAbsolutePath = if (!workingDirectoryPath.isAbsolute) {
-            sessionProjectPath.parent.resolve(workingDirectoryPath.normalize()).absolutePathString()
+        val workingDirectoryAbsolutePath = if (workingDirectory.startsWith("$(")) {
+            workingDirectory
         } else {
-            workingDirectoryPath.absolutePathString()
+            val workingDirectoryPath = Path(workingDirectory)
+            if (!workingDirectoryPath.isAbsolute) {
+                sessionProjectPath.parent.resolve(workingDirectoryPath.normalize()).absolutePathString()
+            } else {
+                workingDirectoryPath.absolutePathString()
+            }
         }
 
         val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile.environmentVariables)
