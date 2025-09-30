@@ -17,8 +17,8 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**
- * Factory class for creating instances of [DotNetExecutable] from a NET library project
- * that has a project property `AWSProjectType` equal to `Lambda`.
+ * Factory class for creating instances of [DotNetExecutable] from a .NET library project
+ * that has an `Executable` launch profile.
  */
 @Service(Service.Level.PROJECT)
 class LambdaProjectExecutableFactory(private val project: Project) {

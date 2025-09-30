@@ -26,8 +26,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 /**
- * Launches a .NET library project that has a project property `AWSProjectType` equal to `Lambda`
- * from an Aspire session request.
+ * Launches a .NET library project that has an `Executable` launch profile from an Aspire session request.
  */
 class LambdaProjectSessionProcessLauncher : DotNetExecutableSessionProcessLauncher() {
     companion object {
