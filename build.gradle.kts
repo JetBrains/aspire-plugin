@@ -180,7 +180,7 @@ tasks {
         inputs.property("dotnetBuildConfiguration", dotnetBuildConfiguration)
 
         executable("./dotnet.cmd")
-        args("build", "-consoleLoggerParameters:ErrorsOnly", "-c", dotnetBuildConfiguration, "AspirePlugin.sln")
+        args("build", "-consoleLoggerParameters:ErrorsOnly", "-c", dotnetBuildConfiguration, "AspirePlugin.slnx")
     }
 
     withType<KotlinCompile> {
