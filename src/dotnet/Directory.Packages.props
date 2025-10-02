@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Grpc.AspNetCore" Version="2.70.0" />
+    <PackageVersion Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageVersion Include="JetBrains.Annotations" Version="2025.2.2" />
     <PackageVersion Include="JetBrains.RdFramework" Version="2025.3.0" />
     <PackageVersion Include="Microsoft.Extensions.Resilience" Version="9.9.0" />
