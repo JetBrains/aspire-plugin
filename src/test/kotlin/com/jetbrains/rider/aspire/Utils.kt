@@ -15,15 +15,10 @@ import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParamete
 import com.jetbrains.rider.test.framework.flushQueues
 import com.jetbrains.rider.test.framework.frameworkLogger
 import com.jetbrains.rider.test.maskCustomDotnetPath
-import com.jetbrains.rider.test.scriptingApi.ProcessOutputLogger
-import com.jetbrains.rider.test.scriptingApi.connectToUrlOnBackgroundThread
-import com.jetbrains.rider.test.scriptingApi.maskMachineSpecificPaths
-import com.jetbrains.rider.test.scriptingApi.startRunConfigurationProcess
-import com.jetbrains.rider.test.scriptingApi.stop
+import com.jetbrains.rider.test.scriptingApi.*
 import java.io.PrintStream
 import java.net.URL
 import java.time.Duration
-import kotlin.text.contains
 
 fun dumpAspireHostRunConfigurations(project: Project, printStream: PrintStream) {
     val runManagerEx = RunManagerEx.getInstanceEx(project)
@@ -86,6 +81,12 @@ private fun dumpStartBrowserParameters(startBrowserParameters: DotNetStartBrowse
         printStream.println("Start browser is start JavaScript debugger: $withJavaScriptDebugger")
         printStream.println("Start browser browser name: ${browser?.name}")
     }
+
+fun selectAspireRunConfiguration(runConfigName: String, project: Project) {
+    selectFirstRunConfiguration(project) {
+        it is AspireHostConfiguration && it.name == runConfigName
+    }
+}
 
 fun runAspireProgram(project: Project, url: URL) {
     val settings = RunManagerEx.getInstanceEx(project).selectedConfiguration

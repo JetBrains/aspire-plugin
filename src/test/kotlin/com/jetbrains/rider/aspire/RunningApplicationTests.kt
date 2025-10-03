@@ -1,7 +1,5 @@
 package com.jetbrains.rider.aspire
 
-import com.intellij.execution.RunManager
-import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestSettings
@@ -11,6 +9,7 @@ import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.scriptingApi.buildSolutionWithReSharperBuild
+import org.testng.annotations.BeforeMethod
 import org.testng.annotations.Test
 import java.net.URI
 import java.net.URL
@@ -21,7 +20,6 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
         override fun waitForSolution(params: OpenSolutionParams) {
             // This may sometimes take a long time on CI agents.
             params.projectModelReadyTimeout = params.projectModelReadyTimeout.multipliedBy(10L)
-
             return super.waitForSolution(params)
         }
     }
@@ -30,6 +28,11 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
         super.modifyOpenSolutionParams(params)
         params.restoreNuGetPackages = true
         params.waitForCaches = true
+    }
+
+    @BeforeMethod(alwaysRun = true)
+    fun buildSolution() {
+        buildSolutionWithReSharperBuild()
     }
 
     @Test
@@ -63,13 +66,7 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
     }
 
     private fun runTest(runConfigName: String, urlToCheck: URL) {
-        val runManager = RunManager.getInstance(project)
-        val configuration = runManager.allConfigurationsList
-            .filterIsInstance<AspireHostConfiguration>()
-            .singleOrNull { it.name == runConfigName }
-        requireNotNull(configuration)
-        runManager.selectedConfiguration = runManager.findSettings(configuration)
-        buildSolutionWithReSharperBuild()
+        selectAspireRunConfiguration(runConfigName, project)
         runAspireProgram(project, urlToCheck)
     }
 }
