@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Support for Rider 2025.3 EAP 4
+
+## [1.8.14] - 2025-09-30
+
 ### Added
 
 - [#488](https://github.com/JetBrains/aspire-plugin/issues/488) Support for library projects with `Executable` launch profile
@@ -511,7 +517,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.8.13...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.8.14...HEAD
+[1.8.14]: https://github.com/JetBrains/aspire-plugin/compare/1.8.13...1.8.14
 [1.8.13]: https://github.com/JetBrains/aspire-plugin/compare/1.8.12...1.8.13
 [1.8.12]: https://github.com/JetBrains/aspire-plugin/compare/1.8.11...1.8.12
 [1.8.11]: https://github.com/JetBrains/aspire-plugin/compare/1.8.10...1.8.11
