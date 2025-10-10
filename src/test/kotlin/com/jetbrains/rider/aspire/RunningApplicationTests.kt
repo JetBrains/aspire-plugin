@@ -9,10 +9,11 @@ import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.scriptingApi.buildSolutionWithReSharperBuild
-import org.testng.annotations.BeforeMethod
+import com.jetbrains.rider.test.scriptingApi.executeBeforeRunTasksForSelectedConfiguration
 import org.testng.annotations.Test
 import java.net.URI
 import java.net.URL
+import java.time.Duration
 
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 class RunningApplicationTests : PerTestSolutionTestBase() {
@@ -28,11 +29,6 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
         super.modifyOpenSolutionParams(params)
         params.restoreNuGetPackages = true
         params.waitForCaches = true
-    }
-
-    @BeforeMethod(alwaysRun = true)
-    fun buildSolution() {
-        buildSolutionWithReSharperBuild()
     }
 
     @Test
@@ -62,11 +58,14 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
     @Test
     @Solution("AspireSolutionWithExecutableLibrary")
     fun `Running aspire solution with executable library launches api application`() {
+        //For a library project we have to build the whole solution to have binary files
+        buildSolutionWithReSharperBuild()
         runTest("AppHost1: http", URI("http://localhost:5000").toURL())
     }
 
     private fun runTest(runConfigName: String, urlToCheck: URL) {
         selectAspireRunConfiguration(runConfigName, project)
+        executeBeforeRunTasksForSelectedConfiguration(project, Duration.ofMinutes(1))
         runAspireProgram(project, urlToCheck)
     }
 }
