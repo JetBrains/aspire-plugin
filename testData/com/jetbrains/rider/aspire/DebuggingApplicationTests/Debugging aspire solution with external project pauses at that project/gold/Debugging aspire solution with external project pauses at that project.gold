@@ -1,0 +1,6 @@
+--> Program.cs:6(118,128) // app.Run();
+Program.<Main>$() in WebApplication1.dll
+    +app = {WebApplication} ApplicationName = "WebApplication1", IsRunning = false
+    args = {string[]} string[0]
+    +builder = WebApplicationBuilder
+

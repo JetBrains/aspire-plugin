@@ -79,7 +79,7 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             .resolve("Program.cs")
             .toVirtualFile(true)
         requireNotNull(fileForBreakpoint)
-        val apiProjectPath = activeSolutionDirectory
+        val webProjectPath = activeSolutionDirectory
             .resolve("DefaultAspireSolution.Web")
             .resolve("DefaultAspireSolution.Web.csproj")
             .toPath()
@@ -88,7 +88,28 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             fileForBreakpoint,
             44
         ) {
-            dumpDebugContextForProject(apiProjectPath)
+            dumpDebugContextForProject(webProjectPath)
+        }
+    }
+
+    @Test
+    @Solution("AspireSolutionWithExternalProject")
+    fun `Debugging aspire solution with external project pauses at that project`() {
+        val fileForBreakpoint = activeSolutionDirectory
+            .resolve("WebApplication1")
+            .resolve("Program.cs")
+            .toVirtualFile(true)
+        requireNotNull(fileForBreakpoint)
+        val externalProjectPath = activeSolutionDirectory
+            .resolve("WebApplication1")
+            .resolve("WebApplication1.csproj")
+            .toPath()
+        runTest(
+            "AppHost1: http",
+            fileForBreakpoint,
+            6
+        ) {
+            dumpDebugContextForProject(externalProjectPath)
         }
     }
 
