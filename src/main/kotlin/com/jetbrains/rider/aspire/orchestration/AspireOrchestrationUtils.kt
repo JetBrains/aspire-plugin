@@ -7,6 +7,13 @@ import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.model.RdProjectType
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 
+private val supportedProjectTypes = listOf(
+    RdProjectType.Default,
+    RdProjectType.Web,
+    RdProjectType.XamlProject,
+    RdProjectType.MAUI
+)
+
 fun ProjectModelEntity.isAspireOrchestrationSupported(): Boolean {
     if (isAspireHostProject() || isAspireSharedProject()) return false
 
@@ -17,7 +24,7 @@ fun ProjectModelEntity.isAspireOrchestrationSupported(): Boolean {
     if (extension != "csproj" && extension != "fsproj") return false
 
     val type = entityDescriptor.specificType
-    if (type != RdProjectType.Default && type != RdProjectType.Web && type != RdProjectType.XamlProject && type != RdProjectType.MAUI) return false
+    if (!supportedProjectTypes.contains(type)) return false
 
     return entityDescriptor.isDotNetCore
 }
