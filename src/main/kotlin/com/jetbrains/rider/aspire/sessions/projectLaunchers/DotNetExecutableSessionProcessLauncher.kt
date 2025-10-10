@@ -215,6 +215,7 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
             return
         }
 
+        environment.assignNewExecutionId()
         environment.setProgramCallbacks(callback)
 
         withContext(Dispatchers.EDT) {

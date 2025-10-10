@@ -4,6 +4,8 @@ import com.intellij.execution.RunManagerEx
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.project.Project
 import com.intellij.util.EnvironmentUtil
+import com.intellij.xdebugger.XDebugSession
+import com.intellij.xdebugger.XDebuggerManager
 import com.jetbrains.rd.platform.util.TimeoutTracker
 import com.jetbrains.rd.util.reactive.hasValue
 import com.jetbrains.rd.util.reactive.valueOrThrow
@@ -11,6 +13,7 @@ import com.jetbrains.rd.util.string.printToString
 import com.jetbrains.rdclient.util.idea.waitAndPump
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
+import com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProfile
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.jetbrains.rider.test.framework.flushQueues
 import com.jetbrains.rider.test.framework.frameworkLogger
@@ -18,7 +21,9 @@ import com.jetbrains.rider.test.maskCustomDotnetPath
 import com.jetbrains.rider.test.scriptingApi.*
 import java.io.PrintStream
 import java.net.URL
+import java.nio.file.Path
 import java.time.Duration
+import kotlin.test.assertNotNull
 
 fun dumpAspireHostRunConfigurations(project: Project, printStream: PrintStream) {
     val runManagerEx = RunManagerEx.getInstanceEx(project)
@@ -121,4 +126,35 @@ fun runAspireProgram(project: Project, url: URL) {
     } finally {
         processHandler.stop()
     }
+}
+
+fun DebugTestExecutionContext.dumpDebugContext() {
+    waitForPause()
+    dumpFullCurrentData()
+    resumeSession()
+}
+
+fun DebugTestExecutionContext.dumpDebugContextForProject(projectPath: Path) {
+    val session = findDebugSessionForProject(projectPath, project)
+    val context = DebugTestExecutionContext(this.stream, session)
+    context.dumpDebugContext()
+}
+
+private fun findDebugSessionForProject(projectPath: Path, project: Project): XDebugSession {
+    val debuggerManager = XDebuggerManager.getInstance(project)
+    var targetSession: XDebugSession? = null
+    waitAndPump(Duration.ofMinutes(3), {
+        val sessions = debuggerManager.debugSessions
+        for (session in sessions) {
+            val sessionRunProfile = session.runProfile
+            if (sessionRunProfile !is ProjectSessionProfile) continue
+            if (sessionRunProfile.projectPath == projectPath) {
+                targetSession = session
+                return@waitAndPump true
+            }
+        }
+        return@waitAndPump false
+    })
+    assertNotNull(targetSession)
+    return targetSession
 }

@@ -117,6 +117,7 @@ suspend fun executeClient(
                         DefaultDebugExecutor.getDebugExecutorInstance(),
                         clientProfile
                     ).build()
+                    environment.assignNewExecutionId()
                     val clientRunner =
                         ProgramRunner.getRunner(DefaultDebugExecutor.EXECUTOR_ID, clientProfile) as? RiderDebugRunner
                     clientRunner?.execute(environment)
