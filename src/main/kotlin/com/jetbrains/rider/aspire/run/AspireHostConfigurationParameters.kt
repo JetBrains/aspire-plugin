@@ -79,7 +79,7 @@ class AspireHostConfigurationParameters(
             it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
         } ?: throw RuntimeConfigurationError(RiderRunBundle.message("selected.project.not.found"))
 
-        if (projectTfm.isEmpty()) {
+        if (projectTfm.isEmpty() || projectTfm.equals("unknown", ignoreCase = true)) {
             throw RuntimeConfigurationError(RiderRunBundle.message("dialog.message.target.framework.is.not.specified"))
         }
 

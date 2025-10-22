@@ -356,8 +356,8 @@ class AspireHostConfigurationViewModel(
         if (selectedTfm != null) {
             tfmSelector.string.set(selectedTfm)
         } else {
-            tfmSelector.stringList.add("")
-            tfmSelector.string.set("")
+            tfmSelector.stringList.add("Unknown")
+            tfmSelector.string.set("Unknown")
         }
 
         val selectedProfile =
