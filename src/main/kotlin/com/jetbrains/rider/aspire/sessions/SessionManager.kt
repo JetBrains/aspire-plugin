@@ -89,7 +89,6 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
                 command.createSessionRequest,
                 sessionProcessListener,
                 processLifetimeDefinition.lifetime,
-                command.isAspireHostUnderDebug,
                 command.aspireHostRunConfigName
             )
         }
@@ -200,7 +199,6 @@ class SessionManager(private val project: Project, scope: CoroutineScope) {
         val sessionId: String,
         val createSessionRequest: CreateSessionRequest,
         val sessionEvents: Channel<SessionEvent>,
-        val isAspireHostUnderDebug: Boolean,
         val aspireHostRunConfigName: String?,
         val aspireHostLifetime: Lifetime
     ) : LaunchSessionCommand

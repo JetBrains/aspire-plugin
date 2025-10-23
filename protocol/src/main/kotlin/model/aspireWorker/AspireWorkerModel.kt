@@ -211,8 +211,6 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
             .documentation = "`ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable"
         field("otlpEndpointUrl", string.nullable)
             .documentation = "`ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable"
-        field("isDebuggingMode", bool)
-            .documentation = "Is Aspire Host running with debugger attached"
         field("aspireHostProjectUrl", string.nullable)
             .documentation = "URL of the Aspire Host dashboard"
     }

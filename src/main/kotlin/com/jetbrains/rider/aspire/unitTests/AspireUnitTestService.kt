@@ -61,7 +61,6 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
                     null,
                     null,
                     null,
-                    request.underDebugger,
                     null
                 )
 

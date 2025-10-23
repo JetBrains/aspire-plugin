@@ -25,7 +25,6 @@ class SessionProcessLauncher(private val project: Project) {
         sessionModel: CreateSessionRequest,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        isAspireHostUnderDebug: Boolean,
         aspireHostRunConfigName: String?,
     ) {
         LOG.info("Starting a session process for the project ${sessionModel.projectPath}")
@@ -35,7 +34,7 @@ class SessionProcessLauncher(private val project: Project) {
             return
         }
 
-        if (isAspireHostUnderDebug) {
+        if (sessionModel.debug) {
             launchDebugProcess(
                 sessionId,
                 sessionModel,
