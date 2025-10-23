@@ -34,7 +34,14 @@ class SessionProcessLauncher(private val project: Project) {
             return
         }
 
-        if (sessionModel.debug) {
+        val preferred = SessionLaunchPreferenceService.getInstance(project).getPreferredLaunchMode(sessionModel.projectPath)
+        val shouldDebug = when (preferred) {
+            SessionLaunchMode.DEBUG -> true
+            SessionLaunchMode.RUN -> false
+            null -> sessionModel.debug
+        }
+
+        if (shouldDebug) {
             launchDebugProcess(
                 sessionId,
                 sessionModel,
