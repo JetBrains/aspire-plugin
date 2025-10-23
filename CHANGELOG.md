@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [#514](https://github.com/JetBrains/aspire-plugin/issues/514) Actions to restart Project-based resources with or without debugger attached
+
 ## [1.9.0] - 2025-10-09
 
 ### Changed
