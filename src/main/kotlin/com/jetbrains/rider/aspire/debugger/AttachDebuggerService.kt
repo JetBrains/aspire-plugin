@@ -10,8 +10,11 @@ import com.intellij.xdebugger.attach.LocalAttachHost
 import com.intellij.xdebugger.attach.XAttachDebuggerProvider
 import com.jetbrains.rider.aspire.AspireBundle
 
+/**
+ * A service responsible for attaching a debugger to a specific process.
+ */
 @Service(Service.Level.PROJECT)
-class AttachDebuggerService(private val project: Project) {
+internal class AttachDebuggerService(private val project: Project) {
     companion object {
         fun getInstance(project: Project): AttachDebuggerService = project.service()
     }
