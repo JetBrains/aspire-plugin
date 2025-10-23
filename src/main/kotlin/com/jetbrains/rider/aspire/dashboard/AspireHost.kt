@@ -189,7 +189,6 @@ class AspireHost(
             sessionId,
             createSessionRequest,
             sessionEvents,
-            aspireHostConfig.isDebuggingMode,
             aspireHostConfig.runConfigName,
             aspireHostLifetime
         )

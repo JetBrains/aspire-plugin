@@ -2,7 +2,6 @@ package com.jetbrains.rider.aspire.run.runners
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.ExecutionResult
-import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -55,8 +54,6 @@ private suspend fun setUpAspireHostModel(
         (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)
             ?: throw CantRunException("Requested configuration is not an AspireHostConfiguration")
 
-    val isDebuggingMode = environment.executor.id == DefaultDebugExecutor.EXECUTOR_ID
-
     val dcpInstancePrefix = requireNotNull(state.getDcpInstancePrefix())
     val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
     val resourceServiceApiKey = state.getResourceServiceApiKey()
@@ -79,7 +76,6 @@ private suspend fun setUpAspireHostModel(
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
         otlpEndpointUrl,
-        isDebuggingMode,
         aspireHostProjectUrl
     )
 

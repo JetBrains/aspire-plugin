@@ -75,7 +75,7 @@ class AspireWorkerModel private constructor(
         }
         
         
-        const val serializationHash = 3500632378572589108L
+        const val serializationHash = 655321054708548395L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
@@ -120,7 +120,7 @@ val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:220]
+ * #### Generated from [AspireWorkerModel.kt:218]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -234,7 +234,6 @@ class AspireHostModel private constructor(
  * @property resourceServiceEndpointUrl `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL` environment variable
  * @property resourceServiceApiKey `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
  * @property otlpEndpointUrl `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable
- * @property isDebuggingMode Is Aspire Host running with debugger attached
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
  * #### Generated from [AspireWorkerModel.kt:200]
  */
@@ -245,7 +244,6 @@ data class AspireHostModelConfig (
     val resourceServiceEndpointUrl: String?,
     val resourceServiceApiKey: String?,
     val otlpEndpointUrl: String?,
-    val isDebuggingMode: Boolean,
     val aspireHostProjectUrl: String?
 ) : IPrintable {
     //companion
@@ -262,9 +260,8 @@ data class AspireHostModelConfig (
             val resourceServiceEndpointUrl = buffer.readNullable { buffer.readString() }
             val resourceServiceApiKey = buffer.readNullable { buffer.readString() }
             val otlpEndpointUrl = buffer.readNullable { buffer.readString() }
-            val isDebuggingMode = buffer.readBool()
             val aspireHostProjectUrl = buffer.readNullable { buffer.readString() }
-            return AspireHostModelConfig(id, runConfigName, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, otlpEndpointUrl, isDebuggingMode, aspireHostProjectUrl)
+            return AspireHostModelConfig(id, runConfigName, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, otlpEndpointUrl, aspireHostProjectUrl)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModelConfig)  {
@@ -274,7 +271,6 @@ data class AspireHostModelConfig (
             buffer.writeNullable(value.resourceServiceEndpointUrl) { buffer.writeString(it) }
             buffer.writeNullable(value.resourceServiceApiKey) { buffer.writeString(it) }
             buffer.writeNullable(value.otlpEndpointUrl) { buffer.writeString(it) }
-            buffer.writeBool(value.isDebuggingMode)
             buffer.writeNullable(value.aspireHostProjectUrl) { buffer.writeString(it) }
         }
         
@@ -297,7 +293,6 @@ data class AspireHostModelConfig (
         if (resourceServiceEndpointUrl != other.resourceServiceEndpointUrl) return false
         if (resourceServiceApiKey != other.resourceServiceApiKey) return false
         if (otlpEndpointUrl != other.otlpEndpointUrl) return false
-        if (isDebuggingMode != other.isDebuggingMode) return false
         if (aspireHostProjectUrl != other.aspireHostProjectUrl) return false
         
         return true
@@ -311,7 +306,6 @@ data class AspireHostModelConfig (
         __r = __r*31 + if (resourceServiceEndpointUrl != null) resourceServiceEndpointUrl.hashCode() else 0
         __r = __r*31 + if (resourceServiceApiKey != null) resourceServiceApiKey.hashCode() else 0
         __r = __r*31 + if (otlpEndpointUrl != null) otlpEndpointUrl.hashCode() else 0
-        __r = __r*31 + isDebuggingMode.hashCode()
         __r = __r*31 + if (aspireHostProjectUrl != null) aspireHostProjectUrl.hashCode() else 0
         return __r
     }
@@ -325,7 +319,6 @@ data class AspireHostModelConfig (
             print("resourceServiceEndpointUrl = "); resourceServiceEndpointUrl.print(printer); println()
             print("resourceServiceApiKey = "); resourceServiceApiKey.print(printer); println()
             print("otlpEndpointUrl = "); otlpEndpointUrl.print(printer); println()
-            print("isDebuggingMode = "); isDebuggingMode.print(printer); println()
             print("aspireHostProjectUrl = "); aspireHostProjectUrl.print(printer); println()
         }
         printer.print(")")
