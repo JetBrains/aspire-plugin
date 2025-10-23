@@ -106,10 +106,22 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
     private fun Row.addActionButtons(resourceData: AspireResource) {
         val startAction = ActionManager.getInstance().getAction("Aspire.Resource.Start")
         actionButton(startAction)
-        val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
-        actionButton(restartAction)
         val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
         actionButton(stopAction)
+        if (resourceData.type == ResourceType.Project &&
+            resourceData.projectPath?.value != null
+        ) {
+            val restartWithoutDebuggerAction =
+                ActionManager.getInstance().getAction("Aspire.Resource.RestartWithoutDebugger")
+            actionButton(restartWithoutDebuggerAction)
+
+            val restartWithDebuggerAction =
+                ActionManager.getInstance().getAction("Aspire.Resource.RestartWithDebugger")
+            actionButton(restartWithDebuggerAction)
+        } else {
+            val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
+            actionButton(restartAction)
+        }
         if (resourceData.type == ResourceType.Project &&
             resourceData.state == ResourceState.Running &&
             resourceData.pid?.value != null &&

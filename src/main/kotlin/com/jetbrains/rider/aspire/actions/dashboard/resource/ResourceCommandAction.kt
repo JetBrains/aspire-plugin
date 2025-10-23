@@ -18,8 +18,12 @@ abstract class ResourceCommandAction : AspireResourceBaseAction() {
         if (command.state != ResourceCommandState.Enabled) return
 
         currentThreadCoroutineScope().launch {
+            beforeExecute(resourceService, project)
             resourceService.executeCommand(command.name)
         }
+    }
+
+    open fun beforeExecute(resourceService: AspireResource, project: Project) {
     }
 
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
@@ -29,8 +33,18 @@ abstract class ResourceCommandAction : AspireResourceBaseAction() {
             return
         }
 
+        val resourceState = checkResourceState(resourceService)
+        if (!resourceState) {
+            event.presentation.isEnabledAndVisible = false
+            return
+        }
+
         event.presentation.isVisible = true
         event.presentation.isEnabled = command.state == ResourceCommandState.Enabled
+    }
+
+    open fun checkResourceState(resourceService: AspireResource): Boolean {
+        return true
     }
 
     protected abstract fun findCommand(resource: AspireResource): ResourceCommand?
