@@ -7,25 +7,21 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Stores a preferred launch mode for a particular project path.
- * If a preference is set for a project path, [SessionProcessLauncher] should use it
- * instead of the value provided by [com.jetbrains.rider.aspire.generated.CreateSessionRequest.debug].
+ *
+ * The preferred launch mode is a one-time setting. After getting value for a specific project, the value will be deleted.
  */
 @Service(Service.Level.PROJECT)
-internal class SessionLaunchPreferenceService() {
+internal class SessionLaunchPreferenceService {
     companion object {
         fun getInstance(project: Project): SessionLaunchPreferenceService = project.service()
     }
 
     private val preferences = ConcurrentHashMap<String, SessionLaunchMode>()
 
-    fun getPreferredLaunchMode(projectPath: String): SessionLaunchMode? = preferences[projectPath]
+    fun getPreferredLaunchMode(projectPath: String): SessionLaunchMode? = preferences.remove(projectPath)
 
     fun setPreferredLaunchMode(projectPath: String, mode: SessionLaunchMode) {
         preferences[projectPath] = mode
-    }
-
-    fun clearPreferredLaunchMode(projectPath: String) {
-        preferences.remove(projectPath)
     }
 }
 
