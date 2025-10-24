@@ -10,6 +10,7 @@ import com.jetbrains.rider.aspire.sessions.getExecutableParams
 import com.jetbrains.rider.aspire.sessions.getLaunchProfile
 import com.jetbrains.rider.aspire.sessions.mergeEnvironmentVariables
 import com.jetbrains.rider.aspire.util.MSBuildPropertyService
+import com.jetbrains.rider.run.configurations.TerminalMode
 import com.jetbrains.rider.run.configurations.launchSettings.commands.ExecutableCommand
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
@@ -82,8 +83,7 @@ class ExecutableLibraryExecutableFactory(private val project: Project) {
             targetFramework,
             executableParams.workingDirectoryPath ?: workingDirectoryAbsolutePath,
             executableParams.commandLineArgumentString ?: arguments,
-            useMonoRuntime = false,
-            useExternalConsole = false,
+            TerminalMode.Auto,
             executableParams.environmentVariables,
             true,
             { _, _, _ -> },

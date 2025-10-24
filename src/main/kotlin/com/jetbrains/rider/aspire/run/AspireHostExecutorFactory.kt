@@ -22,6 +22,7 @@ import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
+import com.jetbrains.rider.run.configurations.TerminalMode
 import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
@@ -131,8 +132,7 @@ class AspireHostExecutorFactory(
             params.tfm ?: projectOutput.tfm,
             params.workingDirectoryPath ?: projectOutput.workingDirectory,
             params.commandLineArgumentString ?: ParametersListUtil.join(projectOutput.defaultArguments),
-            useMonoRuntime = false,
-            useExternalConsole = false,
+            TerminalMode.Auto,
             params.environmentVariables,
             true,
             getStartBrowserAction(effectiveUrl, effectiveLaunchBrowser, parameters.startBrowserParameters),

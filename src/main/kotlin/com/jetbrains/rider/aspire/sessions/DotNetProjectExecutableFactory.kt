@@ -20,6 +20,7 @@ import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
+import com.jetbrains.rider.run.configurations.TerminalMode
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
 import com.jetbrains.rider.run.environment.ProjectProcessOptions
@@ -113,8 +114,7 @@ class DotNetProjectExecutableFactory(private val project: Project) {
             executableParams.tfm ?: output.tfm,
             executableParams.workingDirectoryPath ?: workingDirectory,
             executableParams.commandLineArgumentString ?: arguments,
-            useMonoRuntime = false,
-            useExternalConsole = false,
+            TerminalMode.Auto,
             executableParams.environmentVariables,
             false,
             browserAction,
@@ -122,7 +122,6 @@ class DotNetProjectExecutableFactory(private val project: Project) {
             "",
             !executablePath.endsWith(".dll", true),
             DotNetCoreRuntimeType,
-            usePty = false
         ) to browserSettings
     }
 
@@ -169,8 +168,7 @@ class DotNetProjectExecutableFactory(private val project: Project) {
             executableParams.tfm ?: properties.targetFramework,
             executableParams.workingDirectoryPath ?: workingDirectory,
             executableParams.commandLineArgumentString ?: arguments,
-            useMonoRuntime = false,
-            useExternalConsole = false,
+            TerminalMode.Auto,
             executableParams.environmentVariables,
             false,
             browserAction,
