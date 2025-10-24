@@ -9,6 +9,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.EnvironmentUtil
+import com.intellij.util.NetworkUtils
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.launchProfiles.*
@@ -30,7 +31,6 @@ import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
-import com.jetbrains.rider.util.NetUtils
 import com.jetbrains.rider.utils.RiderEnvironmentAccessor
 import java.net.URI
 import java.util.*
@@ -177,7 +177,7 @@ class AspireHostExecutorFactory(
             if (!aspireResourceServiceEndpoint.isNullOrEmpty()) {
                 envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] = aspireResourceServiceEndpoint
             } else {
-                val resourceEndpointPort = NetUtils.findFreePort(47200)
+                val resourceEndpointPort = NetworkUtils.findFreePort(47200)
                 envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] =
                     if (useHttp) "http://localhost:$resourceEndpointPort"
                     else "https://localhost:$resourceEndpointPort"
@@ -215,7 +215,7 @@ class AspireHostExecutorFactory(
         //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration?tabs=bash#common-configuration
         val otlpEndpointUrl = envs.getAspireDashboardOtlpEndpointUrl()
         if (otlpEndpointUrl.isNullOrEmpty()) {
-            val otlpEndpointPort = NetUtils.findFreePort(47300)
+            val otlpEndpointPort = NetworkUtils.findFreePort(47300)
             envs[ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL] =
                 if (useHttp) "http://localhost:$otlpEndpointPort"
                 else "https://localhost:$otlpEndpointPort"

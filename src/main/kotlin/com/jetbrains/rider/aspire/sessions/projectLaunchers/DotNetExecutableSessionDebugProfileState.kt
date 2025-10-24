@@ -12,6 +12,7 @@ import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
 import com.jetbrains.rider.run.TerminalProcessHandler
+import com.jetbrains.rider.run.configurations.TerminalMode
 import com.jetbrains.rider.run.dotNetCore.DotNetCoreDebugProfile
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -51,7 +52,7 @@ open class DotNetExecutableSessionDebugProfileState(
         port,
         getLauncherInfo(lifetime, helper),
         dotNetExecutable.executableType,
-        dotNetExecutable.usePty
+        dotNetExecutable.terminalMode == TerminalMode.EnablePty
     )
 
     override suspend fun startDebuggerWorker(
