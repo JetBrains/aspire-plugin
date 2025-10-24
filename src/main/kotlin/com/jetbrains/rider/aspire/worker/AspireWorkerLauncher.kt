@@ -36,7 +36,7 @@ import kotlin.io.path.div
  * @see <a href="https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md">.NET Aspire IDE execution</a>
  */
 @Service(Service.Level.PROJECT)
-class AspireWorkerLauncher {
+internal class AspireWorkerLauncher {
     companion object {
         fun getInstance(project: Project) = project.service<AspireWorkerLauncher>()
 

@@ -10,7 +10,7 @@ import com.jetbrains.rider.aspire.dashboard.ResourceListener
 import com.jetbrains.rider.aspire.settings.AspireSettings
 import java.net.URI
 
-class DatabaseResourceListener(private val project: Project) : ResourceListener {
+internal class DatabaseResourceListener(private val project: Project) : ResourceListener {
     companion object {
         private val LOG = logger<DatabaseResourceListener>()
 

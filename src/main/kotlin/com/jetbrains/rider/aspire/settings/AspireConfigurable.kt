@@ -8,7 +8,7 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.selected
 import com.jetbrains.rider.aspire.AspireBundle
 
-class AspireConfigurable : BoundConfigurable(AspireBundle.message("configurable.Aspire")) {
+internal class AspireConfigurable : BoundConfigurable(AspireBundle.message("configurable.Aspire")) {
     private val settings get() = AspireSettings.getInstance()
 
     private lateinit var connectToDatabase: Cell<JBCheckBox>

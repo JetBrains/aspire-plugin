@@ -27,7 +27,7 @@ import kotlin.io.path.absolutePathString
  * This service handles the creation of an Aspire manifest file (`aspire-manifest.json`) for a given Aspire Host project.
  */
 @Service(Service.Level.PROJECT)
-class ManifestService(private val project: Project) {
+internal class ManifestService(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<ManifestService>()
         private val LOG = logger<ManifestService>()

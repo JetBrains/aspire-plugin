@@ -5,7 +5,7 @@ import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.data
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.MySqlClientDataProvider
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.factories.ConnectionStringsFactory
 
-class DummyMySqlConnectionStringsFactory(private val project: Project) : ConnectionStringsFactory {
+internal class DummyMySqlConnectionStringsFactory(private val project: Project) : ConnectionStringsFactory {
     override fun accepts(dataProvider: DotnetDataProvider) =
         dataProvider is MySqlClientDataProvider
 

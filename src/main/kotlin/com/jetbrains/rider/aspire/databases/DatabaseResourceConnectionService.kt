@@ -46,7 +46,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * so we have to "fix" the connection string.
  */
 @Service(Service.Level.PROJECT)
-class DatabaseResourceConnectionService(private val project: Project, scope: CoroutineScope) {
+internal class DatabaseResourceConnectionService(private val project: Project, scope: CoroutineScope) {
     companion object {
         fun getInstance(project: Project): DatabaseResourceConnectionService = project.service()
 

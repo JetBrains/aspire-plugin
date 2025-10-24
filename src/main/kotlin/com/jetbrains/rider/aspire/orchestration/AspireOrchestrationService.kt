@@ -44,7 +44,7 @@ import kotlin.io.path.absolutePathString
  * integration of these files with selected .NET project entities.
  */
 @Service(Service.Level.PROJECT)
-class AspireOrchestrationService(private val project: Project) {
+internal class AspireOrchestrationService(private val project: Project) {
     companion object {
         fun getInstance(project: Project): AspireOrchestrationService = project.service()
         private val LOG = logger<AspireOrchestrationService>()

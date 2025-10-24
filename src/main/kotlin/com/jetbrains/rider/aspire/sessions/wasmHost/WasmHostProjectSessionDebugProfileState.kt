@@ -21,7 +21,7 @@ import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
-class WasmHostProjectSessionDebugProfileState(
+internal class WasmHostProjectSessionDebugProfileState(
     sessionId: String,
     private val projectPath: Path,
     dotnetExecutable: DotNetExecutable,

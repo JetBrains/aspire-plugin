@@ -37,7 +37,7 @@ import java.time.Duration
 import kotlin.io.path.exists
 
 @Service(Service.Level.PROJECT)
-class AspireProjectTemplateGenerator(private val project: Project) : LifetimedService() {
+internal class AspireProjectTemplateGenerator(private val project: Project) : LifetimedService() {
     companion object {
         fun getInstance(project: Project): AspireProjectTemplateGenerator = project.service()
         private val LOG = logger<AspireProjectTemplateGenerator>()

@@ -18,11 +18,11 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**
- * Factory class for creating instances of [DotNetExecutable] from a .NET library project
- * that has an `Executable` launch profile.
+ * Factory class for creating instances of [DotNetExecutable] from an Aspire session request
+ * based on a .NET library project that has an `Executable` launch profile.
  */
 @Service(Service.Level.PROJECT)
-class ExecutableLibraryExecutableFactory(private val project: Project) {
+internal class ExecutableLibraryExecutableFactory(private val project: Project) {
     companion object {
         fun getInstance(project: Project): ExecutableLibraryExecutableFactory = project.service()
         private val LOG = logger<ExecutableLibraryExecutableFactory>()

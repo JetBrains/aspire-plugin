@@ -36,7 +36,7 @@ import kotlin.io.path.nameWithoutExtension
  * to configure Aspire host and project applications correctly.
  */
 @Service(Service.Level.PROJECT)
-class AspireDefaultFileModificationService(private val project: Project) {
+internal class AspireDefaultFileModificationService(private val project: Project) {
     companion object {
         fun getInstance(project: Project): AspireDefaultFileModificationService = project.service()
         private val LOG = logger<AspireDefaultFileModificationService>()

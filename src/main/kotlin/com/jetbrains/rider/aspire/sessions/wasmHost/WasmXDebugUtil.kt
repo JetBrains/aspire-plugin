@@ -15,7 +15,7 @@ import com.jetbrains.rider.debugger.wasm.host.WasmHostDebugProcess
 import com.jetbrains.rider.model.debuggerWorker.DotNetDebuggerSessionModel
 import com.jetbrains.rider.run.IDebuggerOutputListener
 
-fun createAndStartSession(
+internal fun createAndStartSession(
     executionConsole: ExecutionConsole,
     env: ExecutionEnvironment,
     sessionLifetime: Lifetime,

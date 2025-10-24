@@ -34,8 +34,15 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
+/**
+ * Service for managing the lifecycle and orchestration of Aspire sessions.
+ *
+ * This class is responsible for handling requests to create and delete sessions, as well as
+ * managing their associated lifetimes and processes. It processes commands submitted to it
+ * asynchronously via a command channel.
+ */
 @Service(Service.Level.PROJECT)
-class SessionManager(private val project: Project, scope: CoroutineScope) {
+internal class SessionManager(private val project: Project, scope: CoroutineScope) {
     companion object {
         fun getInstance(project: Project) = project.service<SessionManager>()
 

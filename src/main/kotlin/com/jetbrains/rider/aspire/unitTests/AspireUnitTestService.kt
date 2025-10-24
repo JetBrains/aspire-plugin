@@ -23,8 +23,15 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
+/**
+ * Service for managing Aspire host instances used for unit test runs in a project.
+ *
+ * This service provides functionality for starting and stopping Aspire hosts associated
+ * with unit test executions, ensuring that environment variables and host configurations
+ * are managed appropriately. Each Aspire host is uniquely identified by a `unitTestRunId`.
+ */
 @Service(Service.Level.PROJECT)
-class AspireUnitTestService(private val project: Project, private val scope: CoroutineScope) {
+internal class AspireUnitTestService(private val project: Project, private val scope: CoroutineScope) {
     companion object {
         fun getInstance(project: Project): AspireUnitTestService = project.service()
         private val LOG = logger<AspireUnitTestService>()
@@ -94,18 +101,7 @@ class AspireUnitTestService(private val project: Project, private val scope: Cor
     }
 
     fun stopAspireHost(request: StopAspireHostRequest, rdTask: RdTask<Unit>) {
-        val aspireHost = aspireUnitTestHosts.remove(request.unitTestRunId)
-        if (aspireHost == null) {
-            LOG.info("Unable to find Aspire host for unitTestRunId ${request.unitTestRunId}")
-            rdTask.set(Unit)
-            return
-        }
-
-        LOG.trace { "Stopping aspire host ${aspireHost.aspireHostId}" }
-        val aspireWorker = AspireWorkerManager.getInstance(project).aspireWorker
-        application.invokeLater {
-            aspireWorker.stopAspireHostModel(aspireHost.aspireHostId)
-        }
+        stopAspireHost(request.unitTestRunId)
         rdTask.set(Unit)
     }
 

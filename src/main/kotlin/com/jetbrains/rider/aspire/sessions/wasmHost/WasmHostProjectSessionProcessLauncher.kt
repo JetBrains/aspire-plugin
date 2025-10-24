@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessions.DotNetProjectExecutableFactory
+import com.jetbrains.rider.aspire.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.rider.aspire.sessions.findRunnableProjectByPath
 import com.jetbrains.rider.aspire.sessions.projectLaunchers.DotNetExecutableWithHotReloadSessionProcessLauncher
 import com.jetbrains.rider.nuget.PackageVersionResolution
@@ -23,7 +23,7 @@ import kotlin.io.path.Path
 /**
  * Launches a Blazor WASM host project from an Aspire session request.
  */
-class WasmHostProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessionProcessLauncher() {
+internal class WasmHostProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessionProcessLauncher() {
     companion object {
         private const val DEV_SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.DevServer"
         private const val SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.Server"
@@ -91,7 +91,7 @@ class WasmHostProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessi
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
-        val factory = DotNetProjectExecutableFactory.getInstance(project)
+        val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
         val addBrowserAction = !isDebugSession
         val executable = factory.createExecutable(sessionModel, hostRunConfiguration, addBrowserAction)
         if (executable == null) {

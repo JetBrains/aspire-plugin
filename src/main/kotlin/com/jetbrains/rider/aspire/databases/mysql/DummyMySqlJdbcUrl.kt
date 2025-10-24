@@ -6,7 +6,7 @@ import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shar
 import java.net.URLEncoder
 import java.sql.DriverPropertyInfo
 
-class DummyMySqlJdbcUrl(properties: Collection<DriverPropertyInfo>) : JdbcUrl(properties) {
+internal class DummyMySqlJdbcUrl(properties: Collection<DriverPropertyInfo>) : JdbcUrl(properties) {
     constructor() : this(emptyList())
 
     override suspend fun build(): Result<String> {

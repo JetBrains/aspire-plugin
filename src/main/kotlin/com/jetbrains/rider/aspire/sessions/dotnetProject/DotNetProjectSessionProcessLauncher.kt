@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.sessions.DotNetProjectExecutableFactory
+import com.jetbrains.rider.aspire.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.rider.aspire.sessions.projectLaunchers.DotNetExecutableWithHotReloadSessionProcessLauncher
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -16,7 +16,7 @@ import java.nio.file.Path
 /**
  * Launches a regular .NET project from an Aspire session request.
  */
-class DotNetProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessionProcessLauncher() {
+internal class DotNetProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessionProcessLauncher() {
     companion object {
         private val LOG = logger<DotNetProjectSessionProcessLauncher>()
     }
@@ -70,7 +70,7 @@ class DotNetProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSession
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
-        val factory = DotNetProjectExecutableFactory.getInstance(project)
+        val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
         val executable = factory.createExecutable(sessionModel, hostRunConfiguration, true)
         if (executable == null) {
             LOG.warn("Unable to create executable for project: ${sessionModel.projectPath}")

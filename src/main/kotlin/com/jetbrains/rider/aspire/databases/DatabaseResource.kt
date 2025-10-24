@@ -3,7 +3,7 @@ package com.jetbrains.rider.aspire.databases
 import com.jetbrains.rd.util.lifetime.Lifetime
 import java.net.URI
 
-data class DatabaseResource(
+internal data class DatabaseResource(
     val name: String,
     val containerId: String,
     val type: DatabaseType,
@@ -14,6 +14,6 @@ data class DatabaseResource(
     val resourceLifetime: Lifetime
 )
 
-enum class DatabaseType {
+internal enum class DatabaseType {
     POSTGRES, MYSQL, MSSQL, ORACLE, MONGO, REDIS
 }

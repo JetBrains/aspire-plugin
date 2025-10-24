@@ -34,14 +34,14 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**
- * Factory class for creating instances of [DotNetExecutable] from a regular .NET project.
+ * Factory class for creating instances of [DotNetExecutable] from an Aspire session request based on a regular .NET project.
  */
 @Service(Service.Level.PROJECT)
-class DotNetProjectExecutableFactory(private val project: Project) {
+internal class DotNetProjectSessionExecutableFactory(private val project: Project) {
     companion object {
-        fun getInstance(project: Project) = project.service<DotNetProjectExecutableFactory>()
+        fun getInstance(project: Project) = project.service<DotNetProjectSessionExecutableFactory>()
 
-        private val LOG = logger<DotNetProjectExecutableFactory>()
+        private val LOG = logger<DotNetProjectSessionExecutableFactory>()
     }
 
     suspend fun createExecutable(

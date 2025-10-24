@@ -33,7 +33,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 /**
- * An implementation of the `SessionProcessLauncherExtension` interface that creates a [DotNetExecutable]
+ * An implementation of the [SessionProcessLauncherExtension] interface that creates a [DotNetExecutable]
  * from the [CreateSessionRequest] and uses it to create Run/Debug profiles.
  */
 abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherExtension {
@@ -241,7 +241,7 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
         }
     }
 
-    private fun ExecutionEnvironment.setProgramCallbacks(hotReloadCallback: ProgramRunner.Callback? = null) {
+    private fun ExecutionEnvironment.setProgramCallbacks(programRunnerCallback: ProgramRunner.Callback? = null) {
         callback = object : ProgramRunner.Callback {
             override fun processStarted(runContentDescriptor: RunContentDescriptor?) {
                 runContentDescriptor?.apply {
@@ -249,11 +249,11 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
                     isAutoFocusContent = false
                 }
 
-                hotReloadCallback?.processStarted(runContentDescriptor)
+                programRunnerCallback?.processStarted(runContentDescriptor)
             }
 
             override fun processNotStarted(error: Throwable?) {
-                hotReloadCallback?.processNotStarted(error)
+                programRunnerCallback?.processNotStarted(error)
             }
         }
     }

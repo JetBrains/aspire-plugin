@@ -14,7 +14,7 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class DotNetProjectHotReloadConfigurationExtension : RiderHotReloadRunConfigurationExtensionBase(),
+internal class DotNetProjectHotReloadConfigurationExtension : RiderHotReloadRunConfigurationExtensionBase(),
     AspireProjectHotReloadConfigurationExtension {
     override suspend fun canExecute(
         lifetime: Lifetime,

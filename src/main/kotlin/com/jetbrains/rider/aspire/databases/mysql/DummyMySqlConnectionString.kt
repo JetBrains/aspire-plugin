@@ -7,7 +7,7 @@ import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shar
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shared.connectionStrings.DatabaseConnectionUrlProperty
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shared.connectionStrings.PotentialConnectionString
 
-class DummyMySqlConnectionString(project: Project, properties: List<RdConnectionStringKeyValuePair>) :
+internal class DummyMySqlConnectionString(project: Project, properties: List<RdConnectionStringKeyValuePair>) :
     ConnectionString(project, properties) {
 
     companion object {

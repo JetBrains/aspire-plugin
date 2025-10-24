@@ -27,7 +27,7 @@ import kotlin.io.path.Path
 /**
  * Launches a .NET library project that has an `Executable` launch profile from an Aspire session request.
  */
-class ExecutableLibrarySessionProcessLauncher : DotNetExecutableSessionProcessLauncher() {
+internal class ExecutableLibrarySessionProcessLauncher : DotNetExecutableSessionProcessLauncher() {
     companion object {
         private val LOG = logger<ExecutableLibrarySessionProcessLauncher>()
 

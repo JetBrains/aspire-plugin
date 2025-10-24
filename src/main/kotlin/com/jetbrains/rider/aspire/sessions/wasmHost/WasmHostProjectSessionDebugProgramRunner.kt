@@ -19,7 +19,7 @@ import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
 import com.jetbrains.rider.model.debuggerWorker.DotNetDebuggerSessionModel
 import com.jetbrains.rider.run.IDotNetDebugProfileState
 
-class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
+internal class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
     companion object {
         const val ID = "aspire.wasm.project.session.debug.runner"
     }

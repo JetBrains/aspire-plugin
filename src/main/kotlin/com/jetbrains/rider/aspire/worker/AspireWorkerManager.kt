@@ -24,7 +24,7 @@ import kotlin.io.path.Path
  * This service is responsible for starting, stopping, and updating the state of the `AspireWorker`.
  */
 @Service(Service.Level.PROJECT)
-class AspireWorkerManager(private val project: Project) : LifetimedService() {
+internal class AspireWorkerManager(private val project: Project) : LifetimedService() {
     companion object {
         fun getInstance(project: Project) = project.service<AspireWorkerManager>()
 

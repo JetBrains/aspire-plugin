@@ -30,7 +30,7 @@ import java.net.URI
 
 private val LOG = Logger.getInstance("#com.jetbrains.rider.aspire.sessionHost.projectLaunchers.WasmHostUtils")
 
-suspend fun startBrowserAndAttach(
+internal suspend fun startBrowserAndAttach(
     browserHub: BrowserHub,
     browserHubLifetimeDef: LifetimeDefinition,
     browserStartSettings: StartBrowserSettings?,
@@ -76,7 +76,7 @@ private suspend fun startBrowser(
     }
 }
 
-suspend fun executeClient(
+internal suspend fun executeClient(
     projectFilePath: String,
     browserHub: BrowserHub,
     browserRefreshHost: BrowserRefreshAgentHost,

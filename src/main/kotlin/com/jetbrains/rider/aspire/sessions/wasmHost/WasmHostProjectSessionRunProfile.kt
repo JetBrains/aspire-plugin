@@ -10,7 +10,7 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
 
-class WasmHostProjectSessionRunProfile(
+internal class WasmHostProjectSessionRunProfile(
     sessionId: String,
     projectPath: Path,
     dotnetExecutable: DotNetExecutable,

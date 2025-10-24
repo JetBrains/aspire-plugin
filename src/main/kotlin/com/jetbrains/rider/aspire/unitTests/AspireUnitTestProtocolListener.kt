@@ -12,7 +12,14 @@ import com.jetbrains.rider.aspire.generated.StartAspireHostRequest
 import com.jetbrains.rider.aspire.generated.StartAspireHostResponse
 import com.jetbrains.rider.aspire.generated.StopAspireHostRequest
 
-class AspireUnitTestProtocolListener : SolutionExtListener<AspirePluginModel> {
+/**
+ * A listener that handles init-test-related requests received from the backend.
+ *
+ * Responsibilities include:
+ * - Starting and stopping the Aspire host based on requests received through the model.
+ * - Handling cancellations of unit test runs and stopping the Aspire host accordingly.
+ */
+internal class AspireUnitTestProtocolListener : SolutionExtListener<AspirePluginModel> {
     override fun extensionCreated(lifetime: Lifetime, session: ClientProjectSession, model: AspirePluginModel) {
         model.startAspireHost.set { callLifetime, request ->
             startAspireHost(callLifetime, request, session.project)

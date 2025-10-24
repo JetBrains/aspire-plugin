@@ -25,7 +25,7 @@ import com.jetbrains.rider.aspire.util.getBaseIcon
  * and their relationships.
  */
 @Service(Service.Level.PROJECT)
-class ResourceGraphService(private val project: Project) {
+internal class ResourceGraphService(private val project: Project) {
     companion object {
         fun getInstance(project: Project): ResourceGraphService = project.service()
     }
