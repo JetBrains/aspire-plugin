@@ -3,6 +3,7 @@ using Grpc.Core;
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using Polly;
 using Polly.Registry;
 
@@ -11,7 +12,7 @@ namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 internal sealed class AspireHostResourceLogWatcher(
     DashboardService.DashboardServiceClient client,
     Metadata headers,
-    RdConnection.RdConnection connection,
+    IRdConnectionWrapper connectionWrapper,
     AspireHostModel hostModel,
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
     ILogger logger,
@@ -22,15 +23,12 @@ internal sealed class AspireHostResourceLogWatcher(
 
     internal async Task WatchResourceLogs()
     {
-        await connection.DoWithModel(_ =>
+        await connectionWrapper.ViewResources(hostModel, lifetime, (lt, resourceId, resource) =>
         {
-            hostModel.Resources.View(lifetime, (lt, resourceId, resource) =>
-            {
-                lt.StartAttachedAsync(
-                    TaskScheduler.Default,
-                    async () => await WatchResourceLogs(resourceId, resource, lt)
-                );
-            });
+            lt.StartAttachedAsync(
+                TaskScheduler.Default,
+                async () => await WatchResourceLogs(resourceId, resource, lt)
+            );
         });
     }
 
@@ -78,16 +76,15 @@ internal sealed class AspireHostResourceLogWatcher(
                     if (string.IsNullOrEmpty(logLine.Text)) continue;
 
                     logger.ResourceLogLineReceived(logLine);
-                    await connection.DoWithModel(_ =>
-                        resource.LogReceived(
-                            new ResourceLog(
-                                logLine.Text,
-                                // ReSharper disable once SimplifyConditionalTernaryExpression
-                                logLine.HasIsStdErr ? logLine.IsStdErr : false,
-                                logLine.LineNumber
-                            )
-                        )
+
+                    var resourceLog = new ResourceLog(
+                        logLine.Text,
+                        // ReSharper disable once SimplifyConditionalTernaryExpression
+                        logLine.HasIsStdErr ? logLine.IsStdErr : false,
+                        logLine.LineNumber
                     );
+
+                    await connectionWrapper.ResourceLogReceived(resource, resourceLog);
                 }
             }
         }

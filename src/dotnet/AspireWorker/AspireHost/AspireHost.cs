@@ -5,6 +5,7 @@ using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 using Polly.Registry;
 
@@ -15,7 +16,7 @@ internal sealed class AspireHost
     private const string ApiKeyHeader = "x-resource-service-api-key";
 
     private readonly string _id;
-    private readonly RdConnection.RdConnection _rdConnection;
+    private readonly IRdConnectionWrapper _connectionWrapper;
     private readonly AspireHostModel _aspireHostModel;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
@@ -42,14 +43,14 @@ internal sealed class AspireHost
 
     internal AspireHost(
         string id,
-        RdConnection.RdConnection connection,
+        IRdConnectionWrapper connectionWrapper,
         AspireHostModel model,
         ResiliencePipelineProvider<string> resiliencePipelineProvider,
         ILoggerFactory loggerFactory,
         Lifetime lifetime)
     {
         _id = id;
-        _rdConnection = connection;
+        _connectionWrapper = connectionWrapper;
         _aspireHostModel = model;
         _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<AspireHost>();
@@ -67,7 +68,7 @@ internal sealed class AspireHost
     private void InitializeSessionEventWatcher(Lifetime lifetime)
     {
         var sessionEventWatcherLogger = _loggerFactory.CreateLogger<SessionEventWatcher>();
-        var sessionEventWatcher = new SessionEventWatcher(_rdConnection, _aspireHostModel, _sessionEventChannel.Writer,
+        var sessionEventWatcher = new SessionEventWatcher(_connectionWrapper, _aspireHostModel, _sessionEventChannel.Writer,
             sessionEventWatcherLogger, lifetime.CreateNested().Lifetime);
         lifetime.StartAttachedAsync(TaskScheduler.Default,
             async () => await sessionEventWatcher.WatchSessionEvents());
@@ -83,14 +84,14 @@ internal sealed class AspireHost
 
         _logger.CreatingResourceLogWatcher(_id);
         var resourceLogWatcherLogger = _loggerFactory.CreateLogger<AspireHostResourceLogWatcher>();
-        var resourceLogWatcher = new AspireHostResourceLogWatcher(client, metadata, _rdConnection, _aspireHostModel,
+        var resourceLogWatcher = new AspireHostResourceLogWatcher(client, metadata, _connectionWrapper, _aspireHostModel,
             _resiliencePipelineProvider, resourceLogWatcherLogger, lifetime.CreateNested().Lifetime);
         lifetime.StartAttachedAsync(TaskScheduler.Default,
             async () => await resourceLogWatcher.WatchResourceLogs());
 
         _logger.CreatingResourceWatcher(_id);
         var resourceWatcherLogger = _loggerFactory.CreateLogger<AspireHostResourceWatcher>();
-        var resourceWatcher = new AspireHostResourceWatcher(client, metadata, _rdConnection, _aspireHostModel,
+        var resourceWatcher = new AspireHostResourceWatcher(client, metadata, _connectionWrapper, _aspireHostModel,
             _resiliencePipelineProvider, resourceWatcherLogger, lifetime.CreateNested().Lifetime);
         lifetime.StartAttachedAsync(TaskScheduler.Default,
             async () => await resourceWatcher.WatchResources());
@@ -144,10 +145,8 @@ internal sealed class AspireHost
 
         var envs = session.Env
             ?.Where(it => it.Value is not null)
-            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-            ?.Select(it => new SessionEnvironmentVariable(it.Name, it.Value!))
-            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-            ?.ToArray();
+            .Select(it => new SessionEnvironmentVariable(it.Name, it.Value!))
+            .ToArray();
 
         var request = new CreateSessionRequest(
             launchConfiguration.ProjectPath,
@@ -161,7 +160,7 @@ internal sealed class AspireHost
         _logger.CreateNewSessionRequestReceived(request.ProjectPath);
         _logger.SessionCreationRequestBuilt(request);
 
-        var result = await _rdConnection.DoWithModel(_ => _aspireHostModel.CreateSession.Sync(request));
+        var result = await _connectionWrapper.CreateSession(_aspireHostModel, request);
         _logger.SessionCreationResponseReceived(result);
 
         var error = result?.Error is not null ? BuildErrorResponse(result.Error) : null;
@@ -176,7 +175,7 @@ internal sealed class AspireHost
         _logger.DeleteSessionRequestReceived(id);
         _logger.SessionDeletionRequestBuilt(request);
 
-        var result = await _rdConnection.DoWithModel(_ => _aspireHostModel.DeleteSession.Sync(request));
+        var result = await _connectionWrapper.DeleteSession(_aspireHostModel, request);
         _logger.SessionDeletionResponseReceived(result);
 
         var error = result?.Error is not null ? BuildErrorResponse(result.Error) : null;

@@ -1,12 +1,13 @@
 using System.Threading.Channels;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 
 namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class SessionEventWatcher(
-    RdConnection.RdConnection connection,
+    IRdConnectionWrapper connectionWrapper,
     AspireHostModel hostModel,
     ChannelWriter<ISessionEvent> sessionEventWriter,
     ILogger logger,
@@ -14,47 +15,44 @@ internal sealed class SessionEventWatcher(
 {
     internal async Task WatchSessionEvents()
     {
-        await connection.DoWithModel(_ =>
+        await connectionWrapper.AdviceOnProcessStarted(hostModel, lifetime, it =>
         {
-            hostModel.ProcessStarted.Advise(lifetime, it =>
+            logger.ProcessStarted(it);
+            var writingResult =
+                sessionEventWriter.TryWrite(new ProcessStartedEvent(it.Id, "processRestarted", it.Pid));
+            if (!writingResult)
             {
-                logger.ProcessStarted(it);
-                var writingResult =
-                    sessionEventWriter.TryWrite(new ProcessStartedEvent(it.Id, "processRestarted", it.Pid));
-                if (!writingResult)
-                {
-                    logger.FailedToWriteProcessStartedEvent();
-                }
-            });
+                logger.FailedToWriteProcessStartedEvent();
+            }
+        });
 
-            hostModel.LogReceived.Advise(lifetime, it =>
+        await connectionWrapper.AdviceOnLogReceived(hostModel, lifetime, it =>
+        {
+            logger.LogReceived(it);
+            var message = ModifyText(it.Message);
+            if (string.IsNullOrWhiteSpace(message))
             {
-                logger.LogReceived(it);
-                var message = ModifyText(it.Message);
-                if (string.IsNullOrWhiteSpace(message))
-                {
-                    logger.MessageIsEmptyAfterProcessing();
-                    return;
-                }
+                logger.MessageIsEmptyAfterProcessing();
+                return;
+            }
 
-                var writingResult =
-                    sessionEventWriter.TryWrite(new LogReceivedEvent(it.Id, "serviceLogs", it.IsStdErr, message));
-                if (!writingResult)
-                {
-                    logger.FailedToWriteLogReceivedEvent();
-                }
-            });
-
-            hostModel.ProcessTerminated.Advise(lifetime, it =>
+            var writingResult =
+                sessionEventWriter.TryWrite(new LogReceivedEvent(it.Id, "serviceLogs", it.IsStdErr, message));
+            if (!writingResult)
             {
-                logger.ProcessTerminated(it);
-                var writingResult =
-                    sessionEventWriter.TryWrite(new ProcessTerminatedEvent(it.Id, "sessionTerminated", it.ExitCode));
-                if (!writingResult)
-                {
-                    logger.FailedToWriteProcessTerminatedEvent();
-                }
-            });
+                logger.FailedToWriteLogReceivedEvent();
+            }
+        });
+
+        await connectionWrapper.AdviceOnProcessTerminated(hostModel, lifetime, it =>
+        {
+            logger.ProcessTerminated(it);
+            var writingResult =
+                sessionEventWriter.TryWrite(new ProcessTerminatedEvent(it.Id, "sessionTerminated", it.ExitCode));
+            if (!writingResult)
+            {
+                logger.FailedToWriteProcessTerminatedEvent();
+            }
         });
     }
 
