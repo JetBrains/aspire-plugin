@@ -2,13 +2,14 @@ using System.Threading.Channels;
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 using Polly.Registry;
 
 namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class AspireHostService(
-    RdConnection.RdConnection connection,
+    IRdConnectionWrapper connectionWrapper,
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
     ILoggerFactory loggerFactory
 ) : IAspireHostService
@@ -19,7 +20,7 @@ internal sealed class AspireHostService(
     {
         var aspireHost = new AspireHost(
             id,
-            connection,
+            connectionWrapper,
             host,
             resiliencePipelineProvider,
             loggerFactory,

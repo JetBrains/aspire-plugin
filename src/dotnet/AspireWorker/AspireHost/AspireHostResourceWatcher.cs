@@ -4,6 +4,7 @@ using JetBrains.Lifetimes;
 using JetBrains.Rd.Base;
 using JetBrains.Rd.Tasks;
 using JetBrains.Rider.Aspire.Worker.Generated;
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using Polly;
 using Polly.Registry;
 using ResourceCommandRequest = JetBrains.Rider.Aspire.Worker.Generated.ResourceCommandRequest;
@@ -15,7 +16,7 @@ namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 internal sealed class AspireHostResourceWatcher(
     DashboardService.DashboardServiceClient client,
     Metadata headers,
-    RdConnection.RdConnection connection,
+    IRdConnectionWrapper connectionWrapper,
     AspireHostModel hostModel,
     ResiliencePipelineProvider<string> resiliencePipelineProvider,
     ILogger logger,
@@ -76,7 +77,7 @@ internal sealed class AspireHostResourceWatcher(
     {
         logger.HandleInitialResourceData();
 
-        await connection.DoWithModel(_ => hostModel.Resources.Clear());
+        await connectionWrapper.ClearResources(hostModel);
 
         foreach (var resource in initialResourceData.Resources)
         {
@@ -86,7 +87,8 @@ internal sealed class AspireHostResourceWatcher(
             var resourceWrapper = new ResourceWrapper();
             resourceWrapper.ExecuteCommand.SetAsync(async (lt, request) => await ExecuteCommand(request, lt));
             resourceWrapper.Model.SetValue(resourceModel);
-            await connection.DoWithModel(_ => { hostModel.Resources.TryAdd(resourceModel.Name, resourceWrapper); });
+
+            await connectionWrapper.AddResource(hostModel, resourceModel.Name, resourceWrapper);
         }
     }
 
@@ -119,25 +121,19 @@ internal sealed class AspireHostResourceWatcher(
     private async Task UpsertResource(WatchResourcesChange change)
     {
         var resourceModel = change.Upsert.ToModel();
-        await connection.DoWithModel(_ =>
+        await connectionWrapper.UpsertResource(hostModel, resourceModel, rm =>
         {
-            if (hostModel.Resources.ContainsKey(resourceModel.Name))
-            {
-                hostModel.Resources[resourceModel.Name].Model.SetValue(resourceModel);
-            }
-            else
-            {
-                var resourceWrapper = new ResourceWrapper();
-                resourceWrapper.ExecuteCommand.SetAsync(async (lt, request) => await ExecuteCommand(request, lt));
-                resourceWrapper.Model.SetValue(resourceModel);
-                hostModel.Resources.TryAdd(resourceModel.Name, resourceWrapper);
-            }
+            var resourceWrapper = new ResourceWrapper();
+            resourceWrapper.ExecuteCommand.SetAsync(async (lt, request) => await ExecuteCommand(request, lt));
+            resourceWrapper.Model.SetValue(rm);
+
+            return resourceWrapper;
         });
     }
 
     private async Task DeleteResource(WatchResourcesChange change)
     {
-        await connection.DoWithModel(_ => hostModel.Resources.Remove(change.Delete.ResourceName));
+        await connectionWrapper.RemoveResource(hostModel, change.Delete.ResourceName);
     }
 
     private async Task<ResourceCommandResponse> ExecuteCommand(ResourceCommandRequest command, Lifetime lt)
