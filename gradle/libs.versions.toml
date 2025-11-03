@@ -8,7 +8,7 @@ junit = "4.13.2"
 
 # plugins
 kotlin = "2.2.21"
-intelliJPlatform = "2.10.2"
+intelliJPlatform = "2.10.4"
 changelog = "2.4.0"
 
 [libraries]
