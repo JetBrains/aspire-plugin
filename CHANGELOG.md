@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Support for Rider 2025.3 EAP 8
+
+## [1.9.1] - 2025-10-23
+
 ### Added
 
 - [#514](https://github.com/JetBrains/aspire-plugin/issues/514) Actions to restart Project-based resources with or without debugger attached
