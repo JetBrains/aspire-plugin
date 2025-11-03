@@ -8,6 +8,10 @@ import com.jetbrains.rider.test.enums.BuildTool
 import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
+import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
+import com.jetbrains.rider.test.logging.RiderLoggedErrorProcessor
+import com.jetbrains.rider.test.logging.knownErrors.KnownLogErrors
+import com.jetbrains.rider.test.logging.knownErrors.RiderKnownLogErrors
 import com.jetbrains.rider.test.scriptingApi.buildSolutionWithReSharperBuild
 import com.jetbrains.rider.test.scriptingApi.executeBeforeRunTasksForSelectedConfiguration
 import org.testng.annotations.Test
@@ -30,6 +34,8 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
         params.restoreNuGetPackages = true
         params.waitForCaches = true
     }
+
+    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor, aspireLoggedErrorProcessor) }
 
     @Test
     @Solution("DefaultAspireSolution")

@@ -10,6 +10,7 @@ import com.jetbrains.rider.test.enums.BuildTool
 import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
+import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
 import com.jetbrains.rider.test.scriptingApi.DebugTestExecutionContext
 import com.jetbrains.rider.test.scriptingApi.executeBeforeRunTasksForSelectedConfiguration
 import com.jetbrains.rider.test.scriptingApi.testDebugProgram
@@ -34,6 +35,8 @@ class DebuggingApplicationTests : DebuggerTestBase() {
     }
 
     override val projectName = "DefaultAspireSolution"
+
+    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor, aspireLoggedErrorProcessor) }
 
     @Test
     @Solution("DefaultAspireSolution")

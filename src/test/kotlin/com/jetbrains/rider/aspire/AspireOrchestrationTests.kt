@@ -15,6 +15,7 @@ import com.jetbrains.rider.test.enums.BuildTool
 import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.framework.executeWithGold
 import com.jetbrains.rider.test.framework.persistAllFilesOnDisk
+import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
 import com.jetbrains.rider.test.scriptingApi.*
 import org.testng.annotations.Test
 import java.io.File
@@ -33,6 +34,8 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
         params.waitForCaches = true
         params.waitForSolutionBuilder = true
     }
+
+    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor, aspireLoggedErrorProcessor) }
 
     @Test
     @Solution("DefaultAspNetCoreSolution")
