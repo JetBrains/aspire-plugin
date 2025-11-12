@@ -56,117 +56,122 @@ namespace Aspire.DashboardService.Proto.V1 {
             "UHJvcGVydGllcxISCgpzb3J0X29yZGVyGAEgASgFEhQKDGRpc3BsYXlfbmFt",
             "ZRgCIAEoCSJSCgZWb2x1bWUSDgoGc291cmNlGAEgASgJEg4KBnRhcmdldBgC",
             "IAEoCRISCgptb3VudF90eXBlGAMgASgJEhQKDGlzX3JlYWRfb25seRgEIAEo",
-            "CCJ8CgxIZWFsdGhSZXBvcnQSLAoGc3RhdHVzGAEgASgOMhcuYXNwaXJlLnYx",
-            "LkhlYWx0aFN0YXR1c0gAiAEBEgsKA2tleRgCIAEoCRITCgtkZXNjcmlwdGlv",
-            "bhgDIAEoCRIRCglleGNlcHRpb24YBCABKAlCCQoHX3N0YXR1cyI7ChRSZXNv",
-            "dXJjZVJlbGF0aW9uc2hpcBIVCg1yZXNvdXJjZV9uYW1lGAEgASgJEgwKBHR5",
-            "cGUYAiABKAkinwEKEFJlc291cmNlUHJvcGVydHkSDAoEbmFtZRgBIAEoCRIZ",
-            "CgxkaXNwbGF5X25hbWUYAiABKAlIAIgBARIlCgV2YWx1ZRgDIAEoCzIWLmdv",
-            "b2dsZS5wcm90b2J1Zi5WYWx1ZRIZCgxpc19zZW5zaXRpdmUYBCABKAhIAYgB",
-            "AUIPCg1fZGlzcGxheV9uYW1lQg8KDV9pc19zZW5zaXRpdmUi3wYKCFJlc291",
-            "cmNlEgwKBG5hbWUYASABKAkSFQoNcmVzb3VyY2VfdHlwZRgCIAEoCRIUCgxk",
-            "aXNwbGF5X25hbWUYAyABKAkSCwoDdWlkGAQgASgJEhIKBXN0YXRlGAUgASgJ",
-            "SACIAQESMwoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5U",
-            "aW1lc3RhbXBIAYgBARIzCgtlbnZpcm9ubWVudBgHIAMoCzIeLmFzcGlyZS52",
-            "MS5FbnZpcm9ubWVudFZhcmlhYmxlEiwKCGNvbW1hbmRzGAsgAygLMhouYXNw",
-            "aXJlLnYxLlJlc291cmNlQ29tbWFuZBIvCgpwcm9wZXJ0aWVzGAwgAygLMhsu",
-            "YXNwaXJlLnYxLlJlc291cmNlUHJvcGVydHkSHAoEdXJscxgNIAMoCzIOLmFz",
-            "cGlyZS52MS5VcmwSGAoLc3RhdGVfc3R5bGUYDiABKAlIAogBARIiCgd2b2x1",
-            "bWVzGA8gAygLMhEuYXNwaXJlLnYxLlZvbHVtZRIvCg5oZWFsdGhfcmVwb3J0",
-            "cxgRIAMoCzIXLmFzcGlyZS52MS5IZWFsdGhSZXBvcnQSMwoKc3RhcnRlZF9h",
-            "dBgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBIA4gBARIzCgpz",
-            "dG9wcGVkX2F0GBMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgE",
-            "iAEBEjYKDXJlbGF0aW9uc2hpcHMYFCADKAsyHy5hc3BpcmUudjEuUmVzb3Vy",
-            "Y2VSZWxhdGlvbnNoaXASEQoJaXNfaGlkZGVuGBUgASgIEiMKG3N1cHBvcnRz",
-            "X2RldGFpbGVkX3RlbGVtZXRyeRgWIAEoCBIWCglpY29uX25hbWUYFyABKAlI",
-            "BYgBARIxCgxpY29uX3ZhcmlhbnQYGCABKA4yFi5hc3BpcmUudjEuSWNvblZh",
-            "cmlhbnRIBogBAUIICgZfc3RhdGVCDQoLX2NyZWF0ZWRfYXRCDgoMX3N0YXRl",
-            "X3N0eWxlQg0KC19zdGFydGVkX2F0Qg0KC19zdG9wcGVkX2F0QgwKCl9pY29u",
-            "X25hbWVCDwoNX2ljb25fdmFyaWFudEoECAgQCUoECAkQCkoECAoQC0oECBAQ",
-            "ESJuChNJbml0aWFsUmVzb3VyY2VEYXRhEiYKCXJlc291cmNlcxgBIAMoCzIT",
-            "LmFzcGlyZS52MS5SZXNvdXJjZRIvCg5yZXNvdXJjZV90eXBlcxgCIAMoCzIX",
-            "LmFzcGlyZS52MS5SZXNvdXJjZVR5cGUiQAoQUmVzb3VyY2VEZWxldGlvbhIV",
-            "Cg1yZXNvdXJjZV9uYW1lGAEgASgJEhUKDXJlc291cmNlX3R5cGUYAiABKAki",
-            "dAoUV2F0Y2hSZXNvdXJjZXNDaGFuZ2USLQoGZGVsZXRlGAEgASgLMhsuYXNw",
-            "aXJlLnYxLlJlc291cmNlRGVsZXRpb25IABIlCgZ1cHNlcnQYAiABKAsyEy5h",
-            "c3BpcmUudjEuUmVzb3VyY2VIAEIGCgRraW5kIkcKFVdhdGNoUmVzb3VyY2Vz",
-            "Q2hhbmdlcxIuCgV2YWx1ZRgBIAMoCzIfLmFzcGlyZS52MS5XYXRjaFJlc291",
-            "cmNlc0NoYW5nZSJDChVXYXRjaFJlc291cmNlc1JlcXVlc3QSGQoMaXNfcmVj",
-            "b25uZWN0GAEgASgISACIAQFCDwoNX2lzX3JlY29ubmVjdCKLAQoUV2F0Y2hS",
-            "ZXNvdXJjZXNVcGRhdGUSNgoMaW5pdGlhbF9kYXRhGAEgASgLMh4uYXNwaXJl",
-            "LnYxLkluaXRpYWxSZXNvdXJjZURhdGFIABIzCgdjaGFuZ2VzGAIgASgLMiAu",
-            "YXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzQ2hhbmdlc0gAQgYKBGtpbmQiWwoO",
-            "Q29uc29sZUxvZ0xpbmUSDAoEdGV4dBgBIAEoCRIXCgppc19zdGRfZXJyGAIg",
-            "ASgISACIAQESEwoLbGluZV9udW1iZXIYAyABKAVCDQoLX2lzX3N0ZF9lcnIi",
-            "UQofV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dzUmVxdWVzdBIVCg1yZXNvdXJj",
-            "ZV9uYW1lGAEgASgJEhcKD3N1cHByZXNzX2ZvbGxvdxgCIAEoCCJOCh5XYXRj",
-            "aFJlc291cmNlQ29uc29sZUxvZ3NVcGRhdGUSLAoJbG9nX2xpbmVzGAEgAygL",
-            "MhkuYXNwaXJlLnYxLkNvbnNvbGVMb2dMaW5lIqYCCh5XYXRjaEludGVyYWN0",
-            "aW9uc1JlcXVlc3RVcGRhdGUSFgoOaW50ZXJhY3Rpb25faWQYASABKAUSMgoI",
-            "Y29tcGxldGUYAiABKAsyHi5hc3BpcmUudjEuSW50ZXJhY3Rpb25Db21wbGV0",
-            "ZUgAEjcKC21lc3NhZ2VfYm94GAMgASgLMiAuYXNwaXJlLnYxLkludGVyYWN0",
-            "aW9uTWVzc2FnZUJveEgAEjsKDWlucHV0c19kaWFsb2cYBCABKAsyIi5hc3Bp",
-            "cmUudjEuSW50ZXJhY3Rpb25JbnB1dHNEaWFsb2dIABI6Cgxub3RpZmljYXRp",
-            "b24YBSABKAsyIi5hc3BpcmUudjEuSW50ZXJhY3Rpb25Ob3RpZmljYXRpb25I",
-            "AEIGCgRraW5kItkDCh9XYXRjaEludGVyYWN0aW9uc1Jlc3BvbnNlVXBkYXRl",
-            "EhYKDmludGVyYWN0aW9uX2lkGAEgASgFEg0KBXRpdGxlGAIgASgJEg8KB21l",
-            "c3NhZ2UYAyABKAkSGwoTcHJpbWFyeV9idXR0b25fdGV4dBgEIAEoCRIdChVz",
-            "ZWNvbmRhcnlfYnV0dG9uX3RleHQYBSABKAkSHQoVc2hvd19zZWNvbmRhcnlf",
-            "YnV0dG9uGAYgASgIEhQKDHNob3dfZGlzbWlzcxgHIAEoCBIfChdlbmFibGVf",
-            "bWVzc2FnZV9tYXJrZG93bhgIIAEoCBIyCghjb21wbGV0ZRgQIAEoCzIeLmFz",
+            "CCLCAQoMSGVhbHRoUmVwb3J0EiwKBnN0YXR1cxgBIAEoDjIXLmFzcGlyZS52",
+            "MS5IZWFsdGhTdGF0dXNIAIgBARILCgNrZXkYAiABKAkSEwoLZGVzY3JpcHRp",
+            "b24YAyABKAkSEQoJZXhjZXB0aW9uGAQgASgJEjQKC2xhc3RfcnVuX2F0GAUg",
+            "ASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgBiAEBQgkKB19zdGF0",
+            "dXNCDgoMX2xhc3RfcnVuX2F0IjsKFFJlc291cmNlUmVsYXRpb25zaGlwEhUK",
+            "DXJlc291cmNlX25hbWUYASABKAkSDAoEdHlwZRgCIAEoCSKfAQoQUmVzb3Vy",
+            "Y2VQcm9wZXJ0eRIMCgRuYW1lGAEgASgJEhkKDGRpc3BsYXlfbmFtZRgCIAEo",
+            "CUgAiAEBEiUKBXZhbHVlGAMgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVl",
+            "EhkKDGlzX3NlbnNpdGl2ZRgEIAEoCEgBiAEBQg8KDV9kaXNwbGF5X25hbWVC",
+            "DwoNX2lzX3NlbnNpdGl2ZSLfBgoIUmVzb3VyY2USDAoEbmFtZRgBIAEoCRIV",
+            "Cg1yZXNvdXJjZV90eXBlGAIgASgJEhQKDGRpc3BsYXlfbmFtZRgDIAEoCRIL",
+            "CgN1aWQYBCABKAkSEgoFc3RhdGUYBSABKAlIAIgBARIzCgpjcmVhdGVkX2F0",
+            "GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgBiAEBEjMKC2Vu",
+            "dmlyb25tZW50GAcgAygLMh4uYXNwaXJlLnYxLkVudmlyb25tZW50VmFyaWFi",
+            "bGUSLAoIY29tbWFuZHMYCyADKAsyGi5hc3BpcmUudjEuUmVzb3VyY2VDb21t",
+            "YW5kEi8KCnByb3BlcnRpZXMYDCADKAsyGy5hc3BpcmUudjEuUmVzb3VyY2VQ",
+            "cm9wZXJ0eRIcCgR1cmxzGA0gAygLMg4uYXNwaXJlLnYxLlVybBIYCgtzdGF0",
+            "ZV9zdHlsZRgOIAEoCUgCiAEBEiIKB3ZvbHVtZXMYDyADKAsyES5hc3BpcmUu",
+            "djEuVm9sdW1lEi8KDmhlYWx0aF9yZXBvcnRzGBEgAygLMhcuYXNwaXJlLnYx",
+            "LkhlYWx0aFJlcG9ydBIzCgpzdGFydGVkX2F0GBIgASgLMhouZ29vZ2xlLnBy",
+            "b3RvYnVmLlRpbWVzdGFtcEgDiAEBEjMKCnN0b3BwZWRfYXQYEyABKAsyGi5n",
+            "b29nbGUucHJvdG9idWYuVGltZXN0YW1wSASIAQESNgoNcmVsYXRpb25zaGlw",
+            "cxgUIAMoCzIfLmFzcGlyZS52MS5SZXNvdXJjZVJlbGF0aW9uc2hpcBIRCglp",
+            "c19oaWRkZW4YFSABKAgSIwobc3VwcG9ydHNfZGV0YWlsZWRfdGVsZW1ldHJ5",
+            "GBYgASgIEhYKCWljb25fbmFtZRgXIAEoCUgFiAEBEjEKDGljb25fdmFyaWFu",
+            "dBgYIAEoDjIWLmFzcGlyZS52MS5JY29uVmFyaWFudEgGiAEBQggKBl9zdGF0",
+            "ZUINCgtfY3JlYXRlZF9hdEIOCgxfc3RhdGVfc3R5bGVCDQoLX3N0YXJ0ZWRf",
+            "YXRCDQoLX3N0b3BwZWRfYXRCDAoKX2ljb25fbmFtZUIPCg1faWNvbl92YXJp",
+            "YW50SgQICBAJSgQICRAKSgQIChALSgQIEBARIm4KE0luaXRpYWxSZXNvdXJj",
+            "ZURhdGESJgoJcmVzb3VyY2VzGAEgAygLMhMuYXNwaXJlLnYxLlJlc291cmNl",
+            "Ei8KDnJlc291cmNlX3R5cGVzGAIgAygLMhcuYXNwaXJlLnYxLlJlc291cmNl",
+            "VHlwZSJAChBSZXNvdXJjZURlbGV0aW9uEhUKDXJlc291cmNlX25hbWUYASAB",
+            "KAkSFQoNcmVzb3VyY2VfdHlwZRgCIAEoCSJ0ChRXYXRjaFJlc291cmNlc0No",
+            "YW5nZRItCgZkZWxldGUYASABKAsyGy5hc3BpcmUudjEuUmVzb3VyY2VEZWxl",
+            "dGlvbkgAEiUKBnVwc2VydBgCIAEoCzITLmFzcGlyZS52MS5SZXNvdXJjZUgA",
+            "QgYKBGtpbmQiRwoVV2F0Y2hSZXNvdXJjZXNDaGFuZ2VzEi4KBXZhbHVlGAEg",
+            "AygLMh8uYXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzQ2hhbmdlIkMKFVdhdGNo",
+            "UmVzb3VyY2VzUmVxdWVzdBIZCgxpc19yZWNvbm5lY3QYASABKAhIAIgBAUIP",
+            "Cg1faXNfcmVjb25uZWN0IosBChRXYXRjaFJlc291cmNlc1VwZGF0ZRI2Cgxp",
+            "bml0aWFsX2RhdGEYASABKAsyHi5hc3BpcmUudjEuSW5pdGlhbFJlc291cmNl",
+            "RGF0YUgAEjMKB2NoYW5nZXMYAiABKAsyIC5hc3BpcmUudjEuV2F0Y2hSZXNv",
+            "dXJjZXNDaGFuZ2VzSABCBgoEa2luZCJbCg5Db25zb2xlTG9nTGluZRIMCgR0",
+            "ZXh0GAEgASgJEhcKCmlzX3N0ZF9lcnIYAiABKAhIAIgBARITCgtsaW5lX251",
+            "bWJlchgDIAEoBUINCgtfaXNfc3RkX2VyciJRCh9XYXRjaFJlc291cmNlQ29u",
+            "c29sZUxvZ3NSZXF1ZXN0EhUKDXJlc291cmNlX25hbWUYASABKAkSFwoPc3Vw",
+            "cHJlc3NfZm9sbG93GAIgASgIIk4KHldhdGNoUmVzb3VyY2VDb25zb2xlTG9n",
+            "c1VwZGF0ZRIsCglsb2dfbGluZXMYASADKAsyGS5hc3BpcmUudjEuQ29uc29s",
+            "ZUxvZ0xpbmUi2AIKHldhdGNoSW50ZXJhY3Rpb25zUmVxdWVzdFVwZGF0ZRIW",
+            "Cg5pbnRlcmFjdGlvbl9pZBgBIAEoBRIyCghjb21wbGV0ZRgCIAEoCzIeLmFz",
             "cGlyZS52MS5JbnRlcmFjdGlvbkNvbXBsZXRlSAASNwoLbWVzc2FnZV9ib3gY",
-            "ESABKAsyIC5hc3BpcmUudjEuSW50ZXJhY3Rpb25NZXNzYWdlQm94SAASOwoN",
-            "aW5wdXRzX2RpYWxvZxgSIAEoCzIiLmFzcGlyZS52MS5JbnRlcmFjdGlvbklu",
-            "cHV0c0RpYWxvZ0gAEjoKDG5vdGlmaWNhdGlvbhgTIAEoCzIiLmFzcGlyZS52",
-            "MS5JbnRlcmFjdGlvbk5vdGlmaWNhdGlvbkgAQgYKBGtpbmQiFQoTSW50ZXJh",
-            "Y3Rpb25Db21wbGV0ZSJhChVJbnRlcmFjdGlvbk1lc3NhZ2VCb3gSKAoGaW50",
-            "ZW50GAEgASgOMhguYXNwaXJlLnYxLk1lc3NhZ2VJbnRlbnQSEwoGcmVzdWx0",
-            "GAIgASgISACIAQFCCQoHX3Jlc3VsdCKIAQoXSW50ZXJhY3Rpb25Ob3RpZmlj",
-            "YXRpb24SKAoGaW50ZW50GAEgASgOMhguYXNwaXJlLnYxLk1lc3NhZ2VJbnRl",
-            "bnQSEwoGcmVzdWx0GAIgASgISACIAQESEQoJbGlua190ZXh0GAMgASgJEhAK",
-            "CGxpbmtfdXJsGAQgASgJQgkKB19yZXN1bHQiSwoXSW50ZXJhY3Rpb25JbnB1",
-            "dHNEaWFsb2cSMAoLaW5wdXRfaXRlbXMYASADKAsyGy5hc3BpcmUudjEuSW50",
-            "ZXJhY3Rpb25JbnB1dCLVAgoQSW50ZXJhY3Rpb25JbnB1dBINCgVsYWJlbBgB",
-            "IAEoCRITCgtwbGFjZWhvbGRlchgCIAEoCRIoCgppbnB1dF90eXBlGAMgASgO",
-            "MhQuYXNwaXJlLnYxLklucHV0VHlwZRIQCghyZXF1aXJlZBgEIAEoCBI5Cgdv",
-            "cHRpb25zGAUgAygLMiguYXNwaXJlLnYxLkludGVyYWN0aW9uSW5wdXQuT3B0",
-            "aW9uc0VudHJ5Eg0KBXZhbHVlGAYgASgJEhkKEXZhbGlkYXRpb25fZXJyb3Jz",
-            "GAcgAygJEhMKC2Rlc2NyaXB0aW9uGAggASgJEiMKG2VuYWJsZV9kZXNjcmlw",
-            "dGlvbl9tYXJrZG93bhgJIAEoCBISCgptYXhfbGVuZ3RoGAogASgFGi4KDE9w",
-            "dGlvbnNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBKkAK",
-            "C0ljb25WYXJpYW50EhgKFElDT05fVkFSSUFOVF9SRUdVTEFSEAASFwoTSUNP",
-            "Tl9WQVJJQU5UX0ZJTExFRBABKoIBChRSZXNvdXJjZUNvbW1hbmRTdGF0ZRIi",
-            "Ch5SRVNPVVJDRV9DT01NQU5EX1NUQVRFX0VOQUJMRUQQABIjCh9SRVNPVVJD",
-            "RV9DT01NQU5EX1NUQVRFX0RJU0FCTEVEEAESIQodUkVTT1VSQ0VfQ09NTUFO",
-            "RF9TVEFURV9ISURERU4QAirSAQobUmVzb3VyY2VDb21tYW5kUmVzcG9uc2VL",
-            "aW5kEiwKKFJFU09VUkNFX0NPTU1BTkRfUkVTUE9OU0VfS0lORF9VTkRFRklO",
-            "RUQQABIsCihSRVNPVVJDRV9DT01NQU5EX1JFU1BPTlNFX0tJTkRfU1VDQ0VF",
-            "REVEEAESKQolUkVTT1VSQ0VfQ09NTUFORF9SRVNQT05TRV9LSU5EX0ZBSUxF",
-            "RBACEiwKKFJFU09VUkNFX0NPTU1BTkRfUkVTUE9OU0VfS0lORF9DQU5DRUxM",
-            "RUQQAypiCgxIZWFsdGhTdGF0dXMSGQoVSEVBTFRIX1NUQVRVU19IRUFMVEhZ",
-            "EAASGwoXSEVBTFRIX1NUQVRVU19VTkhFQUxUSFkQARIaChZIRUFMVEhfU1RB",
-            "VFVTX0RFR1JBREVEEAIquwEKDU1lc3NhZ2VJbnRlbnQSFwoTTUVTU0FHRV9J",
-            "TlRFTlRfTk9ORRAAEhoKFk1FU1NBR0VfSU5URU5UX1NVQ0NFU1MQARIaChZN",
-            "RVNTQUdFX0lOVEVOVF9XQVJOSU5HEAISGAoUTUVTU0FHRV9JTlRFTlRfRVJS",
-            "T1IQAxIeChpNRVNTQUdFX0lOVEVOVF9JTkZPUk1BVElPThAEEh8KG01FU1NB",
-            "R0VfSU5URU5UX0NPTkZJUk1BVElPThAFKp4BCglJbnB1dFR5cGUSGgoWSU5Q",
-            "VVRfVFlQRV9VTlNQRUNJRklFRBAAEhMKD0lOUFVUX1RZUEVfVEVYVBABEhoK",
-            "FklOUFVUX1RZUEVfU0VDUkVUX1RFWFQQAhIVChFJTlBVVF9UWVBFX0NIT0lD",
-            "RRADEhYKEklOUFVUX1RZUEVfQk9PTEVBThAEEhUKEUlOUFVUX1RZUEVfTlVN",
-            "QkVSEAUyoQQKEERhc2hib2FyZFNlcnZpY2UScAoZR2V0QXBwbGljYXRpb25J",
-            "bmZvcm1hdGlvbhIoLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9ybWF0aW9u",
-            "UmVxdWVzdBopLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9ybWF0aW9uUmVz",
-            "cG9uc2USVQoOV2F0Y2hSZXNvdXJjZXMSIC5hc3BpcmUudjEuV2F0Y2hSZXNv",
-            "dXJjZXNSZXF1ZXN0Gh8uYXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzVXBkYXRl",
-            "MAEScwoYV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dzEiouYXNwaXJlLnYxLldh",
-            "dGNoUmVzb3VyY2VDb25zb2xlTG9nc1JlcXVlc3QaKS5hc3BpcmUudjEuV2F0",
-            "Y2hSZXNvdXJjZUNvbnNvbGVMb2dzVXBkYXRlMAESXwoWRXhlY3V0ZVJlc291",
-            "cmNlQ29tbWFuZBIhLmFzcGlyZS52MS5SZXNvdXJjZUNvbW1hbmRSZXF1ZXN0",
-            "GiIuYXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlc3BvbnNlEm4KEVdhdGNo",
-            "SW50ZXJhY3Rpb25zEikuYXNwaXJlLnYxLldhdGNoSW50ZXJhY3Rpb25zUmVx",
-            "dWVzdFVwZGF0ZRoqLmFzcGlyZS52MS5XYXRjaEludGVyYWN0aW9uc1Jlc3Bv",
-            "bnNlVXBkYXRlKAEwAUIjqgIgQXNwaXJlLkRhc2hib2FyZFNlcnZpY2UuUHJv",
-            "dG8uVjFiBnByb3RvMw=="));
+            "AyABKAsyIC5hc3BpcmUudjEuSW50ZXJhY3Rpb25NZXNzYWdlQm94SAASOwoN",
+            "aW5wdXRzX2RpYWxvZxgEIAEoCzIiLmFzcGlyZS52MS5JbnRlcmFjdGlvbklu",
+            "cHV0c0RpYWxvZ0gAEjoKDG5vdGlmaWNhdGlvbhgFIAEoCzIiLmFzcGlyZS52",
+            "MS5JbnRlcmFjdGlvbk5vdGlmaWNhdGlvbkgAEhwKD3Jlc3BvbnNlX3VwZGF0",
+            "ZRgGIAEoCEgBiAEBQgYKBGtpbmRCEgoQX3Jlc3BvbnNlX3VwZGF0ZSLZAwof",
+            "V2F0Y2hJbnRlcmFjdGlvbnNSZXNwb25zZVVwZGF0ZRIWCg5pbnRlcmFjdGlv",
+            "bl9pZBgBIAEoBRINCgV0aXRsZRgCIAEoCRIPCgdtZXNzYWdlGAMgASgJEhsK",
+            "E3ByaW1hcnlfYnV0dG9uX3RleHQYBCABKAkSHQoVc2Vjb25kYXJ5X2J1dHRv",
+            "bl90ZXh0GAUgASgJEh0KFXNob3dfc2Vjb25kYXJ5X2J1dHRvbhgGIAEoCBIU",
+            "CgxzaG93X2Rpc21pc3MYByABKAgSHwoXZW5hYmxlX21lc3NhZ2VfbWFya2Rv",
+            "d24YCCABKAgSMgoIY29tcGxldGUYECABKAsyHi5hc3BpcmUudjEuSW50ZXJh",
+            "Y3Rpb25Db21wbGV0ZUgAEjcKC21lc3NhZ2VfYm94GBEgASgLMiAuYXNwaXJl",
+            "LnYxLkludGVyYWN0aW9uTWVzc2FnZUJveEgAEjsKDWlucHV0c19kaWFsb2cY",
+            "EiABKAsyIi5hc3BpcmUudjEuSW50ZXJhY3Rpb25JbnB1dHNEaWFsb2dIABI6",
+            "Cgxub3RpZmljYXRpb24YEyABKAsyIi5hc3BpcmUudjEuSW50ZXJhY3Rpb25O",
+            "b3RpZmljYXRpb25IAEIGCgRraW5kIhUKE0ludGVyYWN0aW9uQ29tcGxldGUi",
+            "YQoVSW50ZXJhY3Rpb25NZXNzYWdlQm94EigKBmludGVudBgBIAEoDjIYLmFz",
+            "cGlyZS52MS5NZXNzYWdlSW50ZW50EhMKBnJlc3VsdBgCIAEoCEgAiAEBQgkK",
+            "B19yZXN1bHQiiAEKF0ludGVyYWN0aW9uTm90aWZpY2F0aW9uEigKBmludGVu",
+            "dBgBIAEoDjIYLmFzcGlyZS52MS5NZXNzYWdlSW50ZW50EhMKBnJlc3VsdBgC",
+            "IAEoCEgAiAEBEhEKCWxpbmtfdGV4dBgDIAEoCRIQCghsaW5rX3VybBgEIAEo",
+            "CUIJCgdfcmVzdWx0IksKF0ludGVyYWN0aW9uSW5wdXRzRGlhbG9nEjAKC2lu",
+            "cHV0X2l0ZW1zGAEgAygLMhsuYXNwaXJlLnYxLkludGVyYWN0aW9uSW5wdXQi",
+            "wwMKEEludGVyYWN0aW9uSW5wdXQSDQoFbGFiZWwYASABKAkSEwoLcGxhY2Vo",
+            "b2xkZXIYAiABKAkSKAoKaW5wdXRfdHlwZRgDIAEoDjIULmFzcGlyZS52MS5J",
+            "bnB1dFR5cGUSEAoIcmVxdWlyZWQYBCABKAgSOQoHb3B0aW9ucxgFIAMoCzIo",
+            "LmFzcGlyZS52MS5JbnRlcmFjdGlvbklucHV0Lk9wdGlvbnNFbnRyeRINCgV2",
+            "YWx1ZRgGIAEoCRIZChF2YWxpZGF0aW9uX2Vycm9ycxgHIAMoCRITCgtkZXNj",
+            "cmlwdGlvbhgIIAEoCRIjChtlbmFibGVfZGVzY3JpcHRpb25fbWFya2Rvd24Y",
+            "CSABKAgSEgoKbWF4X2xlbmd0aBgKIAEoBRIbChNhbGxvd19jdXN0b21fY2hv",
+            "aWNlGAsgASgIEg8KB2xvYWRpbmcYDCABKAgSHgoWdXBkYXRlX3N0YXRlX29u",
+            "X2NoYW5nZRgNIAEoCBIMCgRuYW1lGA4gASgJEhAKCGRpc2FibGVkGA8gASgI",
+            "Gi4KDE9wdGlvbnNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6",
+            "AjgBKkAKC0ljb25WYXJpYW50EhgKFElDT05fVkFSSUFOVF9SRUdVTEFSEAAS",
+            "FwoTSUNPTl9WQVJJQU5UX0ZJTExFRBABKoIBChRSZXNvdXJjZUNvbW1hbmRT",
+            "dGF0ZRIiCh5SRVNPVVJDRV9DT01NQU5EX1NUQVRFX0VOQUJMRUQQABIjCh9S",
+            "RVNPVVJDRV9DT01NQU5EX1NUQVRFX0RJU0FCTEVEEAESIQodUkVTT1VSQ0Vf",
+            "Q09NTUFORF9TVEFURV9ISURERU4QAirSAQobUmVzb3VyY2VDb21tYW5kUmVz",
+            "cG9uc2VLaW5kEiwKKFJFU09VUkNFX0NPTU1BTkRfUkVTUE9OU0VfS0lORF9V",
+            "TkRFRklORUQQABIsCihSRVNPVVJDRV9DT01NQU5EX1JFU1BPTlNFX0tJTkRf",
+            "U1VDQ0VFREVEEAESKQolUkVTT1VSQ0VfQ09NTUFORF9SRVNQT05TRV9LSU5E",
+            "X0ZBSUxFRBACEiwKKFJFU09VUkNFX0NPTU1BTkRfUkVTUE9OU0VfS0lORF9D",
+            "QU5DRUxMRUQQAypiCgxIZWFsdGhTdGF0dXMSGQoVSEVBTFRIX1NUQVRVU19I",
+            "RUFMVEhZEAASGwoXSEVBTFRIX1NUQVRVU19VTkhFQUxUSFkQARIaChZIRUFM",
+            "VEhfU1RBVFVTX0RFR1JBREVEEAIquwEKDU1lc3NhZ2VJbnRlbnQSFwoTTUVT",
+            "U0FHRV9JTlRFTlRfTk9ORRAAEhoKFk1FU1NBR0VfSU5URU5UX1NVQ0NFU1MQ",
+            "ARIaChZNRVNTQUdFX0lOVEVOVF9XQVJOSU5HEAISGAoUTUVTU0FHRV9JTlRF",
+            "TlRfRVJST1IQAxIeChpNRVNTQUdFX0lOVEVOVF9JTkZPUk1BVElPThAEEh8K",
+            "G01FU1NBR0VfSU5URU5UX0NPTkZJUk1BVElPThAFKp4BCglJbnB1dFR5cGUS",
+            "GgoWSU5QVVRfVFlQRV9VTlNQRUNJRklFRBAAEhMKD0lOUFVUX1RZUEVfVEVY",
+            "VBABEhoKFklOUFVUX1RZUEVfU0VDUkVUX1RFWFQQAhIVChFJTlBVVF9UWVBF",
+            "X0NIT0lDRRADEhYKEklOUFVUX1RZUEVfQk9PTEVBThAEEhUKEUlOUFVUX1RZ",
+            "UEVfTlVNQkVSEAUyoQQKEERhc2hib2FyZFNlcnZpY2UScAoZR2V0QXBwbGlj",
+            "YXRpb25JbmZvcm1hdGlvbhIoLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9y",
+            "bWF0aW9uUmVxdWVzdBopLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9ybWF0",
+            "aW9uUmVzcG9uc2USVQoOV2F0Y2hSZXNvdXJjZXMSIC5hc3BpcmUudjEuV2F0",
+            "Y2hSZXNvdXJjZXNSZXF1ZXN0Gh8uYXNwaXJlLnYxLldhdGNoUmVzb3VyY2Vz",
+            "VXBkYXRlMAEScwoYV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dzEiouYXNwaXJl",
+            "LnYxLldhdGNoUmVzb3VyY2VDb25zb2xlTG9nc1JlcXVlc3QaKS5hc3BpcmUu",
+            "djEuV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dzVXBkYXRlMAESXwoWRXhlY3V0",
+            "ZVJlc291cmNlQ29tbWFuZBIhLmFzcGlyZS52MS5SZXNvdXJjZUNvbW1hbmRS",
+            "ZXF1ZXN0GiIuYXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlc3BvbnNlEm4K",
+            "EVdhdGNoSW50ZXJhY3Rpb25zEikuYXNwaXJlLnYxLldhdGNoSW50ZXJhY3Rp",
+            "b25zUmVxdWVzdFVwZGF0ZRoqLmFzcGlyZS52MS5XYXRjaEludGVyYWN0aW9u",
+            "c1Jlc3BvbnNlVXBkYXRlKAEwAUIjqgIgQXNwaXJlLkRhc2hib2FyZFNlcnZp",
+            "Y2UuUHJvdG8uVjFiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.StructReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Aspire.DashboardService.Proto.V1.IconVariant), typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandState), typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind), typeof(global::Aspire.DashboardService.Proto.V1.HealthStatus), typeof(global::Aspire.DashboardService.Proto.V1.MessageIntent), typeof(global::Aspire.DashboardService.Proto.V1.InputType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -180,7 +185,7 @@ namespace Aspire.DashboardService.Proto.V1 {
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.Url), global::Aspire.DashboardService.Proto.V1.Url.Parser, new[]{ "EndpointName", "FullUrl", "IsInternal", "IsInactive", "DisplayProperties" }, new[]{ "EndpointName" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.UrlDisplayProperties), global::Aspire.DashboardService.Proto.V1.UrlDisplayProperties.Parser, new[]{ "SortOrder", "DisplayName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.Volume), global::Aspire.DashboardService.Proto.V1.Volume.Parser, new[]{ "Source", "Target", "MountType", "IsReadOnly" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.HealthReport), global::Aspire.DashboardService.Proto.V1.HealthReport.Parser, new[]{ "Status", "Key", "Description", "Exception" }, new[]{ "Status" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.HealthReport), global::Aspire.DashboardService.Proto.V1.HealthReport.Parser, new[]{ "Status", "Key", "Description", "Exception", "LastRunAt" }, new[]{ "Status", "LastRunAt" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceRelationship), global::Aspire.DashboardService.Proto.V1.ResourceRelationship.Parser, new[]{ "ResourceName", "Type" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceProperty), global::Aspire.DashboardService.Proto.V1.ResourceProperty.Parser, new[]{ "Name", "DisplayName", "Value", "IsSensitive" }, new[]{ "DisplayName", "IsSensitive" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.Resource), global::Aspire.DashboardService.Proto.V1.Resource.Parser, new[]{ "Name", "ResourceType", "DisplayName", "Uid", "State", "CreatedAt", "Environment", "Commands", "Properties", "Urls", "StateStyle", "Volumes", "HealthReports", "StartedAt", "StoppedAt", "Relationships", "IsHidden", "SupportsDetailedTelemetry", "IconName", "IconVariant" }, new[]{ "State", "CreatedAt", "StateStyle", "StartedAt", "StoppedAt", "IconName", "IconVariant" }, null, null, null),
@@ -193,13 +198,13 @@ namespace Aspire.DashboardService.Proto.V1 {
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ConsoleLogLine), global::Aspire.DashboardService.Proto.V1.ConsoleLogLine.Parser, new[]{ "Text", "IsStdErr", "LineNumber" }, new[]{ "IsStdErr" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest), global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsRequest.Parser, new[]{ "ResourceName", "SuppressFollow" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate), global::Aspire.DashboardService.Proto.V1.WatchResourceConsoleLogsUpdate.Parser, new[]{ "LogLines" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate), global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate.Parser, new[]{ "InteractionId", "Complete", "MessageBox", "InputsDialog", "Notification" }, new[]{ "Kind" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate), global::Aspire.DashboardService.Proto.V1.WatchInteractionsRequestUpdate.Parser, new[]{ "InteractionId", "Complete", "MessageBox", "InputsDialog", "Notification", "ResponseUpdate" }, new[]{ "Kind", "ResponseUpdate" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate), global::Aspire.DashboardService.Proto.V1.WatchInteractionsResponseUpdate.Parser, new[]{ "InteractionId", "Title", "Message", "PrimaryButtonText", "SecondaryButtonText", "ShowSecondaryButton", "ShowDismiss", "EnableMessageMarkdown", "Complete", "MessageBox", "InputsDialog", "Notification" }, new[]{ "Kind" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionComplete), global::Aspire.DashboardService.Proto.V1.InteractionComplete.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionMessageBox), global::Aspire.DashboardService.Proto.V1.InteractionMessageBox.Parser, new[]{ "Intent", "Result" }, new[]{ "Result" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionNotification), global::Aspire.DashboardService.Proto.V1.InteractionNotification.Parser, new[]{ "Intent", "Result", "LinkText", "LinkUrl" }, new[]{ "Result" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog), global::Aspire.DashboardService.Proto.V1.InteractionInputsDialog.Parser, new[]{ "InputItems" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionInput), global::Aspire.DashboardService.Proto.V1.InteractionInput.Parser, new[]{ "Label", "Placeholder", "InputType", "Required", "Options", "Value", "ValidationErrors", "Description", "EnableDescriptionMarkdown", "MaxLength" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.InteractionInput), global::Aspire.DashboardService.Proto.V1.InteractionInput.Parser, new[]{ "Label", "Placeholder", "InputType", "Required", "Options", "Value", "ValidationErrors", "Description", "EnableDescriptionMarkdown", "MaxLength", "AllowCustomChoice", "Loading", "UpdateStateOnChange", "Name", "Disabled" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
     }
     #endregion
@@ -3370,6 +3375,7 @@ namespace Aspire.DashboardService.Proto.V1 {
       key_ = other.key_;
       description_ = other.description_;
       exception_ = other.exception_;
+      lastRunAt_ = other.lastRunAt_ != null ? other.lastRunAt_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3454,6 +3460,21 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
     }
 
+    /// <summary>Field number for the "last_run_at" field.</summary>
+    public const int LastRunAtFieldNumber = 5;
+    private global::Google.Protobuf.WellKnownTypes.Timestamp lastRunAt_;
+    /// <summary>
+    /// The timestamp when this health check was last executed.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Google.Protobuf.WellKnownTypes.Timestamp LastRunAt {
+      get { return lastRunAt_; }
+      set {
+        lastRunAt_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -3473,6 +3494,7 @@ namespace Aspire.DashboardService.Proto.V1 {
       if (Key != other.Key) return false;
       if (Description != other.Description) return false;
       if (Exception != other.Exception) return false;
+      if (!object.Equals(LastRunAt, other.LastRunAt)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3484,6 +3506,7 @@ namespace Aspire.DashboardService.Proto.V1 {
       if (Key.Length != 0) hash ^= Key.GetHashCode();
       if (Description.Length != 0) hash ^= Description.GetHashCode();
       if (Exception.Length != 0) hash ^= Exception.GetHashCode();
+      if (lastRunAt_ != null) hash ^= LastRunAt.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -3518,6 +3541,10 @@ namespace Aspire.DashboardService.Proto.V1 {
         output.WriteRawTag(34);
         output.WriteString(Exception);
       }
+      if (lastRunAt_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(LastRunAt);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -3544,6 +3571,10 @@ namespace Aspire.DashboardService.Proto.V1 {
         output.WriteRawTag(34);
         output.WriteString(Exception);
       }
+      if (lastRunAt_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(LastRunAt);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -3565,6 +3596,9 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
       if (Exception.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Exception);
+      }
+      if (lastRunAt_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(LastRunAt);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -3589,6 +3623,12 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
       if (other.Exception.Length != 0) {
         Exception = other.Exception;
+      }
+      if (other.lastRunAt_ != null) {
+        if (lastRunAt_ == null) {
+          LastRunAt = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+        }
+        LastRunAt.MergeFrom(other.LastRunAt);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -3625,6 +3665,13 @@ namespace Aspire.DashboardService.Proto.V1 {
             Exception = input.ReadString();
             break;
           }
+          case 42: {
+            if (lastRunAt_ == null) {
+              LastRunAt = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(LastRunAt);
+            break;
+          }
         }
       }
     #endif
@@ -3658,6 +3705,13 @@ namespace Aspire.DashboardService.Proto.V1 {
           }
           case 34: {
             Exception = input.ReadString();
+            break;
+          }
+          case 42: {
+            if (lastRunAt_ == null) {
+              LastRunAt = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(LastRunAt);
             break;
           }
         }
@@ -7425,6 +7479,7 @@ namespace Aspire.DashboardService.Proto.V1 {
   {
     private static readonly pb::MessageParser<WatchInteractionsRequestUpdate> _parser = new pb::MessageParser<WatchInteractionsRequestUpdate>(() => new WatchInteractionsRequestUpdate());
     private pb::UnknownFieldSet _unknownFields;
+    private int _hasBits0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pb::MessageParser<WatchInteractionsRequestUpdate> Parser { get { return _parser; } }
@@ -7452,7 +7507,9 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public WatchInteractionsRequestUpdate(WatchInteractionsRequestUpdate other) : this() {
+      _hasBits0 = other._hasBits0;
       interactionId_ = other.interactionId_;
+      responseUpdate_ = other.responseUpdate_;
       switch (other.KindCase) {
         case KindOneofCase.Complete:
           Complete = other.Complete.Clone();
@@ -7540,6 +7597,37 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
     }
 
+    /// <summary>Field number for the "response_update" field.</summary>
+    public const int ResponseUpdateFieldNumber = 6;
+    private readonly static bool ResponseUpdateDefaultValue = false;
+
+    private bool responseUpdate_;
+    /// <summary>
+    /// A flag indicating that the message is an update and shouldn't complete the interaction.
+    /// Currently only used for inputs dialog updates.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool ResponseUpdate {
+      get { if ((_hasBits0 & 1) != 0) { return responseUpdate_; } else { return ResponseUpdateDefaultValue; } }
+      set {
+        _hasBits0 |= 1;
+        responseUpdate_ = value;
+      }
+    }
+    /// <summary>Gets whether the "response_update" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasResponseUpdate {
+      get { return (_hasBits0 & 1) != 0; }
+    }
+    /// <summary>Clears the value of the "response_update" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearResponseUpdate() {
+      _hasBits0 &= ~1;
+    }
+
     private object kind_;
     /// <summary>Enum of possible cases for the "kind" oneof.</summary>
     public enum KindOneofCase {
@@ -7583,6 +7671,7 @@ namespace Aspire.DashboardService.Proto.V1 {
       if (!object.Equals(MessageBox, other.MessageBox)) return false;
       if (!object.Equals(InputsDialog, other.InputsDialog)) return false;
       if (!object.Equals(Notification, other.Notification)) return false;
+      if (ResponseUpdate != other.ResponseUpdate) return false;
       if (KindCase != other.KindCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -7596,6 +7685,7 @@ namespace Aspire.DashboardService.Proto.V1 {
       if (kindCase_ == KindOneofCase.MessageBox) hash ^= MessageBox.GetHashCode();
       if (kindCase_ == KindOneofCase.InputsDialog) hash ^= InputsDialog.GetHashCode();
       if (kindCase_ == KindOneofCase.Notification) hash ^= Notification.GetHashCode();
+      if (HasResponseUpdate) hash ^= ResponseUpdate.GetHashCode();
       hash ^= (int) kindCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -7635,6 +7725,10 @@ namespace Aspire.DashboardService.Proto.V1 {
         output.WriteRawTag(42);
         output.WriteMessage(Notification);
       }
+      if (HasResponseUpdate) {
+        output.WriteRawTag(48);
+        output.WriteBool(ResponseUpdate);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -7665,6 +7759,10 @@ namespace Aspire.DashboardService.Proto.V1 {
         output.WriteRawTag(42);
         output.WriteMessage(Notification);
       }
+      if (HasResponseUpdate) {
+        output.WriteRawTag(48);
+        output.WriteBool(ResponseUpdate);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -7690,6 +7788,9 @@ namespace Aspire.DashboardService.Proto.V1 {
       if (kindCase_ == KindOneofCase.Notification) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Notification);
       }
+      if (HasResponseUpdate) {
+        size += 1 + 1;
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -7704,6 +7805,9 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
       if (other.InteractionId != 0) {
         InteractionId = other.InteractionId;
+      }
+      if (other.HasResponseUpdate) {
+        ResponseUpdate = other.ResponseUpdate;
       }
       switch (other.KindCase) {
         case KindOneofCase.Complete:
@@ -7791,6 +7895,10 @@ namespace Aspire.DashboardService.Proto.V1 {
             Notification = subBuilder;
             break;
           }
+          case 48: {
+            ResponseUpdate = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -7848,6 +7956,10 @@ namespace Aspire.DashboardService.Proto.V1 {
             }
             input.ReadMessage(subBuilder);
             Notification = subBuilder;
+            break;
+          }
+          case 48: {
+            ResponseUpdate = input.ReadBool();
             break;
           }
         }
@@ -9545,6 +9657,11 @@ namespace Aspire.DashboardService.Proto.V1 {
       description_ = other.description_;
       enableDescriptionMarkdown_ = other.enableDescriptionMarkdown_;
       maxLength_ = other.maxLength_;
+      allowCustomChoice_ = other.allowCustomChoice_;
+      loading_ = other.loading_;
+      updateStateOnChange_ = other.updateStateOnChange_;
+      name_ = other.name_;
+      disabled_ = other.disabled_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -9672,6 +9789,66 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
     }
 
+    /// <summary>Field number for the "allow_custom_choice" field.</summary>
+    public const int AllowCustomChoiceFieldNumber = 11;
+    private bool allowCustomChoice_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool AllowCustomChoice {
+      get { return allowCustomChoice_; }
+      set {
+        allowCustomChoice_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "loading" field.</summary>
+    public const int LoadingFieldNumber = 12;
+    private bool loading_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Loading {
+      get { return loading_; }
+      set {
+        loading_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "update_state_on_change" field.</summary>
+    public const int UpdateStateOnChangeFieldNumber = 13;
+    private bool updateStateOnChange_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool UpdateStateOnChange {
+      get { return updateStateOnChange_; }
+      set {
+        updateStateOnChange_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 14;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "disabled" field.</summary>
+    public const int DisabledFieldNumber = 15;
+    private bool disabled_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Disabled {
+      get { return disabled_; }
+      set {
+        disabled_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -9697,6 +9874,11 @@ namespace Aspire.DashboardService.Proto.V1 {
       if (Description != other.Description) return false;
       if (EnableDescriptionMarkdown != other.EnableDescriptionMarkdown) return false;
       if (MaxLength != other.MaxLength) return false;
+      if (AllowCustomChoice != other.AllowCustomChoice) return false;
+      if (Loading != other.Loading) return false;
+      if (UpdateStateOnChange != other.UpdateStateOnChange) return false;
+      if (Name != other.Name) return false;
+      if (Disabled != other.Disabled) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -9714,6 +9896,11 @@ namespace Aspire.DashboardService.Proto.V1 {
       if (Description.Length != 0) hash ^= Description.GetHashCode();
       if (EnableDescriptionMarkdown != false) hash ^= EnableDescriptionMarkdown.GetHashCode();
       if (MaxLength != 0) hash ^= MaxLength.GetHashCode();
+      if (AllowCustomChoice != false) hash ^= AllowCustomChoice.GetHashCode();
+      if (Loading != false) hash ^= Loading.GetHashCode();
+      if (UpdateStateOnChange != false) hash ^= UpdateStateOnChange.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Disabled != false) hash ^= Disabled.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -9766,6 +9953,26 @@ namespace Aspire.DashboardService.Proto.V1 {
         output.WriteRawTag(80);
         output.WriteInt32(MaxLength);
       }
+      if (AllowCustomChoice != false) {
+        output.WriteRawTag(88);
+        output.WriteBool(AllowCustomChoice);
+      }
+      if (Loading != false) {
+        output.WriteRawTag(96);
+        output.WriteBool(Loading);
+      }
+      if (UpdateStateOnChange != false) {
+        output.WriteRawTag(104);
+        output.WriteBool(UpdateStateOnChange);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(114);
+        output.WriteString(Name);
+      }
+      if (Disabled != false) {
+        output.WriteRawTag(120);
+        output.WriteBool(Disabled);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -9810,6 +10017,26 @@ namespace Aspire.DashboardService.Proto.V1 {
         output.WriteRawTag(80);
         output.WriteInt32(MaxLength);
       }
+      if (AllowCustomChoice != false) {
+        output.WriteRawTag(88);
+        output.WriteBool(AllowCustomChoice);
+      }
+      if (Loading != false) {
+        output.WriteRawTag(96);
+        output.WriteBool(Loading);
+      }
+      if (UpdateStateOnChange != false) {
+        output.WriteRawTag(104);
+        output.WriteBool(UpdateStateOnChange);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(114);
+        output.WriteString(Name);
+      }
+      if (Disabled != false) {
+        output.WriteRawTag(120);
+        output.WriteBool(Disabled);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -9845,6 +10072,21 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
       if (MaxLength != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(MaxLength);
+      }
+      if (AllowCustomChoice != false) {
+        size += 1 + 1;
+      }
+      if (Loading != false) {
+        size += 1 + 1;
+      }
+      if (UpdateStateOnChange != false) {
+        size += 1 + 1;
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Disabled != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -9883,6 +10125,21 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
       if (other.MaxLength != 0) {
         MaxLength = other.MaxLength;
+      }
+      if (other.AllowCustomChoice != false) {
+        AllowCustomChoice = other.AllowCustomChoice;
+      }
+      if (other.Loading != false) {
+        Loading = other.Loading;
+      }
+      if (other.UpdateStateOnChange != false) {
+        UpdateStateOnChange = other.UpdateStateOnChange;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Disabled != false) {
+        Disabled = other.Disabled;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -9943,6 +10200,26 @@ namespace Aspire.DashboardService.Proto.V1 {
             MaxLength = input.ReadInt32();
             break;
           }
+          case 88: {
+            AllowCustomChoice = input.ReadBool();
+            break;
+          }
+          case 96: {
+            Loading = input.ReadBool();
+            break;
+          }
+          case 104: {
+            UpdateStateOnChange = input.ReadBool();
+            break;
+          }
+          case 114: {
+            Name = input.ReadString();
+            break;
+          }
+          case 120: {
+            Disabled = input.ReadBool();
+            break;
+          }
         }
       }
     #endif
@@ -10000,6 +10277,26 @@ namespace Aspire.DashboardService.Proto.V1 {
           }
           case 80: {
             MaxLength = input.ReadInt32();
+            break;
+          }
+          case 88: {
+            AllowCustomChoice = input.ReadBool();
+            break;
+          }
+          case 96: {
+            Loading = input.ReadBool();
+            break;
+          }
+          case 104: {
+            UpdateStateOnChange = input.ReadBool();
+            break;
+          }
+          case 114: {
+            Name = input.ReadString();
+            break;
+          }
+          case 120: {
+            Disabled = input.ReadBool();
             break;
           }
         }
