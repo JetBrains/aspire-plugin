@@ -18,4 +18,4 @@ plugins {
 
 rootProject.name = "aspire-plugin"
 
-include(":protocol")
+include(":protocol", ":core")
