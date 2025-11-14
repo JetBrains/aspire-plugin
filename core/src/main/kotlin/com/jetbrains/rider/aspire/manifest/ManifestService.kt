@@ -18,6 +18,7 @@ import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
@@ -26,8 +27,9 @@ import kotlin.io.path.absolutePathString
  *
  * This service handles the creation of an Aspire manifest file (`aspire-manifest.json`) for a given Aspire Host project.
  */
+@ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-internal class ManifestService(private val project: Project) {
+class ManifestService(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<ManifestService>()
         private val LOG = logger<ManifestService>()

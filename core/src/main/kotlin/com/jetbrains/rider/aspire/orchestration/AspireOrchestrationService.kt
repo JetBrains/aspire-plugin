@@ -31,6 +31,7 @@ import com.jetbrains.rider.projectView.workspace.getId
 import com.jetbrains.rider.projectView.workspace.getSolutionEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -43,8 +44,9 @@ import kotlin.io.path.absolutePathString
  * generating new Aspire project files when necessary, and ensuring proper
  * integration of these files with selected .NET project entities.
  */
+@ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-internal class AspireOrchestrationService(private val project: Project) {
+class AspireOrchestrationService(private val project: Project) {
     companion object {
         fun getInstance(project: Project): AspireOrchestrationService = project.service()
         private val LOG = logger<AspireOrchestrationService>()
