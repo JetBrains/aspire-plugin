@@ -3,6 +3,7 @@ using JetBrains.Rider.Aspire.Worker;
 using JetBrains.Rider.Aspire.Worker.AspireHost;
 using JetBrains.Rider.Aspire.Worker.Configuration;
 using JetBrains.Rider.Aspire.Worker.RdConnection;
+using JetBrains.Rider.Aspire.Worker.Authentication;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 using Serilog;
 using Log = Serilog.Log;
@@ -36,9 +37,19 @@ try
         it.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
     });
 
+    builder.Services
+        .AddAuthentication("DcpToken")
+        .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, DcpTokenAuthenticationHandler>(
+            "DcpToken", _ => { });
+
+    builder.Services.AddAuthorization();
+
     var app = builder.Build();
 
     app.UseWebSockets();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
 
     app.MapSessionEndpoints();
 

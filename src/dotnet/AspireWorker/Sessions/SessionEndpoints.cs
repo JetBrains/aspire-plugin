@@ -3,10 +3,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
 using JetBrains.Rider.Aspire.Worker.AspireHost;
-using JetBrains.Rider.Aspire.Worker.Configuration;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace JetBrains.Rider.Aspire.Worker.Sessions;
 
@@ -28,7 +26,7 @@ internal static class SessionEndpoints
     {
         routes.MapGet("/info", () => new Info([CurrentProtocolVersion]));
 
-        var group = routes.MapGroup("/run_session");
+        var group = routes.MapGroup("/run_session").RequireAuthorization();
 
         group.MapPut("/", CreateSession);
 
@@ -37,23 +35,16 @@ internal static class SessionEndpoints
         group.MapGet("/notify", Notify);
     }
 
-    private static async Task<Results<Created<Session>, BadRequest<ErrorResponse>, StatusCodeHttpResult>> CreateSession(
+    private static async Task<Results<Created<Session>, BadRequest<ErrorResponse>>> CreateSession(
         Session session,
         [FromQuery(Name = "api-version")] string apiVersion,
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
-        [FromHeader(Name = "Authorization")] string authorization,
-        IAspireHostService hostService,
-        IOptions<DcpSessionOptions> dcpSessionOptions)
+        IAspireHostService hostService)
     {
         if (!IsProtocolVersionSupported(apiVersion))
         {
             return TypedResults.BadRequest(ProtocolVersionIsNotSupported);
-        }
-
-        if (!IsBearerTokenValid(authorization, dcpSessionOptions.Value))
-        {
-            return TypedResults.StatusCode(StatusCodes.Status403Forbidden);
         }
 
         var aspireHostId = GetAspireHostId(dcpInstanceId);
@@ -79,23 +70,16 @@ internal static class SessionEndpoints
         return TypedResults.BadRequest(unexpectedError);
     }
 
-    private static async Task<Results<Ok, NoContent, BadRequest<ErrorResponse>, StatusCodeHttpResult>> DeleteSession(
+    private static async Task<Results<Ok, NoContent, BadRequest<ErrorResponse>>> DeleteSession(
         string sessionId,
         [FromQuery(Name = "api-version")] string apiVersion,
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
-        [FromHeader(Name = "Authorization")] string authorization,
-        IAspireHostService hostService,
-        IOptions<DcpSessionOptions> dcpSessionOptions)
+        IAspireHostService hostService)
     {
         if (!IsProtocolVersionSupported(apiVersion))
         {
             return TypedResults.BadRequest(ProtocolVersionIsNotSupported);
-        }
-
-        if (!IsBearerTokenValid(authorization, dcpSessionOptions.Value))
-        {
-            return TypedResults.StatusCode(StatusCodes.Status403Forbidden);
         }
 
         var aspireHostId = GetAspireHostId(dcpInstanceId);
@@ -125,19 +109,11 @@ internal static class SessionEndpoints
         [FromQuery(Name = "api-version")] string apiVersion,
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
-        [FromHeader(Name = "Authorization")] string authorization,
-        IAspireHostService hostService,
-        IOptions<DcpSessionOptions> dcpSessionOptions)
+        IAspireHostService hostService)
     {
         if (!IsProtocolVersionSupported(apiVersion))
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            return;
-        }
-
-        if (!IsBearerTokenValid(authorization, dcpSessionOptions.Value))
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return;
         }
 
@@ -193,14 +169,4 @@ internal static class SessionEndpoints
     }
 
     private static string GetAspireHostId(string dcpInstanceId) => dcpInstanceId[..5];
-
-    private static bool IsBearerTokenValid(string authorizationHeader, DcpSessionOptions dcpSessionOptions)
-    {
-        if (authorizationHeader.Length < 7 ||
-            !authorizationHeader.StartsWith("Bearer ", StringComparison.InvariantCultureIgnoreCase))
-            return false;
-
-        var tokenFromHeader = authorizationHeader[7..];
-        return tokenFromHeader == dcpSessionOptions.Token;
-    }
 }
