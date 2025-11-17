@@ -21,12 +21,12 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Configuration.AddEnvironmentVariables("RIDER_");
+    builder.Services.ConfigureOptions<ConfigureConnectionOptions>();
     builder.Services.ConfigureOptions<ConfigureDcpSessionOptions>();
 
     builder.Services.AddGrpc();
 
-    builder.Services.AddRdConnectionServices(builder.Configuration);
-
+    builder.Services.AddRdConnectionServices();
     builder.Services.AddAspireHostServices();
 
     builder.Services.AddSerilog((services, lc) => lc

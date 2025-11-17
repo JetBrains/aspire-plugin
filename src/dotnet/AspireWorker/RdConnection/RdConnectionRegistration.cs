@@ -1,13 +1,11 @@
-using Serilog;
-
 namespace JetBrains.Rider.Aspire.Worker.RdConnection;
 
 internal static class RdConnectionRegistration
 {
-    internal static void AddRdConnectionServices(this IServiceCollection services, ConfigurationManager configuration)
+    internal static void AddRdConnectionServices(this IServiceCollection services)
     {
-        var connection = new RdConnection(configuration, Log.Logger);
-        services.AddSingleton(connection);
+        services.AddHostedService<RdConnectionHostedService>();
+        services.AddSingleton<RdConnection>();
         services.AddSingleton<IRdConnectionWrapper, RdConnectionWrapper>();
     }
 }
