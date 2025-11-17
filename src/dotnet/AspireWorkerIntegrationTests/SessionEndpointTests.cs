@@ -89,7 +89,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
 
         var response = await client.PutAsJsonAsync("/run_session/?api-version=2024-03-03", session, _jsonOptions);
 
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [Fact]
@@ -145,7 +145,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         client.DefaultRequestHeaders.Add("Microsoft-Developer-DCP-Instance-ID", dcpInstanceId);
 
         var response = await client.DeleteAsync("/run_session/some-id?api-version=2024-03-03");
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [Fact]
