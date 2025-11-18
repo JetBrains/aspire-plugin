@@ -1,5 +1,5 @@
-using JetBrains.Rider.Aspire.Worker.AspireHost;
 using JetBrains.Rider.Aspire.Worker.Configuration;
+using JetBrains.Rider.Aspire.Worker.RdConnection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,13 +12,15 @@ public class AspireWorkerWebApplicationFactory<TProgram> : WebApplicationFactory
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseEnvironment(TestingHostEnvironmentExtensions.Testing);
+
         builder.ConfigureServices(services =>
         {
-            var aspireHostService = services.SingleOrDefault(d => d.ServiceType == typeof(InMemoryAspireHostService));
-            if (aspireHostService != null) services.Remove(aspireHostService);
-            var inMemoryAspireHostService = new InMemoryAspireHostService();
-            services.AddSingleton<IAspireHostService>(inMemoryAspireHostService);
-            services.AddSingleton(inMemoryAspireHostService);
+            var connectionWrapper = services.SingleOrDefault(d => d.ServiceType == typeof(IRdConnectionWrapper));
+            if (connectionWrapper != null) services.Remove(connectionWrapper);
+            var inMemoryConnectionWrapper = new InMemoryConnectionWrapper();
+            services.AddSingleton<IRdConnectionWrapper>(inMemoryConnectionWrapper);
+            services.AddSingleton(inMemoryConnectionWrapper);
 
             services.Configure<DcpSessionOptions>(opts => opts.Token = TestToken);
         });

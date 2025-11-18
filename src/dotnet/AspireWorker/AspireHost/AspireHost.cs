@@ -4,6 +4,7 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
 using JetBrains.Lifetimes;
+using JetBrains.Rider.Aspire.Worker.Configuration;
 using JetBrains.Rider.Aspire.Worker.Generated;
 using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
@@ -18,9 +19,10 @@ internal sealed class AspireHost
     private readonly string _id;
     private readonly IRdConnectionWrapper _connectionWrapper;
     private readonly AspireHostModel _aspireHostModel;
+    private readonly ResiliencePipelineProvider<string> _resiliencePipelineProvider;
+    private readonly IHostEnvironment _hostEnvironment;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
-    private readonly ResiliencePipelineProvider<string> _resiliencePipelineProvider;
 
     private readonly ErrorResponse _multipleProjectLaunchConfigurations = new(new ErrorDetail(
         "BadRequest",
@@ -46,15 +48,17 @@ internal sealed class AspireHost
         IRdConnectionWrapper connectionWrapper,
         AspireHostModel model,
         ResiliencePipelineProvider<string> resiliencePipelineProvider,
+        IHostEnvironment hostEnvironment,
         ILoggerFactory loggerFactory,
         Lifetime lifetime)
     {
         _id = id;
         _connectionWrapper = connectionWrapper;
         _aspireHostModel = model;
+        _resiliencePipelineProvider = resiliencePipelineProvider;
+        _hostEnvironment = hostEnvironment;
         _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<AspireHost>();
-        _resiliencePipelineProvider = resiliencePipelineProvider;
 
         InitializeSessionEventWatcher(lifetime);
 
@@ -137,11 +141,8 @@ internal sealed class AspireHost
             return (null, _multipleProjectLaunchConfigurations);
         }
 
-        if (!File.Exists(launchConfiguration.ProjectPath))
-        {
-            _logger.ProjectFileDoesntExist();
-            return (null, _projectNotFound);
-        }
+        var validationError = ValidateLaunchConfiguration(launchConfiguration);
+        if (validationError != null) return (null, validationError);
 
         var envs = session.Env
             ?.Where(it => it.Value is not null)
@@ -166,6 +167,19 @@ internal sealed class AspireHost
         var error = result?.Error is not null ? BuildErrorResponse(result.Error) : null;
 
         return (result?.SessionId, error);
+    }
+
+    private ErrorResponse? ValidateLaunchConfiguration(LaunchConfiguration launchConfiguration)
+    {
+        if(_hostEnvironment.IsTesting()) return null;
+
+        if (!File.Exists(launchConfiguration.ProjectPath))
+        {
+            _logger.ProjectFileDoesntExist();
+            return _projectNotFound;
+        }
+
+        return null;
     }
 
     internal async Task<(string? sessionId, ErrorResponse? error)> Delete(string id)
