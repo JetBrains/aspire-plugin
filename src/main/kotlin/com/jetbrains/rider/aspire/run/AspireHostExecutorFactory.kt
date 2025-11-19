@@ -64,6 +64,7 @@ class AspireHostExecutorFactory(
         val projectOutput = runnableProject
             .projectOutputs
             .singleOrNull { it.tfm?.presentableName == parameters.projectTfm }
+            ?: runnableProject.projectOutputs.firstOrNull()
             ?: throw CantRunException("Unable to get the project output for ${parameters.projectTfm}")
 
         val profile = LaunchSettingsJsonService
