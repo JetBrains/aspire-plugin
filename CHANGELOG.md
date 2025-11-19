@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#533](https://github.com/JetBrains/aspire-plugin/issues/533) Incorrect formatting of console logs when running Aspire host
+
+## [1.9.1] - 2025-11-03
+
 ### Changed
 
 - Support for Rider 2025.3 EAP 8
@@ -529,7 +535,9 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.9.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.9.2...HEAD
+[1.9.2]: https://github.com/JetBrains/aspire-plugin/compare/1.9.1...1.9.2
+[1.9.1]: https://github.com/JetBrains/aspire-plugin/compare/1.9.0...1.9.1
 [1.9.0]: https://github.com/JetBrains/aspire-plugin/compare/1.8.14...1.9.0
 [1.8.14]: https://github.com/JetBrains/aspire-plugin/compare/1.8.13...1.8.14
 [1.8.13]: https://github.com/JetBrains/aspire-plugin/compare/1.8.12...1.8.13
