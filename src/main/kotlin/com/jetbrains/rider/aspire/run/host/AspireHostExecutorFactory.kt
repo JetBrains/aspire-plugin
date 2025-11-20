@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.run
+package com.jetbrains.rider.aspire.run.host
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
@@ -12,12 +12,31 @@ import com.intellij.util.EnvironmentUtil
 import com.intellij.util.NetworkUtils
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.aspire.launchProfiles.*
-import com.jetbrains.rider.aspire.run.host.AspireHostConfigurationParameters
+import com.jetbrains.rider.aspire.launchProfiles.getApplicationUrl
+import com.jetbrains.rider.aspire.launchProfiles.getArguments
+import com.jetbrains.rider.aspire.launchProfiles.getEnvironmentVariables
+import com.jetbrains.rider.aspire.launchProfiles.getLaunchBrowserFlag
+import com.jetbrains.rider.aspire.launchProfiles.getProjectLaunchProfileByName
+import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
+import com.jetbrains.rider.aspire.run.AspireRunnableProjectKinds
 import com.jetbrains.rider.aspire.run.states.AspireHostDebugProfileState
 import com.jetbrains.rider.aspire.run.states.AspireHostRunProfileState
+import com.jetbrains.rider.aspire.util.ASPIRE_ALLOW_UNSECURED_TRANSPORT
+import com.jetbrains.rider.aspire.util.ASPIRE_CONTAINER_RUNTIME
+import com.jetbrains.rider.aspire.util.ASPIRE_DASHBOARD_FRONTEND_BROWSERTOKEN
+import com.jetbrains.rider.aspire.util.ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL
+import com.jetbrains.rider.aspire.util.ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY
+import com.jetbrains.rider.aspire.util.ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL
+import com.jetbrains.rider.aspire.util.ASPNETCORE_URLS
+import com.jetbrains.rider.aspire.util.DCP_INSTANCE_ID_PREFIX
+import com.jetbrains.rider.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
+import com.jetbrains.rider.aspire.util.generateDcpInstancePrefix
+import com.jetbrains.rider.aspire.util.getAspireAllowUnsecuredTransport
+import com.jetbrains.rider.aspire.util.getAspireContainerRuntime
+import com.jetbrains.rider.aspire.util.getAspireDashboardOtlpEndpointUrl
+import com.jetbrains.rider.aspire.util.getAspireDashboardUnsecuredAllowAnonymous
+import com.jetbrains.rider.aspire.util.getStartBrowserAction
 import com.jetbrains.rider.aspire.worker.AspireWorkerManager
-import com.jetbrains.rider.aspire.util.*
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
@@ -35,11 +54,11 @@ import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import com.jetbrains.rider.utils.RiderEnvironmentAccessor
 import java.net.URI
-import java.util.*
+import java.util.UUID
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
-class AspireHostExecutorFactory(
+internal class AspireHostExecutorFactory(
     private val project: Project,
     private val parameters: AspireHostConfigurationParameters
 ) : AsyncExecutorFactory {
@@ -52,15 +71,15 @@ class AspireHostExecutorFactory(
         environment: ExecutionEnvironment,
         lifetime: Lifetime
     ): RunProfileState {
-        val activeRuntime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
+        val activeRuntime = RiderDotNetActiveRuntimeHost.Companion.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Unable to find appropriate runtime")
 
         val projects = project.solution.runnableProjectsModel.projects.valueOrNull
-            ?: throw CantRunException(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
+            ?: throw CantRunException(DotNetProjectConfigurationParameters.Companion.SOLUTION_IS_LOADING)
 
         val runnableProject = projects.singleOrNull {
             it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath == parameters.projectFilePath
-        } ?: throw CantRunException(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
+        } ?: throw CantRunException(DotNetProjectConfigurationParameters.Companion.PROJECT_NOT_SPECIFIED)
 
         val projectOutput = runnableProject
             .projectOutputs
@@ -68,7 +87,7 @@ class AspireHostExecutorFactory(
             ?: runnableProject.projectOutputs.firstOrNull()
             ?: throw CantRunException("Unable to get the project output for ${parameters.projectTfm}")
 
-        val profile = LaunchSettingsJsonService
+        val profile = LaunchSettingsJsonService.Companion
             .getInstance(project)
             .getProjectLaunchProfileByName(runnableProject, parameters.profileName)
             ?: throw CantRunException("Profile ${parameters.profileName} not found")
@@ -125,7 +144,7 @@ class AspireHostExecutorFactory(
             projectOutput.tfm
         )
 
-        val params = ExecutableParameterProcessor
+        val params = ExecutableParameterProcessor.Companion
             .getInstance(project)
             .processEnvironment(runParameters, processOptions)
 
@@ -148,7 +167,7 @@ class AspireHostExecutorFactory(
         envs: MutableMap<String, String>,
         activeRuntime: DotNetCoreRuntime
     ): EnvironmentVariableValues {
-        val aspireWorker = AspireWorkerManager.getInstance(project).startAspireWorker()
+        val aspireWorker = AspireWorkerManager.Companion.getInstance(project).startAspireWorker()
 
         val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
         envs.putAll(dcpEnvironmentVariables)
@@ -223,7 +242,7 @@ class AspireHostExecutorFactory(
                 else "https://localhost:$otlpEndpointPort"
         }
 
-        val dotnetPath = RiderEnvironmentAccessor.getInstance(project).findFileInSystemPath("dotnet")
+        val dotnetPath = RiderEnvironmentAccessor.Companion.getInstance(project).findFileInSystemPath("dotnet")
         if (dotnetPath == null) {
             setDotnetRootPathVariable(envs, activeRuntime)
         }
@@ -242,11 +261,11 @@ class AspireHostExecutorFactory(
 
         val pathVariable = PathEnvironmentVariableUtil.getPathVariableValue()
         if (pathVariable != null) {
-            envs[RiderEnvironmentAccessor.PATH_VARIABLE] =
+            envs[RiderEnvironmentAccessor.Companion.PATH_VARIABLE] =
                 if (SystemInfo.isUnix) "$pathVariable:$dotnetPaths"
                 else "$pathVariable;$dotnetPaths"
         } else {
-            envs[RiderEnvironmentAccessor.PATH_VARIABLE] = dotnetPaths
+            envs[RiderEnvironmentAccessor.Companion.PATH_VARIABLE] = dotnetPaths
         }
 
         val dotnetRootEnvironmentVariable = EnvironmentUtil.getValue(DOTNET_ROOT)

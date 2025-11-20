@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.run.host
+package com.jetbrains.rider.aspire.run
 
 import com.intellij.execution.RunManager
 import com.intellij.execution.RunnerAndConfigurationSettings
@@ -7,7 +7,9 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireIcons
 import com.jetbrains.rider.aspire.launchProfiles.getProjectLaunchProfileByName
-import com.jetbrains.rider.aspire.run.AspireRunnableProjectKinds
+import com.jetbrains.rider.aspire.run.file.AspireFileConfigurationFactory
+import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.host.AspireHostConfigurationFactory
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectKind
@@ -21,10 +23,10 @@ import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonS
 import kotlin.collections.forEach
 import kotlin.collections.iterator
 
-class AspireHostConfigurationType : ConfigurationTypeBase(
+internal class AspireHostConfigurationType : ConfigurationTypeBase(
     ID,
-    "Aspire AppHost Project",
-    "Aspire AppHost project configuration",
+    "Aspire",
+    "Aspire AppHost configuration",
     AspireIcons.RunConfig
 ), IRunnableProjectConfigurationType, IRunConfigurationWithDefault {
     companion object {
@@ -35,6 +37,7 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
 
     init {
         addFactory(factory)
+        addFactory(AspireFileConfigurationFactory(this))
     }
 
     override fun isApplicable(kind: RunnableProjectKind) = kind == AspireRunnableProjectKinds.AspireHost

@@ -20,7 +20,7 @@ import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSetti
 import com.jetbrains.rider.run.configurations.runnableProjectsModelIfAvailable
 import javax.swing.JComponent
 
-class AspireHostSettingsEditor(private val project: Project) :
+internal class AspireHostConfigurationSettingsEditor(private val project: Project) :
     ProtocolLifetimedSettingsEditor<AspireHostConfiguration>() {
     private lateinit var viewModel: AspireHostConfigurationViewModel
 
