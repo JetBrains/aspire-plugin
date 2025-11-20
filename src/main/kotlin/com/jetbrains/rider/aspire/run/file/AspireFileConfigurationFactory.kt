@@ -1,24 +1,24 @@
-package com.jetbrains.rider.aspire.run.host
+package com.jetbrains.rider.aspire.run.file
 
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.RunConfigurationSingletonPolicy
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
+import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.run.configurations.DotNetConfigurationFactoryBase
 
-internal class AspireHostConfigurationFactory(type: AspireHostConfigurationType) :
+internal class AspireFileConfigurationFactory(type: AspireHostConfigurationType) :
     DotNetConfigurationFactoryBase<AspireHostConfiguration>(type) {
-    override fun getId() = "Aspire Host"
+    override fun getId() = "Aspire File"
 
-    override fun getName() = "Project AppHost"
+    override fun getName() = "Single-file AppHost"
 
     override fun getSingletonPolicy() = RunConfigurationSingletonPolicy.SINGLE_INSTANCE
 
-    override fun createTemplateConfiguration(project: Project) = AspireHostConfiguration(
+    override fun createTemplateConfiguration(project: Project) = AspireFileConfiguration(
         project,
         this,
-        "Aspire Host",
-        AspireHostConfigurationParameters.createDefault(project)
+        "Aspire Host"
     )
 
     override fun configureDefaultSettings(settings: RunnerAndConfigurationSettings) {
