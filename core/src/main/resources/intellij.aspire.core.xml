@@ -5,7 +5,6 @@
         <plugin id="com.intellij.database"/>
         <plugin id="rider.intellij.plugin.appender"/>
         <plugin id="Docker"/>
-        <plugin id="com.intellij.diagram"/>
     </dependencies>
 
     <resource-bundle>messages.AspireCoreBundle</resource-bundle>
@@ -112,9 +111,6 @@
             <action id="Aspire.Host.Manifest"
                     class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireManifestAction"
                     icon="AllIcons.FileTypes.Json"/>
-            <action id="Aspire.Host.ResourceGraph"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.host.ShowResourceGraphAction"
-                    icon="AllIcons.FileTypes.Diagram"/>
         </group>
         <group id="Aspire.Resource">
             <action id="Aspire.Resource.Start"

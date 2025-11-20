@@ -16,18 +16,29 @@ import java.awt.BorderLayout
 import javax.swing.JPanel
 
 class AspireHostServiceViewDescriptor(private val aspireHost: AspireHost) : ServiceViewDescriptor, DataProvider {
-    private val toolbarActions = DefaultActionGroup(
-        ActionManager.getInstance().getAction("Aspire.Host.Run"),
-        ActionManager.getInstance().getAction("Aspire.Host.Debug"),
-        ActionManager.getInstance().getAction("Aspire.Host.Stop"),
-        Separator(),
-        ActionManager.getInstance().getAction("Aspire.Host.Manifest"),
-        ActionManager.getInstance().getAction("Aspire.Host.Dashboard"),
-        ActionManager.getInstance().getAction("Aspire.Host.ResourceGraph"),
-        Separator(),
-        ActionManager.getInstance().getAction("Aspire.Settings"),
-        ActionManager.getInstance().getAction("Aspire.Help")
-    )
+    private val controlActionsIds = listOf("Aspire.Host.Run", "Aspire.Host.Debug", "Aspire.Host.Stop")
+    private val secondaryActionsIds = listOf("Aspire.Host.Manifest", "Aspire.Host.Dashboard", "Aspire.Host.ResourceGraph")
+    private val otherActionsIds = listOf("Aspire.Settings", "Aspire.Help")
+
+    private val toolbarActions = DefaultActionGroup()
+
+    init {
+        val actionManager = ActionManager.getInstance()
+        fun addAllActionsFromGroup(actionIds: List<String>) {
+            for (actionId in actionIds) {
+                val action = actionManager.getAction(actionId)
+                if (action != null) {
+                    toolbarActions.add(action)
+                }
+            }
+        }
+
+        addAllActionsFromGroup(controlActionsIds)
+        toolbarActions.add(Separator())
+        addAllActionsFromGroup(secondaryActionsIds)
+        toolbarActions.add(Separator())
+        addAllActionsFromGroup(otherActionsIds)
+    }
 
     override fun getPresentation() = PresentationData().apply {
         var icon = AspireIcons.Service

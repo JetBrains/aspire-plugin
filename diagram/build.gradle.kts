@@ -26,6 +26,9 @@ dependencies {
             useCache = true
         }
         jetbrainsRuntime()
-        bundledPlugins("Docker", "com.intellij.database", "rider.intellij.plugin.appender")
+
+        pluginModule(implementation(project(":core")))
+
+        bundledPlugins("com.intellij.diagram")
     }
 }

@@ -1,0 +1,16 @@
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.aspire.core"/>
+        <plugin id="com.intellij.diagram"/>
+    </dependencies>
+
+    <resource-bundle>messages.AspireDiagramBundle</resource-bundle>
+
+    <actions>
+        <action id="Aspire.Host.ResourceGraph"
+                class="com.jetbrains.rider.aspire.diagram.actions.ShowResourceGraphAction"
+                icon="AllIcons.FileTypes.Diagram">
+            <add-to-group group-id="Aspire.Host" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>

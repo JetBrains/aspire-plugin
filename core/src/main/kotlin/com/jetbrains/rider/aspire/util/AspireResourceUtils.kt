@@ -11,6 +11,7 @@ import com.jetbrains.rider.aspire.generated.ResourceType
 import com.jetbrains.rider.aspire.dashboard.AspireResource
 import icons.ReSharperIcons
 import icons.RiderIcons
+import org.jetbrains.annotations.ApiStatus
 import javax.swing.Icon
 
 internal fun getIcon(aspireResource: AspireResource): Icon {
@@ -34,7 +35,8 @@ internal fun getIcon(aspireResource: AspireResource): Icon {
     return icon
 }
 
-internal fun getBaseIcon(type: ResourceType, containerImage: String?) = when (type) {
+@ApiStatus.Internal
+fun getBaseIcon(type: ResourceType, containerImage: String?) = when (type) {
     ResourceType.Project -> RiderIcons.RunConfigurations.DotNetProject
     ResourceType.Executable -> AllIcons.Nodes.Console
     ResourceType.Parameter -> ReSharperIcons.PsiSymbols.Parameter

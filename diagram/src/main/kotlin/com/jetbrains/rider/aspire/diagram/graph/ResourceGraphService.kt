@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.rider.aspire.graph
+package com.jetbrains.rider.aspire.diagram.graph
 
 import com.intellij.diagram.v2.GraphChartFactory
 import com.intellij.diagram.v2.dsl.GraphChartEdgeStyleKtBuilderFactory
