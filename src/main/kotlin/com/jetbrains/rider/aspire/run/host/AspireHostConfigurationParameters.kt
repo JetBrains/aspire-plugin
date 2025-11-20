@@ -1,11 +1,16 @@
-package com.jetbrains.rider.aspire.run
+package com.jetbrains.rider.aspire.run.host
 
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
 import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.rd.util.reactive.hasTrueValue
-import com.jetbrains.rider.aspire.launchProfiles.*
+import com.jetbrains.rider.aspire.launchProfiles.getApplicationUrl
+import com.jetbrains.rider.aspire.launchProfiles.getArguments
+import com.jetbrains.rider.aspire.launchProfiles.getEnvironmentVariables
+import com.jetbrains.rider.aspire.launchProfiles.getLaunchBrowserFlag
+import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
+import com.jetbrains.rider.aspire.run.AspireRunnableProjectKinds
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
@@ -66,32 +71,32 @@ class AspireHostConfigurationParameters(
 
     fun validate() {
         if (!project.solution.isLoaded.hasTrueValue) {
-            throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
+            throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.Companion.SOLUTION_IS_LOADING)
         }
 
         val runnableProjects = project.solution.runnableProjectsModel.projects.valueOrNull
-            ?: throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
+            ?: throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.Companion.SOLUTION_IS_LOADING)
 
         if (projectFilePath.isEmpty()) {
-            throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
+            throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.Companion.PROJECT_NOT_SPECIFIED)
         }
         val project = runnableProjects.singleOrNull {
             it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
-        } ?: throw RuntimeConfigurationError(RiderRunBundle.message("selected.project.not.found"))
+        } ?: throw RuntimeConfigurationError(RiderRunBundle.Companion.message("selected.project.not.found"))
 
         if (projectTfm.isEmpty() || projectTfm.equals("unknown", ignoreCase = true)) {
-            throw RuntimeConfigurationError(RiderRunBundle.message("dialog.message.target.framework.is.not.specified"))
+            throw RuntimeConfigurationError(RiderRunBundle.Companion.message("dialog.message.target.framework.is.not.specified"))
         }
 
         if (profileName.isEmpty()) {
-            throw RuntimeConfigurationError(RiderRunBundle.message("launch.profile.is.not.specified"))
+            throw RuntimeConfigurationError(RiderRunBundle.Companion.message("launch.profile.is.not.specified"))
         }
 
         if (!trackWorkingDirectory) {
             val workingDirectoryFile = File(workingDirectory)
             if (!workingDirectoryFile.exists() || !workingDirectoryFile.isDirectory)
                 throw RuntimeConfigurationError(
-                    RiderRunBundle.message(
+                    RiderRunBundle.Companion.message(
                         "dialog.message.invalid.working.dir",
                         workingDirectory.ifEmpty { "<empty>" }
                     )
@@ -122,7 +127,7 @@ class AspireHostConfigurationParameters(
         trackUrl = trackUrlString != "0"
         val trackBrowserLaunchString = JDOMExternalizerUtil.readField(element, TRACK_BROWSER_LAUNCH) ?: ""
         trackBrowserLaunch = trackBrowserLaunchString != "0"
-        startBrowserParameters = DotNetStartBrowserParameters.readExternal(element)
+        startBrowserParameters = DotNetStartBrowserParameters.Companion.readExternal(element)
     }
 
     fun writeExternal(element: Element) {

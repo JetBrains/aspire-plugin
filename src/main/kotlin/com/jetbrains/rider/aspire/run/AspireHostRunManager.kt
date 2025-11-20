@@ -12,6 +12,8 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.dashboard.AspireHost
+import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.host.AspireHostConfigurationType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path

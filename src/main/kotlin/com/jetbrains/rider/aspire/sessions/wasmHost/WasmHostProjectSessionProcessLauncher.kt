@@ -9,7 +9,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
-import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.rider.aspire.sessions.findRunnableProjectByPath
 import com.jetbrains.rider.aspire.sessions.projectLaunchers.DotNetExecutableWithHotReloadSessionProcessLauncher
