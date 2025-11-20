@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.run
+package com.jetbrains.rider.aspire.run.host
 
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.ModalityState
@@ -8,12 +8,30 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.threading.coroutines.launch
 import com.jetbrains.rd.util.threading.coroutines.nextNotNullValue
-import com.jetbrains.rider.aspire.launchProfiles.*
+import com.jetbrains.rider.aspire.launchProfiles.getApplicationUrl
+import com.jetbrains.rider.aspire.launchProfiles.getArguments
+import com.jetbrains.rider.aspire.launchProfiles.getEnvironmentVariables
+import com.jetbrains.rider.aspire.launchProfiles.getLaunchBrowserFlag
+import com.jetbrains.rider.aspire.launchProfiles.getProjectLaunchProfiles
+import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
+import com.jetbrains.rider.aspire.run.AspireRunnableProjectKinds
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectsModel
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
-import com.jetbrains.rider.run.configurations.controls.*
+import com.jetbrains.rider.run.configurations.controls.ControlBase
+import com.jetbrains.rider.run.configurations.controls.EnvironmentVariablesEditor
+import com.jetbrains.rider.run.configurations.controls.FlagEditor
+import com.jetbrains.rider.run.configurations.controls.LaunchProfile
+import com.jetbrains.rider.run.configurations.controls.LaunchProfileSelector
+import com.jetbrains.rider.run.configurations.controls.PathSelector
+import com.jetbrains.rider.run.configurations.controls.ProgramParametersEditor
+import com.jetbrains.rider.run.configurations.controls.ProjectSelector
+import com.jetbrains.rider.run.configurations.controls.RunConfigurationViewModelBase
+import com.jetbrains.rider.run.configurations.controls.StringSelector
+import com.jetbrains.rider.run.configurations.controls.TextEditor
+import com.jetbrains.rider.run.configurations.controls.ViewSeparator
+import com.jetbrains.rider.run.configurations.controls.bindTo
 import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSettings
 import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSettingsEditor
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
@@ -112,7 +130,7 @@ class AspireHostConfigurationViewModel(
     private suspend fun reloadLaunchProfileSelector(runnableProject: RunnableProject) {
         launchProfileSelector.isLoading.set(true)
 
-        val launchProfiles = LaunchSettingsJsonService
+        val launchProfiles = LaunchSettingsJsonService.Companion
             .getInstance(project)
             .getProjectLaunchProfiles(runnableProject)
         launchProfileSelector.profileList.apply {

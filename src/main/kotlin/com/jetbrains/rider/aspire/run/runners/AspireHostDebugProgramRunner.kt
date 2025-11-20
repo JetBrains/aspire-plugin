@@ -9,7 +9,7 @@ import com.intellij.xdebugger.XDebugSession
 import com.jetbrains.rd.framework.IProtocol
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireService
-import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.states.AspireHostDebugProfileState
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.DotNetDebugRunner

@@ -11,7 +11,7 @@ import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.generated.aspirePluginModel
-import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.aspire.sessions.projectLaunchers.DotNetExecutableSessionProcessLauncher
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.solution

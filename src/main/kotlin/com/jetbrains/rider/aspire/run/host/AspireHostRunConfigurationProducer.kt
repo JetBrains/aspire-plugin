@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.run
+package com.jetbrains.rider.aspire.run.host
 
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.actions.LazyRunConfigurationProducer
@@ -8,6 +8,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.systemIndependentPath
 import com.intellij.psi.PsiElement
 import com.jetbrains.rider.aspire.launchProfiles.getFirstOrNullLaunchProfileProfile
+import com.jetbrains.rider.aspire.run.AspireRunnableProjectKinds
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getFile
@@ -58,7 +59,7 @@ class AspireHostRunConfigurationProducer : LazyRunConfigurationProducer<AspireHo
         val projectOutput = runnableProject
             .projectOutputs
             .firstOrNull()
-        val profile = LaunchSettingsJsonService
+        val profile = LaunchSettingsJsonService.Companion
             .getInstance(context.project)
             .getFirstOrNullLaunchProfileProfile(runnableProject)
 

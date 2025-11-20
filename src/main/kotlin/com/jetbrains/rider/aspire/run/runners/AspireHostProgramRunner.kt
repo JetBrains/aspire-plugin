@@ -9,7 +9,7 @@ import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.diagnostic.logger
 import com.jetbrains.rider.aspire.AspireService
-import com.jetbrains.rider.aspire.run.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.states.AspireHostRunProfileState
 import com.jetbrains.rider.debugger.DotNetProgramRunner
 

@@ -23,8 +23,9 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
-        <configurationType implementation="com.jetbrains.rider.aspire.run.AspireHostConfigurationType"/>
-        <runConfigurationProducer implementation="com.jetbrains.rider.aspire.run.AspireHostRunConfigurationProducer"/>
+        <configurationType implementation="com.jetbrains.rider.aspire.run.host.AspireHostConfigurationType"/>
+        <runConfigurationProducer implementation="com.jetbrains.rider.aspire.run.host.AspireHostRunConfigurationProducer"/>
+
         <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunner"/>
         <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostDebugProgramRunner"/>
         <programRunner
