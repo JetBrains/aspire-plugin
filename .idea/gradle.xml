@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/database" />
             <option value="$PROJECT_DIR$/diagram" />
+            <option value="$PROJECT_DIR$/docker" />
             <option value="$PROJECT_DIR$/protocol" />
           </set>
         </option>

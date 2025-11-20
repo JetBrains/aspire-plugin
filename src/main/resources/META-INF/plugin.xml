@@ -13,6 +13,7 @@
         <module name="intellij.aspire.core" loading="required"/>
         <module name="intellij.aspire.diagram"/>
         <module name="intellij.aspire.database"/>
+        <module name="intellij.aspire.docker"/>
     </content>
 
     <extensions defaultExtensionNs="com.intellij">

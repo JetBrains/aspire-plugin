@@ -1,0 +1,11 @@
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.aspire.core"/>
+        <plugin id="Docker"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.jetbrains.rider.aspire">
+        <resourceIconProviderExtension implementation="com.jetbrains.rider.aspire.docker.DockerAspireResourceIconProvider"/>
+    </extensions>
+
+</idea-plugin>

@@ -60,6 +60,7 @@ dependencies {
         pluginModule(implementation(project(":core")))
         pluginModule(implementation(project(":diagram")))
         pluginModule(implementation(project(":database")))
+        pluginModule(implementation(project(":docker")))
 
         testFramework(TestFrameworkType.Bundled)
         testBundledPlugins("com.intellij.modules.json", "tanvd.grazi")
