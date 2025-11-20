@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.9.4] - 2025-11-20
+
 ### Changed
 
 - [#483](https://github.com/JetBrains/aspire-plugin/issues/483) Select the first tfm or launch profile when the specified value is missing or invalid
@@ -541,7 +543,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.9.3...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.9.4...HEAD
+[1.9.4]: https://github.com/JetBrains/aspire-plugin/compare/1.9.3...1.9.4
 [1.9.3]: https://github.com/JetBrains/aspire-plugin/compare/1.9.2...1.9.3
 [1.9.2]: https://github.com/JetBrains/aspire-plugin/compare/1.9.1...1.9.2
 [1.9.1]: https://github.com/JetBrains/aspire-plugin/compare/1.9.0...1.9.1
