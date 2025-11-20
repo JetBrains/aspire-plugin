@@ -1,7 +1,7 @@
 <div align="center">
   <img alt="Logo" src="./src/main/resources/META-INF/pluginIcon.svg#gh-light-mode-only" width="100">
   <img alt="Logo" src="./src/main/resources/META-INF/pluginIcon_dark.svg#gh-dark-mode-only" width="100">
-  <h2>.NET Aspire Plugin for JetBrains Rider</h2>
+  <h2>Aspire Plugin for JetBrains Rider</h2>
 
   <a href="https://github.com/JetBrains"><img src="https://jb.gg/badges/official.svg" alt="Official JetBrains project"></a>
   <a href="https://plugins.jetbrains.com/plugin/23289-aspire"><img src="https://img.shields.io/jetbrains/plugin/v/23289-aspire.svg?label=plugin&logo=rider" alt="Version"></a>
@@ -9,7 +9,7 @@
 </div>
 
 <!-- Plugin description -->
-The plugin provides support for .NET Aspire projects in JetBrains Rider.
+The plugin provides support for Aspire projects in JetBrains Rider.
 
 **Features:**
 * Support for running and debugging of Aspire projects
@@ -21,7 +21,7 @@ The plugin provides support for .NET Aspire projects in JetBrains Rider.
 
 [Plugin documentation](https://www.jetbrains.com/help/rider/2024.2/NET_Aspire.html)
 
-[.NET Aspire documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
+[Aspire documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
 
 ## Installation
 
