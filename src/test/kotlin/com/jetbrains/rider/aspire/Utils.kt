@@ -12,7 +12,7 @@ import com.jetbrains.rd.util.reactive.valueOrThrow
 import com.jetbrains.rd.util.string.printToString
 import com.jetbrains.rdclient.util.idea.waitAndPump
 import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
-import com.jetbrains.rider.aspire.run.host.AspireHostConfigurationType
+import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProfile
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.jetbrains.rider.test.framework.flushQueues

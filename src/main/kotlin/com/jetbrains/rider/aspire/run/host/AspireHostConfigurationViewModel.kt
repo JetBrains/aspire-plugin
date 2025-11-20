@@ -40,7 +40,7 @@ import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParamete
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
-class AspireHostConfigurationViewModel(
+internal class AspireHostConfigurationViewModel(
     private val project: Project,
     lifetime: Lifetime,
     private val runnableProjectsModel: RunnableProjectsModel?,

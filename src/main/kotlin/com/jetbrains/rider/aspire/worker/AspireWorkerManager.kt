@@ -14,7 +14,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
-import com.jetbrains.rider.aspire.run.host.AspireHostConfigurationType
+import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.dashboard.AspireMainServiceViewContributor
 import com.jetbrains.rider.aspire.dashboard.AspireWorker
 import kotlin.io.path.Path
