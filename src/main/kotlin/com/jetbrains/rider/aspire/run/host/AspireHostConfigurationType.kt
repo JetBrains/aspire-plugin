@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.run
+package com.jetbrains.rider.aspire.run.host
 
 import com.intellij.execution.RunManager
 import com.intellij.execution.RunnerAndConfigurationSettings
@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireIcons
 import com.jetbrains.rider.aspire.launchProfiles.getProjectLaunchProfileByName
+import com.jetbrains.rider.aspire.run.AspireRunnableProjectKinds
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectKind
@@ -17,11 +18,13 @@ import com.jetbrains.rider.run.configurations.RunConfigurationHelper.hasConfigur
 import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
+import kotlin.collections.forEach
+import kotlin.collections.iterator
 
 class AspireHostConfigurationType : ConfigurationTypeBase(
     ID,
-    "Aspire Host",
-    "Aspire Host configuration",
+    "Aspire AppHost Project",
+    "Aspire AppHost project configuration",
     AspireIcons.RunConfig
 ), IRunnableProjectConfigurationType, IRunConfigurationWithDefault {
     companion object {
@@ -46,7 +49,7 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
         val aspireHostProjects = projects.filter { it.kind == AspireRunnableProjectKinds.AspireHost }
         if (aspireHostProjects.isEmpty()) return emptyList()
 
-        val service = LaunchSettingsJsonService.getInstance(project)
+        val service = LaunchSettingsJsonService.Companion.getInstance(project)
         val result = mutableListOf<Pair<RunnableProject, RunnerAndConfigurationSettings>>()
 
         for (runnableProject in aspireHostProjects) {
@@ -151,7 +154,7 @@ class AspireHostConfigurationType : ConfigurationTypeBase(
             isFocusToolWindowBeforeRun = false
         }
         val projectOutput = runnableProject.projectOutputs.firstOrNull()
-        val launchProfile = LaunchSettingsJsonService
+        val launchProfile = LaunchSettingsJsonService.Companion
             .getInstance(project)
             .getProjectLaunchProfileByName(runnableProject, profile)
         (settings.configuration as? AspireHostConfiguration)?.updateConfigurationParameters(

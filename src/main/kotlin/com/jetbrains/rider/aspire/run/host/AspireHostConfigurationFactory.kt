@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.run
+package com.jetbrains.rider.aspire.run.host
 
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.RunConfigurationSingletonPolicy
@@ -15,7 +15,7 @@ class AspireHostConfigurationFactory(type: AspireHostConfigurationType) :
         project,
         this,
         "Aspire Host",
-        AspireHostConfigurationParameters.createDefault(project)
+        AspireHostConfigurationParameters.Companion.createDefault(project)
     )
 
     override fun configureDefaultSettings(settings: RunnerAndConfigurationSettings) {
