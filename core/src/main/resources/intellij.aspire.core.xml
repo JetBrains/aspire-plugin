@@ -2,9 +2,6 @@
     <dependencies>
         <plugin id="com.intellij.modules.platform"/>
         <plugin id="com.intellij.modules.rider"/>
-        <plugin id="com.intellij.database"/>
-        <plugin id="rider.intellij.plugin.appender"/>
-        <plugin id="Docker"/>
     </dependencies>
 
     <resource-bundle>messages.AspireCoreBundle</resource-bundle>
@@ -15,6 +12,9 @@
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.rider.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension"
+                        dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.rider.aspire.resourceIconProviderExtension"
+                        interface="com.jetbrains.rider.aspire.dashboard.AspireResourceIconProviderExtension"
                         dynamic="true"/>
     </extensionPoints>
 
@@ -47,15 +47,6 @@
         <iconMapper mappingFile="AspireCoreIconMappings.json"/>
     </extensions>
 
-    <extensions defaultExtensionNs="com.intellij.rider.database">
-        <dotnetDataProvider implementation="com.jetbrains.rider.aspire.databases.DummyMongoDataProvider"/>
-        <dotnetDataProvider implementation="com.jetbrains.rider.aspire.databases.DummyRedisDataProvider"/>
-        <connectionStringsFactory
-                implementation="com.jetbrains.rider.aspire.databases.mysql.DummyMySqlConnectionStringsFactory"/>
-        <connectionStringToJdbcUrlMapper
-                implementation="com.jetbrains.rider.aspire.databases.mysql.DummyMySqlConverter"/>
-    </extensions>
-
     <extensions defaultExtensionNs="com.jetbrains.rider.aspire">
         <sessionProcessLauncherExtension
                 implementation="com.jetbrains.rider.aspire.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
@@ -63,13 +54,11 @@
                 implementation="com.jetbrains.rider.aspire.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
         <sessionProcessLauncherExtension
                 implementation="com.jetbrains.rider.aspire.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
+        <resourceIconProviderExtension
+                implementation="com.jetbrains.rider.aspire.util.BaseAspireResourceIconProvider"/>
     </extensions>
 
     <projectListeners>
-        <listener class="com.jetbrains.rider.aspire.databases.DatabaseResourceListener"
-                  topic="com.jetbrains.rider.aspire.dashboard.ResourceListener"/>
-        <listener class="com.jetbrains.rider.aspire.databases.DatabaseResourceConnectionService$DataSourceListener"
-                  topic="com.intellij.database.dataSource.DataSourceStorage$Listener"/>
         <listener class="com.jetbrains.rider.aspire.worker.AspireWorkerManager$RunListener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>

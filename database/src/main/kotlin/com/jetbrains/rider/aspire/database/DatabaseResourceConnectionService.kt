@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.databases
+package com.jetbrains.rider.aspire.database
 
 import com.intellij.database.access.DatabaseCredentialsUi
 import com.intellij.database.dataSource.DataSourceStorage
@@ -22,7 +22,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.isNotAlive
-import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.services.connection.ConnectionManager
 import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.services.connection.TestConnectionExecutionResult
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.converters.ConnectionStringToJdbcUrlConverter
@@ -33,6 +32,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.future.await
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.text.get
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -288,7 +288,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
     }
 
     private suspend fun connectToDataSource(dataSource: LocalDataSource) =
-        withBackgroundProgress(project, AspireBundle.message("progress.connecting.to.database")) {
+        withBackgroundProgress(project, AspireDatabaseBundle.message("progress.connecting.to.database")) {
             val isConnectionSuccessful = waitForConnection(dataSource)
             if (!isConnectionSuccessful) {
                 LOG.warn("Unable to connect to database")

@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.databases
+package com.jetbrains.rider.aspire.database
 
 import com.intellij.database.Dbms
 import com.intellij.database.dialects.redis.RedisDbms

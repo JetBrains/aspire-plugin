@@ -1,0 +1,31 @@
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.aspire.core"/>
+        <plugin id="com.intellij.database"/>
+        <plugin id="rider.intellij.plugin.appender"/>
+        <plugin id="Docker"/>
+    </dependencies>
+
+    <resource-bundle>messages.AspireDatabaseBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij.rider.database">
+        <dotnetDataProvider implementation="com.jetbrains.rider.aspire.database.DummyMongoDataProvider"/>
+        <dotnetDataProvider implementation="com.jetbrains.rider.aspire.database.DummyRedisDataProvider"/>
+        <connectionStringsFactory
+                implementation="com.jetbrains.rider.aspire.database.mysql.DummyMySqlConnectionStringsFactory"/>
+        <connectionStringToJdbcUrlMapper
+                implementation="com.jetbrains.rider.aspire.database.mysql.DummyMySqlConverter"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.jetbrains.rider.aspire">
+        <resourceIconProviderExtension implementation="com.jetbrains.rider.aspire.database.DatabaseAspireResourceIconProvider"/>
+    </extensions>
+
+    <projectListeners>
+        <listener class="com.jetbrains.rider.aspire.database.DatabaseResourceListener"
+                  topic="com.jetbrains.rider.aspire.dashboard.ResourceListener"/>
+        <listener class="com.jetbrains.rider.aspire.database.DatabaseResourceConnectionService$DataSourceListener"
+                  topic="com.intellij.database.dataSource.DataSourceStorage$Listener"/>
+    </projectListeners>
+
+</idea-plugin>

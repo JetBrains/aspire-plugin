@@ -12,6 +12,7 @@
     <content namespace="jetbrains">
         <module name="intellij.aspire.core" loading="required"/>
         <module name="intellij.aspire.diagram"/>
+        <module name="intellij.aspire.database"/>
     </content>
 
     <extensions defaultExtensionNs="com.intellij">

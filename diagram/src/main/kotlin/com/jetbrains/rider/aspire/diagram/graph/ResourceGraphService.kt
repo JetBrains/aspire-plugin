@@ -16,7 +16,7 @@ import com.intellij.util.graph.GraphFactory
 import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.dashboard.AspireHost
 import com.jetbrains.rider.aspire.dashboard.AspireResource
-import com.jetbrains.rider.aspire.util.getBaseIcon
+import com.jetbrains.rider.aspire.util.getIcon
 
 /**
  * Service for building a resource graph.
@@ -58,7 +58,7 @@ internal class ResourceGraphService(private val project: Project) {
     private fun createResourceGraphNode(resource: AspireResource) = ResourceGraphNode(
         resource.uid,
         resource.displayName,
-        getBaseIcon(
+        getIcon(
             resource.type,
             resource.containerImage?.value
         )

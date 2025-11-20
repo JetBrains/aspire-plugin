@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.databases.mysql
+package com.jetbrains.rider.aspire.database.mysql
 
 import com.intellij.database.util.common.isNotNullOrEmpty
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.shared.connectionStrings.DatabaseConnectionUrlProperty
