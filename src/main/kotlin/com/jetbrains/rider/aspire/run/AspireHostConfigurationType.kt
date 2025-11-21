@@ -180,5 +180,5 @@ internal class AspireHostConfigurationType : ConfigurationTypeBase(
     )
 
 
-    override fun getHelpTopic() = "me.rafaelldi.aspire.run-config"
+    override fun getHelpTopic() = "com.jetbrains.rider.aspire.run-config"
 }
