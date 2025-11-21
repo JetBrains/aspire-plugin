@@ -1,16 +1,16 @@
-package com.jetbrains.rider.aspire.sessions.wasmHost
+package com.jetbrains.rider.aspire.rider.sessions.dotnetProject
 
 import com.intellij.execution.Executor
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.aspire.sessions.projectLaunchers.DotNetExecutableSessionDebugProfileState
 import com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProfile
-import com.jetbrains.rider.aspire.sessions.projectLaunchers.DotNetExecutableSessionRunProfileState
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
 
-internal class WasmHostProjectSessionRunProfile(
+internal class DotNetProjectSessionDebugProfile(
     sessionId: String,
     projectPath: Path,
     dotnetExecutable: DotNetExecutable,
@@ -18,11 +18,11 @@ internal class WasmHostProjectSessionRunProfile(
     private val sessionProcessEventListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime,
     aspireHostProjectPath: Path?
-) : ProjectSessionProfile(sessionId, projectPath, dotnetExecutable, aspireHostProjectPath, false) {
+) : ProjectSessionProfile(sessionId, projectPath, dotnetExecutable, aspireHostProjectPath, true) {
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment
-    ) = DotNetExecutableSessionRunProfileState(
+    ) = DotNetExecutableSessionDebugProfileState(
         sessionId,
         dotnetExecutable,
         dotnetRuntime,

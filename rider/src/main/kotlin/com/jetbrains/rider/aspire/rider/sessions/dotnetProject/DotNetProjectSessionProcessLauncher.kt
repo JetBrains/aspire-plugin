@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.sessions.dotnetProject
+package com.jetbrains.rider.aspire.rider.sessions.dotnetProject
 
 import com.intellij.execution.process.ProcessListener
 import com.intellij.ide.browsers.StartBrowserSettings

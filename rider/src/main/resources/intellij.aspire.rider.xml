@@ -12,6 +12,15 @@
 
     </extensions>
 
+    <extensions defaultExtensionNs="com.jetbrains.rider.aspire">
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.rider.aspire.rider.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.rider.aspire.rider.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.rider.aspire.rider.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
+    </extensions>
+
     <actions>
         <action id="Aspire.AddToSolution"
                 class="com.jetbrains.rider.aspire.rider.actions.AddAspireToSolutionAction"
