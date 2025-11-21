@@ -14,6 +14,7 @@
         <module name="intellij.aspire.diagram"/>
         <module name="intellij.aspire.database"/>
         <module name="intellij.aspire.docker"/>
+        <module name="intellij.aspire.rider"/>
     </content>
 
     <extensions defaultExtensionNs="com.intellij">
