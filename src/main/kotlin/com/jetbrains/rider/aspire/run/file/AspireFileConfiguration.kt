@@ -1,36 +1,47 @@
 package com.jetbrains.rider.aspire.run.file
 
-import com.intellij.execution.Executor
 import com.intellij.execution.configurations.ConfigurationFactory
-import com.intellij.execution.configurations.LocatableConfigurationBase
-import com.intellij.execution.configurations.RunProfileState
-import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
-import com.jetbrains.rider.aspire.AspireService
 import com.jetbrains.rider.run.configurations.IAutoSelectableRunConfiguration
+import com.jetbrains.rider.run.configurations.RiderAsyncRunConfiguration
+import org.jdom.Element
 
 internal class AspireFileConfiguration(
     project: Project,
     factory: ConfigurationFactory,
     name: String,
-) : LocatableConfigurationBase<AspireFileConfigurationOptions>(
+    val parameters: AspireFileConfigurationParameters
+) : RiderAsyncRunConfiguration(
+    name,
     project,
     factory,
-    name
+    { AspireFileConfigurationSettingsEditor(it) },
+    AspireFileExecutorFactory(project, parameters)
 ), IAutoSelectableRunConfiguration {
     override fun checkConfiguration() {
-        super.checkConfiguration()
+        parameters.validate()
     }
 
-    override fun getConfigurationEditor() = AspireFileConfigurationSettingsEditor(project)
-
-    override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState? {
-        throw UnsupportedOperationException("Synchronous call to getState is not supported by ${AspireFileConfigurationFactory::class.java}")
+    override fun readExternal(element: Element) {
+        super.readExternal(element)
+        parameters.readExternal(element)
     }
 
-    suspend fun getRunProfileStateAsync(executor: Executor, environment: ExecutionEnvironment): RunProfileState {
-        val lifetime = AspireService.getInstance(project).lifetime.createNested()
-        return AspireFileExecutorFactory().create(executor.id, environment, lifetime)
+    override fun writeExternal(element: Element) {
+        super.writeExternal(element)
+        parameters.writeExternal(element)
+    }
+
+    override fun clone(): RunConfiguration {
+        val newConfiguration = AspireFileConfiguration(
+            project,
+            requireNotNull(factory),
+            name,
+            parameters.copy()
+        )
+        newConfiguration.doCopyOptionsFrom(this)
+        return newConfiguration
     }
 
     override fun getAutoSelectPriority() = 10

@@ -22,6 +22,9 @@ import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParamete
 import org.jdom.Element
 import java.io.File
 
+/**
+ * Parameters for project-based Aspire run configuration.
+ */
 class AspireHostConfigurationParameters(
     private val project: Project,
     var projectFilePath: String,
@@ -71,32 +74,32 @@ class AspireHostConfigurationParameters(
 
     fun validate() {
         if (!project.solution.isLoaded.hasTrueValue) {
-            throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.Companion.SOLUTION_IS_LOADING)
+            throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
         }
 
         val runnableProjects = project.solution.runnableProjectsModel.projects.valueOrNull
-            ?: throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.Companion.SOLUTION_IS_LOADING)
+            ?: throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
 
         if (projectFilePath.isEmpty()) {
-            throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.Companion.PROJECT_NOT_SPECIFIED)
+            throw RuntimeConfigurationError(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
         }
         val project = runnableProjects.singleOrNull {
             it.projectFilePath == projectFilePath && it.kind == AspireRunnableProjectKinds.AspireHost
-        } ?: throw RuntimeConfigurationError(RiderRunBundle.Companion.message("selected.project.not.found"))
+        } ?: throw RuntimeConfigurationError(RiderRunBundle.message("selected.project.not.found"))
 
         if (projectTfm.isEmpty() || projectTfm.equals("unknown", ignoreCase = true)) {
-            throw RuntimeConfigurationError(RiderRunBundle.Companion.message("dialog.message.target.framework.is.not.specified"))
+            throw RuntimeConfigurationError(RiderRunBundle.message("dialog.message.target.framework.is.not.specified"))
         }
 
         if (profileName.isEmpty()) {
-            throw RuntimeConfigurationError(RiderRunBundle.Companion.message("launch.profile.is.not.specified"))
+            throw RuntimeConfigurationError(RiderRunBundle.message("launch.profile.is.not.specified"))
         }
 
         if (!trackWorkingDirectory) {
             val workingDirectoryFile = File(workingDirectory)
             if (!workingDirectoryFile.exists() || !workingDirectoryFile.isDirectory)
                 throw RuntimeConfigurationError(
-                    RiderRunBundle.Companion.message(
+                    RiderRunBundle.message(
                         "dialog.message.invalid.working.dir",
                         workingDirectory.ifEmpty { "<empty>" }
                     )

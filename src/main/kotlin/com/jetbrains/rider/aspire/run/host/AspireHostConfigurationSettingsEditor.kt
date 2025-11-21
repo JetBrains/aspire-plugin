@@ -29,12 +29,25 @@ internal class AspireHostConfigurationSettingsEditor(private val project: Projec
             project,
             lifetime,
             project.runnableProjectsModelIfAvailable,
-            ProjectSelector(AspireBundle.message("run.editor.project"), "Project"),
-            StringSelector("Target framework:", "Target_framework"),
-            LaunchProfileSelector(AspireBundle.message("run.editor.launch.profile"), "Launch_profile"),
-            ProgramParametersEditor("Arguments:", "Program_arguments", lifetime),
+            ProjectSelector(
+                AspireBundle.message("run.editor.project"),
+                "Project"
+            ),
+            StringSelector(
+                AspireBundle.message("run.editor.tfm"),
+                "Target_framework"
+            ),
+            LaunchProfileSelector(
+                AspireBundle.message("run.editor.launch.profile"),
+                "Launch_profile"
+            ),
+            ProgramParametersEditor(
+                AspireBundle.message("run.editor.arguments"),
+                "Program_arguments",
+                lifetime
+            ),
             PathSelector(
-                "Working directory:",
+                AspireBundle.message("run.editor.working.directory"),
                 "Working_directory",
                 FileChooserDescriptorFactory.createSingleFolderDescriptor(),
                 lifetime
@@ -43,7 +56,10 @@ internal class AspireHostConfigurationSettingsEditor(private val project: Projec
                 AspireBundle.message("run.editor.environment.variables"),
                 "Environment_variables"
             ),
-            FlagEditor("Use Podman container runtime", "Use_podman_runtime"),
+            FlagEditor(
+                AspireBundle.message("run.editor.podman.runtime"),
+                "Use_podman_runtime"
+            ),
             ViewSeparator(AspireBundle.message("run.editor.open.browser")),
             TextEditor(AspireBundle.message("run.editor.url"), "URL", lifetime),
             BrowserSettingsEditor("")
@@ -75,7 +91,7 @@ internal class AspireHostConfigurationSettingsEditor(private val project: Projec
     }
 
     override fun resetEditorFrom(configuration: AspireHostConfiguration) {
-        configuration.parameters.apply {
+        with(configuration.parameters) {
             viewModel.reset(
                 projectFilePath,
                 projectTfm,

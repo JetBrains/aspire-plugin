@@ -18,7 +18,8 @@ internal class AspireFileConfigurationFactory(type: AspireHostConfigurationType)
     override fun createTemplateConfiguration(project: Project) = AspireFileConfiguration(
         project,
         this,
-        "Aspire Host"
+        "Aspire Host",
+        AspireFileConfigurationParameters.createDefault(project)
     )
 
     override fun configureDefaultSettings(settings: RunnerAndConfigurationSettings) {

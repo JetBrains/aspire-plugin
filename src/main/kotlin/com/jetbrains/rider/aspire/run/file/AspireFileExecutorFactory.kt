@@ -2,10 +2,14 @@ package com.jetbrains.rider.aspire.run.file
 
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 
-internal class AspireFileExecutorFactory : AsyncExecutorFactory {
+internal class AspireFileExecutorFactory(
+    private val project: Project,
+    private val parameters: AspireFileConfigurationParameters
+) : AsyncExecutorFactory {
     override suspend fun create(
         executorId: String,
         environment: ExecutionEnvironment,
