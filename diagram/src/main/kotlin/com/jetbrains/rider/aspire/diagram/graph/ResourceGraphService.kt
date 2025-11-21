@@ -13,9 +13,9 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.util.graph.GraphFactory
-import com.jetbrains.rider.aspire.AspireBundle
 import com.jetbrains.rider.aspire.dashboard.AspireHost
 import com.jetbrains.rider.aspire.dashboard.AspireResource
+import com.jetbrains.rider.aspire.diagram.AspireDiagramBundle
 import com.jetbrains.rider.aspire.util.getIcon
 
 /**
@@ -85,7 +85,7 @@ internal class ResourceGraphService(private val project: Project) {
     }
 
     private fun GraphChartKtConfigurator<ResourceGraphNode, ResourceGraphEdge>.resourceGraphConfigurator() {
-        chartTitle = AspireBundle.message("resource.graph.title")
+        chartTitle = AspireDiagramBundle.message("resource.graph.title")
 
         initialViewSettings {
             mergeEdgeBySources = false
