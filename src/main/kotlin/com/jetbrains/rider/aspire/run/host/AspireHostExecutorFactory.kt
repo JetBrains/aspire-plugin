@@ -71,15 +71,15 @@ internal class AspireHostExecutorFactory(
         environment: ExecutionEnvironment,
         lifetime: Lifetime
     ): RunProfileState {
-        val activeRuntime = RiderDotNetActiveRuntimeHost.Companion.getInstance(project).dotNetCoreRuntime.value
+        val activeRuntime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Unable to find appropriate runtime")
 
         val projects = project.solution.runnableProjectsModel.projects.valueOrNull
-            ?: throw CantRunException(DotNetProjectConfigurationParameters.Companion.SOLUTION_IS_LOADING)
+            ?: throw CantRunException(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
 
         val runnableProject = projects.singleOrNull {
             it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath == parameters.projectFilePath
-        } ?: throw CantRunException(DotNetProjectConfigurationParameters.Companion.PROJECT_NOT_SPECIFIED)
+        } ?: throw CantRunException(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
 
         val projectOutput = runnableProject
             .projectOutputs
@@ -87,7 +87,7 @@ internal class AspireHostExecutorFactory(
             ?: runnableProject.projectOutputs.firstOrNull()
             ?: throw CantRunException("Unable to get the project output for ${parameters.projectTfm}")
 
-        val profile = LaunchSettingsJsonService.Companion
+        val profile = LaunchSettingsJsonService
             .getInstance(project)
             .getProjectLaunchProfileByName(runnableProject, parameters.profileName)
             ?: throw CantRunException("Profile ${parameters.profileName} not found")
@@ -144,7 +144,7 @@ internal class AspireHostExecutorFactory(
             projectOutput.tfm
         )
 
-        val params = ExecutableParameterProcessor.Companion
+        val params = ExecutableParameterProcessor
             .getInstance(project)
             .processEnvironment(runParameters, processOptions)
 
@@ -167,7 +167,7 @@ internal class AspireHostExecutorFactory(
         envs: MutableMap<String, String>,
         activeRuntime: DotNetCoreRuntime
     ): EnvironmentVariableValues {
-        val aspireWorker = AspireWorkerManager.Companion.getInstance(project).startAspireWorker()
+        val aspireWorker = AspireWorkerManager.getInstance(project).startAspireWorker()
 
         val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
         envs.putAll(dcpEnvironmentVariables)
@@ -242,7 +242,7 @@ internal class AspireHostExecutorFactory(
                 else "https://localhost:$otlpEndpointPort"
         }
 
-        val dotnetPath = RiderEnvironmentAccessor.Companion.getInstance(project).findFileInSystemPath("dotnet")
+        val dotnetPath = RiderEnvironmentAccessor.getInstance(project).findFileInSystemPath("dotnet")
         if (dotnetPath == null) {
             setDotnetRootPathVariable(envs, activeRuntime)
         }
@@ -261,11 +261,11 @@ internal class AspireHostExecutorFactory(
 
         val pathVariable = PathEnvironmentVariableUtil.getPathVariableValue()
         if (pathVariable != null) {
-            envs[RiderEnvironmentAccessor.Companion.PATH_VARIABLE] =
+            envs[RiderEnvironmentAccessor.PATH_VARIABLE] =
                 if (SystemInfo.isUnix) "$pathVariable:$dotnetPaths"
                 else "$pathVariable;$dotnetPaths"
         } else {
-            envs[RiderEnvironmentAccessor.Companion.PATH_VARIABLE] = dotnetPaths
+            envs[RiderEnvironmentAccessor.PATH_VARIABLE] = dotnetPaths
         }
 
         val dotnetRootEnvironmentVariable = EnvironmentUtil.getValue(DOTNET_ROOT)
