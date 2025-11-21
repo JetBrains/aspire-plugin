@@ -1,15 +1,14 @@
-@file:Suppress("UnstableApiUsage")
-
-package com.jetbrains.rider.aspire.actions.dashboard.resource
+package com.jetbrains.rider.aspire.rider.actions.dashboard.resource
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
-import com.jetbrains.rider.aspire.debugger.AttachDebuggerService
+import com.jetbrains.rider.aspire.actions.dashboard.resource.AspireResourceBaseAction
+import com.jetbrains.rider.aspire.dashboard.AspireResource
 import com.jetbrains.rider.aspire.generated.ResourceState
 import com.jetbrains.rider.aspire.generated.ResourceType
-import com.jetbrains.rider.aspire.dashboard.AspireResource
+import com.jetbrains.rider.aspire.rider.debugger.AttachDebuggerService
 import kotlinx.coroutines.launch
 
 class AttachToProjectResourceAction : AspireResourceBaseAction() {

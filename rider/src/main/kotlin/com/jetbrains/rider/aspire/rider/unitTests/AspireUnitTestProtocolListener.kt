@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.rider.aspire.unitTests
+package com.jetbrains.rider.aspire.rider.unitTests
 
 import com.intellij.openapi.client.ClientProjectSession
 import com.intellij.openapi.project.Project

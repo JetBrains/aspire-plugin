@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.orchestration
+package com.jetbrains.rider.aspire.rider.orchestration
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
@@ -18,7 +18,7 @@ import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.reactive.adviseNotNullOnce
 import com.jetbrains.rd.util.threading.coroutines.createTerminatedAfter
-import com.jetbrains.rider.aspire.AspireBundle
+import com.jetbrains.rider.aspire.rider.AspireRiderBundle
 import com.jetbrains.rider.model.ProjectTemplatesModel
 import com.jetbrains.rider.model.RdProjectTemplate
 import com.jetbrains.rider.model.RdProjectTemplateSession
@@ -63,7 +63,7 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
         generateAppHost: Boolean,
         generateServiceDefaults: Boolean,
         generateMauiServiceDefaults: Boolean
-    ) = withBackgroundProgress(project, AspireBundle.message("progress.generating.aspire.projects")) {
+    ) = withBackgroundProgress(project, AspireRiderBundle.message("progress.generating.aspire.projects")) {
         LOG.info("Generating Aspire projects for the solution")
 
         val model = project.protocol.projectTemplatesModel
@@ -222,12 +222,12 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
     private suspend fun notifyAboutMissingTemplates() = withContext(Dispatchers.EDT) {
         Notification(
             "Aspire",
-            AspireBundle.message("notification.unable.to.find.aspire.templates"),
+            AspireRiderBundle.message("notification.unable.to.find.aspire.templates"),
             "",
             NotificationType.WARNING
         )
             .addAction(object :
-                NotificationAction(AspireBundle.message("notification.how.to.install.aspire.templates")) {
+                NotificationAction(AspireRiderBundle.message("notification.how.to.install.aspire.templates")) {
                 override fun actionPerformed(e: AnActionEvent, n: Notification) {
                     BrowserUtil.browse("https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/aspire-sdk-templates?pivots=dotnet-cli#install-the-net-aspire-templates")
                 }

@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire.orchestration
+package com.jetbrains.rider.aspire.rider.orchestration
 
 import com.intellij.platform.backend.workspace.virtualFile
 import com.jetbrains.rider.aspire.util.isAspireHostProject

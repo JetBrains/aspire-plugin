@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.rider.aspire.orchestration
+package com.jetbrains.rider.aspire.rider.orchestration
 
 import VerboseIndentingLogger
 import com.intellij.openapi.application.readAndEdtWriteAction
@@ -16,7 +16,7 @@ import com.intellij.openapi.vfs.findDocument
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import com.jetbrains.rider.aspire.AspireBundle
+import com.jetbrains.rider.aspire.rider.AspireRiderBundle
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.PsiTreeWalker
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.RiderTextContent
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.CsIndentingNaiveRulesSet
@@ -100,7 +100,7 @@ internal class AspireDefaultFileModificationService(private val project: Project
 
             val psiFile = appHostFile.findPsiFile(project)
 
-            writeCommandAction(project, AspireBundle.message("write.command.insert.into.app.host")) {
+            writeCommandAction(project, AspireRiderBundle.message("write.command.insert.into.app.host")) {
                 val indent =
                     if (psiFile != null) calculateIndent(psiFile, document, semicolonIndex)
                     else ""
@@ -223,7 +223,7 @@ internal class AspireDefaultFileModificationService(private val project: Project
 
         val psiFile = programFile.findPsiFile(project)
 
-        writeCommandAction(project, AspireBundle.message("write.command.insert.default.methods")) {
+        writeCommandAction(project, AspireRiderBundle.message("write.command.insert.default.methods")) {
             if (defaultEndpointsIndex != -1) {
                 val indent =
                     if (psiFile != null) calculateIndent(psiFile, document, defaultEndpointsIndex)

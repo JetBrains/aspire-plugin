@@ -39,8 +39,6 @@
                 key="configurable.Aspire"
                 bundle="messages.AspireCoreBundle"/>
 
-        <rd.solutionExtListener endpoint="IDE Frontend"
-                                listener="com.jetbrains.rider.aspire.unitTests.AspireUnitTestProtocolListener"/>
 
         <webHelpProvider implementation="com.jetbrains.rider.aspire.AspireHelpProvider"/>
 
@@ -73,16 +71,6 @@
                 class="com.jetbrains.rider.aspire.actions.ManifestGenerationAction"
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
-        </action>
-        <action id="Aspire.AddToSolution"
-                class="com.jetbrains.rider.aspire.actions.AddAspireToSolutionAction"
-                icon="RiderIcons.Templates.TemplateAspire">
-            <add-to-group group-id="SolutionViewAddGroup.SolutionSection" relative-to-action="NewRiderSolutionFolder"
-                          anchor="after"/>
-        </action>
-        <action id="Aspire.AddToProject"
-                class="com.jetbrains.rider.aspire.actions.AddAspireToProjectAction"
-                icon="RiderIcons.Templates.TemplateAspire">
         </action>
         <group id="Aspire.Host">
             <action id="Aspire.Host.Run"
@@ -117,9 +105,6 @@
             <action id="Aspire.Resource.RestartWithDebugger"
                     class="com.jetbrains.rider.aspire.actions.dashboard.resource.RestartWithDebuggerResourceAction"
                     icon="AllIcons.Actions.RestartDebugger"/>
-            <action id="Aspire.Resource.Attach"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.resource.AttachToProjectResourceAction"
-                    icon="AllIcons.Debugger.AttachToProcess"/>
             <action id="Aspire.Resource.NavigateToDebugTab"
                     class="com.jetbrains.rider.aspire.actions.dashboard.resource.NavigateToResourceDebugTab"
                     icon="AllIcons.General.OpenInToolWindow"/>

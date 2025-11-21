@@ -6,4 +6,29 @@
 
     <resource-bundle>messages.AspireRiderBundle</resource-bundle>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <rd.solutionExtListener endpoint="IDE Frontend"
+                                listener="com.jetbrains.rider.aspire.rider.unitTests.AspireUnitTestProtocolListener"/>
+
+    </extensions>
+
+    <actions>
+        <action id="Aspire.AddToSolution"
+                class="com.jetbrains.rider.aspire.rider.actions.AddAspireToSolutionAction"
+                icon="RiderIcons.Templates.TemplateAspire">
+            <add-to-group group-id="SolutionViewAddGroup.SolutionSection" relative-to-action="NewRiderSolutionFolder"
+                          anchor="after"/>
+        </action>
+        <action id="Aspire.AddToProject"
+                class="com.jetbrains.rider.aspire.rider.actions.AddAspireToProjectAction"
+                icon="RiderIcons.Templates.TemplateAspire">
+        </action>
+        <action id="Aspire.Resource.Attach"
+                class="com.jetbrains.rider.aspire.rider.actions.dashboard.resource.AttachToProjectResourceAction"
+                icon="AllIcons.Debugger.AttachToProcess">
+            <add-to-group group-id="Aspire.Resource" relative-to-action="Aspire.Resource.RestartWithDebugger"
+                          anchor="after"/>
+        </action>
+    </actions>
+
 </idea-plugin>
