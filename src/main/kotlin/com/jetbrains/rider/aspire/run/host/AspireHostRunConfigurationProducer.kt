@@ -60,7 +60,7 @@ internal class AspireHostRunConfigurationProducer : LazyRunConfigurationProducer
         val projectOutput = runnableProject
             .projectOutputs
             .firstOrNull()
-        val profile = LaunchSettingsJsonService.Companion
+        val profile = LaunchSettingsJsonService
             .getInstance(context.project)
             .getFirstOrNullLaunchProfileProfile(runnableProject)
 
