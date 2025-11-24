@@ -9,6 +9,7 @@ import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.diagnostic.logger
 import com.jetbrains.rider.aspire.AspireService
+import com.jetbrains.rider.aspire.run.file.AspireFileConfiguration
 import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.states.AspireHostRunProfileState
 import com.jetbrains.rider.debugger.DotNetProgramRunner
@@ -24,7 +25,7 @@ class AspireHostProgramRunner : DotNetProgramRunner() {
 
     override fun canRun(executorId: String, runConfiguration: RunProfile) =
         executorId == DefaultRunExecutor.EXECUTOR_ID &&
-                runConfiguration is AspireHostConfiguration
+                (runConfiguration is AspireHostConfiguration || runConfiguration is AspireFileConfiguration)
 
     override suspend fun executeAsync(
         environment: ExecutionEnvironment,
