@@ -10,7 +10,7 @@ import com.jetbrains.rider.aspire.launchProfiles.getArguments
 import com.jetbrains.rider.aspire.launchProfiles.getEnvironmentVariables
 import com.jetbrains.rider.aspire.launchProfiles.getLaunchBrowserFlag
 import com.jetbrains.rider.aspire.launchProfiles.getWorkingDirectory
-import com.jetbrains.rider.aspire.run.AspireConfigurationParameters
+import com.jetbrains.rider.aspire.run.AspireRunConfigurationParameters
 import com.jetbrains.rider.aspire.run.AspireRunnableProjectKinds
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
@@ -40,8 +40,8 @@ class AspireHostConfigurationParameters(
     override var usePodmanRuntime: Boolean,
     var trackUrl: Boolean,
     var trackBrowserLaunch: Boolean,
-    var startBrowserParameters: DotNetStartBrowserParameters
-) : AspireConfigurationParameters {
+    override var startBrowserParameters: DotNetStartBrowserParameters
+) : AspireRunConfigurationParameters {
     companion object {
         private const val PROJECT_FILE_PATH = "PROJECT_FILE_PATH"
         private const val PROJECT_TFM = "PROJECT_TFM"
@@ -72,6 +72,9 @@ class AspireHostConfigurationParameters(
             DotNetStartBrowserParameters()
         )
     }
+
+    override val mainFilePath: String
+        get() = projectFilePath
 
     fun validate() {
         if (!project.solution.isLoaded.hasTrueValue) {
