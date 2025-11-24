@@ -5,6 +5,7 @@ import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.rd.util.reactive.hasTrueValue
+import com.jetbrains.rider.aspire.run.AspireConfigurationParameters
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
@@ -21,9 +22,9 @@ internal class AspireFileConfigurationParameters(
     var arguments: String,
     var workingDirectory: String,
     var envs: Map<String, String>,
-    var usePodmanRuntime: Boolean,
+    override var usePodmanRuntime: Boolean,
     var startBrowserParameters: DotNetStartBrowserParameters
-) {
+) : AspireConfigurationParameters {
     companion object {
         private const val FILE_PATH = "FILE_PATH"
         private const val ARGUMENTS = "ARGUMENTS"
