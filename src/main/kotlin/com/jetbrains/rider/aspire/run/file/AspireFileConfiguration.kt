@@ -3,6 +3,7 @@ package com.jetbrains.rider.aspire.run.file
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
+import com.jetbrains.rider.aspire.run.AspireRunConfiguration
 import com.jetbrains.rider.run.configurations.IAutoSelectableRunConfiguration
 import com.jetbrains.rider.run.configurations.RiderAsyncRunConfiguration
 import org.jdom.Element
@@ -10,15 +11,15 @@ import org.jdom.Element
 internal class AspireFileConfiguration(
     project: Project,
     factory: ConfigurationFactory,
-    name: String,
-    val parameters: AspireFileConfigurationParameters
+    override val configurationName: String,
+    override val parameters: AspireFileConfigurationParameters
 ) : RiderAsyncRunConfiguration(
-    name,
+    configurationName,
     project,
     factory,
     { AspireFileConfigurationSettingsEditor(it) },
     AspireFileExecutorFactory(project, parameters)
-), IAutoSelectableRunConfiguration {
+), IAutoSelectableRunConfiguration, AspireRunConfiguration {
     override fun checkConfiguration() {
         parameters.validate()
     }

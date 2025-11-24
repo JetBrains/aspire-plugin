@@ -13,6 +13,7 @@ import com.jetbrains.rider.run.configurations.TerminalMode
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
+import kotlin.io.path.Path
 
 internal class AspireFileExecutorFactory(
     private val project: Project,
@@ -38,8 +39,8 @@ internal class AspireFileExecutorFactory(
         activeRuntime: DotNetCoreRuntime
     ): DotNetExecutable {
         val effectiveArguments = buildString {
-            append("--file ")
-            append(parameters.filePath)
+            append("run --file ")
+            append(Path( parameters.filePath))
         }
 
         val effectiveEnvs = parameters.envs.toMutableMap()

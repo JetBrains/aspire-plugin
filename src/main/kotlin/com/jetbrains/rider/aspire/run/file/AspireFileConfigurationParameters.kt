@@ -5,12 +5,11 @@ import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.rd.util.reactive.hasTrueValue
-import com.jetbrains.rider.aspire.run.AspireConfigurationParameters
+import com.jetbrains.rider.aspire.run.AspireRunConfigurationParameters
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import org.jdom.Element
-import java.io.File
 import kotlin.collections.hashMapOf
 
 /**
@@ -23,8 +22,8 @@ internal class AspireFileConfigurationParameters(
     var workingDirectory: String,
     var envs: Map<String, String>,
     override var usePodmanRuntime: Boolean,
-    var startBrowserParameters: DotNetStartBrowserParameters
-) : AspireConfigurationParameters {
+    override var startBrowserParameters: DotNetStartBrowserParameters
+) : AspireRunConfigurationParameters {
     companion object {
         private const val FILE_PATH = "FILE_PATH"
         private const val ARGUMENTS = "ARGUMENTS"
@@ -41,6 +40,9 @@ internal class AspireFileConfigurationParameters(
             startBrowserParameters = DotNetStartBrowserParameters()
         )
     }
+
+    override val mainFilePath: String
+        get() = filePath
 
     fun validate() {
         if (!project.solution.isLoaded.hasTrueValue) {
