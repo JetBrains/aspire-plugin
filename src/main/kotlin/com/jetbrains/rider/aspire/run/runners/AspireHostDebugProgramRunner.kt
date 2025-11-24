@@ -9,6 +9,7 @@ import com.intellij.xdebugger.XDebugSession
 import com.jetbrains.rd.framework.IProtocol
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.AspireService
+import com.jetbrains.rider.aspire.run.file.AspireFileConfiguration
 import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.states.AspireHostDebugProfileState
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -27,7 +28,8 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
     override fun getRunnerId() = RUNNER_ID
 
     override fun canRun(executorId: String, runConfiguration: RunProfile) =
-        executorId == DefaultDebugExecutor.EXECUTOR_ID && runConfiguration is AspireHostConfiguration
+        executorId == DefaultDebugExecutor.EXECUTOR_ID &&
+                (runConfiguration is AspireHostConfiguration || runConfiguration is AspireFileConfiguration)
 
     override suspend fun createAndStartSession(
         env: ExecutionEnvironment,
