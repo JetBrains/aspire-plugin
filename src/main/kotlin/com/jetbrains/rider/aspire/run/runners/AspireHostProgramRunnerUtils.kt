@@ -13,8 +13,8 @@ import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
-import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostRunManager
+import com.jetbrains.rider.aspire.run.AspireRunConfiguration
 import com.jetbrains.rider.aspire.run.states.*
 import com.jetbrains.rider.aspire.worker.AspireWorkerManager
 import kotlinx.coroutines.Dispatchers
@@ -50,17 +50,17 @@ private suspend fun setUpAspireHostModel(
     state: AspireHostProfileState,
     aspireHostProcessHandlerLifetime: Lifetime,
 ): AspireHostModelConfig {
-    val aspireHostConfiguration =
-        (environment.runnerAndConfigurationSettings?.configuration as? AspireHostConfiguration)
-            ?: throw CantRunException("Requested configuration is not an AspireHostConfiguration")
+    val configuration = environment.runnerAndConfigurationSettings?.configuration
+    val aspireRunConfiguration = (configuration as? AspireRunConfiguration)
+            ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
 
     val dcpInstancePrefix = requireNotNull(state.getDcpInstancePrefix())
     val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
     val resourceServiceApiKey = state.getResourceServiceApiKey()
     val otlpEndpointUrl = state.getOtlpEndpointUrl()
 
-    val parameters = aspireHostConfiguration.parameters
-    val aspireHostProjectPath = Path(parameters.projectFilePath)
+    val parameters = aspireRunConfiguration.parameters
+    val aspireHostProjectPath = Path(parameters.mainFilePath)
 
     val browserToken = state.getDashboardBrowserToken()
     val aspireHostProjectUrl = if (browserToken != null) {
@@ -71,7 +71,7 @@ private suspend fun setUpAspireHostModel(
 
     val aspireHostConfig = AspireHostModelConfig(
         dcpInstancePrefix,
-        aspireHostConfiguration.name,
+        aspireRunConfiguration.configurationName,
         aspireHostProjectPath.absolutePathString(),
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
