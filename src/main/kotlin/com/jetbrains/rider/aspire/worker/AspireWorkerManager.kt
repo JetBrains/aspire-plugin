@@ -17,6 +17,7 @@ import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.dashboard.AspireMainServiceViewContributor
 import com.jetbrains.rider.aspire.dashboard.AspireWorker
+import com.jetbrains.rider.aspire.run.AspireRunConfiguration
 import kotlin.io.path.Path
 
 /**
@@ -85,18 +86,18 @@ internal class AspireWorkerManager(private val project: Project) : LifetimedServ
     class RunListener(private val project: Project) : RunManagerListener {
         override fun runConfigurationAdded(settings: RunnerAndConfigurationSettings) {
             val configuration = settings.configuration
-            if (configuration !is AspireHostConfiguration) return
+            if (configuration !is AspireRunConfiguration) return
 
             val params = configuration.parameters
-            getInstance(project).addAspireHost(params.projectFilePath)
+            getInstance(project).addAspireHost(params.mainFilePath)
         }
 
         override fun runConfigurationRemoved(settings: RunnerAndConfigurationSettings) {
             val configuration = settings.configuration
-            if (configuration !is AspireHostConfiguration) return
+            if (configuration !is AspireRunConfiguration) return
 
             val params = configuration.parameters
-            getInstance(project).removeAspireHost(params.projectFilePath)
+            getInstance(project).removeAspireHost(params.mainFilePath)
         }
     }
 }
