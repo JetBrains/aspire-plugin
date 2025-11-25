@@ -19,7 +19,7 @@ import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.*
 import com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension
-import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
+import com.jetbrains.rider.aspire.run.AspireRunConfiguration
 import com.jetbrains.rider.aspire.sessions.*
 import com.jetbrains.rider.aspire.sessions.SessionManager.CreateSessionCommand
 import com.jetbrains.rider.aspire.sessions.SessionManager.DeleteSessionCommand
@@ -70,8 +70,8 @@ class AspireHost(
                 handler: ProcessHandler
             ) {
                 val profile = env.runProfile
-                if (profile is AspireHostConfiguration) {
-                    val projectFilePath = Path(profile.parameters.projectFilePath)
+                if (profile is AspireRunConfiguration) {
+                    val projectFilePath = Path(profile.parameters.mainFilePath)
                     if (hostProjectPath != projectFilePath) return
 
                     hostStarted(handler)
@@ -90,8 +90,8 @@ class AspireHost(
                 exitCode: Int
             ) {
                 val profile = env.runProfile
-                if (profile is AspireHostConfiguration) {
-                    val projectFilePath = Path(profile.parameters.projectFilePath)
+                if (profile is AspireRunConfiguration) {
+                    val projectFilePath = Path(profile.parameters.mainFilePath)
                     if (hostProjectPath != projectFilePath) return
 
                     hostStopped()
