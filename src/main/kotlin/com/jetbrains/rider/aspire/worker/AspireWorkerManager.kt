@@ -3,8 +3,6 @@
 package com.jetbrains.rider.aspire.worker
 
 import com.intellij.execution.RunManager
-import com.intellij.execution.RunManagerListener
-import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.openapi.components.Service
@@ -17,7 +15,6 @@ import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.dashboard.AspireMainServiceViewContributor
 import com.jetbrains.rider.aspire.dashboard.AspireWorker
-import com.jetbrains.rider.aspire.run.AspireRunConfiguration
 import kotlin.io.path.Path
 
 /**
@@ -57,7 +54,7 @@ internal class AspireWorkerManager(private val project: Project) : LifetimedServ
         aspireWorker.stop()
     }
 
-    private fun addAspireHost(projectFilePath: String) {
+    fun addAspireHost(projectFilePath: String) {
         val hasAspireHosts = aspireWorker.hasAspireHosts
         aspireWorker.addAspireHostProject(Path(projectFilePath))
         if (!hasAspireHosts) {
@@ -65,7 +62,7 @@ internal class AspireWorkerManager(private val project: Project) : LifetimedServ
         }
     }
 
-    private fun removeAspireHost(projectFilePath: String) {
+    fun removeAspireHost(projectFilePath: String) {
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
         val configurations = RunManager.getInstance(project)
             .getConfigurationsList(configurationType)
@@ -81,23 +78,5 @@ internal class AspireWorkerManager(private val project: Project) : LifetimedServ
     private fun sendServiceResetEvent() {
         val event = ServiceEventListener.ServiceEvent.createResetEvent(AspireMainServiceViewContributor::class.java)
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
-    }
-
-    class RunListener(private val project: Project) : RunManagerListener {
-        override fun runConfigurationAdded(settings: RunnerAndConfigurationSettings) {
-            val configuration = settings.configuration
-            if (configuration !is AspireRunConfiguration) return
-
-            val params = configuration.parameters
-            getInstance(project).addAspireHost(params.mainFilePath)
-        }
-
-        override fun runConfigurationRemoved(settings: RunnerAndConfigurationSettings) {
-            val configuration = settings.configuration
-            if (configuration !is AspireRunConfiguration) return
-
-            val params = configuration.parameters
-            getInstance(project).removeAspireHost(params.mainFilePath)
-        }
     }
 }
