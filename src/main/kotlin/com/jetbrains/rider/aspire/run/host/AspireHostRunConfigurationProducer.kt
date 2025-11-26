@@ -8,7 +8,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.systemIndependentPath
 import com.intellij.psi.PsiElement
 import com.jetbrains.rider.aspire.launchProfiles.getFirstOrNullLaunchProfileProfile
-import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
+import com.jetbrains.rider.aspire.run.AspireConfigurationType
 import com.jetbrains.rider.aspire.run.AspireRunnableProjectKinds
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
@@ -19,7 +19,7 @@ import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonS
 internal class AspireHostRunConfigurationProducer : LazyRunConfigurationProducer<AspireHostConfiguration>() {
     override fun getConfigurationFactory() =
         ConfigurationTypeUtil
-            .findConfigurationType(AspireHostConfigurationType::class.java)
+            .findConfigurationType(AspireConfigurationType::class.java)
             .factory
 
     override fun isConfigurationFromContext(

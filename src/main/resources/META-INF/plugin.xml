@@ -23,7 +23,7 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
-        <configurationType implementation="com.jetbrains.rider.aspire.run.AspireHostConfigurationType"/>
+        <configurationType implementation="com.jetbrains.rider.aspire.run.AspireConfigurationType"/>
         <runConfigurationProducer implementation="com.jetbrains.rider.aspire.run.host.AspireHostRunConfigurationProducer"/>
 
         <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunner"/>
