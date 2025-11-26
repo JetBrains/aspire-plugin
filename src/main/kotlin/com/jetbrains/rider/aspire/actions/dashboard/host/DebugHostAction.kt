@@ -2,12 +2,12 @@ package com.jetbrains.rider.aspire.actions.dashboard.host
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
-import com.jetbrains.rider.aspire.run.AspireHostRunManager
+import com.jetbrains.rider.aspire.run.AspireRunConfigurationManager
 import com.jetbrains.rider.aspire.dashboard.AspireHost
 
 class DebugHostAction : AspireHostBaseAction() {
     override fun performAction(hostService: AspireHost, project: Project) {
-        AspireHostRunManager.getInstance(project)
+        AspireRunConfigurationManager.getInstance(project)
             .executeConfigurationForHost(hostService, true)
     }
 
