@@ -11,10 +11,10 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.platform.util.idea.LifetimedService
-import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
-import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
 import com.jetbrains.rider.aspire.dashboard.AspireMainServiceViewContributor
 import com.jetbrains.rider.aspire.dashboard.AspireWorker
+import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
+import com.jetbrains.rider.aspire.run.AspireRunConfiguration
 import kotlin.io.path.Path
 
 /**
@@ -66,7 +66,8 @@ internal class AspireWorkerManager(private val project: Project) : LifetimedServ
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
         val configurations = RunManager.getInstance(project)
             .getConfigurationsList(configurationType)
-            .filter { it is AspireHostConfiguration && it.parameters.projectFilePath == projectFilePath }
+            .filterIsInstance<AspireRunConfiguration>()
+            .filter { it.parameters.mainFilePath == projectFilePath }
         if (configurations.isNotEmpty()) return
 
         aspireWorker.removeAspireHostProject(Path(projectFilePath))
