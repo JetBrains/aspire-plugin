@@ -3,10 +3,10 @@ package com.jetbrains.rider.aspire.run.host
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.RunConfigurationSingletonPolicy
 import com.intellij.openapi.project.Project
-import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
+import com.jetbrains.rider.aspire.run.AspireConfigurationType
 import com.jetbrains.rider.run.configurations.DotNetConfigurationFactoryBase
 
-internal class AspireHostConfigurationFactory(type: AspireHostConfigurationType) :
+internal class AspireHostConfigurationFactory(type: AspireConfigurationType) :
     DotNetConfigurationFactoryBase<AspireHostConfiguration>(type) {
     override fun getId() = "Aspire Host"
 

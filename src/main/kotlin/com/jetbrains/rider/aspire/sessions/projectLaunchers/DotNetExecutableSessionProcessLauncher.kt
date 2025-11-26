@@ -21,7 +21,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.aspire.generated.CreateSessionRequest
 import com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
-import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
+import com.jetbrains.rider.aspire.run.AspireConfigurationType
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
@@ -116,7 +116,7 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
     private fun getAspireHostRunConfiguration(name: String?, project: Project): AspireHostConfiguration? {
         if (name == null) return null
 
-        val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
+        val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireConfigurationType::class.java)
         val runConfiguration = RunManager.getInstance(project)
             .getConfigurationsList(configurationType)
             .singleOrNull { it is AspireHostConfiguration && it.name == name }

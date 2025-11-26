@@ -13,7 +13,7 @@ import com.intellij.openapi.util.Disposer
 import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rider.aspire.dashboard.AspireMainServiceViewContributor
 import com.jetbrains.rider.aspire.dashboard.AspireWorker
-import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
+import com.jetbrains.rider.aspire.run.AspireConfigurationType
 import com.jetbrains.rider.aspire.run.AspireRunConfiguration
 import kotlin.io.path.Path
 
@@ -63,7 +63,7 @@ internal class AspireWorkerManager(private val project: Project) : LifetimedServ
     }
 
     fun removeAspireHost(projectFilePath: String) {
-        val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireHostConfigurationType::class.java)
+        val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireConfigurationType::class.java)
         val configurations = RunManager.getInstance(project)
             .getConfigurationsList(configurationType)
             .filterIsInstance<AspireRunConfiguration>()
