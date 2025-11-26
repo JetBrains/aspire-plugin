@@ -13,7 +13,7 @@ import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rider.aspire.generated.AspireHostModelConfig
-import com.jetbrains.rider.aspire.run.AspireHostRunManager
+import com.jetbrains.rider.aspire.run.AspireRunConfigurationManager
 import com.jetbrains.rider.aspire.run.AspireRunConfiguration
 import com.jetbrains.rider.aspire.run.states.*
 import com.jetbrains.rider.aspire.worker.AspireWorkerManager
@@ -100,7 +100,7 @@ private fun saveRunConfiguration(
     runConfigurationName: String,
     aspireHostLifetimeDefinition: LifetimeDefinition
 ) {
-    AspireHostRunManager
+    AspireRunConfigurationManager
         .getInstance(project)
         .saveRunConfiguration(aspireHostProjectPath, aspireHostLifetimeDefinition, runConfigurationName)
 }
