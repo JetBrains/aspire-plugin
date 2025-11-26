@@ -64,7 +64,7 @@ dependencies {
         pluginModule(implementation(project(":rider")))
 
         testFramework(TestFrameworkType.Bundled)
-        testBundledPlugins("com.intellij.modules.json", "tanvd.grazi")
+        testBundledPlugins("tanvd.grazi")
     }
 
     testImplementation(libs.opentest4j)
