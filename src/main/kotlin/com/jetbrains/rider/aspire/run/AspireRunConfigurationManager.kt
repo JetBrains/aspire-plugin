@@ -53,7 +53,7 @@ class AspireRunConfigurationManager(private val project: Project) {
             }
         }
 
-        val configurations = runManager.getConfigurationSettingsList(AspireHostConfigurationType::class.java)
+        val configurations = runManager.getConfigurationSettingsList(AspireConfigurationType::class.java)
             .filter {
                 val configuration = it.configuration
                 if (configuration !is AspireRunConfiguration) return@filter false

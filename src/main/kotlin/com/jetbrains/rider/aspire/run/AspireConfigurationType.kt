@@ -23,7 +23,7 @@ import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonS
 import kotlin.collections.forEach
 import kotlin.collections.iterator
 
-internal class AspireHostConfigurationType : ConfigurationTypeBase(
+internal class AspireConfigurationType : ConfigurationTypeBase(
     ID,
     "Aspire",
     "Aspire AppHost configuration",
@@ -52,7 +52,7 @@ internal class AspireHostConfigurationType : ConfigurationTypeBase(
         val aspireHostProjects = projects.filter { it.kind == AspireRunnableProjectKinds.AspireHost }
         if (aspireHostProjects.isEmpty()) return emptyList()
 
-        val service = LaunchSettingsJsonService.Companion.getInstance(project)
+        val service = LaunchSettingsJsonService.getInstance(project)
         val result = mutableListOf<Pair<RunnableProject, RunnerAndConfigurationSettings>>()
 
         for (runnableProject in aspireHostProjects) {
