@@ -19,11 +19,11 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 
 @Service(Service.Level.PROJECT)
-class AspireHostRunManager(private val project: Project) {
+class AspireRunConfigurationManager(private val project: Project) {
     companion object {
-        fun getInstance(project: Project) = project.service<AspireHostRunManager>()
+        fun getInstance(project: Project) = project.service<AspireRunConfigurationManager>()
 
-        private val LOG = logger<AspireHostRunManager>()
+        private val LOG = logger<AspireRunConfigurationManager>()
     }
 
     private val configurationNames = ConcurrentHashMap<Path, String>()
