@@ -20,7 +20,7 @@ internal class AspireHostRunConfigurationProducer : LazyRunConfigurationProducer
     override fun getConfigurationFactory() =
         ConfigurationTypeUtil
             .findConfigurationType(AspireConfigurationType::class.java)
-            .factory
+            .hostFactory
 
     override fun isConfigurationFromContext(
         configuration: AspireHostConfiguration,

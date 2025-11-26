@@ -33,11 +33,12 @@ internal class AspireConfigurationType : ConfigurationTypeBase(
         const val ID = "AspireHostConfiguration"
     }
 
-    val factory = AspireHostConfigurationFactory(this)
+    val hostFactory = AspireHostConfigurationFactory(this)
+    val fileFactory = AspireFileConfigurationFactory(this)
 
     init {
-        addFactory(factory)
-        addFactory(AspireFileConfigurationFactory(this))
+        addFactory(hostFactory)
+        addFactory(fileFactory)
     }
 
     override fun isApplicable(kind: RunnableProjectKind) = kind == AspireRunnableProjectKinds.AspireHost
@@ -152,7 +153,7 @@ internal class AspireConfigurationType : ConfigurationTypeBase(
         runManager: RunManager,
         project: Project
     ): RunnerAndConfigurationSettings {
-        val settings = runManager.createConfiguration(name, factory).apply {
+        val settings = runManager.createConfiguration(name, hostFactory).apply {
             isActivateToolWindowBeforeRun = false
             isFocusToolWindowBeforeRun = false
         }
