@@ -12,7 +12,6 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.aspire.dashboard.AspireHost
-import com.jetbrains.rider.aspire.run.host.AspireHostConfiguration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -47,8 +46,8 @@ class AspireHostRunManager(private val project: Project) {
         val runManager = RunManager.getInstance(project)
         val selected = runManager.selectedConfiguration
         val selectedConfiguration = selected?.configuration
-        if (selectedConfiguration != null && selectedConfiguration is AspireHostConfiguration) {
-            if (host.hostProjectPath == Path(selectedConfiguration.parameters.projectFilePath)) {
+        if (selectedConfiguration != null && selectedConfiguration is AspireRunConfiguration) {
+            if (host.hostProjectPath == Path(selectedConfiguration.parameters.mainFilePath)) {
                 ProgramRunnerUtil.executeConfiguration(selected, executor)
                 return
             }
@@ -56,13 +55,13 @@ class AspireHostRunManager(private val project: Project) {
 
         val configurations = runManager.getConfigurationSettingsList(AspireHostConfigurationType::class.java)
             .filter {
-                val path = (it.configuration as? AspireHostConfiguration)?.parameters?.projectFilePath
-                    ?: return@filter false
-                Path(path) == host.hostProjectPath
+                val configuration = it.configuration
+                if (configuration !is AspireRunConfiguration) return@filter false
+                Path(configuration.parameters.mainFilePath) == host.hostProjectPath
             }
 
         if (configurations.isEmpty()) {
-            LOG.warn("Unable to find Aspire host run configurations")
+            LOG.warn("Unable to find any Aspire run configurations with the given host path")
             return
         }
 
