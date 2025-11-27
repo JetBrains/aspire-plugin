@@ -21,7 +21,9 @@ import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import org.jdom.Element
-import java.io.File
+import kotlin.io.path.Path
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
 
 /**
  * Parameters for project-based Aspire run configuration.
@@ -100,8 +102,8 @@ class AspireHostConfigurationParameters(
         }
 
         if (!trackWorkingDirectory) {
-            val workingDirectoryFile = File(workingDirectory)
-            if (!workingDirectoryFile.exists() || !workingDirectoryFile.isDirectory)
+            val workingDirectoryPath = Path(workingDirectory)
+            if (!workingDirectoryPath.exists() || !workingDirectoryPath.isDirectory())
                 throw RuntimeConfigurationError(
                     RiderRunBundle.message(
                         "dialog.message.invalid.working.dir",
@@ -134,7 +136,7 @@ class AspireHostConfigurationParameters(
         trackUrl = trackUrlString != "0"
         val trackBrowserLaunchString = JDOMExternalizerUtil.readField(element, TRACK_BROWSER_LAUNCH) ?: ""
         trackBrowserLaunch = trackBrowserLaunchString != "0"
-        startBrowserParameters = DotNetStartBrowserParameters.Companion.readExternal(element)
+        startBrowserParameters = DotNetStartBrowserParameters.readExternal(element)
     }
 
     fun writeExternal(element: Element) {
