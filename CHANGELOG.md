@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Add batching support for session commands and optimize project builds
+
 ## [1.9.4] - 2025-11-20
 
 ### Changed

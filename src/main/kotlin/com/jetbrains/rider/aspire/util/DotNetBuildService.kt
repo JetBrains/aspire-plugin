@@ -26,7 +26,12 @@ class DotNetBuildService(private val project: Project) {
         private val LOG = logger<DotNetBuildService>()
     }
 
-    suspend fun buildProject(projectPath: Path) {
+    suspend fun buildProjects(projectPaths: List<Path>) {
+        LOG.trace { "Building ${projectPaths.size} project(s): ${projectPaths.map { it.fileName }}" }
+        projectPaths.forEach { buildProject(it) }
+    }
+
+    private suspend fun buildProject(projectPath: Path) {
         val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
         if (runtime == null) {
             LOG.warn("Unable to find active .NET runtime")

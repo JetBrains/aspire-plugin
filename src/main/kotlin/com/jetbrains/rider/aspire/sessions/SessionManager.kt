@@ -29,8 +29,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.forEach
+import kotlin.collections.map
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
@@ -47,6 +50,12 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
         fun getInstance(project: Project) = project.service<SessionManager>()
 
         private val LOG = logger<SessionManager>()
+
+        /**
+         * Time window in milliseconds to batch commands together.
+         * Commands received within this window will be grouped and their projects built together.
+         */
+        private const val BATCH_WINDOW_MS = 1000L
     }
 
     private val sessionLifetimes = ConcurrentHashMap<String, LifetimeDefinition>()
@@ -55,8 +64,32 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
 
     init {
         scope.launch {
-            for (command in commands) {
-                handleCommand(command)
+            while (true) {
+                val batch = mutableListOf<LaunchSessionCommand>()
+
+                // Wait for the first command
+                val firstCommand = commands.receive()
+                batch.add(firstCommand)
+
+                // Collect commands within the batch window
+                val batchDeadline = System.currentTimeMillis() + BATCH_WINDOW_MS
+                while (true) {
+                    val remainingTime = batchDeadline - System.currentTimeMillis()
+                    if (remainingTime <= 0) break
+
+                    val command = withTimeoutOrNull(remainingTime) {
+                        commands.receive()
+                    }
+
+                    if (command != null) {
+                        batch.add(command)
+                    } else {
+                        break
+                    }
+                }
+
+                LOG.trace { "Processing batch of ${batch.size} command(s)" }
+                handleBatchCommands(batch)
             }
         }
     }
@@ -65,10 +98,24 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
         commands.trySend(command)
     }
 
-    private suspend fun handleCommand(command: LaunchSessionCommand) {
-        when (command) {
-            is CreateSessionCommand -> handleCreateCommand(command)
-            is DeleteSessionCommand -> handleDeleteCommand(command)
+    private suspend fun handleBatchCommands(batch: List<LaunchSessionCommand>) {
+        val createCommands = batch.filterIsInstance<CreateSessionCommand>()
+        val deleteCommands = batch.filterIsInstance<DeleteSessionCommand>()
+
+        if (createCommands.isNotEmpty()) {
+            LOG.trace { "Received ${createCommands.size} delete command(s)" }
+            val projectPaths = createCommands.map { Path(it.createSessionRequest.projectPath) }.distinct()
+            buildProjects(projectPaths)
+            createCommands.forEach { command ->
+                handleCreateCommand(command)
+            }
+        }
+
+        if (deleteCommands.isNotEmpty()) {
+            LOG.trace { "Received ${deleteCommands.size} delete command(s)" }
+            deleteCommands.forEach { command ->
+                handleDeleteCommand(command)
+            }
         }
     }
 
@@ -80,8 +127,6 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
         sessionLifetimes.put(sessionLifetimeDefinition.lifetime, command.sessionId, sessionLifetimeDefinition)
 
         sessionLifetimeDefinition.lifetime.launch {
-            buildProject(Path(command.createSessionRequest.projectPath))
-
             val processLauncher = SessionProcessLauncher.getInstance(project)
             val processLifetimeDefinition = sessionLifetimeDefinition.lifetime.createNested()
 
@@ -127,18 +172,36 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
         }
     }
 
-    private suspend fun buildProject(projectPath: Path) {
-        val runnableProject = findRunnableProjectByPath(projectPath, project)
-        if (runnableProject != null) {
+    private suspend fun buildProjects(projectPaths: List<Path>) {
+        if (projectPaths.isEmpty()) return
+
+        val runnableProjects = mutableListOf<Path>()
+        val nonRunnableProjects = mutableListOf<Path>()
+
+        for (projectPath in projectPaths) {
+            val runnableProject = findRunnableProjectByPath(projectPath, project)
+            if (runnableProject != null) {
+                runnableProjects.add(projectPath)
+            } else {
+                nonRunnableProjects.add(projectPath)
+            }
+        }
+
+        if (runnableProjects.isNotEmpty()) {
+            LOG.trace { "Building ${runnableProjects.size} runnable project(s): ${runnableProjects.map { it.fileName }}"}
+            val pathStrings = runnableProjects.map { it.absolutePathString() }
             val buildParameters = BuildParameters(
                 BuildTarget(),
-                listOf(projectPath.absolutePathString()),
+                pathStrings,
                 silentMode = true
             )
             BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
-        } else {
+        }
+
+        if (nonRunnableProjects.isNotEmpty()) {
+            LOG.trace { "Building ${nonRunnableProjects.size} non-runnable project(s): ${nonRunnableProjects.map { it.fileName }}"}
             val buildService = DotNetBuildService.getInstance(project)
-            buildService.buildProject(projectPath)
+            buildService.buildProjects(nonRunnableProjects)
         }
     }
 
