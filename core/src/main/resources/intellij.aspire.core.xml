@@ -27,8 +27,6 @@
                 implementation="com.jetbrains.aspire.sessions.projectLaunchers.ProjectSessionProgramRunner"/>
         <programRunner
                 implementation="com.jetbrains.aspire.sessions.projectLaunchers.ProjectSessionDebugProgramRunner"/>
-        <programRunner
-                implementation="com.jetbrains.aspire.sessions.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
 
         <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
 
@@ -45,13 +43,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
-        <sessionProcessLauncherExtension
-                implementation="com.jetbrains.aspire.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
-        <sessionProcessLauncherExtension
-                implementation="com.jetbrains.aspire.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
-        <sessionProcessLauncherExtension
-                implementation="com.jetbrains.aspire.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
-        <resourceIconProviderExtension
+       <resourceIconProviderExtension
                 implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
     </extensions>
 
@@ -70,16 +62,6 @@
                 class="com.jetbrains.aspire.actions.ManifestGenerationAction"
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
-        </action>
-        <action id="Aspire.AddToSolution"
-                class="com.jetbrains.aspire.rider.actions.AddAspireToSolutionAction"
-                icon="RiderIcons.Templates.TemplateAspire">
-            <add-to-group group-id="SolutionViewAddGroup.SolutionSection" relative-to-action="NewRiderSolutionFolder"
-                          anchor="after"/>
-        </action>
-        <action id="Aspire.AddToProject"
-                class="com.jetbrains.aspire.rider.actions.AddAspireToProjectAction"
-                icon="RiderIcons.Templates.TemplateAspire">
         </action>
         <group id="Aspire.Host">
             <action id="Aspire.Host.Run"
@@ -114,9 +96,6 @@
             <action id="Aspire.Resource.RestartWithDebugger"
                     class="com.jetbrains.aspire.actions.dashboard.resource.RestartWithDebuggerResourceAction"
                     icon="AllIcons.Actions.RestartDebugger"/>
-            <action id="Aspire.Resource.Attach"
-                    class="com.jetbrains.aspire.rider.actions.dashboard.resource.AttachToProjectResourceAction"
-                    icon="AllIcons.Debugger.AttachToProcess"/>
             <action id="Aspire.Resource.NavigateToDebugTab"
                     class="com.jetbrains.aspire.actions.dashboard.resource.NavigateToResourceDebugTab"
                     icon="AllIcons.General.OpenInToolWindow"/>

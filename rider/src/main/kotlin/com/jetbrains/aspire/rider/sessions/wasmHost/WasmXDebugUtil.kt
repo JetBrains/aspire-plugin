@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions.wasmHost
+package com.jetbrains.aspire.rider.sessions.wasmHost
 
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment

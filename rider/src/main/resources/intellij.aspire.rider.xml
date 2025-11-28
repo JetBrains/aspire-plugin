@@ -7,8 +7,21 @@
     <resource-bundle>messages.AspireRiderBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <programRunner
+                implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
+
         <rd.solutionExtListener endpoint="IDE Frontend"
                                 listener="com.jetbrains.aspire.rider.unitTests.AspireUnitTestProtocolListener"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.jetbrains.aspire">
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.aspire.rider.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.aspire.rider.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
+
     </extensions>
 
     <actions>

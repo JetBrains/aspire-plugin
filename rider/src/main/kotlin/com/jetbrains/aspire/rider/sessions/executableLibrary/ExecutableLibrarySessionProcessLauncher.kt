@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions.executableLibrary
+package com.jetbrains.aspire.rider.sessions.executableLibrary
 
 import com.intellij.execution.process.ProcessListener
 import com.intellij.ide.browsers.StartBrowserSettings

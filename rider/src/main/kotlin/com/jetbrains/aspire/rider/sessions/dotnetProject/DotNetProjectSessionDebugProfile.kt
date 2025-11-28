@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions.executableLibrary
+package com.jetbrains.aspire.rider.sessions.dotnetProject
 
 import com.intellij.execution.Executor
 import com.intellij.execution.process.ProcessListener
@@ -10,7 +10,7 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
 
-internal class ExecutableLibrarySessionDebugProfile(
+internal class DotNetProjectSessionDebugProfile(
     sessionId: String,
     projectPath: Path,
     dotnetExecutable: DotNetExecutable,
