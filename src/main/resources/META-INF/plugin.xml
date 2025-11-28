@@ -14,42 +14,42 @@
     <resource-bundle>messages.AspireBundle</resource-bundle>
 
     <extensionPoints>
-        <extensionPoint qualifiedName="com.jetbrains.rider.aspire.sessionProcessLauncherExtension"
-                        interface="com.jetbrains.rider.aspire.sessions.projectLaunchers.SessionProcessLauncherExtension"
+        <extensionPoint qualifiedName="com.jetbrains.aspire.sessionProcessLauncherExtension"
+                        interface="com.jetbrains.aspire.sessions.projectLaunchers.SessionProcessLauncherExtension"
                         dynamic="true"/>
-        <extensionPoint qualifiedName="com.jetbrains.rider.aspire.openTelemetryProtocolServerExtension"
-                        interface="com.jetbrains.rider.aspire.otlp.OpenTelemetryProtocolServerExtension"
+        <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
+                        interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
                         dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
-        <configurationType implementation="com.jetbrains.rider.aspire.run.AspireConfigurationType"/>
-        <runConfigurationProducer implementation="com.jetbrains.rider.aspire.run.host.AspireHostRunConfigurationProducer"/>
+        <configurationType implementation="com.jetbrains.aspire.run.AspireConfigurationType"/>
+        <runConfigurationProducer implementation="com.jetbrains.aspire.run.host.AspireHostRunConfigurationProducer"/>
 
-        <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostProgramRunner"/>
-        <programRunner implementation="com.jetbrains.rider.aspire.run.runners.AspireHostDebugProgramRunner"/>
+        <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostProgramRunner"/>
+        <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostDebugProgramRunner"/>
         <programRunner
-                implementation="com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProgramRunner"/>
+                implementation="com.jetbrains.aspire.sessions.projectLaunchers.ProjectSessionProgramRunner"/>
         <programRunner
-                implementation="com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionDebugProgramRunner"/>
+                implementation="com.jetbrains.aspire.sessions.projectLaunchers.ProjectSessionDebugProgramRunner"/>
         <programRunner
-                implementation="com.jetbrains.rider.aspire.sessions.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
+                implementation="com.jetbrains.aspire.sessions.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
 
-        <serviceViewContributor implementation="com.jetbrains.rider.aspire.dashboard.AspireMainServiceViewContributor"/>
+        <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
 
         <applicationConfigurable
                 parentId="tools"
-                instance="com.jetbrains.rider.aspire.settings.AspireConfigurable"
+                instance="com.jetbrains.aspire.settings.AspireConfigurable"
                 id="Aspire.Configurable"
                 key="configurable.Aspire"
                 bundle="messages.AspireBundle"/>
 
         <rd.solutionExtListener endpoint="IDE Frontend"
-                                listener="com.jetbrains.rider.aspire.unitTests.AspireUnitTestProtocolListener"/>
+                                listener="com.jetbrains.aspire.unitTests.AspireUnitTestProtocolListener"/>
 
         <notificationGroup id="Aspire" displayType="BALLOON"/>
 
-        <webHelpProvider implementation="com.jetbrains.rider.aspire.AspireHelpProvider"/>
+        <webHelpProvider implementation="com.jetbrains.aspire.AspireHelpProvider"/>
 
         <dependencySupport kind="dotnet" coordinate="Aspire.Hosting" displayName="Aspire"/>
 
@@ -57,105 +57,105 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij.rider.database">
-        <dotnetDataProvider implementation="com.jetbrains.rider.aspire.databases.DummyMongoDataProvider"/>
-        <dotnetDataProvider implementation="com.jetbrains.rider.aspire.databases.DummyRedisDataProvider"/>
+        <dotnetDataProvider implementation="com.jetbrains.aspire.databases.DummyMongoDataProvider"/>
+        <dotnetDataProvider implementation="com.jetbrains.aspire.databases.DummyRedisDataProvider"/>
         <connectionStringsFactory
-                implementation="com.jetbrains.rider.aspire.databases.mysql.DummyMySqlConnectionStringsFactory"/>
+                implementation="com.jetbrains.aspire.databases.mysql.DummyMySqlConnectionStringsFactory"/>
         <connectionStringToJdbcUrlMapper
-                implementation="com.jetbrains.rider.aspire.databases.mysql.DummyMySqlConverter"/>
+                implementation="com.jetbrains.aspire.databases.mysql.DummyMySqlConverter"/>
     </extensions>
 
-    <extensions defaultExtensionNs="com.jetbrains.rider.aspire">
+    <extensions defaultExtensionNs="com.jetbrains.aspire">
         <sessionProcessLauncherExtension
-                implementation="com.jetbrains.rider.aspire.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
+                implementation="com.jetbrains.aspire.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
         <sessionProcessLauncherExtension
-                implementation="com.jetbrains.rider.aspire.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
+                implementation="com.jetbrains.aspire.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
         <sessionProcessLauncherExtension
-                implementation="com.jetbrains.rider.aspire.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
+                implementation="com.jetbrains.aspire.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
     </extensions>
 
     <projectListeners>
-        <listener class="com.jetbrains.rider.aspire.databases.DatabaseResourceListener"
-                  topic="com.jetbrains.rider.aspire.dashboard.ResourceListener"/>
-        <listener class="com.jetbrains.rider.aspire.databases.DatabaseResourceConnectionService$DataSourceListener"
+        <listener class="com.jetbrains.aspire.databases.DatabaseResourceListener"
+                  topic="com.jetbrains.aspire.dashboard.ResourceListener"/>
+        <listener class="com.jetbrains.aspire.databases.DatabaseResourceConnectionService$DataSourceListener"
                   topic="com.intellij.database.dataSource.DataSourceStorage$Listener"/>
-        <listener class="com.jetbrains.rider.aspire.worker.AspireRunConfigurationListener"
+        <listener class="com.jetbrains.aspire.worker.AspireRunConfigurationListener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
 
     <actions>
         <action id="Aspire.Settings"
-                class="com.jetbrains.rider.aspire.actions.AspireSettingsAction"
+                class="com.jetbrains.aspire.actions.AspireSettingsAction"
                 icon="AllIcons.General.Settings"/>
         <action id="Aspire.Help"
-                class="com.jetbrains.rider.aspire.actions.AspireHelpAction"/>
+                class="com.jetbrains.aspire.actions.AspireHelpAction"/>
         <action id="Aspire.Solution.Manifest"
-                class="com.jetbrains.rider.aspire.actions.ManifestGenerationAction"
+                class="com.jetbrains.aspire.actions.ManifestGenerationAction"
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
         <action id="Aspire.AddToSolution"
-                class="com.jetbrains.rider.aspire.actions.AddAspireToSolutionAction"
+                class="com.jetbrains.aspire.actions.AddAspireToSolutionAction"
                 icon="RiderIcons.Templates.TemplateAspire">
             <add-to-group group-id="SolutionViewAddGroup.SolutionSection" relative-to-action="NewRiderSolutionFolder"
                           anchor="after"/>
         </action>
         <action id="Aspire.AddToProject"
-                class="com.jetbrains.rider.aspire.actions.AddAspireToProjectAction"
+                class="com.jetbrains.aspire.actions.AddAspireToProjectAction"
                 icon="RiderIcons.Templates.TemplateAspire">
         </action>
         <group id="Aspire.Host">
             <action id="Aspire.Host.Run"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.host.RunHostAction"
+                    class="com.jetbrains.aspire.actions.dashboard.host.RunHostAction"
                     icon="AllIcons.Actions.Execute"/>
             <action id="Aspire.Host.Debug"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.host.DebugHostAction"
+                    class="com.jetbrains.aspire.actions.dashboard.host.DebugHostAction"
                     icon="AllIcons.Actions.StartDebugger"/>
             <action id="Aspire.Host.Stop"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.host.StopHostAction"
+                    class="com.jetbrains.aspire.actions.dashboard.host.StopHostAction"
                     icon="AllIcons.Actions.Suspend"/>
             <action id="Aspire.Host.Dashboard"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireOpenDashboardAction"
+                    class="com.jetbrains.aspire.actions.dashboard.host.AspireOpenDashboardAction"
                     icon="AllIcons.General.Web"/>
             <action id="Aspire.Host.Manifest"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.host.AspireManifestAction"
+                    class="com.jetbrains.aspire.actions.dashboard.host.AspireManifestAction"
                     icon="AllIcons.FileTypes.Json"/>
             <action id="Aspire.Host.ResourceGraph"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.host.ShowResourceGraphAction"
+                    class="com.jetbrains.aspire.actions.dashboard.host.ShowResourceGraphAction"
                     icon="AllIcons.FileTypes.Diagram"/>
         </group>
         <group id="Aspire.Resource">
             <action id="Aspire.Resource.Start"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.resource.StartResourceAction"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.StartResourceAction"
                     icon="AllIcons.Actions.Execute"/>
             <action id="Aspire.Resource.Stop"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.resource.StopResourceAction"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.StopResourceAction"
                     icon="AllIcons.Actions.Suspend"/>
             <action id="Aspire.Resource.Restart"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.resource.RestartResourceAction"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.RestartResourceAction"
                     icon="AllIcons.Actions.Restart"/>
             <action id="Aspire.Resource.RestartWithoutDebugger"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.resource.RestartWithoutDebuggerResourceAction"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.RestartWithoutDebuggerResourceAction"
                     icon="AllIcons.Actions.Rerun"/>
             <action id="Aspire.Resource.RestartWithDebugger"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.resource.RestartWithDebuggerResourceAction"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.RestartWithDebuggerResourceAction"
                     icon="AllIcons.Actions.RestartDebugger"/>
             <action id="Aspire.Resource.Attach"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.resource.AttachToProjectResourceAction"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.AttachToProjectResourceAction"
                     icon="AllIcons.Debugger.AttachToProcess"/>
             <action id="Aspire.Resource.NavigateToDebugTab"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.resource.NavigateToResourceDebugTab"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.NavigateToResourceDebugTab"
                     icon="AllIcons.General.OpenInToolWindow"/>
             <action id="Aspire.Resource.Execute.Command"
-                    class="com.jetbrains.rider.aspire.actions.dashboard.resource.PerformResourceAction"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.PerformResourceAction"
                     icon="AllIcons.Actions.RunAnything"/>
         </group>
         <group id="Aspire.Session.Host">
             <action id="Aspire.Worker.Start"
-                    class="com.jetbrains.rider.aspire.actions.StartAspireWorkerAction"
+                    class="com.jetbrains.aspire.actions.StartAspireWorkerAction"
                     icon="AllIcons.Actions.Execute"/>
             <action id="Aspire.Worker.Stop"
-                    class="com.jetbrains.rider.aspire.actions.StopAspireWorkerAction"
+                    class="com.jetbrains.aspire.actions.StopAspireWorkerAction"
                     icon="AllIcons.Actions.Suspend"/>
         </group>
     </actions>
