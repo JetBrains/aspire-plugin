@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.orchestration
+package com.jetbrains.aspire.rider.orchestration
 
 import com.intellij.execution.multilaunch.design.components.IconCheckBoxList
 import com.intellij.openapi.project.Project
@@ -11,7 +11,7 @@ import com.intellij.ui.components.JBCheckBox
 import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
-import com.jetbrains.aspire.AspireBundle
+import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.rider.projectView.calculateIcon
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.ui.px
@@ -24,7 +24,7 @@ import javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
 class AddAspireOrchestrationDialog(project: Project, projectEntities: List<ProjectModelEntity>) :
     DialogWrapper(project) {
 
-    private val selectAll = JBCheckBox(AspireBundle.message("dialog.add.orchestration.select.all")).apply {
+    private val selectAll = JBCheckBox(AspireRiderBundle.message("dialog.add.orchestration.select.all")).apply {
         border = JBUI.Borders.empty(2, 1)
     }
 
@@ -41,7 +41,7 @@ class AddAspireOrchestrationDialog(project: Project, projectEntities: List<Proje
     }
 
     init {
-        title = AspireBundle.message("dialog.add.orchestration.title")
+        title = AspireRiderBundle.message("dialog.add.orchestration.title")
 
         projectEntities
             .sortedBy { it.name }

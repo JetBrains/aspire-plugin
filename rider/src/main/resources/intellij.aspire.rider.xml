@@ -6,4 +6,24 @@
 
     <resource-bundle>messages.AspireRiderBundle</resource-bundle>
 
+
+    <actions>
+        <action id="Aspire.AddToSolution"
+                class="com.jetbrains.aspire.rider.actions.AddAspireToSolutionAction"
+                icon="RiderIcons.Templates.TemplateAspire">
+            <add-to-group group-id="SolutionViewAddGroup.SolutionSection" relative-to-action="NewRiderSolutionFolder"
+                          anchor="after"/>
+        </action>
+        <action id="Aspire.AddToProject"
+                class="com.jetbrains.aspire.rider.actions.AddAspireToProjectAction"
+                icon="RiderIcons.Templates.TemplateAspire">
+        </action>
+        <action id="Aspire.Resource.Attach"
+                class="com.jetbrains.aspire.rider.actions.dashboard.resource.AttachToProjectResourceAction"
+                icon="AllIcons.Debugger.AttachToProcess">
+            <add-to-group group-id="Aspire.Resource" relative-to-action="Aspire.Resource.RestartWithDebugger"
+                          anchor="after"/>
+        </action>
+    </actions>
+
 </idea-plugin>

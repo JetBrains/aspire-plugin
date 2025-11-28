@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.orchestration
+package com.jetbrains.aspire.rider.orchestration
 
 import java.nio.file.Path
 

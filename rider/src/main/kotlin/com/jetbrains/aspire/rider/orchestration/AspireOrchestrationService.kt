@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.orchestration
+package com.jetbrains.aspire.rider.orchestration
 
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
@@ -14,10 +14,10 @@ import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.rd.ide.model.RdPostProcessParameters
-import com.jetbrains.aspire.AspireBundle
 import com.jetbrains.aspire.generated.ReferenceProjectsFromAppHostRequest
 import com.jetbrains.aspire.generated.ReferenceServiceDefaultsFromProjectsRequest
 import com.jetbrains.aspire.generated.aspirePluginModel
+import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.util.isAspireHostProject
 import com.jetbrains.aspire.util.isAspireSharedProject
 import com.jetbrains.rider.model.AddProjectCommand
@@ -86,7 +86,7 @@ class AspireOrchestrationService(private val project: Project) {
      */
     suspend fun addAspireOrchestration(
         projectEntities: List<ProjectModelEntity>,
-    ) = withBackgroundProgress(project, AspireBundle.message("progress.adding.aspire.orchestration")) {
+    ) = withBackgroundProgress(project, AspireRiderBundle.message("progress.adding.aspire.orchestration")) {
         var (hostProjectPath, sharedProjectPath) = findExistingAspireProjects()
         var mauiSharedProjectPath: Path? = null
 
@@ -179,7 +179,7 @@ class AspireOrchestrationService(private val project: Project) {
         suspend fun notifyAboutFailedGeneration() = withContext(Dispatchers.EDT) {
             Notification(
                 "Aspire",
-                AspireBundle.message("notification.unable.to.generate.aspire.projects"),
+                AspireRiderBundle.message("notification.unable.to.generate.aspire.projects"),
                 "",
                 NotificationType.ERROR
             )
@@ -337,7 +337,7 @@ class AspireOrchestrationService(private val project: Project) {
         withContext(Dispatchers.EDT) {
             Notification(
                 "Aspire",
-                AspireBundle.message("notification.selected.projects.contains.orchestration"),
+                AspireRiderBundle.message("notification.selected.projects.contains.orchestration"),
                 "",
                 NotificationType.INFORMATION
             )
