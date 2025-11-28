@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.databases
+package com.jetbrains.aspire.database
 
 import com.intellij.database.access.DatabaseCredentialsUi
 import com.intellij.database.dataSource.DataSourceStorage
@@ -22,7 +22,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.application
 import com.jetbrains.rd.util.lifetime.isNotAlive
-import com.jetbrains.aspire.AspireBundle
 import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.services.connection.ConnectionManager
 import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.services.connection.TestConnectionExecutionResult
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.converters.ConnectionStringToJdbcUrlConverter
@@ -34,6 +33,8 @@ import kotlinx.coroutines.future.await
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
+import com.intellij.docker.utils.getOrCreateDockerLocalServer
+import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.DotnetDataProvider.Companion.EP_NAME
 
 /**
  * Service for managing database connections and associated Aspire resources.
@@ -61,8 +62,6 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
 
     private val connectionStrings = ConcurrentHashMap<String, Unit>()
     private val urlToConnectionString = ConcurrentHashMap<String, String>()
-
-    private val connectionManager = ConnectionManager(project)
 
     private val connectionCommands = Channel<DatabaseResourceConnectionCommand>(Channel.UNLIMITED)
     private val createdDataSources = Channel<LocalDataSource>(Channel.UNLIMITED)
@@ -119,6 +118,11 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
         databaseResource: DatabaseResource
     ) {
         val dataProvider = getDataProvider(databaseResource.type)
+        if (dataProvider == null) {
+            LOG.warn("DataProvider not found for database type ${databaseResource.type}")
+            connectionStrings.remove(connectionString)
+            return
+        }
         val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
         if (driver == null) {
             LOG.info("Unable to guess database driver for ${databaseResource.name}")
@@ -288,7 +292,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
     }
 
     private suspend fun connectToDataSource(dataSource: LocalDataSource) =
-        withBackgroundProgress(project, AspireBundle.message("progress.connecting.to.database")) {
+        withBackgroundProgress(project, AspireDatabaseBundle.message("progress.connecting.to.database")) {
             val isConnectionSuccessful = waitForConnection(dataSource)
             if (!isConnectionSuccessful) {
                 LOG.warn("Unable to connect to database")
@@ -308,6 +312,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
     private suspend fun waitForConnection(dataSource: LocalDataSource): Boolean {
         val credentials = DatabaseCredentialsUi.newUIInstance()
 
+        val connectionManager = ConnectionManager(project)
         (1..<5).forEach { _ ->
             when (val connectionResult = connectionManager.testConnection(dataSource, credentials)) {
                 TestConnectionExecutionResult.Cancelled -> {

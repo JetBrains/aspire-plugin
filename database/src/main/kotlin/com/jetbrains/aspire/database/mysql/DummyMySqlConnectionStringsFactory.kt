@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.databases.mysql
+package com.jetbrains.aspire.database.mysql
 
 import com.intellij.openapi.project.Project
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.DotnetDataProvider

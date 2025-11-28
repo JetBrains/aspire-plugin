@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.databases
+package com.jetbrains.aspire.database
 
 import com.jetbrains.rd.util.lifetime.Lifetime
 import java.net.URI
