@@ -1,0 +1,46 @@
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.aspire.core"/>
+        <plugin id="com.intellij.modules.rider"/>
+    </dependencies>
+
+    <resource-bundle>messages.AspireRiderBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <programRunner
+                implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
+
+        <rd.solutionExtListener endpoint="IDE Frontend"
+                                listener="com.jetbrains.aspire.rider.unitTests.AspireUnitTestProtocolListener"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.jetbrains.aspire">
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.aspire.rider.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
+        <sessionProcessLauncherExtension
+                implementation="com.jetbrains.aspire.rider.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
+
+    </extensions>
+
+    <actions>
+        <action id="Aspire.AddToSolution"
+                class="com.jetbrains.aspire.rider.actions.AddAspireToSolutionAction"
+                icon="RiderIcons.Templates.TemplateAspire">
+            <add-to-group group-id="SolutionViewAddGroup.SolutionSection" relative-to-action="NewRiderSolutionFolder"
+                          anchor="after"/>
+        </action>
+        <action id="Aspire.AddToProject"
+                class="com.jetbrains.aspire.rider.actions.AddAspireToProjectAction"
+                icon="RiderIcons.Templates.TemplateAspire">
+        </action>
+        <action id="Aspire.Resource.Attach"
+                class="com.jetbrains.aspire.rider.actions.dashboard.resource.AttachToProjectResourceAction"
+                icon="AllIcons.Debugger.AttachToProcess">
+            <add-to-group group-id="Aspire.Resource" relative-to-action="Aspire.Resource.RestartWithDebugger"
+                          anchor="after"/>
+        </action>
+    </actions>
+
+</idea-plugin>

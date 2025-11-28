@@ -15,14 +15,16 @@ import com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor
 import com.jetbrains.aspire.dashboard.AspireWorker
 import com.jetbrains.aspire.run.AspireConfigurationType
 import com.jetbrains.aspire.run.AspireRunConfiguration
+import org.jetbrains.annotations.ApiStatus
 import kotlin.io.path.Path
 
 /**
  * Manages the lifecycle of an `AspireWorker` within a project.
  * This service is responsible for starting, stopping, and updating the state of the `AspireWorker`.
  */
+@ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-internal class AspireWorkerManager(private val project: Project) : LifetimedService() {
+class AspireWorkerManager(private val project: Project) : LifetimedService() {
     companion object {
         fun getInstance(project: Project) = project.service<AspireWorkerManager>()
 

@@ -62,6 +62,7 @@ dependencies {
         pluginModule(implementation(project(":diagram")))
         pluginModule(implementation(project(":docker")))
         pluginModule(implementation(project(":database")))
+        pluginModule(implementation(project(":rider")))
 
         testFramework(TestFrameworkType.Bundled)
 

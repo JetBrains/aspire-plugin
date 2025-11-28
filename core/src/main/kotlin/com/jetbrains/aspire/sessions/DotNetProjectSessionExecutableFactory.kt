@@ -27,6 +27,7 @@ import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.run.environment.StringProcessingParameters
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
+import org.jetbrains.annotations.ApiStatus
 import java.net.URI
 import java.net.URISyntaxException
 import java.nio.file.Path
@@ -36,8 +37,9 @@ import kotlin.io.path.absolutePathString
 /**
  * Factory class for creating instances of [DotNetExecutable] from an Aspire session request based on a regular .NET project.
  */
+@ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-internal class DotNetProjectSessionExecutableFactory(private val project: Project) {
+class DotNetProjectSessionExecutableFactory(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<DotNetProjectSessionExecutableFactory>()
 
