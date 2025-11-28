@@ -28,7 +28,7 @@ rdgen {
     verbose = true
     packages = "model.aspireWorker,model.aspirePlugin"
 
-    val ktWorkerOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/aspire/generated")
+    val ktWorkerOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/aspire/generated")
     val csWorkerOutput = pluginSourcePath.resolve("dotnet/AspireWorker/Generated")
 
     generator {
@@ -45,7 +45,7 @@ rdgen {
         directory = csWorkerOutput.canonicalPath
     }
 
-    val ktPluginOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/rider/aspire/generated")
+    val ktPluginOutput = pluginSourcePath.resolve("main/kotlin/com/jetbrains/aspire/generated")
     val csPluginOutput = pluginSourcePath.resolve("dotnet/AspirePlugin/Generated")
 
     generator {
