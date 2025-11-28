@@ -15,6 +15,9 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.resourceIconProviderExtension"
+                        interface="com.jetbrains.aspire.dashboard.AspireResourceIconProviderExtension"
+                        dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -63,6 +66,8 @@
                 implementation="com.jetbrains.aspire.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
         <sessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
+        <resourceIconProviderExtension
+                implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
     </extensions>
 
     <projectListeners>
