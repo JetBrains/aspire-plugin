@@ -7,7 +7,7 @@ import com.jetbrains.rd.generator.nova.kotlin.Kotlin11Generator
 
 object AspireWorkerRoot : Root() {
     init {
-        setting(Kotlin11Generator.Namespace, "com.jetbrains.rider.aspire.generated")
+        setting(Kotlin11Generator.Namespace, "com.jetbrains.aspire.generated")
         setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Worker.Generated")
     }
 }

@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire
+﻿package com.jetbrains.rider.aspire
 
 import com.intellij.execution.RunManagerEx
 import com.intellij.execution.process.ProcessOutputType
@@ -11,9 +11,8 @@ import com.jetbrains.rd.util.reactive.hasValue
 import com.jetbrains.rd.util.reactive.valueOrThrow
 import com.jetbrains.rd.util.string.printToString
 import com.jetbrains.rdclient.util.idea.waitAndPump
-import com.jetbrains.rider.aspire.run.AspireHostConfiguration
-import com.jetbrains.rider.aspire.run.AspireHostConfigurationType
-import com.jetbrains.rider.aspire.sessions.projectLaunchers.ProjectSessionProfile
+import com.jetbrains.aspire.run.host.AspireHostConfiguration
+import com.jetbrains.aspire.sessions.projectLaunchers.ProjectSessionProfile
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.jetbrains.rider.test.framework.flushQueues
 import com.jetbrains.rider.test.framework.frameworkLogger
@@ -27,7 +26,7 @@ import kotlin.test.assertNotNull
 
 fun dumpAspireHostRunConfigurations(project: Project, printStream: PrintStream) {
     val runManagerEx = RunManagerEx.getInstanceEx(project)
-    val allSettings = runManagerEx.allSettings.filter { it.type.id == AspireHostConfigurationType.ID }
+    val allSettings = runManagerEx.allSettings.filter { it.type.id == "AspireHostConfiguration" }
     printStream.println("Aspire Host run configuration count: ${allSettings.size}")
     allSettings.map { it.configuration }.filterIsInstance<AspireHostConfiguration>().forEach {
         printStream.println("---")

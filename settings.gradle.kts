@@ -1,4 +1,4 @@
-pluginManagement {
+﻿pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
@@ -16,6 +16,6 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-rootProject.name = "aspire-plugin"
+rootProject.name = "intellij.aspire"
 
-include(":protocol")
+include(":protocol", ":core", ":diagram", ":docker", ":database", ":rider")

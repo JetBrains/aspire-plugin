@@ -1,6 +1,6 @@
 package com.jetbrains.rider.aspire
 
-import com.jetbrains.rider.aspire.manifest.ManifestService
+import com.jetbrains.aspire.manifest.ManifestService
 import com.jetbrains.rider.projectView.solutionDirectoryPath
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
