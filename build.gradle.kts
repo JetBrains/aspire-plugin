@@ -50,10 +50,6 @@ repositories {
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/version_catalogs.html
 dependencies {
-    implementation(libs.serializationJson)
-    testImplementation(libs.opentest4j)
-    testImplementation(libs.junit)
-
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
         rider(providers.gradleProperty("platformVersion")) {
@@ -61,11 +57,17 @@ dependencies {
             useCache = true
         }
         jetbrainsRuntime()
-        bundledPlugins(listOf("Docker", "com.intellij.database", "rider.intellij.plugin.appender", "com.intellij.diagram"))
+
+        pluginModule(implementation(project(":core")))
+
         testFramework(TestFrameworkType.Bundled)
 
         testBundledPlugins("com.intellij.modules.json", "tanvd.grazi")
     }
+
+    implementation(libs.serializationJson)
+    testImplementation(libs.opentest4j)
+    testImplementation(libs.junit)
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
