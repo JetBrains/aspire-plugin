@@ -39,9 +39,6 @@
                 key="configurable.Aspire"
                 bundle="messages.AspireCoreBundle"/>
 
-        <rd.solutionExtListener endpoint="IDE Frontend"
-                                listener="com.jetbrains.aspire.unitTests.AspireUnitTestProtocolListener"/>
-
         <webHelpProvider implementation="com.jetbrains.aspire.AspireHelpProvider"/>
 
         <iconMapper mappingFile="AspireCoreIconMappings.json"/>
