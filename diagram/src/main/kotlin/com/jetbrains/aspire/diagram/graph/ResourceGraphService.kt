@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.graph
+package com.jetbrains.aspire.diagram.graph
 
 import com.intellij.diagram.v2.GraphChartFactory
 import com.intellij.diagram.v2.dsl.GraphChartEdgeStyleKtBuilderFactory
@@ -13,10 +13,10 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.util.graph.GraphFactory
-import com.jetbrains.aspire.AspireBundle
 import com.jetbrains.aspire.dashboard.AspireHost
 import com.jetbrains.aspire.dashboard.AspireResource
-import com.jetbrains.aspire.util.getBaseIcon
+import com.jetbrains.aspire.diagram.AspireDiagramBundle
+import com.jetbrains.aspire.util.getResourceIcon
 
 /**
  * Service for building a resource graph.
@@ -58,7 +58,7 @@ internal class ResourceGraphService(private val project: Project) {
     private fun createResourceGraphNode(resource: AspireResource) = ResourceGraphNode(
         resource.uid,
         resource.displayName,
-        getBaseIcon(
+        getResourceIcon(
             resource.type,
             resource.containerImage?.value
         )
@@ -85,7 +85,7 @@ internal class ResourceGraphService(private val project: Project) {
     }
 
     private fun GraphChartKtConfigurator<ResourceGraphNode, ResourceGraphEdge>.resourceGraphConfigurator() {
-        chartTitle = AspireBundle.message("resource.graph.title")
+        chartTitle = AspireDiagramBundle.message("resource.graph.title")
 
         initialViewSettings {
             mergeEdgeBySources = false
