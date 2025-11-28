@@ -1,0 +1,9 @@
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.aspire.core"/>
+        <plugin id="com.intellij.modules.rider"/>
+    </dependencies>
+
+    <resource-bundle>messages.AspireRiderBundle</resource-bundle>
+
+</idea-plugin>
