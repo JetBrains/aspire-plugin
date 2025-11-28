@@ -6,6 +6,10 @@
 
     <resource-bundle>messages.AspireRiderBundle</resource-bundle>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <rd.solutionExtListener endpoint="IDE Frontend"
+                                listener="com.jetbrains.aspire.rider.unitTests.AspireUnitTestProtocolListener"/>
+    </extensions>
 
     <actions>
         <action id="Aspire.AddToSolution"

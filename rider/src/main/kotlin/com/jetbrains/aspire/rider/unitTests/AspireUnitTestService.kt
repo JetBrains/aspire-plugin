@@ -1,6 +1,6 @@
 @file:Suppress("LoggingSimilarMessage")
 
-package com.jetbrains.aspire.unitTests
+package com.jetbrains.aspire.rider.unitTests
 
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
