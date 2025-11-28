@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.debugger
+package com.jetbrains.aspire.rider.debugger
 
 import com.intellij.execution.process.impl.ProcessListUtil
 import com.intellij.openapi.components.Service
@@ -8,7 +8,7 @@ import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.xdebugger.attach.LocalAttachHost
 import com.intellij.xdebugger.attach.XAttachDebuggerProvider
-import com.jetbrains.aspire.AspireBundle
+import com.jetbrains.aspire.rider.AspireRiderBundle
 
 /**
  * A service responsible for attaching a debugger to a specific process.
@@ -20,7 +20,7 @@ internal class AttachDebuggerService(private val project: Project) {
     }
 
     suspend fun attach(pid: Int) {
-        withBackgroundProgress(project, AspireBundle.message("progress.attach.debugger.to.resource")) {
+        withBackgroundProgress(project, AspireRiderBundle.message("progress.attach.debugger.to.resource")) {
             val processInfo = ProcessListUtil.getProcessList().firstOrNull { it.pid == pid }
                 ?: return@withBackgroundProgress
             val attachHost = LocalAttachHost.INSTANCE

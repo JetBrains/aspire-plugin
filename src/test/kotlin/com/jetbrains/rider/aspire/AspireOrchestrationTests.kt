@@ -3,7 +3,7 @@ package com.jetbrains.rider.aspire
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.workspaceModel.ide.toPath
-import com.jetbrains.aspire.orchestration.AspireOrchestrationService
+import com.jetbrains.aspire.rider.orchestration.AspireOrchestrationService
 import com.jetbrains.rider.projectView.workspace.findProjects
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
