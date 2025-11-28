@@ -1,9 +1,6 @@
 <idea-plugin visibility="internal">
     <dependencies>
         <plugin id="com.intellij.modules.rider"/>
-        <plugin id="com.intellij.database"/>
-        <plugin id="rider.intellij.plugin.appender"/>
-        <plugin id="Docker"/>
     </dependencies>
 
     <resource-bundle>messages.AspireCoreBundle</resource-bundle>
@@ -50,15 +47,6 @@
         <iconMapper mappingFile="AspireCoreIconMappings.json"/>
     </extensions>
 
-    <extensions defaultExtensionNs="com.intellij.rider.database">
-        <dotnetDataProvider implementation="com.jetbrains.aspire.databases.DummyMongoDataProvider"/>
-        <dotnetDataProvider implementation="com.jetbrains.aspire.databases.DummyRedisDataProvider"/>
-        <connectionStringsFactory
-                implementation="com.jetbrains.aspire.databases.mysql.DummyMySqlConnectionStringsFactory"/>
-        <connectionStringToJdbcUrlMapper
-                implementation="com.jetbrains.aspire.databases.mysql.DummyMySqlConverter"/>
-    </extensions>
-
     <extensions defaultExtensionNs="com.jetbrains.aspire">
         <sessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
@@ -71,10 +59,6 @@
     </extensions>
 
     <projectListeners>
-        <listener class="com.jetbrains.aspire.databases.DatabaseResourceListener"
-                  topic="com.jetbrains.aspire.dashboard.ResourceListener"/>
-        <listener class="com.jetbrains.aspire.databases.DatabaseResourceConnectionService$DataSourceListener"
-                  topic="com.intellij.database.dataSource.DataSourceStorage$Listener"/>
         <listener class="com.jetbrains.aspire.worker.AspireRunConfigurationListener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
