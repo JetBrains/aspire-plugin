@@ -11,10 +11,11 @@ import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.dashboard.AspireResource
 import icons.ReSharperIcons
 import icons.RiderIcons
+import org.jetbrains.annotations.ApiStatus
 import javax.swing.Icon
 
 internal fun getIcon(aspireResource: AspireResource): Icon {
-    val baseIcon = getBaseIcon(aspireResource.type, aspireResource.containerImage?.value)
+    val baseIcon = getResourceIcon(aspireResource.type, aspireResource.containerImage?.value)
 
     val icon = when (aspireResource.state) {
         ResourceState.FailedToStart -> BadgeIconSupplier(baseIcon).errorIcon
@@ -34,7 +35,8 @@ internal fun getIcon(aspireResource: AspireResource): Icon {
     return icon
 }
 
-internal fun getBaseIcon(type: ResourceType, containerImage: String?) = when (type) {
+@ApiStatus.Internal
+fun getResourceIcon(type: ResourceType, containerImage: String?) = when (type) {
     ResourceType.Project -> RiderIcons.RunConfigurations.DotNetProject
     ResourceType.Executable -> AllIcons.Nodes.Console
     ResourceType.Parameter -> ReSharperIcons.PsiSymbols.Parameter

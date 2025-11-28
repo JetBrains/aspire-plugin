@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.graph
+package com.jetbrains.aspire.diagram.graph
 
 import javax.swing.Icon
 
