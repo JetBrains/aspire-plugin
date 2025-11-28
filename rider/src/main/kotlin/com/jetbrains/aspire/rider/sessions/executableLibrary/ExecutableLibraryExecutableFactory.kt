@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions.executableLibrary
+package com.jetbrains.aspire.rider.sessions.executableLibrary
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service

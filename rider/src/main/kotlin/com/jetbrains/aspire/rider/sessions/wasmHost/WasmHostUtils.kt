@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions.wasmHost
+package com.jetbrains.aspire.rider.sessions.wasmHost
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.executors.DefaultDebugExecutor
@@ -12,8 +12,8 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import com.jetbrains.aspire.AspireBundle
 import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.rider.debugger.RiderDebugRunner
 import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentHost
 import com.jetbrains.rider.debugger.wasm.BrowserHub
@@ -67,7 +67,7 @@ private suspend fun startBrowser(
     } catch (e: CantRunException) {
         Notification(
             "Aspire",
-            AspireBundle.message("notification.unable.to.launch.browser"),
+            AspireRiderBundle.message("notification.unable.to.launch.browser"),
             e.message ?: "",
             NotificationType.WARNING
         )

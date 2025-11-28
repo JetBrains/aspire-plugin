@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions.dotnetProject
+package com.jetbrains.aspire.rider.sessions.dotnetProject
 
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.application.EDT

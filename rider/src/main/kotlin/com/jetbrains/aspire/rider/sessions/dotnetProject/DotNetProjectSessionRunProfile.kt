@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions.dotnetProject
+package com.jetbrains.aspire.rider.sessions.dotnetProject
 
 import com.intellij.execution.Executor
 import com.intellij.execution.process.ProcessListener
