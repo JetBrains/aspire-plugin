@@ -1,3 +1,3 @@
-package com.jetbrains.aspire.graph
+package com.jetbrains.aspire.diagram.graph
 
 internal data class ResourceGraphEdge(val source: ResourceGraphNode, val target: ResourceGraphNode)

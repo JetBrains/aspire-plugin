@@ -1,4 +1,4 @@
-<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+﻿<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin url="https://github.com/JetBrains/aspire-plugin" require-restart="true" allow-bundled-update="true">
     <id>me.rafaelldi.aspire</id>
     <name>Aspire</name>
@@ -10,6 +10,7 @@
 
     <content namespace="jetbrains">
         <module name="intellij.aspire.core" loading="required"/>
+        <module name="intellij.aspire.diagram"/>
     </content>
 
     <extensions defaultExtensionNs="com.intellij">

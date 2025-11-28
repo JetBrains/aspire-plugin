@@ -1,4 +1,4 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+﻿import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.Constants
@@ -59,6 +59,7 @@ dependencies {
         jetbrainsRuntime()
 
         pluginModule(implementation(project(":core")))
+        pluginModule(implementation(project(":diagram")))
 
         testFramework(TestFrameworkType.Bundled)
 

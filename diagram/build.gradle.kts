@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.serialization)
     id("org.jetbrains.intellij.platform.module")
 }
 
@@ -18,8 +17,6 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.serializationJson)
-
     intellijPlatform {
         rider(providers.gradleProperty("platformVersion")) {
             useInstaller = false
@@ -27,6 +24,8 @@ dependencies {
         }
         jetbrainsRuntime()
 
-        bundledPlugins(listOf("Docker", "com.intellij.database", "rider.intellij.plugin.appender"))
+        pluginModule(implementation(project(":core")))
+
+        bundledPlugins("com.intellij.diagram")
     }
 }
