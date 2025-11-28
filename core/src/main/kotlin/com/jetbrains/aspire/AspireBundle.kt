@@ -7,7 +7,7 @@ import org.jetbrains.annotations.PropertyKey
 import java.util.function.Supplier
 
 @NonNls
-private const val BUNDLE = "messages.AspireBundle"
+private const val BUNDLE = "messages.AspireCoreBundle"
 
 object AspireBundle {
     private val INSTANCE = DynamicBundle(AspireBundle::class.java, BUNDLE)
