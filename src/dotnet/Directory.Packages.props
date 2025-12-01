@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Grpc.AspNetCore" Version="2.71.0" />
-    <PackageVersion Include="JetBrains.Annotations" Version="2025.2.2" />
+    <PackageVersion Include="JetBrains.Annotations" Version="2025.2.4" />
     <PackageVersion Include="JetBrains.RdFramework" Version="2025.3.1" />
     <PackageVersion Include="Microsoft.Extensions.Resilience" Version="9.10.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
