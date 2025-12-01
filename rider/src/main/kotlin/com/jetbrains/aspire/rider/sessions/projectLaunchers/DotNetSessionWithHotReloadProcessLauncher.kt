@@ -17,7 +17,7 @@ import java.nio.file.Path
  * An implementation of the `SessionProcessLauncherExtension` interface that modifies created [DotNetExecutable]
  * to apply a Hot Reload mechanism.
  */
-abstract class DotNetExecutableWithHotReloadSessionProcessLauncher: DotNetExecutableSessionProcessLauncher() {
+abstract class DotNetSessionWithHotReloadProcessLauncher: DotNetSessionProcessLauncher() {
     protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
 
     override suspend fun modifyDotNetExecutable(

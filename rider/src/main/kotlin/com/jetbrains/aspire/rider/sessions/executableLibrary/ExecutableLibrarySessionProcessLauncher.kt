@@ -12,7 +12,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.generated.aspirePluginModel
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
-import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetExecutableSessionProcessLauncher
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProcessLauncher
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntities
@@ -27,7 +27,7 @@ import kotlin.io.path.Path
 /**
  * Launches a .NET library project that has an `Executable` launch profile from an Aspire session request.
  */
-internal class ExecutableLibrarySessionProcessLauncher : DotNetExecutableSessionProcessLauncher() {
+internal class ExecutableLibrarySessionProcessLauncher : DotNetSessionProcessLauncher() {
     companion object {
         private val LOG = logger<ExecutableLibrarySessionProcessLauncher>()
 

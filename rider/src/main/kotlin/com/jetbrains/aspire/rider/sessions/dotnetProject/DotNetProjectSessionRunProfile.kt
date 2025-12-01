@@ -5,7 +5,7 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
-import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetExecutableSessionRunProfileState
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionRunProfileState
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
@@ -22,7 +22,7 @@ internal class DotNetProjectSessionRunProfile(
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment
-    ) = DotNetExecutableSessionRunProfileState(
+    ) = DotNetSessionRunProfileState(
         sessionId,
         dotnetExecutable,
         dotnetRuntime,

@@ -8,7 +8,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
-import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetExecutableWithHotReloadSessionProcessLauncher
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
@@ -16,7 +16,7 @@ import java.nio.file.Path
 /**
  * Launches a regular .NET project from an Aspire session request.
  */
-internal class DotNetProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessionProcessLauncher() {
+internal class DotNetProjectSessionProcessLauncher : DotNetSessionWithHotReloadProcessLauncher() {
     companion object {
         private val LOG = logger<DotNetProjectSessionProcessLauncher>()
     }

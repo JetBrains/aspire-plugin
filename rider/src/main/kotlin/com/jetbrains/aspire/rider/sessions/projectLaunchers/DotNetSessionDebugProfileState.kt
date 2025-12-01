@@ -26,7 +26,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
  * The created [DebuggerWorkerProcessHandler] will be connected to the [sessionProcessLifetime],
  * so that the debugger worker process will be killed on the lifetime termination.
  */
-open class DotNetExecutableSessionDebugProfileState(
+open class DotNetSessionDebugProfileState(
     private val sessionId: String,
     dotnetExecutable: DotNetExecutable,
     dotnetRuntime: DotNetCoreRuntime,
@@ -40,7 +40,7 @@ open class DotNetExecutableSessionDebugProfileState(
     dotnetRuntime.cliExePath
 ) {
     companion object {
-        private val LOG = logger<DotNetExecutableSessionDebugProfileState>()
+        private val LOG = logger<DotNetSessionDebugProfileState>()
     }
 
     override suspend fun createWorkerRunInfo(

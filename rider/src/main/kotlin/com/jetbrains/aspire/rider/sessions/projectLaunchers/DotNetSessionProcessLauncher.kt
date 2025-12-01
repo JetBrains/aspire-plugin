@@ -37,9 +37,9 @@ import kotlin.io.path.Path
  * An implementation of the [SessionProcessLauncherExtension] interface that creates a [DotNetExecutable]
  * from the [CreateSessionRequest] and uses it to create Run/Debug profiles.
  */
-abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherExtension {
+abstract class DotNetSessionProcessLauncher : SessionProcessLauncherExtension {
     companion object {
-        private val LOG = logger<DotNetExecutableSessionProcessLauncher>()
+        private val LOG = logger<DotNetSessionProcessLauncher>()
 
         private const val OTEL_EXPORTER_OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
     }
