@@ -14,7 +14,7 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
-import com.jetbrains.aspire.AspireBundle
+import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.dashboard.AspireResource
@@ -150,7 +150,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
     private fun Panel.addEndpoints(resourceData: AspireResource) {
         if (resourceData.urls.isNotEmpty()) {
             row {
-                label(AspireBundle.message("service.tab.dashboard.endpoints")).bold()
+                label(AspireCoreBundle.message("service.tab.dashboard.endpoints")).bold()
             }.bottomGap(BottomGap.SMALL)
             resourceData.urls
                 .sortedBy { it.sortOrder }
@@ -173,38 +173,38 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
 
     private fun Panel.addProperties(resourceData: AspireResource) {
         row {
-            label(AspireBundle.message("service.tab.dashboard.properties")).bold()
+            label(AspireCoreBundle.message("service.tab.dashboard.properties")).bold()
         }.bottomGap(BottomGap.SMALL)
         with(resourceData) {
             state?.let {
-                row(AspireBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
+                row(AspireCoreBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
             }
             healthStatus?.let {
-                row(AspireBundle.message("service.tab.dashboard.properties.health.status")) { copyableLabel(it.name) }
+                row(AspireCoreBundle.message("service.tab.dashboard.properties.health.status")) { copyableLabel(it.name) }
             }
             createdAt?.let {
-                row(AspireBundle.message("service.tab.dashboard.properties.creation.time")) { copyableLabel(it.toString()) }
+                row(AspireCoreBundle.message("service.tab.dashboard.properties.creation.time")) { copyableLabel(it.toString()) }
             }
             startedAt?.let {
-                row(AspireBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }
+                row(AspireCoreBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }
             }
             stoppedAt?.let {
-                row(AspireBundle.message("service.tab.dashboard.properties.stop.time")) { copyableLabel(it.toString()) }
+                row(AspireCoreBundle.message("service.tab.dashboard.properties.stop.time")) { copyableLabel(it.toString()) }
             }
-            intPropertyRow(AspireBundle.message("service.tab.dashboard.properties.pid"), resourceData.pid)
-            intPropertyRow(AspireBundle.message("service.tab.dashboard.properties.exit.code"), resourceData.exitCode)
-            pathPropertyRow(AspireBundle.message("service.tab.dashboard.properties.project"), projectPath)
-            pathPropertyRow(AspireBundle.message("service.tab.dashboard.properties.executable"), executablePath)
-            pathPropertyRow(AspireBundle.message("service.tab.dashboard.properties.working.dir"), executableWorkDir)
-            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.args"), args)
-            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.container.image"), containerImage)
-            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.container.id"), containerId)
-            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.container.ports"), containerPorts)
-            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.container.command"), containerCommand)
-            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.container.args"), containerArgs)
-            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.connection.string"), connectionString)
-            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.source"), source)
-            stringPropertyRow(AspireBundle.message("service.tab.dashboard.properties.value"), value)
+            intPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.pid"), resourceData.pid)
+            intPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.exit.code"), resourceData.exitCode)
+            pathPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.project"), projectPath)
+            pathPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.executable"), executablePath)
+            pathPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.working.dir"), executableWorkDir)
+            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.args"), args)
+            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.image"), containerImage)
+            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.id"), containerId)
+            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.ports"), containerPorts)
+            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.command"), containerCommand)
+            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.args"), containerArgs)
+            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.connection.string"), connectionString)
+            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.source"), source)
+            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.value"), value)
             separator()
         }
     }
@@ -212,7 +212,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
     private fun Panel.addVolumes(resourceData: AspireResource) {
         if (resourceData.volumes.isNotEmpty()) {
             row {
-                label(AspireBundle.message("service.tab.dashboard.volumes")).bold()
+                label(AspireCoreBundle.message("service.tab.dashboard.volumes")).bold()
             }.bottomGap(BottomGap.SMALL)
             resourceData.volumes
                 .sortedBy { it.source }
@@ -225,7 +225,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
                             .apply { if (volume.isReadOnly) gap(RightGap.SMALL) }
 
                         if (volume.isReadOnly) {
-                            copyableLabel("(${AspireBundle.message("service.tab.dashboard.volumes.readonly")})")
+                            copyableLabel("(${AspireCoreBundle.message("service.tab.dashboard.volumes.readonly")})")
                         }
                     }
                 }
@@ -237,7 +237,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         val showEnvironment = AspireSettings.getInstance().showEnvironmentVariables
         if (resourceData.environment.isNotEmpty()) {
             row {
-                label(AspireBundle.message("service.tab.dashboard.environment")).bold()
+                label(AspireCoreBundle.message("service.tab.dashboard.environment")).bold()
             }.bottomGap(BottomGap.SMALL)
             resourceData.environment.forEach { variable ->
                 val valueText = if (showEnvironment) (variable.value ?: "-") else "*****"

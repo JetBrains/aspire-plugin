@@ -8,7 +8,7 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.application
-import com.jetbrains.aspire.AspireBundle
+import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.util.decodeAnsiCommandsToString
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -41,8 +41,8 @@ private fun containsStoppedContainerRuntimeWarning(text: String) =
 private fun showNotificationAboutContainerRuntime(project: Project) {
     Notification(
         "Aspire",
-        AspireBundle.message("notification.unable.to.find.running.container.runtime"),
-        AspireBundle.message("notification.ensure.that.container.runtime.is.running"),
+        AspireCoreBundle.message("notification.unable.to.find.running.container.runtime"),
+        AspireCoreBundle.message("notification.ensure.that.container.runtime.is.running"),
         NotificationType.WARNING
     )
         .notify(project)

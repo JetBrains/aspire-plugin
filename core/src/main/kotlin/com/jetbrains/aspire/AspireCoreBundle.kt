@@ -9,8 +9,8 @@ import java.util.function.Supplier
 @NonNls
 private const val BUNDLE = "messages.AspireCoreBundle"
 
-object AspireBundle {
-    private val INSTANCE = DynamicBundle(AspireBundle::class.java, BUNDLE)
+object AspireCoreBundle {
+    private val INSTANCE = DynamicBundle(AspireCoreBundle::class.java, BUNDLE)
 
     @JvmStatic
     fun message(@PropertyKey(resourceBundle = BUNDLE) key: String, vararg params: Any): @Nls String =
