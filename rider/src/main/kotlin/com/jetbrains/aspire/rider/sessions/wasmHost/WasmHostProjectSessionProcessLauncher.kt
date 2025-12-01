@@ -12,7 +12,7 @@ import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.aspire.sessions.findRunnableProjectByPath
-import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetExecutableWithHotReloadSessionProcessLauncher
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
 import com.jetbrains.rider.nuget.PackageVersionResolution
 import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
 import com.jetbrains.rider.runtime.DotNetExecutable
@@ -23,7 +23,7 @@ import kotlin.io.path.Path
 /**
  * Launches a Blazor WASM host project from an Aspire session request.
  */
-internal class WasmHostProjectSessionProcessLauncher : DotNetExecutableWithHotReloadSessionProcessLauncher() {
+internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloadProcessLauncher() {
     companion object {
         private const val DEV_SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.DevServer"
         private const val SERVER_NUGET = "Microsoft.AspNetCore.Components.WebAssembly.Server"

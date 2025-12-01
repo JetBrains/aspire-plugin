@@ -10,7 +10,7 @@ import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetExecutableSessionDebugProfileState
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionDebugProfileState
 import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentHost
@@ -30,7 +30,7 @@ internal class WasmHostProjectSessionDebugProfileState(
     private val browserSettings: StartBrowserSettings?,
     sessionProcessEventListener: ProcessListener,
     private val sessionProcessLifetime: Lifetime
-) : DotNetExecutableSessionDebugProfileState(
+) : DotNetSessionDebugProfileState(
     sessionId,
     dotnetExecutable,
     dotnetRuntime,

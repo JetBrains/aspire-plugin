@@ -28,7 +28,7 @@ import kotlin.io.path.Path
  * The created [TerminalProcessHandler] will be connected to the [sessionProcessLifetime],
  * so that the process will be killed on the lifetime termination.
  */
-class DotNetExecutableSessionRunProfileState(
+class DotNetSessionRunProfileState(
     private val sessionId: String,
     private val dotnetExecutable: DotNetExecutable,
     private val dotnetRuntime: DotNetCoreRuntime,
@@ -37,7 +37,7 @@ class DotNetExecutableSessionRunProfileState(
     private val sessionProcessLifetime: Lifetime
 ) : RunProfileState {
     companion object {
-        private val LOG = logger<DotNetExecutableSessionRunProfileState>()
+        private val LOG = logger<DotNetSessionRunProfileState>()
     }
 
     override fun execute(

@@ -4,7 +4,7 @@ import com.intellij.execution.Executor
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetExecutableSessionDebugProfileState
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionDebugProfileState
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -22,7 +22,7 @@ internal class ExecutableLibrarySessionDebugProfile(
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment
-    ) = DotNetExecutableSessionDebugProfileState(
+    ) = DotNetSessionDebugProfileState(
         sessionId,
         dotnetExecutable,
         dotnetRuntime,
