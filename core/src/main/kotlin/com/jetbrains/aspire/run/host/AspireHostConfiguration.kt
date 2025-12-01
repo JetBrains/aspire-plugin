@@ -12,10 +12,10 @@ import org.jdom.Element
 class AspireHostConfiguration(
     project: Project,
     factory: ConfigurationFactory,
-    override val configurationName: String,
+    name: String,
     override val parameters: AspireHostConfigurationParameters
 ) : RiderAsyncRunConfiguration(
-    configurationName,
+    name,
     project,
     factory,
     { AspireHostConfigurationSettingsEditor(it) },

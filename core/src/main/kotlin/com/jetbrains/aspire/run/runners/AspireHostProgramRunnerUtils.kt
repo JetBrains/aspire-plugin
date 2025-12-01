@@ -2,6 +2,7 @@ package com.jetbrains.aspire.run.runners
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.ExecutionResult
+import com.intellij.execution.configurations.RunConfigurationBase
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -54,6 +55,8 @@ private suspend fun setUpAspireHostModel(
     val aspireRunConfiguration = (configuration as? AspireRunConfiguration)
             ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
 
+    val runConfigurationName = (configuration as? RunConfigurationBase<*>)?.name ?: "Unknown"
+
     val dcpInstancePrefix = requireNotNull(state.getDcpInstancePrefix())
     val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
     val resourceServiceApiKey = state.getResourceServiceApiKey()
@@ -71,7 +74,7 @@ private suspend fun setUpAspireHostModel(
 
     val aspireHostConfig = AspireHostModelConfig(
         dcpInstancePrefix,
-        aspireRunConfiguration.configurationName,
+        runConfigurationName,
         aspireHostProjectPath.absolutePathString(),
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
