@@ -11,10 +11,10 @@ import org.jdom.Element
 internal class AspireFileConfiguration(
     project: Project,
     factory: ConfigurationFactory,
-    override val configurationName: String,
+    name: String,
     override val parameters: AspireFileConfigurationParameters
 ) : RiderAsyncRunConfiguration(
-    configurationName,
+    name,
     project,
     factory,
     { AspireFileConfigurationSettingsEditor(it) },
