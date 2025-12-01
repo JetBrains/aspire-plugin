@@ -10,7 +10,6 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.aspire.generated.CreateSessionRequest
-import com.jetbrains.aspire.sessions.projectLaunchers.SessionProcessLauncherExtension
 
 /**
  * Service responsible for launching session processes with different modes such as debug or run.

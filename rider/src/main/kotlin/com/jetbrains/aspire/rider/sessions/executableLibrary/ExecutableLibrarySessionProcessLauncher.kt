@@ -12,7 +12,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.generated.aspirePluginModel
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
-import com.jetbrains.aspire.sessions.projectLaunchers.DotNetExecutableSessionProcessLauncher
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetExecutableSessionProcessLauncher
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntities

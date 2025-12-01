@@ -1,16 +1,16 @@
-package com.jetbrains.aspire.sessions.projectLaunchers
+package com.jetbrains.aspire.rider.sessions.projectLaunchers
 
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.jetbrains.rider.debugger.DotNetProgramRunner
 
-class ProjectSessionProgramRunner : DotNetProgramRunner() {
+class DotNetSessionProgramRunner : DotNetProgramRunner() {
     companion object {
-        const val ID = "aspire.project.session.runner"
+        const val ID = "aspire.dotnet.session.runner"
     }
 
     override fun getRunnerId() = ID
 
     override fun canRun(executorId: String, runConfiguration: RunProfile) =
-        executorId == DefaultRunExecutor.EXECUTOR_ID && runConfiguration is ProjectSessionProfile && !runConfiguration.isDebugMode
+        executorId == DefaultRunExecutor.EXECUTOR_ID && runConfiguration is DotNetSessionProfile && !runConfiguration.isDebugMode
 }

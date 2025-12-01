@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.sessions.projectLaunchers
+package com.jetbrains.aspire.rider.sessions.projectLaunchers
 
 import com.intellij.execution.RunManager
 import com.intellij.execution.configurations.ConfigurationTypeUtil
@@ -22,6 +22,7 @@ import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.run.AspireConfigurationType
+import com.jetbrains.aspire.sessions.SessionProcessLauncherExtension
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
@@ -224,7 +225,7 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
     }
 
     protected open fun ExecutionEnvironmentBuilder.modifyExecutionEnvironmentForRun(): ExecutionEnvironmentBuilder {
-        val defaultRunner = ProgramRunner.findRunnerById(ProjectSessionProgramRunner.ID)
+        val defaultRunner = ProgramRunner.findRunnerById(DotNetSessionProgramRunner.ID)
         return if (defaultRunner != null) {
             this.runner(defaultRunner)
         } else {
@@ -233,7 +234,7 @@ abstract class DotNetExecutableSessionProcessLauncher : SessionProcessLauncherEx
     }
 
     protected open fun ExecutionEnvironmentBuilder.modifyExecutionEnvironmentForDebug(): ExecutionEnvironmentBuilder {
-        val defaultRunner = ProgramRunner.findRunnerById(ProjectSessionDebugProgramRunner.ID)
+        val defaultRunner = ProgramRunner.findRunnerById(DotNetSessionDebugProgramRunner.ID)
         return if (defaultRunner != null) {
             this.runner(defaultRunner)
         } else {

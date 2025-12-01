@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package com.jetbrains.aspire.sessions.projectLaunchers
+package com.jetbrains.aspire.rider.sessions.projectLaunchers
 
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.ProcessListener

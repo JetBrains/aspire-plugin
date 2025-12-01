@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions.projectLaunchers
+package com.jetbrains.aspire.rider.sessions.projectLaunchers
 
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.project.Project

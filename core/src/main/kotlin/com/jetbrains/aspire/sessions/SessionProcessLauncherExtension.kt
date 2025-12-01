@@ -1,10 +1,10 @@
-package com.jetbrains.aspire.sessions.projectLaunchers
+package com.jetbrains.aspire.sessions
 
 import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.generated.CreateSessionRequest
+import com.jetbrains.rd.util.lifetime.Lifetime
 
 interface SessionProcessLauncherExtension {
     companion object {
