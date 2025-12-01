@@ -23,7 +23,7 @@ import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonS
 import kotlin.collections.forEach
 import kotlin.collections.iterator
 
-internal class AspireConfigurationType : ConfigurationTypeBase(
+class AspireConfigurationType : ConfigurationTypeBase(
     ID,
     "Aspire",
     "Aspire AppHost configuration",
@@ -158,7 +158,7 @@ internal class AspireConfigurationType : ConfigurationTypeBase(
             isFocusToolWindowBeforeRun = false
         }
         val projectOutput = runnableProject.projectOutputs.firstOrNull()
-        val launchProfile = LaunchSettingsJsonService.Companion
+        val launchProfile = LaunchSettingsJsonService
             .getInstance(project)
             .getProjectLaunchProfileByName(runnableProject, profile)
         (settings.configuration as? AspireHostConfiguration)?.updateConfigurationParameters(

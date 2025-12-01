@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.run.AspireConfigurationType
 import com.jetbrains.rider.run.configurations.DotNetConfigurationFactoryBase
 
-internal class AspireHostConfigurationFactory(type: AspireConfigurationType) :
+class AspireHostConfigurationFactory(type: AspireConfigurationType) :
     DotNetConfigurationFactoryBase<AspireHostConfiguration>(type) {
     override fun getId() = "Aspire Host"
 

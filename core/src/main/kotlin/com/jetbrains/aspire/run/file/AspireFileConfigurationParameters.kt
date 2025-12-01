@@ -19,7 +19,7 @@ import kotlin.io.path.isDirectory
 /**
  * Parameters for file-based Aspire run configuration.
  */
-internal class AspireFileConfigurationParameters(
+class AspireFileConfigurationParameters(
     private val project: Project,
     var filePath: String,
     var profileName: String,
