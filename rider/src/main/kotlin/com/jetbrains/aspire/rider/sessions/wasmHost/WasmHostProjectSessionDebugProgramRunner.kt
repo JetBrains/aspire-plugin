@@ -21,7 +21,7 @@ import com.jetbrains.rider.run.IDotNetDebugProfileState
 
 internal class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
     companion object {
-        const val ID = "aspire.wasm.project.session.debug.runner"
+        const val ID = "aspire.dotnet.wasm.session.debug.runner"
     }
 
     override fun getRunnerId() = ID

@@ -23,10 +23,6 @@
 
         <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostProgramRunner"/>
         <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostDebugProgramRunner"/>
-        <programRunner
-                implementation="com.jetbrains.aspire.rider.sessions.projectLaunchers.ProjectSessionProgramRunner"/>
-        <programRunner
-                implementation="com.jetbrains.aspire.rider.sessions.projectLaunchers.ProjectSessionDebugProgramRunner"/>
 
         <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
 
