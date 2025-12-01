@@ -7,7 +7,7 @@
 
     <extensionPoints>
         <extensionPoint qualifiedName="com.jetbrains.aspire.sessionProcessLauncherExtension"
-                        interface="com.jetbrains.aspire.sessions.projectLaunchers.SessionProcessLauncherExtension"
+                        interface="com.jetbrains.aspire.sessions.SessionProcessLauncherExtension"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
@@ -24,9 +24,9 @@
         <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostProgramRunner"/>
         <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostDebugProgramRunner"/>
         <programRunner
-                implementation="com.jetbrains.aspire.sessions.projectLaunchers.ProjectSessionProgramRunner"/>
+                implementation="com.jetbrains.aspire.rider.sessions.projectLaunchers.ProjectSessionProgramRunner"/>
         <programRunner
-                implementation="com.jetbrains.aspire.sessions.projectLaunchers.ProjectSessionDebugProgramRunner"/>
+                implementation="com.jetbrains.aspire.rider.sessions.projectLaunchers.ProjectSessionDebugProgramRunner"/>
 
         <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
 

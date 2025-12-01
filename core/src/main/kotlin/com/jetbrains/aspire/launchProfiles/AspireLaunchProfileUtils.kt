@@ -20,11 +20,14 @@ internal fun getArguments(profile: LaunchSettingsJson.Profile?, projectOutput: P
     }
 }
 
-internal fun getWorkingDirectory(profile: LaunchSettingsJson.Profile?, projectOutput: ProjectOutput?): String {
+fun getWorkingDirectory(
+    profile: LaunchSettingsJson.Profile?,
+    projectOutput: ProjectOutput?
+): String {
     return profile?.workingDirectory ?: projectOutput?.workingDirectory ?: ""
 }
 
-internal fun getWorkingDirectory(
+fun getWorkingDirectory(
     profile: LaunchSettingsJson.Profile?,
     projectProperties: ProjectRunProperties?
 ): String {

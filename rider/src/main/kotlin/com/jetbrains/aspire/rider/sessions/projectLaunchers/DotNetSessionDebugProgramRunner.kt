@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions.projectLaunchers
+package com.jetbrains.aspire.rider.sessions.projectLaunchers
 
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.configurations.RunProfileState
@@ -8,15 +8,15 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.jetbrains.rider.debugger.DotNetDebugRunner
 import com.jetbrains.rider.run.configurations.RequiresPreparationRunProfileState
 
-class ProjectSessionDebugProgramRunner : DotNetDebugRunner() {
+class DotNetSessionDebugProgramRunner : DotNetDebugRunner() {
     companion object {
-        const val ID = "aspire.project.session.debug.runner"
+        const val ID = "aspire.dotnet.session.debug.runner"
     }
 
     override fun getRunnerId() = ID
 
     override fun canRun(executorId: String, runConfiguration: RunProfile) =
-        executorId == DefaultDebugExecutor.EXECUTOR_ID && runConfiguration is ProjectSessionProfile && runConfiguration.isDebugMode
+        executorId == DefaultDebugExecutor.EXECUTOR_ID && runConfiguration is DotNetSessionProfile && runConfiguration.isDebugMode
 
     override suspend fun executeAsync(
         environment: ExecutionEnvironment,

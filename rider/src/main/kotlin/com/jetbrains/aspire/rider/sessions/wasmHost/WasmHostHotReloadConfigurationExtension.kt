@@ -4,7 +4,7 @@ import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.sessions.projectLaunchers.AspireProjectHotReloadConfigurationExtension
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.AspireProjectHotReloadConfigurationExtension
 import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentManager
 import com.jetbrains.rider.hotReload.HotReloadHost
 import com.jetbrains.rider.run.configurations.HotReloadEnvironmentBuilder
