@@ -8,6 +8,10 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <programRunner
+                implementation="com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProgramRunner"/>
+        <programRunner
+                implementation="com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionDebugProgramRunner"/>
+        <programRunner
                 implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionDebugProgramRunner"/>
 
         <rd.solutionExtListener endpoint="IDE Frontend"
