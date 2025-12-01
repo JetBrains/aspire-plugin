@@ -4,7 +4,7 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.AspireBundle
+import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.rider.run.configurations.ProtocolLifetimedSettingsEditor
 import com.jetbrains.rider.run.configurations.controls.ControlViewBuilder
 import com.jetbrains.rider.run.configurations.controls.EnvironmentVariablesEditor
@@ -25,32 +25,32 @@ internal class AspireFileConfigurationSettingsEditor(private val project: Projec
             project,
             lifetime,
             PathSelector(
-                AspireBundle.message("run.editor.file"),
+                AspireCoreBundle.message("run.editor.file"),
                 "File_path",
                 FileChooserDescriptorFactory.singleFile().withExtensionFilter("cs"),
                 lifetime
             ),
             ProgramParametersEditor(
-                AspireBundle.message("run.editor.arguments"),
+                AspireCoreBundle.message("run.editor.arguments"),
                 "Program_arguments",
                 lifetime
             ),
             PathSelector(
-                AspireBundle.message("run.editor.working.directory"),
+                AspireCoreBundle.message("run.editor.working.directory"),
                 "Working_directory",
                 FileChooserDescriptorFactory.singleDir(),
                 lifetime
             ),
             EnvironmentVariablesEditor(
-                AspireBundle.message("run.editor.environment.variables"),
+                AspireCoreBundle.message("run.editor.environment.variables"),
                 "Environment_variables"
             ),
             FlagEditor(
-                AspireBundle.message("run.editor.podman.runtime"),
+                AspireCoreBundle.message("run.editor.podman.runtime"),
                 "Use_podman_runtime"
             ),
-            ViewSeparator(AspireBundle.message("run.editor.open.browser")),
-            TextEditor(AspireBundle.message("run.editor.url"), "URL", lifetime),
+            ViewSeparator(AspireCoreBundle.message("run.editor.open.browser")),
+            TextEditor(AspireCoreBundle.message("run.editor.url"), "URL", lifetime),
             BrowserSettingsEditor("")
         )
         return ControlViewBuilder(lifetime, project, "AspireFile").build(viewModel)

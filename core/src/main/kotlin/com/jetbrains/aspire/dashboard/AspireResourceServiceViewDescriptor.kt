@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
-import com.jetbrains.aspire.AspireBundle
+import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.dashboard.components.ResourceConsolePanel
 import com.jetbrains.aspire.dashboard.components.ResourceDashboardPanel
 import com.jetbrains.aspire.settings.AspireSettings
@@ -21,8 +21,8 @@ class AspireResourceServiceViewDescriptor(private val aspireResource: AspireReso
     private val resourceActions = ActionManager.getInstance().getAction("Aspire.Resource") as ActionGroup
 
     private val tabs = JBTabbedPane().apply {
-        addTab(AspireBundle.message("service.tab.dashboard"), ResourceDashboardPanel(aspireResource))
-        addTab(AspireBundle.message("service.tab.console"), ResourceConsolePanel(aspireResource))
+        addTab(AspireCoreBundle.message("service.tab.dashboard"), ResourceDashboardPanel(aspireResource))
+        addTab(AspireCoreBundle.message("service.tab.console"), ResourceConsolePanel(aspireResource))
         if (AspireSettings.getInstance().openConsoleView) {
             selectedIndex = 1
         }

@@ -14,7 +14,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.ide.progress.withBackgroundProgress
-import com.jetbrains.aspire.AspireBundle
+import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -47,7 +47,7 @@ class ManifestService(private val project: Project) {
     suspend fun generateManifest(hostProjectPath: Path) {
         LOG.info("Generating Aspire manifest")
 
-        withBackgroundProgress(project, AspireBundle.message("progress.generating.aspire.manifest")) {
+        withBackgroundProgress(project, AspireCoreBundle.message("progress.generating.aspire.manifest")) {
             val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             if (runtime == null) {
                 LOG.warn("Unable to find .NET runtime")
@@ -82,7 +82,7 @@ class ManifestService(private val project: Project) {
                 withContext(Dispatchers.EDT) {
                     Notification(
                         "Aspire",
-                        AspireBundle.message("notification.manifest.unable.to.generate"),
+                        AspireCoreBundle.message("notification.manifest.unable.to.generate"),
                         output.stderr,
                         NotificationType.WARNING
                     )
