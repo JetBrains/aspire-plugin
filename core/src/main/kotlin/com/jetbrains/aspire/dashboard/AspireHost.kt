@@ -23,7 +23,6 @@ import com.jetbrains.aspire.run.AspireRunConfiguration
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.sessions.SessionManager.CreateSessionCommand
 import com.jetbrains.aspire.sessions.SessionManager.DeleteSessionCommand
-import com.jetbrains.aspire.sessions.projectLaunchers.ProjectSessionProfile
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
@@ -75,7 +74,7 @@ class AspireHost(
                     if (hostProjectPath != projectFilePath) return
 
                     hostStarted(handler)
-                } else if (profile is ProjectSessionProfile) {
+                } else if (profile is SessionProfile) {
                     val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
                     if (hostProjectPath != aspireHostProjectPath) return
 
@@ -95,7 +94,7 @@ class AspireHost(
                     if (hostProjectPath != projectFilePath) return
 
                     hostStopped()
-                } else if (profile is ProjectSessionProfile) {
+                } else if (profile is SessionProfile) {
                     val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
                     if (hostProjectPath != aspireHostProjectPath) return
 
@@ -318,7 +317,7 @@ class AspireHost(
         resource.setProfileData(profileData)
     }
 
-    private fun setProfileDataForResource(profile: ProjectSessionProfile) {
+    private fun setProfileDataForResource(profile: SessionProfile) {
         val profileData = AspireProjectResourceProfileData(profile.projectPath, profile.isDebugMode)
 
         resourceProfileData[profile.sessionId] = profileData
@@ -328,7 +327,7 @@ class AspireHost(
             .forEach { it.setProfileData(profileData) }
     }
 
-    private fun removeProfileData(profile: ProjectSessionProfile) {
+    private fun removeProfileData(profile: SessionProfile) {
         resourceProfileData.remove(profile.sessionId)
     }
 

@@ -8,7 +8,7 @@ import com.jetbrains.rider.run.configurations.IAutoSelectableRunConfiguration
 import com.jetbrains.rider.run.configurations.RiderAsyncRunConfiguration
 import org.jdom.Element
 
-internal class AspireFileConfiguration(
+class AspireFileConfiguration(
     project: Project,
     factory: ConfigurationFactory,
     name: String,

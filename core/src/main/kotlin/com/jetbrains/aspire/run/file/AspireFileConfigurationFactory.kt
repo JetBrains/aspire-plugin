@@ -7,7 +7,7 @@ import com.jetbrains.aspire.run.AspireConfigurationType
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.rider.run.configurations.DotNetConfigurationFactoryBase
 
-internal class AspireFileConfigurationFactory(type: AspireConfigurationType) :
+class AspireFileConfigurationFactory(type: AspireConfigurationType) :
     DotNetConfigurationFactoryBase<AspireHostConfiguration>(type) {
     override fun getId() = "Aspire File"
 

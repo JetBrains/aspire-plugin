@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.xdebugger.XDebugSession
 import com.intellij.xdebugger.XDebuggerManager
 import com.jetbrains.aspire.dashboard.AspireResource
-import com.jetbrains.aspire.sessions.projectLaunchers.ProjectSessionProfile
+import com.jetbrains.aspire.sessions.SessionProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,7 +53,7 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
         val allSessions = XDebuggerManager.getInstance(project).debugSessions
         for (debugSession in allSessions) {
             val sessionRunProfile = debugSession.runProfile
-            if (sessionRunProfile !is ProjectSessionProfile) continue
+            if (sessionRunProfile !is SessionProfile) continue
             if (sessionRunProfile.projectPath == projectPath) return debugSession
         }
 
