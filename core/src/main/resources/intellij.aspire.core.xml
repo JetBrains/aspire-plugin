@@ -6,8 +6,8 @@
     <resource-bundle>messages.AspireCoreBundle</resource-bundle>
 
     <extensionPoints>
-        <extensionPoint qualifiedName="com.jetbrains.aspire.sessionProcessLauncherExtension"
-                        interface="com.jetbrains.aspire.sessions.SessionProcessLauncherExtension"
+        <extensionPoint qualifiedName="com.jetbrains.aspire.dotnetSessionProcessLauncherExtension"
+                        interface="com.jetbrains.aspire.sessions.DotNetSessionProcessLauncherExtension"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
