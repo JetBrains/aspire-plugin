@@ -6,6 +6,9 @@
     <resource-bundle>messages.AspireCoreBundle</resource-bundle>
 
     <extensionPoints>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.startSessionRequestHandler"
+                        interface="com.jetbrains.aspire.sessions.StartSessionRequestHandler"
+                        dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.dotnetSessionProcessLauncherExtension"
                         interface="com.jetbrains.aspire.sessions.DotNetSessionProcessLauncherExtension"
                         dynamic="true"/>
@@ -39,7 +42,8 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
-       <resourceIconProviderExtension
+        <startSessionRequestHandler implementation="com.jetbrains.aspire.sessions.DotNetStartSessionRequestHandler"/>
+        <resourceIconProviderExtension
                 implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
     </extensions>
 

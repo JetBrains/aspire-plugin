@@ -6,8 +6,6 @@ import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessOutputType
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
@@ -28,30 +26,26 @@ import kotlinx.coroutines.channels.Channel
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
-/**
- * Service responsible for launching session processes with different modes such as debug or run.
- * The class ensures that the appropriate process launcher is used based on the session request.
- */
-@Service(Service.Level.PROJECT)
-internal class SessionProcessLauncher(private val project: Project) {
+internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
     companion object {
-        fun getInstance(project: Project) = project.service<SessionProcessLauncher>()
-
-        private val LOG = logger<SessionProcessLauncher>()
+        private val LOG = logger<DotNetStartSessionRequestHandler>()
     }
 
-    suspend fun handleStartSessionRequests(requests: List<StartSessionRequest>) {
+    override fun isApplicable(request: StartSessionRequest) =
+        request.launchConfiguration is DotNetSessionLaunchConfiguration
+
+    override suspend fun handleRequests(requests: List<StartSessionRequest>, project: Project) {
         LOG.trace { "Received ${requests.size} start session request(s)" }
 
         val projectPaths = requests.map { it.launchConfiguration.projectPath }.distinct()
-        buildProjects(projectPaths)
+        buildProjects(projectPaths, project)
 
         requests.forEach {
-            handleStartSessionRequest(it)
+            handleStartSessionRequest(it, project)
         }
     }
 
-    private suspend fun buildProjects(projectPaths: List<Path>) {
+    private suspend fun buildProjects(projectPaths: List<Path>, project: Project) {
         if (projectPaths.isEmpty()) return
 
         val runnableProjects = mutableListOf<Path>()
@@ -84,7 +78,7 @@ internal class SessionProcessLauncher(private val project: Project) {
         }
     }
 
-    private fun handleStartSessionRequest(request: StartSessionRequest) {
+    private fun handleStartSessionRequest(request: StartSessionRequest, project: Project) {
         LOG.info("Creating session ${request.sessionId}")
 
         logLaunchConfiguration(request.launchConfiguration)
@@ -102,7 +96,8 @@ internal class SessionProcessLauncher(private val project: Project) {
                 request.launchConfiguration,
                 sessionProcessListener,
                 sessionLifetime,
-                request.aspireHostRunConfigName
+                request.aspireHostRunConfigName,
+                project
             )
         }
     }
@@ -180,6 +175,7 @@ internal class SessionProcessLauncher(private val project: Project) {
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostRunConfigName: String?,
+        project: Project,
     ) {
         LOG.info("Starting a session process for the project ${launchConfiguration.projectPath}")
 
@@ -203,7 +199,8 @@ internal class SessionProcessLauncher(private val project: Project) {
                 launchConfiguration,
                 sessionProcessEventListener,
                 sessionProcessLifetime,
-                aspireHostRunConfigName
+                aspireHostRunConfigName,
+                project,
             )
         } else {
             launchRunProcess(
@@ -211,7 +208,8 @@ internal class SessionProcessLauncher(private val project: Project) {
                 launchConfiguration,
                 sessionProcessEventListener,
                 sessionProcessLifetime,
-                aspireHostRunConfigName
+                aspireHostRunConfigName,
+                project,
             )
         }
     }
@@ -221,9 +219,10 @@ internal class SessionProcessLauncher(private val project: Project) {
         launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        aspireHostRunConfigName: String?
+        aspireHostRunConfigName: String?,
+        project: Project
     ) {
-        val processLauncher = getSessionProcessLauncher(launchConfiguration.projectPath.absolutePathString())
+        val processLauncher = getSessionProcessLauncher(launchConfiguration.projectPath, project)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${launchConfiguration.projectPath}")
             return
@@ -244,9 +243,10 @@ internal class SessionProcessLauncher(private val project: Project) {
         launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        aspireHostRunConfigName: String?
+        aspireHostRunConfigName: String?,
+        project: Project
     ) {
-        val processLauncher = getSessionProcessLauncher(launchConfiguration.projectPath.absolutePathString())
+        val processLauncher = getSessionProcessLauncher(launchConfiguration.projectPath, project)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${launchConfiguration.projectPath}")
             return
@@ -262,9 +262,13 @@ internal class SessionProcessLauncher(private val project: Project) {
         )
     }
 
-    private suspend fun getSessionProcessLauncher(projectPath: String): DotNetSessionProcessLauncherExtension? {
+    private suspend fun getSessionProcessLauncher(
+        projectPath: Path,
+        project: Project
+    ): DotNetSessionProcessLauncherExtension? {
+        val pathString = projectPath.absolutePathString()
         for (launcher in DotNetSessionProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
-            if (launcher.isApplicable(projectPath, project))
+            if (launcher.isApplicable(pathString, project))
                 return launcher
         }
 
