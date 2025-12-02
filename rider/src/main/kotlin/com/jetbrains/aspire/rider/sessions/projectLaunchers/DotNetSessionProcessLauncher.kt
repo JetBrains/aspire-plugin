@@ -22,7 +22,7 @@ import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.run.AspireConfigurationType
-import com.jetbrains.aspire.sessions.SessionProcessLauncherExtension
+import com.jetbrains.aspire.sessions.DotNetSessionProcessLauncherExtension
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
@@ -34,10 +34,10 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 /**
- * An implementation of the [SessionProcessLauncherExtension] interface that creates a [DotNetExecutable]
+ * An implementation of the [DotNetSessionProcessLauncherExtension] interface that creates a [DotNetExecutable]
  * from the [CreateSessionRequest] and uses it to create Run/Debug profiles.
  */
-abstract class DotNetSessionProcessLauncher : SessionProcessLauncherExtension {
+abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtension {
     companion object {
         private val LOG = logger<DotNetSessionProcessLauncher>()
 

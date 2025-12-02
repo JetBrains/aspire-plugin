@@ -6,10 +6,10 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.rd.util.lifetime.Lifetime
 
-interface SessionProcessLauncherExtension {
+interface DotNetSessionProcessLauncherExtension {
     companion object {
         val EP_NAME =
-            ExtensionPointName<SessionProcessLauncherExtension>("com.jetbrains.aspire.sessionProcessLauncherExtension")
+            ExtensionPointName<DotNetSessionProcessLauncherExtension>("com.jetbrains.aspire.dotnetSessionProcessLauncherExtension")
     }
 
     val priority: Int

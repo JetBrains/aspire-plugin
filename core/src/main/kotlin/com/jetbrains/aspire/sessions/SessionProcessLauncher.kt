@@ -118,8 +118,8 @@ internal class SessionProcessLauncher(private val project: Project) {
         )
     }
 
-    private suspend fun getSessionProcessLauncher(projectPath: String): SessionProcessLauncherExtension? {
-        for (launcher in SessionProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
+    private suspend fun getSessionProcessLauncher(projectPath: String): DotNetSessionProcessLauncherExtension? {
+        for (launcher in DotNetSessionProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
             if (launcher.isApplicable(projectPath, project))
                 return launcher
         }
