@@ -198,7 +198,7 @@ class AspireHost(
             launchConfiguration,
             sessionEvents,
             aspireHostConfig.runConfigName,
-            aspireHostLifetime
+            aspireHostLifetime.createNested()
         )
 
         SessionManager.getInstance(project).submitRequest(request)
