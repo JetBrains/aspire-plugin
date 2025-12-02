@@ -47,7 +47,11 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
     override suspend fun handleRequests(requests: List<StartSessionRequest>, project: Project) {
         LOG.trace { "Received ${requests.size} start session request(s)" }
 
-        val projectPaths = requests.map { it.launchConfiguration.projectPath }.distinct()
+        val projectPaths = requests
+            .map { it.launchConfiguration }
+            .filterIsInstance<DotNetSessionLaunchConfiguration>()
+            .map { it.projectPath }
+            .distinct()
         buildProjects(projectPaths, project)
 
         requests.forEach {
@@ -83,7 +87,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
 
         if (nonRunnableProjects.isNotEmpty()) {
             LOG.trace { "Building ${nonRunnableProjects.size} non-runnable project(s): ${nonRunnableProjects.map { it.fileName }}" }
-            val buildService = DotNetBuildService.Companion.getInstance(project)
+            val buildService = DotNetBuildService.getInstance(project)
             buildService.buildProjects(nonRunnableProjects)
         }
     }
@@ -91,7 +95,13 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
     private fun handleStartSessionRequest(request: StartSessionRequest, project: Project) {
         LOG.info("Creating session ${request.sessionId}")
 
-        logLaunchConfiguration(request.launchConfiguration)
+        val launchConfiguration = request.launchConfiguration as? DotNetSessionLaunchConfiguration
+        if (launchConfiguration == null) {
+            LOG.warn("Launch configuration is not a DotNetSessionLaunchConfiguration: ${request.launchConfiguration::class.simpleName}")
+            return
+        }
+
+        logLaunchConfiguration(launchConfiguration)
 
         val sessionLifetime = request.sessionLifetime.lifetime
         sessionLifetime.launch {
@@ -103,7 +113,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
 
             launchSessionProcess(
                 request.sessionId,
-                request.launchConfiguration,
+                launchConfiguration,
                 sessionProcessListener,
                 sessionLifetime,
                 request.aspireHostRunConfigName,
@@ -277,7 +287,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         project: Project
     ): DotNetSessionProcessLauncherExtension? {
         val pathString = projectPath.absolutePathString()
-        for (launcher in DotNetSessionProcessLauncherExtension.Companion.EP_NAME.extensionList.sortedBy { it.priority }) {
+        for (launcher in DotNetSessionProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
             if (launcher.isApplicable(pathString, project))
                 return launcher
         }

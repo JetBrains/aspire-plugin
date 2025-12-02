@@ -8,7 +8,7 @@ interface SessionRequest
 
 data class StartSessionRequest(
     val sessionId: String,
-    val launchConfiguration: DotNetSessionLaunchConfiguration,
+    val launchConfiguration: SessionLaunchConfiguration,
     val sessionEvents: Channel<SessionEvent>,
     val aspireHostRunConfigName: String?,
     val sessionLifetime: LifetimeDefinition
