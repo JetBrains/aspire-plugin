@@ -9,10 +9,10 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.generated.aspirePluginModel
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProcessLauncher
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntities
@@ -63,15 +63,15 @@ internal class ExecutableLibrarySessionProcessLauncher : DotNetSessionProcessLau
     }
 
     override suspend fun getDotNetExecutable(
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = ExecutableLibraryExecutableFactory.getInstance(project)
-        val executable = factory.createExecutable(sessionModel)
+        val executable = factory.createExecutable(launchConfiguration)
         if (executable == null) {
-            LOG.warn("Unable to create library executable for project: ${sessionModel.projectPath}")
+            LOG.warn("Unable to create library executable for project: ${launchConfiguration.projectPath}")
             return null
         }
 

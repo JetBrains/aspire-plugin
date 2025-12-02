@@ -5,7 +5,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.generated.CreateSessionRequest
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.sessions.getExecutableParams
 import com.jetbrains.aspire.sessions.getLaunchProfile
 import com.jetbrains.aspire.sessions.mergeEnvironmentVariables
@@ -28,10 +28,10 @@ internal class ExecutableLibraryExecutableFactory(private val project: Project) 
         private val LOG = logger<ExecutableLibraryExecutableFactory>()
     }
 
-    suspend fun createExecutable(sessionModel: CreateSessionRequest): DotNetExecutable? {
-        val sessionProjectPath = Path(sessionModel.projectPath)
+    suspend fun createExecutable(launchConfiguration: DotNetSessionLaunchConfiguration): DotNetExecutable? {
+        val sessionProjectPath = launchConfiguration.projectPath
 
-        val launchProfile = getLaunchProfile(sessionModel, sessionProjectPath, project)
+        val launchProfile = getLaunchProfile(launchConfiguration, sessionProjectPath, project)
         if (launchProfile == null) {
             LOG.warn("Unable to find launch profile for session project $sessionProjectPath")
             return null
@@ -62,7 +62,7 @@ internal class ExecutableLibraryExecutableFactory(private val project: Project) 
             }
         }
 
-        val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile.environmentVariables)
+        val envs = mergeEnvironmentVariables(launchConfiguration.envs, launchProfile.environmentVariables)
 
         val targetFramework = MSBuildPropertyService.getInstance(project).getProjectTargetFramework(sessionProjectPath)
 

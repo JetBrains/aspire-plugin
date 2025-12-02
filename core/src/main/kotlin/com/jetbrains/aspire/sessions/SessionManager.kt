@@ -16,7 +16,6 @@ import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isAlive
 import com.jetbrains.rd.util.put
 import com.jetbrains.rd.util.threading.coroutines.launch
-import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.util.DotNetBuildService
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
@@ -33,7 +32,6 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.forEach
 import kotlin.collections.map
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**
@@ -88,7 +86,7 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
                 }
 
                 LOG.trace { "Processing batch of ${batch.size} command(s)" }
-                handleBatchCommands(batch)
+                handleBatchRequests(batch)
             }
         }
     }
@@ -97,22 +95,22 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
         requests.trySend(request)
     }
 
-    private suspend fun handleBatchCommands(batch: List<SessionRequest>) {
-        val createCommands = batch.filterIsInstance<StartSessionRequest>()
-        val deleteCommands = batch.filterIsInstance<StopSessionRequest>()
+    private suspend fun handleBatchRequests(batch: List<SessionRequest>) {
+        val startRequests = batch.filterIsInstance<StartSessionRequest>()
+        val stopRequests = batch.filterIsInstance<StopSessionRequest>()
 
-        if (createCommands.isNotEmpty()) {
-            LOG.trace { "Received ${createCommands.size} delete command(s)" }
-            val projectPaths = createCommands.map { Path(it.createSessionRequest.projectPath) }.distinct()
+        if (startRequests.isNotEmpty()) {
+            LOG.trace { "Received ${startRequests.size} start request(s)" }
+            val projectPaths = startRequests.map { it.launchConfiguration.projectPath }.distinct()
             buildProjects(projectPaths)
-            createCommands.forEach { command ->
+            startRequests.forEach { command ->
                 handleCreateRequest(command)
             }
         }
 
-        if (deleteCommands.isNotEmpty()) {
-            LOG.trace { "Received ${deleteCommands.size} delete command(s)" }
-            deleteCommands.forEach { command ->
+        if (stopRequests.isNotEmpty()) {
+            LOG.trace { "Received ${stopRequests.size} stop request(s)" }
+            stopRequests.forEach { command ->
                 handleDeleteRequest(command)
             }
         }
@@ -120,7 +118,7 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
 
     private fun handleCreateRequest(request: StartSessionRequest) {
         LOG.info("Creating session ${request.sessionId}")
-        logCreateSessionRequest(request.createSessionRequest)
+        logLaunchConfiguration(request.launchConfiguration)
 
         val sessionLifetimeDefinition = request.aspireHostLifetime.createNested()
         sessionLifetimes.put(sessionLifetimeDefinition.lifetime, request.sessionId, sessionLifetimeDefinition)
@@ -137,7 +135,7 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
 
             processLauncher.launchSessionProcess(
                 request.sessionId,
-                request.createSessionRequest,
+                request.launchConfiguration,
                 sessionProcessListener,
                 processLifetimeDefinition.lifetime,
                 request.aspireHostRunConfigName
@@ -145,13 +143,13 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
         }
     }
 
-    private fun logCreateSessionRequest(request: CreateSessionRequest) {
-        LOG.trace { "Session project path: ${request.projectPath}" }
-        LOG.trace { "Session debug flag: ${request.debug}" }
-        LOG.trace { "Session launch profile: ${request.launchProfile}" }
-        LOG.trace { "Session disable launch profile flag: ${request.disableLaunchProfile}" }
-        LOG.trace { "Session args: ${request.args?.joinToString(", ")}" }
-        LOG.trace { "Session env keys: ${request.envs?.joinToString(", ") { it.key }}" }
+    private fun logLaunchConfiguration(launchConfiguration: DotNetSessionLaunchConfiguration) {
+        LOG.trace { "Session project path: ${launchConfiguration.projectPath}" }
+        LOG.trace { "Session debug flag: ${launchConfiguration.debug}" }
+        LOG.trace { "Session launch profile: ${launchConfiguration.launchProfile}" }
+        LOG.trace { "Session disable launch profile flag: ${launchConfiguration.disableLaunchProfile}" }
+        LOG.trace { "Session args: ${launchConfiguration.args?.joinToString(", ")}" }
+        LOG.trace { "Session env keys: ${launchConfiguration.envs?.joinToString(", ") { it.first }}" }
     }
 
     private suspend fun handleDeleteRequest(request: StopSessionRequest) {

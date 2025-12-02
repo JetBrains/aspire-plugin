@@ -1,14 +1,14 @@
 package com.jetbrains.aspire.sessions
 
-import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.channels.Channel
+import java.nio.file.Path
 
 interface SessionRequest
 
 data class StartSessionRequest(
     val sessionId: String,
-    val createSessionRequest: CreateSessionRequest,
+    val launchConfiguration: DotNetSessionLaunchConfiguration,
     val sessionEvents: Channel<SessionEvent>,
     val aspireHostRunConfigName: String?,
     val aspireHostLifetime: Lifetime
@@ -17,3 +17,14 @@ data class StartSessionRequest(
 data class StopSessionRequest(
     val sessionId: String
 ) : SessionRequest
+
+sealed interface SessionLaunchConfiguration
+
+data class DotNetSessionLaunchConfiguration(
+    val projectPath: Path,
+    val debug: Boolean,
+    val launchProfile: String?,
+    val disableLaunchProfile: Boolean,
+    val args: List<String>?,
+    val envs: List<Pair<String, String>>?
+) : SessionLaunchConfiguration

@@ -3,7 +3,6 @@ package com.jetbrains.aspire.sessions
 import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.rd.util.lifetime.Lifetime
 
 interface DotNetSessionProcessLauncherExtension {
@@ -18,7 +17,7 @@ interface DotNetSessionProcessLauncherExtension {
 
     suspend fun launchRunProcess(
         sessionId: String,
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostRunConfigName: String?,
@@ -27,7 +26,7 @@ interface DotNetSessionProcessLauncherExtension {
 
     suspend fun launchDebugProcess(
         sessionId: String,
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostRunConfigName: String?,

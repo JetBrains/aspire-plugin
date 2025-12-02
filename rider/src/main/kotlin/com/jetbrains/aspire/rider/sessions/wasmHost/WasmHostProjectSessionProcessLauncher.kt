@@ -8,11 +8,11 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.aspire.sessions.findRunnableProjectByPath
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rider.nuget.PackageVersionResolution
 import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
 import com.jetbrains.rider.runtime.DotNetExecutable
@@ -86,16 +86,16 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
     )
 
     override suspend fun getDotNetExecutable(
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
         val addBrowserAction = !isDebugSession
-        val executable = factory.createExecutable(sessionModel, hostRunConfiguration, addBrowserAction)
+        val executable = factory.createExecutable(launchConfiguration, hostRunConfiguration, addBrowserAction)
         if (executable == null) {
-            LOG.warn("Unable to create executable for project: ${sessionModel.projectPath}")
+            LOG.warn("Unable to create executable for project: ${launchConfiguration.projectPath}")
         }
 
         return executable
