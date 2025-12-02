@@ -12,7 +12,6 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.application
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isAlive
 import com.jetbrains.rd.util.put
@@ -60,15 +59,15 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
 
     private val sessionLifetimes = ConcurrentHashMap<String, LifetimeDefinition>()
 
-    private val commands = Channel<LaunchSessionCommand>(Channel.UNLIMITED)
+    private val requests = Channel<SessionRequest>(Channel.UNLIMITED)
 
     init {
         scope.launch {
             while (true) {
-                val batch = mutableListOf<LaunchSessionCommand>()
+                val batch = mutableListOf<SessionRequest>()
 
                 // Wait for the first command
-                val firstCommand = commands.receive()
+                val firstCommand = requests.receive()
                 batch.add(firstCommand)
 
                 // Collect commands within the batch window
@@ -78,7 +77,7 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
                     if (remainingTime <= 0) break
 
                     val command = withTimeoutOrNull(remainingTime) {
-                        commands.receive()
+                        requests.receive()
                     }
 
                     if (command != null) {
@@ -94,79 +93,79 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
         }
     }
 
-    fun submitCommand(command: LaunchSessionCommand) {
-        commands.trySend(command)
+    fun submitRequest(request: SessionRequest) {
+        requests.trySend(request)
     }
 
-    private suspend fun handleBatchCommands(batch: List<LaunchSessionCommand>) {
-        val createCommands = batch.filterIsInstance<CreateSessionCommand>()
-        val deleteCommands = batch.filterIsInstance<DeleteSessionCommand>()
+    private suspend fun handleBatchCommands(batch: List<SessionRequest>) {
+        val createCommands = batch.filterIsInstance<StartSessionRequest>()
+        val deleteCommands = batch.filterIsInstance<StopSessionRequest>()
 
         if (createCommands.isNotEmpty()) {
             LOG.trace { "Received ${createCommands.size} delete command(s)" }
             val projectPaths = createCommands.map { Path(it.createSessionRequest.projectPath) }.distinct()
             buildProjects(projectPaths)
             createCommands.forEach { command ->
-                handleCreateCommand(command)
+                handleCreateRequest(command)
             }
         }
 
         if (deleteCommands.isNotEmpty()) {
             LOG.trace { "Received ${deleteCommands.size} delete command(s)" }
             deleteCommands.forEach { command ->
-                handleDeleteCommand(command)
+                handleDeleteRequest(command)
             }
         }
     }
 
-    private fun handleCreateCommand(command: CreateSessionCommand) {
-        LOG.info("Creating session ${command.sessionId}")
-        logCreateSessionRequest(command.createSessionRequest)
+    private fun handleCreateRequest(request: StartSessionRequest) {
+        LOG.info("Creating session ${request.sessionId}")
+        logCreateSessionRequest(request.createSessionRequest)
 
-        val sessionLifetimeDefinition = command.aspireHostLifetime.createNested()
-        sessionLifetimes.put(sessionLifetimeDefinition.lifetime, command.sessionId, sessionLifetimeDefinition)
+        val sessionLifetimeDefinition = request.aspireHostLifetime.createNested()
+        sessionLifetimes.put(sessionLifetimeDefinition.lifetime, request.sessionId, sessionLifetimeDefinition)
 
         sessionLifetimeDefinition.lifetime.launch {
             val processLauncher = SessionProcessLauncher.getInstance(project)
             val processLifetimeDefinition = sessionLifetimeDefinition.lifetime.createNested()
 
             val sessionProcessListener = createSessionProcessEventListener(
-                command.sessionId,
-                command.sessionEvents,
+                request.sessionId,
+                request.sessionEvents,
                 processLifetimeDefinition
             )
 
             processLauncher.launchSessionProcess(
-                command.sessionId,
-                command.createSessionRequest,
+                request.sessionId,
+                request.createSessionRequest,
                 sessionProcessListener,
                 processLifetimeDefinition.lifetime,
-                command.aspireHostRunConfigName
+                request.aspireHostRunConfigName
             )
         }
     }
 
-    private fun logCreateSessionRequest(createSessionRequest: CreateSessionRequest) {
-        LOG.trace { "Session project path: ${createSessionRequest.projectPath}" }
-        LOG.trace { "Session debug flag: ${createSessionRequest.debug}" }
-        LOG.trace { "Session launch profile: ${createSessionRequest.launchProfile}" }
-        LOG.trace { "Session disable launch profile flag: ${createSessionRequest.disableLaunchProfile}" }
-        LOG.trace { "Session args: ${createSessionRequest.args?.joinToString(", ")}" }
-        LOG.trace { "Session env keys: ${createSessionRequest.envs?.joinToString(", ") { it.key }}" }
+    private fun logCreateSessionRequest(request: CreateSessionRequest) {
+        LOG.trace { "Session project path: ${request.projectPath}" }
+        LOG.trace { "Session debug flag: ${request.debug}" }
+        LOG.trace { "Session launch profile: ${request.launchProfile}" }
+        LOG.trace { "Session disable launch profile flag: ${request.disableLaunchProfile}" }
+        LOG.trace { "Session args: ${request.args?.joinToString(", ")}" }
+        LOG.trace { "Session env keys: ${request.envs?.joinToString(", ") { it.key }}" }
     }
 
-    private suspend fun handleDeleteCommand(command: DeleteSessionCommand) {
-        LOG.info("Deleting session ${command.sessionId}")
+    private suspend fun handleDeleteRequest(request: StopSessionRequest) {
+        LOG.info("Deleting session ${request.sessionId}")
 
-        val sessionLifetimeDefinition = sessionLifetimes.remove(command.sessionId)
+        val sessionLifetimeDefinition = sessionLifetimes.remove(request.sessionId)
         if (sessionLifetimeDefinition == null) {
-            LOG.warn("Unable to find session ${command.sessionId} lifetime")
+            LOG.warn("Unable to find session ${request.sessionId} lifetime")
             return
         }
 
         if (sessionLifetimeDefinition.isAlive) {
             withContext(Dispatchers.EDT) {
-                LOG.trace { "Terminating session ${command.sessionId} lifetime" }
+                LOG.trace { "Terminating session ${request.sessionId} lifetime" }
                 sessionLifetimeDefinition.terminate()
             }
         }
@@ -263,17 +262,4 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
             }
         }
 
-    interface LaunchSessionCommand
-
-    data class CreateSessionCommand(
-        val sessionId: String,
-        val createSessionRequest: CreateSessionRequest,
-        val sessionEvents: Channel<SessionEvent>,
-        val aspireHostRunConfigName: String?,
-        val aspireHostLifetime: Lifetime
-    ) : LaunchSessionCommand
-
-    data class DeleteSessionCommand(
-        val sessionId: String
-    ) : LaunchSessionCommand
 }
