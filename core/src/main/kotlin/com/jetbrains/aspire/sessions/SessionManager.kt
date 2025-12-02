@@ -94,8 +94,13 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
             sessionLifetimes.put(it.sessionLifetime.lifetime, it.sessionId, it.sessionLifetime)
         }
 
-        val processLauncher = SessionProcessLauncher.getInstance(project)
-        processLauncher.handleStartSessionRequests(requests)
+        val handler = StartSessionRequestHandler.findApplicableHandler(requests)
+        if (handler == null) {
+            LOG.warn("No applicable handler found to start sessions")
+            return
+        }
+
+        handler.handleRequests(requests, project)
     }
 
     private suspend fun handleStopRequests(requests: List<StopSessionRequest>) {
