@@ -19,11 +19,11 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
-        <sessionProcessLauncherExtension
+        <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
-        <sessionProcessLauncherExtension
+        <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
-        <sessionProcessLauncherExtension
+        <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
 
     </extensions>
