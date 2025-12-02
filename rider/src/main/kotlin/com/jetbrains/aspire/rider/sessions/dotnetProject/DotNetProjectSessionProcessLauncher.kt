@@ -5,10 +5,10 @@ import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
@@ -65,15 +65,15 @@ internal class DotNetProjectSessionProcessLauncher : DotNetSessionWithHotReloadP
     )
 
     override suspend fun getDotNetExecutable(
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
-        val executable = factory.createExecutable(sessionModel, hostRunConfiguration, true)
+        val executable = factory.createExecutable(launchConfiguration, hostRunConfiguration, true)
         if (executable == null) {
-            LOG.warn("Unable to create executable for project: ${sessionModel.projectPath}")
+            LOG.warn("Unable to create executable for project: ${launchConfiguration.projectPath}")
         }
 
         return executable

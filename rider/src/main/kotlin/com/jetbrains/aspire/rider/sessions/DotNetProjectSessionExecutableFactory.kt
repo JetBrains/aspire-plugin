@@ -7,14 +7,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.systemIndependentPath
-import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.launchProfiles.getWorkingDirectory
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
-import com.jetbrains.aspire.sessions.findBySessionProject
-import com.jetbrains.aspire.sessions.getExecutableParams
-import com.jetbrains.aspire.sessions.getLaunchProfile
-import com.jetbrains.aspire.sessions.mergeArguments
-import com.jetbrains.aspire.sessions.mergeEnvironmentVariables
+import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.MSBuildPropertyService
 import com.jetbrains.aspire.util.getStartBrowserAction
@@ -50,11 +45,11 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
     }
 
     suspend fun createExecutable(
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
-        val sessionProjectPath = Path(sessionModel.projectPath)
+        val sessionProjectPath = launchConfiguration.projectPath
         val runnableProject =
             project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) { it.kind == RunnableProjectKinds.DotNetCore }
 
@@ -62,14 +57,14 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
             getExecutableForRunnableProject(
                 sessionProjectPath,
                 runnableProject,
-                sessionModel,
+                launchConfiguration,
                 hostRunConfiguration,
                 addBrowserAction
             )
         } else {
             getExecutableForExternalProject(
                 sessionProjectPath,
-                sessionModel,
+                launchConfiguration,
                 hostRunConfiguration,
                 addBrowserAction
             )
@@ -79,16 +74,16 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
     private suspend fun getExecutableForRunnableProject(
         sessionProjectPath: Path,
         runnableProject: RunnableProject,
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val output = runnableProject.projectOutputs.firstOrNull() ?: return null
-        val launchProfile = getLaunchProfile(sessionModel, runnableProject, project)
+        val launchProfile = getLaunchProfile(launchConfiguration, runnableProject, project)
         val executablePath = output.exePath
         val workingDirectory = getWorkingDirectory(launchProfile, output)
-        val arguments = mergeArguments(sessionModel.args, output.defaultArguments, launchProfile?.commandLineArgs)
-        val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
+        val arguments = mergeArguments(launchConfiguration.args, output.defaultArguments, launchProfile?.commandLineArgs)
+        val envs = mergeEnvironmentVariables(launchConfiguration.envs, launchProfile?.environmentVariables)
 
         val executableParams = getExecutableParams(
             sessionProjectPath,
@@ -132,17 +127,17 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
 
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         hostRunConfiguration: AspireHostConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
-        val propertyService = MSBuildPropertyService.Companion.getInstance(project)
+        val propertyService = MSBuildPropertyService.getInstance(project)
         val properties = propertyService.getProjectRunProperties(sessionProjectPath) ?: return null
-        val launchProfile = getLaunchProfile(sessionModel, sessionProjectPath, project)
+        val launchProfile = getLaunchProfile(launchConfiguration, sessionProjectPath, project)
         val executablePath = properties.executablePath.systemIndependentPath
         val workingDirectory = getWorkingDirectory(launchProfile, properties)
-        val arguments = mergeArguments(sessionModel.args, properties.arguments, launchProfile?.commandLineArgs)
-        val envs = mergeEnvironmentVariables(sessionModel.envs, launchProfile?.environmentVariables)
+        val arguments = mergeArguments(launchConfiguration.args, properties.arguments, launchProfile?.commandLineArgs)
+        val envs = mergeEnvironmentVariables(launchConfiguration.envs, launchProfile?.environmentVariables)
 
         val executableParams = getExecutableParams(
             sessionProjectPath,
