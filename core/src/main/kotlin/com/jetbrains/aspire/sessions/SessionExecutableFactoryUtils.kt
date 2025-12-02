@@ -4,8 +4,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
-import com.jetbrains.aspire.generated.CreateSessionRequest
-import com.jetbrains.aspire.generated.SessionEnvironmentVariable
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
@@ -22,11 +20,11 @@ private val LOG = Logger.getInstance("#com.jetbrains.aspire.sessionHost.SessionE
 
 //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
 suspend fun getLaunchProfile(
-    sessionModel: CreateSessionRequest,
+    launchConfiguration: DotNetSessionLaunchConfiguration,
     runnableProject: RunnableProject,
     project: Project
 ): LaunchSettingsJson.Profile? {
-    val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
+    val launchProfileKey = getLaunchProfileKey(launchConfiguration) ?: return null
 
     val launchSettings = LaunchSettingsJsonService
         .getInstance(project)
@@ -38,11 +36,11 @@ suspend fun getLaunchProfile(
 
 //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
 suspend fun getLaunchProfile(
-    sessionModel: CreateSessionRequest,
+    launchConfiguration: DotNetSessionLaunchConfiguration,
     sessionProjectPath: Path,
     project: Project
 ): LaunchSettingsJson.Profile? {
-    val launchProfileKey = getLaunchProfileKey(sessionModel) ?: return null
+    val launchProfileKey = getLaunchProfileKey(launchConfiguration) ?: return null
 
     val launchSettingsFile =
         LaunchSettingsJsonService.getLaunchSettingsFileForProject(sessionProjectPath) ?: return null
@@ -52,17 +50,17 @@ suspend fun getLaunchProfile(
     return launchSettings.profiles?.get(launchProfileKey)
 }
 
-private fun getLaunchProfileKey(sessionModel: CreateSessionRequest): String? {
-    if (sessionModel.disableLaunchProfile) {
+private fun getLaunchProfileKey(launchConfiguration: DotNetSessionLaunchConfiguration): String? {
+    if (launchConfiguration.disableLaunchProfile) {
         LOG.trace { "Launch profile disabled" }
         return null
     }
 
     val launchProfileKey =
-        if (!sessionModel.launchProfile.isNullOrEmpty()) {
-            sessionModel.launchProfile
+        if (!launchConfiguration.launchProfile.isNullOrEmpty()) {
+            launchConfiguration.launchProfile
         } else {
-            sessionModel.envs?.firstOrNull { it.key.equals(DOTNET_LAUNCH_PROFILE, false) }?.value
+            launchConfiguration.envs?.firstOrNull { it.first.equals(DOTNET_LAUNCH_PROFILE, false) }?.second
         }
 
     LOG.trace { "Found launch profile key: $launchProfileKey" }
@@ -72,7 +70,7 @@ private fun getLaunchProfileKey(sessionModel: CreateSessionRequest): String? {
 
 //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
 fun mergeArguments(
-    sessionArguments: Array<String>?,
+    sessionArguments: List<String>?,
     defaultArguments: List<String>,
     launchProfileArguments: String?
 ) = buildString {
@@ -94,7 +92,7 @@ fun mergeArguments(
 
 //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
 fun mergeEnvironmentVariables(
-    sessionEnvironmentVariables: Array<SessionEnvironmentVariable>?,
+    sessionEnvironmentVariables: List<Pair<String, String>>?,
     launchProfileEnvironmentVariables: Map<String, String?>?
 ) = buildMap {
     if (launchProfileEnvironmentVariables?.isNotEmpty() == true) {
@@ -104,7 +102,7 @@ fun mergeEnvironmentVariables(
     }
 
     if (sessionEnvironmentVariables?.isNotEmpty() == true) {
-        sessionEnvironmentVariables.associateTo(this) { it.key to it.value }
+        sessionEnvironmentVariables.associateTo(this) { it.first to it.second }
     }
 }
 

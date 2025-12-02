@@ -184,15 +184,24 @@ class AspireHost(
 
         LOG.trace { "Creating session with id: $sessionId" }
 
-        val command = StartSessionRequest(
+        val launchConfiguration = DotNetSessionLaunchConfiguration(
+            Path(createSessionRequest.projectPath),
+            createSessionRequest.debug,
+            createSessionRequest.launchProfile,
+            createSessionRequest.disableLaunchProfile,
+            createSessionRequest.args?.toList(),
+            createSessionRequest.envs?.map { it.key to it.value }
+        )
+
+        val request = StartSessionRequest(
             sessionId,
-            createSessionRequest,
+            launchConfiguration,
             sessionEvents,
             aspireHostConfig.runConfigName,
             aspireHostLifetime
         )
 
-        SessionManager.getInstance(project).submitRequest(command)
+        SessionManager.getInstance(project).submitRequest(request)
 
         return CreateSessionResponse(sessionId, null)
     }
@@ -200,9 +209,9 @@ class AspireHost(
     private fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
         LOG.trace { "Deleting session with id: ${deleteSessionRequest.sessionId}" }
 
-        val command = StopSessionRequest(deleteSessionRequest.sessionId)
+        val request = StopSessionRequest(deleteSessionRequest.sessionId)
 
-        SessionManager.getInstance(project).submitRequest(command)
+        SessionManager.getInstance(project).submitRequest(request)
 
         return DeleteSessionResponse(deleteSessionRequest.sessionId, null)
     }

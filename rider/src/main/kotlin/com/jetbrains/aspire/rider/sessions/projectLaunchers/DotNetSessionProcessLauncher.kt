@@ -22,6 +22,7 @@ import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.run.AspireConfigurationType
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.sessions.DotNetSessionProcessLauncherExtension
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
@@ -46,28 +47,28 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
 
     override suspend fun launchRunProcess(
         sessionId: String,
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostRunConfigName: String?,
         project: Project
     ) {
-        LOG.trace { "Starting run session for ${sessionModel.projectPath}" }
+        LOG.trace { "Starting run session for ${launchConfiguration.projectPath}" }
 
         val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, _) = getDotNetExecutable(sessionModel, false, aspireHostRunConfig, project)
+        val (executable, _) = getDotNetExecutable(launchConfiguration, false, aspireHostRunConfig, project)
             ?: return
         val executableWithOTLPEndpoint = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
         val (modifiedExecutable, callback) = modifyDotNetExecutable(
             executableWithOTLPEndpoint,
-            Path(sessionModel.projectPath),
-            sessionModel.launchProfile,
+            launchConfiguration.projectPath,
+            launchConfiguration.launchProfile,
             sessionProcessLifetime,
             project
         )
         val runtime = getDotNetRuntime(modifiedExecutable, project) ?: return
 
-        val projectPath = Path(sessionModel.projectPath)
+        val projectPath = launchConfiguration.projectPath
         val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
         val profile = getRunProfile(
             sessionId,
@@ -84,21 +85,21 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
 
     override suspend fun launchDebugProcess(
         sessionId: String,
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         aspireHostRunConfigName: String?,
         project: Project
     ) {
-        LOG.trace { "Starting debug session for project ${sessionModel.projectPath}" }
+        LOG.trace { "Starting debug session for project ${launchConfiguration.projectPath}" }
 
         val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, browserSettings) = getDotNetExecutable(sessionModel, true, aspireHostRunConfig, project)
+        val (executable, browserSettings) = getDotNetExecutable(launchConfiguration, true, aspireHostRunConfig, project)
             ?: return
         val modifiedExecutable = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
         val runtime = getDotNetRuntime(modifiedExecutable, project) ?: return
 
-        val projectPath = Path(sessionModel.projectPath)
+        val projectPath = launchConfiguration.projectPath
         val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
         val profile = getDebugProfile(
             sessionId,
@@ -145,7 +146,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
     }
 
     protected abstract suspend fun getDotNetExecutable(
-        sessionModel: CreateSessionRequest,
+        launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
         hostRunConfiguration: AspireHostConfiguration?,
         project: Project
