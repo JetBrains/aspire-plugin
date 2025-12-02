@@ -98,7 +98,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
         val browserSettings = launchProfile?.let {
             getStartBrowserSettings(Path(runnableProject.projectFilePath), it, envs, output.tfm, hostRunConfiguration)
         }
-        val launchBrowser = AspireSettings.Companion.getInstance().doNotLaunchBrowserForProjects.not()
+        val launchBrowser = AspireSettings.getInstance().doNotLaunchBrowserForProjects.not()
         val browserAction =
             if (launchBrowser && addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
                 getStartBrowserAction(hostRunConfiguration, browserSettings)
@@ -152,7 +152,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
         val browserSettings = launchProfile?.let {
             getStartBrowserSettings(sessionProjectPath, it, envs, properties.targetFramework, hostRunConfiguration)
         }
-        val launchBrowser = AspireSettings.Companion.getInstance().doNotLaunchBrowserForProjects.not()
+        val launchBrowser = AspireSettings.getInstance().doNotLaunchBrowserForProjects.not()
         val browserAction =
             if (launchBrowser && addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
                 getStartBrowserAction(hostRunConfiguration, browserSettings)
