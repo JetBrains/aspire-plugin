@@ -6,9 +6,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
-import com.jetbrains.aspire.sessions.getExecutableParams
-import com.jetbrains.aspire.sessions.getLaunchProfile
-import com.jetbrains.aspire.sessions.mergeEnvironmentVariables
+import com.jetbrains.aspire.rider.sessions.getExecutableParams
+import com.jetbrains.aspire.rider.sessions.getLaunchProfile
+import com.jetbrains.aspire.rider.sessions.mergeEnvironmentVariables
 import com.jetbrains.aspire.util.MSBuildPropertyService
 import com.jetbrains.rider.run.configurations.TerminalMode
 import com.jetbrains.rider.run.configurations.launchSettings.commands.ExecutableCommand
