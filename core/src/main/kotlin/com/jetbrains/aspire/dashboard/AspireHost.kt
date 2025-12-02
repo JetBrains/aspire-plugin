@@ -21,8 +21,8 @@ import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.run.AspireRunConfiguration
 import com.jetbrains.aspire.sessions.*
-import com.jetbrains.aspire.sessions.SessionManager.CreateSessionCommand
-import com.jetbrains.aspire.sessions.SessionManager.DeleteSessionCommand
+import com.jetbrains.aspire.sessions.StartSessionRequest
+import com.jetbrains.aspire.sessions.StopSessionRequest
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
@@ -184,7 +184,7 @@ class AspireHost(
 
         LOG.trace { "Creating session with id: $sessionId" }
 
-        val command = CreateSessionCommand(
+        val command = StartSessionRequest(
             sessionId,
             createSessionRequest,
             sessionEvents,
@@ -192,7 +192,7 @@ class AspireHost(
             aspireHostLifetime
         )
 
-        SessionManager.getInstance(project).submitCommand(command)
+        SessionManager.getInstance(project).submitRequest(command)
 
         return CreateSessionResponse(sessionId, null)
     }
@@ -200,9 +200,9 @@ class AspireHost(
     private fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
         LOG.trace { "Deleting session with id: ${deleteSessionRequest.sessionId}" }
 
-        val command = DeleteSessionCommand(deleteSessionRequest.sessionId)
+        val command = StopSessionRequest(deleteSessionRequest.sessionId)
 
-        SessionManager.getInstance(project).submitCommand(command)
+        SessionManager.getInstance(project).submitRequest(command)
 
         return DeleteSessionResponse(deleteSessionRequest.sessionId, null)
     }
