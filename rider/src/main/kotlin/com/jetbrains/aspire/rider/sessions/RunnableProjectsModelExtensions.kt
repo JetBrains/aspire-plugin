@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.sessions
+package com.jetbrains.aspire.rider.sessions
 
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.systemIndependentPath

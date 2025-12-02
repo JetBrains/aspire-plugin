@@ -1,9 +1,10 @@
-package com.jetbrains.aspire.sessions
+package com.jetbrains.aspire.rider.sessions
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
@@ -16,7 +17,7 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 
 private const val DOTNET_LAUNCH_PROFILE = "DOTNET_LAUNCH_PROFILE"
-private val LOG = Logger.getInstance("#com.jetbrains.aspire.sessionHost.SessionExecutableFactoryUtils")
+private val LOG = Logger.getInstance("#com.jetbrains.aspire.rider.sessions.SessionExecutableFactoryUtils")
 
 //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
 suspend fun getLaunchProfile(

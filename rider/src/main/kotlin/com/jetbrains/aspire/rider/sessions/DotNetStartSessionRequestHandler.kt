@@ -20,8 +20,7 @@ import com.jetbrains.aspire.sessions.SessionStarted
 import com.jetbrains.aspire.sessions.SessionTerminated
 import com.jetbrains.aspire.sessions.StartSessionRequest
 import com.jetbrains.aspire.sessions.StartSessionRequestHandler
-import com.jetbrains.aspire.sessions.findRunnableProjectByPath
-import com.jetbrains.aspire.util.DotNetBuildService
+import com.jetbrains.aspire.rider.util.DotNetBuildService
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isAlive

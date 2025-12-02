@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.util
+package com.jetbrains.aspire.rider.util
 
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.util.ExecUtil
