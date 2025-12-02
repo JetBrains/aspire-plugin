@@ -1,6 +1,6 @@
 @file:Suppress("LoggingSimilarMessage")
 
-package com.jetbrains.aspire.sessions
+package com.jetbrains.aspire.rider.sessions
 
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessHandler
@@ -11,6 +11,16 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.application
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
+import com.jetbrains.aspire.sessions.SessionEvent
+import com.jetbrains.aspire.sessions.SessionLaunchMode
+import com.jetbrains.aspire.sessions.SessionLaunchPreferenceService
+import com.jetbrains.aspire.sessions.SessionLogReceived
+import com.jetbrains.aspire.sessions.SessionStarted
+import com.jetbrains.aspire.sessions.SessionTerminated
+import com.jetbrains.aspire.sessions.StartSessionRequest
+import com.jetbrains.aspire.sessions.StartSessionRequestHandler
+import com.jetbrains.aspire.sessions.findRunnableProjectByPath
 import com.jetbrains.aspire.util.DotNetBuildService
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
@@ -73,7 +83,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
 
         if (nonRunnableProjects.isNotEmpty()) {
             LOG.trace { "Building ${nonRunnableProjects.size} non-runnable project(s): ${nonRunnableProjects.map { it.fileName }}" }
-            val buildService = DotNetBuildService.getInstance(project)
+            val buildService = DotNetBuildService.Companion.getInstance(project)
             buildService.buildProjects(nonRunnableProjects)
         }
     }
@@ -267,7 +277,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         project: Project
     ): DotNetSessionProcessLauncherExtension? {
         val pathString = projectPath.absolutePathString()
-        for (launcher in DotNetSessionProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
+        for (launcher in DotNetSessionProcessLauncherExtension.Companion.EP_NAME.extensionList.sortedBy { it.priority }) {
             if (launcher.isApplicable(pathString, project))
                 return launcher
         }

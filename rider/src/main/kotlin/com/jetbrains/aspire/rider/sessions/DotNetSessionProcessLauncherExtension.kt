@@ -1,8 +1,9 @@
-package com.jetbrains.aspire.sessions
+package com.jetbrains.aspire.rider.sessions
 
 import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
 
 interface DotNetSessionProcessLauncherExtension {
