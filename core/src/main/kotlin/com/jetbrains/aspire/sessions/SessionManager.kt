@@ -94,13 +94,18 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
             sessionLifetimes.put(it.sessionLifetime.lifetime, it.sessionId, it.sessionLifetime)
         }
 
-        val handler = StartSessionRequestHandler.findApplicableHandler(requests)
-        if (handler == null) {
-            LOG.warn("No applicable handler found to start sessions")
-            return
-        }
+        val requestsByLaunchConfigurationType = requests.groupBy { it.launchConfiguration::class }
+        requestsByLaunchConfigurationType.forEach { (launchConfigType, groupedRequests) ->
+            LOG.trace { "Processing ${groupedRequests.size} request(s) of type ${launchConfigType.simpleName}" }
 
-        handler.handleRequests(requests, project)
+            val handler = StartSessionRequestHandler.findApplicableHandler(groupedRequests)
+            if (handler == null) {
+                LOG.warn("No applicable handler found for ${launchConfigType.simpleName} request type")
+                return
+            }
+
+            handler.handleRequests(groupedRequests, project)
+        }
     }
 
     private suspend fun handleStopRequests(requests: List<StopSessionRequest>) {
