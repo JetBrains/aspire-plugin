@@ -6,6 +6,12 @@
 
     <resource-bundle>messages.AspireRiderBundle</resource-bundle>
 
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.dotnetSessionProcessLauncherExtension"
+                        interface="com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension"
+                        dynamic="true"/>
+    </extensionPoints>
+
     <extensions defaultExtensionNs="com.intellij">
         <programRunner
                 implementation="com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProgramRunner"/>
@@ -19,6 +25,9 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
+        <startSessionRequestHandler
+                implementation="com.jetbrains.aspire.rider.sessions.DotNetStartSessionRequestHandler"/>
+
         <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
         <dotnetSessionProcessLauncherExtension

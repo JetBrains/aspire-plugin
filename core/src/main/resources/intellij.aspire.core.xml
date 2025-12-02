@@ -9,9 +9,6 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.startSessionRequestHandler"
                         interface="com.jetbrains.aspire.sessions.StartSessionRequestHandler"
                         dynamic="true"/>
-        <extensionPoint qualifiedName="com.jetbrains.aspire.dotnetSessionProcessLauncherExtension"
-                        interface="com.jetbrains.aspire.sessions.DotNetSessionProcessLauncherExtension"
-                        dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
                         dynamic="true"/>
@@ -42,7 +39,6 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
-        <startSessionRequestHandler implementation="com.jetbrains.aspire.sessions.DotNetStartSessionRequestHandler"/>
         <resourceIconProviderExtension
                 implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
     </extensions>

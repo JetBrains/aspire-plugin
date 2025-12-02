@@ -3,6 +3,7 @@ package com.jetbrains.aspire.sessions
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import org.jetbrains.annotations.ApiStatus
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -10,8 +11,9 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * The preferred launch mode is a one-time setting. After getting value for a specific project, the value will be deleted.
  */
+@ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-internal class SessionLaunchPreferenceService {
+class SessionLaunchPreferenceService {
     companion object {
         fun getInstance(project: Project): SessionLaunchPreferenceService = project.service()
     }
@@ -25,7 +27,8 @@ internal class SessionLaunchPreferenceService {
     }
 }
 
-internal enum class SessionLaunchMode {
+@ApiStatus.Internal
+enum class SessionLaunchMode {
     RUN,
     DEBUG
 }

@@ -23,7 +23,7 @@ import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.run.AspireConfigurationType
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
-import com.jetbrains.aspire.sessions.DotNetSessionProcessLauncherExtension
+import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
