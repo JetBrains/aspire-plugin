@@ -1,6 +1,6 @@
 package com.jetbrains.aspire.sessions
 
-import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import kotlinx.coroutines.channels.Channel
 import java.nio.file.Path
 
@@ -11,7 +11,7 @@ data class StartSessionRequest(
     val launchConfiguration: DotNetSessionLaunchConfiguration,
     val sessionEvents: Channel<SessionEvent>,
     val aspireHostRunConfigName: String?,
-    val aspireHostLifetime: Lifetime
+    val sessionLifetime: LifetimeDefinition
 ) : SessionRequest
 
 data class StopSessionRequest(
