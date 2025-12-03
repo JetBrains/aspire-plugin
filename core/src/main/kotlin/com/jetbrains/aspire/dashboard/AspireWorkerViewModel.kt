@@ -2,17 +2,17 @@
 
 package com.jetbrains.aspire.dashboard
 
+import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.openapi.project.Project
 import com.intellij.platform.util.coroutines.childScope
 import com.jetbrains.aspire.worker.AspireWorkerService
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.runningFold
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 internal class AspireWorkerViewModel(
+    private val project: Project,
     parentCs: CoroutineScope,
     workerService: AspireWorkerService,
 ) : ServiceViewProvidingContributor<AspireAppHostViewModel, AspireWorkerViewModel> {
@@ -40,6 +40,33 @@ internal class AspireWorkerViewModel(
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 
+    init {
+        cs.launch {
+            appHostViewModels
+                .runningFold(emptyList<AspireAppHostViewModel>() to emptyList<AspireAppHostViewModel>()) { (previousList, _), currentList ->
+                    val previousPaths = previousList.map { it.appHostMainFilePath }.toSet()
+                    val currentPaths = currentList.map { it.appHostMainFilePath }.toSet()
+
+                    val added = currentList.filter { it.appHostMainFilePath !in previousPaths }
+                    val removed = previousList.filter { it.appHostMainFilePath !in currentPaths }
+
+                    currentList to (added + removed)
+                }
+                .drop(1)
+                .collect { (currentList, changedViewModels) ->
+                    val currentPaths = currentList.map { it.appHostMainFilePath }.toSet()
+
+                    changedViewModels.forEach { viewModel ->
+                        if (viewModel.appHostMainFilePath in currentPaths) {
+                            sendServiceAddedEvent(viewModel)
+                        } else {
+                            sendServiceRemovedEvent(viewModel)
+                        }
+                    }
+                }
+        }
+    }
+
     private val descriptor by lazy { AspireWorkerServiceViewDescriptor() }
 
     override fun getViewDescriptor(project: Project) = descriptor
@@ -52,4 +79,22 @@ internal class AspireWorkerViewModel(
     ) = appHostViewModel.getViewDescriptor(project)
 
     override fun getServices(project: Project) = appHostViewModels.value
+
+    private fun sendServiceAddedEvent(aspireAppHost: AspireAppHostViewModel) {
+        val event = ServiceEventListener.ServiceEvent.createServiceAddedEvent(
+            aspireAppHost,
+            AspireMainServiceViewContributor2::class.java,
+            this
+        )
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
+    }
+
+    private fun sendServiceRemovedEvent(aspireAppHost: AspireAppHostViewModel) {
+        val event = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_REMOVED,
+            aspireAppHost,
+            AspireMainServiceViewContributor2::class.java
+        )
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
+    }
 }
