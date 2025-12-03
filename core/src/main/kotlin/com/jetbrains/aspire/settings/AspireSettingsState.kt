@@ -3,7 +3,7 @@ package com.jetbrains.aspire.settings
 import com.intellij.openapi.components.BaseState
 
 class AspireSettingsState : BaseState() {
-    var doNotLaunchBrowserForProjects by property(false)
+    var doNotLaunchBrowserForProjects by property(true)
     var connectToDcpViaHttps by property(true)
     var connectToDatabase by property(true)
     var checkResourceNameForDatabase by property(false)
