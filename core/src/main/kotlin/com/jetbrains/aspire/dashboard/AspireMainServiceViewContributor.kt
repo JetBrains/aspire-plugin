@@ -9,7 +9,7 @@ import com.jetbrains.aspire.worker.AspireWorkerManager
 
 class AspireMainServiceViewContributor : ServiceViewContributor<AspireWorker>, ServiceViewLazyContributor {
     override fun getViewDescriptor(project: Project) =
-        SimpleServiceViewDescriptor(".NET Aspire", AspireIcons.Service)
+        SimpleServiceViewDescriptor("Aspire", AspireIcons.Service)
 
     override fun getServices(project: Project): List<AspireWorker> {
         val worker = AspireWorkerManager.getInstance(project).aspireWorker
