@@ -82,7 +82,7 @@ internal class AspireWorkerService(private val project: Project) {
         if (removed == null) return
 
         _appHosts.update { currentList ->
-            currentList.filter { it.hostProjectPath != mainFilePath }
+            currentList.filter { it.mainFilePath != mainFilePath }
         }
     }
 
@@ -208,9 +208,6 @@ internal class AspireWorkerService(private val project: Project) {
             if (configuration !is AspireRunConfiguration) return
 
             val mainFilePath = configuration.parameters.mainFilePath
-
-            val configurations = getAspireRunConfigurationsByMainFilePath(mainFilePath)
-            if (configurations.size > 1) return
 
             getInstance(project).addAspireAppHost(Path.of(mainFilePath))
         }

@@ -20,7 +20,6 @@ internal class AspireWorkerViewModelFactory(private val project: Project, privat
     fun create(): AspireWorkerViewModel {
         val vmCs = cs.childScope(javaClass.name)
         return AspireWorkerViewModel(
-            project,
             vmCs + Dispatchers.Default,
             AspireWorkerService.getInstance(project)
         )
