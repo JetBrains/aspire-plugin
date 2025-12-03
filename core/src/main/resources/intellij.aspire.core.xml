@@ -25,6 +25,7 @@
         <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostDebugProgramRunner"/>
 
         <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
+        <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor2"/>
 
         <applicationConfigurable
                 parentId="tools"
