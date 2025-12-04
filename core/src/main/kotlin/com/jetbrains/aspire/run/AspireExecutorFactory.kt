@@ -126,7 +126,7 @@ internal abstract class AspireExecutorFactory(
     }
 
     private fun setDotnetRootPathVariable(envs: MutableMap<String, String>, activeRuntime: DotNetCoreRuntime) {
-        val dotnetRootPath = Path(activeRuntime.cliExePath).parent
+        val dotnetRootPath = activeRuntime.cliExePath.parent
 
         val dotnetRootPathString = dotnetRootPath.absolutePathString()
         val dotnetToolsPathString = dotnetRootPath.resolve("tools").absolutePathString()

@@ -15,9 +15,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
 import com.intellij.openapi.util.Key
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import com.jetbrains.rider.NetCoreRuntime
-import com.jetbrains.rider.RiderEnvironment
 import com.jetbrains.aspire.util.decodeAnsiCommandsToString
+import com.jetbrains.rider.environment.RiderEnvironment
+import com.jetbrains.rider.environment.getEnvironment
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.text.SimpleDateFormat
@@ -36,7 +36,7 @@ import kotlin.io.path.div
  * @see <a href="https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md">.NET Aspire IDE execution</a>
  */
 @Service(Service.Level.PROJECT)
-internal class AspireWorkerLauncher {
+internal class AspireWorkerLauncher(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<AspireWorkerLauncher>()
 
@@ -62,12 +62,12 @@ internal class AspireWorkerLauncher {
      * @param config The configuration parameters for the Aspire worker, such as port details, session details, and HTTPS usage.
      * @param lifetime The lifetime definition to control the lifecycle of the Aspire worker process, ensuring proper termination and cleanup.
      */
-    fun launchWorker(config: AspireWorkerConfig, lifetime: LifetimeDefinition) {
+    suspend fun launchWorker(config: AspireWorkerConfig, lifetime: LifetimeDefinition) {
         LOG.info("Starting Aspire worker")
 
-        val dotnetCliPath = NetCoreRuntime.cliPath.value
+        val riderEnvironment = project.getEnvironment()
 
-        val commandLine = getCommandLine(dotnetCliPath, config)
+        val commandLine = getCommandLine(riderEnvironment, config)
         LOG.trace { "Host command line: ${commandLine.commandLineString}" }
 
         val processHandler = KillableColoredProcessHandler.Silent(commandLine)
@@ -99,10 +99,11 @@ internal class AspireWorkerLauncher {
         LOG.trace("Aspire worker started")
     }
 
-    private fun getCommandLine(dotnetCliPath: String, config: AspireWorkerConfig): GeneralCommandLine {
-        val logFile = getLogFile()
+    private fun getCommandLine(environment: RiderEnvironment, config: AspireWorkerConfig): GeneralCommandLine {
+        val dotnetCliPath = environment.getRuntime().cliPath()
+        val logFile = getLogFile(environment)
         val commandLine = GeneralCommandLine()
-            .withExePath(dotnetCliPath)
+            .withExePath(dotnetCliPath.absolutePathString())
             .withCharset(StandardCharsets.UTF_8)
             .withParameters(hostAssemblyPath.toString())
             .withWorkDirectory(hostAssemblyPath.parent.toFile())
@@ -122,8 +123,8 @@ internal class AspireWorkerLauncher {
         return commandLine
     }
 
-    private fun getLogFile(): Path {
-        val aspireWorkerLogFolder = RiderEnvironment.logDirectory.toPath().resolve("AspireWorker")
+    private fun getLogFile(environment: RiderEnvironment): Path {
+        val aspireWorkerLogFolder = environment.getLogDirectory().resolve("AspireWorker")
         val format = SimpleDateFormat("yyyy_M_dd_HH_mm_ss")
         val currentTimeString = format.format(Date())
         val logFileName = "$currentTimeString.log"

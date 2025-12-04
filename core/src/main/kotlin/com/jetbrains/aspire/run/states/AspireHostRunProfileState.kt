@@ -9,7 +9,7 @@ import com.intellij.execution.runners.ProgramRunner
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.TerminalProcessHandler
 import com.jetbrains.rider.run.createConsole
-import com.jetbrains.rider.run.createRunCommandLine
+import com.jetbrains.rider.run.createRunCommandLineBlocking
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.util.concurrent.atomic.AtomicInteger
@@ -31,7 +31,7 @@ class AspireHostRunProfileState(
     ): ExecutionResult {
         dotnetExecutable.validate()
 
-        val commandLine = dotnetExecutable.createRunCommandLine(dotnetRuntime)
+        val commandLine = dotnetExecutable.createRunCommandLineBlocking(dotnetRuntime)
         val originalExecutable = Path(commandLine.exePath)
         val processHandler = TerminalProcessHandler(
             environment.project,
