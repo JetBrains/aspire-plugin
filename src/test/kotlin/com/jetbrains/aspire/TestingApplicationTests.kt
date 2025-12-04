@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire
+package com.jetbrains.aspire
 
 import com.jetbrains.rider.test.annotations.TestSettings
 import com.jetbrains.rider.test.base.UnitTestingTestBase
@@ -12,7 +12,9 @@ import org.testng.annotations.Test
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 class TestingApplicationTests : UnitTestingTestBase() {
 
-    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor, aspireLoggedErrorProcessor) }
+    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor,
+        aspireLoggedErrorProcessor
+    ) }
 
     @Test
     fun `Running xunit tests for aspire solution`() {

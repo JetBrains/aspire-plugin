@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire
+package com.jetbrains.aspire
 
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.platform.backend.workspace.WorkspaceModel
@@ -35,7 +35,9 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
         params.waitForSolutionBuilder = true
     }
 
-    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor, aspireLoggedErrorProcessor) }
+    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor,
+        aspireLoggedErrorProcessor
+    ) }
 
     @Test
     @Solution("DefaultAspNetCoreSolution")

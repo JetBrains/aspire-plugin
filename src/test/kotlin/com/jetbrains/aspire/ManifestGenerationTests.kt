@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire
+package com.jetbrains.aspire
 
 import com.jetbrains.aspire.manifest.ManifestService
 import com.jetbrains.rider.projectView.solutionDirectoryPath

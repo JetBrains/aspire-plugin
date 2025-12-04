@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire
+package com.jetbrains.aspire
 
 import com.jetbrains.rider.test.logging.RiderLoggedErrorProcessor
 import com.jetbrains.rider.test.logging.knownErrors.KnownLogErrors
