@@ -16,7 +16,7 @@ import kotlin.jvm.JvmStatic
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:9]
+ * #### Generated from [AspirePluginModel.kt:10]
  */
 class AspirePluginModel private constructor(
     private val _getProjectOutputType: RdCall<String, String?>,
@@ -49,7 +49,7 @@ class AspirePluginModel private constructor(
         private val __ReferenceProjectsFromAppHostResponseNullableSerializer = ReferenceProjectsFromAppHostResponse.nullable()
         private val __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer = ReferenceServiceDefaultsFromProjectsResponse.nullable()
         
-        const val serializationHash = -8787297446117979330L
+        const val serializationHash = -8152167548091195920L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspirePluginModel
@@ -125,7 +125,7 @@ val com.jetbrains.rd.ide.model.Solution.aspirePluginModel get() = getOrCreateExt
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:35]
+ * #### Generated from [AspirePluginModel.kt:36]
  */
 data class AspireHostEnvironmentVariable (
     val key: String,
@@ -190,11 +190,11 @@ data class AspireHostEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:11]
+ * #### Generated from [AspirePluginModel.kt:12]
  */
 data class ReferenceProjectsFromAppHostRequest (
-    val hostProjectFilePath: String,
-    val projectFilePaths: List<String>
+    val hostProjectFilePath: com.jetbrains.rd.ide.model.RdPath,
+    val projectFilePaths: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
     //companion
     
@@ -204,14 +204,14 @@ data class ReferenceProjectsFromAppHostRequest (
         
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ReferenceProjectsFromAppHostRequest  {
-            val hostProjectFilePath = buffer.readString()
-            val projectFilePaths = buffer.readList { buffer.readString() }
+            val hostProjectFilePath = com.jetbrains.rd.ide.model.RdPath.read(ctx, buffer)
+            val projectFilePaths = buffer.readList { com.jetbrains.rd.ide.model.RdPath.read(ctx, buffer) }
             return ReferenceProjectsFromAppHostRequest(hostProjectFilePath, projectFilePaths)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ReferenceProjectsFromAppHostRequest)  {
-            buffer.writeString(value.hostProjectFilePath)
-            buffer.writeList(value.projectFilePaths) { v -> buffer.writeString(v) }
+            com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, value.hostProjectFilePath)
+            buffer.writeList(value.projectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
         }
         
         
@@ -255,10 +255,10 @@ data class ReferenceProjectsFromAppHostRequest (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:16]
+ * #### Generated from [AspirePluginModel.kt:17]
  */
 data class ReferenceProjectsFromAppHostResponse (
-    val referencedProjectFilePaths: List<String>
+    val referencedProjectFilePaths: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
     //companion
     
@@ -268,12 +268,12 @@ data class ReferenceProjectsFromAppHostResponse (
         
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ReferenceProjectsFromAppHostResponse  {
-            val referencedProjectFilePaths = buffer.readList { buffer.readString() }
+            val referencedProjectFilePaths = buffer.readList { com.jetbrains.rd.ide.model.RdPath.read(ctx, buffer) }
             return ReferenceProjectsFromAppHostResponse(referencedProjectFilePaths)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ReferenceProjectsFromAppHostResponse)  {
-            buffer.writeList(value.referencedProjectFilePaths) { v -> buffer.writeString(v) }
+            buffer.writeList(value.referencedProjectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
         }
         
         
@@ -314,11 +314,11 @@ data class ReferenceProjectsFromAppHostResponse (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:20]
+ * #### Generated from [AspirePluginModel.kt:21]
  */
 data class ReferenceServiceDefaultsFromProjectsRequest (
-    val sharedProjectFilePath: String,
-    val projectFilePaths: List<String>
+    val sharedProjectFilePath: com.jetbrains.rd.ide.model.RdPath,
+    val projectFilePaths: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
     //companion
     
@@ -328,14 +328,14 @@ data class ReferenceServiceDefaultsFromProjectsRequest (
         
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ReferenceServiceDefaultsFromProjectsRequest  {
-            val sharedProjectFilePath = buffer.readString()
-            val projectFilePaths = buffer.readList { buffer.readString() }
+            val sharedProjectFilePath = com.jetbrains.rd.ide.model.RdPath.read(ctx, buffer)
+            val projectFilePaths = buffer.readList { com.jetbrains.rd.ide.model.RdPath.read(ctx, buffer) }
             return ReferenceServiceDefaultsFromProjectsRequest(sharedProjectFilePath, projectFilePaths)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ReferenceServiceDefaultsFromProjectsRequest)  {
-            buffer.writeString(value.sharedProjectFilePath)
-            buffer.writeList(value.projectFilePaths) { v -> buffer.writeString(v) }
+            com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, value.sharedProjectFilePath)
+            buffer.writeList(value.projectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
         }
         
         
@@ -379,10 +379,10 @@ data class ReferenceServiceDefaultsFromProjectsRequest (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:25]
+ * #### Generated from [AspirePluginModel.kt:26]
  */
 data class ReferenceServiceDefaultsFromProjectsResponse (
-    val projectFilePathsWithReference: List<String>
+    val projectFilePathsWithReference: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
     //companion
     
@@ -392,12 +392,12 @@ data class ReferenceServiceDefaultsFromProjectsResponse (
         
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ReferenceServiceDefaultsFromProjectsResponse  {
-            val projectFilePathsWithReference = buffer.readList { buffer.readString() }
+            val projectFilePathsWithReference = buffer.readList { com.jetbrains.rd.ide.model.RdPath.read(ctx, buffer) }
             return ReferenceServiceDefaultsFromProjectsResponse(projectFilePathsWithReference)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ReferenceServiceDefaultsFromProjectsResponse)  {
-            buffer.writeList(value.projectFilePathsWithReference) { v -> buffer.writeString(v) }
+            buffer.writeList(value.projectFilePathsWithReference) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
         }
         
         
@@ -438,11 +438,11 @@ data class ReferenceServiceDefaultsFromProjectsResponse (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:29]
+ * #### Generated from [AspirePluginModel.kt:30]
  */
 data class StartAspireHostRequest (
     val unitTestRunId: String,
-    val aspireHostProjectPath: String,
+    val aspireHostProjectPath: com.jetbrains.rd.ide.model.RdPath,
     val underDebugger: Boolean
 ) : IPrintable {
     //companion
@@ -454,14 +454,14 @@ data class StartAspireHostRequest (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): StartAspireHostRequest  {
             val unitTestRunId = buffer.readString()
-            val aspireHostProjectPath = buffer.readString()
+            val aspireHostProjectPath = com.jetbrains.rd.ide.model.RdPath.read(ctx, buffer)
             val underDebugger = buffer.readBool()
             return StartAspireHostRequest(unitTestRunId, aspireHostProjectPath, underDebugger)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: StartAspireHostRequest)  {
             buffer.writeString(value.unitTestRunId)
-            buffer.writeString(value.aspireHostProjectPath)
+            com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, value.aspireHostProjectPath)
             buffer.writeBool(value.underDebugger)
         }
         
@@ -509,7 +509,7 @@ data class StartAspireHostRequest (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:40]
+ * #### Generated from [AspirePluginModel.kt:41]
  */
 data class StartAspireHostResponse (
     val environmentVariables: Array<AspireHostEnvironmentVariable>
@@ -568,7 +568,7 @@ data class StartAspireHostResponse (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:44]
+ * #### Generated from [AspirePluginModel.kt:45]
  */
 data class StopAspireHostRequest (
     val unitTestRunId: String

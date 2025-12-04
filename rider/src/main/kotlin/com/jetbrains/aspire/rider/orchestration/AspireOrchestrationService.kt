@@ -20,6 +20,8 @@ import com.jetbrains.aspire.generated.aspirePluginModel
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.util.isAspireHostProject
 import com.jetbrains.aspire.util.isAspireSharedProject
+import com.jetbrains.rider.ijent.extensions.toNioPath
+import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.AddProjectCommand
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.model.RdProjectType
@@ -33,7 +35,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**
@@ -226,9 +227,9 @@ class AspireOrchestrationService(private val project: Project) {
         mauiSharedProjectPath: Path?
     ) {
         val projects = buildList {
-            hostProjectPath?.let { add(it.absolutePathString()) }
-            sharedProjectPath?.let { add(it.absolutePathString()) }
-            mauiSharedProjectPath?.let { add(it.absolutePathString()) }
+            hostProjectPath?.let { add(it.toRd()) }
+            sharedProjectPath?.let { add(it.toRd()) }
+            mauiSharedProjectPath?.let { add(it.toRd()) }
         }
         val parameters = RdPostProcessParameters(false, listOf())
 
@@ -251,12 +252,12 @@ class AspireOrchestrationService(private val project: Project) {
     ): Boolean {
         if (hostProjectPath == null) return false
 
-        val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
+        val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath() }
         val referenceByHostProjectResult =
             referenceByHostProject(hostProjectPath, projectFilePathStrings) ?: return false
 
         val referencedProjectFilePaths =
-            referenceByHostProjectResult.referencedProjectFilePaths.map { path -> Path(path) }
+            referenceByHostProjectResult.referencedProjectFilePaths.map { it.toNioPath() }
 
         return AspireDefaultFileModificationService
             .getInstance(project)
@@ -264,11 +265,11 @@ class AspireOrchestrationService(private val project: Project) {
 
     }
 
-    private suspend fun referenceByHostProject(hostProjectPath: Path, projectFilePaths: List<String>) =
+    private suspend fun referenceByHostProject(hostProjectPath: Path, projectFilePaths: List<Path>) =
         withContext(Dispatchers.EDT) {
             val request = ReferenceProjectsFromAppHostRequest(
-                hostProjectPath.absolutePathString(),
-                projectFilePaths
+                hostProjectPath.toRd(),
+                projectFilePaths.map { it.toRd() }
             )
 
             project.solution.aspirePluginModel.referenceProjectsFromAppHost.startSuspending(request)
@@ -308,12 +309,12 @@ class AspireOrchestrationService(private val project: Project) {
         sharedProjectPath: Path,
         projectEntities: List<ProjectModelEntity>
     ): Boolean {
-        val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath()?.absolutePathString() }
+        val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath() }
         val referenceSharedProjectResult =
             referenceSharedProject(sharedProjectPath, projectFilePathStrings) ?: return false
 
         val projectsWithReference = referenceSharedProjectResult.projectFilePathsWithReference.map { path ->
-            val projectPath = Path(path)
+            val projectPath = path.toNioPath()
             val entity = projectEntities.firstOrNull { entity -> entity.url?.toPath() == projectPath }
             projectPath to entity
         }
@@ -323,11 +324,11 @@ class AspireOrchestrationService(private val project: Project) {
             .insertAspireDefaultMethodsIntoProjects(projectsWithReference)
     }
 
-    private suspend fun referenceSharedProject(sharedProjectPath: Path, projectFilePaths: List<String>) =
+    private suspend fun referenceSharedProject(sharedProjectPath: Path, projectFilePaths: List<Path>) =
         withContext(Dispatchers.EDT) {
             val request = ReferenceServiceDefaultsFromProjectsRequest(
-                sharedProjectPath.absolutePathString(),
-                projectFilePaths
+                sharedProjectPath.toRd(),
+                projectFilePaths.map { it.toRd() }
             )
 
             project.solution.aspirePluginModel.referenceServiceDefaultsFromProjects.startSuspending(request)
