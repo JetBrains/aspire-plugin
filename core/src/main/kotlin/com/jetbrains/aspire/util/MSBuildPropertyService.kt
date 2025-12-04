@@ -73,7 +73,7 @@ class MSBuildPropertyService(private val project: Project) {
         }
 
         val buildCommandLine = GeneralCommandLine()
-            .withExePath(runtime.cliExePath)
+            .withExePath(runtime.cliExePath.absolutePathString())
             .withParameters(listOf("build", projectPath.absolutePathString()))
         val buildOutput = withContext(Dispatchers.IO) {
             withBackgroundProgress(project, "Building ${projectPath.nameWithoutExtension}") {
@@ -86,7 +86,7 @@ class MSBuildPropertyService(private val project: Project) {
         }
 
         val propertyCommandLine = GeneralCommandLine()
-            .withExePath(runtime.cliExePath)
+            .withExePath(runtime.cliExePath.absolutePathString())
             .withParameters(
                 listOf(
                     "build",
