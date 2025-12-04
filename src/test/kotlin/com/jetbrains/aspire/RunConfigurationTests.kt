@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire
+package com.jetbrains.aspire
 
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution

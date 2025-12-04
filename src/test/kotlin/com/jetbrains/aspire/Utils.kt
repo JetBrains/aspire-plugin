@@ -1,4 +1,4 @@
-﻿package com.jetbrains.rider.aspire
+﻿package com.jetbrains.aspire
 
 import com.intellij.execution.RunManagerEx
 import com.intellij.execution.process.ProcessOutputType

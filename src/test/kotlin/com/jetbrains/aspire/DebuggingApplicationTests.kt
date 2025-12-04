@@ -1,4 +1,4 @@
-package com.jetbrains.rider.aspire
+package com.jetbrains.aspire
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.jetbrains.rdclient.util.idea.toVirtualFile
@@ -36,7 +36,9 @@ class DebuggingApplicationTests : DebuggerTestBase() {
 
     override val projectName = "DefaultAspireSolution"
 
-    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor, aspireLoggedErrorProcessor) }
+    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor,
+        aspireLoggedErrorProcessor
+    ) }
 
     @Test
     @Solution("DefaultAspireSolution")
