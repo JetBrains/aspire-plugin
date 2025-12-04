@@ -1,6 +1,7 @@
 using JetBrains.Application.Components;
 using JetBrains.Application.Parts;
 using JetBrains.Application.Threading;
+using JetBrains.IDE;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Impl;
@@ -31,39 +32,22 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
     /// <param name="projectFilePaths">A list of file paths for the projects to be referenced in the host project.</param>
     /// <param name="lifetime">The <see cref="Lifetime"/> object controlling the scope of the operation, allowing cancellation if needed.</param>
     public ReferenceProjectsFromAppHostResponse? ReferenceProjectsFromAppHost(
-        string hostProjectFilePath,
-        List<string> projectFilePaths,
+        VirtualFileSystemPath hostProjectFilePath,
+        List<VirtualFileSystemPath> projectFilePaths,
         Lifetime lifetime)
     {
-        var hostProjectPath = hostProjectFilePath.ParseVirtualPath(InteractionContext.SolutionContext);
-        if (hostProjectPath is null)
-        {
-            logger.Warn($"Unable to parse a host project file path: {hostProjectFilePath}");
-            return null;
-        }
-
-        var projectPaths = projectFilePaths
-            .Select(it => it.ParseVirtualPath(InteractionContext.SolutionContext))
-            .WhereNotNull()
-            .ToList();
-        if (projectPaths.Count == 0)
-        {
-            logger.Warn("No project file paths to reference from AppHost found");
-            return null;
-        }
-
         var solutionHost = solution.ProjectsHostContainer().GetComponent<ISolutionHost>();
         solutionHost.SuspendAsyncProjectsReloading(lifetime);
 
-        var hostProject = solution.FindProjectByPath(hostProjectPath);
+        var hostProject = solution.FindProjectByPath(hostProjectFilePath);
         if (hostProject is null)
         {
             logger.Warn("Unable to find a Host project");
             return null;
         }
 
-        var referencedProjectPaths = new List<string>(projectFilePaths.Count);
-        foreach (var projectPath in projectPaths)
+        var referencedProjectPaths = new List<VirtualFileSystemPath>(projectFilePaths.Count);
+        foreach (var projectPath in projectFilePaths)
         {
             var project = AddProjectReference(hostProject, projectPath);
             if (project is null)
@@ -71,11 +55,12 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
                 continue;
             }
 
-            referencedProjectPaths.Add(projectPath.FullPath);
+            referencedProjectPaths.Add(projectPath);
             lifetime.ThrowIfNotAlive();
         }
 
-        return new ReferenceProjectsFromAppHostResponse(referencedProjectPaths);
+        var resultPaths = referencedProjectPaths.Select(it => it.ToRd()).ToList();
+        return new ReferenceProjectsFromAppHostResponse(resultPaths);
     }
 
     /// <summary>
@@ -85,39 +70,22 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
     /// <param name="projectFilePaths">A list of file paths for the projects which will reference the shared project.</param>
     /// <param name="lifetime">The <see cref="Lifetime"/> object controlling the scope of the operation, allowing cancellation if needed.</param>
     public ReferenceServiceDefaultsFromProjectsResponse? ReferenceServiceDefaultsFromProjects(
-        string sharedProjectFilePath,
-        List<string> projectFilePaths,
+        VirtualFileSystemPath sharedProjectFilePath,
+        List<VirtualFileSystemPath> projectFilePaths,
         Lifetime lifetime)
     {
-        var sharedProjectPath = sharedProjectFilePath.ParseVirtualPath(InteractionContext.SolutionContext);
-        if (sharedProjectPath is null)
-        {
-            logger.Warn($"Unable to parse a shared project file path: {sharedProjectFilePath}");
-            return null;
-        }
-
-        var projectPaths = projectFilePaths
-            .Select(it => it.ParseVirtualPath(InteractionContext.SolutionContext))
-            .WhereNotNull()
-            .ToList();
-        if (projectPaths.Count == 0)
-        {
-            logger.Warn("No project file paths to reference ServiceDeaults found");
-            return null;
-        }
-
         var solutionHost = solution.ProjectsHostContainer().GetComponent<ISolutionHost>();
         solutionHost.SuspendAsyncProjectsReloading(lifetime);
 
-        var sharedProject = solution.FindProjectByPath(sharedProjectPath);
+        var sharedProject = solution.FindProjectByPath(sharedProjectFilePath);
         if (sharedProject is null)
         {
             logger.Warn("Unable to find a Shared project");
             return null;
         }
 
-        var projectPathsWithReference = new List<string>(projectFilePaths.Count);
-        foreach (var projectPath in projectPaths)
+        var projectPathsWithReference = new List<VirtualFileSystemPath>(projectFilePaths.Count);
+        foreach (var projectPath in projectFilePaths)
         {
             var project = AddProjectReference(projectPath, sharedProject);
             if (project is null)
@@ -125,11 +93,12 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
                 continue;
             }
 
-            projectPathsWithReference.Add(projectPath.FullPath);
+            projectPathsWithReference.Add(projectPath);
             lifetime.ThrowIfNotAlive();
         }
 
-        return new ReferenceServiceDefaultsFromProjectsResponse(projectPathsWithReference);
+        var resultPaths = projectPathsWithReference.Select(it => it.ToRd()).ToList();
+        return new ReferenceServiceDefaultsFromProjectsResponse(resultPaths);
     }
 
     private IProject? AddProjectReference(IProject targetProject, VirtualFileSystemPath projectToReference)
