@@ -4,31 +4,32 @@ import com.jetbrains.rd.generator.nova.*
 import com.jetbrains.rd.generator.nova.PredefinedType.*
 import com.jetbrains.rd.generator.nova.csharp.CSharp50Generator
 import com.jetbrains.rd.generator.nova.kotlin.Kotlin11Generator
+import com.jetbrains.rider.model.nova.ide.IdeRoot.RdPath
 import com.jetbrains.rider.model.nova.ide.SolutionModel
 
 @Suppress("unused")
 object AspirePluginModel : Ext(SolutionModel.Solution) {
     private val ReferenceProjectsFromAppHostRequest = structdef {
-        field("hostProjectFilePath", string)
-        field("projectFilePaths", immutableList(string))
+        field("hostProjectFilePath", RdPath)
+        field("projectFilePaths", immutableList(RdPath))
     }
 
     private val ReferenceProjectsFromAppHostResponse = structdef {
-        field("referencedProjectFilePaths", immutableList(string))
+        field("referencedProjectFilePaths", immutableList(RdPath))
     }
 
     private val ReferenceServiceDefaultsFromProjectsRequest = structdef {
-        field("sharedProjectFilePath", string)
-        field("projectFilePaths", immutableList(string))
+        field("sharedProjectFilePath", RdPath)
+        field("projectFilePaths", immutableList(RdPath))
     }
 
     private val ReferenceServiceDefaultsFromProjectsResponse = structdef {
-        field("projectFilePathsWithReference", immutableList(string))
+        field("projectFilePathsWithReference", immutableList(RdPath))
     }
 
     private val StartAspireHostRequest = structdef {
         field("unitTestRunId", string)
-        field("aspireHostProjectPath", string)
+        field("aspireHostProjectPath", RdPath)
         field("underDebugger", bool)
     }
 

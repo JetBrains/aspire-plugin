@@ -36,7 +36,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:9</p>
+  /// <p>Generated from: AspirePluginModel.kt:10</p>
   /// </summary>
   public class AspirePluginModel : RdExtBase
   {
@@ -114,7 +114,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     public static  CtxWriteDelegate<ReferenceProjectsFromAppHostResponse> WriteReferenceProjectsFromAppHostResponseNullable = ReferenceProjectsFromAppHostResponse.Write.NullableClass();
     public static  CtxWriteDelegate<ReferenceServiceDefaultsFromProjectsResponse> WriteReferenceServiceDefaultsFromProjectsResponseNullable = ReferenceServiceDefaultsFromProjectsResponse.Write.NullableClass();
     
-    protected override long SerializationHash => -8787297446117979330L;
+    protected override long SerializationHash => -8152167548091195920L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -162,7 +162,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:35</p>
+  /// <p>Generated from: AspirePluginModel.kt:36</p>
   /// </summary>
   public sealed class AspireHostEnvironmentVariable : IPrintable, IEquatable<AspireHostEnvironmentVariable>
   {
@@ -256,20 +256,20 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:11</p>
+  /// <p>Generated from: AspirePluginModel.kt:12</p>
   /// </summary>
   public sealed class ReferenceProjectsFromAppHostRequest : IPrintable, IEquatable<ReferenceProjectsFromAppHostRequest>
   {
     //fields
     //public fields
-    [NotNull] public string HostProjectFilePath {get; private set;}
-    [NotNull] public List<string> ProjectFilePaths {get; private set;}
+    [NotNull] public JetBrains.Rider.Model.RdPath HostProjectFilePath {get; private set;}
+    [NotNull] public List<JetBrains.Rider.Model.RdPath> ProjectFilePaths {get; private set;}
     
     //private fields
     //primary constructor
     public ReferenceProjectsFromAppHostRequest(
-      [NotNull] string hostProjectFilePath,
-      [NotNull] List<string> projectFilePaths
+      [NotNull] JetBrains.Rider.Model.RdPath hostProjectFilePath,
+      [NotNull] List<JetBrains.Rider.Model.RdPath> projectFilePaths
     )
     {
       if (hostProjectFilePath == null) throw new ArgumentNullException("hostProjectFilePath");
@@ -280,7 +280,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string hostProjectFilePath, [NotNull] out List<string> projectFilePaths)
+    public void Deconstruct([NotNull] out JetBrains.Rider.Model.RdPath hostProjectFilePath, [NotNull] out List<JetBrains.Rider.Model.RdPath> projectFilePaths)
     {
       hostProjectFilePath = HostProjectFilePath;
       projectFilePaths = ProjectFilePaths;
@@ -289,19 +289,19 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     
     public static CtxReadDelegate<ReferenceProjectsFromAppHostRequest> Read = (ctx, reader) => 
     {
-      var hostProjectFilePath = reader.ReadString();
-      var projectFilePaths = ReadStringList(ctx, reader);
+      var hostProjectFilePath = JetBrains.Rider.Model.RdPath.Read(ctx, reader);
+      var projectFilePaths = ReadRdPathList(ctx, reader);
       var _result = new ReferenceProjectsFromAppHostRequest(hostProjectFilePath, projectFilePaths);
       return _result;
     };
-    public static CtxReadDelegate<List<string>> ReadStringList = JetBrains.Rd.Impl.Serializers.ReadString.List();
+    public static CtxReadDelegate<List<JetBrains.Rider.Model.RdPath>> ReadRdPathList = JetBrains.Rider.Model.RdPath.Read.List();
     
     public static CtxWriteDelegate<ReferenceProjectsFromAppHostRequest> Write = (ctx, writer, value) => 
     {
-      writer.Write(value.HostProjectFilePath);
-      WriteStringList(ctx, writer, value.ProjectFilePaths);
+      JetBrains.Rider.Model.RdPath.Write(ctx, writer, value.HostProjectFilePath);
+      WriteRdPathList(ctx, writer, value.ProjectFilePaths);
     };
-    public static  CtxWriteDelegate<List<string>> WriteStringList = JetBrains.Rd.Impl.Serializers.WriteString.List();
+    public static  CtxWriteDelegate<List<JetBrains.Rider.Model.RdPath>> WriteRdPathList = JetBrains.Rider.Model.RdPath.Write.List();
     
     //constants
     
@@ -319,7 +319,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return HostProjectFilePath == other.HostProjectFilePath && ProjectFilePaths.SequenceEqual(other.ProjectFilePaths);
+      return Equals(HostProjectFilePath, other.HostProjectFilePath) && ProjectFilePaths.SequenceEqual(other.ProjectFilePaths);
     }
     //hash code trait
     public override int GetHashCode()
@@ -352,18 +352,18 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:16</p>
+  /// <p>Generated from: AspirePluginModel.kt:17</p>
   /// </summary>
   public sealed class ReferenceProjectsFromAppHostResponse : IPrintable, IEquatable<ReferenceProjectsFromAppHostResponse>
   {
     //fields
     //public fields
-    [NotNull] public List<string> ReferencedProjectFilePaths {get; private set;}
+    [NotNull] public List<JetBrains.Rider.Model.RdPath> ReferencedProjectFilePaths {get; private set;}
     
     //private fields
     //primary constructor
     public ReferenceProjectsFromAppHostResponse(
-      [NotNull] List<string> referencedProjectFilePaths
+      [NotNull] List<JetBrains.Rider.Model.RdPath> referencedProjectFilePaths
     )
     {
       if (referencedProjectFilePaths == null) throw new ArgumentNullException("referencedProjectFilePaths");
@@ -372,7 +372,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out List<string> referencedProjectFilePaths)
+    public void Deconstruct([NotNull] out List<JetBrains.Rider.Model.RdPath> referencedProjectFilePaths)
     {
       referencedProjectFilePaths = ReferencedProjectFilePaths;
     }
@@ -380,17 +380,17 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     
     public static CtxReadDelegate<ReferenceProjectsFromAppHostResponse> Read = (ctx, reader) => 
     {
-      var referencedProjectFilePaths = ReadStringList(ctx, reader);
+      var referencedProjectFilePaths = ReadRdPathList(ctx, reader);
       var _result = new ReferenceProjectsFromAppHostResponse(referencedProjectFilePaths);
       return _result;
     };
-    public static CtxReadDelegate<List<string>> ReadStringList = JetBrains.Rd.Impl.Serializers.ReadString.List();
+    public static CtxReadDelegate<List<JetBrains.Rider.Model.RdPath>> ReadRdPathList = JetBrains.Rider.Model.RdPath.Read.List();
     
     public static CtxWriteDelegate<ReferenceProjectsFromAppHostResponse> Write = (ctx, writer, value) => 
     {
-      WriteStringList(ctx, writer, value.ReferencedProjectFilePaths);
+      WriteRdPathList(ctx, writer, value.ReferencedProjectFilePaths);
     };
-    public static  CtxWriteDelegate<List<string>> WriteStringList = JetBrains.Rd.Impl.Serializers.WriteString.List();
+    public static  CtxWriteDelegate<List<JetBrains.Rider.Model.RdPath>> WriteRdPathList = JetBrains.Rider.Model.RdPath.Write.List();
     
     //constants
     
@@ -439,20 +439,20 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:20</p>
+  /// <p>Generated from: AspirePluginModel.kt:21</p>
   /// </summary>
   public sealed class ReferenceServiceDefaultsFromProjectsRequest : IPrintable, IEquatable<ReferenceServiceDefaultsFromProjectsRequest>
   {
     //fields
     //public fields
-    [NotNull] public string SharedProjectFilePath {get; private set;}
-    [NotNull] public List<string> ProjectFilePaths {get; private set;}
+    [NotNull] public JetBrains.Rider.Model.RdPath SharedProjectFilePath {get; private set;}
+    [NotNull] public List<JetBrains.Rider.Model.RdPath> ProjectFilePaths {get; private set;}
     
     //private fields
     //primary constructor
     public ReferenceServiceDefaultsFromProjectsRequest(
-      [NotNull] string sharedProjectFilePath,
-      [NotNull] List<string> projectFilePaths
+      [NotNull] JetBrains.Rider.Model.RdPath sharedProjectFilePath,
+      [NotNull] List<JetBrains.Rider.Model.RdPath> projectFilePaths
     )
     {
       if (sharedProjectFilePath == null) throw new ArgumentNullException("sharedProjectFilePath");
@@ -463,7 +463,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string sharedProjectFilePath, [NotNull] out List<string> projectFilePaths)
+    public void Deconstruct([NotNull] out JetBrains.Rider.Model.RdPath sharedProjectFilePath, [NotNull] out List<JetBrains.Rider.Model.RdPath> projectFilePaths)
     {
       sharedProjectFilePath = SharedProjectFilePath;
       projectFilePaths = ProjectFilePaths;
@@ -472,19 +472,19 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     
     public static CtxReadDelegate<ReferenceServiceDefaultsFromProjectsRequest> Read = (ctx, reader) => 
     {
-      var sharedProjectFilePath = reader.ReadString();
-      var projectFilePaths = ReadStringList(ctx, reader);
+      var sharedProjectFilePath = JetBrains.Rider.Model.RdPath.Read(ctx, reader);
+      var projectFilePaths = ReadRdPathList(ctx, reader);
       var _result = new ReferenceServiceDefaultsFromProjectsRequest(sharedProjectFilePath, projectFilePaths);
       return _result;
     };
-    public static CtxReadDelegate<List<string>> ReadStringList = JetBrains.Rd.Impl.Serializers.ReadString.List();
+    public static CtxReadDelegate<List<JetBrains.Rider.Model.RdPath>> ReadRdPathList = JetBrains.Rider.Model.RdPath.Read.List();
     
     public static CtxWriteDelegate<ReferenceServiceDefaultsFromProjectsRequest> Write = (ctx, writer, value) => 
     {
-      writer.Write(value.SharedProjectFilePath);
-      WriteStringList(ctx, writer, value.ProjectFilePaths);
+      JetBrains.Rider.Model.RdPath.Write(ctx, writer, value.SharedProjectFilePath);
+      WriteRdPathList(ctx, writer, value.ProjectFilePaths);
     };
-    public static  CtxWriteDelegate<List<string>> WriteStringList = JetBrains.Rd.Impl.Serializers.WriteString.List();
+    public static  CtxWriteDelegate<List<JetBrains.Rider.Model.RdPath>> WriteRdPathList = JetBrains.Rider.Model.RdPath.Write.List();
     
     //constants
     
@@ -502,7 +502,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return SharedProjectFilePath == other.SharedProjectFilePath && ProjectFilePaths.SequenceEqual(other.ProjectFilePaths);
+      return Equals(SharedProjectFilePath, other.SharedProjectFilePath) && ProjectFilePaths.SequenceEqual(other.ProjectFilePaths);
     }
     //hash code trait
     public override int GetHashCode()
@@ -535,18 +535,18 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:25</p>
+  /// <p>Generated from: AspirePluginModel.kt:26</p>
   /// </summary>
   public sealed class ReferenceServiceDefaultsFromProjectsResponse : IPrintable, IEquatable<ReferenceServiceDefaultsFromProjectsResponse>
   {
     //fields
     //public fields
-    [NotNull] public List<string> ProjectFilePathsWithReference {get; private set;}
+    [NotNull] public List<JetBrains.Rider.Model.RdPath> ProjectFilePathsWithReference {get; private set;}
     
     //private fields
     //primary constructor
     public ReferenceServiceDefaultsFromProjectsResponse(
-      [NotNull] List<string> projectFilePathsWithReference
+      [NotNull] List<JetBrains.Rider.Model.RdPath> projectFilePathsWithReference
     )
     {
       if (projectFilePathsWithReference == null) throw new ArgumentNullException("projectFilePathsWithReference");
@@ -555,7 +555,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out List<string> projectFilePathsWithReference)
+    public void Deconstruct([NotNull] out List<JetBrains.Rider.Model.RdPath> projectFilePathsWithReference)
     {
       projectFilePathsWithReference = ProjectFilePathsWithReference;
     }
@@ -563,17 +563,17 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     
     public static CtxReadDelegate<ReferenceServiceDefaultsFromProjectsResponse> Read = (ctx, reader) => 
     {
-      var projectFilePathsWithReference = ReadStringList(ctx, reader);
+      var projectFilePathsWithReference = ReadRdPathList(ctx, reader);
       var _result = new ReferenceServiceDefaultsFromProjectsResponse(projectFilePathsWithReference);
       return _result;
     };
-    public static CtxReadDelegate<List<string>> ReadStringList = JetBrains.Rd.Impl.Serializers.ReadString.List();
+    public static CtxReadDelegate<List<JetBrains.Rider.Model.RdPath>> ReadRdPathList = JetBrains.Rider.Model.RdPath.Read.List();
     
     public static CtxWriteDelegate<ReferenceServiceDefaultsFromProjectsResponse> Write = (ctx, writer, value) => 
     {
-      WriteStringList(ctx, writer, value.ProjectFilePathsWithReference);
+      WriteRdPathList(ctx, writer, value.ProjectFilePathsWithReference);
     };
-    public static  CtxWriteDelegate<List<string>> WriteStringList = JetBrains.Rd.Impl.Serializers.WriteString.List();
+    public static  CtxWriteDelegate<List<JetBrains.Rider.Model.RdPath>> WriteRdPathList = JetBrains.Rider.Model.RdPath.Write.List();
     
     //constants
     
@@ -622,21 +622,21 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:29</p>
+  /// <p>Generated from: AspirePluginModel.kt:30</p>
   /// </summary>
   public sealed class StartAspireHostRequest : IPrintable, IEquatable<StartAspireHostRequest>
   {
     //fields
     //public fields
     [NotNull] public string UnitTestRunId {get; private set;}
-    [NotNull] public string AspireHostProjectPath {get; private set;}
+    [NotNull] public JetBrains.Rider.Model.RdPath AspireHostProjectPath {get; private set;}
     public bool UnderDebugger {get; private set;}
     
     //private fields
     //primary constructor
     public StartAspireHostRequest(
       [NotNull] string unitTestRunId,
-      [NotNull] string aspireHostProjectPath,
+      [NotNull] JetBrains.Rider.Model.RdPath aspireHostProjectPath,
       bool underDebugger
     )
     {
@@ -649,7 +649,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string unitTestRunId, [NotNull] out string aspireHostProjectPath, out bool underDebugger)
+    public void Deconstruct([NotNull] out string unitTestRunId, [NotNull] out JetBrains.Rider.Model.RdPath aspireHostProjectPath, out bool underDebugger)
     {
       unitTestRunId = UnitTestRunId;
       aspireHostProjectPath = AspireHostProjectPath;
@@ -660,7 +660,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     public static CtxReadDelegate<StartAspireHostRequest> Read = (ctx, reader) => 
     {
       var unitTestRunId = reader.ReadString();
-      var aspireHostProjectPath = reader.ReadString();
+      var aspireHostProjectPath = JetBrains.Rider.Model.RdPath.Read(ctx, reader);
       var underDebugger = reader.ReadBool();
       var _result = new StartAspireHostRequest(unitTestRunId, aspireHostProjectPath, underDebugger);
       return _result;
@@ -669,7 +669,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     public static CtxWriteDelegate<StartAspireHostRequest> Write = (ctx, writer, value) => 
     {
       writer.Write(value.UnitTestRunId);
-      writer.Write(value.AspireHostProjectPath);
+      JetBrains.Rider.Model.RdPath.Write(ctx, writer, value.AspireHostProjectPath);
       writer.Write(value.UnderDebugger);
     };
     
@@ -689,7 +689,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return UnitTestRunId == other.UnitTestRunId && AspireHostProjectPath == other.AspireHostProjectPath && UnderDebugger == other.UnderDebugger;
+      return UnitTestRunId == other.UnitTestRunId && Equals(AspireHostProjectPath, other.AspireHostProjectPath) && UnderDebugger == other.UnderDebugger;
     }
     //hash code trait
     public override int GetHashCode()
@@ -724,7 +724,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:40</p>
+  /// <p>Generated from: AspirePluginModel.kt:41</p>
   /// </summary>
   public sealed class StartAspireHostResponse : IPrintable, IEquatable<StartAspireHostResponse>
   {
@@ -811,7 +811,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:44</p>
+  /// <p>Generated from: AspirePluginModel.kt:45</p>
   /// </summary>
   public sealed class StopAspireHostRequest : IPrintable, IEquatable<StopAspireHostRequest>
   {
