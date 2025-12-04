@@ -14,6 +14,7 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
 internal class AspireFileExecutorFactory(
     private val project: Project,
@@ -54,7 +55,7 @@ internal class AspireFileExecutorFactory(
         val effectiveLaunchBrowser = parameters.startBrowserParameters.startAfterLaunch
 
         return DotNetExecutable(
-            activeRuntime.cliExePath,
+            activeRuntime.cliExePath.absolutePathString(),
             null,
             parameters.workingDirectory,
             effectiveArguments,
