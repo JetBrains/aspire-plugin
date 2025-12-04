@@ -1,5 +1,6 @@
 using JetBrains.Application.Parts;
 using JetBrains.Application.Threading;
+using JetBrains.IDE;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Properties;
@@ -44,15 +45,19 @@ public class AspirePluginHost
         ReferenceProjectsFromAppHostRequest request,
         Lifetime lifetime)
     {
-        return _projectModelService.ReferenceProjectsFromAppHost(request.HostProjectFilePath,
-            request.ProjectFilePaths, lifetime);
+        return _projectModelService.ReferenceProjectsFromAppHost(
+            request.HostProjectFilePath.FromRd(),
+            request.ProjectFilePaths.Select(it => it.FromRd()).ToList(),
+            lifetime);
     }
 
     private ReferenceServiceDefaultsFromProjectsResponse? ReferenceServiceDefaultsFromProjects(
         ReferenceServiceDefaultsFromProjectsRequest request,
         Lifetime lifetime)
     {
-        return _projectModelService.ReferenceServiceDefaultsFromProjects(request.SharedProjectFilePath,
-            request.ProjectFilePaths, lifetime);
+        return _projectModelService.ReferenceServiceDefaultsFromProjects(
+            request.SharedProjectFilePath.FromRd(),
+            request.ProjectFilePaths.Select(it => it.FromRd()).ToList(),
+            lifetime);
     }
 }

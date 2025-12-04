@@ -1,6 +1,7 @@
 using JetBrains.Application.Parts;
 using JetBrains.Application.Threading;
 using JetBrains.Core;
+using JetBrains.IDE;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Assemblies.Interfaces;
 using JetBrains.Rd.Tasks;
@@ -46,13 +47,13 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
         {
             var project = netDescriptor.Project;
             var aspireHostProject = GetAspireHostProject(project, netDescriptor.TargetFrameworkId);
-            var aspireHostProjectPath = aspireHostProject?.ProjectFile?.Location.FullPath;
+            var aspireHostProjectPath = aspireHostProject?.ProjectFile?.Location;
             if (aspireHostProjectPath is not null)
             {
                 var isDebugging = run.Launch.HostProvider is DebugHostProvider;
                 var request = new StartAspireHostRequest(
                     run.Id,
-                    aspireHostProjectPath,
+                    aspireHostProjectPath.ToRd(),
                     isDebugging
                 );
                 var model = solution.GetProtocolSolution().GetAspirePluginModel();

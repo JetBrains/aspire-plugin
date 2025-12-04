@@ -9,18 +9,22 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
+import com.jetbrains.aspire.generated.*
+import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
+import com.jetbrains.aspire.util.generateDcpInstancePrefix
+import com.jetbrains.aspire.worker.AspireWorkerManager
 import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.util.*
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.rider.ijent.extensions.toNioPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**
@@ -61,7 +65,7 @@ internal class AspireUnitTestService(private val project: Project, private val s
 
                 val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
                 val dcpInstancePrefix = generateDcpInstancePrefix()
-                val aspireHostProjectPath = Path(request.aspireHostProjectPath)
+                val aspireHostProjectPath = request.aspireHostProjectPath.toNioPath()
 
                 val aspireHostConfig = AspireHostModelConfig(
                     dcpInstancePrefix,
