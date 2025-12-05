@@ -4,12 +4,14 @@ import com.intellij.execution.RunManager
 import com.intellij.execution.RunManagerListener
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.ConfigurationTypeUtil
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.util.NetworkUtils
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.generated.AspireHostModel
@@ -18,11 +20,7 @@ import com.jetbrains.aspire.generated.aspireWorkerModel
 import com.jetbrains.aspire.run.AspireConfigurationType
 import com.jetbrains.aspire.run.AspireRunConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
-import com.jetbrains.aspire.util.DEBUG_SESSION_PORT
-import com.jetbrains.aspire.util.DEBUG_SESSION_SERVER_CERTIFICATE
-import com.jetbrains.aspire.util.DEBUG_SESSION_TOKEN
-import com.jetbrains.aspire.util.checkDevCertificate
-import com.jetbrains.aspire.util.exportCertificate
+import com.jetbrains.aspire.util.*
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.protocol.IdeRootMarshallersProvider
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -39,10 +37,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 @Service(Service.Level.PROJECT)
-internal class AspireWorkerService(private val project: Project) {
+internal class AspireWorkerService(private val project: Project) : Disposable {
     companion object {
         fun getInstance(project: Project): AspireWorkerService = project.service()
 
@@ -69,6 +68,8 @@ internal class AspireWorkerService(private val project: Project) {
         if (previousValue != null) return
 
         val newAppHost = AspireAppHost(mainFilePath, project)
+        Disposer.register(this, newAppHost)
+
         _appHosts.update { currentList ->
             currentList + newAppHost
         }
@@ -114,7 +115,7 @@ internal class AspireWorkerService(private val project: Project) {
 
             val protocol = startAspireWorkerProtocol(workerLifetime.lifetime)
 
-            subscribeToModel(protocol.aspireWorkerModel, workerLifetime.lifetime)
+            subscribeToAspireWorkerModel(protocol.aspireWorkerModel, workerLifetime.lifetime)
 
             val token = UUID.randomUUID().toString()
             val port = NetworkUtils.findFreePort(47100)
@@ -155,7 +156,7 @@ internal class AspireWorkerService(private val project: Project) {
         return@withContext protocol
     }
 
-    private suspend fun subscribeToModel(aspireWorkerModel: AspireWorkerModel, lifetime: Lifetime) {
+    private suspend fun subscribeToAspireWorkerModel(aspireWorkerModel: AspireWorkerModel, lifetime: Lifetime) {
         LOG.trace("Subscribing to Aspire worker model")
 
         withContext(Dispatchers.EDT) {
@@ -166,7 +167,15 @@ internal class AspireWorkerService(private val project: Project) {
     }
 
     private fun viewAspireAppHost(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
-        // Empty for now
+        val appHostMainFilePath = Path(appHostModel.config.aspireHostProjectPath)
+        val appHost = _appHosts.value.firstOrNull { it.mainFilePath == appHostMainFilePath }
+        if (appHost == null) {
+            LOG.warn("Could not find Aspire host $appHostMainFilePath")
+            return
+        }
+
+        LOG.trace { "Setting Aspire host model to $appHostMainFilePath" }
+        appHost.subscribeToAspireAppHostModel(appHostModel, appHostLifetime)
     }
 
     private suspend fun calculateServerCertificate(workerLifetime: LifetimeDefinition): String? {
@@ -190,6 +199,9 @@ internal class AspireWorkerService(private val project: Project) {
 
             workerLifetimes.terminateCurrent()
         }
+    }
+
+    override fun dispose() {
     }
 
     sealed interface AspireWorkerState {

@@ -8,9 +8,9 @@ import com.jetbrains.aspire.worker.AspireAppHost
 import kotlinx.coroutines.CoroutineScope
 import kotlin.io.path.nameWithoutExtension
 
-class AspireAppHostViewModel(
+internal class AspireAppHostViewModel(
     parentCs: CoroutineScope,
-    private val appHost: AspireAppHost
+     private val appHost: AspireAppHost
 ) {
     private val cs: CoroutineScope = parentCs.childScope("Aspire AppHost VM")
 
