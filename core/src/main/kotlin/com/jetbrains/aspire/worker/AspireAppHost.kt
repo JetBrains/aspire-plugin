@@ -34,11 +34,8 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) {
     private val _appHostState: MutableStateFlow<AspireAppHostState> = MutableStateFlow(AspireAppHostState.Inactive)
     val appHostState: StateFlow<AspireAppHostState> = _appHostState.asStateFlow()
 
-//    private val resources = ConcurrentHashMap<String, AspireResource>()
-//    private val resourceProfileData = ConcurrentHashMap<String, AspireProjectResourceProfileData>()
-
-    private val _resources: MutableStateFlow<List<AspireResource>> = MutableStateFlow(emptyList())
-    val resources: StateFlow<List<AspireResource>> = _resources.asStateFlow()
+    private val _resources: MutableStateFlow<List<AspireResource2>> = MutableStateFlow(emptyList())
+    val resources: StateFlow<List<AspireResource2>> = _resources.asStateFlow()
 
     fun appHostStarted(processHandler: ProcessHandler) {
         LOG.trace { "Aspire AppHost $mainFilePath was started" }
@@ -71,7 +68,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) {
 //        resourceProfileData.remove(profile.sessionId)
     }
 
-    private fun setProfileDataForResource(resource: AspireResource) {
+    private fun setProfileDataForResource(resource: AspireResource2) {
 //        val projectPath = resource.projectPath ?: return
 //        val profileData = resourceProfileData.values.firstOrNull { it.projectPath == projectPath.value } ?: return
 //        resource.setProfileData(profileData)
@@ -211,7 +208,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) {
 
         resourceLifetime.bracketIfAlive({
             _resources.update { currentList ->
-                currentList + AspireResource(resourceId, resourceModelWrapper, resourceLifetime)
+                currentList + AspireResource2(resourceId, resourceModelWrapper, resourceLifetime)
             }
         }, {
             _resources.update { currentList ->

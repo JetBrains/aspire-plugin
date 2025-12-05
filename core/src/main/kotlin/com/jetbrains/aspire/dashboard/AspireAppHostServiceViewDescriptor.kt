@@ -18,6 +18,7 @@ import javax.swing.JPanel
 class AspireAppHostServiceViewDescriptor(
     private val vm: AspireAppHostViewModel
 ) : ServiceViewDescriptor, DataProvider {
+
     private val toolbarActions = DefaultActionGroup(
         ActionManager.getInstance().getAction("Aspire.Host.Run"),
         ActionManager.getInstance().getAction("Aspire.Host.Debug"),
@@ -31,7 +32,7 @@ class AspireAppHostServiceViewDescriptor(
         ActionManager.getInstance().getAction("Aspire.Help")
     )
 
-    override fun getPresentation()= PresentationData().apply {
+    override fun getPresentation() = PresentationData().apply {
         var icon = AspireIcons.Service
         if (vm.isActive) {
             icon = BadgeIconSupplier(icon).liveIndicatorIcon
