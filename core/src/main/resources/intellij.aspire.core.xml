@@ -44,7 +44,7 @@
     </extensions>
 
     <projectListeners>
-        <listener class="com.jetbrains.aspire.worker.AspireRunConfigurationListener"
+        <listener class="com.jetbrains.aspire.worker.AspireWorker$AspireRunConfigurationListener"
                   topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
 

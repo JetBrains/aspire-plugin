@@ -14,7 +14,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.util.*
-import com.jetbrains.aspire.worker.AspireWorkerManager
+import com.jetbrains.aspire.worker.AspireWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,7 +55,9 @@ internal class AspireUnitTestService(private val project: Project, private val s
         scope.launch(Dispatchers.Default) {
             lifetimedCoroutineScope(lifetime) {
                 LOG.trace("Starting an Aspire host for a unit test session")
-                val aspireWorker = AspireWorkerManager.getInstance(project).startAspireWorker()
+                val aspireWorker = AspireWorker.getInstance(project)
+
+                aspireWorker.start()
 
                 val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
                 val dcpInstancePrefix = generateDcpInstancePrefix()
@@ -113,7 +115,7 @@ internal class AspireUnitTestService(private val project: Project, private val s
         }
 
         LOG.trace { "Stopping aspire host ${aspireHost.aspireHostId}" }
-        val aspireWorker = AspireWorkerManager.getInstance(project).aspireWorker
+        val aspireWorker = AspireWorker.getInstance(project)
         application.invokeLater {
             aspireWorker.stopAspireHostModel(aspireHost.aspireHostId)
         }
