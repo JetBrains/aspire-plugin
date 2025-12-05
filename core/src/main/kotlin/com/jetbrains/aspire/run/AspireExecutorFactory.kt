@@ -19,7 +19,7 @@ import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
 import com.jetbrains.aspire.util.getAspireContainerRuntime
 import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
 import com.jetbrains.aspire.util.getAspireDashboardUnsecuredAllowAnonymous
-import com.jetbrains.aspire.worker.AspireWorkerManager
+import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import com.jetbrains.rider.utils.RiderEnvironmentAccessor
@@ -40,7 +40,9 @@ internal abstract class AspireExecutorFactory(
         envs: MutableMap<String, String>,
         activeRuntime: DotNetCoreRuntime
     ): EnvironmentVariableValues {
-        val aspireWorker = AspireWorkerManager.getInstance(project).startAspireWorker()
+        val aspireWorker = AspireWorker.getInstance(project)
+
+        aspireWorker.start()
 
         val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
         envs.putAll(dcpEnvironmentVariables)
