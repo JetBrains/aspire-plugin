@@ -6,7 +6,6 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.dashboard.AspireProjectResourceProfileData
-import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.sessions.*
@@ -17,11 +16,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 
 internal class AspireAppHost(val mainFilePath: Path, private val project: Project) {
@@ -35,8 +34,11 @@ internal class AspireAppHost(val mainFilePath: Path, private val project: Projec
     private val _appHostState: MutableStateFlow<AspireAppHostState> = MutableStateFlow(AspireAppHostState.Inactive)
     val appHostState: StateFlow<AspireAppHostState> = _appHostState.asStateFlow()
 
-    private val resources = ConcurrentHashMap<String, AspireResource>()
-    private val resourceProfileData = ConcurrentHashMap<String, AspireProjectResourceProfileData>()
+//    private val resources = ConcurrentHashMap<String, AspireResource>()
+//    private val resourceProfileData = ConcurrentHashMap<String, AspireProjectResourceProfileData>()
+
+    private val _resources: MutableStateFlow<List<AspireResource>> = MutableStateFlow(emptyList())
+    val resources: StateFlow<List<AspireResource>> = _resources.asStateFlow()
 
     fun appHostStarted(processHandler: ProcessHandler) {
         LOG.trace { "Aspire AppHost $mainFilePath was started" }
@@ -52,29 +54,27 @@ internal class AspireAppHost(val mainFilePath: Path, private val project: Projec
         LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
 
         _appHostState.value = AspireAppHostState.Stopped
-
-        resources.clear()
-        resourceProfileData.clear()
+        _resources.value = emptyList()
     }
 
     fun setSessionProfile(profile: SessionProfile) {
         val profileData = AspireProjectResourceProfileData(profile.projectPath, profile.isDebugMode)
 
-        resourceProfileData[profile.sessionId] = profileData
-
-        resources.values
-            .filter { it.projectPath?.value == profileData.projectPath }
-            .forEach { it.setProfileData(profileData) }
+//        resourceProfileData[profile.sessionId] = profileData
+//
+//        resources.values
+//            .filter { it.projectPath?.value == profileData.projectPath }
+//            .forEach { it.setProfileData(profileData) }
     }
 
     fun removeSessionProfile(profile: SessionProfile) {
-        resourceProfileData.remove(profile.sessionId)
+//        resourceProfileData.remove(profile.sessionId)
     }
 
     private fun setProfileDataForResource(resource: AspireResource) {
-        val projectPath = resource.projectPath ?: return
-        val profileData = resourceProfileData.values.firstOrNull { it.projectPath == projectPath.value } ?: return
-        resource.setProfileData(profileData)
+//        val projectPath = resource.projectPath ?: return
+//        val profileData = resourceProfileData.values.firstOrNull { it.projectPath == projectPath.value } ?: return
+//        resource.setProfileData(profileData)
     }
 
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
@@ -198,67 +198,68 @@ internal class AspireAppHost(val mainFilePath: Path, private val project: Projec
 
     private fun viewResource(
         resourceId: String,
-        resourceModel: ResourceWrapper,
+        resourceModelWrapper: ResourceWrapper,
         resourceLifetime: Lifetime
     ) {
-//        LOG.trace { "Adding a new resource with id $resourceId to the AppHost $mainFilePath" }
-//
-//        val factory = resourceFactory ?: run {
-//            LOG.warn("Resource factory not set, cannot create resource $resourceId")
-//            return
-//        }
-//
-//        val resource = factory(resourceModel, resourceLifetime)
-//        resources.addUnique(resourceLifetime, resourceId, resource)
-//
-//        resourceModel.isInitialized.set(true)
-//
+        LOG.trace { "Adding a new resource with id $resourceId to the AppHost $mainFilePath" }
+
+        val resourceModel = resourceModelWrapper.model.valueOrNull ?: return
+        if (resourceModel.isHidden || resourceModel.state == ResourceState.Hidden) {
+            LOG.trace { "Resource with id $resourceId is hidden" }
+            return
+        }
+
+        resourceLifetime.bracketIfAlive({
+            _resources.update { currentList ->
+                currentList + AspireResource(resourceId, resourceModelWrapper, resourceLifetime)
+            }
+        }, {
+            _resources.update { currentList ->
+                currentList.filter { it.resourceId != resourceId }
+            }
+        })
+
+        resourceModelWrapper.isInitialized.set(true)
+
 //        setProfileDataForResource(resource)
-//
-//        if (!resource.isHidden && resource.state != ResourceState.Hidden) {
-//            onResourceAdded?.invoke(resource)
-//            resourceLifetime.onTermination {
-//                onResourceRemoved?.invoke(resource)
-//            }
+    }
+
+//    fun getResources() = buildList {
+//        for (resource in resources.values) {
+//            if (resource.isHidden || resource.state == ResourceState.Hidden) continue
+//            add(resource)
 //        }
-    }
-
-    fun getResources() = buildList {
-        for (resource in resources.values) {
-            if (resource.isHidden || resource.state == ResourceState.Hidden) continue
-            add(resource)
-        }
-    }.sortedWith(compareBy({ it.type }, { it.name }))
-
-    fun getParentResources() = buildList {
-        for (resource in resources.values) {
-            if (resource.isHidden || resource.state == ResourceState.Hidden) continue
-            val parentResourceName = resource.parentResourceName
-            if (parentResourceName == null) add(resource)
-        }
-    }.sortedWith(compareBy({ it.type }, { it.name }))
-
-    fun getChildResourcesFor(resourceName: String) = buildList {
-        for (resource in resources.values) {
-            if (resource.isHidden || resource.state == ResourceState.Hidden) continue
-            val parentResourceName = resource.parentResourceName
-            if (parentResourceName == resourceName) add(resource)
-        }
-    }.sortedWith(compareBy({ it.type }, { it.name }))
-
-    fun getProjectResource(projectPath: Path): AspireResource? {
-        for (resource in resources) {
-            if (resource.value.type != ResourceType.Project ||
-                resource.value.isHidden ||
-                resource.value.state == ResourceState.Hidden
-            )
-                continue
-
-            if (resource.value.projectPath?.value == projectPath) return resource.value
-        }
-
-        return null
-    }
+//    }.sortedWith(compareBy({ it.type }, { it.name }))
+//
+//    fun getParentResources() = buildList {
+//        for (resource in resources.values) {
+//            if (resource.isHidden || resource.state == ResourceState.Hidden) continue
+//            val parentResourceName = resource.parentResourceName
+//            if (parentResourceName == null) add(resource)
+//        }
+//    }.sortedWith(compareBy({ it.type }, { it.name }))
+//
+//    fun getChildResourcesFor(resourceName: String) = buildList {
+//        for (resource in resources.values) {
+//            if (resource.isHidden || resource.state == ResourceState.Hidden) continue
+//            val parentResourceName = resource.parentResourceName
+//            if (parentResourceName == resourceName) add(resource)
+//        }
+//    }.sortedWith(compareBy({ it.type }, { it.name }))
+//
+//    fun getProjectResource(projectPath: Path): AspireResource? {
+//        for (resource in resources) {
+//            if (resource.value.type != ResourceType.Project ||
+//                resource.value.isHidden ||
+//                resource.value.state == ResourceState.Hidden
+//            )
+//                continue
+//
+//            if (resource.value.projectPath?.value == projectPath) return resource.value
+//        }
+//
+//        return null
+//    }
 
     sealed interface AspireAppHostState {
         data object Inactive : AspireAppHostState
