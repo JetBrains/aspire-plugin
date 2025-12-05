@@ -9,8 +9,10 @@ import com.intellij.openapi.actionSystem.Separator
 import com.intellij.ui.BadgeIconSupplier
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBPanelWithEmptyText
+import com.intellij.util.ui.JBUI
 import com.jetbrains.aspire.AspireIcons
 import com.jetbrains.aspire.util.ASPIRE_APP_HOST
+import java.awt.BorderLayout
 import javax.swing.JPanel
 
 class AspireAppHostServiceViewDescriptor(
@@ -39,7 +41,16 @@ class AspireAppHostServiceViewDescriptor(
     }
 
     override fun getContentComponent(): JPanel {
-        val panel = JBPanelWithEmptyText()
+        val console = vm.consoleView
+        val panel = if (console == null) {
+            JBPanelWithEmptyText()
+        } else {
+            JPanel(BorderLayout()).apply {
+                border = JBUI.Borders.empty()
+                add(console.component)
+            }
+        }
+
         return panel
     }
 

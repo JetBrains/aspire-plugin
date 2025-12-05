@@ -6,7 +6,7 @@ import com.jetbrains.aspire.generated.ResourceWrapper
 import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.launch
 
-internal class AspireResource(
+class AspireResource(
     val resourceId: String,
     private val modelWrapper: ResourceWrapper,
     private val lifetime: Lifetime

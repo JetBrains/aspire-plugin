@@ -23,7 +23,7 @@ import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
 
-internal class AspireAppHost(val mainFilePath: Path, private val project: Project) {
+class AspireAppHost(val mainFilePath: Path, private val project: Project) {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }

@@ -4,7 +4,9 @@ package com.jetbrains.aspire.dashboard
 
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewProvidingContributor
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.jetbrains.aspire.worker.AspireWorkerService
 import kotlinx.coroutines.CoroutineScope
@@ -15,7 +17,7 @@ internal class AspireWorkerViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
     workerService: AspireWorkerService,
-) : ServiceViewProvidingContributor<AspireAppHostViewModel, AspireWorkerViewModel> {
+) : ServiceViewProvidingContributor<AspireAppHostViewModel, AspireWorkerViewModel>, Disposable {
     private val cs: CoroutineScope = parentCs.childScope("Aspire Worker VM")
 
     private val appHostViewModels: StateFlow<List<AspireAppHostViewModel>> =
@@ -33,12 +35,16 @@ internal class AspireWorkerViewModel(
 
                     for (newAppHost in newAppHosts) {
                         if (newAppHost.mainFilePath !in currentPaths) {
-                            add(AspireAppHostViewModel(cs, newAppHost))
+                            val appHostVM = AspireAppHostViewModel(project, cs, newAppHost)
+                            Disposer.register(this@AspireWorkerViewModel, appHostVM)
+                            add(appHostVM)
                         }
                     }
                 }.sortedBy { it.displayName }
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
+
+    private val descriptor by lazy { AspireWorkerServiceViewDescriptor() }
 
     init {
         cs.launch {
@@ -67,8 +73,6 @@ internal class AspireWorkerViewModel(
         }
     }
 
-    private val descriptor by lazy { AspireWorkerServiceViewDescriptor() }
-
     override fun getViewDescriptor(project: Project) = descriptor
 
     override fun asService(): AspireWorkerViewModel = this
@@ -96,5 +100,8 @@ internal class AspireWorkerViewModel(
             AspireMainServiceViewContributor2::class.java
         )
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
+    }
+
+    override fun dispose() {
     }
 }
