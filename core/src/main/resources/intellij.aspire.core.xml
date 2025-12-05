@@ -1,0 +1,111 @@
+<idea-plugin visibility="internal">
+    <dependencies>
+        <plugin id="com.intellij.modules.rider"/>
+    </dependencies>
+
+    <resource-bundle>messages.AspireCoreBundle</resource-bundle>
+
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.startSessionRequestHandler"
+                        interface="com.jetbrains.aspire.sessions.StartSessionRequestHandler"
+                        dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
+                        interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
+                        dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.resourceIconProviderExtension"
+                        interface="com.jetbrains.aspire.dashboard.AspireResourceIconProviderExtension"
+                        dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="com.jetbrains.aspire.run.AspireConfigurationType"/>
+        <runConfigurationProducer implementation="com.jetbrains.aspire.run.host.AspireHostRunConfigurationProducer"/>
+
+        <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostProgramRunner"/>
+        <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostDebugProgramRunner"/>
+
+        <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.jetbrains.aspire.settings.AspireConfigurable"
+                id="Aspire.Configurable"
+                key="configurable.Aspire"
+                bundle="messages.AspireCoreBundle"/>
+
+        <webHelpProvider implementation="com.jetbrains.aspire.AspireHelpProvider"/>
+
+        <iconMapper mappingFile="AspireCoreIconMappings.json"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.jetbrains.aspire">
+        <resourceIconProviderExtension
+                implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
+    </extensions>
+
+    <projectListeners>
+        <listener class="com.jetbrains.aspire.worker.AspireWorker$AspireRunConfigurationListener"
+                  topic="com.intellij.execution.RunManagerListener"/>
+    </projectListeners>
+
+    <actions>
+        <action id="Aspire.Settings"
+                class="com.jetbrains.aspire.actions.AspireSettingsAction"
+                icon="AllIcons.General.Settings"/>
+        <action id="Aspire.Help"
+                class="com.jetbrains.aspire.actions.AspireHelpAction"/>
+        <action id="Aspire.Solution.Manifest"
+                class="com.jetbrains.aspire.actions.ManifestGenerationAction"
+                icon="AllIcons.FileTypes.Json">
+            <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
+        </action>
+        <group id="Aspire.Host">
+            <action id="Aspire.Host.Run"
+                    class="com.jetbrains.aspire.actions.dashboard.host.RunHostAction"
+                    icon="AllIcons.Actions.Execute"/>
+            <action id="Aspire.Host.Debug"
+                    class="com.jetbrains.aspire.actions.dashboard.host.DebugHostAction"
+                    icon="AllIcons.Actions.StartDebugger"/>
+            <action id="Aspire.Host.Stop"
+                    class="com.jetbrains.aspire.actions.dashboard.host.StopHostAction"
+                    icon="AllIcons.Actions.Suspend"/>
+            <action id="Aspire.Host.Dashboard"
+                    class="com.jetbrains.aspire.actions.dashboard.host.AspireOpenDashboardAction"
+                    icon="AllIcons.General.Web"/>
+            <action id="Aspire.Host.Manifest"
+                    class="com.jetbrains.aspire.actions.dashboard.host.AspireManifestAction"
+                    icon="AllIcons.FileTypes.Json"/>
+        </group>
+        <group id="Aspire.Resource">
+            <action id="Aspire.Resource.Start"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.StartResourceAction"
+                    icon="AllIcons.Actions.Execute"/>
+            <action id="Aspire.Resource.Stop"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.StopResourceAction"
+                    icon="AllIcons.Actions.Suspend"/>
+            <action id="Aspire.Resource.Restart"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.RestartResourceAction"
+                    icon="AllIcons.Actions.Restart"/>
+            <action id="Aspire.Resource.RestartWithoutDebugger"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.RestartWithoutDebuggerResourceAction"
+                    icon="AllIcons.Actions.Rerun"/>
+            <action id="Aspire.Resource.RestartWithDebugger"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.RestartWithDebuggerResourceAction"
+                    icon="AllIcons.Actions.RestartDebugger"/>
+            <action id="Aspire.Resource.NavigateToDebugTab"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.NavigateToResourceDebugTab"
+                    icon="AllIcons.General.OpenInToolWindow"/>
+            <action id="Aspire.Resource.Execute.Command"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.PerformResourceAction"
+                    icon="AllIcons.Actions.RunAnything"/>
+        </group>
+        <group id="Aspire.Session.Host">
+            <action id="Aspire.Worker.Start"
+                    class="com.jetbrains.aspire.actions.StartAspireWorkerAction"
+                    icon="AllIcons.Actions.Execute"/>
+            <action id="Aspire.Worker.Stop"
+                    class="com.jetbrains.aspire.actions.StopAspireWorkerAction"
+                    icon="AllIcons.Actions.Suspend"/>
+        </group>
+    </actions>
+</idea-plugin>
