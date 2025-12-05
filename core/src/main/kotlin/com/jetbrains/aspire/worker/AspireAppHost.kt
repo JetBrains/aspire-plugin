@@ -1,10 +1,6 @@
 package com.jetbrains.aspire.worker
 
-import com.intellij.execution.ExecutionListener
-import com.intellij.execution.ExecutionManager
 import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
@@ -13,9 +9,7 @@ import com.jetbrains.aspire.dashboard.AspireProjectResourceProfileData
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
-import com.jetbrains.aspire.run.AspireRunConfiguration
 import com.jetbrains.aspire.sessions.*
-import com.jetbrains.rd.util.addUnique
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import kotlinx.coroutines.Dispatchers
@@ -30,10 +24,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 
-internal class AspireAppHost(
-    val mainFilePath: Path,
-    private val project: Project
-) : Disposable {
+internal class AspireAppHost(val mainFilePath: Path, private val project: Project) {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }
@@ -47,50 +38,7 @@ internal class AspireAppHost(
     private val resources = ConcurrentHashMap<String, AspireResource>()
     private val resourceProfileData = ConcurrentHashMap<String, AspireProjectResourceProfileData>()
 
-    init {
-        project.messageBus.connect(this).subscribe(ExecutionManager.EXECUTION_TOPIC, object : ExecutionListener {
-            override fun processStarted(
-                executorId: String,
-                env: ExecutionEnvironment,
-                handler: ProcessHandler
-            ) {
-                val profile = env.runProfile
-                if (profile is AspireRunConfiguration) {
-                    val projectFilePath = Path(profile.parameters.mainFilePath)
-                    if (mainFilePath != projectFilePath) return
-
-                    hostStarted(handler)
-                } else if (profile is SessionProfile) {
-                    val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
-                    if (mainFilePath != aspireHostProjectPath) return
-
-                    setProfileDataForResource(profile)
-                }
-            }
-
-            override fun processTerminated(
-                executorId: String,
-                env: ExecutionEnvironment,
-                handler: ProcessHandler,
-                exitCode: Int
-            ) {
-                val profile = env.runProfile
-                if (profile is AspireRunConfiguration) {
-                    val projectFilePath = Path(profile.parameters.mainFilePath)
-                    if (mainFilePath != projectFilePath) return
-
-                    hostStopped()
-                } else if (profile is SessionProfile) {
-                    val aspireHostProjectPath = profile.aspireHostProjectPath ?: return
-                    if (mainFilePath != aspireHostProjectPath) return
-
-                    removeProfileData(profile)
-                }
-            }
-        })
-    }
-
-    private fun hostStarted(processHandler: ProcessHandler) {
+    fun appHostStarted(processHandler: ProcessHandler) {
         LOG.trace { "Aspire AppHost $mainFilePath was started" }
 
         val handler =
@@ -100,7 +48,7 @@ internal class AspireAppHost(
         _appHostState.value = AspireAppHostState.Started(handler)
     }
 
-    private fun hostStopped() {
+    fun appHostStopped() {
         LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
 
         _appHostState.value = AspireAppHostState.Stopped
@@ -109,7 +57,7 @@ internal class AspireAppHost(
         resourceProfileData.clear()
     }
 
-    private fun setProfileDataForResource(profile: SessionProfile) {
+    fun setSessionProfile(profile: SessionProfile) {
         val profileData = AspireProjectResourceProfileData(profile.projectPath, profile.isDebugMode)
 
         resourceProfileData[profile.sessionId] = profileData
@@ -119,7 +67,7 @@ internal class AspireAppHost(
             .forEach { it.setProfileData(profileData) }
     }
 
-    private fun removeProfileData(profile: SessionProfile) {
+    fun removeSessionProfile(profile: SessionProfile) {
         resourceProfileData.remove(profile.sessionId)
     }
 
@@ -310,9 +258,6 @@ internal class AspireAppHost(
         }
 
         return null
-    }
-
-    override fun dispose() {
     }
 
     sealed interface AspireAppHostState {

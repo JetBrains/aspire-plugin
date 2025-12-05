@@ -1,17 +1,18 @@
 package com.jetbrains.aspire.worker
 
+import com.intellij.execution.ExecutionListener
 import com.intellij.execution.RunManager
 import com.intellij.execution.RunManagerListener
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.ConfigurationTypeUtil
-import com.intellij.openapi.Disposable
+import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.util.NetworkUtils
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.generated.AspireHostModel
@@ -19,6 +20,7 @@ import com.jetbrains.aspire.generated.AspireWorkerModel
 import com.jetbrains.aspire.generated.aspireWorkerModel
 import com.jetbrains.aspire.run.AspireConfigurationType
 import com.jetbrains.aspire.run.AspireRunConfiguration
+import com.jetbrains.aspire.sessions.SessionProfile
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.*
 import com.jetbrains.rd.framework.*
@@ -41,7 +43,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 @Service(Service.Level.PROJECT)
-internal class AspireWorkerService(private val project: Project) : Disposable {
+internal class AspireWorkerService(private val project: Project) {
     companion object {
         fun getInstance(project: Project): AspireWorkerService = project.service()
 
@@ -67,11 +69,8 @@ internal class AspireWorkerService(private val project: Project) : Disposable {
         val previousValue = appHostPaths.putIfAbsent(mainFilePath, Unit)
         if (previousValue != null) return
 
-        val newAppHost = AspireAppHost(mainFilePath, project)
-        Disposer.register(this, newAppHost)
-
         _appHosts.update { currentList ->
-            currentList + newAppHost
+            currentList + AspireAppHost(mainFilePath, project)
         }
     }
 
@@ -85,6 +84,46 @@ internal class AspireWorkerService(private val project: Project) : Disposable {
         _appHosts.update { currentList ->
             currentList.filter { it.mainFilePath != mainFilePath }
         }
+    }
+
+    private fun appHostStarted(mainFilePath: Path, handler: ProcessHandler) {
+        val appHost = getAppHostBy(mainFilePath)
+        if (appHost == null) {
+            LOG.trace { "Can't find AppHost by its path ${mainFilePath.absolutePathString()}" }
+            return
+        }
+        appHost.appHostStarted(handler)
+    }
+
+    private fun appHostStopped(mainFilePath: Path) {
+        val appHost = getAppHostBy(mainFilePath)
+        if (appHost == null) {
+            LOG.trace { "Can't find AppHost by its path ${mainFilePath.absolutePathString()}" }
+            return
+        }
+        appHost.appHostStopped()
+    }
+
+    private fun sessionProcessStarted(mainFilePath: Path, profile: SessionProfile) {
+        val appHost = getAppHostBy(mainFilePath)
+        if (appHost == null) {
+            LOG.trace { "Can't find AppHost by its path ${mainFilePath.absolutePathString()}" }
+            return
+        }
+        appHost.setSessionProfile(profile)
+    }
+
+    private fun sessionProcessTerminated(mainFilePath: Path, profile: SessionProfile) {
+        val appHost = getAppHostBy(mainFilePath)
+        if (appHost == null) {
+            LOG.trace { "Can't find AppHost by its path ${mainFilePath.absolutePathString()}" }
+            return
+        }
+        appHost.removeSessionProfile(profile)
+    }
+
+    private fun getAppHostBy(mainFilePath: Path): AspireAppHost? {
+        return _appHosts.value.firstOrNull { it.mainFilePath == mainFilePath }
     }
 
     //Switch DCP to the IDE mode
@@ -201,9 +240,6 @@ internal class AspireWorkerService(private val project: Project) : Disposable {
         }
     }
 
-    override fun dispose() {
-    }
-
     sealed interface AspireWorkerState {
         object Inactive : AspireWorkerState
         data class Active(
@@ -242,6 +278,39 @@ internal class AspireWorkerService(private val project: Project) : Disposable {
                 .getConfigurationsList(configurationType)
                 .filterIsInstance<AspireRunConfiguration>()
                 .filter { it.parameters.mainFilePath == mainFilePath }
+        }
+    }
+
+    class AspireExecutionListener(private val project: Project) : ExecutionListener {
+        override fun processStarted(
+            executorId: String,
+            env: ExecutionEnvironment,
+            handler: ProcessHandler
+        ) {
+            val profile = env.runProfile
+            if (profile is AspireRunConfiguration) {
+                val mainFilePath = Path.of(profile.parameters.mainFilePath)
+                getInstance(project).appHostStarted(mainFilePath, handler)
+            } else if (profile is SessionProfile) {
+                val mainFilePath = profile.aspireHostProjectPath ?: return
+                getInstance(project).sessionProcessStarted(mainFilePath, profile)
+            }
+        }
+
+        override fun processTerminated(
+            executorId: String,
+            env: ExecutionEnvironment,
+            handler: ProcessHandler,
+            exitCode: Int
+        ) {
+            val profile = env.runProfile
+            if (profile is AspireRunConfiguration) {
+                val mainFilePath = Path.of(profile.parameters.mainFilePath)
+                getInstance(project).appHostStopped(mainFilePath)
+            } else if (profile is SessionProfile) {
+                val mainFilePath = profile.aspireHostProjectPath ?: return
+                getInstance(project).sessionProcessTerminated(mainFilePath, profile)
+            }
         }
     }
 }
