@@ -5,17 +5,16 @@ import com.intellij.execution.services.ServiceViewLazyContributor
 import com.intellij.execution.services.SimpleServiceViewDescriptor
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.AspireIcons
-import com.jetbrains.aspire.worker.AspireWorkerManager
 
-class AspireMainServiceViewContributor : ServiceViewContributor<AspireWorker>, ServiceViewLazyContributor {
+class AspireMainServiceViewContributor : ServiceViewContributor<AspireWorkerViewModel>, ServiceViewLazyContributor {
     override fun getViewDescriptor(project: Project) =
         SimpleServiceViewDescriptor("Aspire", AspireIcons.Service)
 
-    override fun getServices(project: Project): List<AspireWorker> {
-        val worker = AspireWorkerManager.getInstance(project).aspireWorker
-        return if (worker.hasAspireHosts) listOf(worker) else emptyList()
+    override fun getServices(project: Project): List<AspireWorkerViewModel> {
+        val vm = AspireWorkerViewModelFactory.getInstance(project).create()
+        return listOf(vm)
     }
 
-    override fun getServiceDescriptor(project: Project, service: AspireWorker) =
+    override fun getServiceDescriptor(project: Project, service: AspireWorkerViewModel) =
         service.getViewDescriptor(project)
 }

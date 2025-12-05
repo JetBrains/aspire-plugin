@@ -17,7 +17,7 @@ import com.jetbrains.aspire.generated.AspireHostModelConfig
 import com.jetbrains.aspire.run.AspireRunConfigurationManager
 import com.jetbrains.aspire.run.AspireRunConfiguration
 import com.jetbrains.aspire.run.states.*
-import com.jetbrains.aspire.worker.AspireWorkerManager
+import com.jetbrains.aspire.worker.AspireWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -82,7 +82,7 @@ private suspend fun setUpAspireHostModel(
         aspireHostProjectUrl
     )
 
-    val aspireWorker = AspireWorkerManager.getInstance(environment.project).aspireWorker
+    val aspireWorker = AspireWorker.getInstance(environment.project)
 
     aspireHostProcessHandlerLifetime.onTermination {
         application.invokeLater {

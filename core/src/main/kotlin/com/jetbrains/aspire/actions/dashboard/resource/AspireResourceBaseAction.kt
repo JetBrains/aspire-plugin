@@ -9,8 +9,8 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.jetbrains.aspire.dashboard.AspireResource
-import com.jetbrains.aspire.worker.AspireWorkerManager
 import com.jetbrains.aspire.util.ASPIRE_RESOURCE
+import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rider.projectView.workspace.containingProjectEntity
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
 
@@ -41,8 +41,8 @@ abstract class AspireResourceBaseAction : AnAction() {
         val project = event.project ?: return null
         val projectEntity = event.dataContext.getProjectModelEntity(true)?.containingProjectEntity() ?: return null
         val projectPath = projectEntity.url?.toPath() ?: return null
-        val aspireWorker = AspireWorkerManager.getInstance(project).aspireWorker
-        for (aspireHost in aspireWorker.getServices(project)) {
+        val aspireWorker = AspireWorker.getInstance(project)
+        for (aspireHost in aspireWorker.appHosts.value.sortedBy { it.displayName }) {
             val resource = aspireHost.getProjectResource(projectPath) ?: continue
             return resource
         }
