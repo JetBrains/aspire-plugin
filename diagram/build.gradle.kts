@@ -13,7 +13,6 @@ repositories {
     intellijPlatform {
         defaultRepositories()
         jetbrainsRuntime()
-        nightly()
     }
 }
 
@@ -29,4 +28,8 @@ dependencies {
 
         bundledPlugins("com.intellij.diagram")
     }
+}
+
+intellijPlatform {
+    instrumentCode = false
 }

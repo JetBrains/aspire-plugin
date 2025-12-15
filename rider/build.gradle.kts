@@ -13,7 +13,6 @@ repositories {
     intellijPlatform {
         defaultRepositories()
         jetbrainsRuntime()
-        nightly()
     }
 }
 
@@ -27,4 +26,8 @@ dependencies {
 
         pluginModule(implementation(project(":core")))
     }
+}
+
+intellijPlatform {
+    instrumentCode = false
 }
