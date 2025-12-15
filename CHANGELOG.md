@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.9.5] - 2025-12-01
+
 ### Added
 
 - Add batching support for session commands and optimize project builds
@@ -547,7 +549,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.9.4...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.9.5...HEAD
+[1.9.5]: https://github.com/JetBrains/aspire-plugin/compare/1.9.4...1.9.5
 [1.9.4]: https://github.com/JetBrains/aspire-plugin/compare/1.9.3...1.9.4
 [1.9.3]: https://github.com/JetBrains/aspire-plugin/compare/1.9.2...1.9.3
 [1.9.2]: https://github.com/JetBrains/aspire-plugin/compare/1.9.1...1.9.2
