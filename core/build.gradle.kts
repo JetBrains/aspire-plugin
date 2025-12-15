@@ -14,7 +14,6 @@ repositories {
     intellijPlatform {
         defaultRepositories()
         jetbrainsRuntime()
-        nightly()
     }
 }
 
@@ -28,4 +27,8 @@ dependencies {
         }
         jetbrainsRuntime()
     }
+}
+
+intellijPlatform {
+    instrumentCode = false
 }
