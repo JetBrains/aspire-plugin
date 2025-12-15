@@ -13,6 +13,7 @@ import com.intellij.terminal.TerminalExecutionConsole
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.util.parseLogEntry
+import com.jetbrains.aspire.worker.AspireAppHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -26,8 +27,9 @@ import kotlin.io.path.Path
 import kotlin.math.roundToInt
 
 class AspireResource(
+    val resourceId: String,
     private val modelWrapper: ResourceWrapper,
-    private val aspireHost: AspireHost,
+    private val aspireHost: AspireAppHost,
     val lifetime: Lifetime,
     private val project: Project
 ) : ServiceViewProvidingContributor<AspireResource, AspireResource> {
@@ -312,7 +314,7 @@ class AspireResource(
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
         if (typeJustInitialised && !isHidden && state != ResourceState.Hidden) {
-            sendServiceChildrenChangedEvent()
+            aspireHost.childResourceTypeChanged()
         } else if (type != ResourceType.Unknown && !isHidden && state != ResourceState.Hidden) {
             sendServiceChangedEvent()
         }
@@ -361,15 +363,6 @@ class AspireResource(
         val event = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_CHANGED,
             this,
-            AspireMainServiceViewContributor::class.java
-        )
-        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
-    }
-
-    private fun sendServiceChildrenChangedEvent() {
-        val event = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
-            aspireHost,
             AspireMainServiceViewContributor::class.java
         )
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)

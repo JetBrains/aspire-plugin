@@ -6,6 +6,7 @@ import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.jetbrains.aspire.worker.AspireWorker
 import kotlinx.coroutines.CoroutineScope
@@ -16,13 +17,30 @@ class AspireWorkerViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
     workerService: AspireWorker,
-) : ServiceViewProvidingContributor<AspireHost, AspireWorkerViewModel>, Disposable {
+) : ServiceViewProvidingContributor<AspireAppHostViewModel, AspireWorkerViewModel>, Disposable {
     private val cs: CoroutineScope = parentCs.childScope("Aspire Worker VM")
 
-    private val appHostViewModels: StateFlow<List<AspireHost>> =
+    private val appHostViewModels: StateFlow<List<AspireAppHostViewModel>> =
         workerService.appHosts
-            .map { appHosts ->
-                appHosts.sortedBy { it.displayName }
+            .runningFold(emptyList<AspireAppHostViewModel>()) { currentViewModels, newAppHosts ->
+                val currentPaths = currentViewModels.associateBy { it.appHostMainFilePath }
+                val newPaths = newAppHosts.map { it.mainFilePath }.toSet()
+
+                buildList {
+                    for (viewModel in currentViewModels) {
+                        if (viewModel.appHostMainFilePath in newPaths) {
+                            add(viewModel)
+                        }
+                    }
+
+                    for (newAppHost in newAppHosts) {
+                        if (newAppHost.mainFilePath !in currentPaths) {
+                            val appHostVM = AspireAppHostViewModel(project, cs, newAppHost)
+                            Disposer.register(this@AspireWorkerViewModel, appHostVM)
+                            add(appHostVM)
+                        }
+                    }
+                }.sortedBy { it.displayName }
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 
@@ -31,21 +49,21 @@ class AspireWorkerViewModel(
     init {
         cs.launch {
             appHostViewModels
-                .runningFold(emptyList<AspireHost>() to emptyList<AspireHost>()) { (previousList, _), currentList ->
-                    val previousPaths = previousList.map { it.hostProjectPath }.toSet()
-                    val currentPaths = currentList.map { it.hostProjectPath }.toSet()
+                .runningFold(emptyList<AspireAppHostViewModel>() to emptyList<AspireAppHostViewModel>()) { (previousList, _), currentList ->
+                    val previousPaths = previousList.map { it.appHostMainFilePath }.toSet()
+                    val currentPaths = currentList.map { it.appHostMainFilePath }.toSet()
 
-                    val added = currentList.filter { it.hostProjectPath !in previousPaths }
-                    val removed = previousList.filter { it.hostProjectPath !in currentPaths }
+                    val added = currentList.filter { it.appHostMainFilePath !in previousPaths }
+                    val removed = previousList.filter { it.appHostMainFilePath !in currentPaths }
 
                     currentList to (added + removed)
                 }
                 .drop(1)
                 .collect { (currentList, changedViewModels) ->
-                    val currentPaths = currentList.map { it.hostProjectPath }.toSet()
+                    val currentPaths = currentList.map { it.appHostMainFilePath }.toSet()
 
                     changedViewModels.forEach { viewModel ->
-                        if (viewModel.hostProjectPath in currentPaths) {
+                        if (viewModel.appHostMainFilePath in currentPaths) {
                             sendServiceAddedEvent(viewModel)
                         } else {
                             sendServiceRemovedEvent(viewModel)
@@ -61,24 +79,24 @@ class AspireWorkerViewModel(
 
     override fun getServiceDescriptor(
         project: Project,
-        appHostViewModel: AspireHost
+        appHostViewModel: AspireAppHostViewModel
     ) = appHostViewModel.getViewDescriptor(project)
 
     override fun getServices(project: Project) = appHostViewModels.value
 
-    private fun sendServiceAddedEvent(aspireAppHost: AspireHost) {
+    private fun sendServiceAddedEvent(appHostViewModel: AspireAppHostViewModel) {
         val event = ServiceEventListener.ServiceEvent.createServiceAddedEvent(
-            aspireAppHost,
+            appHostViewModel,
             AspireMainServiceViewContributor::class.java,
             this
         )
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
     }
 
-    private fun sendServiceRemovedEvent(aspireAppHost: AspireHost) {
+    private fun sendServiceRemovedEvent(appHostViewModel: AspireAppHostViewModel) {
         val event = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_REMOVED,
-            aspireAppHost,
+            appHostViewModel,
             AspireMainServiceViewContributor::class.java
         )
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)

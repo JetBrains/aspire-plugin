@@ -42,7 +42,7 @@ abstract class AspireResourceBaseAction : AnAction() {
         val projectEntity = event.dataContext.getProjectModelEntity(true)?.containingProjectEntity() ?: return null
         val projectPath = projectEntity.url?.toPath() ?: return null
         val aspireWorker = AspireWorker.getInstance(project)
-        for (aspireHost in aspireWorker.appHosts.value.sortedBy { it.displayName }) {
+        for (aspireHost in aspireWorker.appHosts.value) {
             val resource = aspireHost.getProjectResource(projectPath) ?: continue
             return resource
         }

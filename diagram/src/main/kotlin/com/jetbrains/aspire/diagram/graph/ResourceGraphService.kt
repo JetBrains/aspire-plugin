@@ -13,10 +13,10 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.util.graph.GraphFactory
-import com.jetbrains.aspire.dashboard.AspireHost
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.diagram.AspireDiagramBundle
 import com.jetbrains.aspire.util.getResourceIcon
+import com.jetbrains.aspire.worker.AspireAppHost
 
 /**
  * Service for building a resource graph.
@@ -30,8 +30,8 @@ internal class ResourceGraphService(private val project: Project) {
         fun getInstance(project: Project): ResourceGraphService = project.service()
     }
 
-    fun showResourceGraph(aspireHost: AspireHost) {
-        val resources = aspireHost.getResources()
+    fun showResourceGraph(appHost: AspireAppHost) {
+        val resources = appHost.resources.value
 
         val resourceNodes = resources.associate { it.displayName to createResourceGraphNode(it) }
         val resourceNodeEdges = calculateResourceNodeEdges(resources, resourceNodes)
