@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Basic support for single Aspire AppHost files 
+
 ### Changed
 
 - Change the plugin structure to use plugin model version 2
