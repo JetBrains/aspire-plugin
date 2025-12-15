@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Change the plugin structure to use plugin model version 2
+
 ## [1.9.5] - 2025-12-01
 
 ### Added
