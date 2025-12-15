@@ -43,12 +43,6 @@ jobs:
         with:
           cache-disabled: true
 
-      # Set up the .NET environment for the next steps
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: '9.x'
-
       # Update the Unreleased section with the current release note
       - name: Patch Changelog
         if: ${{ github.event.release.body != '' }}
