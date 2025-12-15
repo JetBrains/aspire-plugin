@@ -39,7 +39,7 @@ class DotNetBuildService(private val project: Project) {
         }
 
         val buildCommandLine = GeneralCommandLine()
-            .withExePath(runtime.cliExePath)
+            .withExePath(runtime.cliExePath.absolutePathString())
             .withParameters(listOf("build", projectPath.absolutePathString()))
         LOG.trace { "Building project $buildCommandLine" }
 
