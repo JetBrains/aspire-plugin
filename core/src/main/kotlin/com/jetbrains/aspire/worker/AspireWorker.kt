@@ -15,7 +15,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.util.NetworkUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.dashboard.AspireHost
 import com.jetbrains.aspire.generated.AspireHostModel
 import com.jetbrains.aspire.generated.AspireHostModelConfig
 import com.jetbrains.aspire.generated.AspireWorkerModel
@@ -41,6 +40,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.set
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -53,10 +53,10 @@ class AspireWorker(private val project: Project) : Disposable {
         private val LOG = logger<AspireWorker>()
     }
 
-    private val appHostPaths = java.util.concurrent.ConcurrentHashMap<Path, Unit>()
+    private val appHostPaths = ConcurrentHashMap<Path, Unit>()
 
-    private val _appHosts: MutableStateFlow<List<AspireHost>> = MutableStateFlow(emptyList())
-    val appHosts: StateFlow<List<AspireHost>> = _appHosts.asStateFlow()
+    private val _appHosts: MutableStateFlow<List<AspireAppHost>> = MutableStateFlow(emptyList())
+    val appHosts: StateFlow<List<AspireAppHost>> = _appHosts.asStateFlow()
 
     private val _workerState: MutableStateFlow<AspireWorkerState> = MutableStateFlow(AspireWorkerState.Inactive)
 
@@ -72,7 +72,7 @@ class AspireWorker(private val project: Project) : Disposable {
         if (previousValue != null) return
 
         _appHosts.update { currentList ->
-            val appHost = AspireHost(mainFilePath, project)
+            val appHost = AspireAppHost(mainFilePath, project)
             Disposer.register(this, appHost)
             currentList + appHost
         }
@@ -86,12 +86,12 @@ class AspireWorker(private val project: Project) : Disposable {
         if (removed == null) return
 
         _appHosts.update { currentList ->
-            currentList.filter { it.hostProjectPath != mainFilePath }
+            currentList.filter { it.mainFilePath != mainFilePath }
         }
     }
 
-    fun getAppHostByPath(mainFilePath: Path): AspireHost? {
-        return _appHosts.value.firstOrNull { it.hostProjectPath == mainFilePath }
+    fun getAppHostByPath(mainFilePath: Path): AspireAppHost? {
+        return _appHosts.value.firstOrNull { it.mainFilePath == mainFilePath }
     }
 
     //Switch DCP to the IDE mode
@@ -175,14 +175,14 @@ class AspireWorker(private val project: Project) : Disposable {
 
     private fun viewAspireAppHost(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
         val appHostMainFilePath = Path(appHostModel.config.aspireHostProjectPath)
-        val appHost = _appHosts.value.firstOrNull { it.hostProjectPath == appHostMainFilePath }
+        val appHost = _appHosts.value.firstOrNull { it.mainFilePath == appHostMainFilePath }
         if (appHost == null) {
             LOG.warn("Could not find Aspire host $appHostMainFilePath")
             return
         }
 
         LOG.trace { "Setting Aspire host model to $appHostMainFilePath" }
-        appHost.setAspireHostModel(appHostModel, appHostLifetime)
+        appHost.subscribeToAspireAppHostModel(appHostModel, appHostLifetime)
     }
 
     private suspend fun calculateServerCertificate(workerLifetime: LifetimeDefinition): String? {
