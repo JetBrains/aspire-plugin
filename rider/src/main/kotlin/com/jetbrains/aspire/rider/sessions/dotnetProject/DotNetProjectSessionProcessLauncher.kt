@@ -25,7 +25,7 @@ internal class DotNetProjectSessionProcessLauncher : DotNetSessionWithHotReloadP
 
     override val hotReloadExtension = DotNetProjectHotReloadConfigurationExtension()
 
-    override suspend fun isApplicable(projectPath: String, project: Project) = true
+    override suspend fun isApplicable(projectPath: Path, project: Project) = true
 
     override fun getRunProfile(
         sessionId: String,

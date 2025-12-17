@@ -8,10 +8,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.generated.aspirePluginModel
-import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProcessLauncher
+import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.ijent.extensions.toRd
@@ -24,7 +23,6 @@ import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
-import kotlin.io.path.Path
 
 /**
  * Launches a .NET library project that has an `Executable` launch profile from an Aspire session request.
@@ -38,13 +36,9 @@ internal class ExecutableLibrarySessionProcessLauncher : DotNetSessionProcessLau
 
     override val priority = 3
 
-    override suspend fun isApplicable(
-        projectPath: String,
-        project: Project
-    ): Boolean {
-        val path = Path(projectPath)
+    override suspend fun isApplicable(projectPath: Path, project: Project): Boolean {
         val entity = project.serviceAsync<WorkspaceModel>()
-            .getProjectModelEntities(path, project)
+            .getProjectModelEntities(projectPath, project)
             .singleOrNull { it.isProject() }
         if (entity == null) {
             LOG.trace { "Can't find a project entity for the path $projectPath. Skip launcher" }

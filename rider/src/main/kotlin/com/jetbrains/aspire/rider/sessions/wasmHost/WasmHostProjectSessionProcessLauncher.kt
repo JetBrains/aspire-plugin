@@ -19,6 +19,7 @@ import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 
 /**
  * Launches a Blazor WASM host project from an Aspire session request.
@@ -35,16 +36,17 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
 
     override val hotReloadExtension = WasmHostHotReloadConfigurationExtension()
 
-    override suspend fun isApplicable(projectPath: String, project: Project): Boolean {
-        val runnableProject = findRunnableProjectByPath(Path(projectPath), project)
+    override suspend fun isApplicable(projectPath: Path, project: Project): Boolean {
+        val runnableProject = findRunnableProjectByPath(projectPath, project)
         if (runnableProject == null) {
             LOG.trace { "Can't find runnable project with path: $projectPath. Skip launcher" }
             return false
         }
 
+        val projectPathString = projectPath.absolutePathString()
         val nugetChecker = RiderNuGetInstalledPackageCheckerHost.getInstance(project)
-        return nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, DEV_SERVER_NUGET) ||
-                nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPath, SERVER_NUGET)
+        return nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPathString, DEV_SERVER_NUGET) ||
+                nugetChecker.isPackageInstalled(PackageVersionResolution.EXACT, projectPathString, SERVER_NUGET)
     }
 
     override fun getRunProfile(

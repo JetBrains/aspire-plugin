@@ -35,6 +35,12 @@ import kotlinx.coroutines.channels.Channel
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
+/**
+ *  Starting point for handling all dotnet-related Aspire session requests.
+ *
+ *  The handler could build all the requested projects, detect the type of each project, and then launch them
+ *  by using a specific [DotNetSessionProcessLauncherExtension].
+ */
 internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
     companion object {
         private val LOG = logger<DotNetStartSessionRequestHandler>()
@@ -241,7 +247,8 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         aspireHostRunConfigName: String?,
         project: Project
     ) {
-        val processLauncher = getSessionProcessLauncher(launchConfiguration.projectPath, project)
+        val processLauncher =
+            DotNetSessionProcessLauncherExtension.getApplicableLauncher(launchConfiguration.projectPath, project)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${launchConfiguration.projectPath}")
             return
@@ -265,7 +272,8 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         aspireHostRunConfigName: String?,
         project: Project
     ) {
-        val processLauncher = getSessionProcessLauncher(launchConfiguration.projectPath, project)
+        val processLauncher =
+            DotNetSessionProcessLauncherExtension.getApplicableLauncher(launchConfiguration.projectPath, project)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${launchConfiguration.projectPath}")
             return
@@ -279,18 +287,5 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             aspireHostRunConfigName,
             project,
         )
-    }
-
-    private suspend fun getSessionProcessLauncher(
-        projectPath: Path,
-        project: Project
-    ): DotNetSessionProcessLauncherExtension? {
-        val pathString = projectPath.absolutePathString()
-        for (launcher in DotNetSessionProcessLauncherExtension.EP_NAME.extensionList.sortedBy { it.priority }) {
-            if (launcher.isApplicable(pathString, project))
-                return launcher
-        }
-
-        return null
     }
 }
