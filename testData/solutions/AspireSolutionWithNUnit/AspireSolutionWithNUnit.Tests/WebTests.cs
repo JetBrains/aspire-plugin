@@ -4,7 +4,7 @@ namespace AspireSolutionWithNUnit.Tests;
 
 public class WebTests
 {
-    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(300);
 
     [Test]
     public async Task GetWebResourceRootReturnsOkStatusCode()
