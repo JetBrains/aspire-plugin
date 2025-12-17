@@ -3,11 +3,11 @@ Aspire Host run configuration count: 2
 Name: DefaultAspireSolution.AppHost: http
 Type: Aspire
 Project filePath: $PROJECT_DIR$/DefaultAspireSolution.AppHost/DefaultAspireSolution.AppHost.csproj
-Project TFM: net9.0
+Project TFM: net10.0
 Launch settings profile name: http
 Arguments: 
-Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost/bin/Debug/net9.0
-Environment variables: {ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=http://localhost:19125, ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL=http://localhost:20263, ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=http://localhost:15273, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=http}
+Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost/bin/Debug/net10.0
+Environment variables: {ASPIRE_DASHBOARD_MCP_ENDPOINT_URL=http://localhost:18185, ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=http://localhost:19125, ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL=http://localhost:20263, ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=http://localhost:15273, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=http}
 Use Podman: false
 Start browser on launch: false
 Start browser url: http://localhost:15273
@@ -17,11 +17,11 @@ Start browser browser name: null
 Name: DefaultAspireSolution.AppHost: https
 Type: Aspire
 Project filePath: $PROJECT_DIR$/DefaultAspireSolution.AppHost/DefaultAspireSolution.AppHost.csproj
-Project TFM: net9.0
+Project TFM: net10.0
 Launch settings profile name: https
 Arguments: 
-Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost/bin/Debug/net9.0
-Environment variables: {ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=https://localhost:21098, ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL=https://localhost:22043, ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=https://localhost:17142;http://localhost:15273, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=https}
+Working directory: $PROJECT_DIR$/DefaultAspireSolution.AppHost/bin/Debug/net10.0
+Environment variables: {ASPIRE_DASHBOARD_MCP_ENDPOINT_URL=https://localhost:23206, ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL=https://localhost:21098, ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL=https://localhost:22043, ASPNETCORE_ENVIRONMENT=Development, ASPNETCORE_URLS=https://localhost:17142;http://localhost:15273, DOTNET_ENVIRONMENT=Development, DOTNET_LAUNCH_PROFILE=https}
 Use Podman: false
 Start browser on launch: false
 Start browser url: https://localhost:17142

@@ -2,8 +2,8 @@
   "profiles": {
     "Library": {
       "commandName": "Executable",
-      "executablePath": "$(SolutionDir)WebApplication1/bin/Debug/net9.0/WebApplication1",
-      "workingDirectory": "$(SolutionDir)WebApplication1/bin/Debug/net9.0"
+      "executablePath": "$(SolutionDir)WebApplication1/bin/Debug/net10.0/WebApplication1",
+      "workingDirectory": "$(SolutionDir)WebApplication1/bin/Debug/net10.0"
     }
   }
 }
