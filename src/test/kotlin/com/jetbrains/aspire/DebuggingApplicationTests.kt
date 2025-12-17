@@ -70,7 +70,7 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         runTest(
             "DefaultAspireSolution.AppHost: http",
             fileForBreakpoint,
-            41
+            43
         ) {
             dumpDebugContextForProject(apiProjectPath)
         }
