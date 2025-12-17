@@ -211,6 +211,7 @@ tasks {
 
     buildPlugin {
         dependsOn(publishAspireWorker)
+        archiveBaseName.set("aspire-plugin")
     }
 
     withType<PrepareSandboxTask> {
