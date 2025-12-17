@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.AppHost", "AspireSolutionWithNUnit.AppHost\AspireSolutionWithNUnit.AppHost.csproj", "{9D0A6FBF-4394-4282-BD21-FAB82F5B9ED6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.AppHost", "AspireSolutionWithNUnit.AppHost\AspireSolutionWithNUnit.AppHost.csproj", "{2E03B282-6801-496D-A75F-9756B47EE73D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.ServiceDefaults", "AspireSolutionWithNUnit.ServiceDefaults\AspireSolutionWithNUnit.ServiceDefaults.csproj", "{09068142-EC70-4510-BE5A-F29C7A1CC3EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.ServiceDefaults", "AspireSolutionWithNUnit.ServiceDefaults\AspireSolutionWithNUnit.ServiceDefaults.csproj", "{3F312B3F-7C1A-42F4-BCA1-810D5E12258F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.ApiService", "AspireSolutionWithNUnit.ApiService\AspireSolutionWithNUnit.ApiService.csproj", "{F7DB4F0B-6109-4C43-BCF9-ACBA7006087D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.ApiService", "AspireSolutionWithNUnit.ApiService\AspireSolutionWithNUnit.ApiService.csproj", "{2F022D92-C6D7-45D4-8F91-07FB8DC6D00D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.Web", "AspireSolutionWithNUnit.Web\AspireSolutionWithNUnit.Web.csproj", "{7F401CAA-8B7D-434F-9996-8D435D4A44B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.Web", "AspireSolutionWithNUnit.Web\AspireSolutionWithNUnit.Web.csproj", "{C93130A5-B327-4C34-9652-00ECD9CCE879}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.Tests", "AspireSolutionWithNUnit.Tests\AspireSolutionWithNUnit.Tests.csproj", "{0E5803CB-35AD-4E64-B511-8C241E8EC732}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireSolutionWithNUnit.Tests", "AspireSolutionWithNUnit.Tests\AspireSolutionWithNUnit.Tests.csproj", "{51D8E7F4-E513-41EE-93E6-69A75933C4CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,25 +16,25 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9D0A6FBF-4394-4282-BD21-FAB82F5B9ED6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9D0A6FBF-4394-4282-BD21-FAB82F5B9ED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9D0A6FBF-4394-4282-BD21-FAB82F5B9ED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9D0A6FBF-4394-4282-BD21-FAB82F5B9ED6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{09068142-EC70-4510-BE5A-F29C7A1CC3EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{09068142-EC70-4510-BE5A-F29C7A1CC3EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{09068142-EC70-4510-BE5A-F29C7A1CC3EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{09068142-EC70-4510-BE5A-F29C7A1CC3EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F7DB4F0B-6109-4C43-BCF9-ACBA7006087D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7DB4F0B-6109-4C43-BCF9-ACBA7006087D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F7DB4F0B-6109-4C43-BCF9-ACBA7006087D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F7DB4F0B-6109-4C43-BCF9-ACBA7006087D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7F401CAA-8B7D-434F-9996-8D435D4A44B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7F401CAA-8B7D-434F-9996-8D435D4A44B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7F401CAA-8B7D-434F-9996-8D435D4A44B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7F401CAA-8B7D-434F-9996-8D435D4A44B1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0E5803CB-35AD-4E64-B511-8C241E8EC732}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E5803CB-35AD-4E64-B511-8C241E8EC732}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E5803CB-35AD-4E64-B511-8C241E8EC732}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E5803CB-35AD-4E64-B511-8C241E8EC732}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E03B282-6801-496D-A75F-9756B47EE73D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E03B282-6801-496D-A75F-9756B47EE73D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E03B282-6801-496D-A75F-9756B47EE73D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E03B282-6801-496D-A75F-9756B47EE73D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F312B3F-7C1A-42F4-BCA1-810D5E12258F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F312B3F-7C1A-42F4-BCA1-810D5E12258F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F312B3F-7C1A-42F4-BCA1-810D5E12258F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F312B3F-7C1A-42F4-BCA1-810D5E12258F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F022D92-C6D7-45D4-8F91-07FB8DC6D00D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F022D92-C6D7-45D4-8F91-07FB8DC6D00D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F022D92-C6D7-45D4-8F91-07FB8DC6D00D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F022D92-C6D7-45D4-8F91-07FB8DC6D00D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C93130A5-B327-4C34-9652-00ECD9CCE879}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C93130A5-B327-4C34-9652-00ECD9CCE879}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C93130A5-B327-4C34-9652-00ECD9CCE879}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C93130A5-B327-4C34-9652-00ECD9CCE879}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51D8E7F4-E513-41EE-93E6-69A75933C4CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51D8E7F4-E513-41EE-93E6-69A75933C4CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51D8E7F4-E513-41EE-93E6-69A75933C4CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51D8E7F4-E513-41EE-93E6-69A75933C4CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
