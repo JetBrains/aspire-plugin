@@ -7,5 +7,5 @@ import kotlin.text.contains
 
 val aspireLoggedErrorProcessor: RiderLoggedErrorProcessor = RiderLoggedErrorProcessor(
     RiderKnownLogErrors + KnownLogErrors(
-        "JSvgDocumentFactoryKt" to { it.contains("com.intellij.ui.svg.JSvgDocumentFactoryKt tried to access method 'void com.github.weisj.jsvg.parser.ParsedElement.<init>") }
+        "DebuggerMatchingHandlerNotFound" to { it.contains("Catch java.lang.IllegalArgumentException Haven't found matching handler for") }
     ))
