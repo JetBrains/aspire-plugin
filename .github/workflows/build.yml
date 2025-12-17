@@ -118,8 +118,8 @@ jobs:
 
       # Install Aspire templates
       - name: Install templates
-        working-directory: ${{ github.workspace }}
-        run: dotnet new install Aspire.ProjectTemplates::13.0.2
+        working-directory: '/usr/share/dotnet'
+        run: ./dotnet new install Aspire.ProjectTemplates::13.0.2
 
       # Run tests
       - name: Run Tests
