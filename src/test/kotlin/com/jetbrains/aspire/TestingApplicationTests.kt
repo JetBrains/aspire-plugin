@@ -8,25 +8,41 @@ import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
 import com.jetbrains.rider.test.scriptingApi.runAllUnitTestsFromProject
 import com.jetbrains.rider.test.scriptingApi.withSolution
 import org.testng.annotations.Test
+import java.time.Duration
 
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 class TestingApplicationTests : UnitTestingTestBase() {
 
-    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor,
-        aspireLoggedErrorProcessor
-    ) }
+    override val testRunner: IntegrationTestRunner by lazy {
+        IntegrationTestRunner(
+            testProcessor,
+            aspireLoggedErrorProcessor
+        )
+    }
 
     @Test
     fun `Running xunit tests for aspire solution`() {
         withSolution("AspireSolutionWithXUnit", openSolutionParamsForBuild) {
-            runAllUnitTestsFromProject("AspireSolutionWithXUnit.Tests", 4, 4, expectedSuccessful = 4)
+            runAllUnitTestsFromProject(
+                "AspireSolutionWithXUnit.Tests",
+                4,
+                4,
+                expectedSuccessful = 4,
+                timeout = Duration.ofMinutes(3)
+            )
         }
     }
 
     @Test
     fun `Running nunit tests for aspire solution`() {
         withSolution("AspireSolutionWithNUnit", openSolutionParamsForBuild) {
-            runAllUnitTestsFromProject("AspireSolutionWithNUnit.Tests", 4, 4, expectedSuccessful = 4)
+            runAllUnitTestsFromProject(
+                "AspireSolutionWithNUnit.Tests",
+                4,
+                4,
+                expectedSuccessful = 4,
+                timeout = Duration.ofMinutes(3)
+            )
         }
     }
 }
