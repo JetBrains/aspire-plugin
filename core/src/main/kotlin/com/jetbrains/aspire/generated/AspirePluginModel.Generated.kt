@@ -19,7 +19,7 @@ import kotlin.jvm.JvmStatic
  * #### Generated from [AspirePluginModel.kt:10]
  */
 class AspirePluginModel private constructor(
-    private val _getProjectOutputType: RdCall<String, String?>,
+    private val _getProjectOutputType: RdCall<com.jetbrains.rd.ide.model.RdPath, String?>,
     private val _referenceProjectsFromAppHost: RdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse?>,
     private val _referenceServiceDefaultsFromProjects: RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?>,
     private val _startAspireHost: RdCall<StartAspireHostRequest, StartAspireHostResponse>,
@@ -49,14 +49,14 @@ class AspirePluginModel private constructor(
         private val __ReferenceProjectsFromAppHostResponseNullableSerializer = ReferenceProjectsFromAppHostResponse.nullable()
         private val __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer = ReferenceServiceDefaultsFromProjectsResponse.nullable()
         
-        const val serializationHash = -8152167548091195920L
+        const val serializationHash = -4572249858833989497L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspirePluginModel
     override val serializationHash: Long get() = AspirePluginModel.serializationHash
     
     //fields
-    val getProjectOutputType: IRdCall<String, String?> get() = _getProjectOutputType
+    val getProjectOutputType: IRdCall<com.jetbrains.rd.ide.model.RdPath, String?> get() = _getProjectOutputType
     val referenceProjectsFromAppHost: IRdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse?> get() = _referenceProjectsFromAppHost
     val referenceServiceDefaultsFromProjects: IRdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?> get() = _referenceServiceDefaultsFromProjects
     val startAspireHost: IRdEndpoint<StartAspireHostRequest, StartAspireHostResponse> get() = _startAspireHost
@@ -82,7 +82,7 @@ class AspirePluginModel private constructor(
     //secondary constructor
     internal constructor(
     ) : this(
-        RdCall<String, String?>(FrameworkMarshallers.String, __StringNullableSerializer),
+        RdCall<com.jetbrains.rd.ide.model.RdPath, String?>(com.jetbrains.rd.ide.model.RdPath, __StringNullableSerializer),
         RdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse?>(ReferenceProjectsFromAppHostRequest, __ReferenceProjectsFromAppHostResponseNullableSerializer),
         RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?>(ReferenceServiceDefaultsFromProjectsRequest, __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer),
         RdCall<StartAspireHostRequest, StartAspireHostResponse>(StartAspireHostRequest, StartAspireHostResponse),

@@ -8,6 +8,7 @@ using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
 using JetBrains.Rider.Aspire.Plugin.Generated;
 using JetBrains.Rider.Aspire.Plugin.ProjectModel;
+using JetBrains.Rider.Model;
 using JetBrains.Util;
 
 namespace JetBrains.Rider.Aspire.Plugin;
@@ -29,13 +30,12 @@ public class AspirePluginHost
         model.ReferenceServiceDefaultsFromProjects.SetSync((lt, req) => ReferenceServiceDefaultsFromProjects(req, lt));
     }
 
-    private string? GetProjectOutputType(string projectPath)
+    private string? GetProjectOutputType(RdPath projectPath)
     {
-        var projectFilePath = projectPath.ParseVirtualPathSafe(InteractionContext.SolutionContext);
         IProject? project;
         using (_solution.Locks.UsingReadLock())
         {
-            project = _solution.FindProjectByProjectFilePath(projectFilePath);
+            project = _solution.FindProjectByProjectFilePath(projectPath.FromRd());
         }
 
         return project?.GetRequestedProjectProperties(OutputTypeProjectPropertyRequest.OutputType).FirstNotNull();

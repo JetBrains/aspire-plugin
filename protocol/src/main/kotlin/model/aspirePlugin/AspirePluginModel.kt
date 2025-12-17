@@ -50,7 +50,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         setting(Kotlin11Generator.Namespace, "com.jetbrains.aspire.generated")
         setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Plugin.Generated")
 
-        call("getProjectOutputType", string, string.nullable)
+        call("getProjectOutputType", RdPath, string.nullable)
         call(
             "referenceProjectsFromAppHost",
             ReferenceProjectsFromAppHostRequest,

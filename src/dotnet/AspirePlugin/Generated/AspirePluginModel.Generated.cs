@@ -42,7 +42,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   {
     //fields
     //public fields
-    [NotNull] public IRdEndpoint<string, string> GetProjectOutputType => _GetProjectOutputType;
+    [NotNull] public IRdEndpoint<JetBrains.Rider.Model.RdPath, string> GetProjectOutputType => _GetProjectOutputType;
     [NotNull] public IRdEndpoint<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse> ReferenceProjectsFromAppHost => _ReferenceProjectsFromAppHost;
     [NotNull] public IRdEndpoint<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse> ReferenceServiceDefaultsFromProjects => _ReferenceServiceDefaultsFromProjects;
     [NotNull] public IRdCall<StartAspireHostRequest, StartAspireHostResponse> StartAspireHost => _StartAspireHost;
@@ -50,7 +50,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     [NotNull] public void UnitTestRunCancelled(string value) => _UnitTestRunCancelled.Fire(value);
     
     //private fields
-    [NotNull] private readonly RdCall<string, string> _GetProjectOutputType;
+    [NotNull] private readonly RdCall<JetBrains.Rider.Model.RdPath, string> _GetProjectOutputType;
     [NotNull] private readonly RdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse> _ReferenceProjectsFromAppHost;
     [NotNull] private readonly RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse> _ReferenceServiceDefaultsFromProjects;
     [NotNull] private readonly RdCall<StartAspireHostRequest, StartAspireHostResponse> _StartAspireHost;
@@ -59,7 +59,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     
     //primary constructor
     private AspirePluginModel(
-      [NotNull] RdCall<string, string> getProjectOutputType,
+      [NotNull] RdCall<JetBrains.Rider.Model.RdPath, string> getProjectOutputType,
       [NotNull] RdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse> referenceProjectsFromAppHost,
       [NotNull] RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse> referenceServiceDefaultsFromProjects,
       [NotNull] RdCall<StartAspireHostRequest, StartAspireHostResponse> startAspireHost,
@@ -96,7 +96,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     //secondary constructor
     internal AspirePluginModel (
     ) : this (
-      new RdCall<string, string>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ReadStringNullable, WriteStringNullable),
+      new RdCall<JetBrains.Rider.Model.RdPath, string>(JetBrains.Rider.Model.RdPath.Read, JetBrains.Rider.Model.RdPath.Write, ReadStringNullable, WriteStringNullable),
       new RdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse>(ReferenceProjectsFromAppHostRequest.Read, ReferenceProjectsFromAppHostRequest.Write, ReadReferenceProjectsFromAppHostResponseNullable, WriteReferenceProjectsFromAppHostResponseNullable),
       new RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse>(ReferenceServiceDefaultsFromProjectsRequest.Read, ReferenceServiceDefaultsFromProjectsRequest.Write, ReadReferenceServiceDefaultsFromProjectsResponseNullable, WriteReferenceServiceDefaultsFromProjectsResponseNullable),
       new RdCall<StartAspireHostRequest, StartAspireHostResponse>(StartAspireHostRequest.Read, StartAspireHostRequest.Write, StartAspireHostResponse.Read, StartAspireHostResponse.Write),
@@ -114,7 +114,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     public static  CtxWriteDelegate<ReferenceProjectsFromAppHostResponse> WriteReferenceProjectsFromAppHostResponseNullable = ReferenceProjectsFromAppHostResponse.Write.NullableClass();
     public static  CtxWriteDelegate<ReferenceServiceDefaultsFromProjectsResponse> WriteReferenceServiceDefaultsFromProjectsResponseNullable = ReferenceServiceDefaultsFromProjectsResponse.Write.NullableClass();
     
-    protected override long SerializationHash => -8152167548091195920L;
+    protected override long SerializationHash => -4572249858833989497L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)

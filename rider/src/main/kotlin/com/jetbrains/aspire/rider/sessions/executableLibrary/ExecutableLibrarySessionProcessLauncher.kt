@@ -13,6 +13,8 @@ import com.jetbrains.aspire.generated.aspirePluginModel
 import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProcessLauncher
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
+import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntities
@@ -56,7 +58,7 @@ internal class ExecutableLibrarySessionProcessLauncher : DotNetSessionProcessLau
         }
 
         val outputType = withContext(Dispatchers.EDT) {
-            project.solution.aspirePluginModel.getProjectOutputType.startSuspending(projectPath)
+            project.solution.aspirePluginModel.getProjectOutputType.startSuspending(projectPath.toRd())
         }
 
         return outputType?.equals(LIBRARY, true) == true
