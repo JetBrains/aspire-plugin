@@ -153,7 +153,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
     ): Pair<DotNetExecutable, StartBrowserSettings?>?
 
     private fun modifyDotNetExecutableToUseCustomOTLPEndpoint(executable: DotNetExecutable): DotNetExecutable {
-        val extension = OpenTelemetryProtocolServerExtension.EP_NAME.extensionList.singleOrNull { it.enabled }
+        val extension = OpenTelemetryProtocolServerExtension.getEnabledExtension()
         val otlpEndpoint = extension?.getOTLPServerEndpoint() ?: return executable
 
         LOG.trace { "Setting OTEL_EXPORTER_OTLP_ENDPOINT variable to $otlpEndpoint" }

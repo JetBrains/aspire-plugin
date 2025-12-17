@@ -37,7 +37,7 @@ internal fun getIcon(aspireResource: AspireResource): Icon {
 
 @ApiStatus.Internal
 fun getResourceIcon(type: ResourceType, containerImage: String?): Icon {
-    AspireResourceIconProviderExtension.EP_NAME.extensionList.forEach {
+    AspireResourceIconProviderExtension.getAvailableProviders().forEach {
         val icon = it.getIcon(type, containerImage)
         if (icon != null) return icon
     }

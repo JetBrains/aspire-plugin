@@ -171,7 +171,8 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
     private fun setOTLPEndpointUrl(appHostConfig: AspireHostModelConfig, appHostLifetime: Lifetime) {
         if (appHostConfig.otlpEndpointUrl == null) return
 
-        val extension = OpenTelemetryProtocolServerExtension.EP_NAME.extensionList.singleOrNull { it.enabled } ?: return
+        val extension = OpenTelemetryProtocolServerExtension.getEnabledExtension() ?: return
+
         appHostLifetime.bracketIfAlive({
             extension.setOTLPServerEndpointForProxying(appHostConfig.otlpEndpointUrl)
         }, {

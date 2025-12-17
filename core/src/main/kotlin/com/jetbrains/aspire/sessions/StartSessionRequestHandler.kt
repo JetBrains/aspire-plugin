@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 
 interface StartSessionRequestHandler {
     companion object {
-        val EP_NAME =
+        private val EP_NAME =
             ExtensionPointName<StartSessionRequestHandler>("com.jetbrains.aspire.startSessionRequestHandler")
 
         /**
