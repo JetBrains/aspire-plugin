@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [2.0.0] - 2025-12-16
+
 ### Added
 
 - Basic support for single Aspire AppHost files 
@@ -557,7 +559,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/1.9.5...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/JetBrains/aspire-plugin/compare/1.9.5...2.0.0
 [1.9.5]: https://github.com/JetBrains/aspire-plugin/compare/1.9.4...1.9.5
 [1.9.4]: https://github.com/JetBrains/aspire-plugin/compare/1.9.3...1.9.4
 [1.9.3]: https://github.com/JetBrains/aspire-plugin/compare/1.9.2...1.9.3
