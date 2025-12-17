@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AspireSolutionWithXUnit.Tests;
 
-public class IntegrationTest1
+public class WebTests
 {
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
 
@@ -10,8 +10,11 @@ public class IntegrationTest1
     public async Task GetWebResourceRootReturnsOkStatusCode()
     {
         // Arrange
-        var cancellationToken = CancellationToken.None;
-        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspireSolutionWithXUnit_AppHost>(cancellationToken);
+        var cancellationToken = new CancellationTokenSource(DefaultTimeout).Token;
+
+        var appHost =
+            await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspireSolutionWithXUnit_AppHost>(
+                cancellationToken);
         appHost.Services.AddLogging(logging =>
         {
             logging.SetMinimumLevel(LogLevel.Debug);
@@ -29,9 +32,10 @@ public class IntegrationTest1
         await app.StartAsync(cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
 
         // Act
-        using var httpClient = app.CreateHttpClient("webfrontend");
-        await app.ResourceNotifications.WaitForResourceHealthyAsync("webfrontend", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
-        using var response = await httpClient.GetAsync("/", cancellationToken);
+        var httpClient = app.CreateHttpClient("webfrontend");
+        await app.ResourceNotifications.WaitForResourceHealthyAsync("webfrontend", cancellationToken)
+            .WaitAsync(DefaultTimeout, cancellationToken);
+        var response = await httpClient.GetAsync("/", cancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
