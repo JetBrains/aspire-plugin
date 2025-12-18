@@ -257,7 +257,7 @@ internal class AspireDefaultFileModificationService(private val project: Project
 
         val methodIndex = text.indexOf(insertAfterMethod)
         if (methodIndex == -1) {
-            LOG.warn("Unable to find $insertAfterMethod method in the `Porgram.cs` file")
+            LOG.info("Unable to find $insertAfterMethod method in the `Porgram.cs` file")
             return -1
         }
 
