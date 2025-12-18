@@ -12,6 +12,12 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         fun getInstance() = service<AspireSettings>()
     }
 
+    var buildDotnetProjectsBeforeLaunch
+        get() = state.buildDotnetProjectsBeforeLaunch
+        set(value) {
+            state.buildDotnetProjectsBeforeLaunch = value
+        }
+
     var doNotLaunchBrowserForProjects
         get() = state.doNotLaunchBrowserForProjects
         set(value) {

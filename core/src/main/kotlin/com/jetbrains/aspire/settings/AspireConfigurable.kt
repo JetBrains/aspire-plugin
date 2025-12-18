@@ -15,6 +15,10 @@ internal class AspireConfigurable : BoundConfigurable(AspireCoreBundle.message("
 
     override fun createPanel() = panel {
         row {
+            checkBox(AspireCoreBundle.message("configurable.Aspire.build.dotnet.projects.before.launch"))
+                .bindSelected(settings::buildDotnetProjectsBeforeLaunch)
+        }
+        row {
             checkBox(AspireCoreBundle.message("configurable.Aspire.do.not.launch.browser"))
                 .bindSelected(settings::doNotLaunchBrowserForProjects)
         }

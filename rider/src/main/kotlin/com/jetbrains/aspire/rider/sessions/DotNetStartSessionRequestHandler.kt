@@ -21,6 +21,7 @@ import com.jetbrains.aspire.sessions.SessionTerminated
 import com.jetbrains.aspire.sessions.StartSessionRequest
 import com.jetbrains.aspire.sessions.StartSessionRequestHandler
 import com.jetbrains.aspire.rider.util.DotNetBuildService
+import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isAlive
@@ -79,7 +80,8 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             }
         }
 
-        if (runnableProjects.isNotEmpty()) {
+        val settings = AspireSettings.getInstance()
+        if (runnableProjects.isNotEmpty() && settings.buildDotnetProjectsBeforeLaunch) {
             LOG.trace { "Building ${runnableProjects.size} runnable project(s): ${runnableProjects.map { it.fileName }}" }
             val pathStrings = runnableProjects.map { it.absolutePathString() }
             val buildParameters = BuildParameters(
@@ -90,6 +92,8 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
         }
 
+        //We have to build non-runnable projects even if `buildDotnetProjectsBeforeLaunch` is false because
+        //they are not included in the solution and weren't built in the "before run" phase
         if (nonRunnableProjects.isNotEmpty()) {
             LOG.trace { "Building ${nonRunnableProjects.size} non-runnable project(s): ${nonRunnableProjects.map { it.fileName }}" }
             val buildService = DotNetBuildService.getInstance(project)

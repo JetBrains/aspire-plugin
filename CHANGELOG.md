@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- A setting to control whether to build .NET projects before launching Aspire resources
+
+## [2.0.1] - 2025-12-17
+
 ### Changed
 
 - Plugin archive name
@@ -563,7 +569,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.0.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.0.1...HEAD
+[2.0.1]: https://github.com/JetBrains/aspire-plugin/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/JetBrains/aspire-plugin/compare/1.9.5...2.0.0
 [1.9.5]: https://github.com/JetBrains/aspire-plugin/compare/1.9.4...1.9.5
 [1.9.4]: https://github.com/JetBrains/aspire-plugin/compare/1.9.3...1.9.4
