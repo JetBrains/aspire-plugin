@@ -5,6 +5,7 @@ import com.intellij.database.dataSource.DataSourceStorage
 import com.intellij.database.dataSource.DatabaseDriver
 import com.intellij.database.dataSource.LocalDataSource
 import com.intellij.database.dataSource.LocalDataSourceManager
+import com.intellij.database.model.create
 import com.intellij.database.util.DbImplUtil
 import com.intellij.database.util.LoaderContext
 import com.intellij.database.util.performAutoIntrospection
@@ -145,10 +146,21 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
             return
         }
 
+        // The URL has changed but aspire is tracking as the same resource so we should replace the
+        if(dataSourceManager.dataSources.any { it.getAdditionalProperty("aspireResourceId") == databaseResource.resourceId }) {
+            LOG.trace { "Replacing data source for ${databaseResource.name} (${databaseResource.resourceId})" }
+            application.invokeLater {
+                dataSourceManager.removeDataSource(dataSourceManager.dataSources.single {
+                    it.getAdditionalProperty("aspireResourceId") == databaseResource.resourceId
+                })
+            }
+        }
+
         LOG.trace { "Creating a new data source for ${databaseResource.name}" }
         val createdDataSource = LocalDataSource.fromDriver(driver, url, true).apply {
             name = databaseResource.name
             isAutoSynchronize = true
+            setAdditionalProperty("aspireResourceId", databaseResource.resourceId)
         }
         withContext(Dispatchers.EDT) {
             dataSourceManager.addDataSource(createdDataSource)

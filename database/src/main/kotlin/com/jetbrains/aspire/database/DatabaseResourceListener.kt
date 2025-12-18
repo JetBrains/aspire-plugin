@@ -44,6 +44,7 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
 
             val databaseResource = DatabaseResource(
                 resource.displayName,
+                resource.resourceId,
                 containerId,
                 resourceType,
                 connectionString,
