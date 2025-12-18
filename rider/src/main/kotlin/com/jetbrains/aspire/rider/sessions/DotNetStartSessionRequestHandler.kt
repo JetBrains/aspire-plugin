@@ -81,6 +81,9 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         }
 
         val settings = AspireSettings.getInstance()
+        //Sometimes .NET projects specified in the AppHost by a string path can be actually runnable (included in the same solution),
+        //so we can't just skip building all the runnable projects.
+        //Probably we need to check the AppHost references and only then decide whether to build them or not.
         if (runnableProjects.isNotEmpty() && settings.buildDotnetProjectsBeforeLaunch) {
             LOG.trace { "Building ${runnableProjects.size} runnable project(s): ${runnableProjects.map { it.fileName }}" }
             val pathStrings = runnableProjects.map { it.absolutePathString() }
