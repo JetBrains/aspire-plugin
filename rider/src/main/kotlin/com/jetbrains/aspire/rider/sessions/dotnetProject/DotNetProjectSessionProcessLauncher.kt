@@ -4,11 +4,11 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.run.host.AspireHostConfiguration
+import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
+import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path

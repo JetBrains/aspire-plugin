@@ -9,8 +9,8 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.jetbrains.aspire.generated.aspirePluginModel
+import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProcessLauncher
-import com.jetbrains.aspire.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.ijent.extensions.toRd

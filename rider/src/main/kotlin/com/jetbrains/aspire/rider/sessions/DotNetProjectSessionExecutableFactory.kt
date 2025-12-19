@@ -7,9 +7,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.systemIndependentPath
-import com.jetbrains.aspire.launchProfiles.getWorkingDirectory
-import com.jetbrains.aspire.run.host.AspireHostConfiguration
-import com.jetbrains.aspire.sessions.*
+import com.jetbrains.aspire.rider.launchProfiles.getWorkingDirectory
+import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.MSBuildPropertyService
 import com.jetbrains.aspire.util.getStartBrowserAction

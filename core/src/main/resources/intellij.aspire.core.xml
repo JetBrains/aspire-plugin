@@ -18,12 +18,6 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
-        <configurationType implementation="com.jetbrains.aspire.run.AspireConfigurationType"/>
-        <runConfigurationProducer implementation="com.jetbrains.aspire.run.host.AspireHostRunConfigurationProducer"/>
-
-        <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostProgramRunner"/>
-        <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostDebugProgramRunner"/>
-
         <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
 
         <applicationConfigurable
@@ -43,11 +37,6 @@
                 implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
     </extensions>
 
-    <projectListeners>
-        <listener class="com.jetbrains.aspire.worker.AspireWorker$AspireRunConfigurationListener"
-                  topic="com.intellij.execution.RunManagerListener"/>
-    </projectListeners>
-
     <actions>
         <action id="Aspire.Settings"
                 class="com.jetbrains.aspire.actions.AspireSettingsAction"
@@ -60,15 +49,6 @@
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
         <group id="Aspire.Host">
-            <action id="Aspire.Host.Run"
-                    class="com.jetbrains.aspire.actions.dashboard.host.RunHostAction"
-                    icon="AllIcons.Actions.Execute"/>
-            <action id="Aspire.Host.Debug"
-                    class="com.jetbrains.aspire.actions.dashboard.host.DebugHostAction"
-                    icon="AllIcons.Actions.StartDebugger"/>
-            <action id="Aspire.Host.Stop"
-                    class="com.jetbrains.aspire.actions.dashboard.host.StopHostAction"
-                    icon="AllIcons.Actions.Suspend"/>
             <action id="Aspire.Host.Dashboard"
                     class="com.jetbrains.aspire.actions.dashboard.host.AspireOpenDashboardAction"
                     icon="AllIcons.General.Web"/>
