@@ -15,6 +15,9 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.resourceIconProviderExtension"
                         interface="com.jetbrains.aspire.dashboard.AspireResourceIconProviderExtension"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.appHostLauncher"
+                        interface="com.jetbrains.aspire.worker.AspireAppHostLauncher"
+                        dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -49,6 +52,15 @@
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
         <group id="Aspire.Host">
+            <action id="Aspire.Host.Run"
+                    class="com.jetbrains.aspire.actions.dashboard.host.RunHostAction"
+                    icon="AllIcons.Actions.Execute"/>
+            <action id="Aspire.Host.Debug"
+                    class="com.jetbrains.aspire.actions.dashboard.host.DebugHostAction"
+                    icon="AllIcons.Actions.StartDebugger"/>
+            <action id="Aspire.Host.Stop"
+                    class="com.jetbrains.aspire.actions.dashboard.host.StopHostAction"
+                    icon="AllIcons.Actions.Suspend"/>
             <action id="Aspire.Host.Dashboard"
                     class="com.jetbrains.aspire.actions.dashboard.host.AspireOpenDashboardAction"
                     icon="AllIcons.General.Web"/>

@@ -37,6 +37,8 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
+        <appHostLauncher implementation="com.jetbrains.aspire.rider.run.RunConfigurationBasedAppHostLauncher"/>
+
         <startSessionRequestHandler
                 implementation="com.jetbrains.aspire.rider.sessions.DotNetStartSessionRequestHandler"/>
 
@@ -59,24 +61,6 @@
         <action id="Aspire.AddToProject"
                 class="com.jetbrains.aspire.rider.actions.AddAspireToProjectAction"
                 icon="RiderIcons.Templates.TemplateAspire">
-        </action>
-        <action id="Aspire.Host.Run"
-                class="com.jetbrains.aspire.rider.actions.dashboard.host.RunHostAction"
-                icon="AllIcons.Actions.Execute">
-            <add-to-group group-id="Aspire.Host" relative-to-action="Aspire.Host.Dashboard"
-                          anchor="before"/>
-        </action>
-        <action id="Aspire.Host.Debug"
-                class="com.jetbrains.aspire.rider.actions.dashboard.host.DebugHostAction"
-                icon="AllIcons.Actions.StartDebugger">
-            <add-to-group group-id="Aspire.Host" relative-to-action="Aspire.Host.Dashboard"
-                          anchor="before"/>
-        </action>
-        <action id="Aspire.Host.Stop"
-                class="com.jetbrains.aspire.rider.actions.dashboard.host.StopHostAction"
-                icon="AllIcons.Actions.Suspend">
-            <add-to-group group-id="Aspire.Host" relative-to-action="Aspire.Host.Dashboard"
-                          anchor="before"/>
         </action>
         <action id="Aspire.Resource.Attach"
                 class="com.jetbrains.aspire.rider.actions.dashboard.resource.AttachToProjectResourceAction"
