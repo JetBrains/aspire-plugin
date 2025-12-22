@@ -23,9 +23,9 @@ dependencies {
             useCache = true
         }
         jetbrainsRuntime()
-
-        pluginModule(implementation(project(":core")))
     }
+
+    implementation(project(":core"))
 }
 
 intellijPlatform {

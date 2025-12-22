@@ -24,10 +24,10 @@ dependencies {
         }
         jetbrainsRuntime()
 
-        pluginModule(implementation(project(":core")))
-
         bundledPlugins("com.intellij.diagram")
     }
+
+    implementation(project(":core"))
 }
 
 intellijPlatform {

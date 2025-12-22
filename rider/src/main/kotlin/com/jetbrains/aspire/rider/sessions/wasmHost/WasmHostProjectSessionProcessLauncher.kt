@@ -7,18 +7,17 @@ import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.run.host.AspireHostConfiguration
+import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.aspire.rider.sessions.findRunnableProjectByPath
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
+import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.nuget.PackageVersionResolution
 import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**

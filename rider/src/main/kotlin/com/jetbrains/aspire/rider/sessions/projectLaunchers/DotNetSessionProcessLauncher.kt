@@ -17,13 +17,13 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
-import com.jetbrains.aspire.run.host.AspireHostConfiguration
-import com.jetbrains.aspire.run.AspireConfigurationType
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
+import com.jetbrains.aspire.rider.run.AspireConfigurationType
+import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
+import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime

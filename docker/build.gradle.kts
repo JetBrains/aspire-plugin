@@ -24,10 +24,10 @@ dependencies {
         }
         jetbrainsRuntime()
 
-        pluginModule(implementation(project(":core")))
-
         bundledPlugins("Docker")
     }
+
+    implementation(project(":core"))
 }
 
 intellijPlatform {

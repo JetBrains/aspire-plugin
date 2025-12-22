@@ -293,15 +293,6 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
         }
     }.sortedWith(compareBy({ it.type }, { it.name }))
 
-    fun getProjectResource(projectPath: Path): AspireResource? {
-        for (resource in resources.value) {
-            if (resource.type != ResourceType.Project) continue
-            if (resource.projectPath?.value == projectPath) return resource
-        }
-
-        return null
-    }
-
     sealed interface AspireAppHostState {
         data object Inactive : AspireAppHostState
 

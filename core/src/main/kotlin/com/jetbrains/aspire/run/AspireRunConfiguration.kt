@@ -1,5 +1,8 @@
 package com.jetbrains.aspire.run
 
-internal interface AspireRunConfiguration {
+import org.jetbrains.annotations.ApiStatus
+
+@ApiStatus.Internal
+interface AspireRunConfiguration {
     val parameters: AspireRunConfigurationParameters
 }

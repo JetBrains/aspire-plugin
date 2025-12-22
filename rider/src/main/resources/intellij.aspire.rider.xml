@@ -12,7 +12,19 @@
                         dynamic="true"/>
     </extensionPoints>
 
+    <projectListeners>
+        <listener class="com.jetbrains.aspire.rider.run.AspireRunConfigurationListener"
+                  topic="com.intellij.execution.RunManagerListener"/>
+    </projectListeners>
+
     <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="com.jetbrains.aspire.rider.run.AspireConfigurationType"/>
+        <runConfigurationProducer
+                implementation="com.jetbrains.aspire.rider.run.host.AspireHostRunConfigurationProducer"/>
+
+        <programRunner implementation="com.jetbrains.aspire.rider.run.runners.AspireHostProgramRunner"/>
+        <programRunner implementation="com.jetbrains.aspire.rider.run.runners.AspireHostDebugProgramRunner"/>
+
         <programRunner
                 implementation="com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProgramRunner"/>
         <programRunner
@@ -25,6 +37,8 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
+        <appHostLauncher implementation="com.jetbrains.aspire.rider.run.RunConfigurationBasedAppHostLauncher"/>
+
         <startSessionRequestHandler
                 implementation="com.jetbrains.aspire.rider.sessions.DotNetStartSessionRequestHandler"/>
 

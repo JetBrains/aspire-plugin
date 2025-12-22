@@ -15,15 +15,12 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.resourceIconProviderExtension"
                         interface="com.jetbrains.aspire.dashboard.AspireResourceIconProviderExtension"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.appHostLauncher"
+                        interface="com.jetbrains.aspire.worker.AspireAppHostLauncher"
+                        dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
-        <configurationType implementation="com.jetbrains.aspire.run.AspireConfigurationType"/>
-        <runConfigurationProducer implementation="com.jetbrains.aspire.run.host.AspireHostRunConfigurationProducer"/>
-
-        <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostProgramRunner"/>
-        <programRunner implementation="com.jetbrains.aspire.run.runners.AspireHostDebugProgramRunner"/>
-
         <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
 
         <applicationConfigurable
@@ -42,11 +39,6 @@
         <resourceIconProviderExtension
                 implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
     </extensions>
-
-    <projectListeners>
-        <listener class="com.jetbrains.aspire.worker.AspireWorker$AspireRunConfigurationListener"
-                  topic="com.intellij.execution.RunManagerListener"/>
-    </projectListeners>
 
     <actions>
         <action id="Aspire.Settings"

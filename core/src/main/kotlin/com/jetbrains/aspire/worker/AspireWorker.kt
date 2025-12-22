@@ -1,9 +1,5 @@
 package com.jetbrains.aspire.worker
 
-import com.intellij.execution.RunManager
-import com.intellij.execution.RunManagerListener
-import com.intellij.execution.RunnerAndConfigurationSettings
-import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
@@ -19,8 +15,6 @@ import com.jetbrains.aspire.generated.AspireHostModel
 import com.jetbrains.aspire.generated.AspireHostModelConfig
 import com.jetbrains.aspire.generated.AspireWorkerModel
 import com.jetbrains.aspire.generated.aspireWorkerModel
-import com.jetbrains.aspire.run.AspireConfigurationType
-import com.jetbrains.aspire.run.AspireRunConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.*
 import com.jetbrains.rd.framework.*
@@ -41,7 +35,6 @@ import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.set
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
@@ -65,7 +58,7 @@ class AspireWorker(private val project: Project) : Disposable {
     }
     private val mutex = Mutex()
 
-    private fun addAspireAppHost(mainFilePath: Path) {
+    fun addAspireAppHost(mainFilePath: Path) {
         LOG.trace { "Adding a new Aspire AppHost ${mainFilePath.absolutePathString()}" }
 
         val previousValue = appHostPaths.putIfAbsent(mainFilePath, Unit)
@@ -79,7 +72,7 @@ class AspireWorker(private val project: Project) : Disposable {
     }
 
     @Suppress("FoldInitializerAndIfToElvis")
-    private fun removeAspireAppHost(mainFilePath: Path) {
+    fun removeAspireAppHost(mainFilePath: Path) {
         LOG.trace { "Removing the Aspire AppHost ${mainFilePath.absolutePathString()}" }
 
         val removed = appHostPaths.remove(mainFilePath)
@@ -243,36 +236,5 @@ class AspireWorker(private val project: Project) : Disposable {
             val debugSessionServerCertificate: String?,
             val model: AspireWorkerModel
         ) : AspireWorkerState
-    }
-
-    class AspireRunConfigurationListener(private val project: Project) : RunManagerListener {
-        override fun runConfigurationAdded(settings: RunnerAndConfigurationSettings) {
-            val configuration = settings.configuration
-            if (configuration !is AspireRunConfiguration) return
-
-            val mainFilePath = configuration.parameters.mainFilePath
-
-            getInstance(project).addAspireAppHost(Path.of(mainFilePath))
-        }
-
-        override fun runConfigurationRemoved(settings: RunnerAndConfigurationSettings) {
-            val configuration = settings.configuration
-            if (configuration !is AspireRunConfiguration) return
-
-            val mainFilePath = configuration.parameters.mainFilePath
-
-            val configurations = getAspireRunConfigurationsByMainFilePath(mainFilePath)
-            if (configurations.isNotEmpty()) return
-
-            getInstance(project).removeAspireAppHost(Path.of(mainFilePath))
-        }
-
-        private fun getAspireRunConfigurationsByMainFilePath(mainFilePath: String): List<AspireRunConfiguration> {
-            val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireConfigurationType::class.java)
-            return RunManager.getInstance(project)
-                .getConfigurationsList(configurationType)
-                .filterIsInstance<AspireRunConfiguration>()
-                .filter { it.parameters.mainFilePath == mainFilePath }
-        }
     }
 }

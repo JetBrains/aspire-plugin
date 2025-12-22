@@ -66,7 +66,7 @@ dependencies {
 
         testFramework(TestFrameworkType.Bundled)
 
-        testBundledPlugins("com.intellij.modules.json", "tanvd.grazi")
+        testBundledPlugins("tanvd.grazi")
     }
 
     implementation(libs.serializationJson)

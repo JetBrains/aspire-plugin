@@ -9,10 +9,13 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.util.ASPIRE_RESOURCE
+import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rider.projectView.workspace.containingProjectEntity
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
+import java.nio.file.Path
 
 abstract class AspireResourceBaseAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
@@ -43,8 +46,17 @@ abstract class AspireResourceBaseAction : AnAction() {
         val projectPath = projectEntity.url?.toPath() ?: return null
         val aspireWorker = AspireWorker.getInstance(project)
         for (aspireHost in aspireWorker.appHosts.value) {
-            val resource = aspireHost.getProjectResource(projectPath) ?: continue
+            val resource = getProjectResource(aspireHost, projectPath) ?: continue
             return resource
+        }
+
+        return null
+    }
+
+    private fun getProjectResource(aspireHost: AspireAppHost, projectPath: Path): AspireResource? {
+        for (resource in aspireHost.resources.value) {
+            if (resource.type != ResourceType.Project) continue
+            if (resource.projectPath?.value == projectPath) return resource
         }
 
         return null
