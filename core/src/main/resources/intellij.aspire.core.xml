@@ -51,6 +51,14 @@
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
         </action>
+        <group id="Aspire.Worker">
+            <action id="Aspire.Worker.Start"
+                    class="com.jetbrains.aspire.actions.StartAspireWorkerAction"
+                    icon="AllIcons.Actions.Execute"/>
+            <action id="Aspire.Worker.Stop"
+                    class="com.jetbrains.aspire.actions.StopAspireWorkerAction"
+                    icon="AllIcons.Actions.Suspend"/>
+        </group>
         <group id="Aspire.Host">
             <action id="Aspire.Host.Run"
                     class="com.jetbrains.aspire.actions.dashboard.host.RunHostAction"
@@ -90,14 +98,6 @@
             <action id="Aspire.Resource.Execute.Command"
                     class="com.jetbrains.aspire.actions.dashboard.resource.PerformResourceAction"
                     icon="AllIcons.Actions.RunAnything"/>
-        </group>
-        <group id="Aspire.Session.Host">
-            <action id="Aspire.Worker.Start"
-                    class="com.jetbrains.aspire.actions.StartAspireWorkerAction"
-                    icon="AllIcons.Actions.Execute"/>
-            <action id="Aspire.Worker.Stop"
-                    class="com.jetbrains.aspire.actions.StopAspireWorkerAction"
-                    icon="AllIcons.Actions.Suspend"/>
         </group>
     </actions>
 </idea-plugin>
