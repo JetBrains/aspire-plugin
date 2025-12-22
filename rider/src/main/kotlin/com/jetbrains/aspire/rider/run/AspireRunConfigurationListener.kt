@@ -5,7 +5,6 @@ import com.intellij.execution.RunManagerListener
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.run.AspireRunConfiguration
 import com.jetbrains.aspire.worker.AspireWorker.Companion.getInstance
 import java.nio.file.Path
 

@@ -5,7 +5,7 @@ import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.rd.util.reactive.hasTrueValue
-import com.jetbrains.aspire.run.AspireRunConfigurationParameters
+import com.jetbrains.aspire.rider.run.AspireRunConfigurationParameters
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.RiderRunBundle
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters

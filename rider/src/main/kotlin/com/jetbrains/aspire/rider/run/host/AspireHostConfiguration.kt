@@ -3,7 +3,7 @@ package com.jetbrains.aspire.rider.run.host
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.rider.run.configurations.IAutoSelectableRunConfiguration
 import com.jetbrains.rider.run.configurations.IProjectBasedRunConfiguration
 import com.jetbrains.rider.run.configurations.RiderAsyncRunConfiguration

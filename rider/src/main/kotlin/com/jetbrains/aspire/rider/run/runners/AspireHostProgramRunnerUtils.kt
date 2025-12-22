@@ -14,7 +14,7 @@ import com.intellij.util.application
 import com.jetbrains.aspire.generated.AspireHostModelConfig
 import com.jetbrains.aspire.rider.run.AspireRunConfigurationManager
 import com.jetbrains.aspire.rider.run.states.*
-import com.jetbrains.aspire.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition

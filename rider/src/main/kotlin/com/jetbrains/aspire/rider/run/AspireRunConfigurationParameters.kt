@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.run
+package com.jetbrains.aspire.rider.run
 
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import org.jetbrains.annotations.ApiStatus

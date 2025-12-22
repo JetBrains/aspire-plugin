@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.EnvironmentUtil
 import com.intellij.util.NetworkUtils
-import com.jetbrains.aspire.run.AspireRunConfigurationParameters
 import com.jetbrains.aspire.util.ASPIRE_ALLOW_UNSECURED_TRANSPORT
 import com.jetbrains.aspire.util.ASPIRE_CONTAINER_RUNTIME
 import com.jetbrains.aspire.util.ASPIRE_DASHBOARD_FRONTEND_BROWSERTOKEN

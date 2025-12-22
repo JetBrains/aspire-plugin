@@ -4,7 +4,6 @@ import com.intellij.execution.ExecutionListener
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.run.AspireRunConfiguration
 import com.jetbrains.aspire.worker.AppHostListener
 import kotlin.io.path.Path
 

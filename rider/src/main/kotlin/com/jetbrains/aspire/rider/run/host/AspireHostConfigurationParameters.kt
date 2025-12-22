@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.aspire.rider.launchProfiles.*
 import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
-import com.jetbrains.aspire.run.AspireRunConfigurationParameters
+import com.jetbrains.aspire.rider.run.AspireRunConfigurationParameters
 import com.jetbrains.rd.util.reactive.hasTrueValue
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
