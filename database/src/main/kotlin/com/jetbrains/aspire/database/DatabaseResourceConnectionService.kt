@@ -54,6 +54,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
         private const val REDIS_CONNECTION_STRING_PATTERN =
             "(?<host>\\w*):(?<port>\\d*)(,user=(?<user>\\w*))?(,password=(?<password>\\w*))?"
         private val REDIS_REGEX = Regex(REDIS_CONNECTION_STRING_PATTERN)
+        private const val ASPIRE_RESOURCE_ID = "aspireResourceId"
     }
 
     private val rawConnectionStringTypes = listOf(DatabaseType.MSSQL, DatabaseType.MONGO)
@@ -144,7 +145,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
         }
 
         dataSourceManager.dataSources
-            .singleOrNull { it.getAdditionalProperty("aspireResourceId") == databaseResource.resourceId }
+            .singleOrNull { it.getAdditionalProperty(ASPIRE_RESOURCE_ID) == databaseResource.resourceId }
             ?.let {
                 // The URL has changed but aspire is tracking as the same resource so we should replace the data source
                 LOG.trace { "Replacing data source for ${databaseResource.name} (${databaseResource.resourceId})" }
@@ -157,7 +158,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
         val createdDataSource = LocalDataSource.fromDriver(driver, url, true).apply {
             name = databaseResource.name
             isAutoSynchronize = true
-            setAdditionalProperty("aspireResourceId", databaseResource.resourceId)
+            setAdditionalProperty(ASPIRE_RESOURCE_ID, databaseResource.resourceId)
         }
         withContext(Dispatchers.EDT) {
             dataSourceManager.addDataSource(createdDataSource)
