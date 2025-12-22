@@ -144,7 +144,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
         }
 
         dataSourceManager.dataSources
-            .singleOrNull({ it.getAdditionalProperty("aspireResourceId") == databaseResource.resourceId })
+            .singleOrNull { it.getAdditionalProperty("aspireResourceId") == databaseResource.resourceId }
             ?.let {
                 // The URL has changed but aspire is tracking as the same resource so we should replace the data source
                 LOG.trace { "Replacing data source for ${databaseResource.name} (${databaseResource.resourceId})" }
