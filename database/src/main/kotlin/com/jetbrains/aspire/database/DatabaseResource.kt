@@ -5,6 +5,7 @@ import java.net.URI
 
 internal data class DatabaseResource(
     val name: String,
+    val resourceId: String,
     val containerId: String,
     val type: DatabaseType,
     val connectionString: String,

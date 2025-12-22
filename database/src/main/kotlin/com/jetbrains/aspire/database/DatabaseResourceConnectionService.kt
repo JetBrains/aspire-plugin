@@ -33,8 +33,6 @@ import kotlinx.coroutines.future.await
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
-import com.intellij.docker.utils.getOrCreateDockerLocalServer
-import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.dataProviders.DotnetDataProvider.Companion.EP_NAME
 
 /**
  * Service for managing database connections and associated Aspire resources.
@@ -56,6 +54,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
         private const val REDIS_CONNECTION_STRING_PATTERN =
             "(?<host>\\w*):(?<port>\\d*)(,user=(?<user>\\w*))?(,password=(?<password>\\w*))?"
         private val REDIS_REGEX = Regex(REDIS_CONNECTION_STRING_PATTERN)
+        private const val ASPIRE_RESOURCE_ID = "aspireResourceId"
     }
 
     private val rawConnectionStringTypes = listOf(DatabaseType.MSSQL, DatabaseType.MONGO)
@@ -145,10 +144,21 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
             return
         }
 
+        dataSourceManager.dataSources
+            .singleOrNull { it.getAdditionalProperty(ASPIRE_RESOURCE_ID) == databaseResource.resourceId }
+            ?.let {
+                // The URL has changed but aspire is tracking as the same resource so we should replace the data source
+                LOG.trace { "Replacing data source for ${databaseResource.name} (${databaseResource.resourceId})" }
+                withContext(Dispatchers.EDT) {
+                    dataSourceManager.removeDataSource(it)
+                }
+            }
+
         LOG.trace { "Creating a new data source for ${databaseResource.name}" }
         val createdDataSource = LocalDataSource.fromDriver(driver, url, true).apply {
             name = databaseResource.name
             isAutoSynchronize = true
+            setAdditionalProperty(ASPIRE_RESOURCE_ID, databaseResource.resourceId)
         }
         withContext(Dispatchers.EDT) {
             dataSourceManager.addDataSource(createdDataSource)
