@@ -149,7 +149,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
             ?.let {
                 // The URL has changed but aspire is tracking as the same resource so we should replace the data source
                 LOG.trace { "Replacing data source for ${databaseResource.name} (${databaseResource.resourceId})" }
-                application.invokeLater {
+                withContext(Dispatchers.EDT) {
                     dataSourceManager.removeDataSource(it)
                 }
             }
