@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Internal plugin structure
+
+### Fixed
+
+- [#431](https://github.com/JetBrains/aspire-plugin/issues/431) New connection appeared after restarting the database resource
+
+## [2.1.0] - 2025-12-18
+
 ### Added
 
 - A setting to control whether to build .NET projects before launching Aspire resources
@@ -569,7 +579,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.0.1...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/JetBrains/aspire-plugin/compare/2.0.1...2.1.0
 [2.0.1]: https://github.com/JetBrains/aspire-plugin/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/JetBrains/aspire-plugin/compare/1.9.5...2.0.0
 [1.9.5]: https://github.com/JetBrains/aspire-plugin/compare/1.9.4...1.9.5
