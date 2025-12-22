@@ -1,7 +1,9 @@
 package com.jetbrains.aspire.dashboard
 
 import com.intellij.util.messages.Topic
+import org.jetbrains.annotations.ApiStatus
 
+@ApiStatus.Internal
 interface ResourceListener {
     companion object {
         @Topic.ProjectLevel

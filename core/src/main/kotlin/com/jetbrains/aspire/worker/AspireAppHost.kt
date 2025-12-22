@@ -13,19 +13,12 @@ import com.jetbrains.aspire.dashboard.AspireProjectResourceProfileData
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
-import com.jetbrains.aspire.run.AspireRunConfiguration
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -60,11 +53,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
                 handler: ProcessHandler
             ) {
                 val profile = env.runProfile
-                if (profile is AspireRunConfiguration) {
-                    val projectFilePath = Path(profile.parameters.mainFilePath)
-                    if (mainFilePath != projectFilePath) return
-                    appHostStarted(handler)
-                } else if (profile is SessionProfile) {
+                if (profile is SessionProfile) {
                     val appHostMainFilePath = profile.aspireHostProjectPath ?: return
                     if (mainFilePath != appHostMainFilePath) return
                     setSessionProfile(profile)
@@ -78,15 +67,23 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
                 exitCode: Int
             ) {
                 val profile = env.runProfile
-                if (profile is AspireRunConfiguration) {
-                    val projectFilePath = Path(profile.parameters.mainFilePath)
-                    if (mainFilePath != projectFilePath) return
-                    appHostStopped()
-                } else if (profile is SessionProfile) {
+                if (profile is SessionProfile) {
                     val appHostMainFilePath = profile.aspireHostProjectPath ?: return
                     if (mainFilePath != appHostMainFilePath) return
                     removeSessionProfile(profile)
                 }
+            }
+        })
+
+        project.messageBus.connect(this).subscribe(AppHostListener.TOPIC, object : AppHostListener {
+            override fun appHostStarted(appHostMainFilePath: Path, processHandler: ProcessHandler) {
+                if (mainFilePath != appHostMainFilePath) return
+                appHostStarted(processHandler)
+            }
+
+            override fun appHostStopped(appHostMainFilePath: Path) {
+                if (mainFilePath != appHostMainFilePath) return
+                appHostStopped()
             }
         })
     }
