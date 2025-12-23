@@ -127,7 +127,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
     }
 
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
-        LOG.trace(" Subscribing to Aspire AppHost model")
+        LOG.trace("Subscribing to Aspire AppHost model")
 
         setAppHostUrl(appHostModel.config, appHostLifetime)
         setOTLPEndpointUrl(appHostModel.config, appHostLifetime)
@@ -185,7 +185,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
     ): CreateSessionResponse {
         val sessionId = UUID.randomUUID().toString()
 
-        LOG.trace { "Creating session with id: $sessionId" }
+        LOG.trace { "Creating Aspire session with id: $sessionId" }
 
         val launchConfiguration = DotNetSessionLaunchConfiguration(
             Path(createSessionRequest.projectPath),
@@ -210,7 +210,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
     }
 
     private fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
-        LOG.trace { "Deleting session with id: ${deleteSessionRequest.sessionId}" }
+        LOG.trace { "Deleting Aspire session with id: ${deleteSessionRequest.sessionId}" }
 
         val request = StopSessionRequest(deleteSessionRequest.sessionId)
 
@@ -255,11 +255,11 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
         resourceModelWrapper: ResourceWrapper,
         resourceLifetime: Lifetime
     ) {
-        LOG.trace { "Adding a new resource with id $resourceId to the AppHost $mainFilePath" }
+        LOG.trace { "Adding a new Aspire resource with id $resourceId to the AppHost $mainFilePath" }
 
         val resourceModel = resourceModelWrapper.model.valueOrNull ?: return
         if (resourceModel.isHidden || resourceModel.state == ResourceState.Hidden) {
-            LOG.trace { "Resource with id $resourceId is hidden" }
+            LOG.trace { "Aspire resource with id $resourceId is hidden" }
             return
         }
 

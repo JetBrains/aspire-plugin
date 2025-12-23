@@ -22,6 +22,9 @@ internal static class SessionEndpoints
         "Unable to find an Aspire host. Please make sure that Aspire is running."
     ));
 
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private class SessionEndpointsLogger;
+
     internal static void MapSessionEndpoints(this IEndpointRouteBuilder routes)
     {
         routes.MapGet("/info", () => new Info([CurrentProtocolVersion]));
@@ -40,8 +43,11 @@ internal static class SessionEndpoints
         [FromQuery(Name = "api-version")] string apiVersion,
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
-        IAspireHostService hostService)
+        IAspireHostService hostService,
+        ILogger<SessionEndpointsLogger> logger)
     {
+        logger.CreateNewSessionRequestReceived();
+
         if (!IsProtocolVersionSupported(apiVersion))
         {
             return TypedResults.BadRequest(ProtocolVersionIsNotSupported);
@@ -75,8 +81,11 @@ internal static class SessionEndpoints
         [FromQuery(Name = "api-version")] string apiVersion,
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
-        IAspireHostService hostService)
+        IAspireHostService hostService,
+        ILogger<SessionEndpointsLogger> logger)
     {
+        logger.DeleteSessionRequestReceived(sessionId);
+
         if (!IsProtocolVersionSupported(apiVersion))
         {
             return TypedResults.BadRequest(ProtocolVersionIsNotSupported);
@@ -109,8 +118,11 @@ internal static class SessionEndpoints
         [FromQuery(Name = "api-version")] string apiVersion,
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
-        IAspireHostService hostService)
+        IAspireHostService hostService,
+        ILogger<SessionEndpointsLogger> logger)
     {
+        logger.NotifyRequestReceived();
+
         if (!IsProtocolVersionSupported(apiVersion))
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;

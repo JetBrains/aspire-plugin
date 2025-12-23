@@ -68,7 +68,7 @@ internal class AspireWorkerLauncher(private val project: Project) {
         val riderEnvironment = project.getEnvironment()
 
         val commandLine = getCommandLine(riderEnvironment, config)
-        LOG.trace { "Host command line: ${commandLine.commandLineString}" }
+        LOG.trace { "Aspire worker command line: ${commandLine.commandLineString}" }
 
         val processHandler = KillableColoredProcessHandler.Silent(commandLine)
         lifetime.onTermination {
