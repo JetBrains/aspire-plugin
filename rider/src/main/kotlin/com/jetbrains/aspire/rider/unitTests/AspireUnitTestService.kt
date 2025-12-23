@@ -10,6 +10,10 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.aspire.generated.*
+import com.jetbrains.aspire.rider.generated.AspireHostEnvironmentVariable
+import com.jetbrains.aspire.rider.generated.StartAspireHostRequest
+import com.jetbrains.aspire.rider.generated.StartAspireHostResponse
+import com.jetbrains.aspire.rider.generated.StopAspireHostRequest
 import com.jetbrains.aspire.util.*
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rd.framework.impl.RdTask
@@ -21,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.toTypedArray
 import kotlin.io.path.absolutePathString
 
 /**

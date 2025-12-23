@@ -1,5 +1,5 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE","EXPERIMENTAL_UNSIGNED_LITERALS","PackageDirectoryMismatch","UnusedImport","unused","LocalVariableName","CanBeVal","PropertyName","EnumEntryName","ClassName","ObjectPropertyName","UnnecessaryVariable","SpellCheckingInspection")
-package com.jetbrains.aspire.generated
+package com.jetbrains.aspire.rider.generated
 
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.framework.base.*
@@ -32,14 +32,14 @@ class AspirePluginModel private constructor(
         
         override fun registerSerializersCore(serializers: ISerializers)  {
             val classLoader = javaClass.classLoader
-            serializers.register(LazyCompanionMarshaller(RdId(-4748479939684696606), classLoader, "com.jetbrains.aspire.generated.ReferenceProjectsFromAppHostRequest"))
-            serializers.register(LazyCompanionMarshaller(RdId(371074459503752014), classLoader, "com.jetbrains.aspire.generated.ReferenceProjectsFromAppHostResponse"))
-            serializers.register(LazyCompanionMarshaller(RdId(8169256003235604124), classLoader, "com.jetbrains.aspire.generated.ReferenceServiceDefaultsFromProjectsRequest"))
-            serializers.register(LazyCompanionMarshaller(RdId(-5007480931577060908), classLoader, "com.jetbrains.aspire.generated.ReferenceServiceDefaultsFromProjectsResponse"))
-            serializers.register(LazyCompanionMarshaller(RdId(4011588048384607098), classLoader, "com.jetbrains.aspire.generated.StartAspireHostRequest"))
-            serializers.register(LazyCompanionMarshaller(RdId(-7704547362275130218), classLoader, "com.jetbrains.aspire.generated.AspireHostEnvironmentVariable"))
-            serializers.register(LazyCompanionMarshaller(RdId(-4767979015991107402), classLoader, "com.jetbrains.aspire.generated.StartAspireHostResponse"))
-            serializers.register(LazyCompanionMarshaller(RdId(-2676024516763561580), classLoader, "com.jetbrains.aspire.generated.StopAspireHostRequest"))
+            serializers.register(LazyCompanionMarshaller(RdId(-4748479939684696606), classLoader, "com.jetbrains.aspire.rider.generated.ReferenceProjectsFromAppHostRequest"))
+            serializers.register(LazyCompanionMarshaller(RdId(371074459503752014), classLoader, "com.jetbrains.aspire.rider.generated.ReferenceProjectsFromAppHostResponse"))
+            serializers.register(LazyCompanionMarshaller(RdId(8169256003235604124), classLoader, "com.jetbrains.aspire.rider.generated.ReferenceServiceDefaultsFromProjectsRequest"))
+            serializers.register(LazyCompanionMarshaller(RdId(-5007480931577060908), classLoader, "com.jetbrains.aspire.rider.generated.ReferenceServiceDefaultsFromProjectsResponse"))
+            serializers.register(LazyCompanionMarshaller(RdId(4011588048384607098), classLoader, "com.jetbrains.aspire.rider.generated.StartAspireHostRequest"))
+            serializers.register(LazyCompanionMarshaller(RdId(-7704547362275130218), classLoader, "com.jetbrains.aspire.rider.generated.AspireHostEnvironmentVariable"))
+            serializers.register(LazyCompanionMarshaller(RdId(-4767979015991107402), classLoader, "com.jetbrains.aspire.rider.generated.StartAspireHostResponse"))
+            serializers.register(LazyCompanionMarshaller(RdId(-2676024516763561580), classLoader, "com.jetbrains.aspire.rider.generated.StopAspireHostRequest"))
         }
         
         

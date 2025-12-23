@@ -14,9 +14,9 @@ import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.rd.ide.model.RdPostProcessParameters
-import com.jetbrains.aspire.generated.ReferenceProjectsFromAppHostRequest
-import com.jetbrains.aspire.generated.ReferenceServiceDefaultsFromProjectsRequest
-import com.jetbrains.aspire.generated.aspirePluginModel
+import com.jetbrains.aspire.rider.generated.ReferenceProjectsFromAppHostRequest
+import com.jetbrains.aspire.rider.generated.ReferenceServiceDefaultsFromProjectsRequest
+import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.util.isAspireHostProject
 import com.jetbrains.aspire.util.isAspireSharedProject

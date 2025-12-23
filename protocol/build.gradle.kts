@@ -24,6 +24,7 @@ dependencies {
 
 rdgen {
     val coreModulePath = projectDir.resolve("../core/src/main/kotlin/com/jetbrains/aspire")
+    val riderModulePath = projectDir.resolve("../rider/src/main/kotlin/com/jetbrains/aspire/rider")
     val pluginSourcePath = projectDir.resolve("../src")
 
     verbose = true
@@ -46,7 +47,7 @@ rdgen {
         directory = csWorkerOutput.canonicalPath
     }
 
-    val ktPluginOutput = coreModulePath.resolve("generated")
+    val ktPluginOutput = riderModulePath.resolve("generated")
     val csPluginOutput = pluginSourcePath.resolve("dotnet/AspirePlugin/Generated")
 
     generator {

@@ -7,10 +7,10 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.protocol.SolutionExtListener
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.generated.AspirePluginModel
-import com.jetbrains.aspire.generated.StartAspireHostRequest
-import com.jetbrains.aspire.generated.StartAspireHostResponse
-import com.jetbrains.aspire.generated.StopAspireHostRequest
+import com.jetbrains.aspire.rider.generated.AspirePluginModel
+import com.jetbrains.aspire.rider.generated.StartAspireHostRequest
+import com.jetbrains.aspire.rider.generated.StartAspireHostResponse
+import com.jetbrains.aspire.rider.generated.StopAspireHostRequest
 
 /**
  * A listener that handles init-test-related requests received from the backend.
