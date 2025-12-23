@@ -84,9 +84,6 @@
             <action id="Aspire.Resource.RestartWithDebugger"
                     class="com.jetbrains.aspire.actions.dashboard.resource.RestartWithDebuggerResourceAction"
                     icon="AllIcons.Actions.RestartDebugger"/>
-            <action id="Aspire.Resource.NavigateToDebugTab"
-                    class="com.jetbrains.aspire.actions.dashboard.resource.NavigateToResourceDebugTab"
-                    icon="AllIcons.General.OpenInToolWindow"/>
             <action id="Aspire.Resource.Execute.Command"
                     class="com.jetbrains.aspire.actions.dashboard.resource.PerformResourceAction"
                     icon="AllIcons.Actions.RunAnything"/>

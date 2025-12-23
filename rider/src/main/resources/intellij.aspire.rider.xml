@@ -80,6 +80,12 @@
             <add-to-group group-id="Aspire.Resource" relative-to-action="Aspire.Resource.RestartWithDebugger"
                           anchor="after"/>
         </action>
+        <action id="Aspire.Resource.NavigateToDebugTab"
+                class="com.jetbrains.aspire.rider.actions.dashboard.resource.NavigateToResourceDebugTab"
+                icon="AllIcons.General.OpenInToolWindow">
+            <add-to-group group-id="Aspire.Resource" relative-to-action="Aspire.Resource.RestartWithDebugger"
+                          anchor="after"/>
+        </action>
     </actions>
 
 </idea-plugin>

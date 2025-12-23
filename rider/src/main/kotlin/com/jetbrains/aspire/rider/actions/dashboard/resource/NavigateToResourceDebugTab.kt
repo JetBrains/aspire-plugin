@@ -1,6 +1,4 @@
-@file:Suppress("UnstableApiUsage")
-
-package com.jetbrains.aspire.actions.dashboard.resource
+package com.jetbrains.aspire.rider.actions.dashboard.resource
 
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.ui.RunContentManager
@@ -11,6 +9,7 @@ import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.intellij.xdebugger.XDebugSession
 import com.intellij.xdebugger.XDebuggerManager
+import com.jetbrains.aspire.actions.dashboard.resource.AspireResourceBaseAction
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.sessions.SessionProfile
 import kotlinx.coroutines.Dispatchers
