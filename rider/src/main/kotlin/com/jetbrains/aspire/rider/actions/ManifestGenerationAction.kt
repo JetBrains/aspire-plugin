@@ -1,11 +1,11 @@
-package com.jetbrains.aspire.actions
+package com.jetbrains.aspire.rider.actions
 
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.platform.backend.workspace.virtualFile
-import com.jetbrains.aspire.manifest.ManifestService
+import com.jetbrains.aspire.rider.manifest.ManifestService
 import com.jetbrains.aspire.util.isAspireHostProject
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost

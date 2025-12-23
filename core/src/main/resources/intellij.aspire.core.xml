@@ -46,11 +46,6 @@
                 icon="AllIcons.General.Settings"/>
         <action id="Aspire.Help"
                 class="com.jetbrains.aspire.actions.AspireHelpAction"/>
-        <action id="Aspire.Solution.Manifest"
-                class="com.jetbrains.aspire.actions.ManifestGenerationAction"
-                icon="AllIcons.FileTypes.Json">
-            <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
-        </action>
         <group id="Aspire.Worker">
             <action id="Aspire.Worker.Start"
                     class="com.jetbrains.aspire.actions.StartAspireWorkerAction"
@@ -72,9 +67,6 @@
             <action id="Aspire.Host.Dashboard"
                     class="com.jetbrains.aspire.actions.dashboard.host.AspireOpenDashboardAction"
                     icon="AllIcons.General.Web"/>
-            <action id="Aspire.Host.Manifest"
-                    class="com.jetbrains.aspire.actions.dashboard.host.AspireManifestAction"
-                    icon="AllIcons.FileTypes.Json"/>
         </group>
         <group id="Aspire.Resource">
             <action id="Aspire.Resource.Start"

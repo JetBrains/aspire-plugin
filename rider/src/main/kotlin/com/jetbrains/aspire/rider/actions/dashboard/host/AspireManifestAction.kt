@@ -1,10 +1,11 @@
-package com.jetbrains.aspire.actions.dashboard.host
+package com.jetbrains.aspire.rider.actions.dashboard.host
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.actions.dashboard.host.AspireHostBaseAction
 import com.jetbrains.aspire.dashboard.AspireAppHostViewModel
-import com.jetbrains.aspire.manifest.ManifestService
+import com.jetbrains.aspire.rider.manifest.ManifestService
 import com.jetbrains.aspire.worker.AspireAppHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

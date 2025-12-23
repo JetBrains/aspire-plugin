@@ -64,6 +64,16 @@
                 class="com.jetbrains.aspire.rider.actions.AddAspireToProjectAction"
                 icon="RiderIcons.Templates.TemplateAspire">
         </action>
+        <action id="Aspire.Solution.Manifest"
+                class="com.jetbrains.aspire.rider.actions.ManifestGenerationAction"
+                icon="AllIcons.FileTypes.Json">
+            <add-to-group group-id="SolutionExplorerPopupMenu.Tools"/>
+        </action>
+        <action id="Aspire.Host.Manifest"
+                class="com.jetbrains.aspire.rider.actions.dashboard.host.AspireManifestAction"
+                icon="AllIcons.FileTypes.Json">
+            <add-to-group group-id="Aspire.Host" anchor="last"/>
+        </action>
         <action id="Aspire.Resource.Attach"
                 class="com.jetbrains.aspire.rider.actions.dashboard.resource.AttachToProjectResourceAction"
                 icon="AllIcons.Debugger.AttachToProcess">

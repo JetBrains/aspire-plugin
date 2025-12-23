@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.manifest
+package com.jetbrains.aspire.rider.manifest
 
 import com.intellij.execution.util.ExecUtil
 import com.intellij.ide.util.PsiNavigationSupport
