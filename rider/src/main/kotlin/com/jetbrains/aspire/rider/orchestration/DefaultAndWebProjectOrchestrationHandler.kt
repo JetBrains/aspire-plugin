@@ -12,20 +12,11 @@ import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.aspire.rider.AspireRiderBundle
-import com.jetbrains.aspire.rider.generated.ReferenceServiceDefaultsFromProjectsRequest
-import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.util.isAspireSharedProject
-import com.jetbrains.rd.ide.model.RdPostProcessParameters
 import com.jetbrains.rider.ijent.extensions.toNioPath
-import com.jetbrains.rider.ijent.extensions.toRd
-import com.jetbrains.rider.model.AddProjectCommand
 import com.jetbrains.rider.model.RdProjectType
-import com.jetbrains.rider.model.projectModelTasks
-import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
-import com.jetbrains.rider.projectView.workspace.getId
-import com.jetbrains.rider.projectView.workspace.getSolutionEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
@@ -96,7 +87,7 @@ internal class DefaultAndWebProjectOrchestrationHandler : AspireProjectOrchestra
     }
 
     private suspend fun generateServiceDefaults(project: Project): Path? {
-        val solutionId = project.serviceAsync<WorkspaceModel>().getSolutionEntity()?.getId(project)
+        val solutionId = findSolutionId(project)
         if (solutionId == null) {
             LOG.warn("Unable to find a solution for ServiceDefaults generation")
             notifyAboutFailedGeneration(project)
@@ -117,34 +108,6 @@ internal class DefaultAndWebProjectOrchestrationHandler : AspireProjectOrchestra
         addProjectToSolution(project, solutionId, serviceDefaultsPath)
 
         return serviceDefaultsPath
-    }
-
-    private suspend fun addProjectToSolution(project: Project, solutionId: Int, projectPath: Path) {
-        val parameters = RdPostProcessParameters(false, listOf())
-        val command = AddProjectCommand(
-            solutionId,
-            listOf(projectPath.toRd()),
-            emptyList(),
-            true,
-            parameters,
-        )
-
-        withContext(Dispatchers.EDT) {
-            project.solution.projectModelTasks.addProject.startSuspending(command)
-        }
-    }
-
-    private suspend fun referenceSharedProject(
-        project: Project,
-        sharedProjectPath: Path,
-        projectFilePaths: List<Path>
-    ) = withContext(Dispatchers.EDT) {
-        val request = ReferenceServiceDefaultsFromProjectsRequest(
-            sharedProjectPath.toRd(),
-            projectFilePaths.map { it.toRd() }
-        )
-
-        project.solution.aspirePluginModel.referenceServiceDefaultsFromProjects.startSuspending(request)
     }
 
     private suspend fun notifyAboutFailedGeneration(project: Project) = withContext(Dispatchers.EDT) {

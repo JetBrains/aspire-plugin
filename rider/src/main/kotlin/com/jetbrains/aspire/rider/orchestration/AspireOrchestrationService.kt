@@ -14,22 +14,13 @@ import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.workspaceModel.ide.toPath
-import com.jetbrains.rd.ide.model.RdPostProcessParameters
-import com.jetbrains.aspire.rider.generated.ReferenceProjectsFromAppHostRequest
-import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.util.isAspireHostProject
 import com.jetbrains.rider.ijent.extensions.toNioPath
-import com.jetbrains.rider.ijent.extensions.toRd
-import com.jetbrains.rider.model.AddProjectCommand
 import com.jetbrains.rider.model.RdProjectDescriptor
 import com.jetbrains.rider.model.RdProjectType
-import com.jetbrains.rider.model.projectModelTasks
-import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
-import com.jetbrains.rider.projectView.workspace.getId
-import com.jetbrains.rider.projectView.workspace.getSolutionEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
@@ -150,7 +141,7 @@ class AspireOrchestrationService(private val project: Project) {
     }
 
     private suspend fun generateAppHost(): Path? {
-        val solutionId = project.serviceAsync<WorkspaceModel>().getSolutionEntity()?.getId(project)
+        val solutionId = findSolutionId(project)
         if (solutionId == null) {
             LOG.warn("Unable to find a solution for the .NET Aspire project generation")
             notifyAboutFailedGeneration()
@@ -168,24 +159,9 @@ class AspireOrchestrationService(private val project: Project) {
 
         LOG.debug { "Generated AppHost: ${hostProjectPath.absolutePathString()}" }
 
-        addProjectToSolution(solutionId, hostProjectPath)
+        addProjectToSolution(project, solutionId, hostProjectPath)
 
         return hostProjectPath
-    }
-
-    private suspend fun addProjectToSolution(solutionId: Int, projectPath: Path) {
-        val parameters = RdPostProcessParameters(false, listOf())
-        val command = AddProjectCommand(
-            solutionId,
-            listOf(projectPath.toRd()),
-            emptyList(),
-            true,
-            parameters,
-        )
-
-        withContext(Dispatchers.EDT) {
-            project.solution.projectModelTasks.addProject.startSuspending(command)
-        }
     }
 
     private suspend fun updateAppHostProject(
@@ -194,7 +170,7 @@ class AspireOrchestrationService(private val project: Project) {
     ): Boolean {
         val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath() }
         val referenceByHostProjectResult =
-            referenceByHostProject(hostProjectPath, projectFilePathStrings) ?: return false
+            referenceByHostProject(project, hostProjectPath, projectFilePathStrings) ?: return false
 
         val referencedProjectFilePaths =
             referenceByHostProjectResult.referencedProjectFilePaths.map { it.toNioPath() }
@@ -203,16 +179,6 @@ class AspireOrchestrationService(private val project: Project) {
             .getInstance(project)
             .insertProjectsIntoAppHostFile(hostProjectPath, referencedProjectFilePaths)
     }
-
-    private suspend fun referenceByHostProject(hostProjectPath: Path, projectFilePaths: List<Path>) =
-        withContext(Dispatchers.EDT) {
-            val request = ReferenceProjectsFromAppHostRequest(
-                hostProjectPath.toRd(),
-                projectFilePaths.map { it.toRd() }
-            )
-
-            project.solution.aspirePluginModel.referenceProjectsFromAppHost.startSuspending(request)
-        }
 
     private suspend fun notifyAboutFailedGeneration() = withContext(Dispatchers.EDT) {
         Notification(
