@@ -54,7 +54,7 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
             existingMauiServiceDefaultsPath
         } else {
             LOG.trace { "Generating new Maui ServiceDefaults" }
-            generateAndAddMauiServiceDefaults(project)
+            generateMauiServiceDefaults(project)
         }
 
         if (mauiServiceDefaultsPath == null) {
@@ -99,7 +99,7 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
         return null
     }
 
-    private suspend fun generateAndAddMauiServiceDefaults(project: Project): Path? {
+    private suspend fun generateMauiServiceDefaults(project: Project): Path? {
         val solutionId = project.serviceAsync<WorkspaceModel>().getSolutionEntity()?.getId(project)
         if (solutionId == null) {
             LOG.warn("Unable to find a solution for Maui ServiceDefaults generation")

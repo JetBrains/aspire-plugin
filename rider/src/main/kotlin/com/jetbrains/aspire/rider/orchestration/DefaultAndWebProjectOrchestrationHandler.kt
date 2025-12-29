@@ -54,7 +54,7 @@ internal class DefaultAndWebProjectOrchestrationHandler : AspireProjectOrchestra
             existingServiceDefaultsPath
         } else {
             LOG.trace { "Generating new ServiceDefaults for Default/Web projects" }
-            generateAndAddServiceDefaults(project)
+            generateServiceDefaults(project)
         }
 
         if (serviceDefaultsPath == null) {
@@ -95,7 +95,7 @@ internal class DefaultAndWebProjectOrchestrationHandler : AspireProjectOrchestra
         return null
     }
 
-    private suspend fun generateAndAddServiceDefaults(project: Project): Path? {
+    private suspend fun generateServiceDefaults(project: Project): Path? {
         val solutionId = project.serviceAsync<WorkspaceModel>().getSolutionEntity()?.getId(project)
         if (solutionId == null) {
             LOG.warn("Unable to find a solution for ServiceDefaults generation")
