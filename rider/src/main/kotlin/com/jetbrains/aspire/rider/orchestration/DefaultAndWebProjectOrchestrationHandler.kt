@@ -103,15 +103,9 @@ internal class DefaultAndWebProjectOrchestrationHandler : AspireProjectOrchestra
             return null
         }
 
-        val generatedProjectPaths = AspireProjectTemplateGenerator
+        val serviceDefaultsPath = AspireProjectTemplateGenerator
             .getInstance(project)
-            .generateAspireProjectsFromTemplates(
-                generateAppHost = false,
-                generateServiceDefaults = true,
-                generateMauiServiceDefaults = false
-            )
-
-        val serviceDefaultsPath = generatedProjectPaths?.serviceDefaultsProjectPath
+            .generateServiceDefaults()
         if (serviceDefaultsPath == null) {
             LOG.warn("Unable to generate ServiceDefaults project")
             notifyAboutFailedGeneration(project)

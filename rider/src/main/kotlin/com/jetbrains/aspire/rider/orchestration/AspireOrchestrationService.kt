@@ -157,15 +157,9 @@ class AspireOrchestrationService(private val project: Project) {
             return null
         }
 
-        val generatedProjectPaths = AspireProjectTemplateGenerator
+        val hostProjectPath = AspireProjectTemplateGenerator
             .getInstance(project)
-            .generateAspireProjectsFromTemplates(
-                generateAppHost = true,
-                generateServiceDefaults = false,
-                generateMauiServiceDefaults = false
-            )
-
-        val hostProjectPath = generatedProjectPaths?.appHostProjectPath
+            .generateAppHost()
         if (hostProjectPath == null) {
             LOG.warn("Unable to generate AppHost project")
             notifyAboutFailedGeneration()

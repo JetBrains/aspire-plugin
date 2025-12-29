@@ -107,15 +107,9 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
             return null
         }
 
-        val generatedProjectPaths = AspireProjectTemplateGenerator
+        val mauiServiceDefaultsPath = AspireProjectTemplateGenerator
             .getInstance(project)
-            .generateAspireProjectsFromTemplates(
-                generateAppHost = false,
-                generateServiceDefaults = false,
-                generateMauiServiceDefaults = true
-            )
-
-        val mauiServiceDefaultsPath = generatedProjectPaths?.mauiServiceDefaultsProjectPath
+            .generateMauiServiceDefaults()
         if (mauiServiceDefaultsPath == null) {
             LOG.warn("Unable to generate Maui ServiceDefaults project")
             notifyAboutFailedGeneration(project)
