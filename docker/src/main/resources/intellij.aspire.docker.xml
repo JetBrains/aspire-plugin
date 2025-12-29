@@ -5,7 +5,7 @@
     </dependencies>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
-        <resourceIconProviderExtension implementation="com.jetbrains.aspire.docker.DockerAspireResourceIconProvider"/>
+        <resourceIconProvider implementation="com.jetbrains.aspire.docker.DockerAspireResourceIconProvider"/>
     </extensions>
 
 </idea-plugin>

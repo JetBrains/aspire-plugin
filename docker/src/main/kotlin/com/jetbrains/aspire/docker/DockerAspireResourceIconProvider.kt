@@ -2,10 +2,10 @@ package com.jetbrains.aspire.docker
 
 import com.intellij.docker.DockerIcons
 import com.intellij.icons.AllIcons
-import com.jetbrains.aspire.dashboard.AspireResourceIconProviderExtension
+import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
 import com.jetbrains.aspire.generated.ResourceType
 
-internal class DockerAspireResourceIconProvider : AspireResourceIconProviderExtension {
+internal class DockerAspireResourceIconProvider : AspireResourceIconProvider {
     override fun getIcon(type: ResourceType, containerImage: String?) = when (type) {
         ResourceType.Container -> when {
             containerImage?.contains("postgres") == true -> AllIcons.Providers.Postgresql

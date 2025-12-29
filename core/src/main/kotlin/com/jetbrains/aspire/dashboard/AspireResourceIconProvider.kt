@@ -4,12 +4,12 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import com.jetbrains.aspire.generated.ResourceType
 import javax.swing.Icon
 
-interface AspireResourceIconProviderExtension {
+interface AspireResourceIconProvider {
     companion object {
         private val EP_NAME =
-            ExtensionPointName<AspireResourceIconProviderExtension>("com.jetbrains.aspire.resourceIconProviderExtension")
+            ExtensionPointName<AspireResourceIconProvider>("com.jetbrains.aspire.resourceIconProvider")
 
-        fun getAvailableProviders() : List<AspireResourceIconProviderExtension> {
+        fun getAvailableProviders() : List<AspireResourceIconProvider> {
             return EP_NAME.extensionList
         }
     }

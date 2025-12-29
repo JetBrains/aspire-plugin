@@ -12,8 +12,8 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
                         dynamic="true"/>
-        <extensionPoint qualifiedName="com.jetbrains.aspire.resourceIconProviderExtension"
-                        interface="com.jetbrains.aspire.dashboard.AspireResourceIconProviderExtension"
+        <extensionPoint qualifiedName="com.jetbrains.aspire.resourceIconProvider"
+                        interface="com.jetbrains.aspire.dashboard.AspireResourceIconProvider"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.appHostLauncher"
                         interface="com.jetbrains.aspire.worker.AspireAppHostLauncher"
@@ -36,8 +36,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
-        <resourceIconProviderExtension
-                implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
+        <resourceIconProvider implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
     </extensions>
 
     <actions>

@@ -8,7 +8,7 @@ import com.jetbrains.aspire.generated.ResourceHealthStatus
 import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.dashboard.AspireResource
-import com.jetbrains.aspire.dashboard.AspireResourceIconProviderExtension
+import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
 import icons.ReSharperIcons
 import icons.RiderIcons
 import org.jetbrains.annotations.ApiStatus
@@ -37,7 +37,7 @@ internal fun getIcon(aspireResource: AspireResource): Icon {
 
 @ApiStatus.Internal
 fun getResourceIcon(type: ResourceType, containerImage: String?): Icon {
-    AspireResourceIconProviderExtension.getAvailableProviders().forEach {
+    AspireResourceIconProvider.getAvailableProviders().forEach {
         val icon = it.getIcon(type, containerImage)
         if (icon != null) return icon
     }
@@ -45,7 +45,7 @@ fun getResourceIcon(type: ResourceType, containerImage: String?): Icon {
     return AllIcons.FileTypes.Unknown
 }
 
-internal class BaseAspireResourceIconProvider : AspireResourceIconProviderExtension {
+internal class BaseAspireResourceIconProvider : AspireResourceIconProvider {
     override fun getIcon(type: ResourceType, containerImage: String?) = when (type) {
         ResourceType.Project -> RiderIcons.RunConfigurations.DotNetProject
         ResourceType.Executable -> AllIcons.Nodes.Console

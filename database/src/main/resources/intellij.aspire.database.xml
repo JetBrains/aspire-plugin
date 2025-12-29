@@ -6,7 +6,7 @@
         <plugin id="Docker"/>
         <module name="intellij.clouds.docker"/>
         <plugin id="rider.intellij.plugin.appender"/>
-        <module name="intellij.rider.plugins.appender/database" />
+        <module name="intellij.rider.plugins.appender/database"/>
     </dependencies>
 
     <resource-bundle>messages.AspireDatabaseBundle</resource-bundle>
@@ -21,8 +21,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
-        <resourceIconProviderExtension
-                implementation="com.jetbrains.aspire.database.DatabaseAspireResourceIconProvider"/>
+        <resourceIconProvider implementation="com.jetbrains.aspire.database.DatabaseAspireResourceIconProvider"/>
     </extensions>
 
     <projectListeners>
