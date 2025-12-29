@@ -9,7 +9,7 @@ import java.nio.file.Path
 
 interface DotNetSessionProcessLauncherExtension {
     companion object {
-        val EP_NAME =
+        private val EP_NAME =
             ExtensionPointName<DotNetSessionProcessLauncherExtension>("com.jetbrains.aspire.dotnetSessionProcessLauncherExtension")
 
         suspend fun getApplicableLauncher(projectPath: Path, project: Project): DotNetSessionProcessLauncherExtension? {
