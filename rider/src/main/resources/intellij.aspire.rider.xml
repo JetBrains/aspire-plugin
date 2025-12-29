@@ -54,7 +54,7 @@
         <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
 
-        <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.DefaultAndWebProjectOrchestrationHandler"/>
+        <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.DefaultProjectOrchestrationHandler"/>
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.MauiProjectOrchestrationHandler"/>
     </extensions>
 

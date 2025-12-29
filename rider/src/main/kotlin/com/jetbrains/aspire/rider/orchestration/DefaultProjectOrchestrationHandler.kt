@@ -22,13 +22,13 @@ import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
-internal class DefaultAndWebProjectOrchestrationHandler : AspireProjectOrchestrationHandler {
+internal class DefaultProjectOrchestrationHandler : AspireProjectOrchestrationHandler {
     companion object {
-        private val LOG = logger<DefaultAndWebProjectOrchestrationHandler>()
+        private val LOG = logger<DefaultProjectOrchestrationHandler>()
     }
 
     override val priority = 0
-    override val supportedProjectTypes = listOf(RdProjectType.Default, RdProjectType.Web)
+    override val supportedProjectTypes = listOf(RdProjectType.Default, RdProjectType.Web, RdProjectType.XamlProject)
 
     override suspend fun generateServiceDefaultsAndModifyProjects(
         project: Project,
@@ -36,7 +36,7 @@ internal class DefaultAndWebProjectOrchestrationHandler : AspireProjectOrchestra
     ): Boolean {
         if (projectEntities.isEmpty()) return false
 
-        LOG.debug { "Orchestrating ServiceDefaults for ${projectEntities.size} Default/Web projects" }
+        LOG.debug { "Orchestrating ServiceDefaults for ${projectEntities.size} Default/Web/Xaml projects" }
 
         val existingServiceDefaultsPath = findExistingServiceDefaults(project)
 
@@ -44,12 +44,12 @@ internal class DefaultAndWebProjectOrchestrationHandler : AspireProjectOrchestra
             LOG.trace { "Using existing ServiceDefaults: ${existingServiceDefaultsPath.absolutePathString()}" }
             existingServiceDefaultsPath
         } else {
-            LOG.trace { "Generating new ServiceDefaults for Default/Web projects" }
+            LOG.trace { "Generating new ServiceDefaults for Default/Web/Xaml projects" }
             generateServiceDefaults(project)
         }
 
         if (serviceDefaultsPath == null) {
-            LOG.warn("Unable to find or generate ServiceDefaults for Default/Web projects")
+            LOG.warn("Unable to find or generate ServiceDefaults for Default/Web/Xaml projects")
             return false
         }
 
