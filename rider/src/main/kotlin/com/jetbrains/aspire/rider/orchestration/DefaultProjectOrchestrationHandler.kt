@@ -63,7 +63,7 @@ internal class DefaultProjectOrchestrationHandler : AspireProjectOrchestrationHa
             projectPath to entity
         }
 
-        val modified = AspireDefaultFileModificationService
+        val modified = AspireServiceDefaultsModificationService
             .getInstance(project)
             .insertAspireDefaultMethodsIntoProjects(projectsWithReference)
 

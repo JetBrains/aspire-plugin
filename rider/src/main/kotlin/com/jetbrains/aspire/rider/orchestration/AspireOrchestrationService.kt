@@ -175,7 +175,7 @@ class AspireOrchestrationService(private val project: Project) {
         val referencedProjectFilePaths =
             referenceByHostProjectResult.referencedProjectFilePaths.map { it.toNioPath() }
 
-        return AspireDefaultFileModificationService
+        return AspireAppHostModificationService
             .getInstance(project)
             .insertProjectsIntoAppHostFile(hostProjectPath, referencedProjectFilePaths)
     }
