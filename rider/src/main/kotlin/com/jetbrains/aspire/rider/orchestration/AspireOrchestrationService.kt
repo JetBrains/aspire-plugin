@@ -90,6 +90,7 @@ class AspireOrchestrationService(private val project: Project) {
 
         if (appHostPath == null) {
             LOG.warn("Unable to find or generate AppHost project")
+            notifyAboutFailedGeneration()
             return@withBackgroundProgress
         }
 
@@ -144,7 +145,6 @@ class AspireOrchestrationService(private val project: Project) {
         val solutionId = findSolutionId(project)
         if (solutionId == null) {
             LOG.warn("Unable to find a solution for the .NET Aspire project generation")
-            notifyAboutFailedGeneration()
             return null
         }
 
@@ -153,7 +153,6 @@ class AspireOrchestrationService(private val project: Project) {
             .generateAppHost()
         if (hostProjectPath == null) {
             LOG.warn("Unable to generate AppHost project")
-            notifyAboutFailedGeneration()
             return null
         }
 
