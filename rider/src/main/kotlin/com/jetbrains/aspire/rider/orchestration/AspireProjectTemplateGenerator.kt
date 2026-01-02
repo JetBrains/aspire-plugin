@@ -30,7 +30,6 @@ import com.jetbrains.rider.projectView.solutionName
 import com.jetbrains.rider.protocol.protocol
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.time.Duration
@@ -51,68 +50,64 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
     }
 
     /**
-     * Generates Aspire projects using predefined templates for the current solution.
-     * The method could generate AppHost and ServiceDefaults types of projects.
+     * Generates a single Aspire project from a template.
      *
-     * @param generateAppHost defines whether to generate the App Host project.
-     * @param generateServiceDefaults defines whether to generate the Service Defaults project.
-     * @param generateMauiServiceDefaults defines whether to generate the Service Defaults project for MAUI projects.
-     * @return paths of the generated project files.
+     * @param templateId The template ID to use for generation (e.g., "Aspire.AppHost.CSharp")
+     * @param projectSuffix The suffix to append to the solution name (e.g., "AppHost")
+     * @return The path to the generated project file, or null if generation failed
      */
-    suspend fun generateAspireProjectsFromTemplates(
-        generateAppHost: Boolean,
-        generateServiceDefaults: Boolean,
-        generateMauiServiceDefaults: Boolean
-    ) = withBackgroundProgress(project, AspireRiderBundle.message("progress.generating.aspire.projects")) {
-        LOG.info("Generating Aspire projects for the solution")
+    suspend fun generateProjectFromTemplate(
+        templateId: String,
+        projectSuffix: String
+    ): Path? = withBackgroundProgress(project, AspireRiderBundle.message("progress.generating.aspire.projects")) {
+        LOG.info("Generating Aspire project for template: $templateId")
 
         val model = project.protocol.projectTemplatesModel
         val session = RiderProjectTemplateProvider.createSession(createSolution = false)
 
         serviceLifetime.usingNested { lifetime ->
-            val templates = findAspireTemplates(model, session, lifetime)
+            val template = findTemplateById(model, session, templateId, lifetime)
                 ?: return@withBackgroundProgress null
 
-            val appHostProjectPath = if (generateAppHost) async {
-                generateProjectFromTemplate(
-                    session,
-                    templates.appHost,
-                    APP_HOST_PROJECT_DEFAULT_SUFFIX
-                )
-            } else null
-
-            val serviceDefaultsProjectPath = if (generateServiceDefaults) async {
-                generateProjectFromTemplate(
-                    session,
-                    templates.serviceDefaults,
-                    SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX
-                )
-            } else null
-
-            val mauiServiceDefaultsProjectPath = if (generateMauiServiceDefaults) async {
-                generateProjectFromTemplate(
-                    session,
-                    templates.mauiServiceDefaults,
-                    MAUI_SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX
-                )
-            } else null
-
-            return@withBackgroundProgress GeneratedAspireProjects(
-                appHostProjectPath?.await(),
-                serviceDefaultsProjectPath?.await(),
-                mauiServiceDefaultsProjectPath?.await()
+            return@withBackgroundProgress generateProjectFromTemplate(
+                session,
+                template,
+                projectSuffix
             )
         }
     }
 
-    private suspend fun findAspireTemplates(
+    /**
+     * Generates an AppHost project using the predefined AppHost template.
+     *
+     * @return The path to the generated AppHost project file, or null if generation failed
+     */
+    suspend fun generateAppHost(): Path? =
+        generateProjectFromTemplate(APP_HOST_TEMPLATE_ID, APP_HOST_PROJECT_DEFAULT_SUFFIX)
+
+    /**
+     * Generates a ServiceDefaults project using the predefined ServiceDefaults template.
+     *
+     * @return The path to the generated ServiceDefaults project file, or null if generation failed
+     */
+    suspend fun generateServiceDefaults(): Path? =
+        generateProjectFromTemplate(SERVICE_DEFAULTS_TEMPLATE_ID, SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX)
+
+    /**
+     * Generates a Maui ServiceDefaults project using the predefined Maui ServiceDefaults template.
+     *
+     * @return The path to the generated Maui ServiceDefaults project file, or null if generation failed
+     */
+    suspend fun generateMauiServiceDefaults(): Path? =
+        generateProjectFromTemplate(MAUI_SERVICE_DEFAULTS_TEMPLATE_ID, MAUI_SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX)
+
+    private suspend fun findTemplateById(
         model: ProjectTemplatesModel,
         session: RdProjectTemplateSession,
+        templateId: String,
         lifetime: Lifetime
-    ): AspireProjectTemplates? {
-        val appHostDeferredTemplate = CompletableDeferred<RdProjectTemplate?>()
-        val serviceDefaultsDeferredTemplate = CompletableDeferred<RdProjectTemplate?>()
-        val mauiServiceDefaultsDeferredTemplate = CompletableDeferred<RdProjectTemplate?>()
+    ): RdProjectTemplate? {
+        val deferredTemplate = CompletableDeferred<RdProjectTemplate?>()
 
         val advisingLifetime = lifetime.createTerminatedAfter(Duration.ofSeconds(30), Dispatchers.Default)
 
@@ -121,52 +116,30 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
                 model.session.set(null)
             }
 
-            if (!appHostDeferredTemplate.isCompleted) {
-                appHostDeferredTemplate.complete(null)
-            }
-            if (!serviceDefaultsDeferredTemplate.isCompleted) {
-                serviceDefaultsDeferredTemplate.complete(null)
-            }
-            if (!mauiServiceDefaultsDeferredTemplate.isCompleted) {
-                mauiServiceDefaultsDeferredTemplate.complete(null)
+            if (!deferredTemplate.isCompleted) {
+                deferredTemplate.complete(null)
             }
         }
 
         session.templatesRaw.adviseNotNullOnce(advisingLifetime) { templates ->
-            val appHostTemplate =
-                templates.firstOrNull { it.id.contains(APP_HOST_TEMPLATE_ID) }
-            appHostDeferredTemplate.complete(appHostTemplate)
-
-            val serviceDefaultsTemplate =
-                templates.firstOrNull { it.id.contains(SERVICE_DEFAULTS_TEMPLATE_ID) }
-            serviceDefaultsDeferredTemplate.complete(serviceDefaultsTemplate)
-
-            val mauiServiceDefaultsTemplate =
-                templates.firstOrNull { it.id.contains(MAUI_SERVICE_DEFAULTS_TEMPLATE_ID) }
-            mauiServiceDefaultsDeferredTemplate.complete(mauiServiceDefaultsTemplate)
+            val template = templates.firstOrNull { it.id.contains(templateId) }
+            deferredTemplate.complete(template)
         }
 
         withContext(Dispatchers.EDT) {
             model.session.set(session)
         }
 
-        val appHostResult = appHostDeferredTemplate.await()
-        val serviceDefaultsResult = serviceDefaultsDeferredTemplate.await()
-        val mauiServiceDefaultsResult = mauiServiceDefaultsDeferredTemplate.await()
+        val result = deferredTemplate.await()
 
-        if (appHostResult == null || serviceDefaultsResult == null) {
+        if (result == null) {
+            LOG.warn("Unable to find template: $templateId")
             notifyAboutMissingTemplates()
             return null
         }
 
-        return AspireProjectTemplates(appHostResult, serviceDefaultsResult, mauiServiceDefaultsResult)
+        return result
     }
-
-    private data class AspireProjectTemplates(
-        val appHost: RdProjectTemplate,
-        val serviceDefaults: RdProjectTemplate,
-        val mauiServiceDefaults: RdProjectTemplate?
-    )
 
     private suspend fun generateProjectFromTemplate(
         session: RdProjectTemplateSession,
