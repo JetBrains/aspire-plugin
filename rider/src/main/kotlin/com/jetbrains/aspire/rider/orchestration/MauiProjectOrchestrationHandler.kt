@@ -1,5 +1,6 @@
 package com.jetbrains.aspire.rider.orchestration
 
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
@@ -10,39 +11,88 @@ import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.aspire.util.isAspireSharedProject
 import com.jetbrains.rider.ijent.extensions.toNioPath
+import com.jetbrains.rider.model.RdNuGetProjects
 import com.jetbrains.rider.model.RdProjectType
+import com.jetbrains.rider.nuget.RiderNuGetFacade
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
+import com.jetbrains.rider.projectView.workspace.getId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.relativeTo
 
 internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandler {
     companion object {
         private val LOG = logger<MauiProjectOrchestrationHandler>()
+
+        //https://www.nuget.org/packages/Aspire.Hosting.Maui
+        private const val MAUI_HOSTING_PACKAGE_NAME = "Aspire.Hosting.Maui"
+        private const val MAUI_HOSTING_PACKAGE_VERSION = "13.1.0-preview.1.25616.3"
     }
 
     override val priority = 1
     override val supportedProjectTypes = listOf(RdProjectType.MAUI)
 
-    override suspend fun modifyAppHost(projectEntities: List<ProjectModelEntity>, project: Project): List<String> {
-        val projectPaths = projectEntities.mapNotNull { it.url?.virtualFile?.toNioPath() }
-        val projectNames = projectPaths.map { it.nameWithoutExtension }
+    override suspend fun modifyAppHost(
+        appHostEntity: ProjectModelEntity,
+        projectEntities: List<ProjectModelEntity>,
+        project: Project
+    ): List<String> {
+        installMauiHostingPackage(appHostEntity, project)
+
+        val appHostProjectPath = appHostEntity.url?.toPath()
+        if (appHostProjectPath == null) {
+            LOG.warn("Unable to find AppHost project path. Skipping Maui nuget installation")
+            return emptyList()
+        }
+        val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
 
         return buildList {
-            for (projectName in projectNames.sorted()) {
-                val projectType = projectName.replace('.', '_')
+            for (projectPath in projectPaths.sorted()) {
+                val projectName = projectPath.nameWithoutExtension
                 val projectResourceName = projectName.replace('.', '-').lowercase()
+                val relativeProjectPath = projectPath.relativeTo(appHostProjectPath.parent)
 
                 val line = buildString {
-                    append("builder.AddMauiProject<Projects.")
-                    append(projectType)
-                    append(">(\"")
+                    append("builder.AddMauiProject(\"")
                     append(projectResourceName)
+                    append("\", @\"")
+                    append(relativeProjectPath)
                     append("\");")
                 }
                 add(line)
             }
+        }
+    }
+
+    private suspend fun installMauiHostingPackage(appHostEntity: ProjectModelEntity, project: Project) {
+        val appHostProjectId = appHostEntity.getId(project)
+        if (appHostProjectId == null) {
+            LOG.warn("Unable to find AppHost project id. Skipping Maui nuget installation")
+            return
+        }
+
+        val riderNuGetFacade = RiderNuGetFacade.getInstance(project)
+        val nugetProject = riderNuGetFacade.host.nuGetProjectModel.projects[appHostProjectId]
+        if (nugetProject == null) {
+            LOG.warn("Unable to find NuGet project for AppHost. Skipping Maui nuget installation")
+            return
+        }
+
+        if (nugetProject.hasPackage(MAUI_HOSTING_PACKAGE_NAME)) {
+            LOG.info("Maui hosting nuget package is already installed")
+            return
+        }
+
+        withContext(Dispatchers.EDT) {
+            riderNuGetFacade.install(
+                RdNuGetProjects(listOf(appHostProjectId)),
+                MAUI_HOSTING_PACKAGE_NAME,
+                MAUI_HOSTING_PACKAGE_VERSION
+            )
         }
     }
 

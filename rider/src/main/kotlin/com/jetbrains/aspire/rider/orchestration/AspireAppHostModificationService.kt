@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.findDocument
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
+import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.PsiTreeWalker
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.RiderTextContent
@@ -27,11 +28,6 @@ import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import java.nio.file.Path
 import kotlin.io.path.exists
 
-/**
- * Service responsible for modifying AppHost files in .NET Aspire solutions,
- * providing functionality to insert `AddProject` methods into `AppHost.cs` files
- * to configure Aspire host applications correctly.
- */
 @Service(Service.Level.PROJECT)
 internal class AspireAppHostModificationService(private val project: Project) {
     companion object {
@@ -45,24 +41,29 @@ internal class AspireAppHostModificationService(private val project: Project) {
     }
 
     /**
-     * Modify the `AppHost` project of the Aspire solution.
+     * Modify the `AppHost` project in the Aspire solution.
      *
      * This method can install required nuget packages and modify the `AppHost` project main file.
      *
-     * @param hostProjectPath a file path to an Aspire AppHost project file
-     * @param projectEntities a list of projects with which the `AppHost` should be modified
+     * @param appHostEntity an AppHost entity that should be modified
+     * @param projectEntities a list of project entities with which the `AppHost` should be modified
      * @return a flag whether the `AppHost` was modified
      */
-    suspend fun modifyAppHost(hostProjectPath: Path, projectEntities: List<ProjectModelEntity>): Boolean {
+    suspend fun modifyAppHost(appHostEntity: ProjectModelEntity, projectEntities: List<ProjectModelEntity>): Boolean {
         if (projectEntities.isEmpty()) return false
 
-        val appHostFile = findAppHostFile(hostProjectPath)
+        val appHostProjectPath = appHostEntity.url?.toPath()
+        if (appHostProjectPath == null) {
+            LOG.warn("AppHost project URL is null, cannot modify AppHost")
+            return false
+        }
+        val appHostFile = findAppHostFile(appHostProjectPath)
         if (appHostFile == null) {
             LOG.warn("Unable to find AppHost.cs (or Program.cs) file in the host project")
             return false
         }
 
-        val linesToInsert = modifyAppHostWithHandlers(projectEntities)
+        val linesToInsert = modifyAppHostWithHandlers(appHostEntity, projectEntities)
 
         return readAndEdtWriteAction {
             val document = appHostFile.findDocument()
@@ -131,14 +132,17 @@ internal class AspireAppHostModificationService(private val project: Project) {
         return null
     }
 
-    private suspend fun modifyAppHostWithHandlers(projectEntities: List<ProjectModelEntity>): MutableList<String> {
+    private suspend fun modifyAppHostWithHandlers(
+        appHostEntity: ProjectModelEntity,
+        projectEntities: List<ProjectModelEntity>
+    ): MutableList<String> {
         val linesToInsert = mutableListOf<String>()
         val projectsByType = projectEntities.groupBy { getProjectType(it) }
         for ((projectType, projects) in projectsByType) {
             if (projectType == null) continue
             val handler = AspireProjectOrchestrationHandler.getHandlerForType(projectType)
             if (handler != null) {
-                val lines = handler.modifyAppHost(projects, project)
+                val lines = handler.modifyAppHost(appHostEntity, projects, project)
                 linesToInsert.addAll(lines)
             } else {
                 LOG.debug { "No handler found for project type: $projectType" }

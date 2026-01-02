@@ -10,20 +10,23 @@ import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.backend.workspace.WorkspaceModel
-import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.util.isAspireHostProject
+import com.jetbrains.rd.platform.util.TimeoutTracker
 import com.jetbrains.rider.ijent.extensions.toNioPath
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
+import com.jetbrains.rider.projectView.workspace.findProjectsByPath
+import com.jetbrains.rider.services.RiderProjectModelWaiter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
-import java.nio.file.Path
-import kotlin.io.path.absolutePathString
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Service to provide Aspire Orchestration support.
@@ -76,22 +79,22 @@ class AspireOrchestrationService(private val project: Project) {
     suspend fun addAspireOrchestration(
         projectEntities: List<ProjectModelEntity>,
     ) = withBackgroundProgress(project, AspireRiderBundle.message("progress.adding.aspire.orchestration")) {
-        val existingAppHostPath = findExistingAppHost()
+        val existingAppHostEntity = findExistingAppHost()
 
-        val appHostPath = if (existingAppHostPath != null) {
-            LOG.trace { "Using existing AppHost: ${existingAppHostPath.absolutePathString()}" }
-            existingAppHostPath
+        val appHostEntity = if (existingAppHostEntity != null) {
+            LOG.trace { "Using existing AppHost" }
+            existingAppHostEntity
         } else {
             LOG.trace { "Generating new AppHost project" }
             generateAppHost()
         }
 
-        if (appHostPath == null) {
+        if (appHostEntity == null) {
             LOG.warn("Unable to find or generate AppHost project")
             return@withBackgroundProgress
         }
 
-        val appHostFileWasModified = updateAppHostProject(appHostPath, projectEntities)
+        val appHostFileWasModified = updateAppHostProject(appHostEntity, projectEntities)
 
         val projectsByType = projectEntities.groupBy { getProjectType(it) }
         var anyProjectModified = false
@@ -114,30 +117,47 @@ class AspireOrchestrationService(private val project: Project) {
         }
     }
 
-    private suspend fun findExistingAppHost(): Path? {
+    private suspend fun findExistingAppHost(): ProjectModelEntity? {
         val dotnetProjects = project.serviceAsync<WorkspaceModel>().findProjects()
         for (dotnetProject in dotnetProjects) {
             if (dotnetProject.isAspireHostProject()) {
-                val projectFile = dotnetProject.url?.virtualFile?.toNioPath()
-                if (projectFile == null) {
-                    LOG.warn("Unable to find a virtual file for the Aspire AppHost")
-                    continue
-                }
-                return projectFile
+                return dotnetProject
             }
         }
         return null
     }
 
-    private suspend fun generateAppHost(): Path? = generateAspireProject(project) { it.generateAppHost() }
+    private suspend fun generateAppHost(): ProjectModelEntity? {
+        val appHostPath = generateAspireProject(project) { it.generateAppHost() } ?: return null
+        withContext(Dispatchers.EDT) {
+            try {
+                val timeoutTracker = TimeoutTracker(60.seconds)
+                RiderProjectModelWaiter.waitForWorkspaceModelReadySuspending(project, timeoutTracker)
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (e: Exception) {
+                LOG.warn("Failed to wait for WorkspaceModel to be ready", e)
+                return@withContext
+            }
+        }
+
+        val appHostProjectFile = LocalFileSystem.getInstance().findFileByNioFile(appHostPath) ?: return null
+        return WorkspaceModel.getInstance(project).findProjectsByPath(appHostProjectFile).singleOrNull()
+    }
 
     private suspend fun updateAppHostProject(
-        hostProjectPath: Path,
+        appHostEntity: ProjectModelEntity,
         projectEntities: List<ProjectModelEntity>
     ): Boolean {
+        val appHostProjectPath = appHostEntity.url?.toPath()
+        if (appHostProjectPath == null) {
+            LOG.warn("Unable to get AppHost project path")
+            return false
+        }
+
         val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath() }
         val referenceByHostProjectResult =
-            referenceByHostProject(project, hostProjectPath, projectFilePathStrings) ?: return false
+            referenceByHostProject(project, appHostProjectPath, projectFilePathStrings) ?: return false
 
         val referencedProjectFilePaths =
             referenceByHostProjectResult.referencedProjectFilePaths.map { it.toNioPath() }
@@ -148,7 +168,7 @@ class AspireOrchestrationService(private val project: Project) {
 
         return AspireAppHostModificationService
             .getInstance(project)
-            .modifyAppHost(hostProjectPath, referencedProjectEntities)
+            .modifyAppHost(appHostEntity, referencedProjectEntities)
     }
 
     private suspend fun notifyAboutAlreadyAddedOrchestration() = withContext(Dispatchers.EDT) {

@@ -204,3 +204,9 @@ private suspend fun notifyAboutFailedProjectToSolutionAdding(project: Project) =
     )
         .notify(project)
 }
+
+internal fun RdNuGetProject.hasPackage(dependencyId: String): Boolean {
+    if (explicitPackages.any { it.id.equals(dependencyId, ignoreCase = true) }) return true
+    if (integratedPackages.any { it.identity.id.equals(dependencyId, ignoreCase = true) }) return true
+    return false
+}

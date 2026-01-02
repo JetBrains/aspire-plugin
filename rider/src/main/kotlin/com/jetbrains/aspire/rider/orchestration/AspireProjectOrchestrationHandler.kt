@@ -26,7 +26,11 @@ interface AspireProjectOrchestrationHandler {
      * This method should modify the `AppHost` project specific to the [supportedProjectTypes] (e.g., add some nuget packages).
      * It also should return the lines of code that should be added to the `AppHost` main file (e.g. `AppProject<T>()).
      */
-    suspend fun modifyAppHost(projectEntities: List<ProjectModelEntity>, project: Project): List<String>
+    suspend fun modifyAppHost(
+        appHostEntity: ProjectModelEntity,
+        projectEntities: List<ProjectModelEntity>,
+        project: Project
+    ): List<String>
 
     /**
      * Generates `ServiceDefaults` project and applies modifications to the associated projects.
