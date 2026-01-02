@@ -25,7 +25,7 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
     override val priority = 1
     override val supportedProjectTypes = listOf(RdProjectType.MAUI)
 
-    override suspend fun modifyAppHost(projectEntities: List<ProjectModelEntity>): List<String> {
+    override suspend fun modifyAppHost(projectEntities: List<ProjectModelEntity>, project: Project): List<String> {
         val projectPaths = projectEntities.mapNotNull { it.url?.virtualFile?.toNioPath() }
         val projectNames = projectPaths.map { it.nameWithoutExtension }
 
@@ -35,7 +35,7 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
                 val projectResourceName = projectName.replace('.', '-').lowercase()
 
                 val line = buildString {
-                    append("builder.AddProject<Projects.")
+                    append("builder.AddMauiProject<Projects.")
                     append(projectType)
                     append(">(\"")
                     append(projectResourceName)
@@ -47,8 +47,8 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
     }
 
     override suspend fun generateServiceDefaultsAndModifyProjects(
-        project: Project,
-        projectEntities: List<ProjectModelEntity>
+        projectEntities: List<ProjectModelEntity>,
+        project: Project
     ): Boolean {
         if (projectEntities.isEmpty()) return false
 

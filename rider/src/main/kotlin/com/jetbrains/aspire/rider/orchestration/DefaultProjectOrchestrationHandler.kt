@@ -25,7 +25,7 @@ internal class DefaultProjectOrchestrationHandler : AspireProjectOrchestrationHa
     override val priority = 0
     override val supportedProjectTypes = listOf(RdProjectType.Default, RdProjectType.Web, RdProjectType.XamlProject)
 
-    override suspend fun modifyAppHost(projectEntities: List<ProjectModelEntity>): List<String> {
+    override suspend fun modifyAppHost(projectEntities: List<ProjectModelEntity>, project: Project): List<String> {
         val projectPaths = projectEntities.mapNotNull { it.url?.virtualFile?.toNioPath() }
         val projectNames = projectPaths.map { it.nameWithoutExtension }
 
@@ -47,8 +47,8 @@ internal class DefaultProjectOrchestrationHandler : AspireProjectOrchestrationHa
     }
 
     override suspend fun generateServiceDefaultsAndModifyProjects(
-        project: Project,
-        projectEntities: List<ProjectModelEntity>
+        projectEntities: List<ProjectModelEntity>,
+        project: Project
     ): Boolean {
         if (projectEntities.isEmpty()) return false
 

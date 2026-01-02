@@ -102,7 +102,7 @@ class AspireOrchestrationService(private val project: Project) {
             val handler = AspireProjectOrchestrationHandler.getHandlerForType(projectType)
             if (handler != null) {
                 LOG.trace { "Group of ${projects.size} projects of type $projectType using ${handler::class.simpleName}" }
-                val modified = handler.generateServiceDefaultsAndModifyProjects(project, projects)
+                val modified = handler.generateServiceDefaultsAndModifyProjects(projects, project)
                 anyProjectModified = anyProjectModified || modified
             } else {
                 LOG.debug { "No handler found for project type: $projectType" }

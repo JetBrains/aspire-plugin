@@ -138,7 +138,7 @@ internal class AspireAppHostModificationService(private val project: Project) {
             if (projectType == null) continue
             val handler = AspireProjectOrchestrationHandler.getHandlerForType(projectType)
             if (handler != null) {
-                val lines = handler.modifyAppHost(projects)
+                val lines = handler.modifyAppHost(projects, project)
                 linesToInsert.addAll(lines)
             } else {
                 LOG.debug { "No handler found for project type: $projectType" }
