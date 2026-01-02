@@ -4,11 +4,13 @@ import com.intellij.execution.ExecutionListener
 import com.intellij.execution.ExecutionManager
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.jetbrains.aspire.dashboard.AspireProjectResourceProfileData
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.*
@@ -16,6 +18,8 @@ import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
+import com.jetbrains.rider.run.ConsoleKind
+import com.jetbrains.rider.run.createConsole
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -89,16 +93,34 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
     }
 
     private fun appHostStarted(processHandler: ProcessHandler) {
+        val currentState = _appHostState.value
+        if (currentState is AspireAppHostState.Started) {
+            LOG.info("App Host is already started")
+            return
+        }
+
         LOG.trace { "Aspire AppHost $mainFilePath was started" }
 
         val handler =
             if (processHandler is DebuggerWorkerProcessHandler) processHandler.debuggerWorkerRealHandler
             else processHandler
+        val console = createConsole(
+            ConsoleKind.Normal,
+            handler,
+            project
+        )
+        Disposer.register(this, console)
 
-        _appHostState.value = AspireAppHostState.Started(handler)
+        _appHostState.value = AspireAppHostState.Started(handler, console)
     }
 
     private fun appHostStopped() {
+        val currentState = _appHostState.value
+        if (currentState is AspireAppHostState.Stopped) {
+            LOG.info("App Host is already stopped")
+            return
+        }
+
         LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
 
         _appHostState.value = AspireAppHostState.Stopped
@@ -293,7 +315,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
     sealed interface AspireAppHostState {
         data object Inactive : AspireAppHostState
 
-        data class Started(val processHandler: ProcessHandler) : AspireAppHostState
+        data class Started(val processHandler: ProcessHandler, val console: ConsoleView) : AspireAppHostState
 
         data object Stopped : AspireAppHostState
     }

@@ -2,7 +2,6 @@
 
 package com.jetbrains.aspire.dashboard
 
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewManager
 import com.intellij.execution.services.ServiceViewProvidingContributor
@@ -13,8 +12,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.application
 import com.jetbrains.aspire.worker.AspireAppHost
-import com.jetbrains.rider.run.ConsoleKind
-import com.jetbrains.rider.run.createConsole
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -65,7 +62,7 @@ class AspireAppHostViewModel(
 
                     is AspireAppHost.AspireAppHostState.Started -> {
                         isActive = true
-                        updateConsoleView(it.processHandler)
+                        updateConsoleView(it.console)
                         selectAppHost()
                     }
 
@@ -96,14 +93,7 @@ class AspireAppHostViewModel(
         }
     }
 
-    private fun updateConsoleView(processHandler: ProcessHandler) {
-        val console = createConsole(
-            ConsoleKind.Normal,
-            processHandler,
-            project
-        )
-        Disposer.register(this@AspireAppHostViewModel, console)
-
+    private fun updateConsoleView(console: ConsoleView) {
         val previousConsole = consoleView
         if (previousConsole != null) {
             Disposer.dispose(previousConsole)
