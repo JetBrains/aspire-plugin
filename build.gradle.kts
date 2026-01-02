@@ -1,4 +1,5 @@
 ﻿import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.kotlin.dsl.testImplementation
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.Constants
@@ -72,6 +73,8 @@ dependencies {
     implementation(libs.serializationJson)
     testImplementation(libs.opentest4j)
     testImplementation(libs.junit)
+    testImplementation(libs.testng)
+    testImplementation(libs.kotlin.test)
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
