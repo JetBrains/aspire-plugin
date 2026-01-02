@@ -47,6 +47,7 @@ internal class AspireServiceDefaultsModificationService(private val project: Pro
         private const val BUILD_METHOD = ".Build("
         private const val ADD_SERVICE_DEFAULTS_METHOD = "builder.AddServiceDefaults();"
         private const val MAP_DEFAULT_ENDPOINTS = "app.MapDefaultEndpoints();"
+        private const val USING_MICROSOFT_EXTENSION_HOSTING = "using Microsoft.Extensions.Hosting;"
     }
 
     /**
@@ -81,7 +82,7 @@ internal class AspireServiceDefaultsModificationService(private val project: Pro
                 continue
             }
 
-            val insertionResult = insertAspireDefaultMethodsIntoProgramFile(projectProgramFile, isWebProject)
+            val insertionResult = insertAspireDefaultMethodsIntoProgramFile(projectProgramFile, isWebProject, isMauiProject)
             methodsWereInserted = methodsWereInserted || insertionResult
         }
 
@@ -90,7 +91,8 @@ internal class AspireServiceDefaultsModificationService(private val project: Pro
 
     private suspend fun insertAspireDefaultMethodsIntoProgramFile(
         programFile: VirtualFile,
-        isWebProject: Boolean
+        isWebProject: Boolean,
+        isMauiProject: Boolean
     ): Boolean = readAndEdtWriteAction {
         val document = programFile.findDocument()
         if (document == null) {
@@ -141,6 +143,13 @@ internal class AspireServiceDefaultsModificationService(private val project: Pro
                     append(ADD_SERVICE_DEFAULTS_METHOD)
                 }
                 document.insertString(serviceDefaultsIndex + 1, textToInsert)
+            }
+            if (isMauiProject && !text.contains(USING_MICROSOFT_EXTENSION_HOSTING)) {
+                val textToInsert = buildString {
+                    append(USING_MICROSOFT_EXTENSION_HOSTING)
+                    append('\n')
+                }
+                document.insertString(0, textToInsert)
             }
             return@writeCommandAction true
         }
