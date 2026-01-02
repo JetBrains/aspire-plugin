@@ -41,6 +41,15 @@ private val supportedProjectTypes = listOf(
     RdProjectType.MAUI
 )
 
+internal fun getProjectType(entity: ProjectModelEntity): RdProjectType? {
+    val descriptor = entity.descriptor
+    return if (descriptor is RdProjectDescriptor) {
+        descriptor.specificType
+    } else {
+        null
+    }
+}
+
 internal fun ProjectModelEntity.isAspireOrchestrationSupported(): Boolean {
     if (isAspireHostProject() || isAspireSharedProject()) return false
 

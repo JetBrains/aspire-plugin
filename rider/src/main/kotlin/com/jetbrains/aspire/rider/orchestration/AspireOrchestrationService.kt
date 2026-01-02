@@ -17,8 +17,6 @@ import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.util.isAspireHostProject
 import com.jetbrains.rider.ijent.extensions.toNioPath
-import com.jetbrains.rider.model.RdProjectDescriptor
-import com.jetbrains.rider.model.RdProjectType
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
 import kotlinx.coroutines.Dispatchers
@@ -116,15 +114,6 @@ class AspireOrchestrationService(private val project: Project) {
         }
     }
 
-    private fun getProjectType(entity: ProjectModelEntity): RdProjectType? {
-        val descriptor = entity.descriptor
-        return if (descriptor is RdProjectDescriptor) {
-            descriptor.specificType
-        } else {
-            null
-        }
-    }
-
     private suspend fun findExistingAppHost(): Path? {
         val dotnetProjects = project.serviceAsync<WorkspaceModel>().findProjects()
         for (dotnetProject in dotnetProjects) {
@@ -153,9 +142,13 @@ class AspireOrchestrationService(private val project: Project) {
         val referencedProjectFilePaths =
             referenceByHostProjectResult.referencedProjectFilePaths.map { it.toNioPath() }
 
+        val referencedProjectEntities = projectEntities.filter { entity ->
+            entity.url?.toPath()?.let { path -> referencedProjectFilePaths.contains(path) } ?: false
+        }
+
         return AspireAppHostModificationService
             .getInstance(project)
-            .insertProjectsIntoAppHostFile(hostProjectPath, referencedProjectFilePaths)
+            .modifyAppHost(hostProjectPath, referencedProjectEntities)
     }
 
     private suspend fun notifyAboutAlreadyAddedOrchestration() = withContext(Dispatchers.EDT) {

@@ -7,6 +7,7 @@ import com.intellij.openapi.application.readAndEdtWriteAction
 import com.intellij.openapi.command.writeCommandAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
@@ -22,13 +23,13 @@ import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.RiderTextConten
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.CsIndentingNaiveRulesSet
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.RiderIndentingEditorSettings
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.calculateCsIndent
+import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import java.nio.file.Path
 import kotlin.io.path.exists
-import kotlin.io.path.nameWithoutExtension
 
 /**
  * Service responsible for modifying AppHost files in .NET Aspire solutions,
- * providing functionality to insert AddProject methods into AppHost.cs files
+ * providing functionality to insert `AddProject` methods into `AppHost.cs` files
  * to configure Aspire host applications correctly.
  */
 @Service(Service.Level.PROJECT)
@@ -44,14 +45,16 @@ internal class AspireAppHostModificationService(private val project: Project) {
     }
 
     /**
-     * Inserts `AddProject` methods into the `AppHost` file of the Aspire host project.
+     * Modify the `AppHost` project of the Aspire solution.
+     *
+     * This method can install required nuget packages and modify the `AppHost` project main file.
      *
      * @param hostProjectPath a file path to an Aspire AppHost project file
-     * @param projects a list of project file paths to be integrated into the host project
-     * @return a flag whether the methods were inserted into the `AppHost` file
+     * @param projectEntities a list of projects with which the `AppHost` should be modified
+     * @return a flag whether the `AppHost` was modified
      */
-    suspend fun insertProjectsIntoAppHostFile(hostProjectPath: Path, projects: List<Path>): Boolean {
-        if (projects.isEmpty()) return false
+    suspend fun modifyAppHost(hostProjectPath: Path, projectEntities: List<ProjectModelEntity>): Boolean {
+        if (projectEntities.isEmpty()) return false
 
         val appHostFile = findAppHostFile(hostProjectPath)
         if (appHostFile == null) {
@@ -59,9 +62,7 @@ internal class AspireAppHostModificationService(private val project: Project) {
             return false
         }
 
-        val projectNames = projects.map { it.nameWithoutExtension }
-        val methodsToInsert = createAddProjectMethodsToInsert(projectNames)
-        if (methodsToInsert.isEmpty()) return false
+        val linesToInsert = modifyAppHostWithHandlers(projectEntities)
 
         return readAndEdtWriteAction {
             val document = appHostFile.findDocument()
@@ -97,14 +98,14 @@ internal class AspireAppHostModificationService(private val project: Project) {
                     else ""
 
                 var methodsWereInserted = false
-                for (methodToInsert in methodsToInsert) {
-                    if (text.contains(methodToInsert)) continue
+                for (lineToInsert in linesToInsert) {
+                    if (text.contains(lineToInsert)) continue
 
                     val textToInsert = buildString {
                         append('\n')
                         append('\n')
                         append(indent)
-                        append(methodToInsert)
+                        append(lineToInsert)
                     }
                     document.insertString(semicolonIndex + 1, textToInsert)
                     semicolonIndex += textToInsert.length
@@ -130,20 +131,20 @@ internal class AspireAppHostModificationService(private val project: Project) {
         return null
     }
 
-    private fun createAddProjectMethodsToInsert(projectNames: List<String>) = buildList {
-        for (projectName in projectNames.sorted()) {
-            val projectType = projectName.replace('.', '_')
-            val projectResourceName = projectName.replace('.', '-').lowercase()
-
-            val methodToInsert = buildString {
-                append("builder.AddProject<Projects.")
-                append(projectType)
-                append(">(\"")
-                append(projectResourceName)
-                append("\");")
+    private suspend fun modifyAppHostWithHandlers(projectEntities: List<ProjectModelEntity>): MutableList<String> {
+        val linesToInsert = mutableListOf<String>()
+        val projectsByType = projectEntities.groupBy { getProjectType(it) }
+        for ((projectType, projects) in projectsByType) {
+            if (projectType == null) continue
+            val handler = AspireProjectOrchestrationHandler.getHandlerForType(projectType)
+            if (handler != null) {
+                val lines = handler.modifyAppHost(projects)
+                linesToInsert.addAll(lines)
+            } else {
+                LOG.debug { "No handler found for project type: $projectType" }
             }
-            add(methodToInsert)
         }
+        return linesToInsert
     }
 
     private fun calculateIndent(psiFile: PsiFile, document: Document, offset: Int): String {

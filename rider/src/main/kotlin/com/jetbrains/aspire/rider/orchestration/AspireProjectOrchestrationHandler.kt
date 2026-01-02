@@ -20,6 +20,24 @@ interface AspireProjectOrchestrationHandler {
     val priority: Int
     val supportedProjectTypes: List<RdProjectType>
 
+    /**
+     * Provide [supportedProjectTypes] specific modifications to the `AppHost` project.
+     *
+     * This method should modify the `AppHost` project specific to the [supportedProjectTypes] (e.g., add some nuget packages).
+     * It also should return the lines of code that should be added to the `AppHost` main file (e.g. `AppProject<T>()).
+     */
+    suspend fun modifyAppHost(projectEntities: List<ProjectModelEntity>): List<String>
+
+    /**
+     * Generates `ServiceDefaults` project and applies modifications to the associated projects.
+     *
+     * This method should generate the `ServiceDefaults` project specific to the [supportedProjectTypes],
+     * the add reference to the generated project to the provided [projectEntities]
+     * and also do some code modifications (e.g., add some default methods like `AddServiceDefaults()` and `MapDefaultEndpoints()`).
+     *
+     * @param projectEntities A list of project model entities that should be modified with generated `ServiceDefaults` project.
+     * @return A boolean indicating whether the operation was successful.
+     */
     suspend fun generateServiceDefaultsAndModifyProjects(
         project: Project,
         projectEntities: List<ProjectModelEntity>

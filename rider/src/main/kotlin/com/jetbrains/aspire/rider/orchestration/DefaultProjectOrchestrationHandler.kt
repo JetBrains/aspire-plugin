@@ -15,6 +15,7 @@ import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.nameWithoutExtension
 
 internal class DefaultProjectOrchestrationHandler : AspireProjectOrchestrationHandler {
     companion object {
@@ -23,6 +24,27 @@ internal class DefaultProjectOrchestrationHandler : AspireProjectOrchestrationHa
 
     override val priority = 0
     override val supportedProjectTypes = listOf(RdProjectType.Default, RdProjectType.Web, RdProjectType.XamlProject)
+
+    override suspend fun modifyAppHost(projectEntities: List<ProjectModelEntity>): List<String> {
+        val projectPaths = projectEntities.mapNotNull { it.url?.virtualFile?.toNioPath() }
+        val projectNames = projectPaths.map { it.nameWithoutExtension }
+
+        return buildList {
+            for (projectName in projectNames.sorted()) {
+                val projectType = projectName.replace('.', '_')
+                val projectResourceName = projectName.replace('.', '-').lowercase()
+
+                val line = buildString {
+                    append("builder.AddProject<Projects.")
+                    append(projectType)
+                    append(">(\"")
+                    append(projectResourceName)
+                    append("\");")
+                }
+                add(line)
+            }
+        }
+    }
 
     override suspend fun generateServiceDefaultsAndModifyProjects(
         project: Project,
