@@ -1,8 +1,5 @@
 package com.jetbrains.aspire.rider.orchestration
 
-import com.intellij.notification.Notification
-import com.intellij.notification.NotificationType
-import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
@@ -11,14 +8,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.workspaceModel.ide.toPath
-import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.util.isAspireSharedProject
 import com.jetbrains.rider.ijent.extensions.toNioPath
 import com.jetbrains.rider.model.RdProjectType
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
@@ -86,51 +80,6 @@ internal class DefaultProjectOrchestrationHandler : AspireProjectOrchestrationHa
         return null
     }
 
-    private suspend fun generateServiceDefaults(project: Project): Path? {
-        val solutionId = findSolutionId(project)
-        if (solutionId == null) {
-            LOG.warn("Unable to find a solution for ServiceDefaults generation")
-            notifyAboutFailedGeneration(project)
-            return null
-        }
-
-        val serviceDefaultsPath = AspireProjectTemplateGenerator
-            .getInstance(project)
-            .generateServiceDefaults()
-        if (serviceDefaultsPath == null) {
-            LOG.warn("Unable to generate ServiceDefaults project")
-            notifyAboutFailedGeneration(project)
-            return null
-        }
-
-        LOG.debug { "Generated ServiceDefaults: ${serviceDefaultsPath.absolutePathString()}" }
-
-        val addingProjectResult = addProjectToSolution(project, solutionId, serviceDefaultsPath, LOG)
-        if (addingProjectResult.isFailure) {
-            notifyAboutFailedProjectToSolutionAdding(project)
-            return null
-        }
-
-        return serviceDefaultsPath
-    }
-
-    private suspend fun notifyAboutFailedGeneration(project: Project) = withContext(Dispatchers.EDT) {
-        Notification(
-            "Aspire",
-            AspireRiderBundle.message("notification.unable.to.generate.aspire.projects"),
-            "",
-            NotificationType.ERROR
-        )
-            .notify(project)
-    }
-
-    private suspend fun notifyAboutFailedProjectToSolutionAdding(project: Project) = withContext(Dispatchers.EDT) {
-        Notification(
-            "Aspire",
-            AspireRiderBundle.message("notification.unable.to.add.generated.project.to.solution"),
-            "",
-            NotificationType.ERROR
-        )
-            .notify(project)
-    }
+    private suspend fun generateServiceDefaults(project: Project): Path? =
+        generateAspireProject(project) { it.generateServiceDefaults() }
 }

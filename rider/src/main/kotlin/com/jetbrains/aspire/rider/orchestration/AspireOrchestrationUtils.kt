@@ -1,12 +1,16 @@
 package com.jetbrains.aspire.rider.orchestration
 
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.psi.PsiDocumentManager
+import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.rider.generated.*
 import com.jetbrains.aspire.util.isAspireHostProject
 import com.jetbrains.aspire.util.isAspireSharedProject
@@ -25,7 +29,10 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.nio.file.Path
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.io.path.absolutePathString
 import kotlin.time.Duration.Companion.seconds
+
+private val LOG = Logger.getInstance("#com.jetbrains.aspire.rider.orchestration.AspireOrchestrationUtils")
 
 private val supportedProjectTypes = listOf(
     RdProjectType.Default,
@@ -57,7 +64,6 @@ internal suspend fun addProjectToSolution(
     project: Project,
     solutionId: Int,
     projectPath: Path,
-    logger: Logger
 ): Result<Unit> {
     try {
         //Should use `RiderProjectModelWaiter.waitForProjectModelReadySuspending` but there are threading issues there
@@ -65,7 +71,7 @@ internal suspend fun addProjectToSolution(
     } catch (ce: CancellationException) {
         throw ce
     } catch (e: Exception) {
-        logger.warn("Exception during waiting for project model ready", e)
+        LOG.warn("Exception during waiting for project model ready", e)
         return Result.failure(e)
     }
 
@@ -129,4 +135,63 @@ internal suspend fun referenceSharedProject(
     )
 
     project.solution.aspirePluginModel.referenceServiceDefaultsFromProjects.startSuspending(request)
+}
+
+/**
+ * Generates a new Aspire project and adds it to the solution.
+ *
+ * @param project The IntelliJ project
+ * @param generateProject Lambda that generates the project and returns its path
+ * @return Path to the generated project, or null if generation failed
+ */
+internal suspend fun generateAspireProject(
+    project: Project,
+    generateProject: suspend (AspireProjectTemplateGenerator) -> Path?
+): Path? {
+    val solutionId = findSolutionId(project)
+    if (solutionId == null) {
+        LOG.warn("Unable to find a solution for the .NET Aspire project generation")
+        notifyAboutFailedGeneration(project)
+        return null
+    }
+
+    val projectPath = generateProject(AspireProjectTemplateGenerator.getInstance(project))
+    if (projectPath == null) {
+        LOG.warn("Unable to generate .NET Aspire project")
+        notifyAboutFailedGeneration(project)
+        return null
+    }
+
+    LOG.debug { "Generated Aspire project: ${projectPath.absolutePathString()}" }
+
+    val addingProjectResult = addProjectToSolution(project, solutionId, projectPath)
+    if (addingProjectResult.isFailure) {
+        notifyAboutFailedProjectToSolutionAdding(project)
+        return null
+    }
+
+    return projectPath
+}
+
+/**
+ * Notifies the user about failed project generation.
+ */
+private suspend fun notifyAboutFailedGeneration(project: Project) = withContext(Dispatchers.EDT) {
+    Notification(
+        "Aspire",
+        AspireRiderBundle.message("notification.unable.to.generate.aspire.projects"),
+        "",
+        NotificationType.ERROR
+    )
+        .notify(project)
+}
+
+private suspend fun notifyAboutFailedProjectToSolutionAdding(project: Project) = withContext(Dispatchers.EDT) {
+    Notification(
+        "Aspire",
+        AspireRiderBundle.message("notification.unable.to.add.generated.project.to.solution"),
+        "",
+        NotificationType.ERROR
+    )
+        .notify(project)
 }

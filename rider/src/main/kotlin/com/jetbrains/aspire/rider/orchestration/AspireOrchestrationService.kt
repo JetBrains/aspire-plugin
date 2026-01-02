@@ -90,7 +90,6 @@ class AspireOrchestrationService(private val project: Project) {
 
         if (appHostPath == null) {
             LOG.warn("Unable to find or generate AppHost project")
-            notifyAboutFailedGeneration()
             return@withBackgroundProgress
         }
 
@@ -141,31 +140,7 @@ class AspireOrchestrationService(private val project: Project) {
         return null
     }
 
-    private suspend fun generateAppHost(): Path? {
-        val solutionId = findSolutionId(project)
-        if (solutionId == null) {
-            LOG.warn("Unable to find a solution for the .NET Aspire project generation")
-            return null
-        }
-
-        val hostProjectPath = AspireProjectTemplateGenerator
-            .getInstance(project)
-            .generateAppHost()
-        if (hostProjectPath == null) {
-            LOG.warn("Unable to generate AppHost project")
-            return null
-        }
-
-        LOG.debug { "Generated AppHost: ${hostProjectPath.absolutePathString()}" }
-
-        val addingProjectResult = addProjectToSolution(project, solutionId, hostProjectPath, LOG)
-        if (addingProjectResult.isFailure) {
-            notifyAboutFailedProjectToSolutionAdding(project)
-            return null
-        }
-
-        return hostProjectPath
-    }
+    private suspend fun generateAppHost(): Path? = generateAspireProject(project) { it.generateAppHost() }
 
     private suspend fun updateAppHostProject(
         hostProjectPath: Path,
@@ -181,26 +156,6 @@ class AspireOrchestrationService(private val project: Project) {
         return AspireAppHostModificationService
             .getInstance(project)
             .insertProjectsIntoAppHostFile(hostProjectPath, referencedProjectFilePaths)
-    }
-
-    private suspend fun notifyAboutFailedGeneration() = withContext(Dispatchers.EDT) {
-        Notification(
-            "Aspire",
-            AspireRiderBundle.message("notification.unable.to.generate.aspire.projects"),
-            "",
-            NotificationType.ERROR
-        )
-            .notify(project)
-    }
-
-    private suspend fun notifyAboutFailedProjectToSolutionAdding(project: Project) = withContext(Dispatchers.EDT) {
-        Notification(
-            "Aspire",
-            AspireRiderBundle.message("notification.unable.to.add.generated.project.to.solution"),
-            "",
-            NotificationType.ERROR
-        )
-            .notify(project)
     }
 
     private suspend fun notifyAboutAlreadyAddedOrchestration() = withContext(Dispatchers.EDT) {
