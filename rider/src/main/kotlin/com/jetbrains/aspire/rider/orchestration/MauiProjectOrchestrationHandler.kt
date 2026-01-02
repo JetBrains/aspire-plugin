@@ -31,6 +31,8 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
         //https://www.nuget.org/packages/Aspire.Hosting.Maui
         private const val MAUI_HOSTING_PACKAGE_NAME = "Aspire.Hosting.Maui"
         private const val MAUI_HOSTING_PACKAGE_VERSION = "13.1.0-preview.1.25616.3"
+
+        private const val MAUI_CORE_PACKAGE_NAME = "Microsoft.Maui.Core"
     }
 
     override val priority = 1
@@ -71,22 +73,16 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
     private suspend fun installMauiHostingPackage(appHostEntity: ProjectModelEntity, project: Project) {
         val appHostProjectId = appHostEntity.getId(project)
         if (appHostProjectId == null) {
-            LOG.warn("Unable to find AppHost project id. Skipping Maui nuget installation")
+            LOG.warn("Unable to find AppHost project id. Skipping Maui hosting nuget installation")
             return
         }
 
-        val riderNuGetFacade = RiderNuGetFacade.getInstance(project)
-        val nugetProject = riderNuGetFacade.host.nuGetProjectModel.projects[appHostProjectId]
-        if (nugetProject == null) {
-            LOG.warn("Unable to find NuGet project for AppHost. Skipping Maui nuget installation")
-            return
-        }
-
-        if (nugetProject.hasPackage(MAUI_HOSTING_PACKAGE_NAME)) {
+        if (isNuGetPackageInstalled(MAUI_HOSTING_PACKAGE_NAME, appHostProjectId, project) != false) {
             LOG.info("Maui hosting nuget package is already installed")
             return
         }
 
+        val riderNuGetFacade = RiderNuGetFacade.getInstance(project)
         withContext(Dispatchers.EDT) {
             riderNuGetFacade.install(
                 RdNuGetProjects(listOf(appHostProjectId)),
@@ -143,12 +139,12 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
             if (dotnetProject.isAspireSharedProject()) {
                 val projectFile = dotnetProject.url?.virtualFile?.toNioPath()
                 if (projectFile == null) {
-                    LOG.warn("Unable to find a virtual file for the Aspire SharedProject")
+                    LOG.warn("Unable to find a virtual file for the Aspire ServiceDefaults project")
                     continue
                 }
 
-                val isMauiServiceDefaults = projectFile.fileName.toString().contains("Maui", ignoreCase = true)
-                if (isMauiServiceDefaults) {
+                val isMauiCoreInstalled = isNuGetPackageInstalled(MAUI_CORE_PACKAGE_NAME, dotnetProject, project)
+                if (isMauiCoreInstalled == true) {
                     return projectFile
                 }
             }

@@ -19,6 +19,7 @@ import com.jetbrains.rd.platform.util.TimeoutTracker
 import com.jetbrains.rd.util.reactive.hasTrueValue
 import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.*
+import com.jetbrains.rider.nuget.RiderNuGetFacade
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.getId
@@ -205,7 +206,36 @@ private suspend fun notifyAboutFailedProjectToSolutionAdding(project: Project) =
         .notify(project)
 }
 
-internal fun RdNuGetProject.hasPackage(dependencyId: String): Boolean {
+internal fun isNuGetPackageInstalled(
+    packageName: String,
+    projectEntity: ProjectModelEntity,
+    project: Project
+): Boolean? {
+    val projectId = projectEntity.getId(project)
+    if (projectId == null) {
+        LOG.warn("Unable to find project entity id")
+        return null
+    }
+
+    return isNuGetPackageInstalled(packageName, projectId, project)
+}
+
+internal fun isNuGetPackageInstalled(
+    packageName: String,
+    projectId: Int,
+    project: Project
+): Boolean? {
+    val riderNuGetFacade = RiderNuGetFacade.getInstance(project)
+    val nugetProject = riderNuGetFacade.host.nuGetProjectModel.projects[projectId]
+    if (nugetProject == null) {
+        LOG.warn("Unable to find NuGet project for project with id $projectId")
+        return null
+    }
+
+    return nugetProject.hasPackage(packageName)
+}
+
+private fun RdNuGetProject.hasPackage(dependencyId: String): Boolean {
     if (explicitPackages.any { it.id.equals(dependencyId, ignoreCase = true) }) return true
     if (integratedPackages.any { it.identity.id.equals(dependencyId, ignoreCase = true) }) return true
     return false
