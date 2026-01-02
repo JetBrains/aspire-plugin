@@ -109,7 +109,11 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
 
         LOG.debug { "Generated Maui ServiceDefaults: ${mauiServiceDefaultsPath.absolutePathString()}" }
 
-        addProjectToSolution(project, solutionId, mauiServiceDefaultsPath)
+        val addingProjectResult = addProjectToSolution(project, solutionId, mauiServiceDefaultsPath, LOG)
+        if (addingProjectResult.isFailure) {
+            notifyAboutFailedProjectToSolutionAdding(project)
+            return null
+        }
 
         return mauiServiceDefaultsPath
     }
@@ -118,6 +122,16 @@ internal class MauiProjectOrchestrationHandler : AspireProjectOrchestrationHandl
         Notification(
             "Aspire",
             AspireRiderBundle.message("notification.unable.to.generate.aspire.projects"),
+            "",
+            NotificationType.ERROR
+        )
+            .notify(project)
+    }
+
+    private suspend fun notifyAboutFailedProjectToSolutionAdding(project: Project) = withContext(Dispatchers.EDT) {
+        Notification(
+            "Aspire",
+            AspireRiderBundle.message("notification.unable.to.add.generated.project.to.solution"),
             "",
             NotificationType.ERROR
         )

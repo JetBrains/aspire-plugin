@@ -158,7 +158,11 @@ class AspireOrchestrationService(private val project: Project) {
 
         LOG.debug { "Generated AppHost: ${hostProjectPath.absolutePathString()}" }
 
-        addProjectToSolution(project, solutionId, hostProjectPath)
+        val addingProjectResult = addProjectToSolution(project, solutionId, hostProjectPath, LOG)
+        if (addingProjectResult.isFailure) {
+            notifyAboutFailedProjectToSolutionAdding(project)
+            return null
+        }
 
         return hostProjectPath
     }
@@ -184,7 +188,17 @@ class AspireOrchestrationService(private val project: Project) {
             "Aspire",
             AspireRiderBundle.message("notification.unable.to.generate.aspire.projects"),
             "",
-            NotificationType.WARNING
+            NotificationType.ERROR
+        )
+            .notify(project)
+    }
+
+    private suspend fun notifyAboutFailedProjectToSolutionAdding(project: Project) = withContext(Dispatchers.EDT) {
+        Notification(
+            "Aspire",
+            AspireRiderBundle.message("notification.unable.to.add.generated.project.to.solution"),
+            "",
+            NotificationType.ERROR
         )
             .notify(project)
     }

@@ -105,7 +105,11 @@ internal class DefaultProjectOrchestrationHandler : AspireProjectOrchestrationHa
 
         LOG.debug { "Generated ServiceDefaults: ${serviceDefaultsPath.absolutePathString()}" }
 
-        addProjectToSolution(project, solutionId, serviceDefaultsPath)
+        val addingProjectResult = addProjectToSolution(project, solutionId, serviceDefaultsPath, LOG)
+        if (addingProjectResult.isFailure) {
+            notifyAboutFailedProjectToSolutionAdding(project)
+            return null
+        }
 
         return serviceDefaultsPath
     }
@@ -114,6 +118,16 @@ internal class DefaultProjectOrchestrationHandler : AspireProjectOrchestrationHa
         Notification(
             "Aspire",
             AspireRiderBundle.message("notification.unable.to.generate.aspire.projects"),
+            "",
+            NotificationType.ERROR
+        )
+            .notify(project)
+    }
+
+    private suspend fun notifyAboutFailedProjectToSolutionAdding(project: Project) = withContext(Dispatchers.EDT) {
+        Notification(
+            "Aspire",
+            AspireRiderBundle.message("notification.unable.to.add.generated.project.to.solution"),
             "",
             NotificationType.ERROR
         )
