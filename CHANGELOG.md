@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [RIDER-129821](https://youtrack.jetbrains.com/issue/RIDER-129821/.NET10-Aspire-Orchestration-for-MAUI) Improve adding orchestration for MAUI projects
+
 ## [2.2.0] - 2025-12-22
 
 ### Changed
