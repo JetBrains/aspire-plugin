@@ -16,6 +16,7 @@ internal class DockerAspireResourceIconProvider : AspireResourceIconProvider {
             containerImage?.contains("redis") == true -> AllIcons.Providers.Redis
             containerImage?.contains("rabbitmq") == true -> AllIcons.Providers.RabbitMQ
             containerImage?.contains("confluent") == true -> AllIcons.Providers.Kafka
+            containerImage?.contains("azurite") == true -> AspireDockerIcons.Azurite
             else -> DockerIcons.Docker
         }
         else -> null

@@ -5,6 +5,10 @@
         <module name="intellij.clouds.docker.shared"/>
     </dependencies>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <iconMapper mappingFile="AspireDockerIconMappings.json"/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.jetbrains.aspire">
         <resourceIconProvider implementation="com.jetbrains.aspire.docker.DockerAspireResourceIconProvider"/>
     </extensions>
