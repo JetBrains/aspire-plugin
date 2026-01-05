@@ -2,6 +2,7 @@
     <dependencies>
         <module name="intellij.aspire.core"/>
         <plugin id="Docker"/>
+        <module name="intellij.clouds.docker.shared"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
