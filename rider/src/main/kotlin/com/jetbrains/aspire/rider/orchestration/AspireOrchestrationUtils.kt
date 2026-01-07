@@ -24,6 +24,7 @@ import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.getId
 import com.jetbrains.rider.projectView.workspace.getSolutionEntity
+import com.jetbrains.rider.services.RiderBackendWaiter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -118,6 +119,10 @@ private suspend fun waitForProjectModelIsReady(project: Project) {
             PsiDocumentManager.getInstance(project).commitAllDocuments()
             delay(10)
         }
+        LOG.debug("Wait for Project model: all frontend documents are committed")
+
+        RiderBackendWaiter.waitBackendSuspending(project, null) { LOG.debug(it) }
+        LOG.debug("Wait for Project model: waitBackend finished")
     }
 }
 

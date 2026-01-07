@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.aspire.rider.sessions.wasmHost
 
 import com.intellij.execution.CantRunException
@@ -5,7 +7,7 @@ import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.xdebugger.XDebugSession
+import com.intellij.xdebugger.XSessionStartedResult
 import com.jetbrains.rd.framework.IProtocol
 import com.jetbrains.rd.framework.Protocol
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -35,7 +37,7 @@ internal class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
         protocol: Protocol,
         state: IDotNetDebugProfileState,
         environment: ExecutionEnvironment
-    ): RunContentDescriptor {
+    ): RunContentDescriptor? {
         val wasmProfileState = state as? WasmHostProjectSessionDebugProfileState
             ?: throw CantRunException("State profile is not supported")
 
@@ -64,7 +66,7 @@ internal class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
         workerProcessHandler: DebuggerWorkerProcessHandler,
         sessionModel: DotNetDebuggerSessionModel,
         workerModel: DebuggerWorkerModel
-    ): XDebugSession {
+    ): XSessionStartedResult {
         val executionResult = state.execute(env.executor, this, workerProcessHandler, sessionLifetime)
         val executionConsole = executionResult.executionConsole
         val processHandler = executionResult.processHandler
@@ -82,7 +84,10 @@ internal class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
             state.getDebuggerOutputEventsListener(),
             wasmProfileState.browserRefreshHost
         ) { xDebuggerManager, xDebugProcessStarter ->
-            xDebuggerManager.startSession(env, xDebugProcessStarter)
+            xDebuggerManager
+                .newSessionBuilder(xDebugProcessStarter)
+                .environment(env)
+                .startSession()
         }
     }
 }

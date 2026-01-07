@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.aspire.rider.run.runners
 
 import com.intellij.execution.CantRunException
@@ -5,7 +7,7 @@ import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.diagnostic.logger
-import com.intellij.xdebugger.XDebugSession
+import com.intellij.xdebugger.XSessionStartedResult
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.rider.run.file.AspireFileConfiguration
 import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
@@ -39,7 +41,7 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
         workerProcessHandler: DebuggerWorkerProcessHandler,
         sessionModel: DotNetDebuggerSessionModel,
         workerModel: DebuggerWorkerModel
-    ): XDebugSession {
+    ): XSessionStartedResult {
         LOG.info("Creating Aspire debug session")
 
         if (state !is AspireHostDebugProfileState) {
@@ -57,7 +59,7 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
 
         connectExecutionHandlerAndLifetime(executionResult, aspireHostProcessHandlerLifetime)
 
-        return com.jetbrains.rider.debugger.createAndStartSession(
+        return com.jetbrains.rider.debugger.startSession(
             executionResult.executionConsole,
             env,
             sessionLifetime,
@@ -67,7 +69,10 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
             state.getDebuggerOutputEventsListener(),
             false
         ) { xDebuggerManager, xDebugProcessStarter ->
-            xDebuggerManager.startSession(env, xDebugProcessStarter)
+            xDebuggerManager
+                .newSessionBuilder(xDebugProcessStarter)
+                .environment(env)
+                .startSession()
         }
     }
 }
