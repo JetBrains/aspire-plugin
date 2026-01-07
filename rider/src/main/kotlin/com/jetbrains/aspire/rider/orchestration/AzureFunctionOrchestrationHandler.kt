@@ -19,7 +19,7 @@ internal class AzureFunctionOrchestrationHandler : BaseOrchestrationHandler() {
 
         //https://www.nuget.org/packages/Aspire.Hosting.Azure.Functions
         private const val AZURE_FUNCTIONS_HOSTING_PACKAGE_NAME = "Aspire.Hosting.Azure.Functions"
-        private const val AZURE_FUNCTIONS_HOSTING_PACKAGE_VERSION = "9.1.0"
+        private const val AZURE_FUNCTIONS_HOSTING_PACKAGE_VERSION = "13.1.0"
     }
 
     override val priority = 1
@@ -40,13 +40,6 @@ internal class AzureFunctionOrchestrationHandler : BaseOrchestrationHandler() {
         val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
 
         return buildList {
-            // Add storage resource first (only once, before all function projects)
-            if (projectPaths.isNotEmpty()) {
-                add("var storage = builder.AddAzureStorage(\"storage\")")
-                add("    .RunAsEmulator();")
-                add("")
-            }
-
             for (projectPath in projectPaths.sorted()) {
                 val projectName = projectPath.nameWithoutExtension
                 val projectType = projectName.replace('.', '_')
@@ -58,8 +51,6 @@ internal class AzureFunctionOrchestrationHandler : BaseOrchestrationHandler() {
                     append(">(\"")
                     append(projectResourceName)
                     append("\")")
-                    appendLine()
-                    append("    .WithHostStorage(storage)")
                     appendLine()
                     append("    .WithExternalHttpEndpoints();")
                 }

@@ -189,9 +189,6 @@ internal suspend fun generateAspireProject(
     return projectPath
 }
 
-/**
- * Notifies the user about failed project generation.
- */
 private suspend fun notifyAboutFailedGeneration(project: Project) = withContext(Dispatchers.EDT) {
     Notification(
         "Aspire",
