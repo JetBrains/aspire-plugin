@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.io.path.nameWithoutExtension
 
-internal class AzureFunctionOrchestrationHandler : AspireProjectOrchestrationHandler {
+internal class AzureFunctionOrchestrationHandler : BaseOrchestrationHandler() {
     companion object {
         private val LOG = logger<AzureFunctionOrchestrationHandler>()
 
@@ -88,15 +88,5 @@ internal class AzureFunctionOrchestrationHandler : AspireProjectOrchestrationHan
                 AZURE_FUNCTIONS_HOSTING_PACKAGE_VERSION
             )
         }
-    }
-
-    override suspend fun generateServiceDefaultsAndModifyProjects(
-        projectEntities: List<ProjectModelEntity>,
-        project: Project
-    ): Boolean {
-        // Azure Functions typically don't require ServiceDefaults modifications
-        // They run in their own isolated environment with specific hosting requirements
-        LOG.info("Azure Functions projects do not require ServiceDefaults modifications")
-        return false
     }
 }
