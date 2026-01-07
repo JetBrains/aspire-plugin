@@ -67,6 +67,12 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
         runTest(serviceDefaultsName = "DefaultMauiSolution.Maui.ServiceDefaults", projectMainFileName = "MauiProgram.cs")
     }
 
+    @Test
+    @Solution("DefaultAzureFunctionSolution")
+    fun `Add aspire orchestration for azure function project`() {
+        runTest()
+    }
+
     private fun runTest(
         projectNames: List<String> = listOf(activeSolution),
         appHostName: String = "$activeSolution.AppHost",

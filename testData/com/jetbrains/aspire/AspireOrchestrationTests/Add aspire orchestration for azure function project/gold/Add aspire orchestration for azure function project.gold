@@ -1,0 +1,138 @@
+Solution file:
+
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{GUID}") = "DefaultAzureFunctionSolution", "DefaultAzureFunctionSolution\DefaultAzureFunctionSolution.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "DefaultAzureFunctionSolution.AppHost", "DefaultAzureFunctionSolution.AppHost\DefaultAzureFunctionSolution.AppHost.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "DefaultAzureFunctionSolution.ServiceDefaults", "DefaultAzureFunctionSolution.ServiceDefaults\DefaultAzureFunctionSolution.ServiceDefaults.csproj", "{GUID}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
+
+
+AppHost:
+
+<Project Sdk="Aspire.AppHost.Sdk/13.1.0">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>GUID</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\DefaultAzureFunctionSolution\DefaultAzureFunctionSolution.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="13.1.0" />
+    </ItemGroup>
+
+</Project>
+
+
+AppHost.AppHost.cs:
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+builder.AddAzureFunctionsProject<Projects.DefaultAzureFunctionSolution>("defaultazurefunctionsolution")
+    .WithExternalHttpEndpoints();
+
+builder.Build().Run();
+
+
+ServiceDefaults:
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsAspireSharedProject>true</IsAspireSharedProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.1.0"/>
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.1.0"/>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.14.0"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.14.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.14.0"/>
+    </ItemGroup>
+
+</Project>
+
+
+Project(DefaultAzureFunctionSolution.csproj):
+
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <AzureFunctionsVersion>V4</AzureFunctionsVersion>
+        <OutputType>Exe</OutputType>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.51.0"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.50.0"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.0"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\DefaultAzureFunctionSolution.ServiceDefaults\DefaultAzureFunctionSolution.ServiceDefaults.csproj" />
+    </ItemGroup>
+
+</Project>
+
+
+Project(DefaultAzureFunctionSolution.csproj) Program.cs:
+
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+var builder = FunctionsApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
+
+builder.ConfigureFunctionsWebApplication();
+
+builder.Services
+    .AddApplicationInsightsTelemetryWorkerService()
+    .ConfigureFunctionsApplicationInsights();
+
+builder.Build().Run();
+

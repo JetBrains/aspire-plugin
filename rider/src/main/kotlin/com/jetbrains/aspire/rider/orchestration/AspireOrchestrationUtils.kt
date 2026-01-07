@@ -40,7 +40,8 @@ private val supportedProjectTypes = listOf(
     RdProjectType.Default,
     RdProjectType.Web,
     RdProjectType.XamlProject,
-    RdProjectType.MAUI
+    RdProjectType.MAUI,
+    RdProjectType.AzureFunction
 )
 
 internal fun getProjectType(entity: ProjectModelEntity): RdProjectType? {
@@ -188,9 +189,6 @@ internal suspend fun generateAspireProject(
     return projectPath
 }
 
-/**
- * Notifies the user about failed project generation.
- */
 private suspend fun notifyAboutFailedGeneration(project: Project) = withContext(Dispatchers.EDT) {
     Notification(
         "Aspire",
