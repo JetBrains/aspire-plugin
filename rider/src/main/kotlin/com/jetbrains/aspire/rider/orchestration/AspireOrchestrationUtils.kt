@@ -40,7 +40,8 @@ private val supportedProjectTypes = listOf(
     RdProjectType.Default,
     RdProjectType.Web,
     RdProjectType.XamlProject,
-    RdProjectType.MAUI
+    RdProjectType.MAUI,
+    RdProjectType.AzureFunction
 )
 
 internal fun getProjectType(entity: ProjectModelEntity): RdProjectType? {
