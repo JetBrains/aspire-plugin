@@ -24,10 +24,6 @@ internal class MauiProjectOrchestrationHandler : BaseOrchestrationHandler() {
     companion object {
         private val LOG = logger<MauiProjectOrchestrationHandler>()
 
-        //https://www.nuget.org/packages/Aspire.Hosting.Maui
-        private const val MAUI_HOSTING_PACKAGE_NAME = "Aspire.Hosting.Maui"
-        private const val MAUI_HOSTING_PACKAGE_VERSION = "13.1.0-preview.1.25616.3"
-
         private const val MAUI_CORE_PACKAGE_NAME = "Microsoft.Maui.Core"
     }
 

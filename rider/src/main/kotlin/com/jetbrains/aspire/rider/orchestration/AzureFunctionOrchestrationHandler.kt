@@ -16,10 +16,6 @@ import kotlin.io.path.nameWithoutExtension
 internal class AzureFunctionOrchestrationHandler : BaseOrchestrationHandler() {
     companion object {
         private val LOG = logger<AzureFunctionOrchestrationHandler>()
-
-        //https://www.nuget.org/packages/Aspire.Hosting.Azure.Functions
-        private const val AZURE_FUNCTIONS_HOSTING_PACKAGE_NAME = "Aspire.Hosting.Azure.Functions"
-        private const val AZURE_FUNCTIONS_HOSTING_PACKAGE_VERSION = "13.1.0"
     }
 
     override val priority = 1
