@@ -19,9 +19,12 @@ The plugin provides support for Aspire projects in JetBrains Rider.
 
 <!-- Plugin description end -->
 
-[Plugin documentation](https://www.jetbrains.com/help/rider/2024.2/NET_Aspire.html)
-
-[Aspire documentation](https://learn.microsoft.com/en-us/dotnet/aspire/)
+**Documentation**:
+* [Changelog][docs.changelog]
+* [Contributor Guide][docs.contributing]
+* [Code of Conduct][docs.code-of-conduct]
+* [Plugin documentation][docs.plugin]
+* [Aspire documentation][docs.aspire]
 
 ## Installation
 
@@ -34,3 +37,9 @@ The plugin provides support for Aspire projects in JetBrains Rider.
 
   Download the [latest release](https://github.com/rafaelldi/aspire-plugin/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+
+[docs.changelog]: CHANGELOG.md
+[docs.code-of-conduct]: CODE_OF_CONDUCT.md
+[docs.contributing]: CONTRIBUTING.md
+[docs.plugin]: https://www.jetbrains.com/help/rider/NET_Aspire.html
+[docs.aspire]: https://aspire.dev/docs/
