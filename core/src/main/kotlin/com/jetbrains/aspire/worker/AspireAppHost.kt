@@ -84,6 +84,9 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
         }
     }.stateIn(cs, SharingStarted.Eagerly, AspireAppHostState.Inactive)
 
+    private val _resourcesReloadSignal = Channel<Unit>(Channel.UNLIMITED)
+    val resourcesReloadSignal = _resourcesReloadSignal.receiveAsFlow()
+
     init {
         project.messageBus.connect(cs).subscribe(ExecutionManager.EXECUTION_TOPIC, object : ExecutionListener {
             override fun processStarted(
@@ -272,7 +275,14 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
             return
         }
 
-        val resource = AspireResource(resourceId, resourceModelWrapper, this, resourceLifetime, project)
+        val resource = AspireResource(
+            resourceId,
+            resourceModelWrapper,
+            this,
+            _resourcesReloadSignal,
+            resourceLifetime,
+            project
+        )
 
         resourceLifetime.bracketIfAlive({
             _resources.update { currentList ->
