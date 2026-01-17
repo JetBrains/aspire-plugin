@@ -46,8 +46,6 @@ class AspireWorker(private val project: Project) : Disposable {
         private val LOG = logger<AspireWorker>()
     }
 
-    private val appHostPaths = ConcurrentHashMap<Path, Unit>()
-
     private val _appHosts: MutableStateFlow<List<AspireAppHost>> = MutableStateFlow(emptyList())
     val appHosts: StateFlow<List<AspireAppHost>> = _appHosts.asStateFlow()
 
@@ -61,22 +59,17 @@ class AspireWorker(private val project: Project) : Disposable {
     fun addAspireAppHost(mainFilePath: Path) {
         LOG.trace { "Adding a new Aspire AppHost ${mainFilePath.absolutePathString()}" }
 
-        val previousValue = appHostPaths.putIfAbsent(mainFilePath, Unit)
-        if (previousValue != null) return
-
         _appHosts.update { currentList ->
+            if (currentList.any { it.mainFilePath == mainFilePath }) return@update currentList
+
             val appHost = AspireAppHost(mainFilePath, project)
             Disposer.register(this, appHost)
             currentList + appHost
         }
     }
 
-    @Suppress("FoldInitializerAndIfToElvis")
     fun removeAspireAppHost(mainFilePath: Path) {
         LOG.trace { "Removing the Aspire AppHost ${mainFilePath.absolutePathString()}" }
-
-        val removed = appHostPaths.remove(mainFilePath)
-        if (removed == null) return
 
         _appHosts.update { currentList ->
             currentList.filter { it.mainFilePath != mainFilePath }
