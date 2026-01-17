@@ -9,7 +9,7 @@ import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.rider.debugger.AttachDebuggerService
-import com.jetbrains.aspire.rider.sessions.SessionProfileService
+import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
 import kotlinx.coroutines.launch
 
 class AttachToProjectResourceAction : AspireResourceBaseAction() {
@@ -23,8 +23,9 @@ class AttachToProjectResourceAction : AspireResourceBaseAction() {
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
         val pid = resourceService.pid?.value
         val resourceId = resourceService.resourceId
-        val profile = SessionProfileService.getInstance(project).getSessionProfile(resourceId)
-        val isUnderDebugger = profile?.isDebugMode
+        val isUnderDebugger = SessionProfileModeService
+            .getInstance(project)
+            .isSessionProfileUnderDebugger(resourceId)
 
         if (resourceService.type != ResourceType.Project ||
             resourceService.state != ResourceState.Running ||

@@ -11,8 +11,8 @@ import com.intellij.xdebugger.XDebugSession
 import com.intellij.xdebugger.XDebuggerManager
 import com.jetbrains.aspire.actions.dashboard.resource.AspireResourceBaseAction
 import com.jetbrains.aspire.dashboard.AspireResource
-import com.jetbrains.aspire.rider.sessions.SessionProfileService
-import com.jetbrains.aspire.sessions.SessionProfile
+import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,8 +35,9 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
         val projectPath = resourceService.projectPath?.value
         val resourceId = resourceService.resourceId
-        val profile = SessionProfileService.getInstance(project).getSessionProfile(resourceId)
-        val isUnderDebugger = profile?.isDebugMode
+        val isUnderDebugger = SessionProfileModeService
+            .getInstance(project)
+            .isSessionProfileUnderDebugger(resourceId)
 
         if (projectPath == null || isUnderDebugger != true) {
             event.presentation.isEnabledAndVisible = false
@@ -56,7 +57,7 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
         val allSessions = XDebuggerManager.getInstance(project).debugSessions
         for (debugSession in allSessions) {
             val sessionRunProfile = debugSession.runProfile
-            if (sessionRunProfile !is SessionProfile) continue
+            if (sessionRunProfile !is DotNetSessionProfile) continue
             if (sessionRunProfile.projectPath == projectPath) return debugSession
         }
 

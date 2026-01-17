@@ -20,7 +20,7 @@
                   topic="com.intellij.execution.RunManagerListener"/>
         <listener class="com.jetbrains.aspire.rider.run.AspireExecutionListener"
                   topic="com.intellij.execution.ExecutionListener"/>
-        <listener class="com.jetbrains.aspire.rider.sessions.SessionProfileService$Listener"
+        <listener class="com.jetbrains.aspire.rider.sessions.SessionProfileModeService$Listener"
                   topic="com.intellij.execution.ExecutionListener"/>
     </projectListeners>
 
