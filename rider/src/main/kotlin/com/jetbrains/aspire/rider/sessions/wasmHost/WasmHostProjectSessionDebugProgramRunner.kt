@@ -16,6 +16,7 @@ import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.DotNetDebugRunner
 import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentManager
+import com.jetbrains.rider.debugger.startWasmSession
 import com.jetbrains.rider.debugger.wasm.BrowserHubManager
 import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
 import com.jetbrains.rider.model.debuggerWorker.DotNetDebuggerSessionModel
@@ -74,7 +75,7 @@ internal class WasmHostProjectSessionDebugProgramRunner : DotNetDebugRunner() {
         val wasmProfileState = state as? WasmHostProjectSessionDebugProfileState
             ?: throw CantRunException("State profile is not supported")
 
-        return createAndStartSession(
+        return startWasmSession(
             executionConsole,
             env,
             sessionLifetime,
