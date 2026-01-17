@@ -229,7 +229,7 @@ class AspireWorker(private val project: Project) : Disposable {
     }
 
     sealed interface AspireWorkerState {
-        object Inactive : AspireWorkerState
+        data object Inactive : AspireWorkerState
         data class Active(
             val debugSessionToken: String,
             val debugSessionPort: Int,
