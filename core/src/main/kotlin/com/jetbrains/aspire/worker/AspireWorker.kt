@@ -8,7 +8,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.NetworkUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.aspire.AspireService
@@ -26,7 +25,6 @@ import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
