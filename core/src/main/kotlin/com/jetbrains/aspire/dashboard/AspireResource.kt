@@ -105,9 +105,6 @@ class AspireResource(
     var commands: Array<ResourceCommand>
         private set
 
-    var isUnderDebugger: Boolean? = null
-        private set
-
     private val resourceLogs = Channel<ResourceLog>(Channel.UNLIMITED)
     private val logProcessHandler = object : ProcessHandler() {
         override fun destroyProcessImpl() {}
@@ -320,14 +317,6 @@ class AspireResource(
         } else if (type != ResourceType.Unknown && !isHidden && state != ResourceState.Hidden) {
             sendServiceChangedEvent()
         }
-    }
-
-    fun setProfileData(profileData: AspireProjectResourceProfileData) {
-        if (type != ResourceType.Project || isUnderDebugger == profileData.isDebugMode) return
-
-        isUnderDebugger = profileData.isDebugMode
-
-        sendServiceChangedEvent()
     }
 
     suspend fun executeCommand(commandName: String) = withContext(Dispatchers.EDT) {

@@ -11,6 +11,7 @@ import com.intellij.xdebugger.XDebugSession
 import com.intellij.xdebugger.XDebuggerManager
 import com.jetbrains.aspire.actions.dashboard.resource.AspireResourceBaseAction
 import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.rider.sessions.SessionProfileService
 import com.jetbrains.aspire.sessions.SessionProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +34,10 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
 
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
         val projectPath = resourceService.projectPath?.value
-        val isUnderDebugger = resourceService.isUnderDebugger
+        val resourceId = resourceService.resourceId
+        val profile = SessionProfileService.getInstance(project).getSessionProfile(resourceId)
+        val isUnderDebugger = profile?.isDebugMode
+
         if (projectPath == null || isUnderDebugger != true) {
             event.presentation.isEnabledAndVisible = false
             return

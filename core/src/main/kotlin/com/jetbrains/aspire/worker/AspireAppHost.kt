@@ -2,10 +2,7 @@
 
 package com.jetbrains.aspire.worker
 
-import com.intellij.execution.ExecutionListener
-import com.intellij.execution.ExecutionManager
 import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
@@ -15,7 +12,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.asDisposable
 import com.intellij.util.messages.impl.subscribeAsFlow
-import com.jetbrains.aspire.dashboard.AspireProjectResourceProfileData
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
@@ -32,7 +28,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 
 class AspireAppHost(val mainFilePath: Path, private val project: Project, parentCs: CoroutineScope) {
@@ -47,11 +42,6 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
 
     private val _resources: MutableStateFlow<List<AspireResource>> = MutableStateFlow(emptyList())
     val resources: StateFlow<List<AspireResource>> = _resources.asStateFlow()
-
-    private val _resourcesReloadSignal = MutableSharedFlow<Unit>(1)
-    val resourcesReloadSignal: SharedFlow<Unit> = _resourcesReloadSignal.asSharedFlow()
-
-    private val resourceProfileData = ConcurrentHashMap<String, AspireProjectResourceProfileData>()
 
     val appHostState = project.messageBus.subscribeAsFlow(AppHostListener.TOPIC) {
         object : AppHostListener {
@@ -77,7 +67,6 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
                 LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
 
                 _resources.value = emptyList()
-                resourceProfileData.clear()
 
                 trySend(AspireAppHostState.Stopped)
             }
@@ -86,57 +75,6 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
 
     private val _resourcesReloadSignal = Channel<Unit>(Channel.UNLIMITED)
     val resourcesReloadSignal = _resourcesReloadSignal.receiveAsFlow()
-
-    init {
-        project.messageBus.connect(cs).subscribe(ExecutionManager.EXECUTION_TOPIC, object : ExecutionListener {
-            override fun processStarted(
-                executorId: String,
-                env: ExecutionEnvironment,
-                handler: ProcessHandler
-            ) {
-                val profile = env.runProfile
-                if (profile is SessionProfile) {
-                    val appHostMainFilePath = profile.aspireHostProjectPath ?: return
-                    if (mainFilePath != appHostMainFilePath) return
-                    setSessionProfile(profile)
-                }
-            }
-
-            override fun processTerminated(
-                executorId: String,
-                env: ExecutionEnvironment,
-                handler: ProcessHandler,
-                exitCode: Int
-            ) {
-                val profile = env.runProfile
-                if (profile is SessionProfile) {
-                    val appHostMainFilePath = profile.aspireHostProjectPath ?: return
-                    if (mainFilePath != appHostMainFilePath) return
-                    removeSessionProfile(profile)
-                }
-            }
-        })
-    }
-
-    private fun setSessionProfile(profile: SessionProfile) {
-        val profileData = AspireProjectResourceProfileData(profile.projectPath, profile.isDebugMode)
-
-        resourceProfileData[profile.sessionId] = profileData
-
-        resources.value
-            .filter { it.projectPath?.value == profileData.projectPath }
-            .forEach { it.setProfileData(profileData) }
-    }
-
-    private fun removeSessionProfile(profile: SessionProfile) {
-        resourceProfileData.remove(profile.sessionId)
-    }
-
-    private fun setProfileDataForResource(resource: AspireResource) {
-        val projectPath = resource.projectPath ?: return
-        val profileData = resourceProfileData.values.firstOrNull { it.projectPath == projectPath.value } ?: return
-        resource.setProfileData(profileData)
-    }
 
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
         LOG.trace("Subscribing to Aspire AppHost model")
@@ -163,10 +101,6 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
         appHostModel.resources.view(appHostLifetime) { resourceLifetime, resourceId, resourceModel ->
             viewResource(resourceId, resourceModel, resourceLifetime)
         }
-    }
-
-    fun childResourceTypeChanged() {
-        _resourcesReloadSignal.tryEmit(Unit)
     }
 
     private fun setAppHostUrl(appHostConfig: AspireHostModelConfig, appHostLifetime: Lifetime) {
@@ -295,8 +229,6 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
         })
 
         resourceModelWrapper.isInitialized.set(true)
-
-        setProfileDataForResource(resource)
     }
 
     fun getChildResourcesFor(resourceName: String) = buildList {
