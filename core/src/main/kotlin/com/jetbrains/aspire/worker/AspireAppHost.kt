@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.aspire.worker
 
 import com.intellij.execution.ExecutionListener
@@ -5,12 +7,13 @@ import com.intellij.execution.ExecutionManager
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.platform.util.coroutines.childScope
+import com.intellij.util.asDisposable
 import com.jetbrains.aspire.dashboard.AspireProjectResourceProfileData
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.*
@@ -20,6 +23,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -30,10 +34,12 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 
-class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disposable {
+class AspireAppHost(val mainFilePath: Path, private val project: Project, parentCs: CoroutineScope) {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }
+
+    private val cs = parentCs.childScope("Aspire AppHost")
 
     private val _dashboardUrl: MutableStateFlow<String?> = MutableStateFlow(null)
     val dashboardUrl: StateFlow<String?> = _dashboardUrl.asStateFlow()
@@ -50,7 +56,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
     private val resourceProfileData = ConcurrentHashMap<String, AspireProjectResourceProfileData>()
 
     init {
-        project.messageBus.connect(this).subscribe(ExecutionManager.EXECUTION_TOPIC, object : ExecutionListener {
+        project.messageBus.connect(cs).subscribe(ExecutionManager.EXECUTION_TOPIC, object : ExecutionListener {
             override fun processStarted(
                 executorId: String,
                 env: ExecutionEnvironment,
@@ -79,7 +85,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
             }
         })
 
-        project.messageBus.connect(this).subscribe(AppHostListener.TOPIC, object : AppHostListener {
+        project.messageBus.connect(cs).subscribe(AppHostListener.TOPIC, object : AppHostListener {
             override fun appHostStarted(appHostMainFilePath: Path, processHandler: ProcessHandler) {
                 if (mainFilePath != appHostMainFilePath) return
                 appHostStarted(processHandler)
@@ -109,7 +115,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
             handler,
             project
         )
-        Disposer.register(this, console)
+        Disposer.register(cs.asDisposable(), console)
 
         _appHostState.value = AspireAppHostState.Started(handler, console)
     }
@@ -300,9 +306,6 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project) : Disp
         resourceModelWrapper.isInitialized.set(true)
 
         setProfileDataForResource(resource)
-    }
-
-    override fun dispose() {
     }
 
     fun getChildResourcesFor(resourceName: String) = buildList {

@@ -1,13 +1,14 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.aspire.worker
 
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
+import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.NetworkUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.aspire.AspireService
@@ -23,7 +24,9 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rdclient.protocol.RdDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,13 +37,12 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 @ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-class AspireWorker(private val project: Project) : Disposable {
+class AspireWorker(private val project: Project, private val cs: CoroutineScope) {
     companion object {
         fun getInstance(project: Project): AspireWorker = project.service()
         private val LOG = logger<AspireWorker>()
@@ -62,8 +64,7 @@ class AspireWorker(private val project: Project) : Disposable {
         _appHosts.update { currentList ->
             if (currentList.any { it.mainFilePath == mainFilePath }) return@update currentList
 
-            val appHost = AspireAppHost(mainFilePath, project)
-            Disposer.register(this, appHost)
+            val appHost = AspireAppHost(mainFilePath, project, cs)
             currentList + appHost
         }
     }
@@ -216,9 +217,6 @@ class AspireWorker(private val project: Project) : Disposable {
 
         LOG.trace { "Removing Aspire host model with id $aspireHostId" }
         state.model.aspireHosts.remove(aspireHostId)
-    }
-
-    override fun dispose() {
     }
 
     sealed interface AspireWorkerState {
