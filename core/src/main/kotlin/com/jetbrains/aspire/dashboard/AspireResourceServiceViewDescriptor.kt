@@ -4,7 +4,8 @@ import com.intellij.execution.services.ServiceViewDescriptor
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.DataSink
+import com.intellij.openapi.actionSystem.UiDataProvider
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
 import com.jetbrains.aspire.AspireCoreBundle
@@ -16,8 +17,9 @@ import com.jetbrains.aspire.util.getIcon
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class AspireResourceServiceViewDescriptor(private val aspireResource: AspireResource) : ServiceViewDescriptor,
-    DataProvider {
+class AspireResourceServiceViewDescriptor(
+    private val aspireResource: AspireResource
+) : ServiceViewDescriptor, UiDataProvider {
     private val resourceActions = ActionManager.getInstance().getAction("Aspire.Resource") as ActionGroup
 
     private val tabs = JBTabbedPane().apply {
@@ -45,9 +47,7 @@ class AspireResourceServiceViewDescriptor(private val aspireResource: AspireReso
 
     override fun getPopupActions() = resourceActions
 
-    override fun getDataProvider() = this
-
-    override fun getData(dataId: String) =
-        if (ASPIRE_RESOURCE.`is`(dataId)) aspireResource
-        else null
+    override fun uiDataSnapshot(sink: DataSink) {
+        sink[ASPIRE_RESOURCE] = aspireResource
+    }
 }

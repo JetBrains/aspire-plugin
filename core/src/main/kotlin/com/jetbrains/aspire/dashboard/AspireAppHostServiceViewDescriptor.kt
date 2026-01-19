@@ -2,10 +2,7 @@ package com.jetbrains.aspire.dashboard
 
 import com.intellij.execution.services.ServiceViewDescriptor
 import com.intellij.ide.projectView.PresentationData
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.DataProvider
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.Separator
+import com.intellij.openapi.actionSystem.*
 import com.intellij.ui.BadgeIconSupplier
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBPanelWithEmptyText
@@ -17,7 +14,7 @@ import javax.swing.JPanel
 
 class AspireAppHostServiceViewDescriptor(
     private val vm: AspireAppHostViewModel
-) : ServiceViewDescriptor, DataProvider {
+) : ServiceViewDescriptor, UiDataProvider {
 
     private val toolbarActions = DefaultActionGroup(
         ActionManager.getInstance().getAction("Aspire.Host.Run"),
@@ -57,9 +54,7 @@ class AspireAppHostServiceViewDescriptor(
 
     override fun getToolbarActions() = toolbarActions
 
-    override fun getDataProvider() = this
-
-    override fun getData(dataId: String) =
-        if (ASPIRE_APP_HOST.`is`(dataId)) vm
-        else null
+    override fun uiDataSnapshot(sink: DataSink) {
+        sink[ASPIRE_APP_HOST] = vm
+    }
 }
