@@ -10,12 +10,13 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.attachAsChildTo
 import com.intellij.terminal.TerminalExecutionConsole
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.util.parseLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
+import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -30,6 +31,7 @@ class AspireResource(
     val resourceId: String,
     private val modelWrapper: ResourceWrapper,
     private val aspireHost: AspireAppHost,
+    private val resourcesReloadSignal: SendChannel<Unit>,
     val lifetime: Lifetime,
     private val project: Project
 ) : ServiceViewProvidingContributor<AspireResource, AspireResource> {
@@ -101,9 +103,6 @@ class AspireResource(
         private set
 
     var commands: Array<ResourceCommand>
-        private set
-
-    var isUnderDebugger: Boolean? = null
         private set
 
     private val resourceLogs = Channel<ResourceLog>(Channel.UNLIMITED)
@@ -314,18 +313,10 @@ class AspireResource(
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
         if (typeJustInitialised && !isHidden && state != ResourceState.Hidden) {
-            aspireHost.childResourceTypeChanged()
+            resourcesReloadSignal.trySend(Unit)
         } else if (type != ResourceType.Unknown && !isHidden && state != ResourceState.Hidden) {
             sendServiceChangedEvent()
         }
-    }
-
-    fun setProfileData(profileData: AspireProjectResourceProfileData) {
-        if (type != ResourceType.Project || isUnderDebugger == profileData.isDebugMode) return
-
-        isUnderDebugger = profileData.isDebugMode
-
-        sendServiceChangedEvent()
     }
 
     suspend fun executeCommand(commandName: String) = withContext(Dispatchers.EDT) {

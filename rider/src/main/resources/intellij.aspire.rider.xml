@@ -20,6 +20,8 @@
                   topic="com.intellij.execution.RunManagerListener"/>
         <listener class="com.jetbrains.aspire.rider.run.AspireExecutionListener"
                   topic="com.intellij.execution.ExecutionListener"/>
+        <listener class="com.jetbrains.aspire.rider.sessions.SessionProfileModeService$Listener"
+                  topic="com.intellij.execution.ExecutionListener"/>
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -65,10 +67,12 @@
                 icon="RiderIcons.Templates.TemplateAspire">
             <add-to-group group-id="SolutionViewAddGroup.SolutionSection" relative-to-action="NewRiderSolutionFolder"
                           anchor="after"/>
+            <override-text place="GoToAction"/>
         </action>
         <action id="Aspire.AddToProject"
                 class="com.jetbrains.aspire.rider.actions.AddAspireToProjectAction"
                 icon="RiderIcons.Templates.TemplateAspire">
+            <override-text place="GoToAction"/>
         </action>
         <action id="Aspire.Solution.Manifest"
                 class="com.jetbrains.aspire.rider.actions.ManifestGenerationAction"
@@ -79,18 +83,22 @@
                 class="com.jetbrains.aspire.rider.actions.dashboard.host.AspireManifestAction"
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="Aspire.Host" anchor="last"/>
+            <add-to-group group-id="Aspire.Host.Tollbar" anchor="after" relative-to-action="Aspire.Host.Dashboard"/>
+            <override-text place="GoToAction"/>
         </action>
         <action id="Aspire.Resource.Attach"
                 class="com.jetbrains.aspire.rider.actions.dashboard.resource.AttachToProjectResourceAction"
                 icon="AllIcons.Debugger.AttachToProcess">
             <add-to-group group-id="Aspire.Resource" relative-to-action="Aspire.Resource.RestartWithDebugger"
                           anchor="after"/>
+            <override-text place="GoToAction"/>
         </action>
         <action id="Aspire.Resource.NavigateToDebugTab"
                 class="com.jetbrains.aspire.rider.actions.dashboard.resource.NavigateToResourceDebugTab"
                 icon="AllIcons.General.OpenInToolWindow">
             <add-to-group group-id="Aspire.Resource" relative-to-action="Aspire.Resource.RestartWithDebugger"
                           anchor="after"/>
+            <override-text place="GoToAction"/>
         </action>
     </actions>
 

@@ -11,11 +11,13 @@ import com.intellij.xdebugger.XDebugSession
 import com.intellij.xdebugger.XDebuggerManager
 import com.jetbrains.aspire.actions.dashboard.resource.AspireResourceBaseAction
 import com.jetbrains.aspire.dashboard.AspireResource
-import com.jetbrains.aspire.sessions.SessionProfile
+import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
+import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
 class NavigateToResourceDebugTab : AspireResourceBaseAction() {
     override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
@@ -33,8 +35,15 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
 
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
         val projectPath = resourceService.projectPath?.value
-        val isUnderDebugger = resourceService.isUnderDebugger
-        if (projectPath == null || isUnderDebugger != true) {
+        if (projectPath == null) {
+            event.presentation.isEnabledAndVisible = false
+            return
+        }
+
+        val isUnderDebugger = SessionProfileModeService
+            .getInstance(project)
+            .isSessionProfileUnderDebugger(projectPath.absolutePathString())
+        if (isUnderDebugger != true) {
             event.presentation.isEnabledAndVisible = false
             return
         }
@@ -52,7 +61,7 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
         val allSessions = XDebuggerManager.getInstance(project).debugSessions
         for (debugSession in allSessions) {
             val sessionRunProfile = debugSession.runProfile
-            if (sessionRunProfile !is SessionProfile) continue
+            if (sessionRunProfile !is DotNetSessionProfile) continue
             if (sessionRunProfile.projectPath == projectPath) return debugSession
         }
 

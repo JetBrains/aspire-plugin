@@ -9,7 +9,9 @@ import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.rider.debugger.AttachDebuggerService
+import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
 import kotlinx.coroutines.launch
+import kotlin.io.path.absolutePathString
 
 class AttachToProjectResourceAction : AspireResourceBaseAction() {
     override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
@@ -21,13 +23,21 @@ class AttachToProjectResourceAction : AspireResourceBaseAction() {
 
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
         val pid = resourceService.pid?.value
-        val isUnderDebugger = resourceService.isUnderDebugger
-
+        val projectPath = resourceService.projectPath?.value
         if (resourceService.type != ResourceType.Project ||
             resourceService.state != ResourceState.Running ||
             pid == null ||
-            isUnderDebugger != false
+            projectPath == null
         ) {
+            event.presentation.isEnabledAndVisible = false
+            return
+        }
+
+        val isUnderDebugger = SessionProfileModeService
+            .getInstance(project)
+            .isSessionProfileUnderDebugger(projectPath.absolutePathString())
+
+        if (isUnderDebugger != false) {
             event.presentation.isEnabledAndVisible = false
             return
         }

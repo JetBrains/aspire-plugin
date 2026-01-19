@@ -1,13 +1,13 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.aspire.worker
 
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.util.NetworkUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.aspire.AspireService
@@ -23,6 +23,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rdclient.protocol.RdDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,19 +35,16 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 @ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-class AspireWorker(private val project: Project) : Disposable {
+class AspireWorker(private val project: Project, private val cs: CoroutineScope) {
     companion object {
         fun getInstance(project: Project): AspireWorker = project.service()
         private val LOG = logger<AspireWorker>()
     }
-
-    private val appHostPaths = ConcurrentHashMap<Path, Unit>()
 
     private val _appHosts: MutableStateFlow<List<AspireAppHost>> = MutableStateFlow(emptyList())
     val appHosts: StateFlow<List<AspireAppHost>> = _appHosts.asStateFlow()
@@ -61,22 +59,16 @@ class AspireWorker(private val project: Project) : Disposable {
     fun addAspireAppHost(mainFilePath: Path) {
         LOG.trace { "Adding a new Aspire AppHost ${mainFilePath.absolutePathString()}" }
 
-        val previousValue = appHostPaths.putIfAbsent(mainFilePath, Unit)
-        if (previousValue != null) return
-
         _appHosts.update { currentList ->
-            val appHost = AspireAppHost(mainFilePath, project)
-            Disposer.register(this, appHost)
+            if (currentList.any { it.mainFilePath == mainFilePath }) return@update currentList
+
+            val appHost = AspireAppHost(mainFilePath, project, cs)
             currentList + appHost
         }
     }
 
-    @Suppress("FoldInitializerAndIfToElvis")
     fun removeAspireAppHost(mainFilePath: Path) {
         LOG.trace { "Removing the Aspire AppHost ${mainFilePath.absolutePathString()}" }
-
-        val removed = appHostPaths.remove(mainFilePath)
-        if (removed == null) return
 
         _appHosts.update { currentList ->
             currentList.filter { it.mainFilePath != mainFilePath }
@@ -225,11 +217,8 @@ class AspireWorker(private val project: Project) : Disposable {
         state.model.aspireHosts.remove(aspireHostId)
     }
 
-    override fun dispose() {
-    }
-
     sealed interface AspireWorkerState {
-        object Inactive : AspireWorkerState
+        data object Inactive : AspireWorkerState
         data class Active(
             val debugSessionToken: String,
             val debugSessionPort: Int,

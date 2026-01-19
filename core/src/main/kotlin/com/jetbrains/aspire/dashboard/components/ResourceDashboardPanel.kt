@@ -122,21 +122,6 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
             actionButton(restartAction)
         }
-        if (resourceData.type == ResourceType.Project &&
-            resourceData.state == ResourceState.Running &&
-            resourceData.pid?.value != null &&
-            resourceData.isUnderDebugger == false
-        ) {
-            val attachAction = ActionManager.getInstance().getAction("Aspire.Resource.Attach")
-            actionButton(attachAction)
-        }
-        if (resourceData.type == ResourceType.Project &&
-            resourceData.state == ResourceState.Running &&
-            resourceData.isUnderDebugger == true
-        ) {
-            val attachAction = ActionManager.getInstance().getAction("Aspire.Resource.NavigateToDebugTab")
-            actionButton(attachAction)
-        }
         if (resourceData.commands.any {
                 !it.name.equals(StartResourceCommand, true) &&
                         !it.name.equals(StopResourceCommand, true) &&

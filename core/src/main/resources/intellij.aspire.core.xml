@@ -56,36 +56,66 @@
         <group id="Aspire.Host">
             <action id="Aspire.Host.Run"
                     class="com.jetbrains.aspire.actions.dashboard.host.RunHostAction"
-                    icon="AllIcons.Actions.Execute"/>
+                    icon="AllIcons.Actions.Execute">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Host.Debug"
                     class="com.jetbrains.aspire.actions.dashboard.host.DebugHostAction"
-                    icon="AllIcons.Actions.StartDebugger"/>
+                    icon="AllIcons.Actions.StartDebugger">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Host.Stop"
                     class="com.jetbrains.aspire.actions.dashboard.host.StopHostAction"
-                    icon="AllIcons.Actions.Suspend"/>
+                    icon="AllIcons.Actions.Suspend">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Host.Dashboard"
                     class="com.jetbrains.aspire.actions.dashboard.host.AspireOpenDashboardAction"
-                    icon="AllIcons.General.Web"/>
+                    icon="AllIcons.General.Web">
+                <override-text place="GoToAction"/>
+            </action>
+        </group>
+        <group id="Aspire.Host.Tollbar">
+            <reference ref="Aspire.Host.Run"/>
+            <reference ref="Aspire.Host.Debug"/>
+            <reference ref="Aspire.Host.Stop"/>
+            <separator/>
+            <reference ref="Aspire.Host.Dashboard"/>
+            <separator/>
+            <reference ref="Aspire.Settings"/>
+            <reference ref="Aspire.Help"/>
         </group>
         <group id="Aspire.Resource">
             <action id="Aspire.Resource.Start"
                     class="com.jetbrains.aspire.actions.dashboard.resource.StartResourceAction"
-                    icon="AllIcons.Actions.Execute"/>
+                    icon="AllIcons.Actions.Execute">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Resource.Stop"
                     class="com.jetbrains.aspire.actions.dashboard.resource.StopResourceAction"
-                    icon="AllIcons.Actions.Suspend"/>
+                    icon="AllIcons.Actions.Suspend">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Resource.Restart"
                     class="com.jetbrains.aspire.actions.dashboard.resource.RestartResourceAction"
-                    icon="AllIcons.Actions.Restart"/>
+                    icon="AllIcons.Actions.Restart">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Resource.RestartWithoutDebugger"
                     class="com.jetbrains.aspire.actions.dashboard.resource.RestartWithoutDebuggerResourceAction"
-                    icon="AllIcons.Actions.Rerun"/>
+                    icon="AllIcons.Actions.Rerun">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Resource.RestartWithDebugger"
                     class="com.jetbrains.aspire.actions.dashboard.resource.RestartWithDebuggerResourceAction"
-                    icon="AllIcons.Actions.RestartDebugger"/>
+                    icon="AllIcons.Actions.RestartDebugger">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Resource.Execute.Command"
                     class="com.jetbrains.aspire.actions.dashboard.resource.PerformResourceAction"
-                    icon="AllIcons.Actions.RunAnything"/>
+                    icon="AllIcons.Actions.RunAnything">
+                <override-text place="GoToAction"/>
+            </action>
         </group>
     </actions>
 </idea-plugin>
