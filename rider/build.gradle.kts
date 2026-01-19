@@ -27,7 +27,3 @@ dependencies {
 
     implementation(project(":core"))
 }
-
-intellijPlatform {
-    instrumentCode = false
-}
