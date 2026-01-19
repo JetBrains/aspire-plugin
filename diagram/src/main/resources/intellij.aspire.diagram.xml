@@ -11,6 +11,7 @@
                 class="com.jetbrains.aspire.diagram.actions.ShowResourceGraphAction"
                 icon="AllIcons.FileTypes.Diagram">
             <add-to-group group-id="Aspire.Host" anchor="last"/>
+            <override-text place="GoToAction"/>
         </action>
     </actions>
 </idea-plugin>
