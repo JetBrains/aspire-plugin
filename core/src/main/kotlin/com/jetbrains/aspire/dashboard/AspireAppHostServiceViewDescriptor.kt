@@ -16,18 +16,7 @@ class AspireAppHostServiceViewDescriptor(
     private val vm: AspireAppHostViewModel
 ) : ServiceViewDescriptor, UiDataProvider {
 
-    private val toolbarActions = DefaultActionGroup(
-        ActionManager.getInstance().getAction("Aspire.Host.Run"),
-        ActionManager.getInstance().getAction("Aspire.Host.Debug"),
-        ActionManager.getInstance().getAction("Aspire.Host.Stop"),
-        Separator(),
-        ActionManager.getInstance().getAction("Aspire.Host.Manifest"),
-        ActionManager.getInstance().getAction("Aspire.Host.Dashboard"),
-        ActionManager.getInstance().getAction("Aspire.Host.ResourceGraph"),
-        Separator(),
-        ActionManager.getInstance().getAction("Aspire.Settings"),
-        ActionManager.getInstance().getAction("Aspire.Help")
-    )
+    private val appHostActions =  ActionManager.getInstance().getAction("Aspire.Host.Tollbar") as ActionGroup
 
     override fun getPresentation() = PresentationData().apply {
         var icon = AspireIcons.Service
@@ -52,7 +41,7 @@ class AspireAppHostServiceViewDescriptor(
         return panel
     }
 
-    override fun getToolbarActions() = toolbarActions
+    override fun getToolbarActions() = appHostActions
 
     override fun uiDataSnapshot(sink: DataSink) {
         sink[ASPIRE_APP_HOST] = vm

@@ -75,6 +75,16 @@
                 <override-text place="GoToAction"/>
             </action>
         </group>
+        <group id="Aspire.Host.Tollbar">
+            <reference ref="Aspire.Host.Run"/>
+            <reference ref="Aspire.Host.Debug"/>
+            <reference ref="Aspire.Host.Stop"/>
+            <separator/>
+            <reference ref="Aspire.Host.Dashboard"/>
+            <separator/>
+            <reference ref="Aspire.Settings"/>
+            <reference ref="Aspire.Help"/>
+        </group>
         <group id="Aspire.Resource">
             <action id="Aspire.Resource.Start"
                     class="com.jetbrains.aspire.actions.dashboard.resource.StartResourceAction"

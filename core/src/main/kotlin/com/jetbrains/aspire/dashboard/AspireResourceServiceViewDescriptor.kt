@@ -20,6 +20,7 @@ import javax.swing.JPanel
 class AspireResourceServiceViewDescriptor(
     private val aspireResource: AspireResource
 ) : ServiceViewDescriptor, UiDataProvider {
+
     private val resourceActions = ActionManager.getInstance().getAction("Aspire.Resource") as ActionGroup
 
     private val tabs = JBTabbedPane().apply {

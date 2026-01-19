@@ -83,6 +83,7 @@
                 class="com.jetbrains.aspire.rider.actions.dashboard.host.AspireManifestAction"
                 icon="AllIcons.FileTypes.Json">
             <add-to-group group-id="Aspire.Host" anchor="last"/>
+            <add-to-group group-id="Aspire.Host.Tollbar" anchor="after" relative-to-action="Aspire.Host.Dashboard"/>
             <override-text place="GoToAction"/>
         </action>
         <action id="Aspire.Resource.Attach"
