@@ -9,7 +9,15 @@ import com.intellij.openapi.components.service
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
+import kotlin.io.path.absolutePathString
 
+/**
+ * Service responsible for storing the debug mode state of session profiles.
+ *
+ * This allows understanding if a particular session profile was launched under the debugger.
+ *
+ * @see com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
+ */
 @Service(Service.Level.PROJECT)
 internal class SessionProfileModeService(private val project: Project) {
     companion object {
@@ -18,14 +26,14 @@ internal class SessionProfileModeService(private val project: Project) {
 
     private val sessionProfiles: ConcurrentMap<String, Boolean> = ConcurrentHashMap()
 
-    fun isSessionProfileUnderDebugger(sessionId: String): Boolean? = sessionProfiles[sessionId]
+    fun isSessionProfileUnderDebugger(projectPath: String): Boolean? = sessionProfiles[projectPath]
 
-    private fun saveSessionProfileMode(profile: DotNetSessionProfile) {
-        sessionProfiles[profile.sessionId] = profile.isDebugMode
+    private fun saveSessionProfileMode(projectPath: String, isDebugMode: Boolean) {
+        sessionProfiles[projectPath] = isDebugMode
     }
 
-    private fun removeSessionProfileMode(profile: DotNetSessionProfile) {
-        sessionProfiles.remove(profile.sessionId)
+    private fun removeSessionProfileMode(projectPath: String) {
+        sessionProfiles.remove(projectPath)
     }
 
     private class Listener(private val project: Project) : ExecutionListener {
@@ -37,7 +45,8 @@ internal class SessionProfileModeService(private val project: Project) {
             val profile = env.runProfile
             if (profile is DotNetSessionProfile) {
                 profile.aspireHostProjectPath ?: return
-                getInstance(project).saveSessionProfileMode(profile)
+                getInstance(project)
+                    .saveSessionProfileMode(profile.projectPath.absolutePathString(), profile.isDebugMode)
             }
         }
 
@@ -50,7 +59,8 @@ internal class SessionProfileModeService(private val project: Project) {
             val profile = env.runProfile
             if (profile is DotNetSessionProfile) {
                 profile.aspireHostProjectPath ?: return
-                getInstance(project).removeSessionProfileMode(profile)
+                getInstance(project)
+                    .removeSessionProfileMode(profile.projectPath.absolutePathString())
             }
         }
     }

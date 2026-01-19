@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
 class NavigateToResourceDebugTab : AspireResourceBaseAction() {
     override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
@@ -34,12 +35,15 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
 
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
         val projectPath = resourceService.projectPath?.value
-        val resourceId = resourceService.resourceId
+        if (projectPath == null) {
+            event.presentation.isEnabledAndVisible = false
+            return
+        }
+
         val isUnderDebugger = SessionProfileModeService
             .getInstance(project)
-            .isSessionProfileUnderDebugger(resourceId)
-
-        if (projectPath == null || isUnderDebugger != true) {
+            .isSessionProfileUnderDebugger(projectPath.absolutePathString())
+        if (isUnderDebugger != true) {
             event.presentation.isEnabledAndVisible = false
             return
         }
