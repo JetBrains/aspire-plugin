@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Internal changes and fixes
+
+## [2.3.0] - 2026-01-08
+
 ### Added
 
 - Support Aspire orchestration for Azure Functions projects
@@ -591,7 +597,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.2.1...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.3.0...HEAD
+[2.3.0]: https://github.com/JetBrains/aspire-plugin/compare/2.2.1...2.3.0
 [2.2.1]: https://github.com/JetBrains/aspire-plugin/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/JetBrains/aspire-plugin/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/JetBrains/aspire-plugin/compare/2.0.1...2.1.0
