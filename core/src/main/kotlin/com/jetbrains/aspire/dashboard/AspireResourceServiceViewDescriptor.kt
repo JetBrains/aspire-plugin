@@ -38,7 +38,7 @@ class AspireResourceServiceViewDescriptor(
     override fun getPresentation() = PresentationData().apply {
         val icon = getIcon(aspireResource)
         setIcon(icon)
-        addText(aspireResource.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+        addText(aspireResource.data.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
     }
 
     override fun getContentComponent(): JPanel {

@@ -32,24 +32,25 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
 
     private fun applyChanges(resource: AspireResource) {
         if (!AspireSettings.getInstance().connectToDatabase) return
-        if (resource.type != ResourceType.Container) return
-        val connectionString = resource.connectionString?.value ?: return
+        val data = resource.data
+        if (data.type != ResourceType.Container) return
+        val connectionString = data.connectionString?.value ?: return
 
-        if (resource.state == ResourceState.Running) {
-            val containerId = resource.containerId?.value ?: return
-            val resourceType = findDatabaseType(resource.name, resource.containerImage?.value) ?: return
-            val urls = resource.urls.mapNotNull { url -> runCatching { URI(url.fullUrl) }.getOrNull() }
+        if (data.state == ResourceState.Running) {
+            val containerId = data.containerId?.value ?: return
+            val resourceType = findDatabaseType(data.name, data.containerImage?.value) ?: return
+            val urls = data.urls.mapNotNull { url -> runCatching { URI(url.fullUrl) }.getOrNull() }
             if (urls.isEmpty()) return
-            val isPersistent = resource.containerLifetime?.value.equals("persistent", true)
+            val isPersistent = data.containerLifetime?.value.equals("persistent", true)
 
             val databaseResource = DatabaseResource(
-                resource.displayName,
+                data.displayName,
                 resource.resourceId,
                 containerId,
                 resourceType,
                 connectionString,
                 urls,
-                resource.containerPorts?.value,
+                data.containerPorts?.value,
                 isPersistent,
                 resource.lifetime
             )

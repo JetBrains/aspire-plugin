@@ -5,5 +5,5 @@ import com.jetbrains.aspire.dashboard.StartResourceCommand
 
 class StartResourceAction : ResourceCommandAction() {
     override fun findCommand(resource: AspireResource) =
-        resource.commands.firstOrNull { it.name.equals(StartResourceCommand, true) }
+        resource.data.commands.firstOrNull { it.name.equals(StartResourceCommand, true) }
 }

@@ -15,17 +15,17 @@ import kotlin.io.path.absolutePathString
 
 class AttachToProjectResourceAction : AspireResourceBaseAction() {
     override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
-        val pid = resourceService.pid?.value ?: return
+        val pid = resourceService.data.pid?.value ?: return
         currentThreadCoroutineScope().launch {
             AttachDebuggerService.getInstance(project).attach(pid)
         }
     }
 
     override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
-        val pid = resourceService.pid?.value
-        val projectPath = resourceService.projectPath?.value
-        if (resourceService.type != ResourceType.Project ||
-            resourceService.state != ResourceState.Running ||
+        val pid = resourceService.data.pid?.value
+        val projectPath = resourceService.data.projectPath?.value
+        if (resourceService.data.type != ResourceType.Project ||
+            resourceService.data.state != ResourceState.Running ||
             pid == null ||
             projectPath == null
         ) {

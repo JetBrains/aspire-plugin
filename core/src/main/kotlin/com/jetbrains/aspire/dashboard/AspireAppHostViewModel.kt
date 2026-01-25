@@ -36,7 +36,7 @@ class AspireAppHostViewModel(
             .map { resources ->
                 resources
                     .filter { it.parentResourceName == null }
-                    .sortedWith(compareBy({ it.type }, { it.name }))
+                    .sortedWith(compareBy({ it.data.type }, { it.data.name }))
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 
