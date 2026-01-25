@@ -20,7 +20,7 @@ class AspireAppHostServiceViewDescriptor(
 
     override fun getPresentation() = PresentationData().apply {
         var icon = AspireIcons.Service
-        if (vm.isActive) {
+        if (vm.uiState.value is AppHostUiState.Active) {
             icon = BadgeIconSupplier(icon).liveIndicatorIcon
         }
         setIcon(icon)
@@ -28,17 +28,15 @@ class AspireAppHostServiceViewDescriptor(
     }
 
     override fun getContentComponent(): JPanel {
-        val console = vm.consoleView
-        val panel = if (console == null) {
-            JBPanelWithEmptyText()
-        } else {
+        val state = vm.uiState.value
+        return if (state is AppHostUiState.Active) {
             JPanel(BorderLayout()).apply {
                 border = JBUI.Borders.empty()
-                add(console.component)
+                add(state.consoleView.component)
             }
+        } else {
+            JBPanelWithEmptyText()
         }
-
-        return panel
     }
 
     override fun getToolbarActions() = appHostActions

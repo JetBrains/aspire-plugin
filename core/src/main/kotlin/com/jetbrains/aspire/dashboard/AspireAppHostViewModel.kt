@@ -17,6 +17,19 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.io.path.nameWithoutExtension
 
+sealed interface AppHostUiState {
+    val dashboardUrl: String?
+
+    data class Active(
+        override val dashboardUrl: String?,
+        val consoleView: ConsoleView
+    ) : AppHostUiState
+
+    data class Inactive(
+        override val dashboardUrl: String?
+    ) : AppHostUiState
+}
+
 class AspireAppHostViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
@@ -38,38 +51,32 @@ class AspireAppHostViewModel(
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 
-    var isActive: Boolean = false
-        private set
-    var dashboardUrl: String? = null
-        private set
-    var consoleView: ConsoleView? = null
-        private set
+    val uiState: StateFlow<AppHostUiState> = combine(
+        appHost.appHostState,
+        appHost.dashboardUrl
+    ) { state, url ->
+        when (state) {
+            is AspireAppHost.AspireAppHostState.Started ->
+                AppHostUiState.Active(url, state.console)
+            else ->
+                AppHostUiState.Inactive(url)
+        }
+    }.stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Inactive(null))
 
     init {
         cs.launch {
-            appHost.dashboardUrl.collect {
-                dashboardUrl = it
-                sendServiceChangedEvent()
-            }
-        }
+            var previousConsole: ConsoleView? = null
 
-        cs.launch {
-            appHost.appHostState.collect {
-                when (it) {
-                    is AspireAppHost.AspireAppHostState.Inactive -> {
-                        isActive = false
-                    }
-
-                    is AspireAppHost.AspireAppHostState.Started -> {
-                        isActive = true
-                        updateConsoleView(it.console)
-                        selectAppHost()
-                    }
-
-                    is AspireAppHost.AspireAppHostState.Stopped -> {
-                        isActive = false
-                    }
+            uiState.collect { state ->
+                val newConsole = (state as? AppHostUiState.Active)?.consoleView
+                if (previousConsole != null && previousConsole != newConsole) {
+                    Disposer.dispose(previousConsole!!)
                 }
+
+                if (state is AppHostUiState.Active && previousConsole == null) {
+                    selectAppHost()
+                }
+                previousConsole = newConsole
 
                 sendServiceChangedEvent()
             }
@@ -91,15 +98,6 @@ class AspireAppHostViewModel(
                     sendServiceChildrenChangedEvent()
                 }
         }
-    }
-
-    private fun updateConsoleView(console: ConsoleView) {
-        val previousConsole = consoleView
-        if (previousConsole != null) {
-            Disposer.dispose(previousConsole)
-        }
-
-        consoleView = console
     }
 
     override fun getViewDescriptor(project: Project) = descriptor
