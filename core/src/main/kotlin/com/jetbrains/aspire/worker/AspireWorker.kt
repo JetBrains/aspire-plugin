@@ -38,6 +38,18 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
+/**
+ * Domain service responsible for interaction with the AspireWorker.exe process.
+ *
+ * Key responsibilities:
+ * - Starting and stopping the AspireWorker process ([start], [stop])
+ * - Configuring the RD protocol for bidirectional communication with the process
+ * - Managing the list of [AspireAppHost] instances and binding them to models from AspireWorker
+ * - Providing environment variables for DCP connection to the IDE ([getEnvironmentVariablesForDcpConnection])
+ *
+ * @see AspireWorkerLauncher for process launching details
+ * @see AspireWorkerModel for the RD model description
+ */
 @ApiStatus.Internal
 @Service(Service.Level.PROJECT)
 class AspireWorker(private val project: Project, private val cs: CoroutineScope) {

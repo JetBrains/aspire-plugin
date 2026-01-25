@@ -31,6 +31,24 @@ import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
 
+/**
+ * Domain object representing an Aspire AppHost project.
+ *
+ * This class does not start or stop the AppHost process directly, as this is handled
+ * separately through run configurations. Instead, it subscribes to [AppHostListener] events
+ * to track the AppHost lifecycle state ([appHostState]).
+ *
+ * Key responsibilities:
+ * - Handling session create/delete requests from Aspire DCP ([createSession], [deleteSession])
+ * - Tracking resources running within this AppHost ([resources])
+ * - Managing the dashboard URL and OTLP endpoint configuration
+ * - Forwarding session events (started, terminated, log received) back to the AppHost model
+ *
+ * @param mainFilePath path to the main project file (.csproj or .cs) of the AppHost
+ *
+ * @see AspireWorker for the service that manages this object
+ * @see SessionManager for session request processing
+ */
 @ApiStatus.Internal
 class AspireAppHost(val mainFilePath: Path, private val project: Project, parentCs: CoroutineScope) {
     companion object {
