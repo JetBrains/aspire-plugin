@@ -275,7 +275,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
             val parentResourceName = resource.parentResourceName
             if (parentResourceName == resourceName) add(resource)
         }
-    }.sortedWith(compareBy({ it.type }, { it.name }))
+    }.sortedWith(compareBy({ it.data.type }, { it.data.name }))
 
     override fun dispose() {
     }

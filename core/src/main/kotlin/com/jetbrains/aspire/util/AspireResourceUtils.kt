@@ -15,14 +15,15 @@ import org.jetbrains.annotations.ApiStatus
 import javax.swing.Icon
 
 internal fun getIcon(aspireResource: AspireResource): Icon {
-    val baseIcon = getResourceIcon(aspireResource.type, aspireResource.containerImage?.value)
+    val data = aspireResource.data
+    val baseIcon = getResourceIcon(data.type, data.containerImage?.value)
 
-    val icon = when (aspireResource.state) {
+    val icon = when (data.state) {
         ResourceState.FailedToStart -> BadgeIconSupplier(baseIcon).errorIcon
         ResourceState.RuntimeUnhealthy -> BadgeIconSupplier(baseIcon).errorIcon
         ResourceState.Waiting -> BadgeIconSupplier(baseIcon).warningIcon
         ResourceState.Running -> {
-            if (aspireResource.healthStatus == ResourceHealthStatus.Healthy || aspireResource.healthStatus == null) {
+            if (data.healthStatus == ResourceHealthStatus.Healthy || data.healthStatus == null) {
                 BadgeIconSupplier(baseIcon).liveIndicatorIcon
             } else {
                 BadgeIconSupplier(baseIcon).warningIcon

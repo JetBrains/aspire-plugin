@@ -76,7 +76,7 @@ class PerformResourceAction : AspireResourceBaseAction() {
     }
 
     private fun getCommands(resourceService: AspireResource): List<ResourceCommand> {
-        return resourceService.commands.filter {
+        return resourceService.data.commands.filter {
             !it.name.equals(StartResourceCommand, true) &&
                     !it.name.equals(StopResourceCommand, true) &&
                     !it.name.equals(RestartResourceCommand, true)
