@@ -15,21 +15,10 @@ import com.jetbrains.aspire.worker.AspireAppHost
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.ApiStatus
 import kotlin.io.path.nameWithoutExtension
 
-sealed interface AppHostUiState {
-    val dashboardUrl: String?
-
-    data class Active(
-        override val dashboardUrl: String?,
-        val consoleView: ConsoleView
-    ) : AppHostUiState
-
-    data class Inactive(
-        override val dashboardUrl: String?
-    ) : AppHostUiState
-}
-
+@ApiStatus.Internal
 class AspireAppHostViewModel(
     private val project: Project,
     parentCs: CoroutineScope,

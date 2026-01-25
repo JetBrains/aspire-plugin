@@ -26,10 +26,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.Path
 
+@ApiStatus.Internal
 class AspireAppHost(val mainFilePath: Path, private val project: Project, parentCs: CoroutineScope) {
     companion object {
         private val LOG = logger<AspireAppHost>()

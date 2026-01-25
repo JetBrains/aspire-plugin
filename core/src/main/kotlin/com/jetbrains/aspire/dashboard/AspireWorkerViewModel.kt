@@ -12,7 +12,9 @@ import com.jetbrains.aspire.worker.AspireWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.ApiStatus
 
+@ApiStatus.Internal
 class AspireWorkerViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
