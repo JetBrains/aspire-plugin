@@ -18,6 +18,8 @@ import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.worker.AspireResourceData
+import com.jetbrains.aspire.worker.AspireResourceProperty
 import com.jetbrains.aspire.dashboard.RestartResourceCommand
 import com.jetbrains.aspire.dashboard.StartResourceCommand
 import com.jetbrains.aspire.dashboard.StopResourceCommand
@@ -34,60 +36,61 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         add(ScrollPaneFactory.createScrollPane(panel, SideBorder.NONE))
     }
 
-    private fun setUpPanel(resourceData: AspireResource): DialogPanel = panel {
-        addHeader(resourceData)
-        addProperties(resourceData)
-        addEndpoints(resourceData)
-        addVolumes(resourceData)
-        addEnvironmentVariables(resourceData)
+    private fun setUpPanel(resource: AspireResource): DialogPanel = panel {
+        val data = resource.data
+        addHeader(resource, data)
+        addProperties(data)
+        addEndpoints(data)
+        addVolumes(data)
+        addEnvironmentVariables(data)
     }
 
-    private fun Panel.addHeader(resourceData: AspireResource) {
+    private fun Panel.addHeader(resource: AspireResource, data: AspireResourceData) {
         row {
-            addIconAndTitle(resourceData)
-            addStateAndHealth(resourceData)
-            addActionButtons(resourceData)
+            addIconAndTitle(resource, data)
+            addStateAndHealth(data)
+            addActionButtons(data)
         }
         separator()
     }
 
-    private fun Row.addIconAndTitle(resourceData: AspireResource) {
-        val resourceIcon = getIcon(resourceData)
+    private fun Row.addIconAndTitle(resource: AspireResource, data: AspireResourceData) {
+        val resourceIcon = getIcon(resource)
         icon(resourceIcon)
             .gap(RightGap.SMALL)
-        copyableLabel(resourceData.displayName)
+        copyableLabel(data.displayName)
             .bold()
             .gap(RightGap.SMALL)
 
-        if (resourceData.type == ResourceType.Project) {
-            resourceData.projectPath?.value?.let {
+        if (data.type == ResourceType.Project) {
+            data.projectPath?.value?.let {
                 copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                     .gap(RightGap.SMALL)
             }
         }
 
-        if (resourceData.type == ResourceType.Container) {
-            resourceData.containerImage?.value?.let {
+        if (data.type == ResourceType.Container) {
+            data.containerImage?.value?.let {
                 copyableLabel(it, color = UIUtil.FontColor.BRIGHTER)
                     .gap(RightGap.SMALL)
             }
         }
 
-        if (resourceData.type == ResourceType.Executable) {
-            resourceData.executablePath?.value?.let {
+        if (data.type == ResourceType.Executable) {
+            data.executablePath?.value?.let {
                 copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
                     .gap(RightGap.SMALL)
             }
         }
     }
 
-    private fun Row.addStateAndHealth(resourceData: AspireResource) {
-        val state = resourceData.state
+    private fun Row.addStateAndHealth(data: AspireResourceData) {
+        val state = data.state
         if (state != null) {
             separator()
                 .gap(RightGap.SMALL)
 
-            val healthStatus = resourceData.healthStatus
+            val healthStatus = data.healthStatus
             val hasHealthStatus = state == ResourceState.Running && healthStatus != null
 
             copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
@@ -103,13 +106,13 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         }
     }
 
-    private fun Row.addActionButtons(resourceData: AspireResource) {
+    private fun Row.addActionButtons(data: AspireResourceData) {
         val startAction = ActionManager.getInstance().getAction("Aspire.Resource.Start")
         actionButton(startAction)
         val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
         actionButton(stopAction)
-        if (resourceData.type == ResourceType.Project &&
-            resourceData.projectPath?.value != null
+        if (data.type == ResourceType.Project &&
+            data.projectPath?.value != null
         ) {
             val restartWithoutDebuggerAction =
                 ActionManager.getInstance().getAction("Aspire.Resource.RestartWithoutDebugger")
@@ -122,7 +125,7 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
             actionButton(restartAction)
         }
-        if (resourceData.commands.any {
+        if (data.commands.any {
                 !it.name.equals(StartResourceCommand, true) &&
                         !it.name.equals(StopResourceCommand, true) &&
                         !it.name.equals(RestartResourceCommand, true)
@@ -132,12 +135,12 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         }
     }
 
-    private fun Panel.addEndpoints(resourceData: AspireResource) {
-        if (resourceData.urls.isNotEmpty()) {
+    private fun Panel.addEndpoints(data: AspireResourceData) {
+        if (data.urls.isNotEmpty()) {
             row {
                 label(AspireCoreBundle.message("service.tab.dashboard.endpoints")).bold()
             }.bottomGap(BottomGap.SMALL)
-            resourceData.urls
+            data.urls
                 .sortedBy { it.sortOrder }
                 .forEach { url ->
                     if (!url.isInternal) {
@@ -156,11 +159,11 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         }
     }
 
-    private fun Panel.addProperties(resourceData: AspireResource) {
+    private fun Panel.addProperties(data: AspireResourceData) {
         row {
             label(AspireCoreBundle.message("service.tab.dashboard.properties")).bold()
         }.bottomGap(BottomGap.SMALL)
-        with(resourceData) {
+        with(data) {
             state?.let {
                 row(AspireCoreBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
             }
@@ -176,8 +179,8 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
             stoppedAt?.let {
                 row(AspireCoreBundle.message("service.tab.dashboard.properties.stop.time")) { copyableLabel(it.toString()) }
             }
-            intPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.pid"), resourceData.pid)
-            intPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.exit.code"), resourceData.exitCode)
+            intPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.pid"), data.pid)
+            intPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.exit.code"), data.exitCode)
             pathPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.project"), projectPath)
             pathPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.executable"), executablePath)
             pathPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.working.dir"), executableWorkDir)
@@ -194,12 +197,12 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         }
     }
 
-    private fun Panel.addVolumes(resourceData: AspireResource) {
-        if (resourceData.volumes.isNotEmpty()) {
+    private fun Panel.addVolumes(data: AspireResourceData) {
+        if (data.volumes.isNotEmpty()) {
             row {
                 label(AspireCoreBundle.message("service.tab.dashboard.volumes")).bold()
             }.bottomGap(BottomGap.SMALL)
-            resourceData.volumes
+            data.volumes
                 .sortedBy { it.source }
                 .forEach { volume ->
                     row {
@@ -218,13 +221,13 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         }
     }
 
-    private fun Panel.addEnvironmentVariables(resourceData: AspireResource) {
+    private fun Panel.addEnvironmentVariables(data: AspireResourceData) {
         val showEnvironment = AspireSettings.getInstance().showEnvironmentVariables
-        if (resourceData.environment.isNotEmpty()) {
+        if (data.environment.isNotEmpty()) {
             row {
                 label(AspireCoreBundle.message("service.tab.dashboard.environment")).bold()
             }.bottomGap(BottomGap.SMALL)
-            resourceData.environment.forEach { variable ->
+            data.environment.forEach { variable ->
                 val valueText = if (showEnvironment) (variable.value ?: "-") else "*****"
                 row {
                     copyableLabel("${variable.key} = $valueText")
@@ -233,21 +236,21 @@ class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel
         }
     }
 
-    private fun Panel.stringPropertyRow(label: String, property: AspireResource.AspireResourceProperty<String>?) {
+    private fun Panel.stringPropertyRow(label: String, property: AspireResourceProperty<String>?) {
         propertyRow(label, property) { it }
     }
 
-    private fun Panel.intPropertyRow(label: String, property: AspireResource.AspireResourceProperty<Int>?) {
+    private fun Panel.intPropertyRow(label: String, property: AspireResourceProperty<Int>?) {
         propertyRow(label, property) { it.toString() }
     }
 
-    private fun Panel.pathPropertyRow(label: String, property: AspireResource.AspireResourceProperty<Path>?) {
+    private fun Panel.pathPropertyRow(label: String, property: AspireResourceProperty<Path>?) {
         propertyRow(label, property) { it.absolutePathString() }
     }
 
     private fun <T> Panel.propertyRow(
         label: String,
-        property: AspireResource.AspireResourceProperty<T>?,
+        property: AspireResourceProperty<T>?,
         mapper: (T) -> String,
     ) {
         if (property == null) return
