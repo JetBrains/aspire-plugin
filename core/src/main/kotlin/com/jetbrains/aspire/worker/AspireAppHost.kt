@@ -4,13 +4,13 @@ package com.jetbrains.aspire.worker
 
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.ConsoleView
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
-import com.intellij.util.asDisposable
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.*
@@ -50,7 +50,7 @@ import kotlin.io.path.Path
  * @see SessionManager for session request processing
  */
 @ApiStatus.Internal
-class AspireAppHost(val mainFilePath: Path, private val project: Project, parentCs: CoroutineScope) {
+class AspireAppHost(val mainFilePath: Path, private val project: Project, parentCs: CoroutineScope): Disposable {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }
@@ -77,7 +77,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
                     handler,
                     project
                 )
-                Disposer.register(cs.asDisposable(), console)
+                Disposer.register(this@AspireAppHost, console)
 
                 trySend(AspireAppHostState.Started(handler, console))
             }
@@ -257,6 +257,9 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
             if (parentResourceName == resourceName) add(resource)
         }
     }.sortedWith(compareBy({ it.type }, { it.name }))
+
+    override fun dispose() {
+    }
 
     sealed interface AspireAppHostState {
         data object Inactive : AspireAppHostState
