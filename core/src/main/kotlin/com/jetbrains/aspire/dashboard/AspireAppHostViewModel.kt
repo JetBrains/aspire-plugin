@@ -59,7 +59,7 @@ class AspireAppHostViewModel(
             uiState.collect { state ->
                 val newConsole = (state as? AppHostUiState.Active)?.consoleView
                 if (previousConsole != null && previousConsole != newConsole) {
-                    Disposer.dispose(previousConsole!!)
+                    Disposer.dispose(requireNotNull(previousConsole))
                 }
 
                 if (state is AppHostUiState.Active && previousConsole == null) {
