@@ -7,6 +7,6 @@ import kotlin.text.contains
 
 val aspireLoggedErrorProcessor: RiderLoggedErrorProcessor = RiderLoggedErrorProcessor(
     RiderKnownLogErrors + KnownLogErrors(
-        "DebuggerMatchingHandlerNotFound" to { it.contains("Catch java.lang.IllegalArgumentException Haven't found matching handler for") },
+        "DebuggerMatchingHandlerNotFound" to { it.contains("Haven't found matching handler for") },
         "RiderHotReloadExecutionListenerDisposable" to { it.contains("com.jetbrains.rider.debugger.dialogs.RiderHotReloadExecutionListener.processStarted") },
     ))

@@ -5,6 +5,8 @@ package com.jetbrains.aspire.dashboard
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
@@ -12,12 +14,18 @@ import com.jetbrains.aspire.worker.AspireWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.ApiStatus
 
+@ApiStatus.Internal
 class AspireWorkerViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
     workerService: AspireWorker,
 ) : ServiceViewProvidingContributor<AspireAppHostViewModel, AspireWorkerViewModel>, Disposable {
+    companion object {
+        private val LOG = logger<AspireWorkerViewModel>()
+    }
+
     private val cs: CoroutineScope = parentCs.childScope("Aspire Worker VM")
 
     private val appHostViewModels: StateFlow<List<AspireAppHostViewModel>> =
@@ -29,12 +37,14 @@ class AspireWorkerViewModel(
                 buildList {
                     for (viewModel in currentViewModels) {
                         if (viewModel.appHostMainFilePath in newPaths) {
+                            LOG.trace { "AppHost ViewModel for ${viewModel.appHostMainFilePath} already exists" }
                             add(viewModel)
                         }
                     }
 
                     for (newAppHost in newAppHosts) {
                         if (newAppHost.mainFilePath !in currentPaths) {
+                            LOG.trace { "Creating new AppHost ViewModel for ${newAppHost.mainFilePath}" }
                             val appHostVM = AspireAppHostViewModel(project, cs, newAppHost)
                             Disposer.register(this@AspireWorkerViewModel, appHostVM)
                             add(appHostVM)
@@ -55,6 +65,10 @@ class AspireWorkerViewModel(
 
                     val added = currentList.filter { it.appHostMainFilePath !in previousPaths }
                     val removed = previousList.filter { it.appHostMainFilePath !in currentPaths }
+
+                    LOG.trace { "ViewModel collection was changed:" }
+                    LOG.trace { "Added ${added.map { it.appHostMainFilePath }.joinToString()}" }
+                    LOG.trace { "Removed ${removed.map { it.appHostMainFilePath }.joinToString()}" }
 
                     currentList to (added + removed)
                 }

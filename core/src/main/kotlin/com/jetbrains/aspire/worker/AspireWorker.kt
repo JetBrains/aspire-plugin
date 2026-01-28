@@ -2,12 +2,14 @@
 
 package com.jetbrains.aspire.worker
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.util.NetworkUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.aspire.AspireService
@@ -38,9 +40,21 @@ import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
+/**
+ * Domain service responsible for interaction with the AspireWorker.exe process.
+ *
+ * Key responsibilities:
+ * - Starting and stopping the AspireWorker process ([start], [stop])
+ * - Configuring the RD protocol for bidirectional communication with the process
+ * - Managing the list of [AspireAppHost] instances and binding them to models from AspireWorker
+ * - Providing environment variables for DCP connection to the IDE ([getEnvironmentVariablesForDcpConnection])
+ *
+ * @see AspireWorkerLauncher for process launching details
+ * @see AspireWorkerModel for the RD model description
+ */
 @ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-class AspireWorker(private val project: Project, private val cs: CoroutineScope) {
+class AspireWorker(private val project: Project, private val cs: CoroutineScope) : Disposable {
     companion object {
         fun getInstance(project: Project): AspireWorker = project.service()
         private val LOG = logger<AspireWorker>()
@@ -63,6 +77,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
             if (currentList.any { it.mainFilePath == mainFilePath }) return@update currentList
 
             val appHost = AspireAppHost(mainFilePath, project, cs)
+            Disposer.register(this@AspireWorker, appHost)
             currentList + appHost
         }
     }
@@ -215,6 +230,9 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
 
         LOG.trace { "Removing Aspire host model with id $aspireHostId" }
         state.model.aspireHosts.remove(aspireHostId)
+    }
+
+    override fun dispose() {
     }
 
     sealed interface AspireWorkerState {
