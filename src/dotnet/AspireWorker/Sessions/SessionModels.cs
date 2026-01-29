@@ -37,7 +37,7 @@ internal enum Mode
 internal sealed record EnvironmentVariable(string Name, string? Value);
 
 [PublicAPI]
-internal sealed record ErrorResponse(ErrorDetail Error);
+internal record ErrorResponse(ErrorDetail Error);
 
 [PublicAPI]
 internal sealed record ErrorDetail(

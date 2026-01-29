@@ -229,8 +229,7 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
                     event.id,
                     event.level,
                     event.message,
-                    event.code,
-                    event.details
+                    event.errorCode,
                 )
             )
         }

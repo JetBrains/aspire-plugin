@@ -47,10 +47,8 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
         })
         field("message", string)
             .documentation = "The content of the message"
-        field("code", string.nullable)
+        field("error", ErrorCode.nullable)
             .documentation = "The error code. Only valid and required for error messages"
-        field("details", string.nullable)
-            .documentation = "Error details. Only valid for error messages"
     }
 
     private val SessionEnvironmentVariable = structdef {
@@ -69,7 +67,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
 
     private val CreateSessionResponse = structdef {
         field("sessionId", string.nullable)
-        field("error", string.nullable)
+        field("error", ErrorCode.nullable)
     }
 
     private val DeleteSessionRequest = structdef {
@@ -79,7 +77,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
     private val DeleteSessionResponse = structdef {
         field("sessionId", string.nullable)
             .documentation = "The field will be null if the session cannot be found"
-        field("error", string.nullable)
+        field("error", ErrorCode.nullable)
     }
 
     private val ResourceWrapper = classdef {
@@ -256,6 +254,12 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
             .documentation = "The notification is emitted when the IDE needs to notify the client (and the Aspire developer) about asynchronous events related to a debug session"
 
         map("resources", string, ResourceWrapper)
+    }
+
+    private val ErrorCode = enum {
+        +"AspireSessionNotFound"
+        +"DotNetProjectNotFound"
+        +"Unexpected"
     }
 
     init {
