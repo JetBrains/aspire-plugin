@@ -43,6 +43,11 @@ internal sealed class RdConnectionWrapper(RdConnection rdConnection) : IRdConnec
         await rdConnection.DoWithModel(_ => host.LogReceived.Advise(lifetime, action));
     }
 
+    public async Task AdviceOnMessageReceived(AspireHostModel host, Lifetime lifetime, Action<MessageReceived> action)
+    {
+        await rdConnection.DoWithModel(_ => host.MessageReceived.Advise(lifetime, action));
+    }
+
     public async Task<bool> AddResource(AspireHostModel host, string resourceName, ResourceWrapper resourceWrapper)
     {
         return await rdConnection.DoWithModel(_ => host.Resources.TryAdd(resourceName, resourceWrapper));

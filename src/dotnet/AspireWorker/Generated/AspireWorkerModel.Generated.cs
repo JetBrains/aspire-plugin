@@ -67,7 +67,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     
     
-    protected override long SerializationHash => 655321054708548395L;
+    protected override long SerializationHash => -4763306597304575633L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -108,18 +108,43 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:218</p>
+  /// <p>Generated from: AspireWorkerModel.kt:241</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
     //fields
     //public fields
     [NotNull] public AspireHostModelConfig Config {get; private set;}
+    
+    /// <summary>
+    /// Used to create a new run session for a particular Executable
+    /// </summary>
     [NotNull] public IRdCall<CreateSessionRequest, CreateSessionResponse> CreateSession => _CreateSession;
+    
+    /// <summary>
+    /// Used to stop an in-progress run session
+    /// </summary>
     [NotNull] public IRdCall<DeleteSessionRequest, DeleteSessionResponse> DeleteSession => _DeleteSession;
+    
+    /// <summary>
+    /// The notification is emitted when the run is started or the IDE restarts the service.
+    /// </summary>
     [NotNull] public ISource<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted> ProcessStarted => _ProcessStarted;
+    
+    /// <summary>
+    /// The notification is emitted when the session is terminated (the program ends, or is terminated by the developer)
+    /// </summary>
     [NotNull] public ISource<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated> ProcessTerminated => _ProcessTerminated;
+    
+    /// <summary>
+    /// The notification is emitted when the service program writes something to standard output stream (stdout) or standard error (stderr)
+    /// </summary>
     [NotNull] public ISource<JetBrains.Rider.Aspire.Worker.Generated.LogReceived> LogReceived => _LogReceived;
+    
+    /// <summary>
+    /// The notification is emitted when the IDE needs to notify the client (and the Aspire developer) about asynchronous events related to a debug session
+    /// </summary>
+    [NotNull] public ISource<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived> MessageReceived => _MessageReceived;
     [NotNull] public IViewableMap<string, ResourceWrapper> Resources => _Resources;
     
     //private fields
@@ -128,6 +153,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted> _ProcessStarted;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated> _ProcessTerminated;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived> _LogReceived;
+    [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived> _MessageReceived;
     [NotNull] private readonly RdMap<string, ResourceWrapper> _Resources;
     
     //primary constructor
@@ -138,6 +164,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       [NotNull] RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted> processStarted,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated> processTerminated,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived> logReceived,
+      [NotNull] RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived> messageReceived,
       [NotNull] RdMap<string, ResourceWrapper> resources
     )
     {
@@ -147,6 +174,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       if (processStarted == null) throw new ArgumentNullException("processStarted");
       if (processTerminated == null) throw new ArgumentNullException("processTerminated");
       if (logReceived == null) throw new ArgumentNullException("logReceived");
+      if (messageReceived == null) throw new ArgumentNullException("messageReceived");
       if (resources == null) throw new ArgumentNullException("resources");
       
       Config = config;
@@ -155,12 +183,14 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       _ProcessStarted = processStarted;
       _ProcessTerminated = processTerminated;
       _LogReceived = logReceived;
+      _MessageReceived = messageReceived;
       _Resources = resources;
       BindableChildren.Add(new KeyValuePair<string, object>("createSession", _CreateSession));
       BindableChildren.Add(new KeyValuePair<string, object>("deleteSession", _DeleteSession));
       BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
       BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
       BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
+      BindableChildren.Add(new KeyValuePair<string, object>("messageReceived", _MessageReceived));
       BindableChildren.Add(new KeyValuePair<string, object>("resources", _Resources));
     }
     //secondary constructor
@@ -173,6 +203,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted>(JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Write),
       new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated>(JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Write),
       new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived>(JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Write),
+      new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived>(JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Write),
       new RdMap<string, ResourceWrapper>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write)
     ) {}
     //deconstruct trait
@@ -187,8 +218,9 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       var processStarted = RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted>.Read(ctx, reader, JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Write);
       var processTerminated = RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated>.Read(ctx, reader, JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Write);
       var logReceived = RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived>.Read(ctx, reader, JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Write);
+      var messageReceived = RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived>.Read(ctx, reader, JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Write);
       var resources = RdMap<string, ResourceWrapper>.Read(ctx, reader, JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write);
-      var _result = new AspireHostModel(config, createSession, deleteSession, processStarted, processTerminated, logReceived, resources).WithId(_id);
+      var _result = new AspireHostModel(config, createSession, deleteSession, processStarted, processTerminated, logReceived, messageReceived, resources).WithId(_id);
       return _result;
     };
     
@@ -201,6 +233,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted>.Write(ctx, writer, value._ProcessStarted);
       RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated>.Write(ctx, writer, value._ProcessTerminated);
       RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived>.Write(ctx, writer, value._LogReceived);
+      RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived>.Write(ctx, writer, value._MessageReceived);
       RdMap<string, ResourceWrapper>.Write(ctx, writer, value._Resources);
     };
     
@@ -221,6 +254,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
         printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
         printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
         printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
+        printer.Print("messageReceived = "); _MessageReceived.PrintEx(printer); printer.Println();
         printer.Print("resources = "); _Resources.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
@@ -236,7 +270,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:200</p>
+  /// <p>Generated from: AspireWorkerModel.kt:223</p>
   /// </summary>
   public sealed class AspireHostModelConfig : IPrintable, IEquatable<AspireHostModelConfig>
   {
@@ -400,7 +434,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:38</p>
+  /// <p>Generated from: AspireWorkerModel.kt:61</p>
   /// </summary>
   public sealed class CreateSessionRequest : IPrintable, IEquatable<CreateSessionRequest>
   {
@@ -531,7 +565,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:47</p>
+  /// <p>Generated from: AspireWorkerModel.kt:70</p>
   /// </summary>
   public sealed class CreateSessionResponse : IPrintable, IEquatable<CreateSessionResponse>
   {
@@ -624,7 +658,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:52</p>
+  /// <p>Generated from: AspireWorkerModel.kt:75</p>
   /// </summary>
   public sealed class DeleteSessionRequest : IPrintable, IEquatable<DeleteSessionRequest>
   {
@@ -709,7 +743,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:56</p>
+  /// <p>Generated from: AspireWorkerModel.kt:79</p>
   /// </summary>
   public sealed class DeleteSessionResponse : IPrintable, IEquatable<DeleteSessionResponse>
   {
@@ -806,14 +840,26 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:27</p>
+  /// <p>Generated from: AspireWorkerModel.kt:31</p>
   /// </summary>
   public sealed class LogReceived : IPrintable, IEquatable<LogReceived>
   {
     //fields
     //public fields
+    
+    /// <summary>
+    /// The ID of the run session that the notification is related to
+    /// </summary>
     [NotNull] public string Id {get; private set;}
+    
+    /// <summary>
+    /// True if the output comes from standard error stream, otherwise false (implying standard output stream)
+    /// </summary>
     public bool IsStdErr {get; private set;}
+    
+    /// <summary>
+    /// The text written by the service program
+    /// </summary>
     [NotNull] public string Message {get; private set;}
     
     //private fields
@@ -908,13 +954,167 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
+  /// <p>Generated from: AspireWorkerModel.kt:43</p>
+  /// </summary>
+  public enum MessageLevel {
+    Error,
+    Info,
+    Debug
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireWorkerModel.kt:40</p>
+  /// </summary>
+  public sealed class MessageReceived : IPrintable, IEquatable<MessageReceived>
+  {
+    //fields
+    //public fields
+    
+    /// <summary>
+    /// The ID of the run session that the notification is related to
+    /// </summary>
+    [NotNull] public string Id {get; private set;}
+    public MessageLevel Level {get; private set;}
+    
+    /// <summary>
+    /// The content of the message
+    /// </summary>
+    [NotNull] public string Message {get; private set;}
+    
+    /// <summary>
+    /// The error code. Only valid and required for error messages
+    /// </summary>
+    [CanBeNull] public string Code {get; private set;}
+    
+    /// <summary>
+    /// Error details. Only valid for error messages
+    /// </summary>
+    [CanBeNull] public string Details {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public MessageReceived(
+      [NotNull] string id,
+      MessageLevel level,
+      [NotNull] string message,
+      [CanBeNull] string code,
+      [CanBeNull] string details
+    )
+    {
+      if (id == null) throw new ArgumentNullException("id");
+      if (message == null) throw new ArgumentNullException("message");
+      
+      Id = id;
+      Level = level;
+      Message = message;
+      Code = code;
+      Details = details;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out string id, out MessageLevel level, [NotNull] out string message, [CanBeNull] out string code, [CanBeNull] out string details)
+    {
+      id = Id;
+      level = Level;
+      message = Message;
+      code = Code;
+      details = Details;
+    }
+    //statics
+    
+    public static CtxReadDelegate<MessageReceived> Read = (ctx, reader) => 
+    {
+      var id = reader.ReadString();
+      var level = (MessageLevel)reader.ReadInt();
+      var message = reader.ReadString();
+      var code = ReadStringNullable(ctx, reader);
+      var details = ReadStringNullable(ctx, reader);
+      var _result = new MessageReceived(id, level, message, code, details);
+      return _result;
+    };
+    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    
+    public static CtxWriteDelegate<MessageReceived> Write = (ctx, writer, value) => 
+    {
+      writer.Write(value.Id);
+      writer.Write((int)value.Level);
+      writer.Write(value.Message);
+      WriteStringNullable(ctx, writer, value.Code);
+      WriteStringNullable(ctx, writer, value.Details);
+    };
+    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((MessageReceived) obj);
+    }
+    public bool Equals(MessageReceived other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Id == other.Id && Level == other.Level && Message == other.Message && Equals(Code, other.Code) && Equals(Details, other.Details);
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + Id.GetHashCode();
+        hash = hash * 31 + (int) Level;
+        hash = hash * 31 + Message.GetHashCode();
+        hash = hash * 31 + (Code != null ? Code.GetHashCode() : 0);
+        hash = hash * 31 + (Details != null ? Details.GetHashCode() : 0);
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("MessageReceived (");
+      using (printer.IndentCookie()) {
+        printer.Print("id = "); Id.PrintEx(printer); printer.Println();
+        printer.Print("level = "); Level.PrintEx(printer); printer.Println();
+        printer.Print("message = "); Message.PrintEx(printer); printer.Println();
+        printer.Print("code = "); Code.PrintEx(printer); printer.Println();
+        printer.Print("details = "); Details.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
   /// <p>Generated from: AspireWorkerModel.kt:17</p>
   /// </summary>
   public sealed class ProcessStarted : IPrintable, IEquatable<ProcessStarted>
   {
     //fields
     //public fields
+    
+    /// <summary>
+    /// The ID of the run session that the notification is related to
+    /// </summary>
     [NotNull] public string Id {get; private set;}
+    
+    /// <summary>
+    /// The process ID of the service process associated with the run session
+    /// </summary>
     public long Pid {get; private set;}
     
     //private fields
@@ -1001,13 +1201,21 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:22</p>
+  /// <p>Generated from: AspireWorkerModel.kt:24</p>
   /// </summary>
   public sealed class ProcessTerminated : IPrintable, IEquatable<ProcessTerminated>
   {
     //fields
     //public fields
+    
+    /// <summary>
+    /// The ID of the run session that the notification is related to
+    /// </summary>
     [NotNull] public string Id {get; private set;}
+    
+    /// <summary>
+    /// The exit code of the process associated with the run session
+    /// </summary>
     public int ExitCode {get; private set;}
     
     //private fields
@@ -1094,7 +1302,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:159</p>
+  /// <p>Generated from: AspireWorkerModel.kt:182</p>
   /// </summary>
   public sealed class ResourceCommand : IPrintable, IEquatable<ResourceCommand>
   {
@@ -1230,7 +1438,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:184</p>
+  /// <p>Generated from: AspireWorkerModel.kt:207</p>
   /// </summary>
   public sealed class ResourceCommandRequest : IPrintable, IEquatable<ResourceCommandRequest>
   {
@@ -1333,7 +1541,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:190</p>
+  /// <p>Generated from: AspireWorkerModel.kt:213</p>
   /// </summary>
   public sealed class ResourceCommandResponse : IPrintable, IEquatable<ResourceCommandResponse>
   {
@@ -1426,7 +1634,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:191</p>
+  /// <p>Generated from: AspireWorkerModel.kt:214</p>
   /// </summary>
   public enum ResourceCommandResponseKind {
     Undefined,
@@ -1437,7 +1645,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:166</p>
+  /// <p>Generated from: AspireWorkerModel.kt:189</p>
   /// </summary>
   public enum ResourceCommandState {
     Enabled,
@@ -1447,7 +1655,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:125</p>
+  /// <p>Generated from: AspireWorkerModel.kt:148</p>
   /// </summary>
   public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
   {
@@ -1542,7 +1750,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:152</p>
+  /// <p>Generated from: AspireWorkerModel.kt:175</p>
   /// </summary>
   public sealed class ResourceHealthReport : IPrintable, IEquatable<ResourceHealthReport>
   {
@@ -1655,7 +1863,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:146</p>
+  /// <p>Generated from: AspireWorkerModel.kt:169</p>
   /// </summary>
   public enum ResourceHealthStatus {
     Healthy,
@@ -1665,7 +1873,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:178</p>
+  /// <p>Generated from: AspireWorkerModel.kt:201</p>
   /// </summary>
   public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
   {
@@ -1766,7 +1974,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:69</p>
+  /// <p>Generated from: AspireWorkerModel.kt:92</p>
   /// </summary>
   public sealed class ResourceModel : IPrintable, IEquatable<ResourceModel>
   {
@@ -2008,7 +2216,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:118</p>
+  /// <p>Generated from: AspireWorkerModel.kt:141</p>
   /// </summary>
   public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
   {
@@ -2121,7 +2329,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:173</p>
+  /// <p>Generated from: AspireWorkerModel.kt:196</p>
   /// </summary>
   public sealed class ResourceRelationship : IPrintable, IEquatable<ResourceRelationship>
   {
@@ -2215,7 +2423,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:85</p>
+  /// <p>Generated from: AspireWorkerModel.kt:108</p>
   /// </summary>
   public enum ResourceState {
     Starting,
@@ -2233,7 +2441,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:98</p>
+  /// <p>Generated from: AspireWorkerModel.kt:121</p>
   /// </summary>
   public enum ResourceStateStyle {
     Success,
@@ -2245,7 +2453,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:71</p>
+  /// <p>Generated from: AspireWorkerModel.kt:94</p>
   /// </summary>
   public enum ResourceType {
     Project,
@@ -2262,7 +2470,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:130</p>
+  /// <p>Generated from: AspireWorkerModel.kt:153</p>
   /// </summary>
   public sealed class ResourceUrl : IPrintable, IEquatable<ResourceUrl>
   {
@@ -2390,7 +2598,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:139</p>
+  /// <p>Generated from: AspireWorkerModel.kt:162</p>
   /// </summary>
   public sealed class ResourceVolume : IPrintable, IEquatable<ResourceVolume>
   {
@@ -2501,7 +2709,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:62</p>
+  /// <p>Generated from: AspireWorkerModel.kt:85</p>
   /// </summary>
   public sealed class ResourceWrapper : RdBindableBase
   {
@@ -2603,7 +2811,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:33</p>
+  /// <p>Generated from: AspireWorkerModel.kt:56</p>
   /// </summary>
   public sealed class SessionEnvironmentVariable : IPrintable, IEquatable<SessionEnvironmentVariable>
   {

@@ -76,6 +76,16 @@ internal static partial class Log
 
     [LoggerMessage(
         Level = LogLevel.Trace,
+        Message = "Process terminated {processTerminatedEvent}.")]
+    internal static partial void ProcessTerminated(this ILogger logger, ProcessTerminated processTerminatedEvent);
+
+    [LoggerMessage(
+        Level = LogLevel.Warning,
+        Message = "Failed to write process terminated event.")]
+    internal static partial void FailedToWriteProcessTerminatedEvent(this ILogger logger);
+
+    [LoggerMessage(
+        Level = LogLevel.Trace,
         Message = "Log received {logReceivedEvent}.")]
     internal static partial void LogReceived(this ILogger logger, LogReceived logReceivedEvent);
 
@@ -91,13 +101,13 @@ internal static partial class Log
 
     [LoggerMessage(
         Level = LogLevel.Trace,
-        Message = "Process terminated {processTerminatedEvent}.")]
-    internal static partial void ProcessTerminated(this ILogger logger, ProcessTerminated processTerminatedEvent);
+        Message = "Message received {messageReceivedEvent}.")]
+    internal static partial void MessageReceived(this ILogger logger, MessageReceived messageReceivedEvent);
 
     [LoggerMessage(
         Level = LogLevel.Warning,
-        Message = "Failed to write process terminated event.")]
-    internal static partial void FailedToWriteProcessTerminatedEvent(this ILogger logger);
+        Message = "Failed to write message received event.")]
+    internal static partial void FailedToWriteMessageReceivedEvent(this ILogger logger);
 
     [LoggerMessage(
         Level = LogLevel.Information,

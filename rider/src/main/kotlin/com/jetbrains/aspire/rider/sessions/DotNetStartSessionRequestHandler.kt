@@ -11,16 +11,8 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.application
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
-import com.jetbrains.aspire.sessions.SessionEvent
-import com.jetbrains.aspire.sessions.SessionLaunchMode
-import com.jetbrains.aspire.sessions.SessionLaunchPreferenceService
-import com.jetbrains.aspire.sessions.SessionLogReceived
-import com.jetbrains.aspire.sessions.SessionStarted
-import com.jetbrains.aspire.sessions.SessionTerminated
-import com.jetbrains.aspire.sessions.StartSessionRequest
-import com.jetbrains.aspire.sessions.StartSessionRequestHandler
 import com.jetbrains.aspire.rider.util.DotNetBuildService
+import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
@@ -161,7 +153,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
                     terminateSession(-1)
                 } else {
                     LOG.trace { "Session $sessionId process id = $pid" }
-                    val eventSendingResult = sessionEvents.trySend(SessionStarted(sessionId, pid))
+                    val eventSendingResult = sessionEvents.trySend(SessionProcessStarted(sessionId, pid))
                     if (!eventSendingResult.isSuccess) {
                         LOG.warn("Unable to send an event for session $sessionId start")
                     }
@@ -188,7 +180,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
 
             private fun terminateSession(exitCode: Int) {
                 LOG.trace { "Terminating session $sessionId with exitCode $exitCode" }
-                val eventSendingResult = sessionEvents.trySend(SessionTerminated(sessionId, exitCode))
+                val eventSendingResult = sessionEvents.trySend(SessionProcessTerminated(sessionId, exitCode))
                 if (!eventSendingResult.isSuccess) {
                     LOG.warn("Unable to send an event for session $sessionId termination")
                 }

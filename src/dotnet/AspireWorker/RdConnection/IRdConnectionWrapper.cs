@@ -15,10 +15,14 @@ internal interface IRdConnectionWrapper
     Task<CreateSessionResponse?> CreateSession(AspireHostModel host, CreateSessionRequest request);
     Task<DeleteSessionResponse?> DeleteSession(AspireHostModel host, DeleteSessionRequest request);
 
-    Task AdviceOnProcessStarted(AspireHostModel host, Lifetime lifetime, Action<ProcessStarted> action);
+    Task AdviceOnProcessStarted(AspireHostModel host, Lifetime lifetime,
+        Action<ProcessStarted> action);
     Task AdviceOnProcessTerminated(AspireHostModel host, Lifetime lifetime,
         Action<ProcessTerminated> action);
-    Task AdviceOnLogReceived(AspireHostModel host, Lifetime lifetime, Action<LogReceived> action);
+    Task AdviceOnLogReceived(AspireHostModel host, Lifetime lifetime,
+        Action<LogReceived> action);
+    Task AdviceOnMessageReceived(AspireHostModel host, Lifetime lifetime,
+        Action<MessageReceived> action);
 
     Task<bool> AddResource(AspireHostModel host, string resourceName, ResourceWrapper resourceWrapper);
     Task UpsertResource(AspireHostModel host, ResourceModel resourceModel,
