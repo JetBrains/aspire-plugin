@@ -13,47 +13,109 @@ internal sealed class SessionEventWatcher(
     ILogger logger,
     Lifetime lifetime)
 {
+    //docs: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#common-notification-properties
+    private const string ProcessStartedEventName = "processRestarted";
+    private const string ProcessTerminatedEventName = "sessionTerminated";
+    private const string LogReceivedEventName = "serviceLogs";
+    private const string MessageReceivedEventName = "sessionMessage";
+
     internal async Task WatchSessionEvents()
     {
-        await connectionWrapper.AdviceOnProcessStarted(hostModel, lifetime, it =>
-        {
-            logger.ProcessStarted(it);
-            var writingResult =
-                sessionEventWriter.TryWrite(new ProcessStartedEvent(it.Id, "processRestarted", it.Pid));
-            if (!writingResult)
-            {
-                logger.FailedToWriteProcessStartedEvent();
-            }
-        });
+        await connectionWrapper.AdviceOnProcessStarted(hostModel, lifetime,
+            it => { ProcessStarted(it, sessionEventWriter, logger); });
 
-        await connectionWrapper.AdviceOnLogReceived(hostModel, lifetime, it =>
-        {
-            logger.LogReceived(it);
-            var message = ModifyText(it.Message);
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                logger.MessageIsEmptyAfterProcessing();
-                return;
-            }
+        await connectionWrapper.AdviceOnProcessTerminated(hostModel, lifetime,
+            it => { ProcessTerminated(it, sessionEventWriter, logger); });
 
-            var writingResult =
-                sessionEventWriter.TryWrite(new LogReceivedEvent(it.Id, "serviceLogs", it.IsStdErr, message));
-            if (!writingResult)
-            {
-                logger.FailedToWriteLogReceivedEvent();
-            }
-        });
+        await connectionWrapper.AdviceOnLogReceived(hostModel, lifetime,
+            it => { LogReceived(it, sessionEventWriter, logger); });
 
-        await connectionWrapper.AdviceOnProcessTerminated(hostModel, lifetime, it =>
+        await connectionWrapper.AdviceOnMessageReceived(hostModel, lifetime,
+            it => { MessageReceived(it, sessionEventWriter, logger); });
+    }
+
+    private static void ProcessStarted(
+        ProcessStarted @event,
+        ChannelWriter<ISessionEvent> sessionEventWriter,
+        ILogger logger)
+    {
+        logger.ProcessStarted(@event);
+
+        var sessionEvent = new ProcessStartedEvent(@event.Id, ProcessStartedEventName, @event.Pid);
+        var writingResult = sessionEventWriter.TryWrite(sessionEvent);
+        if (!writingResult)
         {
-            logger.ProcessTerminated(it);
-            var writingResult =
-                sessionEventWriter.TryWrite(new ProcessTerminatedEvent(it.Id, "sessionTerminated", it.ExitCode));
-            if (!writingResult)
-            {
-                logger.FailedToWriteProcessTerminatedEvent();
-            }
-        });
+            logger.FailedToWriteProcessStartedEvent();
+        }
+    }
+
+    private static void ProcessTerminated(
+        ProcessTerminated @event,
+        ChannelWriter<ISessionEvent> sessionEventWriter,
+        ILogger logger)
+    {
+        logger.ProcessTerminated(@event);
+
+        var sessionEvent = new ProcessTerminatedEvent(@event.Id, ProcessTerminatedEventName, @event.ExitCode);
+        var writingResult = sessionEventWriter.TryWrite(sessionEvent);
+        if (!writingResult)
+        {
+            logger.FailedToWriteProcessTerminatedEvent();
+        }
+    }
+
+    private static void LogReceived(
+        LogReceived @event,
+        ChannelWriter<ISessionEvent> sessionEventWriter,
+        ILogger logger)
+    {
+        logger.LogReceived(@event);
+
+        var message = ModifyText(@event.Message);
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            logger.MessageIsEmptyAfterProcessing();
+            return;
+        }
+
+        var sessionEvent = new LogReceivedEvent(
+            @event.Id,
+            LogReceivedEventName,
+            @event.IsStdErr,
+            message);
+        var writingResult = sessionEventWriter.TryWrite(sessionEvent);
+        if (!writingResult)
+        {
+            logger.FailedToWriteLogReceivedEvent();
+        }
+    }
+
+    private static void MessageReceived(
+        MessageReceived @event,
+        ChannelWriter<ISessionEvent> sessionEventWriter,
+        ILogger logger)
+    {
+        logger.MessageReceived(@event);
+
+
+        var level = @event.Level switch
+        {
+            MessageLevel.Error => "error",
+            MessageLevel.Info => "info",
+            MessageLevel.Debug => "debug",
+            _ => "info"
+        };
+        var sessionEvent = new MessageReceivedEvent(
+            @event.Id,
+            MessageReceivedEventName,
+            level,
+            @event.Message,
+            @event.Code);
+        var writingResult = sessionEventWriter.TryWrite(sessionEvent);
+        if (!writingResult)
+        {
+            logger.FailedToWriteMessageReceivedEvent();
+        }
     }
 
     private static string ModifyText(string text)
