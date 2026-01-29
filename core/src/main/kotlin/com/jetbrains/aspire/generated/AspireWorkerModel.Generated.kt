@@ -30,6 +30,7 @@ class AspireWorkerModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(-8012683471335252475), classLoader, "com.jetbrains.aspire.generated.ProcessStarted"))
             serializers.register(LazyCompanionMarshaller(RdId(-4984966637681634785), classLoader, "com.jetbrains.aspire.generated.ProcessTerminated"))
             serializers.register(LazyCompanionMarshaller(RdId(548077805281958706), classLoader, "com.jetbrains.aspire.generated.LogReceived"))
+            serializers.register(LazyCompanionMarshaller(RdId(7699071206331680373), classLoader, "com.jetbrains.aspire.generated.MessageReceived"))
             serializers.register(LazyCompanionMarshaller(RdId(-5369615389742325332), classLoader, "com.jetbrains.aspire.generated.SessionEnvironmentVariable"))
             serializers.register(LazyCompanionMarshaller(RdId(3848038420960084968), classLoader, "com.jetbrains.aspire.generated.CreateSessionRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(8608726607558258184), classLoader, "com.jetbrains.aspire.generated.CreateSessionResponse"))
@@ -50,6 +51,7 @@ class AspireWorkerModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(3396191624361927979), classLoader, "com.jetbrains.aspire.generated.ResourceCommandResponse"))
             serializers.register(LazyCompanionMarshaller(RdId(8004637670271409586), classLoader, "com.jetbrains.aspire.generated.AspireHostModelConfig"))
             serializers.register(LazyCompanionMarshaller(RdId(7370971417554020944), classLoader, "com.jetbrains.aspire.generated.AspireHostModel"))
+            serializers.register(LazyCompanionMarshaller(RdId(-1438774601599785104), classLoader, "com.jetbrains.aspire.generated.MessageLevel"))
             serializers.register(LazyCompanionMarshaller(RdId(-1311735068701761509), classLoader, "com.jetbrains.aspire.generated.ResourceType"))
             serializers.register(LazyCompanionMarshaller(RdId(-3770298982336589872), classLoader, "com.jetbrains.aspire.generated.ResourceState"))
             serializers.register(LazyCompanionMarshaller(RdId(-15935776453165119), classLoader, "com.jetbrains.aspire.generated.ResourceStateStyle"))
@@ -75,7 +77,7 @@ class AspireWorkerModel private constructor(
         }
         
         
-        const val serializationHash = 655321054708548395L
+        const val serializationHash = -4763306597304575633L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
@@ -120,7 +122,7 @@ val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:218]
+ * #### Generated from [AspireWorkerModel.kt:241]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -129,6 +131,7 @@ class AspireHostModel private constructor(
     private val _processStarted: RdSignal<ProcessStarted>,
     private val _processTerminated: RdSignal<ProcessTerminated>,
     private val _logReceived: RdSignal<LogReceived>,
+    private val _messageReceived: RdSignal<MessageReceived>,
     private val _resources: RdMap<String, ResourceWrapper>
 ) : RdBindableBase() {
     //companion
@@ -146,8 +149,9 @@ class AspireHostModel private constructor(
             val _processStarted = RdSignal.read(ctx, buffer, ProcessStarted)
             val _processTerminated = RdSignal.read(ctx, buffer, ProcessTerminated)
             val _logReceived = RdSignal.read(ctx, buffer, LogReceived)
+            val _messageReceived = RdSignal.read(ctx, buffer, MessageReceived)
             val _resources = RdMap.read(ctx, buffer, FrameworkMarshallers.String, ResourceWrapper)
-            return AspireHostModel(config, _createSession, _deleteSession, _processStarted, _processTerminated, _logReceived, _resources).withId(_id)
+            return AspireHostModel(config, _createSession, _deleteSession, _processStarted, _processTerminated, _logReceived, _messageReceived, _resources).withId(_id)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModel)  {
@@ -158,17 +162,43 @@ class AspireHostModel private constructor(
             RdSignal.write(ctx, buffer, value._processStarted)
             RdSignal.write(ctx, buffer, value._processTerminated)
             RdSignal.write(ctx, buffer, value._logReceived)
+            RdSignal.write(ctx, buffer, value._messageReceived)
             RdMap.write(ctx, buffer, value._resources)
         }
         
         
     }
     //fields
+    
+    /**
+     * Used to create a new run session for a particular Executable
+     */
     val createSession: IRdEndpoint<CreateSessionRequest, CreateSessionResponse> get() = _createSession
+    
+    /**
+     * Used to stop an in-progress run session
+     */
     val deleteSession: IRdEndpoint<DeleteSessionRequest, DeleteSessionResponse> get() = _deleteSession
+    
+    /**
+     * The notification is emitted when the run is started or the IDE restarts the service.
+     */
     val processStarted: ISignal<ProcessStarted> get() = _processStarted
+    
+    /**
+     * The notification is emitted when the session is terminated (the program ends, or is terminated by the developer)
+     */
     val processTerminated: ISignal<ProcessTerminated> get() = _processTerminated
+    
+    /**
+     * The notification is emitted when the service program writes something to standard output stream (stdout) or standard error (stderr)
+     */
     val logReceived: ISignal<LogReceived> get() = _logReceived
+    
+    /**
+     * The notification is emitted when the IDE needs to notify the client (and the Aspire developer) about asynchronous events related to a debug session
+     */
+    val messageReceived: ISignal<MessageReceived> get() = _messageReceived
     val resources: IMutableViewableMap<String, ResourceWrapper> get() = _resources
     //methods
     //initializer
@@ -178,6 +208,7 @@ class AspireHostModel private constructor(
         bindableChildren.add("processStarted" to _processStarted)
         bindableChildren.add("processTerminated" to _processTerminated)
         bindableChildren.add("logReceived" to _logReceived)
+        bindableChildren.add("messageReceived" to _messageReceived)
         bindableChildren.add("resources" to _resources)
     }
     
@@ -191,6 +222,7 @@ class AspireHostModel private constructor(
         RdSignal<ProcessStarted>(ProcessStarted),
         RdSignal<ProcessTerminated>(ProcessTerminated),
         RdSignal<LogReceived>(LogReceived),
+        RdSignal<MessageReceived>(MessageReceived),
         RdMap<String, ResourceWrapper>(FrameworkMarshallers.String, ResourceWrapper)
     )
     
@@ -206,6 +238,7 @@ class AspireHostModel private constructor(
             print("processStarted = "); _processStarted.print(printer); println()
             print("processTerminated = "); _processTerminated.print(printer); println()
             print("logReceived = "); _logReceived.print(printer); println()
+            print("messageReceived = "); _messageReceived.print(printer); println()
             print("resources = "); _resources.print(printer); println()
         }
         printer.print(")")
@@ -219,6 +252,7 @@ class AspireHostModel private constructor(
             _processStarted.deepClonePolymorphic(),
             _processTerminated.deepClonePolymorphic(),
             _logReceived.deepClonePolymorphic(),
+            _messageReceived.deepClonePolymorphic(),
             _resources.deepClonePolymorphic()
         )
     }
@@ -235,7 +269,7 @@ class AspireHostModel private constructor(
  * @property resourceServiceApiKey `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
  * @property otlpEndpointUrl `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
- * #### Generated from [AspireWorkerModel.kt:200]
+ * #### Generated from [AspireWorkerModel.kt:223]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -330,7 +364,7 @@ data class AspireHostModelConfig (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:38]
+ * #### Generated from [AspireWorkerModel.kt:61]
  */
 data class CreateSessionRequest (
     val projectPath: String,
@@ -419,7 +453,7 @@ data class CreateSessionRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:47]
+ * #### Generated from [AspireWorkerModel.kt:70]
  */
 data class CreateSessionResponse (
     val sessionId: String?,
@@ -484,7 +518,7 @@ data class CreateSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:52]
+ * #### Generated from [AspireWorkerModel.kt:75]
  */
 data class DeleteSessionRequest (
     val sessionId: String
@@ -544,7 +578,7 @@ data class DeleteSessionRequest (
 
 /**
  * @property sessionId The field will be null if the session cannot be found
- * #### Generated from [AspireWorkerModel.kt:56]
+ * #### Generated from [AspireWorkerModel.kt:79]
  */
 data class DeleteSessionResponse (
     val sessionId: String?,
@@ -609,7 +643,10 @@ data class DeleteSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:27]
+ * @property id The ID of the run session that the notification is related to
+ * @property isStdErr True if the output comes from standard error stream, otherwise false (implying standard output stream)
+ * @property message The text written by the service program
+ * #### Generated from [AspireWorkerModel.kt:31]
  */
 data class LogReceived (
     val id: String,
@@ -680,6 +717,121 @@ data class LogReceived (
 
 
 /**
+ * #### Generated from [AspireWorkerModel.kt:43]
+ */
+enum class MessageLevel {
+    Error, 
+    Info, 
+    Debug;
+    
+    companion object : IMarshaller<MessageLevel> {
+        val marshaller = FrameworkMarshallers.enum<MessageLevel>()
+        
+        
+        override val _type: KClass<MessageLevel> = MessageLevel::class
+        override val id: RdId get() = RdId(-1438774601599785104)
+        
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MessageLevel {
+            return marshaller.read(ctx, buffer)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MessageLevel)  {
+            marshaller.write(ctx, buffer, value)
+        }
+    }
+}
+
+
+/**
+ * @property id The ID of the run session that the notification is related to
+ * @property message The content of the message
+ * @property code The error code. Only valid and required for error messages
+ * @property details Error details. Only valid for error messages
+ * #### Generated from [AspireWorkerModel.kt:40]
+ */
+data class MessageReceived (
+    val id: String,
+    val level: MessageLevel,
+    val message: String,
+    val code: String?,
+    val details: String?
+) : IPrintable {
+    //companion
+    
+    companion object : IMarshaller<MessageReceived> {
+        override val _type: KClass<MessageReceived> = MessageReceived::class
+        override val id: RdId get() = RdId(7699071206331680373)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): MessageReceived  {
+            val id = buffer.readString()
+            val level = buffer.readEnum<MessageLevel>()
+            val message = buffer.readString()
+            val code = buffer.readNullable { buffer.readString() }
+            val details = buffer.readNullable { buffer.readString() }
+            return MessageReceived(id, level, message, code, details)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MessageReceived)  {
+            buffer.writeString(value.id)
+            buffer.writeEnum(value.level)
+            buffer.writeString(value.message)
+            buffer.writeNullable(value.code) { buffer.writeString(it) }
+            buffer.writeNullable(value.details) { buffer.writeString(it) }
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as MessageReceived
+        
+        if (id != other.id) return false
+        if (level != other.level) return false
+        if (message != other.message) return false
+        if (code != other.code) return false
+        if (details != other.details) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + id.hashCode()
+        __r = __r*31 + level.hashCode()
+        __r = __r*31 + message.hashCode()
+        __r = __r*31 + if (code != null) code.hashCode() else 0
+        __r = __r*31 + if (details != null) details.hashCode() else 0
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("MessageReceived (")
+        printer.indent {
+            print("id = "); id.print(printer); println()
+            print("level = "); level.print(printer); println()
+            print("message = "); message.print(printer); println()
+            print("code = "); code.print(printer); println()
+            print("details = "); details.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * @property id The ID of the run session that the notification is related to
+ * @property pid The process ID of the service process associated with the run session
  * #### Generated from [AspireWorkerModel.kt:17]
  */
 data class ProcessStarted (
@@ -745,7 +897,9 @@ data class ProcessStarted (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:22]
+ * @property id The ID of the run session that the notification is related to
+ * @property exitCode The exit code of the process associated with the run session
+ * #### Generated from [AspireWorkerModel.kt:24]
  */
 data class ProcessTerminated (
     val id: String,
@@ -810,7 +964,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:159]
+ * #### Generated from [AspireWorkerModel.kt:182]
  */
 data class ResourceCommand (
     val name: String,
@@ -905,7 +1059,7 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:184]
+ * #### Generated from [AspireWorkerModel.kt:207]
  */
 data class ResourceCommandRequest (
     val commandName: String,
@@ -976,7 +1130,7 @@ data class ResourceCommandRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:190]
+ * #### Generated from [AspireWorkerModel.kt:213]
  */
 data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
@@ -1041,7 +1195,7 @@ data class ResourceCommandResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:191]
+ * #### Generated from [AspireWorkerModel.kt:214]
  */
 enum class ResourceCommandResponseKind {
     Undefined, 
@@ -1068,7 +1222,7 @@ enum class ResourceCommandResponseKind {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:166]
+ * #### Generated from [AspireWorkerModel.kt:189]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -1094,7 +1248,7 @@ enum class ResourceCommandState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:125]
+ * #### Generated from [AspireWorkerModel.kt:148]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -1159,7 +1313,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:152]
+ * #### Generated from [AspireWorkerModel.kt:175]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus?,
@@ -1236,7 +1390,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:146]
+ * #### Generated from [AspireWorkerModel.kt:169]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -1262,7 +1416,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:178]
+ * #### Generated from [AspireWorkerModel.kt:201]
  */
 data class ResourceLog (
     val text: String,
@@ -1333,7 +1487,7 @@ data class ResourceLog (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:69]
+ * #### Generated from [AspireWorkerModel.kt:92]
  */
 data class ResourceModel (
     val name: String,
@@ -1488,7 +1642,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:118]
+ * #### Generated from [AspireWorkerModel.kt:141]
  */
 data class ResourceProperty (
     val name: String,
@@ -1565,7 +1719,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:173]
+ * #### Generated from [AspireWorkerModel.kt:196]
  */
 data class ResourceRelationship (
     val resourceName: String,
@@ -1630,7 +1784,7 @@ data class ResourceRelationship (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:85]
+ * #### Generated from [AspireWorkerModel.kt:108]
  */
 enum class ResourceState {
     Starting, 
@@ -1664,7 +1818,7 @@ enum class ResourceState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:98]
+ * #### Generated from [AspireWorkerModel.kt:121]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -1692,7 +1846,7 @@ enum class ResourceStateStyle {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:71]
+ * #### Generated from [AspireWorkerModel.kt:94]
  */
 enum class ResourceType {
     Project, 
@@ -1725,7 +1879,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:130]
+ * #### Generated from [AspireWorkerModel.kt:153]
  */
 data class ResourceUrl (
     val endpointName: String?,
@@ -1814,7 +1968,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:139]
+ * #### Generated from [AspireWorkerModel.kt:162]
  */
 data class ResourceVolume (
     val source: String,
@@ -1891,7 +2045,7 @@ data class ResourceVolume (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:62]
+ * #### Generated from [AspireWorkerModel.kt:85]
  */
 class ResourceWrapper private constructor(
     private val _model: RdOptionalProperty<ResourceModel>,
@@ -1985,7 +2139,7 @@ class ResourceWrapper private constructor(
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:33]
+ * #### Generated from [AspireWorkerModel.kt:56]
  */
 data class SessionEnvironmentVariable (
     val key: String,

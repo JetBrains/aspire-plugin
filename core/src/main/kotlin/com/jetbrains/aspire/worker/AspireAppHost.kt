@@ -187,32 +187,52 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
 
     private suspend fun handleSessionEvent(sessionEvent: SessionEvent, appHostModel: AspireHostModel) {
         when (sessionEvent) {
-            is SessionStarted -> {
-                LOG.trace { "Aspire session started (${sessionEvent.id}, ${sessionEvent.pid})" }
-                withContext(Dispatchers.EDT) {
-                    appHostModel.processStarted.fire(ProcessStarted(sessionEvent.id, sessionEvent.pid))
-                }
-            }
+            is SessionProcessStarted -> handleProcessStartedEvent(sessionEvent, appHostModel)
+            is SessionProcessTerminated -> handleProcessTerminatedEvent(sessionEvent, appHostModel)
+            is SessionLogReceived -> handleSessionLogReceivedEvent(sessionEvent, appHostModel)
+            is SessionMessageReceived -> handleSessionMessageReceivedEvent(sessionEvent, appHostModel)
+        }
+    }
 
-            is SessionTerminated -> {
-                LOG.trace { "Aspire session terminated (${sessionEvent.id}, ${sessionEvent.exitCode})" }
-                withContext(Dispatchers.EDT) {
-                    appHostModel.processTerminated.fire(ProcessTerminated(sessionEvent.id, sessionEvent.exitCode))
-                }
-            }
+    private suspend fun handleProcessStartedEvent(event: SessionProcessStarted, appHostModel: AspireHostModel) {
+        LOG.trace { "Aspire session started (${event.id}, ${event.pid})" }
+        withContext(Dispatchers.EDT) {
+            appHostModel.processStarted.fire(ProcessStarted(event.id, event.pid))
+        }
+    }
 
-            is SessionLogReceived -> {
-                LOG.trace { "Aspire session log received (${sessionEvent.id}, ${sessionEvent.isStdErr}, ${sessionEvent.message})" }
-                withContext(Dispatchers.EDT) {
-                    appHostModel.logReceived.fire(
-                        LogReceived(
-                            sessionEvent.id,
-                            sessionEvent.isStdErr,
-                            sessionEvent.message
-                        )
-                    )
-                }
-            }
+    private suspend fun handleProcessTerminatedEvent(event: SessionProcessTerminated, appHostModel: AspireHostModel) {
+        LOG.trace { "Aspire session terminated (${event.id}, ${event.exitCode})" }
+        withContext(Dispatchers.EDT) {
+            appHostModel.processTerminated.fire(ProcessTerminated(event.id, event.exitCode))
+        }
+    }
+
+    private suspend fun handleSessionLogReceivedEvent(event: SessionLogReceived, appHostModel: AspireHostModel) {
+        LOG.trace { "Aspire session log received (${event.id}, ${event.isStdErr}, ${event.message})" }
+        withContext(Dispatchers.EDT) {
+            appHostModel.logReceived.fire(
+                LogReceived(
+                    event.id,
+                    event.isStdErr,
+                    event.message
+                )
+            )
+        }
+    }
+
+    private suspend fun handleSessionMessageReceivedEvent(event: SessionMessageReceived, appHostModel: AspireHostModel) {
+        LOG.trace { "Aspire session message received (${event.id}, ${event.level}, ${event.message})" }
+        withContext(Dispatchers.EDT) {
+            appHostModel.messageReceived.fire(
+                MessageReceived(
+                    event.id,
+                    event.level,
+                    event.message,
+                    event.code,
+                    event.details
+                )
+            )
         }
     }
 

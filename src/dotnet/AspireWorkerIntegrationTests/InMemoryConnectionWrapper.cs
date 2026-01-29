@@ -66,6 +66,11 @@ internal sealed class InMemoryConnectionWrapper : IRdConnectionWrapper, IDisposa
         return Task.CompletedTask;
     }
 
+    public Task AdviceOnMessageReceived(AspireHostModel host, Lifetime lifetime, Action<MessageReceived> action)
+    {
+        return Task.CompletedTask;
+    }
+
     public Task<bool> AddResource(AspireHostModel host, string resourceName, ResourceWrapper resourceWrapper)
     {
         return Task.FromResult(true);
