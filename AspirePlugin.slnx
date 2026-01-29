@@ -3,10 +3,11 @@
     <File Path="CHANGELOG.md" />
     <File Path="README.md" />
     <File Path="src\dotnet\Directory.Build.props" />
+    <File Path="dotnet.cmd" />
     <File Path="global.json" />
     <File Path="src\dotnet\Directory.Packages.props" />
   </Folder>
-  <Project Path="src\dotnet\AspirePlugin\AspirePlugin.csproj" Type="Classic C#" />
-  <Project Path="src\dotnet\AspireWorkerIntegrationTests\AspireWorkerIntegrationTests.csproj" Type="Classic C#" />
-  <Project Path="src\dotnet\AspireWorker\AspireWorker.csproj" Type="Classic C#" />
+  <Project Path="src\dotnet\AspirePlugin\AspirePlugin.csproj" Type="C#" />
+  <Project Path="src\dotnet\AspireWorkerIntegrationTests\AspireWorkerIntegrationTests.csproj" Type="C#" />
+  <Project Path="src\dotnet\AspireWorker\AspireWorker.csproj" Type="C#" />
 </Solution>

@@ -16,18 +16,41 @@ object AspireWorkerRoot : Root() {
 object AspireWorkerModel : Ext(AspireWorkerRoot) {
     private val ProcessStarted = structdef {
         field("id", string)
+            .documentation = "The ID of the run session that the notification is related to"
         field("pid", long)
+            .documentation = "The process ID of the service process associated with the run session"
     }
 
     private val ProcessTerminated = structdef {
         field("id", string)
+            .documentation = "The ID of the run session that the notification is related to"
         field("exitCode", int)
+            .documentation = "The exit code of the process associated with the run session"
     }
 
     private val LogReceived = structdef {
         field("id", string)
+            .documentation = "The ID of the run session that the notification is related to"
         field("isStdErr", bool)
+            .documentation = "True if the output comes from standard error stream, otherwise false (implying standard output stream)"
         field("message", string)
+            .documentation = "The text written by the service program"
+    }
+
+    private val MessageReceived = structdef {
+        field("id", string)
+            .documentation = "The ID of the run session that the notification is related to"
+        field("level", enum("MessageLevel") {
+            +"Error"
+            +"Info"
+            +"Debug"
+        })
+        field("message", string)
+            .documentation = "The content of the message"
+        field("code", string.nullable)
+            .documentation = "The error code. Only valid and required for error messages"
+        field("details", string.nullable)
+            .documentation = "Error details. Only valid for error messages"
     }
 
     private val SessionEnvironmentVariable = structdef {
@@ -219,11 +242,18 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
         field("config", AspireHostModelConfig)
 
         callback("createSession", CreateSessionRequest, CreateSessionResponse)
+            .documentation = "Used to create a new run session for a particular Executable"
         callback("deleteSession", DeleteSessionRequest, DeleteSessionResponse)
+            .documentation = "Used to stop an in-progress run session"
 
         source("processStarted", ProcessStarted)
+            .documentation = "The notification is emitted when the run is started or the IDE restarts the service."
         source("processTerminated", ProcessTerminated)
+            .documentation = "The notification is emitted when the session is terminated (the program ends, or is terminated by the developer)"
         source("logReceived", LogReceived)
+            .documentation = "The notification is emitted when the service program writes something to standard output stream (stdout) or standard error (stderr)"
+        source("messageReceived", MessageReceived)
+            .documentation = "The notification is emitted when the IDE needs to notify the client (and the Aspire developer) about asynchronous events related to a debug session"
 
         map("resources", string, ResourceWrapper)
     }

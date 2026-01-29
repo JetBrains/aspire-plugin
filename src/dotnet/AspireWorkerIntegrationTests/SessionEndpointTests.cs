@@ -17,6 +17,9 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     };
 
+    private const string CurrentProtocolVersion = "2025-10-01";
+    private const string SupportedLaunchConfigurationType = "project";
+
     [Fact]
     public async Task InfoEndpointReturnsCurrentProtocolVersion()
     {
@@ -27,7 +30,11 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         var info = await response.Content.ReadFromJsonAsync<Info>(_jsonOptions);
         Assert.NotNull(info);
         var version = Assert.Single(info.ProtocolsSupported);
-        Assert.Equal("2024-03-03", version);
+        Assert.Equal(CurrentProtocolVersion, version);
+
+        Assert.NotNull(info.SupportedLaunchConfigurations);
+        var launchConfiguration = Assert.Single(info.SupportedLaunchConfigurations);
+        Assert.Equal(SupportedLaunchConfigurationType, launchConfiguration);
     }
 
     [Fact]
@@ -44,7 +51,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         client.DefaultRequestHeaders.Add("Microsoft-Developer-DCP-Instance-ID", dcpInstanceId);
 
         var session = CreateAspireSession(fixture);
-        var response = await client.PutAsJsonAsync("/run_session/?api-version=2024-03-03", session, _jsonOptions);
+        var response = await client.PutAsJsonAsync($"/run_session/?api-version={CurrentProtocolVersion}", session, _jsonOptions);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var location = response.Headers.Location?.OriginalString;
@@ -101,7 +108,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         client.DefaultRequestHeaders.Add("Microsoft-Developer-DCP-Instance-ID", dcpInstanceId);
 
         var session = CreateAspireSession(fixture);
-        var response = await client.PutAsJsonAsync("/run_session/?api-version=2024-03-03", session, _jsonOptions);
+        var response = await client.PutAsJsonAsync($"/run_session/?api-version={CurrentProtocolVersion}", session, _jsonOptions);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -120,7 +127,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         client.DefaultRequestHeaders.Add("Microsoft-Developer-DCP-Instance-ID", dcpInstanceId);
 
         var sessionId = fixture.Create<string>();
-        var deleteResponse = await client.DeleteAsync($"/run_session/{sessionId}?api-version=2024-03-03");
+        var deleteResponse = await client.DeleteAsync($"/run_session/{sessionId}?api-version={CurrentProtocolVersion}");
 
         Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
         var connectionWrapper = factory.Services.GetRequiredService<InMemoryConnectionWrapper>();
@@ -164,7 +171,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         client.DefaultRequestHeaders.Add("Microsoft-Developer-DCP-Instance-ID", dcpInstanceId);
 
         var sessionId = fixture.Create<string>();
-        var deleteResponse = await client.DeleteAsync($"/run_session/{sessionId}?api-version=2024-03-03");
+        var deleteResponse = await client.DeleteAsync($"/run_session/{sessionId}?api-version={CurrentProtocolVersion}");
 
         Assert.Equal(HttpStatusCode.Unauthorized, deleteResponse.StatusCode);
     }

@@ -4,8 +4,9 @@ using JetBrains.Annotations;
 namespace JetBrains.Rider.Aspire.Worker.Sessions;
 
 [JsonDerivedType(typeof(ProcessStartedEvent))]
-[JsonDerivedType(typeof(LogReceivedEvent))]
 [JsonDerivedType(typeof(ProcessTerminatedEvent))]
+[JsonDerivedType(typeof(LogReceivedEvent))]
+[JsonDerivedType(typeof(MessageReceivedEvent))]
 internal interface ISessionEvent;
 
 [PublicAPI]
@@ -13,9 +14,19 @@ internal sealed record ProcessStartedEvent(string SessionId, string Notification
     : ISessionEvent;
 
 [PublicAPI]
+internal sealed record ProcessTerminatedEvent(string SessionId, string NotificationType, int ExitCode)
+    : ISessionEvent;
+
+[PublicAPI]
 internal sealed record LogReceivedEvent(string SessionId, string NotificationType, bool IsStdErr, string LogMessage)
     : ISessionEvent;
 
 [PublicAPI]
-internal sealed record ProcessTerminatedEvent(string SessionId, string NotificationType, int ExitCode)
-    : ISessionEvent;
+internal sealed record MessageReceivedEvent(
+    string SessionId,
+    string NotificationType,
+    string Level,
+    string Message,
+    string? Code = null,
+    ErrorDetail[]? Details = null
+) : ISessionEvent;

@@ -5,7 +5,8 @@ namespace JetBrains.Rider.Aspire.Worker.Sessions;
 
 [PublicAPI]
 internal sealed record Info(
-    List<string> ProtocolsSupported
+    List<string> ProtocolsSupported,
+    List<string>? SupportedLaunchConfigurations = null
 );
 
 [PublicAPI]
