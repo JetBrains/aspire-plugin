@@ -7,12 +7,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.rider.run.configurations.ProtocolLifetimedSettingsEditor
 import com.jetbrains.rider.run.configurations.controls.ControlViewBuilder
-import com.jetbrains.rider.run.configurations.controls.EnvironmentVariablesEditor
-import com.jetbrains.rider.run.configurations.controls.FlagEditor
-import com.jetbrains.rider.run.configurations.controls.PathSelector
-import com.jetbrains.rider.run.configurations.controls.ProgramParametersEditor
-import com.jetbrains.rider.run.configurations.controls.TextEditor
-import com.jetbrains.rider.run.configurations.controls.ViewSeparator
+import com.jetbrains.rider.run.configurations.controls.*
 import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSettingsEditor
 import javax.swing.JComponent
 
@@ -29,6 +24,10 @@ internal class AspireFileConfigurationSettingsEditor(private val project: Projec
                 "File_path",
                 FileChooserDescriptorFactory.singleFile().withExtensionFilter("cs"),
                 lifetime
+            ),
+            LaunchProfileSelector(
+                AspireCoreBundle.message("run.editor.launch.profile"),
+                "Launch_profile"
             ),
             ProgramParametersEditor(
                 AspireCoreBundle.message("run.editor.arguments"),
@@ -59,17 +58,22 @@ internal class AspireFileConfigurationSettingsEditor(private val project: Projec
     override fun applyEditorTo(configuration: AspireFileConfiguration) {
         configuration.parameters.apply {
             filePath = FileUtil.toSystemIndependentName(viewModel.filePathSelector.path.value)
+            profileName = viewModel.launchProfileSelector.profile.valueOrNull?.name ?: ""
+            trackArguments = viewModel.trackArguments
             arguments = viewModel.programParametersEditor.parametersString.value
+            trackWorkingDirectory = viewModel.trackWorkingDirectory
             workingDirectory = FileUtil.toSystemIndependentName(viewModel.workingDirectorySelector.path.value)
+            trackEnvs = viewModel.trackEnvs
             envs = viewModel.environmentVariablesEditor.envs.value
             usePodmanRuntime = viewModel.usePodmanRuntimeFlagEditor.isSelected.value
+            trackUrl = viewModel.trackUrl
+            trackBrowserLaunch = viewModel.trackBrowserLaunch
             startBrowserParameters.url = viewModel.urlEditor.text.value
             startBrowserParameters.browser = viewModel.dotNetBrowserSettingsEditor.settings.value.myBrowser
             startBrowserParameters.startAfterLaunch =
                 viewModel.dotNetBrowserSettingsEditor.settings.value.startAfterLaunch
             startBrowserParameters.withJavaScriptDebugger =
                 viewModel.dotNetBrowserSettingsEditor.settings.value.withJavaScriptDebugger
-
         }
     }
 
@@ -77,10 +81,16 @@ internal class AspireFileConfigurationSettingsEditor(private val project: Projec
         with(configuration.parameters) {
             viewModel.reset(
                 filePath,
+                profileName,
+                trackArguments,
                 arguments,
+                trackWorkingDirectory,
                 workingDirectory,
+                trackEnvs,
                 envs,
                 usePodmanRuntime,
+                trackUrl,
+                trackBrowserLaunch,
                 startBrowserParameters
             )
         }
