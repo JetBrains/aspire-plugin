@@ -6,6 +6,14 @@
 
 ### Changed
 
+- Update to dotnet 10
+- Bump libraries versions
+- Update the Aspire IDE protocol version to `2025-10-01`
+
+## [2.3.1] - 2026-01-20
+
+### Changed
+
 - Internal changes and fixes
 
 ## [2.3.0] - 2026-01-08

@@ -24,16 +24,6 @@ internal sealed class AspireHost
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
 
-    private readonly ErrorResponse _multipleProjectLaunchConfigurations = new(new ErrorDetail(
-        "BadRequest",
-        "Only a single launch configuration instance, of type project, can be used as part of a run session request."
-    ));
-
-    private readonly ErrorResponse _projectNotFound = new(new ErrorDetail(
-        "NotFound",
-        "A project file is not found."
-    ));
-
     private readonly Channel<ISessionEvent> _sessionEventChannel = Channel.CreateUnbounded<ISessionEvent>(
         new UnboundedChannelOptions
         {
@@ -72,7 +62,8 @@ internal sealed class AspireHost
     private void InitializeSessionEventWatcher(Lifetime lifetime)
     {
         var sessionEventWatcherLogger = _loggerFactory.CreateLogger<SessionEventWatcher>();
-        var sessionEventWatcher = new SessionEventWatcher(_connectionWrapper, _aspireHostModel, _sessionEventChannel.Writer,
+        var sessionEventWatcher = new SessionEventWatcher(_connectionWrapper, _aspireHostModel,
+            _sessionEventChannel.Writer,
             sessionEventWatcherLogger, lifetime.CreateNested().Lifetime);
         lifetime.StartAttachedAsync(TaskScheduler.Default,
             async () => await sessionEventWatcher.WatchSessionEvents());
@@ -88,7 +79,8 @@ internal sealed class AspireHost
 
         _logger.CreatingResourceLogWatcher(_id);
         var resourceLogWatcherLogger = _loggerFactory.CreateLogger<AspireHostResourceLogWatcher>();
-        var resourceLogWatcher = new AspireHostResourceLogWatcher(client, metadata, _connectionWrapper, _aspireHostModel,
+        var resourceLogWatcher = new AspireHostResourceLogWatcher(client, metadata, _connectionWrapper,
+            _aspireHostModel,
             _resiliencePipelineProvider, resourceLogWatcherLogger, lifetime.CreateNested().Lifetime);
         lifetime.StartAttachedAsync(TaskScheduler.Default,
             async () => await resourceLogWatcher.WatchResourceLogs());
@@ -130,7 +122,7 @@ internal sealed class AspireHost
         return new DashboardService.DashboardServiceClient(channel);
     }
 
-    internal async Task<(string? sessionId, ErrorResponse? error)> Create(Session session)
+    internal async Task<(string? sessionId, Errors.IError? error)> Create(Session session)
     {
         var launchConfiguration = session.LaunchConfigurations.SingleOrDefault(it =>
             string.Equals(it.Type, "project", StringComparison.InvariantCultureIgnoreCase)
@@ -138,7 +130,7 @@ internal sealed class AspireHost
         if (launchConfiguration == null)
         {
             _logger.OnlySingleProjectLaunchConfigurationIsSupported();
-            return (null, _multipleProjectLaunchConfigurations);
+            return (null, Errors.MultipleProjectLaunchConfigurations);
         }
 
         var validationError = ValidateLaunchConfiguration(launchConfiguration);
@@ -164,25 +156,25 @@ internal sealed class AspireHost
         var result = await _connectionWrapper.CreateSession(_aspireHostModel, request);
         _logger.SessionCreationResponseReceived(result);
 
-        var error = result?.Error is not null ? BuildErrorResponse(result.Error) : null;
+        var error = result?.Error?.ToError();
 
         return (result?.SessionId, error);
     }
 
-    private ErrorResponse? ValidateLaunchConfiguration(LaunchConfiguration launchConfiguration)
+    private Errors.IError? ValidateLaunchConfiguration(LaunchConfiguration launchConfiguration)
     {
-        if(_hostEnvironment.IsTesting()) return null;
+        if (_hostEnvironment.IsTesting()) return null;
 
         if (!File.Exists(launchConfiguration.ProjectPath))
         {
             _logger.ProjectFileDoesntExist();
-            return _projectNotFound;
+            return Errors.DotNetProjectNotFound;
         }
 
         return null;
     }
 
-    internal async Task<(string? sessionId, ErrorResponse? error)> Delete(string id)
+    internal async Task<(string? sessionId, Errors.IError? error)> Delete(string id)
     {
         var request = new DeleteSessionRequest(id);
 
@@ -192,10 +184,8 @@ internal sealed class AspireHost
         var result = await _connectionWrapper.DeleteSession(_aspireHostModel, request);
         _logger.SessionDeletionResponseReceived(result);
 
-        var error = result?.Error is not null ? BuildErrorResponse(result.Error) : null;
+        var error = result?.Error?.ToError();
 
         return (result?.SessionId, error);
     }
-
-    private static ErrorResponse BuildErrorResponse(string message) => new(new ErrorDetail("BadRequest", message));
 }

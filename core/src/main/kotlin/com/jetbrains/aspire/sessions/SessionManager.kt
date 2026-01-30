@@ -3,6 +3,7 @@ package com.jetbrains.aspire.sessions
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
@@ -121,7 +122,7 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
 
         val sessionLifetimeDefinition = sessionLifetimes.remove(request.sessionId)
         if (sessionLifetimeDefinition == null) {
-            LOG.warn("Unable to find session ${request.sessionId} lifetime")
+            LOG.debug { "Unable to find session ${request.sessionId} lifetime" }
             return
         }
 

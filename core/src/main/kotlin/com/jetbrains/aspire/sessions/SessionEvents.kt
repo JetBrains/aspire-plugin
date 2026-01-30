@@ -1,5 +1,6 @@
 package com.jetbrains.aspire.sessions
 
+import com.jetbrains.aspire.generated.ErrorCode
 import com.jetbrains.aspire.generated.MessageLevel
 
 sealed interface SessionEvent
@@ -10,6 +11,5 @@ data class SessionMessageReceived(
     val id: String,
     val level: MessageLevel,
     val message: String,
-    val code: String?,
-    val details: String?
+    val errorCode: ErrorCode?,
 ) : SessionEvent

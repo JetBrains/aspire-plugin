@@ -105,12 +105,17 @@ internal sealed class SessionEventWatcher(
             MessageLevel.Debug => "debug",
             _ => "info"
         };
+        var error = @event.Error?.ToError();
+        var code = error?.ErrorDetail.Code;
+        var details = error != null ? (ErrorDetail[])[error.ErrorDetail] : null;
+
         var sessionEvent = new MessageReceivedEvent(
             @event.Id,
             MessageReceivedEventName,
             level,
             @event.Message,
-            @event.Code);
+            code,
+            details);
         var writingResult = sessionEventWriter.TryWrite(sessionEvent);
         if (!writingResult)
         {

@@ -51,6 +51,7 @@ class AspireWorkerModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(3396191624361927979), classLoader, "com.jetbrains.aspire.generated.ResourceCommandResponse"))
             serializers.register(LazyCompanionMarshaller(RdId(8004637670271409586), classLoader, "com.jetbrains.aspire.generated.AspireHostModelConfig"))
             serializers.register(LazyCompanionMarshaller(RdId(7370971417554020944), classLoader, "com.jetbrains.aspire.generated.AspireHostModel"))
+            serializers.register(LazyCompanionMarshaller(RdId(564443201287490), classLoader, "com.jetbrains.aspire.generated.ErrorCode"))
             serializers.register(LazyCompanionMarshaller(RdId(-1438774601599785104), classLoader, "com.jetbrains.aspire.generated.MessageLevel"))
             serializers.register(LazyCompanionMarshaller(RdId(-1311735068701761509), classLoader, "com.jetbrains.aspire.generated.ResourceType"))
             serializers.register(LazyCompanionMarshaller(RdId(-3770298982336589872), classLoader, "com.jetbrains.aspire.generated.ResourceState"))
@@ -77,7 +78,7 @@ class AspireWorkerModel private constructor(
         }
         
         
-        const val serializationHash = -4763306597304575633L
+        const val serializationHash = -2921588464370788207L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
@@ -122,7 +123,7 @@ val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:241]
+ * #### Generated from [AspireWorkerModel.kt:239]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -269,7 +270,7 @@ class AspireHostModel private constructor(
  * @property resourceServiceApiKey `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
  * @property otlpEndpointUrl `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
- * #### Generated from [AspireWorkerModel.kt:223]
+ * #### Generated from [AspireWorkerModel.kt:221]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -364,7 +365,7 @@ data class AspireHostModelConfig (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:61]
+ * #### Generated from [AspireWorkerModel.kt:59]
  */
 data class CreateSessionRequest (
     val projectPath: String,
@@ -453,11 +454,11 @@ data class CreateSessionRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:70]
+ * #### Generated from [AspireWorkerModel.kt:68]
  */
 data class CreateSessionResponse (
     val sessionId: String?,
-    val error: String?
+    val error: ErrorCode?
 ) : IPrintable {
     //companion
     
@@ -468,13 +469,13 @@ data class CreateSessionResponse (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): CreateSessionResponse  {
             val sessionId = buffer.readNullable { buffer.readString() }
-            val error = buffer.readNullable { buffer.readString() }
+            val error = buffer.readNullable { buffer.readEnum<ErrorCode>() }
             return CreateSessionResponse(sessionId, error)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CreateSessionResponse)  {
             buffer.writeNullable(value.sessionId) { buffer.writeString(it) }
-            buffer.writeNullable(value.error) { buffer.writeString(it) }
+            buffer.writeNullable(value.error) { buffer.writeEnum(it) }
         }
         
         
@@ -518,7 +519,7 @@ data class CreateSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:75]
+ * #### Generated from [AspireWorkerModel.kt:73]
  */
 data class DeleteSessionRequest (
     val sessionId: String
@@ -578,11 +579,11 @@ data class DeleteSessionRequest (
 
 /**
  * @property sessionId The field will be null if the session cannot be found
- * #### Generated from [AspireWorkerModel.kt:79]
+ * #### Generated from [AspireWorkerModel.kt:77]
  */
 data class DeleteSessionResponse (
     val sessionId: String?,
-    val error: String?
+    val error: ErrorCode?
 ) : IPrintable {
     //companion
     
@@ -593,13 +594,13 @@ data class DeleteSessionResponse (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): DeleteSessionResponse  {
             val sessionId = buffer.readNullable { buffer.readString() }
-            val error = buffer.readNullable { buffer.readString() }
+            val error = buffer.readNullable { buffer.readEnum<ErrorCode>() }
             return DeleteSessionResponse(sessionId, error)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: DeleteSessionResponse)  {
             buffer.writeNullable(value.sessionId) { buffer.writeString(it) }
-            buffer.writeNullable(value.error) { buffer.writeString(it) }
+            buffer.writeNullable(value.error) { buffer.writeEnum(it) }
         }
         
         
@@ -639,6 +640,32 @@ data class DeleteSessionResponse (
     //deepClone
     //contexts
     //threading
+}
+
+
+/**
+ * #### Generated from [AspireWorkerModel.kt:259]
+ */
+enum class ErrorCode {
+    AspireSessionNotFound, 
+    DotNetProjectNotFound, 
+    Unexpected;
+    
+    companion object : IMarshaller<ErrorCode> {
+        val marshaller = FrameworkMarshallers.enum<ErrorCode>()
+        
+        
+        override val _type: KClass<ErrorCode> = ErrorCode::class
+        override val id: RdId get() = RdId(564443201287490)
+        
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ErrorCode {
+            return marshaller.read(ctx, buffer)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ErrorCode)  {
+            marshaller.write(ctx, buffer, value)
+        }
+    }
 }
 
 
@@ -745,16 +772,14 @@ enum class MessageLevel {
 /**
  * @property id The ID of the run session that the notification is related to
  * @property message The content of the message
- * @property code The error code. Only valid and required for error messages
- * @property details Error details. Only valid for error messages
+ * @property error The error code. Only valid and required for error messages
  * #### Generated from [AspireWorkerModel.kt:40]
  */
 data class MessageReceived (
     val id: String,
     val level: MessageLevel,
     val message: String,
-    val code: String?,
-    val details: String?
+    val error: ErrorCode?
 ) : IPrintable {
     //companion
     
@@ -767,17 +792,15 @@ data class MessageReceived (
             val id = buffer.readString()
             val level = buffer.readEnum<MessageLevel>()
             val message = buffer.readString()
-            val code = buffer.readNullable { buffer.readString() }
-            val details = buffer.readNullable { buffer.readString() }
-            return MessageReceived(id, level, message, code, details)
+            val error = buffer.readNullable { buffer.readEnum<ErrorCode>() }
+            return MessageReceived(id, level, message, error)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MessageReceived)  {
             buffer.writeString(value.id)
             buffer.writeEnum(value.level)
             buffer.writeString(value.message)
-            buffer.writeNullable(value.code) { buffer.writeString(it) }
-            buffer.writeNullable(value.details) { buffer.writeString(it) }
+            buffer.writeNullable(value.error) { buffer.writeEnum(it) }
         }
         
         
@@ -796,8 +819,7 @@ data class MessageReceived (
         if (id != other.id) return false
         if (level != other.level) return false
         if (message != other.message) return false
-        if (code != other.code) return false
-        if (details != other.details) return false
+        if (error != other.error) return false
         
         return true
     }
@@ -807,8 +829,7 @@ data class MessageReceived (
         __r = __r*31 + id.hashCode()
         __r = __r*31 + level.hashCode()
         __r = __r*31 + message.hashCode()
-        __r = __r*31 + if (code != null) code.hashCode() else 0
-        __r = __r*31 + if (details != null) details.hashCode() else 0
+        __r = __r*31 + if (error != null) error.hashCode() else 0
         return __r
     }
     //pretty print
@@ -818,8 +839,7 @@ data class MessageReceived (
             print("id = "); id.print(printer); println()
             print("level = "); level.print(printer); println()
             print("message = "); message.print(printer); println()
-            print("code = "); code.print(printer); println()
-            print("details = "); details.print(printer); println()
+            print("error = "); error.print(printer); println()
         }
         printer.print(")")
     }
@@ -964,7 +984,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:182]
+ * #### Generated from [AspireWorkerModel.kt:180]
  */
 data class ResourceCommand (
     val name: String,
@@ -1059,7 +1079,7 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:207]
+ * #### Generated from [AspireWorkerModel.kt:205]
  */
 data class ResourceCommandRequest (
     val commandName: String,
@@ -1130,7 +1150,7 @@ data class ResourceCommandRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:213]
+ * #### Generated from [AspireWorkerModel.kt:211]
  */
 data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
@@ -1195,7 +1215,7 @@ data class ResourceCommandResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:214]
+ * #### Generated from [AspireWorkerModel.kt:212]
  */
 enum class ResourceCommandResponseKind {
     Undefined, 
@@ -1222,7 +1242,7 @@ enum class ResourceCommandResponseKind {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:189]
+ * #### Generated from [AspireWorkerModel.kt:187]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -1248,7 +1268,7 @@ enum class ResourceCommandState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:148]
+ * #### Generated from [AspireWorkerModel.kt:146]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -1313,7 +1333,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:175]
+ * #### Generated from [AspireWorkerModel.kt:173]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus?,
@@ -1390,7 +1410,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:169]
+ * #### Generated from [AspireWorkerModel.kt:167]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -1416,7 +1436,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:201]
+ * #### Generated from [AspireWorkerModel.kt:199]
  */
 data class ResourceLog (
     val text: String,
@@ -1487,7 +1507,7 @@ data class ResourceLog (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:92]
+ * #### Generated from [AspireWorkerModel.kt:90]
  */
 data class ResourceModel (
     val name: String,
@@ -1642,7 +1662,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:141]
+ * #### Generated from [AspireWorkerModel.kt:139]
  */
 data class ResourceProperty (
     val name: String,
@@ -1719,7 +1739,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:196]
+ * #### Generated from [AspireWorkerModel.kt:194]
  */
 data class ResourceRelationship (
     val resourceName: String,
@@ -1784,7 +1804,7 @@ data class ResourceRelationship (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:108]
+ * #### Generated from [AspireWorkerModel.kt:106]
  */
 enum class ResourceState {
     Starting, 
@@ -1818,7 +1838,7 @@ enum class ResourceState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:121]
+ * #### Generated from [AspireWorkerModel.kt:119]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -1846,7 +1866,7 @@ enum class ResourceStateStyle {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:94]
+ * #### Generated from [AspireWorkerModel.kt:92]
  */
 enum class ResourceType {
     Project, 
@@ -1879,7 +1899,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:153]
+ * #### Generated from [AspireWorkerModel.kt:151]
  */
 data class ResourceUrl (
     val endpointName: String?,
@@ -1968,7 +1988,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:162]
+ * #### Generated from [AspireWorkerModel.kt:160]
  */
 data class ResourceVolume (
     val source: String,
@@ -2045,7 +2065,7 @@ data class ResourceVolume (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:85]
+ * #### Generated from [AspireWorkerModel.kt:83]
  */
 class ResourceWrapper private constructor(
     private val _model: RdOptionalProperty<ResourceModel>,
@@ -2139,7 +2159,7 @@ class ResourceWrapper private constructor(
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:56]
+ * #### Generated from [AspireWorkerModel.kt:54]
  */
 data class SessionEnvironmentVariable (
     val key: String,

@@ -67,7 +67,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     
     
-    protected override long SerializationHash => -4763306597304575633L;
+    protected override long SerializationHash => -2921588464370788207L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -108,7 +108,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:241</p>
+  /// <p>Generated from: AspireWorkerModel.kt:239</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
@@ -270,7 +270,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:223</p>
+  /// <p>Generated from: AspireWorkerModel.kt:221</p>
   /// </summary>
   public sealed class AspireHostModelConfig : IPrintable, IEquatable<AspireHostModelConfig>
   {
@@ -434,7 +434,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:61</p>
+  /// <p>Generated from: AspireWorkerModel.kt:59</p>
   /// </summary>
   public sealed class CreateSessionRequest : IPrintable, IEquatable<CreateSessionRequest>
   {
@@ -565,20 +565,20 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:70</p>
+  /// <p>Generated from: AspireWorkerModel.kt:68</p>
   /// </summary>
   public sealed class CreateSessionResponse : IPrintable, IEquatable<CreateSessionResponse>
   {
     //fields
     //public fields
     [CanBeNull] public string SessionId {get; private set;}
-    [CanBeNull] public string Error {get; private set;}
+    [CanBeNull] public ErrorCode? Error {get; private set;}
     
     //private fields
     //primary constructor
     public CreateSessionResponse(
       [CanBeNull] string sessionId,
-      [CanBeNull] string error
+      [CanBeNull] ErrorCode? error
     )
     {
       SessionId = sessionId;
@@ -586,7 +586,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([CanBeNull] out string sessionId, [CanBeNull] out string error)
+    public void Deconstruct([CanBeNull] out string sessionId, [CanBeNull] out ErrorCode? error)
     {
       sessionId = SessionId;
       error = Error;
@@ -596,18 +596,20 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     public static CtxReadDelegate<CreateSessionResponse> Read = (ctx, reader) => 
     {
       var sessionId = ReadStringNullable(ctx, reader);
-      var error = ReadStringNullable(ctx, reader);
+      var error = ReadErrorCodeNullable(ctx, reader);
       var _result = new CreateSessionResponse(sessionId, error);
       return _result;
     };
     public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    public static CtxReadDelegate<ErrorCode?> ReadErrorCodeNullable = new CtxReadDelegate<ErrorCode>(JetBrains.Rd.Impl.Serializers.ReadEnum<ErrorCode>).NullableStruct();
     
     public static CtxWriteDelegate<CreateSessionResponse> Write = (ctx, writer, value) => 
     {
       WriteStringNullable(ctx, writer, value.SessionId);
-      WriteStringNullable(ctx, writer, value.Error);
+      WriteErrorCodeNullable(ctx, writer, value.Error);
     };
     public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    public static  CtxWriteDelegate<ErrorCode?> WriteErrorCodeNullable = new CtxWriteDelegate<ErrorCode>(JetBrains.Rd.Impl.Serializers.WriteEnum<ErrorCode>).NullableStruct();
     
     //constants
     
@@ -633,7 +635,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       unchecked {
         var hash = 0;
         hash = hash * 31 + (SessionId != null ? SessionId.GetHashCode() : 0);
-        hash = hash * 31 + (Error != null ? Error.GetHashCode() : 0);
+        hash = hash * 31 + (Error != null ? (int) Error : 0);
         return hash;
       }
     }
@@ -658,7 +660,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:75</p>
+  /// <p>Generated from: AspireWorkerModel.kt:73</p>
   /// </summary>
   public sealed class DeleteSessionRequest : IPrintable, IEquatable<DeleteSessionRequest>
   {
@@ -743,7 +745,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:79</p>
+  /// <p>Generated from: AspireWorkerModel.kt:77</p>
   /// </summary>
   public sealed class DeleteSessionResponse : IPrintable, IEquatable<DeleteSessionResponse>
   {
@@ -754,13 +756,13 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     /// The field will be null if the session cannot be found
     /// </summary>
     [CanBeNull] public string SessionId {get; private set;}
-    [CanBeNull] public string Error {get; private set;}
+    [CanBeNull] public ErrorCode? Error {get; private set;}
     
     //private fields
     //primary constructor
     public DeleteSessionResponse(
       [CanBeNull] string sessionId,
-      [CanBeNull] string error
+      [CanBeNull] ErrorCode? error
     )
     {
       SessionId = sessionId;
@@ -768,7 +770,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([CanBeNull] out string sessionId, [CanBeNull] out string error)
+    public void Deconstruct([CanBeNull] out string sessionId, [CanBeNull] out ErrorCode? error)
     {
       sessionId = SessionId;
       error = Error;
@@ -778,18 +780,20 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     public static CtxReadDelegate<DeleteSessionResponse> Read = (ctx, reader) => 
     {
       var sessionId = ReadStringNullable(ctx, reader);
-      var error = ReadStringNullable(ctx, reader);
+      var error = ReadErrorCodeNullable(ctx, reader);
       var _result = new DeleteSessionResponse(sessionId, error);
       return _result;
     };
     public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    public static CtxReadDelegate<ErrorCode?> ReadErrorCodeNullable = new CtxReadDelegate<ErrorCode>(JetBrains.Rd.Impl.Serializers.ReadEnum<ErrorCode>).NullableStruct();
     
     public static CtxWriteDelegate<DeleteSessionResponse> Write = (ctx, writer, value) => 
     {
       WriteStringNullable(ctx, writer, value.SessionId);
-      WriteStringNullable(ctx, writer, value.Error);
+      WriteErrorCodeNullable(ctx, writer, value.Error);
     };
     public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    public static  CtxWriteDelegate<ErrorCode?> WriteErrorCodeNullable = new CtxWriteDelegate<ErrorCode>(JetBrains.Rd.Impl.Serializers.WriteEnum<ErrorCode>).NullableStruct();
     
     //constants
     
@@ -815,7 +819,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       unchecked {
         var hash = 0;
         hash = hash * 31 + (SessionId != null ? SessionId.GetHashCode() : 0);
-        hash = hash * 31 + (Error != null ? Error.GetHashCode() : 0);
+        hash = hash * 31 + (Error != null ? (int) Error : 0);
         return hash;
       }
     }
@@ -836,6 +840,16 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       Print(printer);
       return printer.ToString();
     }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireWorkerModel.kt:259</p>
+  /// </summary>
+  public enum ErrorCode {
+    AspireSessionNotFound,
+    DotNetProjectNotFound,
+    Unexpected
   }
   
   
@@ -985,12 +999,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     /// <summary>
     /// The error code. Only valid and required for error messages
     /// </summary>
-    [CanBeNull] public string Code {get; private set;}
-    
-    /// <summary>
-    /// Error details. Only valid for error messages
-    /// </summary>
-    [CanBeNull] public string Details {get; private set;}
+    [CanBeNull] public ErrorCode? Error {get; private set;}
     
     //private fields
     //primary constructor
@@ -998,8 +1007,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       [NotNull] string id,
       MessageLevel level,
       [NotNull] string message,
-      [CanBeNull] string code,
-      [CanBeNull] string details
+      [CanBeNull] ErrorCode? error
     )
     {
       if (id == null) throw new ArgumentNullException("id");
@@ -1008,18 +1016,16 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       Id = id;
       Level = level;
       Message = message;
-      Code = code;
-      Details = details;
+      Error = error;
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string id, out MessageLevel level, [NotNull] out string message, [CanBeNull] out string code, [CanBeNull] out string details)
+    public void Deconstruct([NotNull] out string id, out MessageLevel level, [NotNull] out string message, [CanBeNull] out ErrorCode? error)
     {
       id = Id;
       level = Level;
       message = Message;
-      code = Code;
-      details = Details;
+      error = Error;
     }
     //statics
     
@@ -1028,22 +1034,20 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       var id = reader.ReadString();
       var level = (MessageLevel)reader.ReadInt();
       var message = reader.ReadString();
-      var code = ReadStringNullable(ctx, reader);
-      var details = ReadStringNullable(ctx, reader);
-      var _result = new MessageReceived(id, level, message, code, details);
+      var error = ReadErrorCodeNullable(ctx, reader);
+      var _result = new MessageReceived(id, level, message, error);
       return _result;
     };
-    public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
+    public static CtxReadDelegate<ErrorCode?> ReadErrorCodeNullable = new CtxReadDelegate<ErrorCode>(JetBrains.Rd.Impl.Serializers.ReadEnum<ErrorCode>).NullableStruct();
     
     public static CtxWriteDelegate<MessageReceived> Write = (ctx, writer, value) => 
     {
       writer.Write(value.Id);
       writer.Write((int)value.Level);
       writer.Write(value.Message);
-      WriteStringNullable(ctx, writer, value.Code);
-      WriteStringNullable(ctx, writer, value.Details);
+      WriteErrorCodeNullable(ctx, writer, value.Error);
     };
-    public static  CtxWriteDelegate<string> WriteStringNullable = JetBrains.Rd.Impl.Serializers.WriteString.NullableClass();
+    public static  CtxWriteDelegate<ErrorCode?> WriteErrorCodeNullable = new CtxWriteDelegate<ErrorCode>(JetBrains.Rd.Impl.Serializers.WriteEnum<ErrorCode>).NullableStruct();
     
     //constants
     
@@ -1061,7 +1065,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Id == other.Id && Level == other.Level && Message == other.Message && Equals(Code, other.Code) && Equals(Details, other.Details);
+      return Id == other.Id && Level == other.Level && Message == other.Message && Equals(Error, other.Error);
     }
     //hash code trait
     public override int GetHashCode()
@@ -1071,8 +1075,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
         hash = hash * 31 + Id.GetHashCode();
         hash = hash * 31 + (int) Level;
         hash = hash * 31 + Message.GetHashCode();
-        hash = hash * 31 + (Code != null ? Code.GetHashCode() : 0);
-        hash = hash * 31 + (Details != null ? Details.GetHashCode() : 0);
+        hash = hash * 31 + (Error != null ? (int) Error : 0);
         return hash;
       }
     }
@@ -1084,8 +1087,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
         printer.Print("id = "); Id.PrintEx(printer); printer.Println();
         printer.Print("level = "); Level.PrintEx(printer); printer.Println();
         printer.Print("message = "); Message.PrintEx(printer); printer.Println();
-        printer.Print("code = "); Code.PrintEx(printer); printer.Println();
-        printer.Print("details = "); Details.PrintEx(printer); printer.Println();
+        printer.Print("error = "); Error.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -1302,7 +1304,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:182</p>
+  /// <p>Generated from: AspireWorkerModel.kt:180</p>
   /// </summary>
   public sealed class ResourceCommand : IPrintable, IEquatable<ResourceCommand>
   {
@@ -1438,7 +1440,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:207</p>
+  /// <p>Generated from: AspireWorkerModel.kt:205</p>
   /// </summary>
   public sealed class ResourceCommandRequest : IPrintable, IEquatable<ResourceCommandRequest>
   {
@@ -1541,7 +1543,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:213</p>
+  /// <p>Generated from: AspireWorkerModel.kt:211</p>
   /// </summary>
   public sealed class ResourceCommandResponse : IPrintable, IEquatable<ResourceCommandResponse>
   {
@@ -1634,7 +1636,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:214</p>
+  /// <p>Generated from: AspireWorkerModel.kt:212</p>
   /// </summary>
   public enum ResourceCommandResponseKind {
     Undefined,
@@ -1645,7 +1647,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:189</p>
+  /// <p>Generated from: AspireWorkerModel.kt:187</p>
   /// </summary>
   public enum ResourceCommandState {
     Enabled,
@@ -1655,7 +1657,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:148</p>
+  /// <p>Generated from: AspireWorkerModel.kt:146</p>
   /// </summary>
   public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
   {
@@ -1750,7 +1752,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:175</p>
+  /// <p>Generated from: AspireWorkerModel.kt:173</p>
   /// </summary>
   public sealed class ResourceHealthReport : IPrintable, IEquatable<ResourceHealthReport>
   {
@@ -1863,7 +1865,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:169</p>
+  /// <p>Generated from: AspireWorkerModel.kt:167</p>
   /// </summary>
   public enum ResourceHealthStatus {
     Healthy,
@@ -1873,7 +1875,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:201</p>
+  /// <p>Generated from: AspireWorkerModel.kt:199</p>
   /// </summary>
   public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
   {
@@ -1974,7 +1976,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:92</p>
+  /// <p>Generated from: AspireWorkerModel.kt:90</p>
   /// </summary>
   public sealed class ResourceModel : IPrintable, IEquatable<ResourceModel>
   {
@@ -2216,7 +2218,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:141</p>
+  /// <p>Generated from: AspireWorkerModel.kt:139</p>
   /// </summary>
   public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
   {
@@ -2329,7 +2331,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:196</p>
+  /// <p>Generated from: AspireWorkerModel.kt:194</p>
   /// </summary>
   public sealed class ResourceRelationship : IPrintable, IEquatable<ResourceRelationship>
   {
@@ -2423,7 +2425,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:108</p>
+  /// <p>Generated from: AspireWorkerModel.kt:106</p>
   /// </summary>
   public enum ResourceState {
     Starting,
@@ -2441,7 +2443,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:121</p>
+  /// <p>Generated from: AspireWorkerModel.kt:119</p>
   /// </summary>
   public enum ResourceStateStyle {
     Success,
@@ -2453,7 +2455,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:94</p>
+  /// <p>Generated from: AspireWorkerModel.kt:92</p>
   /// </summary>
   public enum ResourceType {
     Project,
@@ -2470,7 +2472,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:153</p>
+  /// <p>Generated from: AspireWorkerModel.kt:151</p>
   /// </summary>
   public sealed class ResourceUrl : IPrintable, IEquatable<ResourceUrl>
   {
@@ -2598,7 +2600,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:162</p>
+  /// <p>Generated from: AspireWorkerModel.kt:160</p>
   /// </summary>
   public sealed class ResourceVolume : IPrintable, IEquatable<ResourceVolume>
   {
@@ -2709,7 +2711,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:85</p>
+  /// <p>Generated from: AspireWorkerModel.kt:83</p>
   /// </summary>
   public sealed class ResourceWrapper : RdBindableBase
   {
@@ -2811,7 +2813,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:56</p>
+  /// <p>Generated from: AspireWorkerModel.kt:54</p>
   /// </summary>
   public sealed class SessionEnvironmentVariable : IPrintable, IEquatable<SessionEnvironmentVariable>
   {
