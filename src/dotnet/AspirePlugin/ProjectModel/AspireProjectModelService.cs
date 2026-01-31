@@ -4,7 +4,6 @@ using JetBrains.Application.Threading;
 using JetBrains.IDE;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
-using JetBrains.ProjectModel.Impl;
 using JetBrains.ProjectModel.Model2.Assemblies.Interfaces;
 using JetBrains.ProjectModel.ProjectsHost.SolutionHost;
 using JetBrains.RdBackend.Common.Features.ProjectModel;
@@ -144,13 +143,8 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
             if (tfm is null) continue;
             var references = targetProject.GetProjectReferences(tfm);
             existingReferences[tfm] = references
-                .SelectNotNull(it =>
-                {
-                    if (it is GuidProjectReference gpr)
-                        return (Guid?)gpr.ReferencedProjectGuid;
-                    else
-                        return null;
-                }).ToList();
+                .SelectNotNull(it => it.ResolveResult()?.Guid)
+                .ToList();
         }
 
         solution.InvokeUnderTransaction(cookie =>
@@ -202,6 +196,7 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
                         logger.Verbose($"Unable to resolve referenced project: {reference?.Name}");
                         continue;
                     }
+
                     referencedProjectGuids.Add(referencedProject.Guid);
                 }
 
