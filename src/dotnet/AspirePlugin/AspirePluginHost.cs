@@ -28,6 +28,7 @@ public class AspirePluginHost
         model.GetProjectOutputType.SetSync(GetProjectOutputType);
         model.ReferenceProjectsFromAppHost.SetSync((lt, req) => ReferenceProjectsFromAppHost(req, lt));
         model.ReferenceServiceDefaultsFromProjects.SetSync((lt, req) => ReferenceServiceDefaultsFromProjects(req, lt));
+        model.GetReferencedProjectsFromAppHost.SetSync((lt, req) => GetReferencedProjectsFromAppHost(req, lt));
     }
 
     private string? GetProjectOutputType(RdPath projectPath)
@@ -57,6 +58,16 @@ public class AspirePluginHost
     {
         return _projectModelService.ReferenceServiceDefaultsFromProjects(
             request.SharedProjectFilePath.FromRd(),
+            request.ProjectFilePaths.Select(it => it.FromRd()).ToList(),
+            lifetime);
+    }
+
+    private GetReferencedProjectsFromAppHostResponse? GetReferencedProjectsFromAppHost(
+        GetReferencedProjectsFromAppHostRequest request,
+        Lifetime lifetime)
+    {
+        return _projectModelService.GetReferencedProjectsFromAppHost(
+            request.HostProjectFilePath.FromRd(),
             request.ProjectFilePaths.Select(it => it.FromRd()).ToList(),
             lifetime);
     }

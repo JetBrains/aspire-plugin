@@ -15,7 +15,7 @@ import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.aspire.rider.AspireRiderBundle
-import com.jetbrains.aspire.util.isAspireHostProject
+import com.jetbrains.aspire.rider.util.findExistingAppHost
 import com.jetbrains.rd.platform.util.TimeoutTracker
 import com.jetbrains.rider.ijent.extensions.toNioPath
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
@@ -79,7 +79,7 @@ class AspireOrchestrationService(private val project: Project) {
     suspend fun addAspireOrchestration(
         projectEntities: List<ProjectModelEntity>,
     ) = withBackgroundProgress(project, AspireRiderBundle.message("progress.adding.aspire.orchestration")) {
-        val existingAppHostEntity = findExistingAppHost()
+        val existingAppHostEntity = findExistingAppHost(project)
 
         val appHostEntity = if (existingAppHostEntity != null) {
             LOG.trace { "Using existing AppHost" }
@@ -115,16 +115,6 @@ class AspireOrchestrationService(private val project: Project) {
         if (!appHostFileWasModified && !anyProjectModified) {
             notifyAboutAlreadyAddedOrchestration()
         }
-    }
-
-    private suspend fun findExistingAppHost(): ProjectModelEntity? {
-        val dotnetProjects = project.serviceAsync<WorkspaceModel>().findProjects()
-        for (dotnetProject in dotnetProjects) {
-            if (dotnetProject.isAspireHostProject()) {
-                return dotnetProject
-            }
-        }
-        return null
     }
 
     private suspend fun generateAppHost(): ProjectModelEntity? {

@@ -1,4 +1,4 @@
-@file:Suppress("LoggingSimilarMessage")
+@file:Suppress("LoggingSimilarMessage", "UnstableApiUsage")
 
 package com.jetbrains.aspire.rider.sessions
 
@@ -6,12 +6,19 @@ import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessOutputType
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import com.intellij.platform.backend.workspace.WorkspaceModel
+import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.intellij.util.application
+import com.jetbrains.aspire.rider.generated.GetReferencedProjectsFromAppHostRequest
+import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.rider.util.DotNetBuildService
+import com.jetbrains.aspire.rider.util.findExistingAppHost
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -22,9 +29,17 @@ import com.jetbrains.rd.util.threading.coroutines.launch
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
+import com.jetbrains.rider.ijent.extensions.toNioPath
+import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.BuildTarget
+import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.projectView.workspace.findProjects
 import com.jetbrains.rider.run.pid
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
@@ -46,10 +61,12 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         LOG.trace { "Received ${requests.size} start session request(s)" }
 
         val projectPaths = requests
+            .asSequence()
             .map { it.launchConfiguration }
             .filterIsInstance<DotNetSessionLaunchConfiguration>()
             .map { it.projectPath }
             .distinct()
+            .toList()
         buildProjects(projectPaths, project)
 
         requests.forEach {
@@ -60,25 +77,52 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
     private suspend fun buildProjects(projectPaths: List<Path>, project: Project) {
         if (projectPaths.isEmpty()) return
 
-        val runnableProjects = mutableListOf<Path>()
-        val nonRunnableProjects = mutableListOf<Path>()
+        val allSolutionProjectPaths = project.serviceAsync<WorkspaceModel>()
+            .findProjects()
+            .mapNotNull { it.url?.toPath() }
+            .toSet()
+
+        val solutionProjects = mutableListOf<Path>()
+        val externalProjects = mutableListOf<Path>()
 
         for (projectPath in projectPaths) {
-            val runnableProject = findRunnableProjectByPath(projectPath, project)
-            if (runnableProject != null) {
-                runnableProjects.add(projectPath)
+            if (allSolutionProjectPaths.contains(projectPath)) {
+                solutionProjects.add(projectPath)
             } else {
-                nonRunnableProjects.add(projectPath)
+                externalProjects.add(projectPath)
             }
         }
 
+        coroutineScope {
+            launch {
+                buildSolutionProjects(solutionProjects, project)
+            }
+            launch {
+                buildExternalProjects(externalProjects, project)
+            }
+        }
+    }
+
+    private suspend fun buildSolutionProjects(projectPaths: List<Path>, project: Project) {
+        if (projectPaths.isEmpty()) return
+
         val settings = AspireSettings.getInstance()
-        //Sometimes .NET projects specified in the AppHost by a string path can be actually runnable (included in the same solution),
-        //so we can't just skip building all the runnable projects.
-        //Probably we need to check the AppHost references and only then decide whether to build them or not.
-        if (runnableProjects.isNotEmpty() && settings.buildDotnetProjectsBeforeLaunch) {
-            LOG.trace { "Building ${runnableProjects.size} runnable project(s): ${runnableProjects.map { it.fileName }}" }
-            val pathStrings = runnableProjects.map { it.absolutePathString() }
+
+        val projectPathsToBuild = if (settings.forceBuildOfAppHostReferencedProjects) {
+            projectPaths
+        } else {
+            //We can skip building referenced by AppHost projects
+            // because they are already built with BeforeLaunchTask
+            val referencedProjects = findProjectsReferencedByAppHost(projectPaths, project)
+            projectPaths.filterNot { projectPath ->
+                referencedProjects.any { it == projectPath }
+            }
+        }
+
+        if (projectPathsToBuild.isNotEmpty()) {
+            LOG.trace { "Building ${projectPathsToBuild.size} solution project(s): ${projectPathsToBuild.map { it.fileName }}" }
+
+            val pathStrings = projectPathsToBuild.map { it.absolutePathString() }
             val buildParameters = BuildParameters(
                 BuildTarget(),
                 pathStrings,
@@ -86,14 +130,31 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             )
             BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
         }
+    }
 
-        //We have to build non-runnable projects even if `buildDotnetProjectsBeforeLaunch` is false because
-        //they are not included in the solution and weren't built in the "before run" phase
-        if (nonRunnableProjects.isNotEmpty()) {
-            LOG.trace { "Building ${nonRunnableProjects.size} non-runnable project(s): ${nonRunnableProjects.map { it.fileName }}" }
-            val buildService = DotNetBuildService.getInstance(project)
-            buildService.buildProjects(nonRunnableProjects)
-        }
+    private suspend fun buildExternalProjects(projectPaths: List<Path>, project: Project) {
+        if (projectPaths.isEmpty()) return
+        LOG.trace { "Building ${projectPaths.size} external project(s): ${projectPaths.map { it.fileName }}" }
+        val buildService = DotNetBuildService.getInstance(project)
+        buildService.buildProjects(projectPaths)
+    }
+
+    private suspend fun findProjectsReferencedByAppHost(projectPaths: List<Path>, project: Project): List<Path> {
+        val appHostProjectPath = findExistingAppHost(project)
+            ?.url
+            ?.toPath()
+            ?: return emptyList()
+
+        val request = GetReferencedProjectsFromAppHostRequest(
+            appHostProjectPath.toRd(),
+            projectPaths.map { it.toRd() }
+        )
+
+        val referencedProjectsResponse = withContext(Dispatchers.EDT) {
+            project.solution.aspirePluginModel.getReferencedProjectsFromAppHost.startSuspending(request)
+        } ?: return emptyList()
+
+        return referencedProjectsResponse.referencedProjectFilePaths.map { it.toNioPath() }
     }
 
     private fun handleStartSessionRequest(request: StartSessionRequest, project: Project) {

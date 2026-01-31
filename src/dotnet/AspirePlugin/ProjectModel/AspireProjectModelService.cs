@@ -5,6 +5,7 @@ using JetBrains.IDE;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Impl;
+using JetBrains.ProjectModel.Model2.Assemblies.Interfaces;
 using JetBrains.ProjectModel.ProjectsHost.SolutionHost;
 using JetBrains.RdBackend.Common.Features.ProjectModel;
 using JetBrains.Rider.Aspire.Plugin.Generated;
@@ -164,5 +165,69 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
                 cookie.AddModuleReference(targetProject, projectToReference, tfm);
             }
         });
+    }
+
+    /// <summary>
+    /// Checks which projects from a given list are referenced by a host project.
+    /// </summary>
+    /// <param name="hostProjectFilePath">The file path of the host project.</param>
+    /// <param name="projectFilePaths">A list of project file paths to check.</param>
+    /// <param name="lifetime">The <see cref="Lifetime"/> object controlling the scope of the operation, allowing cancellation if needed.</param>
+    /// <returns>A list of project paths that are referenced by the host project (across any target framework).</returns>
+    public GetReferencedProjectsFromAppHostResponse? GetReferencedProjectsFromAppHost(
+        VirtualFileSystemPath hostProjectFilePath,
+        List<VirtualFileSystemPath> projectFilePaths,
+        Lifetime lifetime)
+    {
+        using (solution.Locks.UsingReadLock())
+        {
+            var hostProject = solution.FindProjectByPath(hostProjectFilePath);
+            if (hostProject is null)
+            {
+                logger.Warn("Unable to find host project");
+                return null;
+            }
+
+            var referencedProjectGuids = new HashSet<Guid>();
+            foreach (var tfm in hostProject.TargetFrameworkIds)
+            {
+                if (tfm is null) continue;
+
+                var references = hostProject.GetProjectReferences(tfm);
+                foreach (var reference in references)
+                {
+                    var referencedProject = reference?.ResolveResult();
+                    if (referencedProject is null)
+                    {
+                        logger.Verbose($"Unable to resolve referenced project: {reference?.Name}");
+                        continue;
+                    }
+                    referencedProjectGuids.Add(referencedProject.Guid);
+                }
+
+                lifetime.ThrowIfNotAlive();
+            }
+
+            var referencedProjects = new List<VirtualFileSystemPath>();
+            foreach (var projectPath in projectFilePaths)
+            {
+                lifetime.ThrowIfNotAlive();
+
+                var project = solution.FindProjectByProjectFilePath(projectPath);
+                if (project is null)
+                {
+                    logger.Verbose($"Unable to resolve project from path: {projectPath}");
+                    continue;
+                }
+
+                if (referencedProjectGuids.Contains(project.Guid))
+                {
+                    referencedProjects.Add(projectPath);
+                }
+            }
+
+            var resultPaths = referencedProjects.Select(it => it.ToRd()).ToList();
+            return new GetReferencedProjectsFromAppHostResponse(resultPaths);
+        }
     }
 }
