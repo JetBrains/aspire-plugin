@@ -27,6 +27,15 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("projectFilePathsWithReference", immutableList(RdPath))
     }
 
+    private val GetReferencedProjectsFromAppHostRequest = structdef {
+        field("hostProjectFilePath", RdPath)
+        field("projectFilePaths", immutableList(RdPath))
+    }
+
+    private val GetReferencedProjectsFromAppHostResponse = structdef {
+        field("referencedProjectFilePaths", immutableList(RdPath))
+    }
+
     private val StartAspireHostRequest = structdef {
         field("unitTestRunId", string)
         field("aspireHostProjectPath", RdPath)
@@ -60,6 +69,11 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
             "referenceServiceDefaultsFromProjects",
             ReferenceServiceDefaultsFromProjectsRequest,
             ReferenceServiceDefaultsFromProjectsResponse.nullable
+        )
+        call(
+            "getReferencedProjectsFromAppHost",
+            GetReferencedProjectsFromAppHostRequest,
+            GetReferencedProjectsFromAppHostResponse.nullable
         )
         callback("startAspireHost", StartAspireHostRequest, StartAspireHostResponse).async
         callback("stopAspireHost", StopAspireHostRequest, void).async
