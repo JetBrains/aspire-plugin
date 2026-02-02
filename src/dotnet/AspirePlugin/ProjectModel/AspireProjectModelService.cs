@@ -173,18 +173,51 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
         List<VirtualFileSystemPath> projectFilePaths,
         Lifetime lifetime)
     {
-        using (solution.Locks.UsingReadLock())
+        var hostProject = solution.FindProjectByPath(hostProjectFilePath);
+        if (hostProject is null)
         {
-            var hostProject = solution.FindProjectByPath(hostProjectFilePath);
-            if (hostProject is null)
+            logger.Warn("Unable to find host project");
+            return null;
+        }
+
+        var referencedProjectGuids = CalculateReferencedProjectGuids(hostProject, lifetime);
+        if (referencedProjectGuids.Count == 0)
+        {
+            return new GetReferencedProjectsFromAppHostResponse([]);
+        }
+
+
+        var referencedProjects = new List<VirtualFileSystemPath>();
+        foreach (var projectPath in projectFilePaths)
+        {
+            lifetime.ThrowIfNotAlive();
+
+            var project = solution.FindProjectByPath(projectPath);
+            if (project is null)
             {
-                logger.Warn("Unable to find host project");
-                return null;
+                logger.Verbose($"Unable to resolve project from path: {projectPath}");
+                continue;
             }
 
-            var referencedProjectGuids = new HashSet<Guid>();
+            if (referencedProjectGuids.Contains(project.Guid))
+            {
+                referencedProjects.Add(projectPath);
+            }
+        }
+
+        var resultPaths = referencedProjects.Select(it => it.ToRd()).ToList();
+        return new GetReferencedProjectsFromAppHostResponse(resultPaths);
+    }
+
+    private HashSet<Guid> CalculateReferencedProjectGuids(IProject hostProject, Lifetime lifetime)
+    {
+        var referencedProjectGuids = new HashSet<Guid>();
+
+        using (solution.Locks.UsingReadLock())
+        {
             foreach (var tfm in hostProject.TargetFrameworkIds)
             {
+                lifetime.ThrowIfNotAlive();
                 if (tfm is null) continue;
 
                 var references = hostProject.GetProjectReferences(tfm);
@@ -199,30 +232,9 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
 
                     referencedProjectGuids.Add(referencedProject.Guid);
                 }
-
-                lifetime.ThrowIfNotAlive();
             }
-
-            var referencedProjects = new List<VirtualFileSystemPath>();
-            foreach (var projectPath in projectFilePaths)
-            {
-                lifetime.ThrowIfNotAlive();
-
-                var project = solution.FindProjectByProjectFilePath(projectPath);
-                if (project is null)
-                {
-                    logger.Verbose($"Unable to resolve project from path: {projectPath}");
-                    continue;
-                }
-
-                if (referencedProjectGuids.Contains(project.Guid))
-                {
-                    referencedProjects.Add(projectPath);
-                }
-            }
-
-            var resultPaths = referencedProjects.Select(it => it.ToRd()).ToList();
-            return new GetReferencedProjectsFromAppHostResponse(resultPaths);
         }
+
+        return referencedProjectGuids;
     }
 }
