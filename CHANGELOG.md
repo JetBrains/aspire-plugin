@@ -6,6 +6,12 @@
 
 ### Changed
 
+- Update platform version to RD-2026.1-EAP3 +
+
+## [2.4.0] - 2026-02-03
+
+### Changed
+
 - Update to dotnet 10
 - Bump libraries versions
 - Update the Aspire IDE protocol version to `2025-10-01`
@@ -605,7 +611,9 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.3.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.4.0...HEAD
+[2.4.0]: https://github.com/JetBrains/aspire-plugin/compare/2.3.1...2.4.0
+[2.3.1]: https://github.com/JetBrains/aspire-plugin/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/JetBrains/aspire-plugin/compare/2.2.1...2.3.0
 [2.2.1]: https://github.com/JetBrains/aspire-plugin/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/JetBrains/aspire-plugin/compare/2.1.0...2.2.0

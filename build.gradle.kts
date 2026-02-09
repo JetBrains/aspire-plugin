@@ -144,6 +144,7 @@ intellijPlatform {
 changelog {
     groups.empty()
     repositoryUrl = providers.gradleProperty("pluginRepositoryUrl")
+    versionPrefix = ""
 }
 
 tasks {

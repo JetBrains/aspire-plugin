@@ -17,7 +17,7 @@ import com.intellij.openapi.util.Key
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.aspire.util.decodeAnsiCommandsToString
 import com.jetbrains.rider.environment.RiderEnvironment
-import com.jetbrains.rider.environment.getEnvironment
+import com.jetbrains.rider.environment.initializeAndGetEnvironment
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.text.SimpleDateFormat
@@ -65,7 +65,7 @@ internal class AspireWorkerLauncher(private val project: Project) {
     suspend fun launchWorker(config: AspireWorkerConfig, lifetime: LifetimeDefinition) {
         LOG.info("Starting Aspire worker")
 
-        val riderEnvironment = project.getEnvironment()
+        val riderEnvironment = project.initializeAndGetEnvironment()
 
         val commandLine = getCommandLine(riderEnvironment, config)
         LOG.trace { "Aspire worker command line: ${commandLine.commandLineString}" }
