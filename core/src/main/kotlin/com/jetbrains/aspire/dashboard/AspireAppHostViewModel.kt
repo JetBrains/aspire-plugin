@@ -22,7 +22,7 @@ import kotlin.io.path.nameWithoutExtension
 class AspireAppHostViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
-    private val appHost: AspireAppHost
+    appHost: AspireAppHost
 ) : ServiceViewProvidingContributor<AspireResource, AspireAppHostViewModel>, Disposable {
     private val cs: CoroutineScope = parentCs.childScope("Aspire AppHost VM")
 
@@ -36,7 +36,7 @@ class AspireAppHostViewModel(
             .map { resources ->
                 resources
                     .filter { it.parentResourceName == null }
-                    .sortedWith(compareBy({ it.type }, { it.name }))
+                    .sortedWith(compareBy({ it.data.type }, { it.data.name }))
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 
@@ -77,14 +77,6 @@ class AspireAppHostViewModel(
                 .collect {
                     sendServiceChildrenChangedEvent()
                     expand()
-                }
-        }
-
-        cs.launch {
-            appHost
-                .resourcesReloadSignal
-                .collect {
-                    sendServiceChildrenChangedEvent()
                 }
         }
     }

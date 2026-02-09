@@ -6,9 +6,9 @@ import com.jetbrains.aspire.generated.ResourceType
 
 class RestartResourceAction : ResourceCommandAction() {
     override fun checkResourceState(resourceService: AspireResource) =
-        resourceService.type != ResourceType.Project ||
-                resourceService.projectPath?.value == null
+        resourceService.data.type != ResourceType.Project ||
+                resourceService.data.projectPath?.value == null
 
     override fun findCommand(resource: AspireResource) =
-        resource.commands.firstOrNull { it.name.equals(RestartResourceCommand, true) }
+        resource.data.commands.firstOrNull { it.name.equals(RestartResourceCommand, true) }
 }
