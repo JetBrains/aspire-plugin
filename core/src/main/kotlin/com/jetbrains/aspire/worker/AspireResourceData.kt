@@ -26,6 +26,7 @@ data class AspireResourceData(
     val environment: List<ResourceEnvironmentVariable>,
     val volumes: List<ResourceVolume>,
     val relationships: List<ResourceRelationship>,
+    val parentResourceName: String?,
     val commands: List<ResourceCommand>,
     val createdAt: LocalDateTime?,
     val startedAt: LocalDateTime?,
@@ -45,10 +46,7 @@ data class AspireResourceData(
     val connectionString: AspireResourceProperty<String>?,
     val source: AspireResourceProperty<String>?,
     val value: AspireResourceProperty<String>?
-) {
-    val parentResourceName: String?
-        get() = relationships.firstOrNull { it.type.equals("parent", true) }?.resourceName
-}
+)
 
 internal fun ResourceModel?.toAspireResourceData(previousState: ResourceState? = null): AspireResourceData {
     val timezone = TimeZone.currentSystemDefault()
@@ -113,6 +111,9 @@ internal fun ResourceModel?.toAspireResourceData(previousState: ResourceState? =
         }
     }
 
+    val relationships = this?.relationships?.toList() ?: emptyList()
+    val parentResourceName = relationships.firstOrNull { it.type.equals("parent", true) }?.resourceName
+
     return AspireResourceData(
         uid = this?.uid ?: "",
         name = this?.name ?: "",
@@ -124,7 +125,8 @@ internal fun ResourceModel?.toAspireResourceData(previousState: ResourceState? =
         urls = this?.urls?.toList() ?: emptyList(),
         environment = this?.environment?.toList() ?: emptyList(),
         volumes = this?.volumes?.toList() ?: emptyList(),
-        relationships = this?.relationships?.toList() ?: emptyList(),
+        relationships = relationships,
+        parentResourceName = parentResourceName,
         commands = this?.commands?.toList() ?: emptyList(),
         createdAt = createdAt,
         startedAt = startedAt,

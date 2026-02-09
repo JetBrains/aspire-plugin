@@ -4,12 +4,13 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewProvidingContributor
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.rd.attachAsChildTo
-import com.intellij.terminal.TerminalExecutionConsole
+import com.intellij.openapi.util.Disposer
+import com.intellij.terminal.TerminalExecutionConsoleBuilder
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.util.parseLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
@@ -18,7 +19,6 @@ import com.jetbrains.aspire.worker.toAspireResourceData
 import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -26,10 +26,9 @@ class AspireResource(
     val resourceId: String,
     private val modelWrapper: ResourceWrapper,
     private val aspireHost: AspireAppHost,
-    private val resourcesReloadSignal: SendChannel<Unit>,
     val lifetime: Lifetime,
     private val project: Project
-) : ServiceViewProvidingContributor<AspireResource, AspireResource> {
+) : ServiceViewProvidingContributor<AspireResource, AspireResource>, Disposable {
     companion object {
         private val LOG = logger<AspireResource>()
     }
@@ -47,9 +46,11 @@ class AspireResource(
         override fun detachIsDefault() = false
         override fun getProcessInput() = null
     }
-    private val logConsole = TerminalExecutionConsole(project, logProcessHandler).apply {
-        attachAsChildTo(lifetime)
-    }
+    private val logConsole = TerminalExecutionConsoleBuilder(project)
+        .build()
+        .apply { attachToProcess(logProcessHandler) }
+        .also { Disposer.register(this, it) }
+
     val logConsoleComponent
         get() = logConsole.component
 
@@ -85,17 +86,11 @@ class AspireResource(
     }
 
     private fun update(model: ResourceModel) {
-        val typeJustInitialised = data.type == ResourceType.Unknown && model.type != ResourceType.Unknown
-
         data = model.toAspireResourceData(data.state)
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
-        if (typeJustInitialised && !data.isHidden && data.state != ResourceState.Hidden) {
-            resourcesReloadSignal.trySend(Unit)
-        } else if (data.type != ResourceType.Unknown && !data.isHidden && data.state != ResourceState.Hidden) {
-            sendServiceChangedEvent()
-        }
+        sendServiceChangedEvent()
     }
 
     suspend fun executeCommand(commandName: String) = withContext(Dispatchers.EDT) {
@@ -136,5 +131,8 @@ class AspireResource(
             AspireMainServiceViewContributor::class.java
         )
         project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
+    }
+
+    override fun dispose() {
     }
 }

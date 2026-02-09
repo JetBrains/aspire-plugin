@@ -93,9 +93,6 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
         }
     }.stateIn(cs, SharingStarted.Eagerly, AspireAppHostState.Inactive)
 
-    private val _resourcesReloadSignal = Channel<Unit>(Channel.UNLIMITED)
-    val resourcesReloadSignal = _resourcesReloadSignal.receiveAsFlow()
-
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
         LOG.trace("Subscribing to Aspire AppHost model")
 
@@ -252,10 +249,10 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
             resourceId,
             resourceModelWrapper,
             this,
-            _resourcesReloadSignal,
             resourceLifetime,
             project
         )
+        Disposer.register(this, resource)
 
         resourceLifetime.bracketIfAlive({
             _resources.update { currentList ->
