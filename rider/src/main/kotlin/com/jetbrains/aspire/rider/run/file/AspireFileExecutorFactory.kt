@@ -9,31 +9,24 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.runAndLogException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createLifetime
-import com.intellij.openapi.rd.util.lifetime
 import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.util.execution.ParametersListUtil
-import com.jetbrains.aspire.rider.launchProfiles.getApplicationUrl
-import com.jetbrains.aspire.rider.launchProfiles.getArguments
-import com.jetbrains.aspire.rider.launchProfiles.getEnvironmentVariables
-import com.jetbrains.aspire.rider.launchProfiles.getLaunchBrowserFlag
-import com.jetbrains.aspire.rider.launchProfiles.getLaunchSettingsPathForCsFile
-import com.jetbrains.aspire.rider.launchProfiles.getProjectLaunchProfileByName
-import com.jetbrains.aspire.rider.launchProfiles.getWorkingDirectory
+import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.rider.launchProfiles.*
 import com.jetbrains.aspire.rider.run.AspireExecutorFactory
 import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
 import com.jetbrains.aspire.rider.run.states.AspireHostDebugProfileState
 import com.jetbrains.aspire.rider.run.states.AspireHostRunProfileState
 import com.jetbrains.aspire.util.getStartBrowserAction
 import com.jetbrains.rd.ide.model.RdSingleFileSource
-import com.jetbrains.rd.platform.util.getLogger
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.ijent.extensions.toRdPath
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.run.RiderRunBundle
 import com.jetbrains.rider.run.configurations.TerminalMode
 import com.jetbrains.rider.run.configurations.dotNetFile.SingleFileProgramProjectManager
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
@@ -48,6 +41,10 @@ internal class AspireFileExecutorFactory(
     private val project: Project,
     private val parameters: AspireFileConfigurationParameters
 ) : AspireExecutorFactory(project, parameters) {
+    companion object {
+        private val LOG = logger<AspireFileExecutorFactory>()
+    }
+
     override suspend fun create(
         executorId: String,
         environment: ExecutionEnvironment,
@@ -150,29 +147,29 @@ internal class AspireFileExecutorFactory(
 
     @Suppress("UnstableApiUsage")
     private fun getLifetime(project: Project, sourceFile: String, environment: ExecutionEnvironment): Lifetime {
-        val ld = project.lifetime.createNested()
+        val ld = AspireService.getInstance(project).lifetime.createNested()
         val oldCallback = environment.callback
-        logger.info("Initializing lifetime for run configuration of file \"${sourceFile}\".")
+        LOG.trace("Initializing lifetime for run configuration of file \"${sourceFile}\".")
 
         environment.callback = object : ProgramRunner.Callback {
             override fun processStarted(descriptor: RunContentDescriptor?) {
-                logger.runAndLogException { oldCallback?.processStarted(descriptor) } // TODO: Should we replace runAndLogException with smth else?
+                LOG.runAndLogException { oldCallback?.processStarted(descriptor) }
 
-                logger.info("Process for run configuration of file \"${sourceFile}\" started.")
+                LOG.trace("Process for run configuration of file \"${sourceFile}\" started.")
                 if (descriptor == null) {
-                    logger.error("No content descriptor found. Lifetime won't be terminated until solution close.")
+                    LOG.error("No content descriptor found. Lifetime won't be terminated until solution close.")
                 } else {
                     val processHandler = descriptor.processHandler
                     if (processHandler == null) {
-                        logger.error("Cannot get process handler for a descriptor: will terminate only with the descriptor.")
+                        LOG.error("Cannot get process handler for a descriptor: will terminate only with the descriptor.")
                         descriptor.createLifetime().onTermination {
-                            logger.info("Descriptor lifetime terminated.")
+                            LOG.trace("Descriptor lifetime terminated.")
                             ld.terminate()
                         }
                     } else {
                         processHandler.addProcessListener(object : ProcessListener {
                             override fun processTerminated(event: ProcessEvent) {
-                                logger.info("Process lifetime terminated.")
+                                LOG.trace("Process lifetime terminated.")
                                 ld.terminate()
                             }
                         })
@@ -181,9 +178,9 @@ internal class AspireFileExecutorFactory(
             }
 
             override fun processNotStarted(error: Throwable?) {
-                logger.runAndLogException { oldCallback?.processNotStarted(error) }
+                LOG.runAndLogException { oldCallback?.processNotStarted(error) }
 
-                logger.info("Process for run configuration of file \"${sourceFile}\" not started.")
+                LOG.trace("Process for run configuration of file \"${sourceFile}\" not started.")
                 ld.terminate()
             }
         }
@@ -191,5 +188,3 @@ internal class AspireFileExecutorFactory(
         return ld.lifetime
     }
 }
-
-private val logger = getLogger<AspireFileExecutorFactory>()
