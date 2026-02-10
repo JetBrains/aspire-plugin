@@ -1,26 +1,32 @@
 package com.jetbrains.aspire.rider.run.file
 
-import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.application.UI
 import com.intellij.openapi.application.asContextElement
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.toNioPathOrNull
-import com.intellij.util.io.isFile
+import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.aspire.rider.launchProfiles.*
-import com.jetbrains.rd.ide.model.singleFileProgramModel
+import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
+import com.jetbrains.aspire.util.MSBuildPropertyService
+import com.jetbrains.rd.ide.model.RdSingleFileSource
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
+import com.jetbrains.rd.util.threading.coroutines.adviseSuspend
 import com.jetbrains.rd.util.threading.coroutines.launch
+import com.jetbrains.rider.ijent.extensions.toRd
+import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.controls.*
 import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSettings
 import com.jetbrains.rider.run.configurations.controls.startBrowser.BrowserSettingsEditor
+import com.jetbrains.rider.run.configurations.dotNetFile.SingleFileProgramProjectManager
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
-import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.io.path.exists
-import kotlin.io.path.nameWithoutExtension
 
 internal class AspireFileConfigurationViewModel(
     private val project: Project,
@@ -62,12 +68,12 @@ internal class AspireFileConfigurationViewModel(
 
     init {
         filePathSelector.path.advise(lifetime) {
-            currentEditSessionLifetime.launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
+            currentEditSessionLifetime.launch(Dispatchers.UI + ModalityState.current().asContextElement()) {
                 handleFilePathSelection(it)
             }
         }
 
-        launchProfileSelector.profile.advise(lifetime) { recalculateFields() }
+        launchProfileSelector.profile.adviseSuspend(lifetime, Dispatchers.UI) { recalculateFields() }
         programParametersEditor.parametersString.advise(lifetime) { handleArgumentsChange() }
         workingDirectorySelector.path.advise(lifetime) { handleWorkingDirectoryChange() }
         environmentVariablesEditor.envs.advise(lifetime) { handleEnvValueChange() }
@@ -103,18 +109,28 @@ internal class AspireFileConfigurationViewModel(
         }
     }
 
-    private fun recalculateFields() {
+    private suspend fun recalculateFields() {
         if (!isLoaded) return
 
         val profile = launchProfileSelector.profile.valueOrNull
 
+        val path = filePathSelector.path.value.toNioPathOrNull()
+        val runProperties = path?.let {
+            withContext(Dispatchers.Default) {
+                MSBuildPropertyService.getInstance(project).getFileBasedProjectRunProperties(it, currentEditSessionLifetime)
+            }
+        }
+        recalculateFields(profile, runProperties)
+    }
+
+    private fun recalculateFields(profile: LaunchProfile?, projectRunProperties: MSBuildPropertyService.ProjectRunProperties? = null) {
         if (trackArguments) {
             val arguments = getArguments(profile?.content, null)
             programParametersEditor.parametersString.set(arguments)
         }
 
         if (trackWorkingDirectory) {
-            val workingDirectory = profile?.content?.workingDirectory ?: "" // TODO: Resolve msbuild properties
+            val workingDirectory = profile?.content?.workingDirectory ?: projectRunProperties?.workingDirectory?.systemIndependentPath ?: ""
             workingDirectorySelector.path.set(workingDirectory)
             workingDirectorySelector.defaultValue.set(workingDirectory)
         }
@@ -176,6 +192,7 @@ internal class AspireFileConfigurationViewModel(
         trackBrowserLaunch = dotNetBrowserSettingsEditor.settings.value.startAfterLaunch == profileLaunchBrowser
     }
 
+    @Suppress("UnstableApiUsage")
     fun reset(
         filePath: String,
         profileName: String,
@@ -201,27 +218,70 @@ internal class AspireFileConfigurationViewModel(
         filePathSelector.path.set(filePath)
 
         currentEditSessionLifetime = currentEditSessionLifetimeSource.next()
-        currentEditSessionLifetime.launch(Dispatchers.EDT + ModalityState.current().asContextElement()) {
+        currentEditSessionLifetime.launch(Dispatchers.UI + ModalityState.current().asContextElement()) {
             reloadLaunchProfileSelector(filePath)
 
-            val profile = launchProfileSelector.profileList.firstOrNull { it.name == profileName }
-            if (profile != null) {
-                launchProfileSelector.profile.set(profile)
+            val selectedProfile = launchProfileSelector.profileList.firstOrNull { it.name == profileName }
+                ?: launchProfileSelector.profileList.firstOrNull()
+
+            if (selectedProfile != null) {
+                launchProfileSelector.profile.set(selectedProfile)
+            } else {
+                val fakeLaunchProfile = LaunchProfile(profileName, LaunchSettingsJson.Profile.createUnknown())
+                launchProfileSelector.profileList.add(fakeLaunchProfile)
+                launchProfileSelector.profile.set(fakeLaunchProfile)
             }
 
-            programParametersEditor.parametersString.set(arguments)
-            workingDirectorySelector.path.set(workingDirectory)
-            environmentVariablesEditor.envs.set(envs)
-            usePodmanRuntimeFlagEditor.isSelected.set(usePodmanRuntime)
-            urlEditor.text.set(dotNetStartBrowserParameters.url)
+            val csFile = filePath.toNioPathOrNull() ?: return@launch
 
+            val sourceFile = RdSingleFileSource(csFile.toRd())
+            val projectManager = SingleFileProgramProjectManager.getInstance(project)
+            val fileBasedProjectPath = withContext(Dispatchers.Default) {
+                projectManager.createProjectFile(sourceFile, currentEditSessionLifetime)
+            } ?: return@launch
+
+            val runnableProject = project.solution.runnableProjectsModel.projects.valueOrNull?.singleOrNull {
+                it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath.toNioPathOrNull() == fileBasedProjectPath
+            }
+
+            val runProperties = MSBuildPropertyService.getInstance(project).getProjectRunProperties(fileBasedProjectPath)
+
+            val projectOutput = runnableProject?.projectOutputs?.singleOrNull()
+
+            val effectiveArguments =
+                if (trackArguments) getArguments(selectedProfile?.content, projectOutput)
+                else arguments
+            programParametersEditor.defaultValue.set(effectiveArguments)
+            programParametersEditor.parametersString.set(effectiveArguments)
+
+            val effectiveWorkingDirectory =
+                if (trackWorkingDirectory) getWorkingDirectory(selectedProfile?.content, runProperties)
+                else workingDirectory
+            workingDirectorySelector.defaultValue.set(effectiveWorkingDirectory)
+            workingDirectorySelector.path.set(effectiveWorkingDirectory)
+
+            val effectiveEnvs =
+                if (trackEnvs) getEnvironmentVariables(selectedProfile?.name, selectedProfile?.content)
+                else envs
+            environmentVariablesEditor.envs.set(effectiveEnvs)
+
+            val effectiveUrl =
+                if (trackUrl) getApplicationUrl(selectedProfile?.content)
+                else dotNetStartBrowserParameters.url
+            urlEditor.defaultValue.set(effectiveUrl)
+            urlEditor.text.set(effectiveUrl)
+
+            val effectiveLaunchBrowser =
+                if (trackBrowserLaunch) getLaunchBrowserFlag(selectedProfile?.content)
+                else dotNetStartBrowserParameters.startAfterLaunch
             val browserSettings = BrowserSettings(
-                dotNetStartBrowserParameters.startAfterLaunch,
+                effectiveLaunchBrowser,
                 dotNetStartBrowserParameters.withJavaScriptDebugger,
                 dotNetStartBrowserParameters.browser
             )
             dotNetBrowserSettingsEditor.settings.set(browserSettings)
-
+            usePodmanRuntimeFlagEditor.isSelected.set(usePodmanRuntime)
+            urlEditor.text.set(dotNetStartBrowserParameters.url)
             isLoaded = true
         }
     }
