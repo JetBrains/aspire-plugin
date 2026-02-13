@@ -22,18 +22,13 @@ internal static partial class Log
 
     [LoggerMessage(
         Level = LogLevel.Warning,
-        Message = "Only a single project launch configuration is supported.")]
-    internal static partial void OnlySingleProjectLaunchConfigurationIsSupported(this ILogger logger);
-
-    [LoggerMessage(
-        Level = LogLevel.Warning,
-        Message = "Project file doesn't exist.")]
-    internal static partial void ProjectFileDoesntExist(this ILogger logger);
+        Message = "Unable to find any supported launch configuration.")]
+    internal static partial void UnableToFindAnySupportedLaunchConfiguration(this ILogger logger);
 
     [LoggerMessage(
         Level = LogLevel.Information,
-        Message = "Create a new session for {projectFilePath} request received.")]
-    internal static partial void CreateNewSessionRequestReceived(this ILogger logger, string projectFilePath);
+        Message = "Create a new session for {filePath} request received.")]
+    internal static partial void CreateNewSessionRequestReceived(this ILogger logger, string filePath);
 
     [LoggerMessage(
         Level = LogLevel.Trace,

@@ -146,6 +146,26 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
         appHostConfig: AspireHostModelConfig,
         appHostLifetime: Lifetime
     ): CreateSessionResponse {
+        return when (createSessionRequest) {
+            is CreateProjectSessionRequest -> createProjectSession(
+                createSessionRequest, sessionEvents, appHostConfig, appHostLifetime
+            )
+            is CreatePythonSessionRequest -> {
+                CreateSessionResponse(null, ErrorCode.UnsupportedLaunchConfigurationType)
+            }
+            else -> {
+                LOG.warn("Unsupported session request type: ${createSessionRequest::class}")
+                CreateSessionResponse(null, ErrorCode.UnsupportedLaunchConfigurationType)
+            }
+        }
+    }
+
+    private fun createProjectSession(
+        createSessionRequest: CreateProjectSessionRequest,
+        sessionEvents: Channel<SessionEvent>,
+        appHostConfig: AspireHostModelConfig,
+        appHostLifetime: Lifetime
+    ): CreateSessionResponse {
         val sessionId = UUID.randomUUID().toString()
 
         LOG.trace { "Creating Aspire session with id: $sessionId" }

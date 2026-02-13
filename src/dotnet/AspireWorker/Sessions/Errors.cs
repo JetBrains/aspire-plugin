@@ -54,15 +54,25 @@ internal static class Errors
 
     internal static readonly AspireSessionNotFoundError AspireSessionNotFound = new();
 
-    internal sealed record MultipleProjectLaunchConfigurationsError : IClientError
+    internal sealed record UnableToFindSupportedLaunchConfigurationError : IClientError
     {
         public ErrorDetail ErrorDetail { get; } = new(
-            "MultipleProjectLaunchConfigurations",
-            "Only a single launch configuration instance, of type project, can be used as part of a run session request."
+            "UnableToFindSupportedLaunchConfiguration",
+            "Unable to find any supported launch configuration."
         );
     }
 
-    internal static readonly MultipleProjectLaunchConfigurationsError MultipleProjectLaunchConfigurations = new();
+    internal static readonly UnableToFindSupportedLaunchConfigurationError UnableToFindSupportedLaunchConfiguration = new();
+
+    internal sealed record UnsupportedLaunchConfigurationTypeError : IClientError
+    {
+        public ErrorDetail ErrorDetail { get; } = new(
+            "UnsupportedLaunchConfigurationType",
+            "The provided launch configuration type is not supported."
+        );
+    }
+
+    internal static readonly UnsupportedLaunchConfigurationTypeError UnsupportedLaunchConfigurationType = new();
 
     internal sealed record DotNetProjectNotFoundError : IClientError
     {
@@ -81,6 +91,7 @@ internal static class ErrorExtensions
 
     internal static Errors.IError ToError(this ErrorCode code) => code switch
     {
+        ErrorCode.UnsupportedLaunchConfigurationType => Errors.UnsupportedLaunchConfigurationType,
         ErrorCode.AspireSessionNotFound => Errors.AspireSessionNotFound,
         ErrorCode.DotNetProjectNotFound => Errors.DotNetProjectNotFound,
         _ => Errors.Unexpected

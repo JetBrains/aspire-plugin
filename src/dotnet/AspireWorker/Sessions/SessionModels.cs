@@ -16,14 +16,27 @@ internal sealed record Session(
     string[]? Args
 );
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+[JsonDerivedType(typeof(ProjectLaunchConfiguration), "project")]
+[JsonDerivedType(typeof(PythonLaunchConfiguration), "python")]
 [PublicAPI]
-internal sealed record LaunchConfiguration(
-    string Type,
+internal abstract record LaunchConfiguration;
+
+[PublicAPI]
+internal sealed record ProjectLaunchConfiguration(
     string ProjectPath,
     Mode? Mode,
     string? LaunchProfile,
     bool? DisableLaunchProfile
-);
+) : LaunchConfiguration;
+
+[PublicAPI]
+internal sealed record PythonLaunchConfiguration(
+    string ProgramPath,
+    Mode? Mode,
+    string? InterpreterPath,
+    string? Module
+) : LaunchConfiguration;
 
 [JsonConverter(typeof(JsonStringEnumConverter<Mode>))]
 [PublicAPI]
