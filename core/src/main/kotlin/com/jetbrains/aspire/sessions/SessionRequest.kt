@@ -28,3 +28,12 @@ data class DotNetSessionLaunchConfiguration(
     val args: List<String>?,
     val envs: List<Pair<String, String>>?
 ) : SessionLaunchConfiguration
+
+data class PythonSessionLaunchConfiguration(
+    val programPath: Path,
+    val debug: Boolean,
+    val interpreterPath: String?,
+    val module: String?,
+    val args: List<String>?,
+    val envs: List<Pair<String, String>>?
+) : SessionLaunchConfiguration
