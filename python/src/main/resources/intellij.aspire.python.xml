@@ -1,0 +1,9 @@
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.aspire.core"/>
+        <plugin id="PythonCore"/>
+    </dependencies>
+
+    <resource-bundle>messages.AspirePythonBundle</resource-bundle>
+
+</idea-plugin>
