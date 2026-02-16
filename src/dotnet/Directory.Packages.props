@@ -5,7 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="Grpc.AspNetCore" Version="2.76.0" />
     <PackageVersion Include="JetBrains.Annotations" Version="2025.2.4" />
-    <PackageVersion Include="JetBrains.RdFramework" Version="2026.1.1" />
+    <PackageVersion Include="JetBrains.RdFramework" Version="2026.1.2" />
     <PackageVersion Include="Microsoft.Extensions.Resilience" Version="10.2.0" />
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
