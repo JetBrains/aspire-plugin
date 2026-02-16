@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerApp.AppHost", "WorkerApp.AppHost\WorkerApp.AppHost.csproj", "{955B1719-5988-464D-8382-2A93B61BC5ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerApp.ServiceDefaults", "WorkerApp.ServiceDefaults\WorkerApp.ServiceDefaults.csproj", "{04D1C009-383E-491D-A02E-83696FA3DF06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerApp.Worker", "WorkerApp.Worker\WorkerApp.Worker.csproj", "{C4802AB0-6862-4B63-AAE6-8D9EC8212BB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{955B1719-5988-464D-8382-2A93B61BC5ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{955B1719-5988-464D-8382-2A93B61BC5ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{955B1719-5988-464D-8382-2A93B61BC5ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{955B1719-5988-464D-8382-2A93B61BC5ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04D1C009-383E-491D-A02E-83696FA3DF06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04D1C009-383E-491D-A02E-83696FA3DF06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04D1C009-383E-491D-A02E-83696FA3DF06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04D1C009-383E-491D-A02E-83696FA3DF06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4802AB0-6862-4B63-AAE6-8D9EC8212BB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4802AB0-6862-4B63-AAE6-8D9EC8212BB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4802AB0-6862-4B63-AAE6-8D9EC8212BB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4802AB0-6862-4B63-AAE6-8D9EC8212BB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

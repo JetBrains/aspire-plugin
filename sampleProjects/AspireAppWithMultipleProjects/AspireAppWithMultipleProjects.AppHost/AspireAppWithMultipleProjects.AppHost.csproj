@@ -1,0 +1,30 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>3e464c81-aa3f-4469-ad7b-4d79cf5b69b1</UserSecretsId>
+        <RootNamespace>AspireAppWithMeltipleProjects.AppHost</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\WebApplication10\WebApplication10.csproj" />
+      <ProjectReference Include="..\WebApplication11\WebApplication11.csproj" />
+      <ProjectReference Include="..\WebApplication12\WebApplication12.csproj" />
+      <ProjectReference Include="..\WebApplication13\WebApplication13.csproj" />
+      <ProjectReference Include="..\WebApplication14\WebApplication14.csproj" />
+      <ProjectReference Include="..\WebApplication15\WebApplication15.csproj" />
+      <ProjectReference Include="..\WebApplication1\WebApplication1.csproj" />
+      <ProjectReference Include="..\WebApplication2\WebApplication2.csproj" />
+      <ProjectReference Include="..\WebApplication3\WebApplication3.csproj" />
+      <ProjectReference Include="..\WebApplication4\WebApplication4.csproj" />
+      <ProjectReference Include="..\WebApplication5\WebApplication5.csproj" />
+      <ProjectReference Include="..\WebApplication6\WebApplication6.csproj" />
+      <ProjectReference Include="..\WebApplication7\WebApplication7.csproj" />
+      <ProjectReference Include="..\WebApplication8\WebApplication8.csproj" />
+      <ProjectReference Include="..\WebApplication9\WebApplication9.csproj" />
+    </ItemGroup>
+
+</Project>

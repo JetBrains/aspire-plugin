@@ -1,0 +1,24 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>e67e24d3-9209-4a7a-8649-915da7a5532d</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DataBaseApp.ApiService\DataBaseApp.ApiService.csproj"/>
+        <ProjectReference Include="..\DataBaseApp.Web\DataBaseApp.Web.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.MongoDB" Version="13.0.2" />
+        <PackageReference Include="Aspire.Hosting.MySql" Version="13.0.2" />
+        <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.0.2" />
+        <PackageReference Include="Aspire.Hosting.Redis" Version="13.0.2" />
+        <PackageReference Include="Aspire.Hosting.SqlServer" Version="13.0.2" />
+    </ItemGroup>
+
+</Project>
