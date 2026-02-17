@@ -11,7 +11,7 @@ internal sealed record Info(
 
 [PublicAPI]
 internal sealed record Session(
-    LaunchConfiguration[] LaunchConfigurations,
+    ILaunchConfiguration[] LaunchConfigurations,
     EnvironmentVariable[]? Env,
     string[]? Args
 );
@@ -19,8 +19,7 @@ internal sealed record Session(
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(ProjectLaunchConfiguration), "project")]
 [JsonDerivedType(typeof(PythonLaunchConfiguration), "python")]
-[PublicAPI]
-internal abstract record LaunchConfiguration;
+internal interface ILaunchConfiguration;
 
 [PublicAPI]
 internal sealed record ProjectLaunchConfiguration(
@@ -28,7 +27,7 @@ internal sealed record ProjectLaunchConfiguration(
     Mode? Mode,
     string? LaunchProfile,
     bool? DisableLaunchProfile
-) : LaunchConfiguration;
+) : ILaunchConfiguration;
 
 [PublicAPI]
 internal sealed record PythonLaunchConfiguration(
@@ -36,7 +35,7 @@ internal sealed record PythonLaunchConfiguration(
     Mode? Mode,
     string? InterpreterPath,
     string? Module
-) : LaunchConfiguration;
+) : ILaunchConfiguration;
 
 [JsonConverter(typeof(JsonStringEnumConverter<Mode>))]
 [PublicAPI]

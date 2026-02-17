@@ -6,6 +6,7 @@ using JetBrains.Rider.Aspire.Worker.Configuration;
 using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.HttpLogging;
 using Serilog;
 using Log = Serilog.Log;
 
@@ -36,6 +37,7 @@ try
     builder.Services.ConfigureHttpJsonOptions(it =>
     {
         it.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+        it.SerializerOptions.AllowOutOfOrderMetadataProperties = true;
     });
 
     builder.Services
