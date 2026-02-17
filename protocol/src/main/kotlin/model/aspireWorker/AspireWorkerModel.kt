@@ -56,13 +56,22 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
         field("value", string)
     }
 
-    private val CreateSessionRequest = structdef {
-        field("projectPath", string)
+    private val CreateSessionRequest = basestruct {
         field("debug", bool)
-        field("launchProfile", string.nullable)
-        field("disableLaunchProfile", bool)
         field("args", array(string).nullable)
         field("envs", array(SessionEnvironmentVariable).nullable)
+    }
+
+    private val CreateProjectSessionRequest = structdef extends CreateSessionRequest {
+        field("projectPath", string)
+        field("launchProfile", string.nullable)
+        field("disableLaunchProfile", bool)
+    }
+
+    private val CreatePythonSessionRequest = structdef extends CreateSessionRequest {
+        field("programPath", string)
+        field("interpreterPath", string.nullable)
+        field("module", string.nullable)
     }
 
     private val CreateSessionResponse = structdef {
@@ -257,6 +266,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
     }
 
     private val ErrorCode = enum {
+        +"UnsupportedLaunchConfigurationType"
         +"AspireSessionNotFound"
         +"DotNetProjectNotFound"
         +"Unexpected"

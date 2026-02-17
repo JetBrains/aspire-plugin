@@ -38,7 +38,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
     }
 
     [Fact]
-    public async Task CreateSessionEndpointReturns201AndStoresSession()
+    public async Task CreateProjectSessionEndpointReturns201AndStoresSession()
     {
         var fixture = new Fixture();
         var dcpInstanceId = fixture.Create<string>();
@@ -50,7 +50,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
             new AuthenticationHeaderValue("Bearer", AspireWorkerWebApplicationFactory<Program>.TestToken);
         client.DefaultRequestHeaders.Add("Microsoft-Developer-DCP-Instance-ID", dcpInstanceId);
 
-        var session = CreateAspireSession(fixture);
+        var session = CreateProjectSession(fixture);
         var response = await client.PutAsJsonAsync($"/run_session/?api-version={CurrentProtocolVersion}", session, _jsonOptions);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -61,11 +61,47 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         var sessionId = location[runSessionPrefix.Length..];
         var connectionWrapper = factory.Services.GetRequiredService<InMemoryConnectionWrapper>();
         var createRequests = connectionWrapper.GetCreateSessionRequestsById(sessionId);
-        var request = Assert.Single(createRequests);
-        var expectedLaunchConfig = session.LaunchConfigurations.Single();
+        var request = Assert.IsType<CreateProjectSessionRequest>(Assert.Single(createRequests));
+        var expectedLaunchConfig = Assert.IsType<ProjectLaunchConfiguration>(session.LaunchConfigurations.Single());
         Assert.Equal(expectedLaunchConfig.ProjectPath, request.ProjectPath);
         Assert.Equal(expectedLaunchConfig.LaunchProfile, request.LaunchProfile);
         Assert.Equal(expectedLaunchConfig.DisableLaunchProfile, request.DisableLaunchProfile);
+        Assert.False(request.Debug);
+        Assert.Equal(session.Args, request.Args);
+        Assert.Equal(
+            session.Env?.Select(it => (it.Name, it.Value ?? "")),
+            request.Envs?.Select(it => (it.Key, it.Value)));
+    }
+
+    [Fact]
+    public async Task CreatePythonSessionEndpointReturns201AndStoresSession()
+    {
+        var fixture = new Fixture();
+        var dcpInstanceId = fixture.Create<string>();
+        var aspireHostId = dcpInstanceId[..5];
+        AddNewAspireHost(aspireHostId, fixture);
+
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", AspireWorkerWebApplicationFactory<Program>.TestToken);
+        client.DefaultRequestHeaders.Add("Microsoft-Developer-DCP-Instance-ID", dcpInstanceId);
+
+        var session = CreatePythonSession(fixture);
+        var response = await client.PutAsJsonAsync($"/run_session/?api-version={CurrentProtocolVersion}", session, _jsonOptions);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var location = response.Headers.Location?.OriginalString;
+        Assert.NotNull(location);
+        const string runSessionPrefix = "/run_session/";
+        Assert.StartsWith(runSessionPrefix, location);
+        var sessionId = location[runSessionPrefix.Length..];
+        var connectionWrapper = factory.Services.GetRequiredService<InMemoryConnectionWrapper>();
+        var createRequests = connectionWrapper.GetCreateSessionRequestsById(sessionId);
+        var request = Assert.IsType<CreatePythonSessionRequest>(Assert.Single(createRequests));
+        var expectedLaunchConfig = Assert.IsType<PythonLaunchConfiguration>(session.LaunchConfigurations.Single());
+        Assert.Equal(expectedLaunchConfig.ProgramPath, request.ProgramPath);
+        Assert.Equal(expectedLaunchConfig.InterpreterPath, request.InterpreterPath);
+        Assert.Equal(expectedLaunchConfig.Module, request.Module);
         Assert.False(request.Debug);
         Assert.Equal(session.Args, request.Args);
         Assert.Equal(
@@ -86,7 +122,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
             new AuthenticationHeaderValue("Bearer", AspireWorkerWebApplicationFactory<Program>.TestToken);
         client.DefaultRequestHeaders.Add("Microsoft-Developer-DCP-Instance-ID", dcpInstanceId);
 
-        var session = CreateAspireSession(fixture);
+        var session = CreateProjectSession(fixture);
         var response = await client.PutAsJsonAsync("/run_session/?api-version=wrong", session, _jsonOptions);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -107,7 +143,7 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "wrong-token");
         client.DefaultRequestHeaders.Add("Microsoft-Developer-DCP-Instance-ID", dcpInstanceId);
 
-        var session = CreateAspireSession(fixture);
+        var session = CreateProjectSession(fixture);
         var response = await client.PutAsJsonAsync($"/run_session/?api-version={CurrentProtocolVersion}", session, _jsonOptions);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -192,14 +228,28 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         connectionWrapper.AddHost(aspireHostId, host);
     }
 
-    private static Session CreateAspireSession(Fixture fixture)
+    private static Session CreateProjectSession(Fixture fixture)
     {
-        var launchConfiguration = new LaunchConfiguration(
-            "project",
+        var launchConfiguration = new ProjectLaunchConfiguration(
             fixture.Create<string>(),
             Mode.NoDebug,
             "http",
             false
+        );
+
+        var args = fixture.Create<string[]>();
+        var envVariables = fixture.Create<EnvironmentVariable[]>();
+
+        return new Session([launchConfiguration], envVariables, args);
+    }
+
+    private static Session CreatePythonSession(Fixture fixture)
+    {
+        var launchConfiguration = new PythonLaunchConfiguration(
+            fixture.Create<string>(),
+            Mode.NoDebug,
+            fixture.Create<string>(),
+            fixture.Create<string>()
         );
 
         var args = fixture.Create<string[]>();

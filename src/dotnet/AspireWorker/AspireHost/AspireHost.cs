@@ -4,7 +4,6 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
 using JetBrains.Lifetimes;
-using JetBrains.Rider.Aspire.Worker.Configuration;
 using JetBrains.Rider.Aspire.Worker.Generated;
 using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
@@ -20,7 +19,6 @@ internal sealed class AspireHost
     private readonly IRdConnectionWrapper _connectionWrapper;
     private readonly AspireHostModel _aspireHostModel;
     private readonly ResiliencePipelineProvider<string> _resiliencePipelineProvider;
-    private readonly IHostEnvironment _hostEnvironment;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
 
@@ -38,7 +36,6 @@ internal sealed class AspireHost
         IRdConnectionWrapper connectionWrapper,
         AspireHostModel model,
         ResiliencePipelineProvider<string> resiliencePipelineProvider,
-        IHostEnvironment hostEnvironment,
         ILoggerFactory loggerFactory,
         Lifetime lifetime)
     {
@@ -46,7 +43,6 @@ internal sealed class AspireHost
         _connectionWrapper = connectionWrapper;
         _aspireHostModel = model;
         _resiliencePipelineProvider = resiliencePipelineProvider;
-        _hostEnvironment = hostEnvironment;
         _loggerFactory = loggerFactory;
         _logger = loggerFactory.CreateLogger<AspireHost>();
 
@@ -124,28 +120,37 @@ internal sealed class AspireHost
 
     internal async Task<(string? sessionId, Errors.IError? error)> Create(Session session)
     {
-        var launchConfiguration = session.LaunchConfigurations.SingleOrDefault(it =>
-            string.Equals(it.Type, "project", StringComparison.InvariantCultureIgnoreCase)
-        );
-        if (launchConfiguration == null)
+        var projectLaunchConfiguration = session.LaunchConfigurations
+            .OfType<ProjectLaunchConfiguration>()
+            .SingleOrDefault();
+        if (projectLaunchConfiguration != null)
         {
-            _logger.OnlySingleProjectLaunchConfigurationIsSupported();
-            return (null, Errors.MultipleProjectLaunchConfigurations);
+            return await CreateProjectSession(session, projectLaunchConfiguration);
         }
 
-        var validationError = ValidateLaunchConfiguration(launchConfiguration);
-        if (validationError != null) return (null, validationError);
+        var pythonLaunchConfiguration = session.LaunchConfigurations
+            .OfType<PythonLaunchConfiguration>()
+            .SingleOrDefault();
+        if (pythonLaunchConfiguration != null)
+        {
+            return await CreatePythonSession(session, pythonLaunchConfiguration);
+        }
 
-        var envs = session.Env
-            ?.Where(it => it.Value is not null)
-            .Select(it => new SessionEnvironmentVariable(it.Name, it.Value!))
-            .ToArray();
+        _logger.UnableToFindAnySupportedLaunchConfiguration();
+        return (null, Errors.UnableToFindSupportedLaunchConfiguration);
+    }
 
-        var request = new CreateSessionRequest(
+    private async Task<(string? sessionId, Errors.IError? error)> CreateProjectSession(
+        Session session,
+        ProjectLaunchConfiguration launchConfiguration)
+    {
+        var envs = MapEnvironmentVariables(session);
+
+        var request = new CreateProjectSessionRequest(
             launchConfiguration.ProjectPath,
-            launchConfiguration.Mode == Mode.Debug,
             launchConfiguration.LaunchProfile,
             launchConfiguration.DisableLaunchProfile == true,
+            launchConfiguration.Mode == Mode.Debug,
             session.Args,
             envs
         );
@@ -161,17 +166,38 @@ internal sealed class AspireHost
         return (result?.SessionId, error);
     }
 
-    private Errors.IError? ValidateLaunchConfiguration(LaunchConfiguration launchConfiguration)
+    private async Task<(string? sessionId, Errors.IError? error)> CreatePythonSession(
+        Session session,
+        PythonLaunchConfiguration launchConfiguration)
     {
-        if (_hostEnvironment.IsTesting()) return null;
+        var envs = MapEnvironmentVariables(session);
 
-        if (!File.Exists(launchConfiguration.ProjectPath))
-        {
-            _logger.ProjectFileDoesntExist();
-            return Errors.DotNetProjectNotFound;
-        }
+        var request = new CreatePythonSessionRequest(
+            launchConfiguration.ProgramPath,
+            launchConfiguration.InterpreterPath,
+            launchConfiguration.Module,
+            launchConfiguration.Mode == Mode.Debug,
+            session.Args,
+            envs
+        );
 
-        return null;
+        _logger.CreateNewSessionRequestReceived(request.ProgramPath);
+        _logger.SessionCreationRequestBuilt(request);
+
+        var result = await _connectionWrapper.CreateSession(_aspireHostModel, request);
+        _logger.SessionCreationResponseReceived(result);
+
+        var error = result?.Error?.ToError();
+
+        return (result?.SessionId, error);
+    }
+
+    private static SessionEnvironmentVariable[]? MapEnvironmentVariables(Session session)
+    {
+        return session.Env
+            ?.Where(it => it.Value is not null)
+            .Select(it => new SessionEnvironmentVariable(it.Name, it.Value!))
+            .ToArray();
     }
 
     internal async Task<(string? sessionId, Errors.IError? error)> Delete(string id)

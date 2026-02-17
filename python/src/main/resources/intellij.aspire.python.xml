@@ -1,0 +1,21 @@
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.aspire.core"/>
+        <plugin id="PythonCore"/>
+    </dependencies>
+
+    <resource-bundle>messages.AspirePythonBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <programRunner
+                implementation="com.jetbrains.aspire.python.sessions.PythonSessionProgramRunner"/>
+        <programRunner
+                implementation="com.jetbrains.aspire.python.sessions.PythonSessionDebugProgramRunner"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.jetbrains.aspire">
+        <startSessionRequestHandler
+                implementation="com.jetbrains.aspire.python.sessions.PythonStartSessionRequestHandler"/>
+    </extensions>
+
+</idea-plugin>

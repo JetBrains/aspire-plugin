@@ -50,7 +50,7 @@ import kotlin.io.path.Path
  * @see SessionManager for session request processing
  */
 @ApiStatus.Internal
-class AspireAppHost(val mainFilePath: Path, private val project: Project, parentCs: CoroutineScope): Disposable {
+class AspireAppHost(val mainFilePath: Path, private val project: Project, parentCs: CoroutineScope) : Disposable {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }
@@ -146,22 +146,19 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
         appHostConfig: AspireHostModelConfig,
         appHostLifetime: Lifetime
     ): CreateSessionResponse {
+        val configuration = createSessionLaunchConfiguration(createSessionRequest)
+        if (configuration == null) {
+            LOG.warn("Unsupported session request type: ${createSessionRequest::class}")
+            return CreateSessionResponse(null, ErrorCode.UnsupportedLaunchConfigurationType)
+        }
+
         val sessionId = UUID.randomUUID().toString()
 
         LOG.trace { "Creating Aspire session with id: $sessionId" }
 
-        val launchConfiguration = DotNetSessionLaunchConfiguration(
-            Path(createSessionRequest.projectPath),
-            createSessionRequest.debug,
-            createSessionRequest.launchProfile,
-            createSessionRequest.disableLaunchProfile,
-            createSessionRequest.args?.toList(),
-            createSessionRequest.envs?.map { it.key to it.value }
-        )
-
         val request = StartSessionRequest(
             sessionId,
-            launchConfiguration,
+            configuration,
             sessionEvents,
             appHostConfig.runConfigName,
             appHostLifetime.createNested()
@@ -171,6 +168,29 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
 
         return CreateSessionResponse(sessionId, null)
     }
+
+    private fun createSessionLaunchConfiguration(createSessionRequest: CreateSessionRequest) =
+        when (createSessionRequest) {
+            is CreateProjectSessionRequest -> DotNetSessionLaunchConfiguration(
+                Path(createSessionRequest.projectPath),
+                createSessionRequest.debug,
+                createSessionRequest.launchProfile,
+                createSessionRequest.disableLaunchProfile,
+                createSessionRequest.args?.toList(),
+                createSessionRequest.envs?.map { it.key to it.value }
+            )
+
+            is CreatePythonSessionRequest -> PythonSessionLaunchConfiguration(
+                Path(createSessionRequest.programPath),
+                createSessionRequest.debug,
+                createSessionRequest.interpreterPath,
+                createSessionRequest.module,
+                createSessionRequest.args?.toList(),
+                createSessionRequest.envs?.map { it.key to it.value }
+            )
+
+            else -> null
+        }
 
     private fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
         LOG.trace { "Deleting Aspire session with id: ${deleteSessionRequest.sessionId}" }
@@ -218,7 +238,10 @@ class AspireAppHost(val mainFilePath: Path, private val project: Project, parent
         }
     }
 
-    private suspend fun handleSessionMessageReceivedEvent(event: SessionMessageReceived, appHostModel: AspireHostModel) {
+    private suspend fun handleSessionMessageReceivedEvent(
+        event: SessionMessageReceived,
+        appHostModel: AspireHostModel
+    ) {
         LOG.trace { "Aspire session message received (${event.id}, ${event.level}, ${event.message})" }
         withContext(Dispatchers.EDT) {
             appHostModel.messageReceived.fire(
