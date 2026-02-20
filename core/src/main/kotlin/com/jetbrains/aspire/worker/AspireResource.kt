@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.worker
 
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputTypes
@@ -9,10 +9,13 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
-import com.jetbrains.aspire.generated.*
+import com.jetbrains.aspire.dashboard.ResourceListener
+import com.jetbrains.aspire.generated.ResourceCommandRequest
+import com.jetbrains.aspire.generated.ResourceCommandResponseKind
+import com.jetbrains.aspire.generated.ResourceLog
+import com.jetbrains.aspire.generated.ResourceModel
+import com.jetbrains.aspire.generated.ResourceWrapper
 import com.jetbrains.aspire.util.parseLogEntry
-import com.jetbrains.aspire.worker.AspireResourceData
-import com.jetbrains.aspire.worker.toAspireResourceData
 import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -44,7 +47,7 @@ class AspireResource(
     private val _childrenResources = MutableStateFlow<List<AspireResource>>(emptyList())
     val childrenResources: StateFlow<List<AspireResource>> = _childrenResources.asStateFlow()
 
-    private val resourceLogs = Channel<ResourceLog>(Channel.UNLIMITED)
+    private val resourceLogs = Channel<ResourceLog>(Channel.Factory.UNLIMITED)
     private val logProcessHandler = object : ProcessHandler() {
         override fun destroyProcessImpl() {}
         override fun detachProcessImpl() {}
@@ -75,7 +78,7 @@ class AspireResource(
     private fun update(model: ResourceModel) {
         _resourceState.value = model.toAspireResourceData(data.state)
 
-        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
+        project.messageBus.syncPublisher(ResourceListener.Companion.TOPIC).resourceUpdated(this)
     }
 
     fun addChildResource(resource: AspireResource) {

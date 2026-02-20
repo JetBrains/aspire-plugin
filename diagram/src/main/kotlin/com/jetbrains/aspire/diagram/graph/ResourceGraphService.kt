@@ -13,7 +13,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.util.graph.GraphFactory
-import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.diagram.AspireDiagramBundle
 import com.jetbrains.aspire.util.getAllResources
 import com.jetbrains.aspire.util.getResourceIcon

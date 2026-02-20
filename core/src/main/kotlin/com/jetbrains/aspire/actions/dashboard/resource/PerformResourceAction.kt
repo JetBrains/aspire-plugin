@@ -16,7 +16,7 @@ import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.generated.ResourceCommand
 import com.jetbrains.aspire.generated.ResourceCommandState
-import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.RestartResourceCommand
 import com.jetbrains.aspire.dashboard.StartResourceCommand
 import com.jetbrains.aspire.dashboard.StopResourceCommand

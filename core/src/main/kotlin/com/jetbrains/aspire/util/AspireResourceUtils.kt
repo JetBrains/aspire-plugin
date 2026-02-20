@@ -7,7 +7,7 @@ import com.intellij.ui.BadgeIconSupplier
 import com.jetbrains.aspire.generated.ResourceHealthStatus
 import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
-import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
 import com.jetbrains.aspire.worker.AspireAppHost
 import icons.ReSharperIcons

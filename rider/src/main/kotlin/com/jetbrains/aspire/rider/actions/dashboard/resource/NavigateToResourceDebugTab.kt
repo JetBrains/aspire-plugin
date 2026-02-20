@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.xdebugger.XDebugSession
 import com.intellij.xdebugger.XDebuggerManager
 import com.jetbrains.aspire.actions.dashboard.resource.AspireResourceBaseAction
-import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
 import kotlinx.coroutines.Dispatchers

@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.actions.dashboard.resource
 
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.RestartResourceCommand
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.sessions.SessionLaunchMode
