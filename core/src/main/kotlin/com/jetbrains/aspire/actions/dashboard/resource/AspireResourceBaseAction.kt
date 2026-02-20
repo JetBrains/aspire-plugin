@@ -54,7 +54,7 @@ abstract class AspireResourceBaseAction : AnAction() {
     }
 
     private fun getProjectResource(aspireHost: AspireAppHost, projectPath: Path): AspireResource? {
-        for (resource in aspireHost.resources.value) {
+        for (resource in aspireHost.getAllResources()) {
             if (resource.data.type != ResourceType.Project) continue
             if (resource.data.projectPath?.value == projectPath) return resource
         }

@@ -31,7 +31,7 @@ internal class ResourceGraphService(private val project: Project) {
     }
 
     fun showResourceGraph(appHost: AspireAppHost) {
-        val resources = appHost.resources.value
+        val resources = appHost.getAllResources()
 
         val resourceNodes = resources.associate { it.data.displayName to createResourceGraphNode(it) }
         val resourceNodeEdges = calculateResourceNodeEdges(resources, resourceNodes)

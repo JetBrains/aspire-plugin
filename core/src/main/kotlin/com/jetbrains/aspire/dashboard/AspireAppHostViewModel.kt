@@ -16,7 +16,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
-import kotlin.io.path.nameWithoutExtension
 
 @ApiStatus.Internal
 class AspireAppHostViewModel(
@@ -31,15 +30,6 @@ class AspireAppHostViewModel(
     val displayName: String = appHost.name
     val appHostMainFilePath = appHost.mainFilePath
 
-    private val resourceViewModels: StateFlow<List<AspireResource>> =
-        appHost.resources
-            .map { resources ->
-                resources
-                    .filter { it.parentResourceName == null }
-                    .sortedWith(compareBy({ it.data.type }, { it.data.name }))
-            }
-            .stateIn(cs, SharingStarted.Eagerly, emptyList())
-
     val uiState: StateFlow<AppHostUiState> = combine(
         appHost.appHostState,
         appHost.dashboardUrl
@@ -47,10 +37,18 @@ class AspireAppHostViewModel(
         when (state) {
             is AspireAppHost.AspireAppHostState.Started ->
                 AppHostUiState.Active(url, state.console)
+
             else ->
                 AppHostUiState.Inactive(url)
         }
     }.stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Inactive(null))
+
+    private val resourceViewModels: StateFlow<List<AspireResource>> =
+        appHost.rootResources
+            .map { resources ->
+                resources.sortedWith(compareBy({ it.data.type }, { it.data.name }))
+            }
+            .stateIn(cs, SharingStarted.Eagerly, emptyList())
 
     init {
         cs.launch {

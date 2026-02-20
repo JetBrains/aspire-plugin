@@ -13,19 +13,22 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.util.parseLogEntry
-import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.toAspireResourceData
 import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AspireResource(
     val resourceId: String,
     private val modelWrapper: ResourceWrapper,
-    private val aspireHost: AspireAppHost,
     val lifetime: Lifetime,
     private val project: Project
 ) : ServiceViewProvidingContributor<AspireResource, AspireResource>, Disposable {
@@ -38,6 +41,9 @@ class AspireResource(
 
     val parentResourceName: String?
         get() = data.parentResourceName
+
+    private val _childrenResources = MutableStateFlow<List<AspireResource>>(emptyList())
+    val childrenResources: StateFlow<List<AspireResource>> = _childrenResources.asStateFlow()
 
     private val resourceLogs = Channel<ResourceLog>(Channel.UNLIMITED)
     private val logProcessHandler = object : ProcessHandler() {
@@ -66,6 +72,14 @@ class AspireResource(
             }
         }
 
+        lifetime.coroutineScope.launch {
+            _childrenResources
+                .drop(1)
+                .collect {
+                    sendServiceChildrenChangedEvent()
+                }
+        }
+
         modelWrapper.model.advise(lifetime, ::update)
         modelWrapper.logReceived.advise(lifetime, ::logReceived)
 
@@ -76,14 +90,10 @@ class AspireResource(
 
     override fun getViewDescriptor(project: Project) = descriptor
 
-    override fun getServices(project: Project) = getChildResources()
+    override fun getServices(project: Project) = childrenResources.value
 
     override fun getServiceDescriptor(project: Project, aspireResource: AspireResource) =
         aspireResource.getViewDescriptor(project)
-
-    private fun getChildResources(): List<AspireResource> {
-        return aspireHost.getChildResourcesFor(data.displayName)
-    }
 
     private fun update(model: ResourceModel) {
         data = model.toAspireResourceData(data.state)
@@ -91,6 +101,14 @@ class AspireResource(
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
 
         sendServiceChangedEvent()
+    }
+
+    fun addChildResource(resource: AspireResource) {
+        _childrenResources.update { it + resource }
+    }
+
+    fun removeChildResource(resource: AspireResource) {
+        _childrenResources.update { it - resource }
     }
 
     suspend fun executeCommand(commandName: String) = withContext(Dispatchers.EDT) {
@@ -127,6 +145,15 @@ class AspireResource(
     private fun sendServiceChangedEvent() {
         val event = ServiceEventListener.ServiceEvent.createEvent(
             ServiceEventListener.EventType.SERVICE_CHANGED,
+            this,
+            AspireMainServiceViewContributor::class.java
+        )
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
+    }
+
+    private fun sendServiceChildrenChangedEvent() {
+        val event = ServiceEventListener.ServiceEvent.createEvent(
+            ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
             this,
             AspireMainServiceViewContributor::class.java
         )

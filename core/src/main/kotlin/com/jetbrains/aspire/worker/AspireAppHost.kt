@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
 
 /**
@@ -65,8 +66,10 @@ class AspireAppHost(
     private val _dashboardUrl: MutableStateFlow<String?> = MutableStateFlow(null)
     val dashboardUrl: StateFlow<String?> = _dashboardUrl.asStateFlow()
 
-    private val _resources: MutableStateFlow<List<AspireResource>> = MutableStateFlow(emptyList())
-    val resources: StateFlow<List<AspireResource>> = _resources.asStateFlow()
+    private val _resources = ConcurrentHashMap<String, AspireResource>()
+
+    private val _rootResources = MutableStateFlow<List<AspireResource>>(emptyList())
+    val rootResources: StateFlow<List<AspireResource>> = _rootResources.asStateFlow()
 
     val appHostState = project.messageBus.subscribeAsFlow(AppHostListener.TOPIC) {
         object : AppHostListener {
@@ -91,12 +94,15 @@ class AspireAppHost(
                 if (mainFilePath != appHostMainFilePath) return
                 LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
 
-                _resources.value = emptyList()
+//                _resources.clear()
+//                _rootResources.value = emptyList()
 
                 trySend(AspireAppHostState.Stopped)
             }
         }
     }.stateIn(cs, SharingStarted.Eagerly, AspireAppHostState.Inactive)
+
+    fun getAllResources(): List<AspireResource> = _resources.values.toList()
 
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
         LOG.trace("Subscribing to Aspire AppHost model")
@@ -276,31 +282,32 @@ class AspireAppHost(
         val resource = AspireResource(
             resourceId,
             resourceModelWrapper,
-            this,
             resourceLifetime,
             project
         )
-        Disposer.register(this, resource)
+
+        val parentResource = resource.parentResourceName?.let { _resources[it] }
 
         resourceLifetime.bracketIfAlive({
-            _resources.update { currentList ->
-                currentList + resource
+            _resources[resourceId] = resource
+            if (parentResource == null) {
+                Disposer.register(this, resource)
+                _rootResources.update { it + resource }
+            } else {
+                Disposer.register(parentResource, resource)
+                parentResource.addChildResource(resource)
             }
         }, {
-            _resources.update { currentList ->
-                currentList.filter { it.resourceId != resourceId }
+            _resources.remove(resourceId)
+            if (parentResource == null) {
+                _rootResources.update { it - resource }
+            } else {
+                parentResource.removeChildResource(resource)
             }
         })
 
         resourceModelWrapper.isInitialized.set(true)
     }
-
-    fun getChildResourcesFor(resourceName: String) = buildList {
-        for (resource in resources.value) {
-            val parentResourceName = resource.parentResourceName
-            if (parentResourceName == resourceName) add(resource)
-        }
-    }.sortedWith(compareBy({ it.data.type }, { it.data.name }))
 
     override fun dispose() {
     }
