@@ -5,6 +5,8 @@ namespace JetBrains.Rider.Aspire.Worker.Configuration;
 public class DcpSessionOptions
 {
     public string? Token { get; set; }
+    public string[]? SupportedSessionTypes { get; set; }
+
 }
 
 internal sealed class ConfigureDcpSessionOptions(IConfiguration configuration)

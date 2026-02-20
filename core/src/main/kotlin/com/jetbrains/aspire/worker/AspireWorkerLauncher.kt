@@ -14,6 +14,7 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
 import com.intellij.openapi.util.Key
+import com.jetbrains.aspire.sessions.StartSessionRequestHandler
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.aspire.util.decodeAnsiCommandsToString
 import com.jetbrains.rider.environment.RiderEnvironment
@@ -44,6 +45,7 @@ internal class AspireWorkerLauncher(private val project: Project) {
 
         private const val RIDER_PARENT_PROCESS_ID = "RIDER_PARENT_PROCESS_ID"
         private const val RIDER_DCP_SESSION_TOKEN = "RIDER_DCP_SESSION__Token"
+        private const val RIDER_DCP_SESSION_TYPES = "RIDER_DCP_SESSION__SupportedSessionTypes"
         private const val RIDER_RD_PORT = "RIDER_CONNECTION__RdPort"
         private const val SERILOG_FILE_PATH = "Serilog__WriteTo__0__Args__configure__0__Args__path"
     }
@@ -101,6 +103,8 @@ internal class AspireWorkerLauncher(private val project: Project) {
 
     private fun getCommandLine(environment: RiderEnvironment, config: AspireWorkerConfig): GeneralCommandLine {
         val dotnetCliPath = environment.getRuntime().cliPath()
+//        val supportedSessionTypes = StartSessionRequestHandler.getSupportedSessionTypes()
+        val supportedSessionTypes = listOf("project") //Hardcode for now
         val logFile = getLogFile(environment)
         val commandLine = GeneralCommandLine()
             .withExePath(dotnetCliPath.absolutePathString())
@@ -117,6 +121,9 @@ internal class AspireWorkerLauncher(private val project: Project) {
                     put(RIDER_RD_PORT, "${config.rdPort}")
                     put(RIDER_PARENT_PROCESS_ID, ProcessHandle.current().pid().toString())
                     put(RIDER_DCP_SESSION_TOKEN, config.debugSessionToken)
+                    supportedSessionTypes.forEachIndexed { index, type ->
+                        put("${RIDER_DCP_SESSION_TYPES}__$index", type)
+                    }
                     put(SERILOG_FILE_PATH, logFile.absolutePathString())
                 }
             )

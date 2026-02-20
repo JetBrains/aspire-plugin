@@ -8,6 +8,8 @@ interface StartSessionRequestHandler {
         private val EP_NAME =
             ExtensionPointName<StartSessionRequestHandler>("com.jetbrains.aspire.startSessionRequestHandler")
 
+        fun getSupportedSessionTypes(): List<String> = EP_NAME.extensionList.map { it.sessionType }
+
         /**
          * Finds an applicable handler for the provided list of session start requests.
          *
@@ -19,6 +21,8 @@ interface StartSessionRequestHandler {
             return EP_NAME.extensionList.firstOrNull { it.isApplicable(firstRequest) }
         }
     }
+
+    val sessionType: String
 
     fun isApplicable(request: StartSessionRequest): Boolean
 

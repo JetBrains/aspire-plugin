@@ -137,6 +137,18 @@ class AspireHostModel private constructor(
     private val _messageReceived: RdSignal<MessageReceived>,
     private val _resources: RdMap<String, ResourceWrapper>
 ) : RdBindableBase() {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        rdid.write(buffer)
+        AspireHostModelConfig.write(ctx, buffer, config)
+        RdCall.write(ctx, buffer, _createSession)
+        RdCall.write(ctx, buffer, _deleteSession)
+        RdSignal.write(ctx, buffer, _processStarted)
+        RdSignal.write(ctx, buffer, _processTerminated)
+        RdSignal.write(ctx, buffer, _logReceived)
+        RdSignal.write(ctx, buffer, _messageReceived)
+        RdMap.write(ctx, buffer, _resources)
+    }
     //companion
     
     companion object : IMarshaller<AspireHostModel> {
@@ -158,15 +170,7 @@ class AspireHostModel private constructor(
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModel)  {
-            value.rdid.write(buffer)
-            AspireHostModelConfig.write(ctx, buffer, value.config)
-            RdCall.write(ctx, buffer, value._createSession)
-            RdCall.write(ctx, buffer, value._deleteSession)
-            RdSignal.write(ctx, buffer, value._processStarted)
-            RdSignal.write(ctx, buffer, value._processTerminated)
-            RdSignal.write(ctx, buffer, value._logReceived)
-            RdSignal.write(ctx, buffer, value._messageReceived)
-            RdMap.write(ctx, buffer, value._resources)
+            value.write(ctx, buffer)
         }
         
         
@@ -283,6 +287,16 @@ data class AspireHostModelConfig (
     val otlpEndpointUrl: String?,
     val aspireHostProjectUrl: String?
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(id)
+        buffer.writeNullable(runConfigName) { buffer.writeString(it) }
+        buffer.writeString(aspireHostProjectPath)
+        buffer.writeNullable(resourceServiceEndpointUrl) { buffer.writeString(it) }
+        buffer.writeNullable(resourceServiceApiKey) { buffer.writeString(it) }
+        buffer.writeNullable(otlpEndpointUrl) { buffer.writeString(it) }
+        buffer.writeNullable(aspireHostProjectUrl) { buffer.writeString(it) }
+    }
     //companion
     
     companion object : IMarshaller<AspireHostModelConfig> {
@@ -302,13 +316,7 @@ data class AspireHostModelConfig (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModelConfig)  {
-            buffer.writeString(value.id)
-            buffer.writeNullable(value.runConfigName) { buffer.writeString(it) }
-            buffer.writeString(value.aspireHostProjectPath)
-            buffer.writeNullable(value.resourceServiceEndpointUrl) { buffer.writeString(it) }
-            buffer.writeNullable(value.resourceServiceApiKey) { buffer.writeString(it) }
-            buffer.writeNullable(value.otlpEndpointUrl) { buffer.writeString(it) }
-            buffer.writeNullable(value.aspireHostProjectUrl) { buffer.writeString(it) }
+            value.write(ctx, buffer)
         }
         
         
@@ -381,6 +389,15 @@ class CreateProjectSessionRequest (
     args,
     envs
 ) {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeBool(debug)
+        buffer.writeNullable(args) { buffer.writeArray(it) { buffer.writeString(it) } }
+        buffer.writeNullable(envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
+        buffer.writeString(projectPath)
+        buffer.writeNullable(launchProfile) { buffer.writeString(it) }
+        buffer.writeBool(disableLaunchProfile)
+    }
     //companion
     
     companion object : IMarshaller<CreateProjectSessionRequest> {
@@ -399,12 +416,7 @@ class CreateProjectSessionRequest (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CreateProjectSessionRequest)  {
-            buffer.writeBool(value.debug)
-            buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
-            buffer.writeNullable(value.envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
-            buffer.writeString(value.projectPath)
-            buffer.writeNullable(value.launchProfile) { buffer.writeString(it) }
-            buffer.writeBool(value.disableLaunchProfile)
+            value.write(ctx, buffer)
         }
         
         
@@ -476,6 +488,15 @@ class CreatePythonSessionRequest (
     args,
     envs
 ) {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeBool(debug)
+        buffer.writeNullable(args) { buffer.writeArray(it) { buffer.writeString(it) } }
+        buffer.writeNullable(envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
+        buffer.writeString(programPath)
+        buffer.writeNullable(interpreterPath) { buffer.writeString(it) }
+        buffer.writeNullable(module) { buffer.writeString(it) }
+    }
     //companion
     
     companion object : IMarshaller<CreatePythonSessionRequest> {
@@ -494,12 +515,7 @@ class CreatePythonSessionRequest (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CreatePythonSessionRequest)  {
-            buffer.writeBool(value.debug)
-            buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
-            buffer.writeNullable(value.envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
-            buffer.writeString(value.programPath)
-            buffer.writeNullable(value.interpreterPath) { buffer.writeString(it) }
-            buffer.writeNullable(value.module) { buffer.writeString(it) }
+            value.write(ctx, buffer)
         }
         
         
@@ -603,6 +619,13 @@ class CreateSessionRequest_Unknown (
     args,
     envs
 ), IUnknownInstance {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeBool(debug)
+        buffer.writeNullable(args) { buffer.writeArray(it) { buffer.writeString(it) } }
+        buffer.writeNullable(envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
+        buffer.writeByteArrayRaw(unknownBytes)
+    }
     //companion
     
     companion object : IMarshaller<CreateSessionRequest_Unknown> {
@@ -615,10 +638,7 @@ class CreateSessionRequest_Unknown (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CreateSessionRequest_Unknown)  {
-            buffer.writeBool(value.debug)
-            buffer.writeNullable(value.args) { buffer.writeArray(it) { buffer.writeString(it) } }
-            buffer.writeNullable(value.envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
-            buffer.writeByteArrayRaw(value.unknownBytes)
+            value.write(ctx, buffer)
         }
         
         
@@ -673,6 +693,11 @@ data class CreateSessionResponse (
     val sessionId: String?,
     val error: ErrorCode?
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeNullable(sessionId) { buffer.writeString(it) }
+        buffer.writeNullable(error) { buffer.writeEnum(it) }
+    }
     //companion
     
     companion object : IMarshaller<CreateSessionResponse> {
@@ -687,8 +712,7 @@ data class CreateSessionResponse (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CreateSessionResponse)  {
-            buffer.writeNullable(value.sessionId) { buffer.writeString(it) }
-            buffer.writeNullable(value.error) { buffer.writeEnum(it) }
+            value.write(ctx, buffer)
         }
         
         
@@ -737,6 +761,10 @@ data class CreateSessionResponse (
 data class DeleteSessionRequest (
     val sessionId: String
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(sessionId)
+    }
     //companion
     
     companion object : IMarshaller<DeleteSessionRequest> {
@@ -750,7 +778,7 @@ data class DeleteSessionRequest (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: DeleteSessionRequest)  {
-            buffer.writeString(value.sessionId)
+            value.write(ctx, buffer)
         }
         
         
@@ -798,6 +826,11 @@ data class DeleteSessionResponse (
     val sessionId: String?,
     val error: ErrorCode?
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeNullable(sessionId) { buffer.writeString(it) }
+        buffer.writeNullable(error) { buffer.writeEnum(it) }
+    }
     //companion
     
     companion object : IMarshaller<DeleteSessionResponse> {
@@ -812,8 +845,7 @@ data class DeleteSessionResponse (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: DeleteSessionResponse)  {
-            buffer.writeNullable(value.sessionId) { buffer.writeString(it) }
-            buffer.writeNullable(value.error) { buffer.writeEnum(it) }
+            value.write(ctx, buffer)
         }
         
         
@@ -894,6 +926,12 @@ data class LogReceived (
     val isStdErr: Boolean,
     val message: String
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(id)
+        buffer.writeBool(isStdErr)
+        buffer.writeString(message)
+    }
     //companion
     
     companion object : IMarshaller<LogReceived> {
@@ -909,9 +947,7 @@ data class LogReceived (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: LogReceived)  {
-            buffer.writeString(value.id)
-            buffer.writeBool(value.isStdErr)
-            buffer.writeString(value.message)
+            value.write(ctx, buffer)
         }
         
         
@@ -995,6 +1031,13 @@ data class MessageReceived (
     val message: String,
     val error: ErrorCode?
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(id)
+        buffer.writeEnum(level)
+        buffer.writeString(message)
+        buffer.writeNullable(error) { buffer.writeEnum(it) }
+    }
     //companion
     
     companion object : IMarshaller<MessageReceived> {
@@ -1011,10 +1054,7 @@ data class MessageReceived (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: MessageReceived)  {
-            buffer.writeString(value.id)
-            buffer.writeEnum(value.level)
-            buffer.writeString(value.message)
-            buffer.writeNullable(value.error) { buffer.writeEnum(it) }
+            value.write(ctx, buffer)
         }
         
         
@@ -1072,6 +1112,11 @@ data class ProcessStarted (
     val id: String,
     val pid: Long
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(id)
+        buffer.writeLong(pid)
+    }
     //companion
     
     companion object : IMarshaller<ProcessStarted> {
@@ -1086,8 +1131,7 @@ data class ProcessStarted (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ProcessStarted)  {
-            buffer.writeString(value.id)
-            buffer.writeLong(value.pid)
+            value.write(ctx, buffer)
         }
         
         
@@ -1139,6 +1183,11 @@ data class ProcessTerminated (
     val id: String,
     val exitCode: Int
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(id)
+        buffer.writeInt(exitCode)
+    }
     //companion
     
     companion object : IMarshaller<ProcessTerminated> {
@@ -1153,8 +1202,7 @@ data class ProcessTerminated (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ProcessTerminated)  {
-            buffer.writeString(value.id)
-            buffer.writeInt(value.exitCode)
+            value.write(ctx, buffer)
         }
         
         
@@ -1209,6 +1257,16 @@ data class ResourceCommand (
     val displayDescription: String?,
     val state: ResourceCommandState
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(name)
+        buffer.writeString(displayName)
+        buffer.writeNullable(confirmationMessage) { buffer.writeString(it) }
+        buffer.writeBool(isHighlighted)
+        buffer.writeNullable(iconName) { buffer.writeString(it) }
+        buffer.writeNullable(displayDescription) { buffer.writeString(it) }
+        buffer.writeEnum(state)
+    }
     //companion
     
     companion object : IMarshaller<ResourceCommand> {
@@ -1228,13 +1286,7 @@ data class ResourceCommand (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceCommand)  {
-            buffer.writeString(value.name)
-            buffer.writeString(value.displayName)
-            buffer.writeNullable(value.confirmationMessage) { buffer.writeString(it) }
-            buffer.writeBool(value.isHighlighted)
-            buffer.writeNullable(value.iconName) { buffer.writeString(it) }
-            buffer.writeNullable(value.displayDescription) { buffer.writeString(it) }
-            buffer.writeEnum(value.state)
+            value.write(ctx, buffer)
         }
         
         
@@ -1300,6 +1352,12 @@ data class ResourceCommandRequest (
     val resourceName: String,
     val resourceType: String
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(commandName)
+        buffer.writeString(resourceName)
+        buffer.writeString(resourceType)
+    }
     //companion
     
     companion object : IMarshaller<ResourceCommandRequest> {
@@ -1315,9 +1373,7 @@ data class ResourceCommandRequest (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceCommandRequest)  {
-            buffer.writeString(value.commandName)
-            buffer.writeString(value.resourceName)
-            buffer.writeString(value.resourceType)
+            value.write(ctx, buffer)
         }
         
         
@@ -1370,6 +1426,11 @@ data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
     val errorMessage: String?
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeEnum(kind)
+        buffer.writeNullable(errorMessage) { buffer.writeString(it) }
+    }
     //companion
     
     companion object : IMarshaller<ResourceCommandResponse> {
@@ -1384,8 +1445,7 @@ data class ResourceCommandResponse (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceCommandResponse)  {
-            buffer.writeEnum(value.kind)
-            buffer.writeNullable(value.errorMessage) { buffer.writeString(it) }
+            value.write(ctx, buffer)
         }
         
         
@@ -1488,6 +1548,11 @@ data class ResourceEnvironmentVariable (
     val key: String,
     val value: String?
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(key)
+        buffer.writeNullable(value) { buffer.writeString(it) }
+    }
     //companion
     
     companion object : IMarshaller<ResourceEnvironmentVariable> {
@@ -1502,8 +1567,7 @@ data class ResourceEnvironmentVariable (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceEnvironmentVariable)  {
-            buffer.writeString(value.key)
-            buffer.writeNullable(value.value) { buffer.writeString(it) }
+            value.write(ctx, buffer)
         }
         
         
@@ -1555,6 +1619,13 @@ data class ResourceHealthReport (
     val description: String,
     val exception: String
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeNullable(status) { buffer.writeEnum(it) }
+        buffer.writeString(key)
+        buffer.writeString(description)
+        buffer.writeString(exception)
+    }
     //companion
     
     companion object : IMarshaller<ResourceHealthReport> {
@@ -1571,10 +1642,7 @@ data class ResourceHealthReport (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceHealthReport)  {
-            buffer.writeNullable(value.status) { buffer.writeEnum(it) }
-            buffer.writeString(value.key)
-            buffer.writeString(value.description)
-            buffer.writeString(value.exception)
+            value.write(ctx, buffer)
         }
         
         
@@ -1657,6 +1725,12 @@ data class ResourceLog (
     val isError: Boolean,
     val lineNumber: Int
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(text)
+        buffer.writeBool(isError)
+        buffer.writeInt(lineNumber)
+    }
     //companion
     
     companion object : IMarshaller<ResourceLog> {
@@ -1672,9 +1746,7 @@ data class ResourceLog (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceLog)  {
-            buffer.writeString(value.text)
-            buffer.writeBool(value.isError)
-            buffer.writeInt(value.lineNumber)
+            value.write(ctx, buffer)
         }
         
         
@@ -1742,6 +1814,26 @@ data class ResourceModel (
     val relationships: Array<ResourceRelationship>,
     val isHidden: Boolean
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(name)
+        buffer.writeEnum(type)
+        buffer.writeString(displayName)
+        buffer.writeString(uid)
+        buffer.writeNullable(state) { buffer.writeEnum(it) }
+        buffer.writeNullable(stateStyle) { buffer.writeEnum(it) }
+        buffer.writeNullable(createdAt) { buffer.writeDateTime(it) }
+        buffer.writeNullable(startedAt) { buffer.writeDateTime(it) }
+        buffer.writeNullable(stoppedAt) { buffer.writeDateTime(it) }
+        buffer.writeArray(properties) { ResourceProperty.write(ctx, buffer, it) }
+        buffer.writeArray(environment) { ResourceEnvironmentVariable.write(ctx, buffer, it) }
+        buffer.writeArray(urls) { ResourceUrl.write(ctx, buffer, it) }
+        buffer.writeArray(volumes) { ResourceVolume.write(ctx, buffer, it) }
+        buffer.writeArray(healthReports) { ResourceHealthReport.write(ctx, buffer, it) }
+        buffer.writeArray(commands) { ResourceCommand.write(ctx, buffer, it) }
+        buffer.writeArray(relationships) { ResourceRelationship.write(ctx, buffer, it) }
+        buffer.writeBool(isHidden)
+    }
     //companion
     
     companion object : IMarshaller<ResourceModel> {
@@ -1771,23 +1863,7 @@ data class ResourceModel (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceModel)  {
-            buffer.writeString(value.name)
-            buffer.writeEnum(value.type)
-            buffer.writeString(value.displayName)
-            buffer.writeString(value.uid)
-            buffer.writeNullable(value.state) { buffer.writeEnum(it) }
-            buffer.writeNullable(value.stateStyle) { buffer.writeEnum(it) }
-            buffer.writeNullable(value.createdAt) { buffer.writeDateTime(it) }
-            buffer.writeNullable(value.startedAt) { buffer.writeDateTime(it) }
-            buffer.writeNullable(value.stoppedAt) { buffer.writeDateTime(it) }
-            buffer.writeArray(value.properties) { ResourceProperty.write(ctx, buffer, it) }
-            buffer.writeArray(value.environment) { ResourceEnvironmentVariable.write(ctx, buffer, it) }
-            buffer.writeArray(value.urls) { ResourceUrl.write(ctx, buffer, it) }
-            buffer.writeArray(value.volumes) { ResourceVolume.write(ctx, buffer, it) }
-            buffer.writeArray(value.healthReports) { ResourceHealthReport.write(ctx, buffer, it) }
-            buffer.writeArray(value.commands) { ResourceCommand.write(ctx, buffer, it) }
-            buffer.writeArray(value.relationships) { ResourceRelationship.write(ctx, buffer, it) }
-            buffer.writeBool(value.isHidden)
+            value.write(ctx, buffer)
         }
         
         
@@ -1884,6 +1960,13 @@ data class ResourceProperty (
     val value: String?,
     val isSensitive: Boolean?
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(name)
+        buffer.writeNullable(displayName) { buffer.writeString(it) }
+        buffer.writeNullable(value) { buffer.writeString(it) }
+        buffer.writeNullable(isSensitive) { buffer.writeBool(it) }
+    }
     //companion
     
     companion object : IMarshaller<ResourceProperty> {
@@ -1900,10 +1983,7 @@ data class ResourceProperty (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceProperty)  {
-            buffer.writeString(value.name)
-            buffer.writeNullable(value.displayName) { buffer.writeString(it) }
-            buffer.writeNullable(value.value) { buffer.writeString(it) }
-            buffer.writeNullable(value.isSensitive) { buffer.writeBool(it) }
+            value.write(ctx, buffer)
         }
         
         
@@ -1959,6 +2039,11 @@ data class ResourceRelationship (
     val resourceName: String,
     val type: String
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(resourceName)
+        buffer.writeString(type)
+    }
     //companion
     
     companion object : IMarshaller<ResourceRelationship> {
@@ -1973,8 +2058,7 @@ data class ResourceRelationship (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceRelationship)  {
-            buffer.writeString(value.resourceName)
-            buffer.writeString(value.type)
+            value.write(ctx, buffer)
         }
         
         
@@ -2123,6 +2207,15 @@ data class ResourceUrl (
     val sortOrder: Int,
     val displayName: String
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeNullable(endpointName) { buffer.writeString(it) }
+        buffer.writeString(fullUrl)
+        buffer.writeBool(isInternal)
+        buffer.writeBool(isInactive)
+        buffer.writeInt(sortOrder)
+        buffer.writeString(displayName)
+    }
     //companion
     
     companion object : IMarshaller<ResourceUrl> {
@@ -2141,12 +2234,7 @@ data class ResourceUrl (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceUrl)  {
-            buffer.writeNullable(value.endpointName) { buffer.writeString(it) }
-            buffer.writeString(value.fullUrl)
-            buffer.writeBool(value.isInternal)
-            buffer.writeBool(value.isInactive)
-            buffer.writeInt(value.sortOrder)
-            buffer.writeString(value.displayName)
+            value.write(ctx, buffer)
         }
         
         
@@ -2210,6 +2298,13 @@ data class ResourceVolume (
     val mountType: String,
     val isReadOnly: Boolean
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(source)
+        buffer.writeString(target)
+        buffer.writeString(mountType)
+        buffer.writeBool(isReadOnly)
+    }
     //companion
     
     companion object : IMarshaller<ResourceVolume> {
@@ -2226,10 +2321,7 @@ data class ResourceVolume (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceVolume)  {
-            buffer.writeString(value.source)
-            buffer.writeString(value.target)
-            buffer.writeString(value.mountType)
-            buffer.writeBool(value.isReadOnly)
+            value.write(ctx, buffer)
         }
         
         
@@ -2287,6 +2379,14 @@ class ResourceWrapper private constructor(
     private val _logReceived: RdSignal<ResourceLog>,
     private val _executeCommand: RdCall<ResourceCommandRequest, ResourceCommandResponse>
 ) : RdBindableBase() {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        rdid.write(buffer)
+        RdOptionalProperty.write(ctx, buffer, _model)
+        RdOptionalProperty.write(ctx, buffer, _isInitialized)
+        RdSignal.write(ctx, buffer, _logReceived)
+        RdCall.write(ctx, buffer, _executeCommand)
+    }
     //companion
     
     companion object : IMarshaller<ResourceWrapper> {
@@ -2304,11 +2404,7 @@ class ResourceWrapper private constructor(
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceWrapper)  {
-            value.rdid.write(buffer)
-            RdOptionalProperty.write(ctx, buffer, value._model)
-            RdOptionalProperty.write(ctx, buffer, value._isInitialized)
-            RdSignal.write(ctx, buffer, value._logReceived)
-            RdCall.write(ctx, buffer, value._executeCommand)
+            value.write(ctx, buffer)
         }
         
         
@@ -2379,6 +2475,11 @@ data class SessionEnvironmentVariable (
     val key: String,
     val value: String
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(key)
+        buffer.writeString(value)
+    }
     //companion
     
     companion object : IMarshaller<SessionEnvironmentVariable> {
@@ -2393,8 +2494,7 @@ data class SessionEnvironmentVariable (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: SessionEnvironmentVariable)  {
-            buffer.writeString(value.key)
-            buffer.writeString(value.value)
+            value.write(ctx, buffer)
         }
         
         

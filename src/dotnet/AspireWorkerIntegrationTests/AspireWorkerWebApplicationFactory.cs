@@ -9,6 +9,7 @@ namespace JetBrains.Rider.Aspire.Worker.IntegrationTests;
 public class AspireWorkerWebApplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
     public const string TestToken = "test-token";
+    private readonly string[] _supportedSessionTypes = ["project"];
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -22,7 +23,11 @@ public class AspireWorkerWebApplicationFactory<TProgram> : WebApplicationFactory
             services.AddSingleton<IRdConnectionWrapper>(inMemoryConnectionWrapper);
             services.AddSingleton(inMemoryConnectionWrapper);
 
-            services.Configure<DcpSessionOptions>(opts => opts.Token = TestToken);
+            services.Configure<DcpSessionOptions>(opts =>
+            {
+                opts.Token = TestToken;
+                opts.SupportedSessionTypes = _supportedSessionTypes;
+            });
         });
     }
 }

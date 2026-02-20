@@ -27,14 +27,14 @@ import com.jetbrains.rd.util.threading.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withContext
-import java.net.InetAddress
-import java.net.ServerSocket
 import kotlin.io.path.absolutePathString
 
 internal class PythonStartSessionRequestHandler : StartSessionRequestHandler {
     companion object {
         private val LOG = logger<PythonStartSessionRequestHandler>()
     }
+
+    override val sessionType: String = "python"
 
     override fun isApplicable(request: StartSessionRequest): Boolean =
         request.launchConfiguration is PythonSessionLaunchConfiguration

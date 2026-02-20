@@ -54,6 +54,8 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         private val LOG = logger<DotNetStartSessionRequestHandler>()
     }
 
+    override val sessionType: String = "project"
+
     override fun isApplicable(request: StartSessionRequest) =
         request.launchConfiguration is DotNetSessionLaunchConfiguration
 

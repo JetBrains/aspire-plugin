@@ -140,6 +140,11 @@ data class AspireHostEnvironmentVariable (
     val key: String,
     val value: String
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(key)
+        buffer.writeString(value)
+    }
     //companion
     
     companion object : IMarshaller<AspireHostEnvironmentVariable> {
@@ -154,8 +159,7 @@ data class AspireHostEnvironmentVariable (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostEnvironmentVariable)  {
-            buffer.writeString(value.key)
-            buffer.writeString(value.value)
+            value.write(ctx, buffer)
         }
         
         
@@ -205,6 +209,11 @@ data class GetReferencedProjectsFromAppHostRequest (
     val hostProjectFilePath: com.jetbrains.rd.ide.model.RdPath,
     val projectFilePaths: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, hostProjectFilePath)
+        buffer.writeList(projectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+    }
     //companion
     
     companion object : IMarshaller<GetReferencedProjectsFromAppHostRequest> {
@@ -219,8 +228,7 @@ data class GetReferencedProjectsFromAppHostRequest (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: GetReferencedProjectsFromAppHostRequest)  {
-            com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, value.hostProjectFilePath)
-            buffer.writeList(value.projectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+            value.write(ctx, buffer)
         }
         
         
@@ -269,6 +277,10 @@ data class GetReferencedProjectsFromAppHostRequest (
 data class GetReferencedProjectsFromAppHostResponse (
     val referencedProjectFilePaths: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeList(referencedProjectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+    }
     //companion
     
     companion object : IMarshaller<GetReferencedProjectsFromAppHostResponse> {
@@ -282,7 +294,7 @@ data class GetReferencedProjectsFromAppHostResponse (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: GetReferencedProjectsFromAppHostResponse)  {
-            buffer.writeList(value.referencedProjectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+            value.write(ctx, buffer)
         }
         
         
@@ -329,6 +341,11 @@ data class ReferenceProjectsFromAppHostRequest (
     val hostProjectFilePath: com.jetbrains.rd.ide.model.RdPath,
     val projectFilePaths: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, hostProjectFilePath)
+        buffer.writeList(projectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+    }
     //companion
     
     companion object : IMarshaller<ReferenceProjectsFromAppHostRequest> {
@@ -343,8 +360,7 @@ data class ReferenceProjectsFromAppHostRequest (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ReferenceProjectsFromAppHostRequest)  {
-            com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, value.hostProjectFilePath)
-            buffer.writeList(value.projectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+            value.write(ctx, buffer)
         }
         
         
@@ -393,6 +409,10 @@ data class ReferenceProjectsFromAppHostRequest (
 data class ReferenceProjectsFromAppHostResponse (
     val referencedProjectFilePaths: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeList(referencedProjectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+    }
     //companion
     
     companion object : IMarshaller<ReferenceProjectsFromAppHostResponse> {
@@ -406,7 +426,7 @@ data class ReferenceProjectsFromAppHostResponse (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ReferenceProjectsFromAppHostResponse)  {
-            buffer.writeList(value.referencedProjectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+            value.write(ctx, buffer)
         }
         
         
@@ -453,6 +473,11 @@ data class ReferenceServiceDefaultsFromProjectsRequest (
     val sharedProjectFilePath: com.jetbrains.rd.ide.model.RdPath,
     val projectFilePaths: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, sharedProjectFilePath)
+        buffer.writeList(projectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+    }
     //companion
     
     companion object : IMarshaller<ReferenceServiceDefaultsFromProjectsRequest> {
@@ -467,8 +492,7 @@ data class ReferenceServiceDefaultsFromProjectsRequest (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ReferenceServiceDefaultsFromProjectsRequest)  {
-            com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, value.sharedProjectFilePath)
-            buffer.writeList(value.projectFilePaths) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+            value.write(ctx, buffer)
         }
         
         
@@ -517,6 +541,10 @@ data class ReferenceServiceDefaultsFromProjectsRequest (
 data class ReferenceServiceDefaultsFromProjectsResponse (
     val projectFilePathsWithReference: List<com.jetbrains.rd.ide.model.RdPath>
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeList(projectFilePathsWithReference) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+    }
     //companion
     
     companion object : IMarshaller<ReferenceServiceDefaultsFromProjectsResponse> {
@@ -530,7 +558,7 @@ data class ReferenceServiceDefaultsFromProjectsResponse (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ReferenceServiceDefaultsFromProjectsResponse)  {
-            buffer.writeList(value.projectFilePathsWithReference) { v -> com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, v) }
+            value.write(ctx, buffer)
         }
         
         
@@ -578,6 +606,12 @@ data class StartAspireHostRequest (
     val aspireHostProjectPath: com.jetbrains.rd.ide.model.RdPath,
     val underDebugger: Boolean
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(unitTestRunId)
+        com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, aspireHostProjectPath)
+        buffer.writeBool(underDebugger)
+    }
     //companion
     
     companion object : IMarshaller<StartAspireHostRequest> {
@@ -593,9 +627,7 @@ data class StartAspireHostRequest (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: StartAspireHostRequest)  {
-            buffer.writeString(value.unitTestRunId)
-            com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, value.aspireHostProjectPath)
-            buffer.writeBool(value.underDebugger)
+            value.write(ctx, buffer)
         }
         
         
@@ -647,6 +679,10 @@ data class StartAspireHostRequest (
 data class StartAspireHostResponse (
     val environmentVariables: Array<AspireHostEnvironmentVariable>
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeArray(environmentVariables) { AspireHostEnvironmentVariable.write(ctx, buffer, it) }
+    }
     //companion
     
     companion object : IMarshaller<StartAspireHostResponse> {
@@ -660,7 +696,7 @@ data class StartAspireHostResponse (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: StartAspireHostResponse)  {
-            buffer.writeArray(value.environmentVariables) { AspireHostEnvironmentVariable.write(ctx, buffer, it) }
+            value.write(ctx, buffer)
         }
         
         
@@ -706,6 +742,10 @@ data class StartAspireHostResponse (
 data class StopAspireHostRequest (
     val unitTestRunId: String
 ) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(unitTestRunId)
+    }
     //companion
     
     companion object : IMarshaller<StopAspireHostRequest> {
@@ -719,7 +759,7 @@ data class StopAspireHostRequest (
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: StopAspireHostRequest)  {
-            buffer.writeString(value.unitTestRunId)
+            value.write(ctx, buffer)
         }
         
         
