@@ -1,10 +1,33 @@
 ﻿## Address from DEBUG_SESSION_PORT environment variable
 @debugSessionPort = localhost:47100
 ## Token from DEBUG_SESSION_TOKEN environment variable
-@debugSessionToken = 7ba53d25-bcd7-40b7-ac7d-bac3d0797168
+@debugSessionToken = 306cc9a8-788c-4545-899f-c82655eb566f
+## API version
+@apiVersion = 2025-10-01
+## DCP Instance ID from DCP_INSTANCE_ID_PREFIX environment variable
+@dcpInstanceId = EUohL
 
 ### IDE endpoint information request
 GET http://{{debugSessionPort}}/info
 Accept: application/json
 Authorization: Bearer {{debugSessionToken}}
 
+### Run a Python script
+PUT http://{{debugSessionPort}}/run_session?api-version={{apiVersion}}
+Accept: application/json
+Authorization: Bearer {{debugSessionToken}}
+Microsoft-Developer-DCP-Instance-ID: {{dcpInstanceId}}
+Content-Type: application/json
+
+{
+  "launch_configurations": [
+    {
+      "type": "python",
+      "program_path": "PyAppHost\\script_only\\main.py",
+      "mode": "NoDebug",
+      "interpreter_path": "PyAppHost\\script_only\\.venv\\Scripts\\python.exe"
+    }
+  ]
+}
+
+###
