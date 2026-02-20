@@ -49,6 +49,6 @@ class AspireResourceServiceViewDescriptor(
     override fun getPopupActions() = resourceActions
 
     override fun uiDataSnapshot(sink: DataSink) {
-        sink[ASPIRE_RESOURCE] = vm.resource
+        sink[ASPIRE_RESOURCE] = vm
     }
 }

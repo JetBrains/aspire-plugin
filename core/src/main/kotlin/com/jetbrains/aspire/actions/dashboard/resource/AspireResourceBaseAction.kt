@@ -21,7 +21,7 @@ import java.nio.file.Path
 abstract class AspireResourceBaseAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        val resource = event.getData(ASPIRE_RESOURCE) ?: getProjectResource(event) ?: return
+        val resource = event.getData(ASPIRE_RESOURCE)?.resource ?: getProjectResource(event) ?: return
 
         performAction(resource, event.dataContext, project)
     }
@@ -30,7 +30,7 @@ abstract class AspireResourceBaseAction : AnAction() {
 
     override fun update(event: AnActionEvent) {
         val project = event.project
-        val resource = event.getData(ASPIRE_RESOURCE) ?: getProjectResource(event)
+        val resource = event.getData(ASPIRE_RESOURCE)?.resource ?: getProjectResource(event)
         if (project == null || resource == null) {
             event.presentation.isEnabledAndVisible = false
             return
