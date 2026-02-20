@@ -41,6 +41,7 @@
 
         <rd.solutionExtListener endpoint="IDE Frontend"
                                 listener="com.jetbrains.aspire.rider.unitTests.AspireUnitTestProtocolListener"/>
+        <stepsBeforeRunProvider implementation="com.jetbrains.aspire.rider.run.file.BuildAspireFileBeforeRunTaskProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
