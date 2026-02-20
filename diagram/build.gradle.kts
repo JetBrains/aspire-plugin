@@ -12,17 +12,14 @@ repositories {
 
     intellijPlatform {
         defaultRepositories()
-        jetbrainsRuntime()
     }
 }
 
 dependencies {
     intellijPlatform {
-        rider(providers.gradleProperty("platformVersion")) {
-            useInstaller = false
+        intellijIdea(providers.gradleProperty("ideaVersion")) {
             useCache = true
         }
-        jetbrainsRuntime()
 
         bundledPlugins("com.intellij.diagram")
     }

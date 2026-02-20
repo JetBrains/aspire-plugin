@@ -21,7 +21,7 @@ dependencies {
     implementation(libs.serializationJson)
 
     intellijPlatform {
-        rider(providers.gradleProperty("platformVersion")) {
+        rider(providers.gradleProperty("riderVersion")) {
             useInstaller = false
             useCache = true
         }

@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        rider(providers.gradleProperty("platformVersion")) {
+        rider(providers.gradleProperty("riderVersion")) {
             useInstaller = false
             useCache = true
         }
