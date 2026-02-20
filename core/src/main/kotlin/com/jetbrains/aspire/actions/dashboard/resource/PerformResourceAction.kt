@@ -26,8 +26,8 @@ import kotlinx.coroutines.launch
 import javax.swing.Icon
 
 class PerformResourceAction : AspireResourceBaseAction() {
-    override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
-        val commands = getCommands(resourceService).filter { it.state == ResourceCommandState.Enabled }
+    override fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project) {
+        val commands = getCommands(aspireResource).filter { it.state == ResourceCommandState.Enabled }
         if (commands.isEmpty()) return
 
         currentThreadCoroutineScope().launch(Dispatchers.EDT) {
@@ -60,13 +60,13 @@ class PerformResourceAction : AspireResourceBaseAction() {
             popup.showInBestPositionFor(dataContext)
 
             deferredCommand.await()?.let { command ->
-                resourceService.executeCommand(command.name)
+                aspireResource.executeCommand(command.name)
             }
         }
     }
 
-    override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
-        val commands = getCommands(resourceService)
+    override fun updateAction(event: AnActionEvent, aspireResource: AspireResource, project: Project) {
+        val commands = getCommands(aspireResource)
         if (commands.isEmpty() || !commands.any { it.state == ResourceCommandState.Enabled }) {
             event.presentation.isEnabledAndVisible = false
             return
@@ -76,7 +76,7 @@ class PerformResourceAction : AspireResourceBaseAction() {
     }
 
     private fun getCommands(resourceService: AspireResource): List<ResourceCommand> {
-        return resourceService.data.commands.filter {
+        return resourceService.resourceState.value.commands.filter {
             !it.name.equals(StartResourceCommand, true) &&
                     !it.name.equals(StopResourceCommand, true) &&
                     !it.name.equals(RestartResourceCommand, true)

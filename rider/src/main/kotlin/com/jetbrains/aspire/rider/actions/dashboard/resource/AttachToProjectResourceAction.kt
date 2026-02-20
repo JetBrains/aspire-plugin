@@ -14,18 +14,20 @@ import kotlinx.coroutines.launch
 import kotlin.io.path.absolutePathString
 
 class AttachToProjectResourceAction : AspireResourceBaseAction() {
-    override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
-        val pid = resourceService.data.pid?.value ?: return
+    override fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project) {
+        val resourceData = aspireResource.resourceState.value
+        val pid = resourceData.pid?.value ?: return
         currentThreadCoroutineScope().launch {
             AttachDebuggerService.getInstance(project).attach(pid)
         }
     }
 
-    override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
-        val pid = resourceService.data.pid?.value
-        val projectPath = resourceService.data.projectPath?.value
-        if (resourceService.data.type != ResourceType.Project ||
-            resourceService.data.state != ResourceState.Running ||
+    override fun updateAction(event: AnActionEvent, aspireResource: AspireResource, project: Project) {
+        val resourceData = aspireResource.resourceState.value
+        val pid = resourceData.pid?.value
+        val projectPath = resourceData.projectPath?.value
+        if (resourceData.type != ResourceType.Project ||
+            resourceData.state != ResourceState.Running ||
             pid == null ||
             projectPath == null
         ) {

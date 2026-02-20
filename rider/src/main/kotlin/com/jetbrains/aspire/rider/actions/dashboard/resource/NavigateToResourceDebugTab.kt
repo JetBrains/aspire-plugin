@@ -20,8 +20,9 @@ import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
 class NavigateToResourceDebugTab : AspireResourceBaseAction() {
-    override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
-        val projectPath = resourceService.data.projectPath?.value ?: return
+    override fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project) {
+        val resourceData = aspireResource.resourceState.value
+        val projectPath = resourceData.projectPath?.value ?: return
         val debugSession = findDebugProfileByProject(projectPath, project) ?: return
         currentThreadCoroutineScope().launch {
             withContext(Dispatchers.EDT) {
@@ -33,8 +34,9 @@ class NavigateToResourceDebugTab : AspireResourceBaseAction() {
         }
     }
 
-    override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
-        val projectPath = resourceService.data.projectPath?.value
+    override fun updateAction(event: AnActionEvent, aspireResource: AspireResource, project: Project) {
+        val resourceData = aspireResource.resourceState.value
+        val projectPath = resourceData.projectPath?.value
         if (projectPath == null) {
             event.presentation.isEnabledAndVisible = false
             return

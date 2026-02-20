@@ -40,7 +40,7 @@ class AspireResourceViewModel(
                             add(vm)
                         }
                     }
-                }.sortedWith(compareBy({ it.resource.data.type }, { it.resource.data.name }))
+                }.sortedWith(compareBy({ it.resource.resourceState.value.type }, { it.resource.resourceState.value.name }))
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 

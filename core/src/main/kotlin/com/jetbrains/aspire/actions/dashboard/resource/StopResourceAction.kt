@@ -1,9 +1,9 @@
 package com.jetbrains.aspire.actions.dashboard.resource
 
-import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.StopResourceCommand
+import com.jetbrains.aspire.worker.AspireResourceData
 
 class StopResourceAction : ResourceCommandAction() {
-    override fun findCommand(resource: AspireResource) =
-        resource.data.commands.firstOrNull { it.name.equals(StopResourceCommand, true) }
+    override fun findCommand(resourceData: AspireResourceData) =
+        resourceData.commands.firstOrNull { it.name.equals(StopResourceCommand, true) }
 }

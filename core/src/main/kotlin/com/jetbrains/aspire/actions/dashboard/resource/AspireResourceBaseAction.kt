@@ -26,7 +26,7 @@ abstract class AspireResourceBaseAction : AnAction() {
         performAction(resource, event.dataContext, project)
     }
 
-    protected abstract fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project)
+    protected abstract fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project)
 
     override fun update(event: AnActionEvent) {
         val project = event.project
@@ -39,7 +39,7 @@ abstract class AspireResourceBaseAction : AnAction() {
         updateAction(event, resource, project)
     }
 
-    protected abstract fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project)
+    protected abstract fun updateAction(event: AnActionEvent, aspireResource: AspireResource, project: Project)
 
     private fun getProjectResource(event: AnActionEvent): AspireResource? {
         val project = event.project ?: return null
@@ -54,8 +54,12 @@ abstract class AspireResourceBaseAction : AnAction() {
         return null
     }
 
-    private fun getProjectResource(aspireHost: AspireAppHost, projectPath: Path): AspireResource? =
-        aspireHost.findResource { it.data.type == ResourceType.Project && it.data.projectPath?.value == projectPath }
+    private fun getProjectResource(aspireHost: AspireAppHost, projectPath: Path): AspireResource? {
+        return aspireHost.findResource {
+            val data = it.resourceState.value
+            data.type == ResourceType.Project && data.projectPath?.value == projectPath
+        }
+    }
 
     override fun getActionUpdateThread() = ActionUpdateThread.EDT
 }

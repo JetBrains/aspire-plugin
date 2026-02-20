@@ -42,8 +42,6 @@ class AspireResource(
     val parentResourceName: String?
         get() = _resourceState.value.parentResourceName
 
-    val data: AspireResourceData get() = _resourceState.value
-
     private val _childrenResources = MutableStateFlow<List<AspireResource>>(emptyList())
     val childrenResources: StateFlow<List<AspireResource>> = _childrenResources.asStateFlow()
 
@@ -76,7 +74,9 @@ class AspireResource(
     }
 
     private fun update(model: ResourceModel) {
-        _resourceState.value = model.toAspireResourceData(data.state)
+        _resourceState.update {
+            model.toAspireResourceData(it.state)
+        }
 
         project.messageBus.syncPublisher(ResourceListener.Companion.TOPIC).resourceUpdated(this)
     }
@@ -90,12 +90,13 @@ class AspireResource(
     }
 
     suspend fun executeCommand(commandName: String) = withContext(Dispatchers.EDT) {
+        val data = resourceState.value
         val command = ResourceCommandRequest(
             commandName,
             data.name,
             data.type.toString()
         )
-        LOG.trace { "Executing command: $command for the resource ${data.uid}" }
+        LOG.trace { "Executing command: $command for the resource $resourceId" }
         val response = modelWrapper.executeCommand.startSuspending(command)
         if (response.kind != ResourceCommandResponseKind.Succeeded) {
             LOG.warn("Unable to execute command: ${response.kind}, ${response.errorMessage}")
@@ -107,7 +108,7 @@ class AspireResource(
     }
 
     private fun processResourceLog(log: ResourceLog) {
-        LOG.trace { "Received log: $log for the resource ${data.uid}" }
+        LOG.trace { "Received log: $log for the resource $resourceId" }
         val outputType = if (!log.isError) ProcessOutputTypes.STDOUT else ProcessOutputTypes.STDERR
 
         val (_, logContent) = parseLogEntry(log.text) ?: run {
