@@ -20,6 +20,11 @@
                         dynamic="true"/>
     </extensionPoints>
 
+    <projectListeners>
+        <listener class="com.jetbrains.aspire.worker.AspireWorker$DetectionListener"
+                  topic="com.jetbrains.aspire.worker.AppHostDetectionListener"/>
+    </projectListeners>
+
     <extensions defaultExtensionNs="com.intellij">
         <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
 

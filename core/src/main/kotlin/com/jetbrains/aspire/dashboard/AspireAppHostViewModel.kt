@@ -28,8 +28,8 @@ class AspireAppHostViewModel(
 
     private val descriptor by lazy { AspireAppHostServiceViewDescriptor(this) }
 
+    val displayName: String = appHost.name
     val appHostMainFilePath = appHost.mainFilePath
-    val displayName: String = appHostMainFilePath.nameWithoutExtension
 
     private val resourceViewModels: StateFlow<List<AspireResource>> =
         appHost.resources

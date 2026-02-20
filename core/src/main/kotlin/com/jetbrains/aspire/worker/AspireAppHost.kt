@@ -50,7 +50,12 @@ import kotlin.io.path.Path
  * @see SessionManager for session request processing
  */
 @ApiStatus.Internal
-class AspireAppHost(val mainFilePath: Path, private val project: Project, parentCs: CoroutineScope) : Disposable {
+class AspireAppHost(
+    val name: String,
+    val mainFilePath: Path,
+    private val project: Project,
+    parentCs: CoroutineScope
+) : Disposable {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }

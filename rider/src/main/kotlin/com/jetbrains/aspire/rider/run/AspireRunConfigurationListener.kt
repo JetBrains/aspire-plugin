@@ -5,17 +5,20 @@ import com.intellij.execution.RunManagerListener
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.worker.AspireWorker.Companion.getInstance
+import com.jetbrains.aspire.worker.AppHostDetectionListener
 import java.nio.file.Path
+import kotlin.io.path.nameWithoutExtension
 
 internal class AspireRunConfigurationListener(private val project: Project) : RunManagerListener {
     override fun runConfigurationAdded(settings: RunnerAndConfigurationSettings) {
         val configuration = settings.configuration
         if (configuration !is AspireRunConfiguration) return
 
-        val mainFilePath = configuration.parameters.mainFilePath
+        val mainFilePath = Path.of(configuration.parameters.mainFilePath)
 
-        getInstance(project).addAspireAppHost(Path.of(mainFilePath))
+        project.messageBus
+            .syncPublisher(AppHostDetectionListener.TOPIC)
+            .appHostDetected(mainFilePath.nameWithoutExtension, mainFilePath)
     }
 
     override fun runConfigurationRemoved(settings: RunnerAndConfigurationSettings) {
@@ -27,7 +30,10 @@ internal class AspireRunConfigurationListener(private val project: Project) : Ru
         val configurations = getAspireRunConfigurationsByMainFilePath(mainFilePath)
         if (configurations.isNotEmpty()) return
 
-        getInstance(project).removeAspireAppHost(Path.of(mainFilePath))
+        val path = Path.of(mainFilePath)
+        project.messageBus
+            .syncPublisher(AppHostDetectionListener.TOPIC)
+            .appHostRemoved(path)
     }
 
     private fun getAspireRunConfigurationsByMainFilePath(mainFilePath: String): List<AspireRunConfiguration> {

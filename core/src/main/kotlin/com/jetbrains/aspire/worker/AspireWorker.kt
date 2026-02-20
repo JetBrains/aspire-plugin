@@ -70,13 +70,13 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     }
     private val mutex = Mutex()
 
-    fun addAspireAppHost(mainFilePath: Path) {
+    fun addAspireAppHost(name: String, mainFilePath: Path) {
         LOG.trace { "Adding a new Aspire AppHost ${mainFilePath.absolutePathString()}" }
 
         _appHosts.update { currentList ->
             if (currentList.any { it.mainFilePath == mainFilePath }) return@update currentList
 
-            val appHost = AspireAppHost(mainFilePath, project, cs)
+            val appHost = AspireAppHost(name, mainFilePath, project, cs)
             Disposer.register(this@AspireWorker, appHost)
             currentList + appHost
         }
@@ -243,5 +243,15 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
             val debugSessionServerCertificate: String?,
             val model: AspireWorkerModel
         ) : AspireWorkerState
+    }
+
+    private class DetectionListener(private val project: Project): AppHostDetectionListener {
+        override fun appHostDetected(appHostName: String, appHostMainFilePath: Path) {
+            getInstance(project).addAspireAppHost(appHostName, appHostMainFilePath)
+        }
+
+        override fun appHostRemoved(appHostMainFilePath: Path) {
+            getInstance(project).removeAspireAppHost(appHostMainFilePath)
+        }
     }
 }
