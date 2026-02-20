@@ -10,4 +10,6 @@ val aspireLoggedErrorProcessor: RiderLoggedErrorProcessor = RiderLoggedErrorProc
         "DebuggerMatchingHandlerNotFound" to { it.contains("Haven't found matching handler for") },
         "HighlighterHasNotBeenRegistered" to { it.contains("Removing highlighter hasn't been registered by markup adapter") },
         "RiderHotReloadExecutionListenerDisposable" to { it.contains("com.jetbrains.rider.debugger.dialogs.RiderHotReloadExecutionListener.processStarted") },
-    ))
+        "DoubleReleaseOfEditor" to { it.contains($$"TraceableDisposable$DisposalException: Double release of editor") },
+    )
+)
