@@ -14,9 +14,10 @@ import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createNestedDisposable
 import com.intellij.openapi.util.Key
-import com.jetbrains.aspire.sessions.StartSessionRequestHandler
-import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.aspire.util.decodeAnsiCommandsToString
+import com.jetbrains.rd.platform.diagnostics.LogTraceScenariosRegistry
+import com.jetbrains.rd.util.lifetime.LifetimeDefinition
+import com.jetbrains.rider.diagnostics.LogTraceScenarios
 import com.jetbrains.rider.environment.RiderEnvironment
 import com.jetbrains.rider.environment.initializeAndGetEnvironment
 import java.nio.charset.StandardCharsets
@@ -48,6 +49,11 @@ internal class AspireWorkerLauncher(private val project: Project) {
         private const val RIDER_DCP_SESSION_TYPES = "RIDER_DCP_SESSION__SupportedSessionTypes"
         private const val RIDER_RD_PORT = "RIDER_CONNECTION__RdPort"
         private const val SERILOG_FILE_PATH = "Serilog__WriteTo__0__Args__configure__0__Args__path"
+        private const val SERILOG_MINIMUM_LEVEL = "Serilog__MinimumLevel__Default"
+        private const val SERILOG_MINIMUM_LEVEL_OVERRIDE_JETBRAINS = "Serilog__MinimumLevel__Override__JetBrains"
+        private const val SERILOG_MINIMUM_LEVEL_OVERRIDE_MICROSOFT = "Serilog__MinimumLevel__Override__Microsoft"
+        private const val LOG_LEVEL_DEBUG = "Debug"
+        private const val LOG_LEVEL_VERBOSE = "Verbose"
     }
 
     private val pluginId = PluginId.getId("me.rafaelldi.aspire")
@@ -106,6 +112,11 @@ internal class AspireWorkerLauncher(private val project: Project) {
 //        val supportedSessionTypes = StartSessionRequestHandler.getSupportedSessionTypes()
         val supportedSessionTypes = listOf("project") //Hardcode for now
         val logFile = getLogFile(environment)
+        val aspireTraceScenarioEnabled = LogTraceScenariosRegistry
+            .getInstance()
+            .enabledScenarios()
+            .contains(LogTraceScenarios.Aspire)
+
         val commandLine = GeneralCommandLine()
             .withExePath(dotnetCliPath.absolutePathString())
             .withCharset(StandardCharsets.UTF_8)
@@ -125,6 +136,11 @@ internal class AspireWorkerLauncher(private val project: Project) {
                         put("${RIDER_DCP_SESSION_TYPES}__$index", type)
                     }
                     put(SERILOG_FILE_PATH, logFile.absolutePathString())
+                    if (aspireTraceScenarioEnabled) {
+                        put(SERILOG_MINIMUM_LEVEL, LOG_LEVEL_DEBUG)
+                        put(SERILOG_MINIMUM_LEVEL_OVERRIDE_MICROSOFT, LOG_LEVEL_DEBUG)
+                        put(SERILOG_MINIMUM_LEVEL_OVERRIDE_JETBRAINS, LOG_LEVEL_VERBOSE)
+                    }
                 }
             )
         return commandLine
