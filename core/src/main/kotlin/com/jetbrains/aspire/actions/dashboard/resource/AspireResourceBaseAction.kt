@@ -11,6 +11,7 @@ import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.util.ASPIRE_RESOURCE
+import com.jetbrains.aspire.util.findResource
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rider.projectView.workspace.containingProjectEntity
@@ -53,14 +54,8 @@ abstract class AspireResourceBaseAction : AnAction() {
         return null
     }
 
-    private fun getProjectResource(aspireHost: AspireAppHost, projectPath: Path): AspireResource? {
-        for (resource in aspireHost.getAllResources()) {
-            if (resource.data.type != ResourceType.Project) continue
-            if (resource.data.projectPath?.value == projectPath) return resource
-        }
-
-        return null
-    }
+    private fun getProjectResource(aspireHost: AspireAppHost, projectPath: Path): AspireResource? =
+        aspireHost.findResource { it.data.type == ResourceType.Project && it.data.projectPath?.value == projectPath }
 
     override fun getActionUpdateThread() = ActionUpdateThread.EDT
 }

@@ -9,6 +9,7 @@ import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
+import com.jetbrains.aspire.worker.AspireAppHost
 import icons.ReSharperIcons
 import icons.RiderIcons
 import org.jetbrains.annotations.ApiStatus
@@ -55,4 +56,28 @@ internal class BaseAspireResourceIconProvider : AspireResourceIconProvider {
         ResourceType.Unknown -> AllIcons.FileTypes.Unknown
         else -> null
     }
+}
+
+@ApiStatus.Internal
+fun AspireAppHost.getAllResources(): List<AspireResource> =
+    rootResources.value.flatMap { it.withDescendants() }
+
+private fun AspireResource.withDescendants(): List<AspireResource> =
+    listOf(this) + childrenResources.value.flatMap { it.withDescendants() }
+
+@ApiStatus.Internal
+fun AspireAppHost.findResource(predicate: (AspireResource) -> Boolean): AspireResource? =
+    rootResources.value.findInTree(predicate)
+
+private fun List<AspireResource>.findInTree(predicate: (AspireResource) -> Boolean): AspireResource? {
+    for (resource in this) {
+        if (predicate(resource)) return resource
+    }
+
+    for (resource in this) {
+        val found = resource.childrenResources.value.findInTree(predicate)
+        if (found != null) return found
+    }
+
+    return null
 }

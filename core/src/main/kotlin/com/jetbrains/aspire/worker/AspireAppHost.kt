@@ -102,8 +102,6 @@ class AspireAppHost(
         }
     }.stateIn(cs, SharingStarted.Eagerly, AspireAppHostState.Inactive)
 
-    fun getAllResources(): List<AspireResource> = _resources.values.toList()
-
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
         LOG.trace("Subscribing to Aspire AppHost model")
 
