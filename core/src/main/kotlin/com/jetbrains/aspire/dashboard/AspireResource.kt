@@ -2,8 +2,6 @@ package com.jetbrains.aspire.dashboard
 
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputTypes
-import com.intellij.execution.services.ServiceEventListener
-import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
@@ -21,7 +19,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,16 +28,18 @@ class AspireResource(
     private val modelWrapper: ResourceWrapper,
     val lifetime: Lifetime,
     private val project: Project
-) : ServiceViewProvidingContributor<AspireResource, AspireResource>, Disposable {
+) : Disposable {
     companion object {
         private val LOG = logger<AspireResource>()
     }
 
-    var data: AspireResourceData
-        private set
+    private val _resourceState = MutableStateFlow(modelWrapper.model.valueOrNull.toAspireResourceData())
+    val resourceState: StateFlow<AspireResourceData> = _resourceState.asStateFlow()
 
     val parentResourceName: String?
-        get() = data.parentResourceName
+        get() = _resourceState.value.parentResourceName
+
+    val data: AspireResourceData get() = _resourceState.value
 
     private val _childrenResources = MutableStateFlow<List<AspireResource>>(emptyList())
     val childrenResources: StateFlow<List<AspireResource>> = _childrenResources.asStateFlow()
@@ -60,24 +59,11 @@ class AspireResource(
     val logConsoleComponent
         get() = logConsole.component
 
-    private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
-
     init {
-        val model = modelWrapper.model.valueOrNull
-        data = model.toAspireResourceData()
-
         lifetime.coroutineScope.launch {
             for (resourceLog in resourceLogs) {
                 processResourceLog(resourceLog)
             }
-        }
-
-        lifetime.coroutineScope.launch {
-            _childrenResources
-                .drop(1)
-                .collect {
-                    sendServiceChildrenChangedEvent()
-                }
         }
 
         modelWrapper.model.advise(lifetime, ::update)
@@ -86,21 +72,10 @@ class AspireResource(
         logProcessHandler.startNotify()
     }
 
-    override fun asService() = this
-
-    override fun getViewDescriptor(project: Project) = descriptor
-
-    override fun getServices(project: Project) = childrenResources.value
-
-    override fun getServiceDescriptor(project: Project, aspireResource: AspireResource) =
-        aspireResource.getViewDescriptor(project)
-
     private fun update(model: ResourceModel) {
-        data = model.toAspireResourceData(data.state)
+        _resourceState.value = model.toAspireResourceData(data.state)
 
         project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
-
-        sendServiceChangedEvent()
     }
 
     fun addChildResource(resource: AspireResource) {
@@ -140,24 +115,6 @@ class AspireResource(
         }
 
         logProcessHandler.notifyTextAvailable(logContent + "\r\n", outputType)
-    }
-
-    private fun sendServiceChangedEvent() {
-        val event = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_CHANGED,
-            this,
-            AspireMainServiceViewContributor::class.java
-        )
-        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
-    }
-
-    private fun sendServiceChildrenChangedEvent() {
-        val event = ServiceEventListener.ServiceEvent.createEvent(
-            ServiceEventListener.EventType.SERVICE_CHILDREN_CHANGED,
-            this,
-            AspireMainServiceViewContributor::class.java
-        )
-        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
     }
 
     override fun dispose() {

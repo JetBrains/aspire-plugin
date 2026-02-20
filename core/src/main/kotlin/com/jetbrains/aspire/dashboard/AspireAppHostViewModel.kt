@@ -22,7 +22,7 @@ class AspireAppHostViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
     appHost: AspireAppHost
-) : ServiceViewProvidingContributor<AspireResource, AspireAppHostViewModel>, Disposable {
+) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireAppHostViewModel>, Disposable {
     private val cs: CoroutineScope = parentCs.childScope("Aspire AppHost VM")
 
     private val descriptor by lazy { AspireAppHostServiceViewDescriptor(this) }
@@ -43,10 +43,23 @@ class AspireAppHostViewModel(
         }
     }.stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Inactive(null))
 
-    private val resourceViewModels: StateFlow<List<AspireResource>> =
+    private val resourceViewModels: StateFlow<List<AspireResourceViewModel>> =
         appHost.rootResources
-            .map { resources ->
-                resources.sortedWith(compareBy({ it.data.type }, { it.data.name }))
+            .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
+                val currentById = currentViewModels.associateBy { it.resource.resourceId }
+                val newIds = newResources.map { it.resourceId }.toSet()
+
+                buildList {
+                    for (newResource in newResources) {
+                        val existing = currentById[newResource.resourceId]
+                        if (existing != null) add(existing)
+                        else {
+                            val vm = AspireResourceViewModel(newResource, project, cs)
+                            Disposer.register(this@AspireAppHostViewModel, vm)
+                            add(vm)
+                        }
+                    }
+                }.sortedWith(compareBy({ it.resource.data.type }, { it.resource.data.name }))
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 
@@ -85,7 +98,7 @@ class AspireAppHostViewModel(
 
     override fun getServiceDescriptor(
         project: Project,
-        resourceViewModel: AspireResource
+        resourceViewModel: AspireResourceViewModel
     ) = resourceViewModel.getViewDescriptor(project)
 
     override fun getServices(project: Project) = resourceViewModels.value
