@@ -93,9 +93,6 @@ class AspireAppHost(
                 if (mainFilePath != appHostMainFilePath) return
                 LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
 
-//                _resources.clear()
-//                _rootResources.value = emptyList()
-
                 trySend(AspireAppHostState.Stopped)
             }
         }

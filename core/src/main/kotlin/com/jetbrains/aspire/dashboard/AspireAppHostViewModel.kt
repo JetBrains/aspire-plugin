@@ -7,6 +7,8 @@ import com.intellij.execution.services.ServiceViewManager
 import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
@@ -23,12 +25,16 @@ class AspireAppHostViewModel(
     parentCs: CoroutineScope,
     appHost: AspireAppHost
 ) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireAppHostViewModel>, Disposable {
+    companion object {
+        private val LOG = logger<AspireAppHostViewModel>()
+    }
+
     private val cs: CoroutineScope = parentCs.childScope("Aspire AppHost VM")
 
     private val descriptor by lazy { AspireAppHostServiceViewDescriptor(this) }
 
-    val displayName: String = appHost.name
     val appHostMainFilePath = appHost.mainFilePath
+    val displayName: String = appHost.name
 
     val uiState: StateFlow<AppHostUiState> = combine(
         appHost.appHostState,
@@ -46,20 +52,30 @@ class AspireAppHostViewModel(
     private val resourceViewModels: StateFlow<List<AspireResourceViewModel>> =
         appHost.rootResources
             .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
-                val currentById = currentViewModels.associateBy { it.resource.resourceId }
+                val currentViewModelsById = currentViewModels.associateBy { it.resource.resourceId }
                 val newIds = newResources.map { it.resourceId }.toSet()
 
                 buildList {
-                    for (newResource in newResources) {
-                        val existing = currentById[newResource.resourceId]
-                        if (existing != null) add(existing)
-                        else {
-                            val vm = AspireResourceViewModel(newResource, project, cs)
-                            Disposer.register(this@AspireAppHostViewModel, vm)
-                            add(vm)
+                    for (viewModel in currentViewModels) {
+                        if (viewModel.resourceId in newIds) {
+                            LOG.trace { "Resource ViewModel for ${viewModel.resourceId} already exists" }
+                            add(viewModel)
                         }
                     }
-                }.sortedWith(compareBy({ it.resource.resourceState.value.type }, { it.resource.resourceState.value.name }))
+
+                    for (newResource in newResources) {
+                        if (newResource.resourceId !in currentViewModelsById) {
+                            LOG.trace { "Creating new Resource ViewModel for ${newResource.resourceId}" }
+                            val resourceVM = AspireResourceViewModel(project, cs, newResource)
+                            Disposer.register(this@AspireAppHostViewModel, resourceVM)
+                            add(resourceVM)
+                        }
+                    }
+                }.sortedWith(
+                    compareBy(
+                        { it.resource.resourceState.value.type },
+                        { it.resource.resourceState.value.name })
+                )
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 

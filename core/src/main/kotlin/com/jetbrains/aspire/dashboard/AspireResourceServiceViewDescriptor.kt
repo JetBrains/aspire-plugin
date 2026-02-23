@@ -26,11 +26,11 @@ class AspireResourceServiceViewDescriptor(
     private val tabs = JBTabbedPane().apply {
         addTab(
             AspireCoreBundle.message("service.tab.dashboard"),
-            ResourceDashboardPanel(vm.resource.resourceState.value)
+            ResourceDashboardPanel(vm.uiState.value.resourceData)
         )
         addTab(
             AspireCoreBundle.message("service.tab.console"),
-            ResourceConsolePanel(vm.resource)
+            ResourceConsolePanel(vm.uiState.value.consoleComponent)
         )
 
         if (AspireSettings.getInstance().openConsoleView) {
@@ -43,14 +43,14 @@ class AspireResourceServiceViewDescriptor(
     }
 
     override fun getPresentation() = PresentationData().apply {
-        val resourceData = vm.resource.resourceState.value
+        val resourceData = vm.uiState.value.resourceData
         val icon = getIcon(resourceData)
         setIcon(icon)
         addText(resourceData.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
     }
 
     override fun getContentComponent(): JPanel {
-        val resourceData = vm.resource.resourceState.value
+        val resourceData = vm.uiState.value.resourceData
         tabs.setComponentAt(0, ResourceDashboardPanel(resourceData))
         return panel
     }

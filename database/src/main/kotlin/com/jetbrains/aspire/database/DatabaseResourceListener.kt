@@ -32,7 +32,7 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
 
     private fun applyChanges(resource: AspireResource) {
         if (!AspireSettings.getInstance().connectToDatabase) return
-        val data = resource.data
+        val data = resource.resourceState.value
         if (data.type != ResourceType.Container) return
         val connectionString = data.connectionString?.value ?: return
 

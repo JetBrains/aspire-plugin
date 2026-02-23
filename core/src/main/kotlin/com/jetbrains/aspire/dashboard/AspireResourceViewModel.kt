@@ -5,6 +5,8 @@ package com.jetbrains.aspire.dashboard
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewProvidingContributor
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
@@ -16,38 +18,62 @@ import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
 class AspireResourceViewModel(
-    val resource: AspireResource,
     private val project: Project,
-    parentCs: CoroutineScope
+    parentCs: CoroutineScope,
+    val resource: AspireResource
 ) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireResourceViewModel>, Disposable {
+    companion object {
+        private val LOG = logger<AspireResourceViewModel>()
+    }
+
     private val cs = parentCs.childScope("Aspire Resource VM")
 
     private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
 
+    val resourceId: String = resource.resourceId
+
+    val uiState: StateFlow<ResourceUiState> =
+        resource.resourceState
+            .map { ResourceUiState(it, resource.logConsoleComponent) }
+            .stateIn(
+                cs,
+                SharingStarted.Lazily,
+                ResourceUiState(resource.resourceState.value, resource.logConsoleComponent)
+            )
+
     private val childViewModels: StateFlow<List<AspireResourceViewModel>> =
         resource.childrenResources
             .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
-                val currentById = currentViewModels.associateBy { it.resource.resourceId }
+                val currentViewModelsById = currentViewModels.associateBy { it.resource.resourceId }
                 val newIds = newResources.map { it.resourceId }.toSet()
 
                 buildList {
-                    for (newResource in newResources) {
-                        val existing = currentById[newResource.resourceId]
-                        if (existing != null) add(existing)
-                        else {
-                            val vm = AspireResourceViewModel(newResource, project, cs)
-                            Disposer.register(this@AspireResourceViewModel, vm)
-                            add(vm)
+                    for (viewModel in currentViewModels) {
+                        if (viewModel.resourceId in newIds) {
+                            LOG.trace { "Resource ViewModel for ${viewModel.resourceId} already exists" }
+                            add(viewModel)
                         }
                     }
-                }.sortedWith(compareBy({ it.resource.resourceState.value.type }, { it.resource.resourceState.value.name }))
+
+                    for (newResource in newResources) {
+                        if (newResource.resourceId !in currentViewModelsById) {
+                            LOG.trace { "Creating new Resource ViewModel for ${newResource.resourceId}" }
+                            val resourceVM = AspireResourceViewModel(project, cs, newResource)
+                            Disposer.register(this@AspireResourceViewModel, resourceVM)
+                            add(resourceVM)
+                        }
+                    }
+                }.sortedWith(
+                    compareBy(
+                        { it.resource.resourceState.value.type },
+                        { it.resource.resourceState.value.name })
+                )
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 
     init {
         cs.launch {
-            resource
-                .resourceState
+            uiState
                 .drop(1)
                 .collect { sendServiceChangedEvent() }
         }
