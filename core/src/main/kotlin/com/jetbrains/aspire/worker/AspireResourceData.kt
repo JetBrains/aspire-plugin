@@ -112,7 +112,7 @@ internal fun ResourceModel?.toAspireResourceData(previousState: ResourceState? =
     }
 
     val relationships = this?.relationships?.toList() ?: emptyList()
-    val parentResourceName = relationships.firstOrNull { it.type.equals("parent", true) }?.resourceName
+    val parentResourceName = this?.findParentResourceName()
 
     return AspireResourceData(
         uid = this?.uid ?: "",
@@ -148,6 +148,9 @@ internal fun ResourceModel?.toAspireResourceData(previousState: ResourceState? =
         value = value
     )
 }
+
+internal fun ResourceModel.findParentResourceName(): String? =
+    relationships.firstOrNull { it.type.equals("parent", true) }?.resourceName
 
 private fun extractHealthStatus(healthReports: Array<ResourceHealthReport>): ResourceHealthStatus? {
     if (healthReports.isEmpty()) return null

@@ -39,9 +39,6 @@ class AspireResource(
     private val _resourceState = MutableStateFlow(modelWrapper.model.valueOrNull.toAspireResourceData())
     val resourceState: StateFlow<AspireResourceData> = _resourceState.asStateFlow()
 
-    val parentResourceName: String?
-        get() = _resourceState.value.parentResourceName
-
     private val _childrenResources = MutableStateFlow<List<AspireResource>>(emptyList())
     val childrenResources: StateFlow<List<AspireResource>> = _childrenResources.asStateFlow()
 

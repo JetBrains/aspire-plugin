@@ -280,27 +280,36 @@ class AspireAppHost(
             project
         )
 
-        val parentResource = resource.parentResourceName?.let { _resources[it] }
+        val resourceName = resourceModel.displayName
+        val parentResource = resourceModel.findParentResourceName()?.let { _resources[it] }
 
         resourceLifetime.bracketIfAlive({
-            _resources[resourceId] = resource
-            if (parentResource == null) {
-                Disposer.register(this, resource)
-                _rootResources.update { it + resource }
-            } else {
-                Disposer.register(parentResource, resource)
-                parentResource.addChildResource(resource)
-            }
+            createResource(resourceName, resource, parentResource)
         }, {
-            _resources.remove(resourceId)
-            if (parentResource == null) {
-                _rootResources.update { it - resource }
-            } else {
-                parentResource.removeChildResource(resource)
-            }
+            removeResource(resourceName, resource, parentResource)
         })
 
         resourceModelWrapper.isInitialized.set(true)
+    }
+
+    private fun createResource(resourceName: String, resource: AspireResource, parentResource: AspireResource? = null) {
+        _resources[resourceName] = resource
+        if (parentResource == null) {
+            Disposer.register(this, resource)
+            _rootResources.update { it + resource }
+        } else {
+            Disposer.register(parentResource, resource)
+            parentResource.addChildResource(resource)
+        }
+    }
+
+    private fun removeResource(resourceName: String, resource: AspireResource, parentResource: AspireResource? = null) {
+        _resources.remove(resourceName)
+        if (parentResource == null) {
+            _rootResources.update { it - resource }
+        } else {
+            parentResource.removeChildResource(resource)
+        }
     }
 
     override fun dispose() {
