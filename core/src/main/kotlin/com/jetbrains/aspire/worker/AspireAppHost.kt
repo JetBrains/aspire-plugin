@@ -67,6 +67,8 @@ class AspireAppHost(
 
     private val _resources = ConcurrentHashMap<String, AspireResource>()
 
+    private val _pendingChildren = ConcurrentHashMap<String, MutableList<Pair<String, AspireResource>>>()
+
     private val _rootResources = MutableStateFlow<List<AspireResource>>(emptyList())
     val rootResources: StateFlow<List<AspireResource>> = _rootResources.asStateFlow()
 
@@ -281,34 +283,59 @@ class AspireAppHost(
         )
 
         val resourceName = resourceModel.displayName
-        val parentResource = resourceModel.findParentResourceName()?.let { _resources[it] }
+        val parentResourceName = resourceModel.findParentResourceName()
 
         resourceLifetime.bracketIfAlive({
-            createResource(resourceName, resource, parentResource)
+            createResource(resourceName, resource, parentResourceName)
         }, {
-            removeResource(resourceName, resource, parentResource)
+            removeResource(resourceName, resource, parentResourceName)
         })
 
         resourceModelWrapper.isInitialized.set(true)
     }
 
-    private fun createResource(resourceName: String, resource: AspireResource, parentResource: AspireResource? = null) {
+    private fun createResource(resourceName: String, resource: AspireResource, parentResourceName: String?) {
         _resources[resourceName] = resource
-        if (parentResource == null) {
+
+        val parentResource = parentResourceName?.let { _resources[it] }
+        if (parentResourceName == null) {
             Disposer.register(this, resource)
             _rootResources.update { it + resource }
-        } else {
+        } else if (parentResource != null) {
             Disposer.register(parentResource, resource)
             parentResource.addChildResource(resource)
+        } else {
+            Disposer.register(this, resource)
+            _rootResources.update { it + resource }
+            _pendingChildren
+                .getOrPut(parentResourceName) { mutableListOf() }
+                .add(resourceName to resource)
+        }
+
+        processPendingResources(resourceName, resource)
+    }
+
+    private fun processPendingResources(parentName: String, parentResource: AspireResource) {
+        val pending = _pendingChildren.remove(parentName) ?: return
+
+        for ((_, childResource) in pending) {
+            _rootResources.update { it - childResource }
+            parentResource.addChildResource(childResource)
         }
     }
 
-    private fun removeResource(resourceName: String, resource: AspireResource, parentResource: AspireResource? = null) {
+    private fun removeResource(resourceName: String, resource: AspireResource, parentResourceName: String?) {
         _resources.remove(resourceName)
+
+        val parentResource = parentResourceName?.let { _resources[it] }
         if (parentResource == null) {
             _rootResources.update { it - resource }
         } else {
             parentResource.removeChildResource(resource)
+        }
+
+        if (parentResourceName != null) {
+            _pendingChildren[parentResourceName]?.removeIf { it.first == resourceName }
         }
     }
 
