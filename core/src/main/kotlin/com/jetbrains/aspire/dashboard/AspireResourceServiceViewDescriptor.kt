@@ -18,14 +18,21 @@ import java.awt.BorderLayout
 import javax.swing.JPanel
 
 class AspireResourceServiceViewDescriptor(
-    private val aspireResource: AspireResource
+    private val vm: AspireResourceViewModel
 ) : ServiceViewDescriptor, UiDataProvider {
 
     private val resourceActions = ActionManager.getInstance().getAction("Aspire.Resource") as ActionGroup
 
     private val tabs = JBTabbedPane().apply {
-        addTab(AspireCoreBundle.message("service.tab.dashboard"), ResourceDashboardPanel(aspireResource))
-        addTab(AspireCoreBundle.message("service.tab.console"), ResourceConsolePanel(aspireResource))
+        addTab(
+            AspireCoreBundle.message("service.tab.dashboard"),
+            ResourceDashboardPanel(vm.uiState.value.resourceData)
+        )
+        addTab(
+            AspireCoreBundle.message("service.tab.console"),
+            ResourceConsolePanel(vm.uiState.value.consoleComponent)
+        )
+
         if (AspireSettings.getInstance().openConsoleView) {
             selectedIndex = 1
         }
@@ -36,19 +43,21 @@ class AspireResourceServiceViewDescriptor(
     }
 
     override fun getPresentation() = PresentationData().apply {
-        val icon = getIcon(aspireResource)
+        val resourceData = vm.uiState.value.resourceData
+        val icon = getIcon(resourceData)
         setIcon(icon)
-        addText(aspireResource.data.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+        addText(resourceData.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
     }
 
     override fun getContentComponent(): JPanel {
-        tabs.setComponentAt(0, ResourceDashboardPanel(aspireResource))
+        val resourceData = vm.uiState.value.resourceData
+        tabs.setComponentAt(0, ResourceDashboardPanel(resourceData))
         return panel
     }
 
     override fun getPopupActions() = resourceActions
 
     override fun uiDataSnapshot(sink: DataSink) {
-        sink[ASPIRE_RESOURCE] = aspireResource
+        sink[ASPIRE_RESOURCE] = vm
     }
 }

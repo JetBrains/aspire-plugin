@@ -3,54 +3,46 @@
 package com.jetbrains.aspire.dashboard
 
 import com.intellij.execution.services.ServiceEventListener
-import com.intellij.execution.services.ServiceViewManager
 import com.intellij.execution.services.ServiceViewProvidingContributor
-import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
-import com.intellij.util.application
-import com.jetbrains.aspire.worker.AspireAppHost
+import com.jetbrains.aspire.worker.AspireResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
-class AspireAppHostViewModel(
+class AspireResourceViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
-    appHost: AspireAppHost
-) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireAppHostViewModel>, Disposable {
+    val resource: AspireResource
+) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireResourceViewModel>, Disposable {
     companion object {
-        private val LOG = logger<AspireAppHostViewModel>()
+        private val LOG = logger<AspireResourceViewModel>()
     }
 
-    private val cs: CoroutineScope = parentCs.childScope("Aspire AppHost VM")
+    private val cs = parentCs.childScope("Aspire Resource VM")
 
-    private val descriptor by lazy { AspireAppHostServiceViewDescriptor(this) }
+    private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
 
-    val appHostMainFilePath = appHost.mainFilePath
-    val displayName: String = appHost.name
+    val resourceId: String = resource.resourceId
 
-    val uiState: StateFlow<AppHostUiState> = combine(
-        appHost.appHostState,
-        appHost.dashboardUrl
-    ) { state, url ->
-        when (state) {
-            is AspireAppHost.AspireAppHostState.Started ->
-                AppHostUiState.Active(url, state.console)
+    val uiState: StateFlow<ResourceUiState> =
+        resource.resourceState
+            .map { ResourceUiState(it, resource.logConsoleComponent) }
+            .stateIn(
+                cs,
+                SharingStarted.Lazily,
+                ResourceUiState(resource.resourceState.value, resource.logConsoleComponent)
+            )
 
-            else ->
-                AppHostUiState.Inactive(url)
-        }
-    }.stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Inactive(null))
-
-    private val resourceViewModels: StateFlow<List<AspireResourceViewModel>> =
-        appHost.rootResources
+    private val childViewModels: StateFlow<List<AspireResourceViewModel>> =
+        resource.childrenResources
             .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
                 val currentViewModelsById = currentViewModels.associateBy { it.resource.resourceId }
                 val newIds = newResources.map { it.resourceId }.toSet()
@@ -67,7 +59,7 @@ class AspireAppHostViewModel(
                         if (newResource.resourceId !in currentViewModelsById) {
                             LOG.trace { "Creating new Resource ViewModel for ${newResource.resourceId}" }
                             val resourceVM = AspireResourceViewModel(project, cs, newResource)
-                            Disposer.register(this@AspireAppHostViewModel, resourceVM)
+                            Disposer.register(this@AspireResourceViewModel, resourceVM)
                             add(resourceVM)
                         }
                     }
@@ -81,59 +73,27 @@ class AspireAppHostViewModel(
 
     init {
         cs.launch {
-            var previousConsole: ConsoleView? = null
-
-            uiState.collect { state ->
-                val newConsole = (state as? AppHostUiState.Active)?.consoleView
-                if (previousConsole != null && previousConsole != newConsole) {
-                    Disposer.dispose(requireNotNull(previousConsole))
-                }
-
-                if (state is AppHostUiState.Active && previousConsole == null) {
-                    selectAppHost()
-                }
-                previousConsole = newConsole
-
-                sendServiceChangedEvent()
-            }
+            uiState
+                .drop(1)
+                .collect { sendServiceChangedEvent() }
         }
 
         cs.launch {
-            resourceViewModels
+            childViewModels
                 .drop(1)
-                .collect {
-                    sendServiceChildrenChangedEvent()
-                    expand()
-                }
+                .collect { sendServiceChildrenChangedEvent() }
         }
     }
 
     override fun getViewDescriptor(project: Project) = descriptor
 
-    override fun asService(): AspireAppHostViewModel = this
+    override fun asService() = this
+
+    override fun getServices(project: Project) = childViewModels.value
 
     override fun getServiceDescriptor(
-        project: Project,
-        resourceViewModel: AspireResourceViewModel
-    ) = resourceViewModel.getViewDescriptor(project)
-
-    override fun getServices(project: Project) = resourceViewModels.value
-
-    private fun selectAppHost() {
-        application.invokeLater {
-            ServiceViewManager
-                .getInstance(project)
-                .select(this, AspireMainServiceViewContributor::class.java, true, true)
-        }
-    }
-
-    private fun expand() {
-        application.invokeLater {
-            ServiceViewManager
-                .getInstance(project)
-                .expand(this, AspireMainServiceViewContributor::class.java)
-        }
-    }
+        project: Project, vm: AspireResourceViewModel
+    ) = vm.getViewDescriptor(project)
 
     private fun sendServiceChangedEvent() {
         val event = ServiceEventListener.ServiceEvent.createEvent(

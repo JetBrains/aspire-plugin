@@ -7,23 +7,24 @@ import com.intellij.ui.BadgeIconSupplier
 import com.jetbrains.aspire.generated.ResourceHealthStatus
 import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
-import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
+import com.jetbrains.aspire.worker.AspireAppHost
+import com.jetbrains.aspire.worker.AspireResourceData
 import icons.ReSharperIcons
 import icons.RiderIcons
 import org.jetbrains.annotations.ApiStatus
 import javax.swing.Icon
 
-internal fun getIcon(aspireResource: AspireResource): Icon {
-    val data = aspireResource.data
-    val baseIcon = getResourceIcon(data.type, data.containerImage?.value)
+internal fun getIcon(resourceData: AspireResourceData): Icon {
+    val baseIcon = getResourceIcon(resourceData.type, resourceData.containerImage?.value)
 
-    val icon = when (data.state) {
+    val icon = when (resourceData.state) {
         ResourceState.FailedToStart -> BadgeIconSupplier(baseIcon).errorIcon
         ResourceState.RuntimeUnhealthy -> BadgeIconSupplier(baseIcon).errorIcon
         ResourceState.Waiting -> BadgeIconSupplier(baseIcon).warningIcon
         ResourceState.Running -> {
-            if (data.healthStatus == ResourceHealthStatus.Healthy || data.healthStatus == null) {
+            if (resourceData.healthStatus == ResourceHealthStatus.Healthy || resourceData.healthStatus == null) {
                 BadgeIconSupplier(baseIcon).liveIndicatorIcon
             } else {
                 BadgeIconSupplier(baseIcon).warningIcon
@@ -55,4 +56,28 @@ internal class BaseAspireResourceIconProvider : AspireResourceIconProvider {
         ResourceType.Unknown -> AllIcons.FileTypes.Unknown
         else -> null
     }
+}
+
+@ApiStatus.Internal
+fun AspireAppHost.getAllResources(): List<AspireResource> =
+    rootResources.value.flatMap { it.withDescendants() }
+
+private fun AspireResource.withDescendants(): List<AspireResource> =
+    listOf(this) + childrenResources.value.flatMap { it.withDescendants() }
+
+@ApiStatus.Internal
+fun AspireAppHost.findResource(predicate: (AspireResource) -> Boolean): AspireResource? =
+    rootResources.value.findInTree(predicate)
+
+private fun List<AspireResource>.findInTree(predicate: (AspireResource) -> Boolean): AspireResource? {
+    for (resource in this) {
+        if (predicate(resource)) return resource
+    }
+
+    for (resource in this) {
+        val found = resource.childrenResources.value.findInTree(predicate)
+        if (found != null) return found
+    }
+
+    return null
 }

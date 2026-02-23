@@ -3,7 +3,7 @@ package com.jetbrains.aspire.database
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
@@ -32,7 +32,7 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
 
     private fun applyChanges(resource: AspireResource) {
         if (!AspireSettings.getInstance().connectToDatabase) return
-        val data = resource.data
+        val data = resource.resourceState.value
         if (data.type != ResourceType.Container) return
         val connectionString = data.connectionString?.value ?: return
 

@@ -5,13 +5,13 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.components.BorderLayoutPanel
-import com.jetbrains.aspire.dashboard.AspireResource
 import java.awt.BorderLayout
+import javax.swing.JComponent
 
-class ResourceConsolePanel(resourceService: AspireResource) : BorderLayoutPanel() {
+class ResourceConsolePanel(consoleComponent: JComponent) : BorderLayoutPanel() {
     init {
         border = JBUI.Borders.empty()
-        add(resourceService.logConsoleComponent)
+        add(consoleComponent)
 
         val actionManager = ActionManager.getInstance()
         val toolbarActions = actionManager.getAction("Aspire.Resource") as ActionGroup

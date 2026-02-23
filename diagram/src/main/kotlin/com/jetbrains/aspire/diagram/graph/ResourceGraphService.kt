@@ -13,10 +13,11 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.util.graph.GraphFactory
-import com.jetbrains.aspire.dashboard.AspireResource
 import com.jetbrains.aspire.diagram.AspireDiagramBundle
+import com.jetbrains.aspire.util.getAllResources
 import com.jetbrains.aspire.util.getResourceIcon
 import com.jetbrains.aspire.worker.AspireAppHost
+import com.jetbrains.aspire.worker.AspireResourceData
 
 /**
  * Service for building a resource graph.
@@ -31,9 +32,9 @@ internal class ResourceGraphService(private val project: Project) {
     }
 
     fun showResourceGraph(appHost: AspireAppHost) {
-        val resources = appHost.resources.value
+        val resources = appHost.getAllResources().map { it.resourceState.value }
 
-        val resourceNodes = resources.associate { it.data.displayName to createResourceGraphNode(it) }
+        val resourceNodes = resources.associate { it.displayName to createResourceGraphNode(it) }
         val resourceNodeEdges = calculateResourceNodeEdges(resources, resourceNodes)
 
         val graph = GraphFactory.getInstance()
@@ -55,25 +56,22 @@ internal class ResourceGraphService(private val project: Project) {
         }
     }
 
-    private fun createResourceGraphNode(resource: AspireResource) = ResourceGraphNode(
-        resource.data.uid,
-        resource.data.displayName,
-        getResourceIcon(
-            resource.data.type,
-            resource.data.containerImage?.value
-        )
+    private fun createResourceGraphNode(resource: AspireResourceData) = ResourceGraphNode(
+        resource.uid,
+        resource.displayName,
+        getResourceIcon(resource.type, resource.containerImage?.value)
     )
 
     private fun calculateResourceNodeEdges(
-        resources: List<AspireResource>,
+        resources: List<AspireResourceData>,
         resourceNodes: Map<String, ResourceGraphNode>
     ): List<ResourceGraphEdge> {
         return buildList {
             for (resource in resources) {
-                val sourceNode = resourceNodes[resource.data.displayName] ?: continue
+                val sourceNode = resourceNodes[resource.displayName] ?: continue
 
-                val relationships = resource.data.relationships
-                    .filter { it.resourceName != resource.data.displayName }
+                val relationships = resource.relationships
+                    .filter { it.resourceName != resource.displayName }
                     .groupBy { it.resourceName }
                 for (relationship in relationships) {
                     val targetNode = resourceNodes[relationship.key] ?: continue

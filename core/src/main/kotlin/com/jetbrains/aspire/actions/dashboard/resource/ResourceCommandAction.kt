@@ -8,32 +8,35 @@ import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.generated.ResourceCommand
 import com.jetbrains.aspire.generated.ResourceCommandState
-import com.jetbrains.aspire.dashboard.AspireResource
+import com.jetbrains.aspire.worker.AspireResource
+import com.jetbrains.aspire.worker.AspireResourceData
 import kotlinx.coroutines.launch
 
 abstract class ResourceCommandAction : AspireResourceBaseAction() {
-    override fun performAction(resourceService: AspireResource, dataContext: DataContext, project: Project) {
-        val command = findCommand(resourceService) ?: return
+    override fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project) {
+        val resourceData = aspireResource.resourceState.value
+        val command = findCommand(resourceData) ?: return
 
         if (command.state != ResourceCommandState.Enabled) return
 
         currentThreadCoroutineScope().launch {
-            beforeExecute(resourceService, project)
-            resourceService.executeCommand(command.name)
+            beforeExecute(resourceData, project)
+            aspireResource.executeCommand(command.name)
         }
     }
 
-    open fun beforeExecute(resourceService: AspireResource, project: Project) {
+    open fun beforeExecute(resourceData: AspireResourceData, project: Project) {
     }
 
-    override fun updateAction(event: AnActionEvent, resourceService: AspireResource, project: Project) {
-        val command = findCommand(resourceService)
+    override fun updateAction(event: AnActionEvent, aspireResource: AspireResource, project: Project) {
+        val resourceData = aspireResource.resourceState.value
+        val command = findCommand(resourceData)
         if (command == null || command.state == ResourceCommandState.Hidden) {
             event.presentation.isEnabledAndVisible = false
             return
         }
 
-        val resourceState = checkResourceState(resourceService)
+        val resourceState = checkResourceState(resourceData)
         if (!resourceState) {
             event.presentation.isEnabledAndVisible = false
             return
@@ -43,9 +46,9 @@ abstract class ResourceCommandAction : AspireResourceBaseAction() {
         event.presentation.isEnabled = command.state == ResourceCommandState.Enabled
     }
 
-    open fun checkResourceState(resourceService: AspireResource): Boolean {
+    open fun checkResourceState(resourceData: AspireResourceData): Boolean {
         return true
     }
 
-    protected abstract fun findCommand(resource: AspireResource): ResourceCommand?
+    protected abstract fun findCommand(resourceData: AspireResourceData): ResourceCommand?
 }

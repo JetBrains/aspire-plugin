@@ -5,57 +5,50 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SideBorder
-import com.intellij.ui.dsl.builder.BottomGap
-import com.intellij.ui.dsl.builder.Panel
-import com.intellij.ui.dsl.builder.RightGap
-import com.intellij.ui.dsl.builder.Row
-import com.intellij.ui.dsl.builder.actionButton
-import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.builder.*
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.aspire.AspireCoreBundle
-import com.jetbrains.aspire.generated.ResourceState
-import com.jetbrains.aspire.generated.ResourceType
-import com.jetbrains.aspire.dashboard.AspireResource
-import com.jetbrains.aspire.worker.AspireResourceData
-import com.jetbrains.aspire.worker.AspireResourceProperty
 import com.jetbrains.aspire.dashboard.RestartResourceCommand
 import com.jetbrains.aspire.dashboard.StartResourceCommand
 import com.jetbrains.aspire.dashboard.StopResourceCommand
+import com.jetbrains.aspire.generated.ResourceState
+import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.getIcon
-import kotlin.io.path.absolutePathString
+import com.jetbrains.aspire.worker.AspireResourceData
+import com.jetbrains.aspire.worker.AspireResourceProperty
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
-class ResourceDashboardPanel(aspireResource: AspireResource) : BorderLayoutPanel() {
-    private var panel = setUpPanel(aspireResource)
+class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPanel() {
+    private var panel = setUpPanel(resourceData)
 
     init {
         border = JBUI.Borders.empty(5, 10)
         add(ScrollPaneFactory.createScrollPane(panel, SideBorder.NONE))
     }
 
-    private fun setUpPanel(resource: AspireResource): DialogPanel = panel {
-        val data = resource.data
-        addHeader(resource, data)
-        addProperties(data)
-        addEndpoints(data)
-        addVolumes(data)
-        addEnvironmentVariables(data)
+    private fun setUpPanel(resourceData: AspireResourceData): DialogPanel = panel {
+        addHeader(resourceData)
+        addProperties(resourceData)
+        addEndpoints(resourceData)
+        addVolumes(resourceData)
+        addEnvironmentVariables(resourceData)
     }
 
-    private fun Panel.addHeader(resource: AspireResource, data: AspireResourceData) {
+    private fun Panel.addHeader(data: AspireResourceData) {
         row {
-            addIconAndTitle(resource, data)
+            addIconAndTitle(data)
             addStateAndHealth(data)
             addActionButtons(data)
         }
         separator()
     }
 
-    private fun Row.addIconAndTitle(resource: AspireResource, data: AspireResourceData) {
-        val resourceIcon = getIcon(resource)
+    private fun Row.addIconAndTitle(data: AspireResourceData) {
+        val resourceIcon = getIcon(data)
         icon(resourceIcon)
             .gap(RightGap.SMALL)
         copyableLabel(data.displayName)
