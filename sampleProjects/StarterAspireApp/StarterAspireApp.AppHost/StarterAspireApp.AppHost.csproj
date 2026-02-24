@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+<Project Sdk="Aspire.AppHost.Sdk/13.1.1">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\StarterAspireApp.ApiService\StarterAspireApp.ApiService.csproj"/>
-        <ProjectReference Include="..\StarterAspireApp.Web\StarterAspireApp.Web.csproj"/>
+        <ProjectReference Include="..\StarterAspireApp.ApiService\StarterAspireApp.ApiService.csproj" />
+        <ProjectReference Include="..\StarterAspireApp.Web\StarterAspireApp.Web.csproj" />
     </ItemGroup>
 
 </Project>

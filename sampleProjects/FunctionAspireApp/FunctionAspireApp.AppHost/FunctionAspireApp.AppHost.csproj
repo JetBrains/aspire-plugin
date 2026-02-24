@@ -1,22 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Aspire.AppHost.Sdk/13.1.1">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.0" />
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>35eeee75-f470-426b-b08f-321c653e0f87</UserSecretsId>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <UserSecretsId>cb16f480-2a90-483f-a88d-13af7964a26b</UserSecretsId>
-  </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="13.1.1" />
+      <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="13.1.1" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FunctionApp\FunctionApp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.1.0" />
-    <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="13.1.0" />
-  </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\FunctionAspireApp.FunctionApp\FunctionAspireApp.FunctionApp.csproj" />
+    </ItemGroup>
 
 </Project>

@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "FunctionApp": {
+    "FunctionAspireApp.FunctionApp": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7123",
+      "commandLineArgs": "--port 7272",
       "launchBrowser": false
     }
   }

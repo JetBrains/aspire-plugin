@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+<Project Sdk="Aspire.AppHost.Sdk/13.1.1">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AspireAppWithEvents.ApiService\AspireAppWithEvents.ApiService.csproj"/>
-        <ProjectReference Include="..\AspireAppWithEvents.Web\AspireAppWithEvents.Web.csproj"/>
+        <ProjectReference Include="..\AspireAppWithEvents.ApiService\AspireAppWithEvents.ApiService.csproj" />
+        <ProjectReference Include="..\AspireAppWithEvents.Web\AspireAppWithEvents.Web.csproj" />
     </ItemGroup>
 
 </Project>
