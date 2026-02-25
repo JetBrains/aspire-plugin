@@ -22,13 +22,13 @@ import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
 import com.jetbrains.aspire.rider.run.states.AspireHostDebugProfileState
 import com.jetbrains.aspire.rider.run.states.AspireHostRunProfileState
 import com.jetbrains.aspire.util.getStartBrowserAction
-import com.jetbrains.rd.ide.model.RdSingleFileSource
+import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.ijent.extensions.toRdPath
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.TerminalMode
-import com.jetbrains.rider.run.configurations.dotNetFile.SingleFileProgramProjectManager
+import com.jetbrains.rider.run.configurations.dotNetFile.FileBasedProgramProjectManager
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
 import com.jetbrains.rider.run.environment.ExecutableRunParameters
@@ -67,12 +67,12 @@ internal class AspireFileExecutorFactory(
         activeRuntime: DotNetCoreRuntime,
         projectFileLifetime: Lifetime
     ): DotNetExecutable {
-        val sourceFile = RdSingleFileSource(parameters.filePath.toRdPath())
-        val projectManager = SingleFileProgramProjectManager.getInstance(project)
-        val singleFileProjectPath = projectManager.createProjectFile(sourceFile, projectFileLifetime)
+        val sourceFile = RdFileBasedProgramSource(parameters.filePath.toRdPath())
+        val projectManager = FileBasedProgramProjectManager.getInstance(project)
+        val fileBasedProjectPath = projectManager.createProjectFile(sourceFile, projectFileLifetime)
 
         val runnableProject = project.solution.runnableProjectsModel.projects.valueOrNull?.singleOrNull {
-            it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath.toNioPathOrNull() == singleFileProjectPath
+            it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath.toNioPathOrNull() == fileBasedProjectPath
         }
 
         val projectOutput = runnableProject?.projectOutputs?.singleOrNull()
@@ -113,7 +113,7 @@ internal class AspireFileExecutorFactory(
             else parameters.startBrowserParameters.startAfterLaunch
 
         val processOptions = ProjectProcessOptions(
-            singleFileProjectPath,
+            fileBasedProjectPath,
             defaultWorkingDirectory
         )
 

@@ -31,7 +31,7 @@ import kotlin.io.path.pathString
 internal class BuildAspireFileBeforeRunTaskProvider : BeforeRunTaskWithProjectProvider<BuildAspireFileBeforeRunTask>() {
     companion object {
 
-        val LOG = logger<BuildAspireFileBeforeRunTaskProvider>()
+        private val LOG = logger<BuildAspireFileBeforeRunTaskProvider>()
     }
 
     override val baseDescription: @Nls String

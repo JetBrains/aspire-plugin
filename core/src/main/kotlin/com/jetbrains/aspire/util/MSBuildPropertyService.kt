@@ -10,12 +10,8 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.execution.ParametersListUtil
-import com.jetbrains.rd.ide.model.RdSingleFileSource
-import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RdVersionInfo
-import com.jetbrains.rider.run.configurations.dotNetFile.SingleFileProgramProjectManager
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -58,13 +54,6 @@ class MSBuildPropertyService(private val project: Project) {
             args,
             workingDirectory
         )
-    }
-
-    suspend fun getFileBasedProjectRunProperties(filePath: Path, lifetime: Lifetime): ProjectRunProperties? {
-        val sourceFile = RdSingleFileSource(filePath.toRd())
-        val projectManager = SingleFileProgramProjectManager.getInstance(project)
-        val singleFileProjectPath = projectManager.createProjectFile(sourceFile, lifetime)
-        return singleFileProjectPath?.let { getProjectRunProperties(it) }
     }
 
     suspend fun getProjectTargetFramework(projectPath: Path): RdTargetFrameworkId? {
