@@ -23,9 +23,9 @@ Content-Type: application/json
   "launch_configurations": [
     {
       "type": "python",
-      "program_path": "{{projectFolder}}\\PyAppHost\\script_only\\main.py",
+      "program_path": "{{aspirePluginFolder}}\\sampleProjects\\PythonAspireApp\\script\\main.py",
       "mode": "NoDebug",
-      "interpreter_path": "{{projectFolder}}\\PyAppHost\\script_only\\.venv\\Scripts\\python.exe"
+      "interpreter_path": "{{aspirePluginFolder}}\\sampleProjects\\PythonAspireApp\\script\\.venv\\Scripts\\python.exe"
     }
   ]
 }
