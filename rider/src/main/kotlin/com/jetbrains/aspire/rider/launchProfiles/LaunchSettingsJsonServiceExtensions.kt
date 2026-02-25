@@ -17,13 +17,13 @@ fun LaunchSettingsJsonService.getFirstOrNullLaunchProfileProfile(runnableProject
 }
 
 suspend fun LaunchSettingsJsonService.getProjectLaunchProfiles(runnableProject: RunnableProject): List<LaunchProfile> =
-    loadLaunchSettingsSuspend(runnableProject)?.let { getLaunchProfiles(it) }.orEmpty()
+    loadLaunchSettingsSuspend(runnableProject)?.let { getProjectLaunchProfiles(it) }.orEmpty()
 
 
-suspend fun LaunchSettingsJsonService.getLaunchProfiles(launchSettingsFilePath: Path): List<LaunchProfile> =
-    loadLaunchSettingsSuspend(launchSettingsFilePath)?.let { getLaunchProfiles(it) }.orEmpty()
+suspend fun LaunchSettingsJsonService.getProjectLaunchProfiles(launchSettingsFilePath: Path): List<LaunchProfile> =
+    loadLaunchSettingsSuspend(launchSettingsFilePath)?.let { getProjectLaunchProfiles(it) }.orEmpty()
 
-private fun getLaunchProfiles(launchSettings: LaunchSettingsJson.LaunchSettings): List<LaunchProfile> {
+private fun getProjectLaunchProfiles(launchSettings: LaunchSettingsJson.LaunchSettings): List<LaunchProfile> {
     val profiles = launchSettings.profiles ?: return emptyList()
 
     return profiles

@@ -4,12 +4,12 @@ import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.rider.run.AspireRunConfiguration
-import com.jetbrains.rd.ide.model.RdSingleFileSource
+import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.ijent.extensions.toRdPath
 import com.jetbrains.rider.run.configurations.IAutoSelectableRunConfiguration
 import com.jetbrains.rider.run.configurations.RiderAsyncRunConfiguration
-import com.jetbrains.rider.run.configurations.dotNetFile.SingleFileProgramProjectManager
+import com.jetbrains.rider.run.configurations.dotNetFile.FileBasedProgramProjectManager
 import org.jdom.Element
 import java.nio.file.Path
 
@@ -54,7 +54,7 @@ class AspireFileConfiguration(
 
     @Suppress("UnstableApiUsage")
     suspend fun tryGetProjectFilePath(projectFileLifetime: Lifetime): Path? {
-        val projectManager = SingleFileProgramProjectManager.getInstance(project)
-        return projectManager.createProjectFile(RdSingleFileSource(parameters.filePath.toRdPath()), projectFileLifetime)
+        val projectManager = FileBasedProgramProjectManager.getInstance(project)
+        return projectManager.createProjectFile(RdFileBasedProgramSource(parameters.filePath.toRdPath()), projectFileLifetime)
     }
 }
