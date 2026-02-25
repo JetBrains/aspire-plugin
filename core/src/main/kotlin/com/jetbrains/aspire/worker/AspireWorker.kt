@@ -10,6 +10,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.platform.eel.environmentVariables
+import com.intellij.platform.eel.provider.getEelDescriptor
+import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.util.NetworkUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.aspire.AspireService
@@ -114,6 +117,11 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     suspend fun start() {
         if (!workerLifetimes.isTerminated) return
 
+        val eelApi = project.getEelDescriptor().toEelApi()
+        val environmentVariables = eelApi.exec.environmentVariables().eelIt().await()
+
+        val testToken = environmentVariables[TEST_DEBUG_SESSION_TOKEN]
+
         mutex.withLock {
             if (!workerLifetimes.isTerminated) return
 
@@ -124,7 +132,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
 
             subscribeToAspireWorkerModel(protocol.aspireWorkerModel, workerLifetime.lifetime)
 
-            val token = UUID.randomUUID().toString()
+            val token = testToken ?: UUID.randomUUID().toString()
             val port = NetworkUtils.findFreePort(47100)
             val certificate = calculateServerCertificate(workerLifetime)
             val model = protocol.aspireWorkerModel

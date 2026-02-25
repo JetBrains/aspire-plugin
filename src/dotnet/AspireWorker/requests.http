@@ -1,11 +1,11 @@
 ﻿## Address from DEBUG_SESSION_PORT environment variable
 @debugSessionPort = localhost:47100
 ## Token from DEBUG_SESSION_TOKEN environment variable
-@debugSessionToken = 306cc9a8-788c-4545-899f-c82655eb566f
+@debugSessionToken = test-debug-session-token
 ## API version
 @apiVersion = 2025-10-01
 ## DCP Instance ID from DCP_INSTANCE_ID_PREFIX environment variable
-@dcpInstanceId = EUohL
+@dcpInstanceId = debug
 
 ### IDE endpoint information request
 GET http://{{debugSessionPort}}/info

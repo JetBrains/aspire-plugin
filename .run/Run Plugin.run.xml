@@ -2,6 +2,12 @@
   <configuration default="false" name="Run Plugin" type="GradleRunConfiguration" factoryName="Gradle">
     <log_file alias="IDE logs" path="$PROJECT_DIR$/build/idea-sandbox/*/log/idea.log" show_all="true" />
     <ExternalSystemSettings>
+      <option name="env">
+        <map>
+          <entry key="TEST_DCP_INSTANCE_ID_PREFIX" value="debug" />
+          <entry key="TEST_DEBUG_SESSION_TOKEN" value="test-debug-session-token" />
+        </map>
+      </option>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
       <option name="externalSystemIdString" value="GRADLE" />
@@ -18,8 +24,11 @@
     </ExternalSystemSettings>
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
     <DebugAllEnabled>false</DebugAllEnabled>
     <RunAsTest>false</RunAsTest>
+    <GradleProfilingDisabled>false</GradleProfilingDisabled>
+    <GradleCoverageDisabled>false</GradleCoverageDisabled>
     <method v="2" />
   </configuration>
 </component>

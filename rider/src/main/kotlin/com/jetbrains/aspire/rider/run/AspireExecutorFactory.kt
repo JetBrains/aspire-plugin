@@ -1,8 +1,13 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.aspire.rider.run
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.platform.eel.environmentVariables
+import com.intellij.platform.eel.provider.getEelDescriptor
+import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.util.EnvironmentUtil
 import com.intellij.util.NetworkUtils
 import com.jetbrains.aspire.util.ASPIRE_ALLOW_UNSECURED_TRANSPORT
@@ -14,6 +19,7 @@ import com.jetbrains.aspire.util.ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL
 import com.jetbrains.aspire.util.ASPNETCORE_URLS
 import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.util.DOTNET_RESOURCE_SERVICE_ENDPOINT_URL
+import com.jetbrains.aspire.util.TEST_DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.util.generateDcpInstancePrefix
 import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
 import com.jetbrains.aspire.util.getAspireContainerRuntime
@@ -43,10 +49,14 @@ internal abstract class AspireExecutorFactory(
 
         aspireWorker.start()
 
+        val eelApi = project.getEelDescriptor().toEelApi()
+        val environmentVariables = eelApi.exec.environmentVariables().eelIt().await()
+        val testDcpInstancePrefix = environmentVariables[TEST_DCP_INSTANCE_ID_PREFIX]
+
         val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
         envs.putAll(dcpEnvironmentVariables)
 
-        val dcpInstancePrefix = generateDcpInstancePrefix()
+        val dcpInstancePrefix = testDcpInstancePrefix ?: generateDcpInstancePrefix()
         envs[DCP_INSTANCE_ID_PREFIX] = dcpInstancePrefix
 
         val urls = requireNotNull(envs[ASPNETCORE_URLS])
