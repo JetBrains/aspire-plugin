@@ -10,3 +10,4 @@ output
 [Oo]bj/
 *.DotSettings.user
 nuget.config
+*.private.env.json
