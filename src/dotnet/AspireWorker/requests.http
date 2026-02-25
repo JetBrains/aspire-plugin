@@ -23,9 +23,9 @@ Content-Type: application/json
   "launch_configurations": [
     {
       "type": "python",
-      "program_path": "PyAppHost\\script_only\\main.py",
+      "program_path": "{{projectFolder}}\\PyAppHost\\script_only\\main.py",
       "mode": "NoDebug",
-      "interpreter_path": "PyAppHost\\script_only\\.venv\\Scripts\\python.exe"
+      "interpreter_path": "{{projectFolder}}\\PyAppHost\\script_only\\.venv\\Scripts\\python.exe"
     }
   ]
 }
