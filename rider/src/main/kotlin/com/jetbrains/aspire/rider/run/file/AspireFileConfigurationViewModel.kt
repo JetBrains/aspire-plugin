@@ -10,7 +10,6 @@ import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
 import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
-import com.jetbrains.rd.util.threading.coroutines.adviseSuspend
 import com.jetbrains.rd.util.threading.coroutines.launch
 import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.runnableProjectsModel
@@ -77,7 +76,12 @@ internal class AspireFileConfigurationViewModel(
             }
         }
 
-        launchProfileSelector.profile.adviseSuspend(lifetime, Dispatchers.UI + ModalityState.current().asContextElement()) { recalculateFields() }
+        launchProfileSelector.profile.advise(lifetime) {
+            currentEditSessionLifetime.launch(Dispatchers.UI + ModalityState.current().asContextElement()) {
+                if (!isLoaded) return@launch
+                recalculateFields(it)
+            }
+        }
         programParametersEditor.parametersString.advise(lifetime) { handleArgumentsChange() }
         workingDirectorySelector.path.advise(lifetime) { handleWorkingDirectoryChange() }
         environmentVariablesEditor.envs.advise(lifetime) { handleEnvValueChange() }
@@ -88,15 +92,17 @@ internal class AspireFileConfigurationViewModel(
     private suspend fun handleFilePathSelection(filePath: String) {
         reloadLaunchProfileSelector(filePath)
         isLoaded = true
-        //recalculateFields()
+        recalculateFields()
     }
 
     private suspend fun reloadLaunchProfileSelector(filePath: String) {
+        launchProfileSelector.isLoading.set(true)
         val path = filePath.toNioPathOrNull()
         val launchSettingsPath = path?.let { getLaunchSettingsPathForCsFile(it) }
 
         if (launchSettingsPath == null || !launchSettingsPath.exists()) {
             launchProfileSelector.profileList.clear()
+            launchProfileSelector.isLoading.set(false)
             return
         }
 
@@ -110,14 +116,11 @@ internal class AspireFileConfigurationViewModel(
         if (profiles.any()) {
             launchProfileSelector.profile.set(profiles.first())
         }
+        launchProfileSelector.isLoading.set(false)
     }
 
     @Suppress("UnstableApiUsage")
-    private suspend fun recalculateFields() {
-        if (!isLoaded) return
-
-        val profile = launchProfileSelector.profile.valueOrNull
-
+    private suspend fun recalculateFields(profile: LaunchProfile? = launchProfileSelector.profile.valueOrNull) {
         val path = filePathSelector.path.value.toNioPathOrNull()
         val executableParameterProcessingResult = path?.let {
             withContext(Dispatchers.Default) {
