@@ -23,13 +23,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.Path
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Domain object representing an Aspire AppHost project.
@@ -124,6 +127,36 @@ class AspireAppHost(
 
         appHostModel.resources.view(appHostLifetime) { resourceLifetime, resourceId, resourceModel ->
             viewResource(resourceId, resourceModel, resourceLifetime)
+        }
+
+        initializeDashboardClient(appHostModel.config, appHostLifetime)
+    }
+
+    private fun initializeDashboardClient(appHostConfig: AspireHostModelConfig, appHostLifetime: Lifetime) {
+        val endpointUrl = appHostConfig.resourceServiceEndpointUrl
+        if (endpointUrl.isNullOrEmpty()) return
+
+        LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
+
+        val client = AspireDashboardClient(endpointUrl, appHostConfig.resourceServiceApiKey)
+        appHostLifetime.onTermination { client.shutdown() }
+
+        appHostLifetime.coroutineScope.launch {
+            client.watchResources()
+                .retryWhen { cause, attempt ->
+                    if (cause is CancellationException) {
+                        false
+                    } else {
+                        val retryDelay = (500L * (1 shl attempt.coerceAtMost(6).toInt()))
+                            .coerceAtMost(30_000L)
+                        LOG.trace { "gRPC dashboard connection failed for $mainFilePath, retrying in ${retryDelay}ms (attempt ${attempt + 1}): ${cause.message}" }
+                        delay(retryDelay.milliseconds)
+                        true
+                    }
+                }
+                .collect { update ->
+                    LOG.trace { "Received resource update from gRPC dashboard: $update" }
+                }
         }
     }
 

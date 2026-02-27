@@ -49,10 +49,10 @@ internal sealed class AspireHost
         InitializeSessionEventWatcher(lifetime);
 
         var config = model.Config;
-        if (!string.IsNullOrEmpty(config.ResourceServiceEndpointUrl))
-        {
-            InitializeResourceWatchers(config.ResourceServiceEndpointUrl, config.ResourceServiceApiKey, lifetime);
-        }
+        // if (!string.IsNullOrEmpty(config.ResourceServiceEndpointUrl))
+        // {
+        //     InitializeResourceWatchers(config.ResourceServiceEndpointUrl, config.ResourceServiceApiKey, lifetime);
+        // }
     }
 
     private void InitializeSessionEventWatcher(Lifetime lifetime)
