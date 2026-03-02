@@ -13,6 +13,8 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.generated.*
+import com.jetbrains.aspire.generated.dashboard.Resource as ProtoResource
+import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -125,10 +127,6 @@ class AspireAppHost(
             }
         }
 
-        appHostModel.resources.view(appHostLifetime) { resourceLifetime, resourceId, resourceModel ->
-            viewResource(resourceId, resourceModel, resourceLifetime)
-        }
-
         initializeDashboardClient(appHostModel.config, appHostLifetime)
     }
 
@@ -155,9 +153,91 @@ class AspireAppHost(
                     }
                 }
                 .collect { update ->
-                    LOG.trace { "Received resource update from gRPC dashboard: $update" }
+                    handleResourceUpdate(update, client)
                 }
         }
+    }
+
+    private fun handleResourceUpdate(update: WatchResourcesUpdate, client: AspireDashboardClient) {
+        when {
+            update.hasInitialData() -> handleInitialResourceData(update.initialData, client)
+            update.hasChanges() -> handleResourceChanges(update.changes, client)
+        }
+    }
+
+    private fun handleInitialResourceData(
+        initialData: com.jetbrains.aspire.generated.dashboard.InitialResourceData,
+        client: AspireDashboardClient
+    ) {
+        LOG.trace { "Received initial resource data with ${initialData.resourcesList.size} resources" }
+        clearAllResources()
+        for (protoResource in initialData.resourcesList) {
+            val resourceModel = protoResource.toResourceModel()
+            addResourceFromModel(protoResource.name, resourceModel, protoResource, client)
+        }
+    }
+
+    private fun handleResourceChanges(
+        changes: com.jetbrains.aspire.generated.dashboard.WatchResourcesChanges,
+        client: AspireDashboardClient
+    ) {
+        for (change in changes.valueList) {
+            when {
+                change.hasUpsert() -> {
+                    val protoResource = change.upsert
+                    val resourceModel = protoResource.toResourceModel()
+                    val existing = _resources[protoResource.name]
+                    if (existing != null) {
+                        existing.update(resourceModel)
+                        existing.updateCommandParameters(protoResource.commandsList)
+                    } else {
+                        addResourceFromModel(protoResource.name, resourceModel, protoResource, client)
+                    }
+                }
+                change.hasDelete() -> {
+                    val resourceName = change.delete.resourceName
+                    val resource = _resources[resourceName]
+                    if (resource != null) {
+                        val parentResourceName = resource.resourceState.value.parentResourceName
+                        removeResource(resourceName, resource, parentResourceName)
+                        Disposer.dispose(resource)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addResourceFromModel(
+        resourceName: String,
+        resourceModel: ResourceModel,
+        protoResource: ProtoResource,
+        client: AspireDashboardClient
+    ) {
+        if (resourceModel.isHidden || resourceModel.state == ResourceState.Hidden) {
+            LOG.trace { "Aspire resource $resourceName is hidden" }
+            return
+        }
+
+        LOG.trace { "Adding a new Aspire resource $resourceName to the AppHost $mainFilePath" }
+
+        val resource = AspireResource(
+            resourceName,
+            resourceModel,
+            protoResource.resourceType,
+            client,
+            cs,
+            project
+        )
+        resource.updateCommandParameters(protoResource.commandsList)
+
+        val parentResourceName = resourceModel.findParentResourceName()
+        createResource(resourceName, resource, parentResourceName)
+    }
+
+    private fun clearAllResources() {
+        _rootResources.value = emptyList()
+        _pendingChildren.clear()
+        _resources.clear()
     }
 
     private fun setAppHostUrl(appHostConfig: AspireHostModelConfig, appHostLifetime: Lifetime) {
@@ -293,38 +373,6 @@ class AspireAppHost(
                 )
             )
         }
-    }
-
-    private fun viewResource(
-        resourceId: String,
-        resourceModelWrapper: ResourceWrapper,
-        resourceLifetime: Lifetime
-    ) {
-        LOG.trace { "Adding a new Aspire resource with id $resourceId to the AppHost $mainFilePath" }
-
-        val resourceModel = resourceModelWrapper.model.valueOrNull ?: return
-        if (resourceModel.isHidden || resourceModel.state == ResourceState.Hidden) {
-            LOG.trace { "Aspire resource with id $resourceId is hidden" }
-            return
-        }
-
-        val resource = AspireResource(
-            resourceId,
-            resourceModelWrapper,
-            resourceLifetime,
-            project
-        )
-
-        val resourceName = resourceModel.displayName
-        val parentResourceName = resourceModel.findParentResourceName()
-
-        resourceLifetime.bracketIfAlive({
-            createResource(resourceName, resource, parentResourceName)
-        }, {
-            removeResource(resourceName, resource, parentResourceName)
-        })
-
-        resourceModelWrapper.isInitialized.set(true)
     }
 
     private fun createResource(resourceName: String, resource: AspireResource, parentResourceName: String?) {

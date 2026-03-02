@@ -20,8 +20,8 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.withBackgroundProgress
+import com.intellij.openapi.util.Disposer
 import com.intellij.util.application
-import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.services.connection.ConnectionManager
 import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.services.connection.TestConnectionExecutionResult
 import com.jetbrains.rider.plugins.appender.database.jdbcToConnectionString.converters.ConnectionStringToJdbcUrlConverter
@@ -85,8 +85,6 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
     }
 
     private suspend fun addConnection(databaseResource: DatabaseResource) {
-        if (databaseResource.resourceLifetime.isNotAlive) return
-
         val modifyConnectionStringResult = modifyConnectionString(databaseResource)
 
         //If the connection string wasn't modified, use the resource one
@@ -167,14 +165,14 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
         // If we use the original resource connection string, or it is not a persistent resource,
         // the ports will be different after the aspire restart.
         // So for such resources we have to remove old data sources and recreate them after each start.
-        if (!connectionStringWasModified || !databaseResource.isPersistent) {
-            databaseResource.resourceLifetime.onTerminationIfAlive {
-                LOG.trace { "Removing data source for ${databaseResource.name}" }
-                application.invokeLater {
-                    dataSourceManager.removeDataSource(createdDataSource)
-                }
-            }
-        }
+//        if (!connectionStringWasModified || !databaseResource.isPersistent) {
+//            Disposer.register(databaseResource.resourceDisposable) {
+//                LOG.trace { "Removing data source for ${databaseResource.name}" }
+//                application.invokeLater {
+//                    dataSourceManager.removeDataSource(createdDataSource)
+//                }
+//            }
+//        }
 
         createdDataSources.trySend(createdDataSource)
     }

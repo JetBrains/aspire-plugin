@@ -52,7 +52,6 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
                 urls,
                 data.containerPorts?.value,
                 isPersistent,
-                resource.lifetime
             )
 
             LOG.trace { "Created database resource: ${databaseResource.name}" }
