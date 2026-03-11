@@ -12,7 +12,7 @@ namespace JetBrains.Rider.Aspire.Worker.Sessions;
 
 internal static class SessionEndpoints
 {
-    private static readonly string[] SupportedProtocolVersions = ["2025-10-01"];
+    private static readonly string[] SupportedProtocolVersions = ["2024-04-23", "2025-10-01"];
     private static readonly string[] DefaultSupportedSessionTypes = ["project"];
 
     // ReSharper disable once ClassNeverInstantiated.Local
