@@ -1,6 +1,8 @@
 package com.jetbrains.aspire
 
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.xdebugger.XDebuggerManager
+import com.jetbrains.rdclient.util.idea.pumpMessages
 import com.jetbrains.rdclient.util.idea.toVirtualFile
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
@@ -11,10 +13,7 @@ import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
-import com.jetbrains.rider.test.scriptingApi.DebugTestExecutionContext
-import com.jetbrains.rider.test.scriptingApi.executeBeforeRunTasksForSelectedConfiguration
-import com.jetbrains.rider.test.scriptingApi.testDebugProgram
-import com.jetbrains.rider.test.scriptingApi.toggleBreakpoint
+import com.jetbrains.rider.test.scriptingApi.*
 import org.testng.annotations.Test
 import java.time.Duration
 
@@ -52,7 +51,11 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             "DefaultAspireSolution.AppHost: http",
             fileForBreakpoint,
             12
-        ) { dumpDebugContext() }
+        ) {
+            trackAllDebugSessions(3) {
+                dumpDebugContext()
+            }
+        }
     }
 
     @Test
@@ -72,7 +75,9 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             fileForBreakpoint,
             43
         ) {
-            dumpDebugContextForProject(apiProjectPath)
+            trackAllDebugSessions(3) {
+                dumpDebugContextForProject(apiProjectPath)
+            }
         }
     }
 
@@ -93,7 +98,9 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             fileForBreakpoint,
             44
         ) {
-            dumpDebugContextForProject(webProjectPath)
+            trackAllDebugSessions(3) {
+                dumpDebugContextForProject(webProjectPath)
+            }
         }
     }
 
@@ -114,7 +121,9 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             fileForBreakpoint,
             6
         ) {
-            dumpDebugContextForProject(externalProjectPath)
+            trackAllDebugSessions(2) {
+                dumpDebugContextForProject(externalProjectPath)
+            }
         }
     }
 
@@ -135,5 +144,21 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             },
             exitProcessAfterTest = true
         )
+    }
+
+    fun DebugTestExecutionContext.trackAllDebugSessions(
+        sessionsNum: Int,
+        action: DebugTestExecutionContext.() -> Unit
+    ) {
+        action()
+
+        val timeout = Duration.ofSeconds(15)
+        if (!pumpMessages(timeout) { XDebuggerManager.getInstance(project).debugSessions.size == sessionsNum })
+            logger.error("Couldn't get $sessionsNum debug sessions running within $timeout seconds")
+
+        for (debugSession in XDebuggerManager.getInstance(project).debugSessions) {
+            if (debugSession != session)
+                shutdownDebuggerSession(debugSession, true)
+        }
     }
 }
