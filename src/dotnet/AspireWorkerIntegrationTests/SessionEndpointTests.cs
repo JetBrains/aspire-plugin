@@ -29,8 +29,9 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var info = await response.Content.ReadFromJsonAsync<Info>(_jsonOptions);
         Assert.NotNull(info);
-        var version = Assert.Single(info.ProtocolsSupported);
-        Assert.Equal(CurrentProtocolVersion, version);
+        Assert.Equal(2, info.ProtocolsSupported.Count);
+        Assert.Contains("2024-04-23", info.ProtocolsSupported);
+        Assert.Contains("2025-10-01", info.ProtocolsSupported);
 
         Assert.NotNull(info.SupportedLaunchConfigurations);
         var launchConfiguration = Assert.Single(info.SupportedLaunchConfigurations);
