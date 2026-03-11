@@ -67,7 +67,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     public AspireWorkerRoot(Lifetime lifetime, IProtocol protocol) : this()
     {
-      Identify(protocol.Identities, RdId.Root.Mix("AspireWorkerRoot"));
+      Identify(protocol.Identities, protocol.Identities.Mix(RdId.Root, "AspireWorkerRoot"));
       this.BindTopLevel(lifetime, protocol, "AspireWorkerRoot");
     }
     
