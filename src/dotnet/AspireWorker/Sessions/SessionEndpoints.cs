@@ -180,7 +180,7 @@ internal static class SessionEndpoints
         if (context.WebSockets.IsWebSocketRequest)
         {
             using var ws = await context.WebSockets.AcceptWebSocketAsync();
-            await Receive(ws, sessionEventReader, applicationLifetime.ApplicationStopping);
+            await Receive(ws, sessionEventReader, logger, applicationLifetime.ApplicationStopping);
         }
         else
         {
@@ -189,6 +189,69 @@ internal static class SessionEndpoints
     }
 
     private static async Task Receive(WebSocket webSocket, ChannelReader<ISessionEvent> reader,
+        ILogger logger, CancellationToken cancellationToken)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+        var receiveTask = ReceiveLoop(webSocket, logger, linkedCts.Token);
+        var sendTask = SendLoop(webSocket, reader, logger, linkedCts.Token);
+
+        try
+        {
+            await Task.WhenAny(receiveTask, sendTask);
+        }
+        finally
+        {
+            await linkedCts.CancelAsync();
+            await Task.WhenAll(receiveTask, sendTask);
+
+            if (webSocket.State is WebSocketState.Open or WebSocketState.CloseReceived)
+            {
+                try
+                {
+                    await webSocket.CloseAsync(
+                        WebSocketCloseStatus.NormalClosure,
+                        "Connection closed",
+                        CancellationToken.None
+                    );
+                }
+                catch (WebSocketException)
+                {
+                    // Already closed or faulted
+                }
+            }
+
+            logger.NotifyConnectionClosed();
+        }
+    }
+
+    private static async Task ReceiveLoop(WebSocket webSocket, ILogger logger, CancellationToken cancellationToken)
+    {
+        var buffer = new byte[256];
+
+        try
+        {
+            while (webSocket.State == WebSocketState.Open && !cancellationToken.IsCancellationRequested)
+            {
+                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
+
+                if (result.MessageType == WebSocketMessageType.Close)
+                {
+                    break;
+                }
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Graceful shutdown
+        }
+        catch (Exception ex)
+        {
+            logger.NotifyConnectionError(ex.Message);
+        }
+    }
+
+    private static async Task SendLoop(WebSocket webSocket, ChannelReader<ISessionEvent> reader, ILogger logger,
         CancellationToken cancellationToken)
     {
         var jsonOptions = new JsonSerializerOptions
@@ -218,15 +281,11 @@ internal static class SessionEndpoints
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            // Application is shutting down, close the WebSocket gracefully
-            if (webSocket.State is WebSocketState.Open or WebSocketState.CloseReceived)
-            {
-                await webSocket.CloseAsync(
-                    WebSocketCloseStatus.NormalClosure,
-                    "Server is shutting down",
-                    CancellationToken.None
-                );
-            }
+            // Graceful shutdown
+        }
+        catch (Exception ex)
+        {
+            logger.NotifyConnectionError(ex.Message);
         }
     }
 

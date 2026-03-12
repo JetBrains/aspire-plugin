@@ -17,4 +17,13 @@ internal static partial class Log
         Message = "Notify request received.")]
     internal static partial void NotifyRequestReceived(this ILogger logger);
 
+    [LoggerMessage(
+        Level = LogLevel.Information,
+        Message = "Notify connection closed.")]
+    internal static partial void NotifyConnectionClosed(this ILogger logger);
+
+    [LoggerMessage(
+        Level = LogLevel.Error,
+        Message = "Notify connection error: {message}.")]
+    internal static partial void NotifyConnectionError(this ILogger logger, string message);
 }
