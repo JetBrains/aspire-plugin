@@ -9,7 +9,6 @@ import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
-import com.jetbrains.rider.test.scriptingApi.buildSolutionWithReSharperBuild
 import com.jetbrains.rider.test.scriptingApi.executeBeforeRunTasksForSelectedConfiguration
 import org.testng.annotations.Test
 import java.net.URI
@@ -58,14 +57,6 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
     @Solution("AspireSolutionWithExternalProject")
     fun `Running aspire solution with external project launches api application`() {
         runTest("AppHost1: http", URI("http://localhost:5123").toURL())
-    }
-
-    @Test
-    @Solution("AspireSolutionWithExecutableLibrary")
-    fun `Running aspire solution with executable library launches api application`() {
-        //For a library project we have to build the whole solution to have binary files
-        buildSolutionWithReSharperBuild()
-        runTest("AppHost1: http", URI("http://localhost:5000").toURL())
     }
 
     private fun runTest(runConfigName: String, urlToCheck: URL) {

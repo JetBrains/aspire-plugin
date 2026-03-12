@@ -1,0 +1,27 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultAspireSolution.ServiceDefaults", "DefaultAspireSolution.ServiceDefaults\DefaultAspireSolution.ServiceDefaults.csproj", "{3465D8A1-4333-44B5-8B7A-8F331C3CEB6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultAspireSolution.ApiService", "DefaultAspireSolution.ApiService\DefaultAspireSolution.ApiService.csproj", "{72BA5523-679E-4C82-B062-D1C3980C118C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultAspireSolution.Web", "DefaultAspireSolution.Web\DefaultAspireSolution.Web.csproj", "{6BBA2AE2-8CA2-4697-9F0B-A5E189F53317}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3465D8A1-4333-44B5-8B7A-8F331C3CEB6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3465D8A1-4333-44B5-8B7A-8F331C3CEB6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3465D8A1-4333-44B5-8B7A-8F331C3CEB6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3465D8A1-4333-44B5-8B7A-8F331C3CEB6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72BA5523-679E-4C82-B062-D1C3980C118C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72BA5523-679E-4C82-B062-D1C3980C118C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72BA5523-679E-4C82-B062-D1C3980C118C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72BA5523-679E-4C82-B062-D1C3980C118C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BBA2AE2-8CA2-4697-9F0B-A5E189F53317}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BBA2AE2-8CA2-4697-9F0B-A5E189F53317}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BBA2AE2-8CA2-4697-9F0B-A5E189F53317}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BBA2AE2-8CA2-4697-9F0B-A5E189F53317}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
