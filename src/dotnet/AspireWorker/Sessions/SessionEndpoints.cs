@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
-using JetBrains.Rider.Aspire.Worker.AspireHost;
 using JetBrains.Rider.Aspire.Worker.Configuration;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -59,10 +58,10 @@ internal static class SessionEndpoints
             [FromQuery(Name = "api-version")] string apiVersion,
             [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
             string dcpInstanceId,
-            IAspireHostService hostService,
+            ISessionService sessionService,
             ILogger<SessionEndpointsLogger> logger)
     {
-        logger.CreateNewSessionRequestReceived();
+        logger.CreateNewSessionHttpRequestReceived();
 
         if (!IsProtocolVersionSupported(apiVersion))
         {
@@ -70,7 +69,7 @@ internal static class SessionEndpoints
         }
 
         var aspireHostId = GetAspireHostId(dcpInstanceId);
-        var (sessionId, error) = await hostService.CreateSession(aspireHostId, session);
+        var (sessionId, error) = await sessionService.CreateSession(aspireHostId, session);
 
         if (sessionId is not null)
         {
@@ -108,10 +107,10 @@ internal static class SessionEndpoints
             [FromQuery(Name = "api-version")] string apiVersion,
             [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
             string dcpInstanceId,
-            IAspireHostService hostService,
+            ISessionService sessionService,
             ILogger<SessionEndpointsLogger> logger)
     {
-        logger.DeleteSessionRequestReceived(sessionId);
+        logger.DeleteSessionHttpRequestReceived(sessionId);
 
         if (!IsProtocolVersionSupported(apiVersion))
         {
@@ -120,7 +119,7 @@ internal static class SessionEndpoints
 
         var aspireHostId = GetAspireHostId(dcpInstanceId);
 
-        var (deletedSessionId, error) = await hostService.DeleteSession(aspireHostId, sessionId);
+        var (deletedSessionId, error) = await sessionService.DeleteSession(aspireHostId, sessionId);
         if (deletedSessionId is not null)
         {
             return TypedResults.Ok();
@@ -156,7 +155,7 @@ internal static class SessionEndpoints
         [FromQuery(Name = "api-version")] string apiVersion,
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
-        IAspireHostService hostService,
+        ISessionService sessionService,
         IHostApplicationLifetime applicationLifetime,
         ILogger<SessionEndpointsLogger> logger)
     {
@@ -170,12 +169,7 @@ internal static class SessionEndpoints
 
         var aspireHostId = GetAspireHostId(dcpInstanceId);
 
-        var sessionEventReader = hostService.GetSessionEventReader(aspireHostId);
-        if (sessionEventReader is null)
-        {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            return;
-        }
+        var sessionEventReader = sessionService.SessionEventReader;
 
         if (context.WebSockets.IsWebSocketRequest)
         {
