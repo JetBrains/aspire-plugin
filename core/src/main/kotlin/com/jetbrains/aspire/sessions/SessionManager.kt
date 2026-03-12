@@ -13,6 +13,7 @@ import com.jetbrains.rd.util.put
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Service for managing the lifecycle and orchestration of Aspire sessions.
@@ -54,7 +55,7 @@ internal class SessionManager(private val project: Project, scope: CoroutineScop
                     val remainingTime = batchDeadline - System.currentTimeMillis()
                     if (remainingTime <= 0) break
 
-                    val command = withTimeoutOrNull(remainingTime) {
+                    val command = withTimeoutOrNull(remainingTime.milliseconds) {
                         requests.receive()
                     }
 

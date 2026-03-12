@@ -86,7 +86,7 @@ class AspireWorkerModel private constructor(
         }
         
         
-        const val serializationHash = -3197080582296326862L
+        const val serializationHash = 4349089867498556290L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
@@ -185,7 +185,7 @@ val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:248]
+ * #### Generated from [AspireWorkerModel.kt:250]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -264,7 +264,7 @@ class AspireHostModel private constructor(
  * @property resourceServiceApiKey `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
  * @property otlpEndpointUrl `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
- * #### Generated from [AspireWorkerModel.kt:230]
+ * #### Generated from [AspireWorkerModel.kt:232]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -363,22 +363,25 @@ data class AspireHostModelConfig (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:65]
+ * #### Generated from [AspireWorkerModel.kt:66]
  */
 class CreateProjectSessionRequest (
     val projectPath: String,
     val launchProfile: String?,
     val disableLaunchProfile: Boolean,
+    dcpInstancePrefix: String,
     debug: Boolean,
     args: Array<String>?,
     envs: Array<SessionEnvironmentVariable>?
 ) : CreateSessionRequest (
+    dcpInstancePrefix,
     debug,
     args,
     envs
 ) {
     //write-marshaller
     private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(dcpInstancePrefix)
         buffer.writeBool(debug)
         buffer.writeNullable(args) { buffer.writeArray(it) { buffer.writeString(it) } }
         buffer.writeNullable(envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
@@ -394,13 +397,14 @@ class CreateProjectSessionRequest (
         
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): CreateProjectSessionRequest  {
+            val dcpInstancePrefix = buffer.readString()
             val debug = buffer.readBool()
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val envs = buffer.readNullable { buffer.readArray {SessionEnvironmentVariable.read(ctx, buffer)} }
             val projectPath = buffer.readString()
             val launchProfile = buffer.readNullable { buffer.readString() }
             val disableLaunchProfile = buffer.readBool()
-            return CreateProjectSessionRequest(projectPath, launchProfile, disableLaunchProfile, debug, args, envs)
+            return CreateProjectSessionRequest(projectPath, launchProfile, disableLaunchProfile, dcpInstancePrefix, debug, args, envs)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CreateProjectSessionRequest)  {
@@ -423,6 +427,7 @@ class CreateProjectSessionRequest (
         if (projectPath != other.projectPath) return false
         if (launchProfile != other.launchProfile) return false
         if (disableLaunchProfile != other.disableLaunchProfile) return false
+        if (dcpInstancePrefix != other.dcpInstancePrefix) return false
         if (debug != other.debug) return false
         if (args != other.args) return false
         if (envs != other.envs) return false
@@ -435,6 +440,7 @@ class CreateProjectSessionRequest (
         __r = __r*31 + projectPath.hashCode()
         __r = __r*31 + if (launchProfile != null) launchProfile.hashCode() else 0
         __r = __r*31 + disableLaunchProfile.hashCode()
+        __r = __r*31 + dcpInstancePrefix.hashCode()
         __r = __r*31 + debug.hashCode()
         __r = __r*31 + if (args != null) args.contentDeepHashCode() else 0
         __r = __r*31 + if (envs != null) envs.contentDeepHashCode() else 0
@@ -447,6 +453,7 @@ class CreateProjectSessionRequest (
             print("projectPath = "); projectPath.print(printer); println()
             print("launchProfile = "); launchProfile.print(printer); println()
             print("disableLaunchProfile = "); disableLaunchProfile.print(printer); println()
+            print("dcpInstancePrefix = "); dcpInstancePrefix.print(printer); println()
             print("debug = "); debug.print(printer); println()
             print("args = "); args.print(printer); println()
             print("envs = "); envs.print(printer); println()
@@ -462,22 +469,25 @@ class CreateProjectSessionRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:71]
+ * #### Generated from [AspireWorkerModel.kt:72]
  */
 class CreatePythonSessionRequest (
     val programPath: String,
     val interpreterPath: String?,
     val module: String?,
+    dcpInstancePrefix: String,
     debug: Boolean,
     args: Array<String>?,
     envs: Array<SessionEnvironmentVariable>?
 ) : CreateSessionRequest (
+    dcpInstancePrefix,
     debug,
     args,
     envs
 ) {
     //write-marshaller
     private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(dcpInstancePrefix)
         buffer.writeBool(debug)
         buffer.writeNullable(args) { buffer.writeArray(it) { buffer.writeString(it) } }
         buffer.writeNullable(envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
@@ -493,13 +503,14 @@ class CreatePythonSessionRequest (
         
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): CreatePythonSessionRequest  {
+            val dcpInstancePrefix = buffer.readString()
             val debug = buffer.readBool()
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val envs = buffer.readNullable { buffer.readArray {SessionEnvironmentVariable.read(ctx, buffer)} }
             val programPath = buffer.readString()
             val interpreterPath = buffer.readNullable { buffer.readString() }
             val module = buffer.readNullable { buffer.readString() }
-            return CreatePythonSessionRequest(programPath, interpreterPath, module, debug, args, envs)
+            return CreatePythonSessionRequest(programPath, interpreterPath, module, dcpInstancePrefix, debug, args, envs)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: CreatePythonSessionRequest)  {
@@ -522,6 +533,7 @@ class CreatePythonSessionRequest (
         if (programPath != other.programPath) return false
         if (interpreterPath != other.interpreterPath) return false
         if (module != other.module) return false
+        if (dcpInstancePrefix != other.dcpInstancePrefix) return false
         if (debug != other.debug) return false
         if (args != other.args) return false
         if (envs != other.envs) return false
@@ -534,6 +546,7 @@ class CreatePythonSessionRequest (
         __r = __r*31 + programPath.hashCode()
         __r = __r*31 + if (interpreterPath != null) interpreterPath.hashCode() else 0
         __r = __r*31 + if (module != null) module.hashCode() else 0
+        __r = __r*31 + dcpInstancePrefix.hashCode()
         __r = __r*31 + debug.hashCode()
         __r = __r*31 + if (args != null) args.contentDeepHashCode() else 0
         __r = __r*31 + if (envs != null) envs.contentDeepHashCode() else 0
@@ -546,6 +559,7 @@ class CreatePythonSessionRequest (
             print("programPath = "); programPath.print(printer); println()
             print("interpreterPath = "); interpreterPath.print(printer); println()
             print("module = "); module.print(printer); println()
+            print("dcpInstancePrefix = "); dcpInstancePrefix.print(printer); println()
             print("debug = "); debug.print(printer); println()
             print("args = "); args.print(printer); println()
             print("envs = "); envs.print(printer); println()
@@ -564,6 +578,7 @@ class CreatePythonSessionRequest (
  * #### Generated from [AspireWorkerModel.kt:59]
  */
 abstract class CreateSessionRequest (
+    val dcpInstancePrefix: String,
     val debug: Boolean,
     val args: Array<String>?,
     val envs: Array<SessionEnvironmentVariable>?
@@ -573,12 +588,13 @@ abstract class CreateSessionRequest (
     companion object : IAbstractDeclaration<CreateSessionRequest> {
         override fun readUnknownInstance(ctx: SerializationCtx, buffer: AbstractBuffer, unknownId: RdId, size: Int): CreateSessionRequest  {
             val objectStartPosition = buffer.position
+            val dcpInstancePrefix = buffer.readString()
             val debug = buffer.readBool()
             val args = buffer.readNullable { buffer.readArray {buffer.readString()} }
             val envs = buffer.readNullable { buffer.readArray {SessionEnvironmentVariable.read(ctx, buffer)} }
             val unknownBytes = ByteArray(objectStartPosition + size - buffer.position)
             buffer.readByteArrayRaw(unknownBytes)
-            return CreateSessionRequest_Unknown(debug, args, envs, unknownId, unknownBytes)
+            return CreateSessionRequest_Unknown(dcpInstancePrefix, debug, args, envs, unknownId, unknownBytes)
         }
         
         
@@ -597,18 +613,21 @@ abstract class CreateSessionRequest (
 
 
 class CreateSessionRequest_Unknown (
+    dcpInstancePrefix: String,
     debug: Boolean,
     args: Array<String>?,
     envs: Array<SessionEnvironmentVariable>?,
     override val unknownId: RdId,
     val unknownBytes: ByteArray
 ) : CreateSessionRequest (
+    dcpInstancePrefix,
     debug,
     args,
     envs
 ), IUnknownInstance {
     //write-marshaller
     private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(dcpInstancePrefix)
         buffer.writeBool(debug)
         buffer.writeNullable(args) { buffer.writeArray(it) { buffer.writeString(it) } }
         buffer.writeNullable(envs) { buffer.writeArray(it) { SessionEnvironmentVariable.write(ctx, buffer, it) } }
@@ -642,6 +661,7 @@ class CreateSessionRequest_Unknown (
         
         other as CreateSessionRequest_Unknown
         
+        if (dcpInstancePrefix != other.dcpInstancePrefix) return false
         if (debug != other.debug) return false
         if (args != other.args) return false
         if (envs != other.envs) return false
@@ -651,6 +671,7 @@ class CreateSessionRequest_Unknown (
     //hash code trait
     override fun hashCode(): Int  {
         var __r = 0
+        __r = __r*31 + dcpInstancePrefix.hashCode()
         __r = __r*31 + debug.hashCode()
         __r = __r*31 + if (args != null) args.contentDeepHashCode() else 0
         __r = __r*31 + if (envs != null) envs.contentDeepHashCode() else 0
@@ -660,6 +681,7 @@ class CreateSessionRequest_Unknown (
     override fun print(printer: PrettyPrinter)  {
         printer.println("CreateSessionRequest_Unknown (")
         printer.indent {
+            print("dcpInstancePrefix = "); dcpInstancePrefix.print(printer); println()
             print("debug = "); debug.print(printer); println()
             print("args = "); args.print(printer); println()
             print("envs = "); envs.print(printer); println()
@@ -675,7 +697,7 @@ class CreateSessionRequest_Unknown (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:77]
+ * #### Generated from [AspireWorkerModel.kt:78]
  */
 data class CreateSessionResponse (
     val sessionId: String?,
@@ -744,13 +766,15 @@ data class CreateSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:82]
+ * #### Generated from [AspireWorkerModel.kt:83]
  */
 data class DeleteSessionRequest (
+    val dcpInstancePrefix: String,
     val sessionId: String
 ) : IPrintable {
     //write-marshaller
     private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        buffer.writeString(dcpInstancePrefix)
         buffer.writeString(sessionId)
     }
     //companion
@@ -761,8 +785,9 @@ data class DeleteSessionRequest (
         
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): DeleteSessionRequest  {
+            val dcpInstancePrefix = buffer.readString()
             val sessionId = buffer.readString()
-            return DeleteSessionRequest(sessionId)
+            return DeleteSessionRequest(dcpInstancePrefix, sessionId)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: DeleteSessionRequest)  {
@@ -782,6 +807,7 @@ data class DeleteSessionRequest (
         
         other as DeleteSessionRequest
         
+        if (dcpInstancePrefix != other.dcpInstancePrefix) return false
         if (sessionId != other.sessionId) return false
         
         return true
@@ -789,6 +815,7 @@ data class DeleteSessionRequest (
     //hash code trait
     override fun hashCode(): Int  {
         var __r = 0
+        __r = __r*31 + dcpInstancePrefix.hashCode()
         __r = __r*31 + sessionId.hashCode()
         return __r
     }
@@ -796,6 +823,7 @@ data class DeleteSessionRequest (
     override fun print(printer: PrettyPrinter)  {
         printer.println("DeleteSessionRequest (")
         printer.indent {
+            print("dcpInstancePrefix = "); dcpInstancePrefix.print(printer); println()
             print("sessionId = "); sessionId.print(printer); println()
         }
         printer.print(")")
@@ -808,7 +836,7 @@ data class DeleteSessionRequest (
 
 /**
  * @property sessionId The field will be null if the session cannot be found
- * #### Generated from [AspireWorkerModel.kt:86]
+ * #### Generated from [AspireWorkerModel.kt:88]
  */
 data class DeleteSessionResponse (
     val sessionId: String?,
@@ -877,9 +905,10 @@ data class DeleteSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:254]
+ * #### Generated from [AspireWorkerModel.kt:256]
  */
 enum class ErrorCode {
+    AspireAppHostNotFound, 
     UnsupportedLaunchConfigurationType, 
     AspireSessionNotFound, 
     DotNetProjectNotFound, 
@@ -1234,7 +1263,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:189]
+ * #### Generated from [AspireWorkerModel.kt:191]
  */
 data class ResourceCommand (
     val name: String,
@@ -1333,7 +1362,7 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:214]
+ * #### Generated from [AspireWorkerModel.kt:216]
  */
 data class ResourceCommandRequest (
     val commandName: String,
@@ -1408,7 +1437,7 @@ data class ResourceCommandRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:220]
+ * #### Generated from [AspireWorkerModel.kt:222]
  */
 data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
@@ -1477,7 +1506,7 @@ data class ResourceCommandResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:221]
+ * #### Generated from [AspireWorkerModel.kt:223]
  */
 enum class ResourceCommandResponseKind {
     Undefined, 
@@ -1504,7 +1533,7 @@ enum class ResourceCommandResponseKind {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:196]
+ * #### Generated from [AspireWorkerModel.kt:198]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -1530,7 +1559,7 @@ enum class ResourceCommandState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:155]
+ * #### Generated from [AspireWorkerModel.kt:157]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -1599,7 +1628,7 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:182]
+ * #### Generated from [AspireWorkerModel.kt:184]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus?,
@@ -1680,7 +1709,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:176]
+ * #### Generated from [AspireWorkerModel.kt:178]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -1706,7 +1735,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:208]
+ * #### Generated from [AspireWorkerModel.kt:210]
  */
 data class ResourceLog (
     val text: String,
@@ -1781,7 +1810,7 @@ data class ResourceLog (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:99]
+ * #### Generated from [AspireWorkerModel.kt:101]
  */
 data class ResourceModel (
     val name: String,
@@ -1940,7 +1969,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:148]
+ * #### Generated from [AspireWorkerModel.kt:150]
  */
 data class ResourceProperty (
     val name: String,
@@ -2021,7 +2050,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:203]
+ * #### Generated from [AspireWorkerModel.kt:205]
  */
 data class ResourceRelationship (
     val resourceName: String,
@@ -2090,7 +2119,7 @@ data class ResourceRelationship (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:115]
+ * #### Generated from [AspireWorkerModel.kt:117]
  */
 enum class ResourceState {
     Starting, 
@@ -2124,7 +2153,7 @@ enum class ResourceState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:128]
+ * #### Generated from [AspireWorkerModel.kt:130]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -2152,7 +2181,7 @@ enum class ResourceStateStyle {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:101]
+ * #### Generated from [AspireWorkerModel.kt:103]
  */
 enum class ResourceType {
     Project, 
@@ -2185,7 +2214,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:160]
+ * #### Generated from [AspireWorkerModel.kt:162]
  */
 data class ResourceUrl (
     val endpointName: String?,
@@ -2278,7 +2307,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:169]
+ * #### Generated from [AspireWorkerModel.kt:171]
  */
 data class ResourceVolume (
     val source: String,
@@ -2359,7 +2388,7 @@ data class ResourceVolume (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:92]
+ * #### Generated from [AspireWorkerModel.kt:94]
  */
 class ResourceWrapper private constructor(
     private val _model: RdOptionalProperty<ResourceModel>,

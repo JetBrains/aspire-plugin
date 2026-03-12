@@ -41,7 +41,7 @@ internal sealed class SessionService(IRdConnectionWrapper connectionWrapper, ILo
             .SingleOrDefault();
         if (projectLaunchConfiguration != null)
         {
-            return await CreateProjectSession(session, projectLaunchConfiguration);
+            return await CreateProjectSession(aspireHostId, session, projectLaunchConfiguration);
         }
 
         var pythonLaunchConfiguration = session.LaunchConfigurations
@@ -49,7 +49,7 @@ internal sealed class SessionService(IRdConnectionWrapper connectionWrapper, ILo
             .SingleOrDefault();
         if (pythonLaunchConfiguration != null)
         {
-            return await CreatePythonSession(session, pythonLaunchConfiguration);
+            return await CreatePythonSession(aspireHostId, session, pythonLaunchConfiguration);
         }
 
         _logger.UnableToFindAnySupportedLaunchConfiguration();
@@ -57,6 +57,7 @@ internal sealed class SessionService(IRdConnectionWrapper connectionWrapper, ILo
     }
 
     private async Task<(string? sessionId, Errors.IError? error)> CreateProjectSession(
+        string aspireHostId,
         Session session,
         ProjectLaunchConfiguration launchConfiguration)
     {
@@ -66,6 +67,7 @@ internal sealed class SessionService(IRdConnectionWrapper connectionWrapper, ILo
             launchConfiguration.ProjectPath,
             launchConfiguration.LaunchProfile,
             launchConfiguration.DisableLaunchProfile == true,
+            aspireHostId,
             launchConfiguration.Mode == Mode.Debug,
             session.Args,
             envs
@@ -83,6 +85,7 @@ internal sealed class SessionService(IRdConnectionWrapper connectionWrapper, ILo
     }
 
     private async Task<(string? sessionId, Errors.IError? error)> CreatePythonSession(
+        string aspireHostId,
         Session session,
         PythonLaunchConfiguration launchConfiguration)
     {
@@ -92,6 +95,7 @@ internal sealed class SessionService(IRdConnectionWrapper connectionWrapper, ILo
             launchConfiguration.ProgramPath,
             launchConfiguration.InterpreterPath,
             launchConfiguration.Module,
+            aspireHostId,
             launchConfiguration.Mode == Mode.Debug,
             session.Args,
             envs
@@ -118,7 +122,7 @@ internal sealed class SessionService(IRdConnectionWrapper connectionWrapper, ILo
 
     public async Task<(string? sessionId, Errors.IError? error)> DeleteSession(string aspireHostId, string sessionId)
     {
-        var request = new DeleteSessionRequest(sessionId);
+        var request = new DeleteSessionRequest(aspireHostId, sessionId);
 
         _logger.DeleteSessionRequestReceived(sessionId);
         _logger.SessionDeletionRequestBuilt(request);

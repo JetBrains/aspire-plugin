@@ -5,7 +5,6 @@ package com.jetbrains.aspire.worker
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
@@ -15,16 +14,14 @@ import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.sessions.*
+import com.jetbrains.aspire.util.generateDcpInstancePrefix
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
@@ -61,6 +58,11 @@ class AspireAppHost(
     }
 
     private val cs = parentCs.childScope("Aspire AppHost")
+
+    val dcpInstancePrefix = generateDcpInstancePrefix()
+
+    private val _runConfigName: MutableStateFlow<String?> = MutableStateFlow(null)
+    val runConfigName: StateFlow<String?> = _runConfigName.asStateFlow()
 
     private val _dashboardUrl: MutableStateFlow<String?> = MutableStateFlow(null)
     val dashboardUrl: StateFlow<String?> = _dashboardUrl.asStateFlow()
@@ -103,36 +105,19 @@ class AspireAppHost(
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
         LOG.trace("Subscribing to Aspire AppHost model")
 
-        setAppHostUrl(appHostModel.config, appHostLifetime)
-        setOTLPEndpointUrl(appHostModel.config, appHostLifetime)
-
-        val sessionEvents = Channel<SessionEvent>(Channel.UNLIMITED)
-
-        appHostModel.createSession.set { request ->
-            createSession(request, sessionEvents, appHostModel.config, appHostLifetime)
-        }
-
-        appHostModel.deleteSession.set { request ->
-            deleteSession(request)
-        }
-
-        appHostLifetime.coroutineScope.launch {
-            for (event in sessionEvents) {
-                handleSessionEvent(event, appHostModel)
-            }
-        }
+        val appHostConfig = appHostModel.config
+        appHostLifetime.bracketIfAlive({
+            _runConfigName.value = appHostConfig.runConfigName
+            _dashboardUrl.value = appHostConfig.aspireHostProjectUrl
+        }, {
+            _runConfigName.value = null
+            _dashboardUrl.value = null
+        })
+        setOTLPEndpointUrl(appHostConfig, appHostLifetime)
 
         appHostModel.resources.view(appHostLifetime) { resourceLifetime, resourceId, resourceModel ->
             viewResource(resourceId, resourceModel, resourceLifetime)
         }
-    }
-
-    private fun setAppHostUrl(appHostConfig: AspireHostModelConfig, appHostLifetime: Lifetime) {
-        appHostLifetime.bracketIfAlive({
-            _dashboardUrl.value = appHostConfig.aspireHostProjectUrl
-        }, {
-            _dashboardUrl.value = null
-        })
     }
 
     private fun setOTLPEndpointUrl(appHostConfig: AspireHostModelConfig, appHostLifetime: Lifetime) {
@@ -145,121 +130,6 @@ class AspireAppHost(
         }, {
             extension.removeOTLPServerEndpointForProxying(appHostConfig.otlpEndpointUrl)
         })
-    }
-
-    private fun createSession(
-        createSessionRequest: CreateSessionRequest,
-        sessionEvents: Channel<SessionEvent>,
-        appHostConfig: AspireHostModelConfig,
-        appHostLifetime: Lifetime
-    ): CreateSessionResponse {
-        val configuration = createSessionLaunchConfiguration(createSessionRequest)
-        if (configuration == null) {
-            LOG.warn("Unsupported session request type: ${createSessionRequest::class}")
-            return CreateSessionResponse(null, ErrorCode.UnsupportedLaunchConfigurationType)
-        }
-
-        val sessionId = UUID.randomUUID().toString()
-
-        LOG.trace { "Creating Aspire session with id: $sessionId" }
-
-        val request = StartSessionRequest(
-            sessionId,
-            configuration,
-            sessionEvents,
-            appHostConfig.runConfigName,
-            appHostLifetime.createNested()
-        )
-
-        SessionManager.getInstance(project).submitRequest(request)
-
-        return CreateSessionResponse(sessionId, null)
-    }
-
-    private fun createSessionLaunchConfiguration(createSessionRequest: CreateSessionRequest) =
-        when (createSessionRequest) {
-            is CreateProjectSessionRequest -> DotNetSessionLaunchConfiguration(
-                Path(createSessionRequest.projectPath),
-                createSessionRequest.debug,
-                createSessionRequest.launchProfile,
-                createSessionRequest.disableLaunchProfile,
-                createSessionRequest.args?.toList(),
-                createSessionRequest.envs?.map { it.key to it.value }
-            )
-
-            is CreatePythonSessionRequest -> PythonSessionLaunchConfiguration(
-                Path(createSessionRequest.programPath),
-                createSessionRequest.debug,
-                createSessionRequest.interpreterPath,
-                createSessionRequest.module,
-                createSessionRequest.args?.toList(),
-                createSessionRequest.envs?.map { it.key to it.value }
-            )
-
-            else -> null
-        }
-
-    private fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
-        LOG.trace { "Deleting Aspire session with id: ${deleteSessionRequest.sessionId}" }
-
-        val request = StopSessionRequest(deleteSessionRequest.sessionId)
-
-        SessionManager.getInstance(project).submitRequest(request)
-
-        return DeleteSessionResponse(deleteSessionRequest.sessionId, null)
-    }
-
-    private suspend fun handleSessionEvent(sessionEvent: SessionEvent, appHostModel: AspireHostModel) {
-        when (sessionEvent) {
-            is SessionProcessStarted -> handleProcessStartedEvent(sessionEvent, appHostModel)
-            is SessionProcessTerminated -> handleProcessTerminatedEvent(sessionEvent, appHostModel)
-            is SessionLogReceived -> handleSessionLogReceivedEvent(sessionEvent, appHostModel)
-            is SessionMessageReceived -> handleSessionMessageReceivedEvent(sessionEvent, appHostModel)
-        }
-    }
-
-    private suspend fun handleProcessStartedEvent(event: SessionProcessStarted, appHostModel: AspireHostModel) {
-        LOG.trace { "Aspire session started (${event.id}, ${event.pid})" }
-        withContext(Dispatchers.EDT) {
-            appHostModel.processStarted.fire(ProcessStarted(event.id, event.pid))
-        }
-    }
-
-    private suspend fun handleProcessTerminatedEvent(event: SessionProcessTerminated, appHostModel: AspireHostModel) {
-        LOG.trace { "Aspire session terminated (${event.id}, ${event.exitCode})" }
-        withContext(Dispatchers.EDT) {
-            appHostModel.processTerminated.fire(ProcessTerminated(event.id, event.exitCode))
-        }
-    }
-
-    private suspend fun handleSessionLogReceivedEvent(event: SessionLogReceived, appHostModel: AspireHostModel) {
-        LOG.trace { "Aspire session log received (${event.id}, ${event.isStdErr}, ${event.message})" }
-        withContext(Dispatchers.EDT) {
-            appHostModel.logReceived.fire(
-                LogReceived(
-                    event.id,
-                    event.isStdErr,
-                    event.message
-                )
-            )
-        }
-    }
-
-    private suspend fun handleSessionMessageReceivedEvent(
-        event: SessionMessageReceived,
-        appHostModel: AspireHostModel
-    ) {
-        LOG.trace { "Aspire session message received (${event.id}, ${event.level}, ${event.message})" }
-        withContext(Dispatchers.EDT) {
-            appHostModel.messageReceived.fire(
-                MessageReceived(
-                    event.id,
-                    event.level,
-                    event.message,
-                    event.errorCode,
-                )
-            )
-        }
     }
 
     private fun viewResource(
@@ -337,6 +207,67 @@ class AspireAppHost(
         if (parentResourceName != null) {
             _pendingChildren[parentResourceName]?.removeIf { it.first == resourceName }
         }
+    }
+
+    fun createSession(
+        createSessionRequest: CreateSessionRequest,
+        sessionEvents: Channel<SessionEvent>,
+        lifetime: Lifetime
+    ): CreateSessionResponse {
+        val configuration = createSessionLaunchConfiguration(createSessionRequest)
+        if (configuration == null) {
+            LOG.warn("Unsupported session request type: ${createSessionRequest::class}")
+            return CreateSessionResponse(null, ErrorCode.UnsupportedLaunchConfigurationType)
+        }
+
+        val sessionId = UUID.randomUUID().toString()
+
+        LOG.trace { "Creating Aspire session with id: $sessionId" }
+
+        val request = StartSessionRequest(
+            sessionId,
+            configuration,
+            sessionEvents,
+            runConfigName.value,
+            lifetime.createNested()
+        )
+
+        SessionManager.getInstance(project).submitRequest(request)
+
+        return CreateSessionResponse(sessionId, null)
+    }
+
+    private fun createSessionLaunchConfiguration(createSessionRequest: CreateSessionRequest) =
+        when (createSessionRequest) {
+            is CreateProjectSessionRequest -> DotNetSessionLaunchConfiguration(
+                Path(createSessionRequest.projectPath),
+                createSessionRequest.debug,
+                createSessionRequest.launchProfile,
+                createSessionRequest.disableLaunchProfile,
+                createSessionRequest.args?.toList(),
+                createSessionRequest.envs?.map { it.key to it.value }
+            )
+
+            is CreatePythonSessionRequest -> PythonSessionLaunchConfiguration(
+                Path(createSessionRequest.programPath),
+                createSessionRequest.debug,
+                createSessionRequest.interpreterPath,
+                createSessionRequest.module,
+                createSessionRequest.args?.toList(),
+                createSessionRequest.envs?.map { it.key to it.value }
+            )
+
+            else -> null
+        }
+
+    fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
+        LOG.trace { "Deleting Aspire session with id: ${deleteSessionRequest.sessionId}" }
+
+        val request = StopSessionRequest(deleteSessionRequest.sessionId)
+
+        SessionManager.getInstance(project).submitRequest(request)
+
+        return DeleteSessionResponse(deleteSessionRequest.sessionId, null)
     }
 
     override fun dispose() {

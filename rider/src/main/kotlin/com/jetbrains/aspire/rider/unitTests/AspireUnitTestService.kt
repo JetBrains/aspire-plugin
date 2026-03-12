@@ -65,13 +65,14 @@ internal class AspireUnitTestService(private val project: Project, private val s
                 aspireWorker.start()
 
                 val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
-                val dcpInstancePrefix = generateDcpInstancePrefix()
-                val aspireHostProjectPath = request.aspireHostProjectPath.toNioPath()
+
+                val appHostMainFilePath = request.aspireHostProjectPath.toNioPath()
+                val appHost = requireNotNull(aspireWorker.getAppHostByPath(appHostMainFilePath))
 
                 val aspireHostConfig = AspireHostModelConfig(
-                    dcpInstancePrefix,
+                    appHost.dcpInstancePrefix,
                     null,
-                    aspireHostProjectPath.absolutePathString(),
+                    appHostMainFilePath.absolutePathString(),
                     null,
                     null,
                     null,
@@ -82,7 +83,7 @@ internal class AspireUnitTestService(private val project: Project, private val s
                     dcpEnvironmentVariables.forEach { envVar ->
                         add(AspireHostEnvironmentVariable(envVar.key, envVar.value))
                     }
-                    add(AspireHostEnvironmentVariable(DCP_INSTANCE_ID_PREFIX, dcpInstancePrefix))
+                    add(AspireHostEnvironmentVariable(DCP_INSTANCE_ID_PREFIX, appHost.dcpInstancePrefix))
                 }
 
                 val aspireUnitTestServiceHost = AspireHostForUnitTestRun(

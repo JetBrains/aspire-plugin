@@ -34,15 +34,15 @@ internal static class Errors
 
     internal static readonly UnexpectedError Unexpected = new();
 
-    internal sealed record AspireHostNotFoundError : IClientError
+    internal sealed record AspireAppHostNotFoundError : IClientError
     {
         public ErrorDetail ErrorDetail { get; } = new(
-            "AspireHostNotFound",
-            "Unable to find an Aspire host. Please make sure that Aspire is running."
+            "AspireAppHostNotFound",
+            "Unable to find an Aspire AppHost. Please make sure that Aspire is running."
         );
     }
 
-    internal static readonly AspireHostNotFoundError AspireHostNotFound = new();
+    internal static readonly AspireAppHostNotFoundError AspireAppHostNotFound = new();
 
     internal sealed record AspireSessionNotFoundError : IClientError
     {
@@ -91,6 +91,7 @@ internal static class ErrorExtensions
 
     internal static Errors.IError ToError(this ErrorCode code) => code switch
     {
+        ErrorCode.AspireAppHostNotFound => Errors.AspireAppHostNotFound,
         ErrorCode.UnsupportedLaunchConfigurationType => Errors.UnsupportedLaunchConfigurationType,
         ErrorCode.AspireSessionNotFound => Errors.AspireSessionNotFound,
         ErrorCode.DotNetProjectNotFound => Errors.DotNetProjectNotFound,

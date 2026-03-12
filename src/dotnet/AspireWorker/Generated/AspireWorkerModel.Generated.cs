@@ -133,7 +133,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     
     
-    protected override long SerializationHash => -3197080582296326862L;
+    protected override long SerializationHash => 4349089867498556290L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -183,7 +183,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:248</p>
+  /// <p>Generated from: AspireWorkerModel.kt:250</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
@@ -261,7 +261,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:230</p>
+  /// <p>Generated from: AspireWorkerModel.kt:232</p>
   /// </summary>
   public sealed class AspireHostModelConfig : IPrintable, IEquatable<AspireHostModelConfig>
   {
@@ -425,7 +425,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:65</p>
+  /// <p>Generated from: AspireWorkerModel.kt:66</p>
   /// </summary>
   public sealed class CreateProjectSessionRequest : CreateSessionRequest
   {
@@ -441,10 +441,12 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       [NotNull] string projectPath,
       [CanBeNull] string launchProfile,
       bool disableLaunchProfile,
+      [NotNull] string dcpInstancePrefix,
       bool debug,
       [CanBeNull] string[] args,
       [CanBeNull] SessionEnvironmentVariable[] envs
     ) : base (
+      dcpInstancePrefix,
       debug,
       args,
       envs
@@ -462,13 +464,14 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     public static new CtxReadDelegate<CreateProjectSessionRequest> Read = (ctx, reader) => 
     {
+      var dcpInstancePrefix = reader.ReadString();
       var debug = reader.ReadBool();
       var args = ReadStringArrayNullable(ctx, reader);
       var envs = ReadSessionEnvironmentVariableArrayNullable(ctx, reader);
       var projectPath = reader.ReadString();
       var launchProfile = ReadStringNullable(ctx, reader);
       var disableLaunchProfile = reader.ReadBool();
-      var _result = new CreateProjectSessionRequest(projectPath, launchProfile, disableLaunchProfile, debug, args, envs);
+      var _result = new CreateProjectSessionRequest(projectPath, launchProfile, disableLaunchProfile, dcpInstancePrefix, debug, args, envs);
       return _result;
     };
     public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
@@ -477,6 +480,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     public static new CtxWriteDelegate<CreateProjectSessionRequest> Write = (ctx, writer, value) => 
     {
+      writer.Write(value.DcpInstancePrefix);
       writer.Write(value.Debug);
       WriteStringArrayNullable(ctx, writer, value.Args);
       WriteSessionEnvironmentVariableArrayNullable(ctx, writer, value.Envs);
@@ -504,7 +508,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return ProjectPath == other.ProjectPath && Equals(LaunchProfile, other.LaunchProfile) && DisableLaunchProfile == other.DisableLaunchProfile && Debug == other.Debug && Equals(Args, other.Args) && Equals(Envs, other.Envs);
+      return ProjectPath == other.ProjectPath && Equals(LaunchProfile, other.LaunchProfile) && DisableLaunchProfile == other.DisableLaunchProfile && DcpInstancePrefix == other.DcpInstancePrefix && Debug == other.Debug && Equals(Args, other.Args) && Equals(Envs, other.Envs);
     }
     //hash code trait
     public override int GetHashCode()
@@ -514,6 +518,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
         hash = hash * 31 + ProjectPath.GetHashCode();
         hash = hash * 31 + (LaunchProfile != null ? LaunchProfile.GetHashCode() : 0);
         hash = hash * 31 + DisableLaunchProfile.GetHashCode();
+        hash = hash * 31 + DcpInstancePrefix.GetHashCode();
         hash = hash * 31 + Debug.GetHashCode();
         hash = hash * 31 + (Args != null ? Args.ContentHashCode() : 0);
         hash = hash * 31 + (Envs != null ? Envs.ContentHashCode() : 0);
@@ -528,6 +533,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
         printer.Print("projectPath = "); ProjectPath.PrintEx(printer); printer.Println();
         printer.Print("launchProfile = "); LaunchProfile.PrintEx(printer); printer.Println();
         printer.Print("disableLaunchProfile = "); DisableLaunchProfile.PrintEx(printer); printer.Println();
+        printer.Print("dcpInstancePrefix = "); DcpInstancePrefix.PrintEx(printer); printer.Println();
         printer.Print("debug = "); Debug.PrintEx(printer); printer.Println();
         printer.Print("args = "); Args.PrintEx(printer); printer.Println();
         printer.Print("envs = "); Envs.PrintEx(printer); printer.Println();
@@ -545,7 +551,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:71</p>
+  /// <p>Generated from: AspireWorkerModel.kt:72</p>
   /// </summary>
   public sealed class CreatePythonSessionRequest : CreateSessionRequest
   {
@@ -561,10 +567,12 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       [NotNull] string programPath,
       [CanBeNull] string interpreterPath,
       [CanBeNull] string module,
+      [NotNull] string dcpInstancePrefix,
       bool debug,
       [CanBeNull] string[] args,
       [CanBeNull] SessionEnvironmentVariable[] envs
     ) : base (
+      dcpInstancePrefix,
       debug,
       args,
       envs
@@ -582,13 +590,14 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     public static new CtxReadDelegate<CreatePythonSessionRequest> Read = (ctx, reader) => 
     {
+      var dcpInstancePrefix = reader.ReadString();
       var debug = reader.ReadBool();
       var args = ReadStringArrayNullable(ctx, reader);
       var envs = ReadSessionEnvironmentVariableArrayNullable(ctx, reader);
       var programPath = reader.ReadString();
       var interpreterPath = ReadStringNullable(ctx, reader);
       var module = ReadStringNullable(ctx, reader);
-      var _result = new CreatePythonSessionRequest(programPath, interpreterPath, module, debug, args, envs);
+      var _result = new CreatePythonSessionRequest(programPath, interpreterPath, module, dcpInstancePrefix, debug, args, envs);
       return _result;
     };
     public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
@@ -597,6 +606,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     public static new CtxWriteDelegate<CreatePythonSessionRequest> Write = (ctx, writer, value) => 
     {
+      writer.Write(value.DcpInstancePrefix);
       writer.Write(value.Debug);
       WriteStringArrayNullable(ctx, writer, value.Args);
       WriteSessionEnvironmentVariableArrayNullable(ctx, writer, value.Envs);
@@ -624,7 +634,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return ProgramPath == other.ProgramPath && Equals(InterpreterPath, other.InterpreterPath) && Equals(Module, other.Module) && Debug == other.Debug && Equals(Args, other.Args) && Equals(Envs, other.Envs);
+      return ProgramPath == other.ProgramPath && Equals(InterpreterPath, other.InterpreterPath) && Equals(Module, other.Module) && DcpInstancePrefix == other.DcpInstancePrefix && Debug == other.Debug && Equals(Args, other.Args) && Equals(Envs, other.Envs);
     }
     //hash code trait
     public override int GetHashCode()
@@ -634,6 +644,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
         hash = hash * 31 + ProgramPath.GetHashCode();
         hash = hash * 31 + (InterpreterPath != null ? InterpreterPath.GetHashCode() : 0);
         hash = hash * 31 + (Module != null ? Module.GetHashCode() : 0);
+        hash = hash * 31 + DcpInstancePrefix.GetHashCode();
         hash = hash * 31 + Debug.GetHashCode();
         hash = hash * 31 + (Args != null ? Args.ContentHashCode() : 0);
         hash = hash * 31 + (Envs != null ? Envs.ContentHashCode() : 0);
@@ -648,6 +659,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
         printer.Print("programPath = "); ProgramPath.PrintEx(printer); printer.Println();
         printer.Print("interpreterPath = "); InterpreterPath.PrintEx(printer); printer.Println();
         printer.Print("module = "); Module.PrintEx(printer); printer.Println();
+        printer.Print("dcpInstancePrefix = "); DcpInstancePrefix.PrintEx(printer); printer.Println();
         printer.Print("debug = "); Debug.PrintEx(printer); printer.Println();
         printer.Print("args = "); Args.PrintEx(printer); printer.Println();
         printer.Print("envs = "); Envs.PrintEx(printer); printer.Println();
@@ -670,6 +682,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   public abstract class CreateSessionRequest{
     //fields
     //public fields
+    [NotNull] public string DcpInstancePrefix {get; private set;}
     public bool Debug {get; private set;}
     [CanBeNull] public string[] Args {get; private set;}
     [CanBeNull] public SessionEnvironmentVariable[] Envs {get; private set;}
@@ -677,11 +690,15 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     //private fields
     //primary constructor
     protected CreateSessionRequest(
+      [NotNull] string dcpInstancePrefix,
       bool debug,
       [CanBeNull] string[] args,
       [CanBeNull] SessionEnvironmentVariable[] envs
     )
     {
+      if (dcpInstancePrefix == null) throw new ArgumentNullException("dcpInstancePrefix");
+      
+      DcpInstancePrefix = dcpInstancePrefix;
       Debug = debug;
       Args = args;
       Envs = envs;
@@ -713,10 +730,12 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     //private fields
     //primary constructor
     public CreateSessionRequest_Unknown(
+      [NotNull] string dcpInstancePrefix,
       bool debug,
       [CanBeNull] string[] args,
       [CanBeNull] SessionEnvironmentVariable[] envs
     ) : base (
+      dcpInstancePrefix,
       debug,
       args,
       envs
@@ -729,10 +748,11 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     public static new CtxReadDelegate<CreateSessionRequest_Unknown> Read = (ctx, reader) => 
     {
+      var dcpInstancePrefix = reader.ReadString();
       var debug = reader.ReadBool();
       var args = ReadStringArrayNullable(ctx, reader);
       var envs = ReadSessionEnvironmentVariableArrayNullable(ctx, reader);
-      var _result = new CreateSessionRequest_Unknown(debug, args, envs);
+      var _result = new CreateSessionRequest_Unknown(dcpInstancePrefix, debug, args, envs);
       return _result;
     };
     public static CtxReadDelegate<string[]> ReadStringArrayNullable = JetBrains.Rd.Impl.Serializers.ReadString.Array().NullableClass();
@@ -740,6 +760,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     public static new CtxWriteDelegate<CreateSessionRequest_Unknown> Write = (ctx, writer, value) => 
     {
+      writer.Write(value.DcpInstancePrefix);
       writer.Write(value.Debug);
       WriteStringArrayNullable(ctx, writer, value.Args);
       WriteSessionEnvironmentVariableArrayNullable(ctx, writer, value.Envs);
@@ -763,13 +784,14 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Debug == other.Debug && Equals(Args, other.Args) && Equals(Envs, other.Envs);
+      return DcpInstancePrefix == other.DcpInstancePrefix && Debug == other.Debug && Equals(Args, other.Args) && Equals(Envs, other.Envs);
     }
     //hash code trait
     public override int GetHashCode()
     {
       unchecked {
         var hash = 0;
+        hash = hash * 31 + DcpInstancePrefix.GetHashCode();
         hash = hash * 31 + Debug.GetHashCode();
         hash = hash * 31 + (Args != null ? Args.ContentHashCode() : 0);
         hash = hash * 31 + (Envs != null ? Envs.ContentHashCode() : 0);
@@ -781,6 +803,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       printer.Println("CreateSessionRequest_Unknown (");
       using (printer.IndentCookie()) {
+        printer.Print("dcpInstancePrefix = "); DcpInstancePrefix.PrintEx(printer); printer.Println();
         printer.Print("debug = "); Debug.PrintEx(printer); printer.Println();
         printer.Print("args = "); Args.PrintEx(printer); printer.Println();
         printer.Print("envs = "); Envs.PrintEx(printer); printer.Println();
@@ -798,7 +821,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:77</p>
+  /// <p>Generated from: AspireWorkerModel.kt:78</p>
   /// </summary>
   public sealed class CreateSessionResponse : IPrintable, IEquatable<CreateSessionResponse>
   {
@@ -893,41 +916,48 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:82</p>
+  /// <p>Generated from: AspireWorkerModel.kt:83</p>
   /// </summary>
   public sealed class DeleteSessionRequest : IPrintable, IEquatable<DeleteSessionRequest>
   {
     //fields
     //public fields
+    [NotNull] public string DcpInstancePrefix {get; private set;}
     [NotNull] public string SessionId {get; private set;}
     
     //private fields
     //primary constructor
     public DeleteSessionRequest(
+      [NotNull] string dcpInstancePrefix,
       [NotNull] string sessionId
     )
     {
+      if (dcpInstancePrefix == null) throw new ArgumentNullException("dcpInstancePrefix");
       if (sessionId == null) throw new ArgumentNullException("sessionId");
       
+      DcpInstancePrefix = dcpInstancePrefix;
       SessionId = sessionId;
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string sessionId)
+    public void Deconstruct([NotNull] out string dcpInstancePrefix, [NotNull] out string sessionId)
     {
+      dcpInstancePrefix = DcpInstancePrefix;
       sessionId = SessionId;
     }
     //statics
     
     public static CtxReadDelegate<DeleteSessionRequest> Read = (ctx, reader) => 
     {
+      var dcpInstancePrefix = reader.ReadString();
       var sessionId = reader.ReadString();
-      var _result = new DeleteSessionRequest(sessionId);
+      var _result = new DeleteSessionRequest(dcpInstancePrefix, sessionId);
       return _result;
     };
     
     public static CtxWriteDelegate<DeleteSessionRequest> Write = (ctx, writer, value) => 
     {
+      writer.Write(value.DcpInstancePrefix);
       writer.Write(value.SessionId);
     };
     
@@ -947,13 +977,14 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return SessionId == other.SessionId;
+      return DcpInstancePrefix == other.DcpInstancePrefix && SessionId == other.SessionId;
     }
     //hash code trait
     public override int GetHashCode()
     {
       unchecked {
         var hash = 0;
+        hash = hash * 31 + DcpInstancePrefix.GetHashCode();
         hash = hash * 31 + SessionId.GetHashCode();
         return hash;
       }
@@ -963,6 +994,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       printer.Println("DeleteSessionRequest (");
       using (printer.IndentCookie()) {
+        printer.Print("dcpInstancePrefix = "); DcpInstancePrefix.PrintEx(printer); printer.Println();
         printer.Print("sessionId = "); SessionId.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
@@ -978,7 +1010,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:86</p>
+  /// <p>Generated from: AspireWorkerModel.kt:88</p>
   /// </summary>
   public sealed class DeleteSessionResponse : IPrintable, IEquatable<DeleteSessionResponse>
   {
@@ -1077,9 +1109,10 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:254</p>
+  /// <p>Generated from: AspireWorkerModel.kt:256</p>
   /// </summary>
   public enum ErrorCode {
+    AspireAppHostNotFound,
     UnsupportedLaunchConfigurationType,
     AspireSessionNotFound,
     DotNetProjectNotFound,
@@ -1538,7 +1571,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:189</p>
+  /// <p>Generated from: AspireWorkerModel.kt:191</p>
   /// </summary>
   public sealed class ResourceCommand : IPrintable, IEquatable<ResourceCommand>
   {
@@ -1674,7 +1707,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:214</p>
+  /// <p>Generated from: AspireWorkerModel.kt:216</p>
   /// </summary>
   public sealed class ResourceCommandRequest : IPrintable, IEquatable<ResourceCommandRequest>
   {
@@ -1777,7 +1810,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:220</p>
+  /// <p>Generated from: AspireWorkerModel.kt:222</p>
   /// </summary>
   public sealed class ResourceCommandResponse : IPrintable, IEquatable<ResourceCommandResponse>
   {
@@ -1870,7 +1903,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:221</p>
+  /// <p>Generated from: AspireWorkerModel.kt:223</p>
   /// </summary>
   public enum ResourceCommandResponseKind {
     Undefined,
@@ -1881,7 +1914,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:196</p>
+  /// <p>Generated from: AspireWorkerModel.kt:198</p>
   /// </summary>
   public enum ResourceCommandState {
     Enabled,
@@ -1891,7 +1924,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:155</p>
+  /// <p>Generated from: AspireWorkerModel.kt:157</p>
   /// </summary>
   public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
   {
@@ -1986,7 +2019,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:182</p>
+  /// <p>Generated from: AspireWorkerModel.kt:184</p>
   /// </summary>
   public sealed class ResourceHealthReport : IPrintable, IEquatable<ResourceHealthReport>
   {
@@ -2099,7 +2132,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:176</p>
+  /// <p>Generated from: AspireWorkerModel.kt:178</p>
   /// </summary>
   public enum ResourceHealthStatus {
     Healthy,
@@ -2109,7 +2142,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:208</p>
+  /// <p>Generated from: AspireWorkerModel.kt:210</p>
   /// </summary>
   public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
   {
@@ -2210,7 +2243,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:99</p>
+  /// <p>Generated from: AspireWorkerModel.kt:101</p>
   /// </summary>
   public sealed class ResourceModel : IPrintable, IEquatable<ResourceModel>
   {
@@ -2452,7 +2485,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:148</p>
+  /// <p>Generated from: AspireWorkerModel.kt:150</p>
   /// </summary>
   public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
   {
@@ -2565,7 +2598,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:203</p>
+  /// <p>Generated from: AspireWorkerModel.kt:205</p>
   /// </summary>
   public sealed class ResourceRelationship : IPrintable, IEquatable<ResourceRelationship>
   {
@@ -2659,7 +2692,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:115</p>
+  /// <p>Generated from: AspireWorkerModel.kt:117</p>
   /// </summary>
   public enum ResourceState {
     Starting,
@@ -2677,7 +2710,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:128</p>
+  /// <p>Generated from: AspireWorkerModel.kt:130</p>
   /// </summary>
   public enum ResourceStateStyle {
     Success,
@@ -2689,7 +2722,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:101</p>
+  /// <p>Generated from: AspireWorkerModel.kt:103</p>
   /// </summary>
   public enum ResourceType {
     Project,
@@ -2706,7 +2739,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:160</p>
+  /// <p>Generated from: AspireWorkerModel.kt:162</p>
   /// </summary>
   public sealed class ResourceUrl : IPrintable, IEquatable<ResourceUrl>
   {
@@ -2834,7 +2867,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:169</p>
+  /// <p>Generated from: AspireWorkerModel.kt:171</p>
   /// </summary>
   public sealed class ResourceVolume : IPrintable, IEquatable<ResourceVolume>
   {
@@ -2945,7 +2978,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:92</p>
+  /// <p>Generated from: AspireWorkerModel.kt:94</p>
   /// </summary>
   public sealed class ResourceWrapper : RdBindableBase
   {

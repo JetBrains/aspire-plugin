@@ -57,6 +57,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
     }
 
     private val CreateSessionRequest = basestruct {
+        field("dcpInstancePrefix", string)
         field("debug", bool)
         field("args", array(string).nullable)
         field("envs", array(SessionEnvironmentVariable).nullable)
@@ -80,6 +81,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
     }
 
     private val DeleteSessionRequest = structdef {
+        field("dcpInstancePrefix", string)
         field("sessionId", string)
     }
 
@@ -252,6 +254,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
     }
 
     private val ErrorCode = enum {
+        +"AspireAppHostNotFound"
         +"UnsupportedLaunchConfigurationType"
         +"AspireSessionNotFound"
         +"DotNetProjectNotFound"
