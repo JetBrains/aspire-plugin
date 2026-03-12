@@ -5,7 +5,6 @@ import com.jetbrains.rider.run.configurations.controls.LaunchProfile
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import java.nio.file.Path
-import kotlin.io.path.nameWithoutExtension
 
 fun LaunchSettingsJsonService.getFirstOrNullLaunchProfileProfile(runnableProject: RunnableProject): LaunchProfile? {
     val profiles = loadLaunchSettings(runnableProject)?.profiles ?: return null
@@ -57,4 +56,4 @@ private fun getProjectLaunchProfileByName(
         ?.let { (name, content) -> LaunchProfile(name, content) }
 
 fun getLaunchSettingsPathForCsFile(csFilePath: Path): Path? =
-    csFilePath.parent?.resolve("${csFilePath.nameWithoutExtension}.run.json")
+    csFilePath.parent?.resolve("apphost.run.json")

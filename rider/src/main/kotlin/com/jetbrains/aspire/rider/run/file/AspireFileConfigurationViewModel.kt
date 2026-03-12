@@ -12,6 +12,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.threading.coroutines.launch
 import com.jetbrains.rider.ijent.extensions.toRd
+import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.configurations.controls.*
@@ -21,14 +22,9 @@ import com.jetbrains.rider.run.configurations.dotNetFile.FileBasedProgramProject
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
-import com.jetbrains.rider.run.environment.ExecutableParameterProcessingResult
-import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
-import com.jetbrains.rider.run.environment.ExecutableRunParameters
-import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.exists
 
 internal class AspireFileConfigurationViewModel(
@@ -77,12 +73,18 @@ internal class AspireFileConfigurationViewModel(
         }
 
         launchProfileSelector.profile.advise(lifetime) {
+            if (!isLoaded) return@advise
             currentEditSessionLifetime.launch(Dispatchers.UI + ModalityState.current().asContextElement()) {
-                if (!isLoaded) return@launch
-                recalculateFields(it)
+                recalculateFields()
             }
         }
-        programParametersEditor.parametersString.advise(lifetime) { handleArgumentsChange() }
+
+        programParametersEditor.parametersString.advise(lifetime) {
+            currentEditSessionLifetime.launch(Dispatchers.UI + ModalityState.current().asContextElement()) {
+                if (!isLoaded) return@launch
+                handleArgumentsChange()
+            }
+        }
         workingDirectorySelector.path.advise(lifetime) { handleWorkingDirectoryChange() }
         environmentVariablesEditor.envs.advise(lifetime) { handleEnvValueChange() }
         urlEditor.text.advise(lifetime) { handleUrlValueChange() }
@@ -119,45 +121,32 @@ internal class AspireFileConfigurationViewModel(
         launchProfileSelector.isLoading.set(false)
     }
 
-    @Suppress("UnstableApiUsage")
     private suspend fun recalculateFields(profile: LaunchProfile? = launchProfileSelector.profile.valueOrNull) {
-        val path = filePathSelector.path.value.toNioPathOrNull()
-        val executableParameterProcessingResult = path?.let {
-            withContext(Dispatchers.Default) {
-                val sourceFile = RdFileBasedProgramSource(path.toRd())
-                val projectManager = FileBasedProgramProjectManager.getInstance(project)
-                val fileBasedProjectPath = projectManager.createProjectFile(sourceFile, currentEditSessionLifetime)
-                fileBasedProjectPath?.let {
-                    getExecutableParameterProcessingResult(
-                        fileBasedProjectPath,
-                        profile?.content?.workingDirectory ?: it.parent?.toString() ?: "",
-                        profile
-                    )
-                }
-            }
-        }
-        recalculateFields(profile, executableParameterProcessingResult)
-    }
+        val csFile = filePathSelector.path.value.toNioPathOrNull()
+        val projectOutput = csFile?.let { tryGetProjectOutputForCsFile(it) }
 
-    private fun recalculateFields(profile: LaunchProfile?, executableParameterProcessingResult: ExecutableParameterProcessingResult? = null) {
         if (trackArguments) {
-            val arguments = getArguments(profile?.content, null)
+            val arguments = getArguments(profile?.content, projectOutput)
             programParametersEditor.parametersString.set(arguments)
+            programParametersEditor.defaultValue.set(arguments)
         }
 
         if (trackWorkingDirectory) {
-            val workingDirectory = executableParameterProcessingResult?.workingDirectoryPath ?: ""
+            // `dotnet run --file` uses the `.cs` file parent directory as the default working directory.
+            val workingDirectory = profile?.content?.workingDirectory ?: csFile?.parent?.toString() ?: ""
             workingDirectorySelector.path.set(workingDirectory)
             workingDirectorySelector.defaultValue.set(workingDirectory)
         }
 
         if (trackEnvs) {
-            environmentVariablesEditor.envs.set(executableParameterProcessingResult?.environmentVariables ?: emptyMap())
+            val envs = getEnvironmentVariables(profile?.name, profile?.content).toSortedMap()
+            environmentVariablesEditor.envs.set(envs)
         }
 
         if (trackUrl) {
             val applicationUrl = getApplicationUrl(profile?.content)
             urlEditor.text.set(applicationUrl)
+            urlEditor.defaultValue.set(applicationUrl)
         }
 
         if (trackBrowserLaunch) {
@@ -172,11 +161,19 @@ internal class AspireFileConfigurationViewModel(
         }
     }
 
-    private fun handleArgumentsChange() {
+    private suspend fun handleArgumentsChange() {
         if (!isLoaded) return
+
+        val projectOutput = filePathSelector.path.value.toNioPathOrNull()?.let { tryGetProjectOutputForCsFile(it) }
         val profile = launchProfileSelector.profile.valueOrNull
-        val profileArguments = getArguments(profile?.content, null)
-        trackArguments = programParametersEditor.parametersString.value == profileArguments
+
+        if (projectOutput == null || profile == null) {
+            trackArguments = false
+            return
+        }
+
+        val arguments = getArguments(profile.content, projectOutput)
+        trackArguments = programParametersEditor.parametersString.value == arguments
     }
 
     private fun handleWorkingDirectoryChange() {
@@ -207,7 +204,6 @@ internal class AspireFileConfigurationViewModel(
         trackBrowserLaunch = dotNetBrowserSettingsEditor.settings.value.startAfterLaunch == profileLaunchBrowser
     }
 
-    @Suppress("UnstableApiUsage")
     fun reset(
         filePath: String,
         profileName: String,
@@ -249,25 +245,22 @@ internal class AspireFileConfigurationViewModel(
 
             val csFile = filePath.toNioPathOrNull() ?: return@launch
 
-            val sourceFile = RdFileBasedProgramSource(csFile.toRd())
-            val projectManager = FileBasedProgramProjectManager.getInstance(project)
-            val fileBasedProjectPath = withContext(Dispatchers.Default) {
-                projectManager.createProjectFile(sourceFile, currentEditSessionLifetime)
-            } ?: return@launch
+            val projectOutput = tryGetProjectOutputForCsFile(csFile)
+
             val defaultWorkingDirectory = selectedProfile?.content?.workingDirectory ?: csFile.parent?.toString() ?: ""
 
-            val executionParameters = getExecutableParameterProcessingResult(fileBasedProjectPath, defaultWorkingDirectory, selectedProfile)
-
-            val effectiveArguments = if(trackArguments) executionParameters.commandLineArgumentString ?: "" else arguments
+            val effectiveArguments = if(trackArguments) getArguments(selectedProfile?.content, projectOutput)
+            else arguments
             programParametersEditor.defaultValue.set(effectiveArguments)
             programParametersEditor.parametersString.set(effectiveArguments)
 
-            val effectiveWorkingDirectory = if (trackWorkingDirectory) executionParameters.workingDirectoryPath
-                ?: defaultWorkingDirectory else workingDirectory
+            val effectiveWorkingDirectory = if (trackWorkingDirectory) defaultWorkingDirectory else workingDirectory
             workingDirectorySelector.defaultValue.set(effectiveWorkingDirectory)
             workingDirectorySelector.path.set(effectiveWorkingDirectory)
 
-            val effectiveEnvs = if (trackEnvs) executionParameters.environmentVariables else envs
+            val effectiveEnvs =
+                if (trackEnvs) getEnvironmentVariables(selectedProfile?.name, selectedProfile?.content)
+                else envs
             environmentVariablesEditor.envs.set(effectiveEnvs)
 
             val effectiveUrl =
@@ -291,28 +284,19 @@ internal class AspireFileConfigurationViewModel(
         }
     }
 
-    private suspend fun getExecutableParameterProcessingResult(
-        fileBasedProjectPath: Path,
-        defaultWorkingDirectory: String,
-        selectedProfile: LaunchProfile?
-    ): ExecutableParameterProcessingResult {
+    @Suppress("UnstableApiUsage")
+    private suspend fun tryGetProjectOutputForCsFile(csFile: Path): ProjectOutput? {
+        val sourceFile = RdFileBasedProgramSource(csFile.toRd())
+        val projectManager = FileBasedProgramProjectManager.getInstance(project)
+
+        val fileBasedProjectPath = withContext(Dispatchers.Default) {
+            projectManager.createProjectFile(sourceFile, currentEditSessionLifetime)
+        } ?: return null
+
         val runnableProject = project.solution.runnableProjectsModel.projects.valueOrNull?.singleOrNull {
             it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath.toNioPathOrNull() == fileBasedProjectPath
         }
 
-        val projectOutput = runnableProject?.projectOutputs?.singleOrNull()
-
-        val processOptions = ProjectProcessOptions(fileBasedProjectPath, Path(defaultWorkingDirectory))
-        val executionParameters = ExecutableParameterProcessor.getInstance(project).processEnvironment(
-            ExecutableRunParameters(
-                projectOutput?.exePath,
-                selectedProfile?.content?.workingDirectory,
-                getArguments(selectedProfile?.content, projectOutput),
-                getEnvironmentVariables(selectedProfile?.name, selectedProfile?.content),
-                true,
-                projectOutput?.tfm
-            ), processOptions
-        )
-        return executionParameters
+        return runnableProject?.projectOutputs?.singleOrNull()
     }
 }

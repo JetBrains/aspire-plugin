@@ -11,6 +11,7 @@ import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.runAndLogException
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.createLifetime
 import com.intellij.openapi.util.io.toNioPathOrNull
@@ -90,8 +91,8 @@ internal class AspireFileExecutorFactory(
             if (parameters.trackArguments) getArguments(launchProfile.content, projectOutput)
             else parameters.arguments
 
+        // `dotnet run --file` uses the `.cs` file parent directory as the default working directory.
         val defaultWorkingDirectory = parameters.filePath.toNioPathOrNull()?.parent
-
         val effectiveWorkingDirectory =
             if (parameters.trackWorkingDirectory) launchProfile.content.workingDirectory ?: defaultWorkingDirectory.toString()
             else parameters.workingDirectory
@@ -149,13 +150,13 @@ internal class AspireFileExecutorFactory(
     private fun getLifetime(project: Project, sourceFile: String, environment: ExecutionEnvironment): Lifetime {
         val ld = AspireService.getInstance(project).lifetime.createNested()
         val oldCallback = environment.callback
-        LOG.trace("Initializing lifetime for run configuration of file \"${sourceFile}\".")
+        LOG.trace { "Initializing lifetime for run configuration of file \"${sourceFile}\"." }
 
         environment.callback = object : ProgramRunner.Callback {
             override fun processStarted(descriptor: RunContentDescriptor?) {
                 LOG.runAndLogException { oldCallback?.processStarted(descriptor) }
 
-                LOG.trace("Process for run configuration of file \"${sourceFile}\" started.")
+                LOG.trace { "Process for run configuration of file \"${sourceFile}\" started." }
                 if (descriptor == null) {
                     LOG.error("No content descriptor found. Lifetime won't be terminated until solution close.")
                 } else {
@@ -180,7 +181,7 @@ internal class AspireFileExecutorFactory(
             override fun processNotStarted(error: Throwable?) {
                 LOG.runAndLogException { oldCallback?.processNotStarted(error) }
 
-                LOG.trace("Process for run configuration of file \"${sourceFile}\" not started.")
+                LOG.trace { "Process for run configuration of file \"${sourceFile}\" not started." }
                 ld.terminate()
             }
         }
