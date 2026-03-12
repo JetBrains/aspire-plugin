@@ -19,7 +19,13 @@ import kotlin.jvm.JvmStatic
  * #### Generated from [AspireWorkerModel.kt:15]
  */
 class AspireWorkerModel private constructor(
-    private val _aspireHosts: RdMap<String, AspireHostModel>
+    private val _aspireHosts: RdMap<String, AspireHostModel>,
+    private val _createSession: RdCall<CreateSessionRequest, CreateSessionResponse>,
+    private val _deleteSession: RdCall<DeleteSessionRequest, DeleteSessionResponse>,
+    private val _processStarted: RdSignal<ProcessStarted>,
+    private val _processTerminated: RdSignal<ProcessTerminated>,
+    private val _logReceived: RdSignal<LogReceived>,
+    private val _messageReceived: RdSignal<MessageReceived>
 ) : RdExtBase() {
     //companion
     
@@ -80,7 +86,7 @@ class AspireWorkerModel private constructor(
         }
         
         
-        const val serializationHash = -6551212551227247950L
+        const val serializationHash = -3197080582296326862L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
@@ -88,94 +94,6 @@ class AspireWorkerModel private constructor(
     
     //fields
     val aspireHosts: IMutableViewableMap<String, AspireHostModel> get() = _aspireHosts
-    //methods
-    //initializer
-    init {
-        bindableChildren.add("aspireHosts" to _aspireHosts)
-    }
-    
-    //secondary constructor
-    private constructor(
-    ) : this(
-        RdMap<String, AspireHostModel>(FrameworkMarshallers.String, AspireHostModel)
-    )
-    
-    //equals trait
-    //hash code trait
-    //pretty print
-    override fun print(printer: PrettyPrinter)  {
-        printer.println("AspireWorkerModel (")
-        printer.indent {
-            print("aspireHosts = "); _aspireHosts.print(printer); println()
-        }
-        printer.print(")")
-    }
-    //deepClone
-    override fun deepClone(): AspireWorkerModel   {
-        return AspireWorkerModel(
-            _aspireHosts.deepClonePolymorphic()
-        )
-    }
-    //contexts
-    //threading
-    override val extThreading: ExtThreadingKind get() = ExtThreadingKind.Default
-}
-val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::class) { @Suppress("DEPRECATION") AspireWorkerModel.create(lifetime, this) }
-
-
-
-/**
- * #### Generated from [AspireWorkerModel.kt:248]
- */
-class AspireHostModel private constructor(
-    val config: AspireHostModelConfig,
-    private val _createSession: RdCall<CreateSessionRequest, CreateSessionResponse>,
-    private val _deleteSession: RdCall<DeleteSessionRequest, DeleteSessionResponse>,
-    private val _processStarted: RdSignal<ProcessStarted>,
-    private val _processTerminated: RdSignal<ProcessTerminated>,
-    private val _logReceived: RdSignal<LogReceived>,
-    private val _messageReceived: RdSignal<MessageReceived>,
-    private val _resources: RdMap<String, ResourceWrapper>
-) : RdBindableBase() {
-    //write-marshaller
-    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
-        rdid.write(buffer)
-        AspireHostModelConfig.write(ctx, buffer, config)
-        RdCall.write(ctx, buffer, _createSession)
-        RdCall.write(ctx, buffer, _deleteSession)
-        RdSignal.write(ctx, buffer, _processStarted)
-        RdSignal.write(ctx, buffer, _processTerminated)
-        RdSignal.write(ctx, buffer, _logReceived)
-        RdSignal.write(ctx, buffer, _messageReceived)
-        RdMap.write(ctx, buffer, _resources)
-    }
-    //companion
-    
-    companion object : IMarshaller<AspireHostModel> {
-        override val _type: KClass<AspireHostModel> = AspireHostModel::class
-        override val id: RdId get() = RdId(7370971417554020944)
-        
-        @Suppress("UNCHECKED_CAST")
-        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostModel  {
-            val _id = RdId.read(buffer)
-            val config = AspireHostModelConfig.read(ctx, buffer)
-            val _createSession = RdCall.read(ctx, buffer, AbstractPolymorphic(CreateSessionRequest), CreateSessionResponse)
-            val _deleteSession = RdCall.read(ctx, buffer, DeleteSessionRequest, DeleteSessionResponse)
-            val _processStarted = RdSignal.read(ctx, buffer, ProcessStarted)
-            val _processTerminated = RdSignal.read(ctx, buffer, ProcessTerminated)
-            val _logReceived = RdSignal.read(ctx, buffer, LogReceived)
-            val _messageReceived = RdSignal.read(ctx, buffer, MessageReceived)
-            val _resources = RdMap.read(ctx, buffer, FrameworkMarshallers.String, ResourceWrapper)
-            return AspireHostModel(config, _createSession, _deleteSession, _processStarted, _processTerminated, _logReceived, _messageReceived, _resources).withId(_id)
-        }
-        
-        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModel)  {
-            value.write(ctx, buffer)
-        }
-        
-        
-    }
-    //fields
     
     /**
      * Used to create a new run session for a particular Executable
@@ -206,16 +124,104 @@ class AspireHostModel private constructor(
      * The notification is emitted when the IDE needs to notify the client (and the Aspire developer) about asynchronous events related to a debug session
      */
     val messageReceived: ISignal<MessageReceived> get() = _messageReceived
-    val resources: IMutableViewableMap<String, ResourceWrapper> get() = _resources
     //methods
     //initializer
     init {
+        bindableChildren.add("aspireHosts" to _aspireHosts)
         bindableChildren.add("createSession" to _createSession)
         bindableChildren.add("deleteSession" to _deleteSession)
         bindableChildren.add("processStarted" to _processStarted)
         bindableChildren.add("processTerminated" to _processTerminated)
         bindableChildren.add("logReceived" to _logReceived)
         bindableChildren.add("messageReceived" to _messageReceived)
+    }
+    
+    //secondary constructor
+    private constructor(
+    ) : this(
+        RdMap<String, AspireHostModel>(FrameworkMarshallers.String, AspireHostModel),
+        RdCall<CreateSessionRequest, CreateSessionResponse>(AbstractPolymorphic(CreateSessionRequest), CreateSessionResponse),
+        RdCall<DeleteSessionRequest, DeleteSessionResponse>(DeleteSessionRequest, DeleteSessionResponse),
+        RdSignal<ProcessStarted>(ProcessStarted),
+        RdSignal<ProcessTerminated>(ProcessTerminated),
+        RdSignal<LogReceived>(LogReceived),
+        RdSignal<MessageReceived>(MessageReceived)
+    )
+    
+    //equals trait
+    //hash code trait
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("AspireWorkerModel (")
+        printer.indent {
+            print("aspireHosts = "); _aspireHosts.print(printer); println()
+            print("createSession = "); _createSession.print(printer); println()
+            print("deleteSession = "); _deleteSession.print(printer); println()
+            print("processStarted = "); _processStarted.print(printer); println()
+            print("processTerminated = "); _processTerminated.print(printer); println()
+            print("logReceived = "); _logReceived.print(printer); println()
+            print("messageReceived = "); _messageReceived.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    override fun deepClone(): AspireWorkerModel   {
+        return AspireWorkerModel(
+            _aspireHosts.deepClonePolymorphic(),
+            _createSession.deepClonePolymorphic(),
+            _deleteSession.deepClonePolymorphic(),
+            _processStarted.deepClonePolymorphic(),
+            _processTerminated.deepClonePolymorphic(),
+            _logReceived.deepClonePolymorphic(),
+            _messageReceived.deepClonePolymorphic()
+        )
+    }
+    //contexts
+    //threading
+    override val extThreading: ExtThreadingKind get() = ExtThreadingKind.Default
+}
+val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::class) { @Suppress("DEPRECATION") AspireWorkerModel.create(lifetime, this) }
+
+
+
+/**
+ * #### Generated from [AspireWorkerModel.kt:248]
+ */
+class AspireHostModel private constructor(
+    val config: AspireHostModelConfig,
+    private val _resources: RdMap<String, ResourceWrapper>
+) : RdBindableBase() {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        rdid.write(buffer)
+        AspireHostModelConfig.write(ctx, buffer, config)
+        RdMap.write(ctx, buffer, _resources)
+    }
+    //companion
+    
+    companion object : IMarshaller<AspireHostModel> {
+        override val _type: KClass<AspireHostModel> = AspireHostModel::class
+        override val id: RdId get() = RdId(7370971417554020944)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostModel  {
+            val _id = RdId.read(buffer)
+            val config = AspireHostModelConfig.read(ctx, buffer)
+            val _resources = RdMap.read(ctx, buffer, FrameworkMarshallers.String, ResourceWrapper)
+            return AspireHostModel(config, _resources).withId(_id)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModel)  {
+            value.write(ctx, buffer)
+        }
+        
+        
+    }
+    //fields
+    val resources: IMutableViewableMap<String, ResourceWrapper> get() = _resources
+    //methods
+    //initializer
+    init {
         bindableChildren.add("resources" to _resources)
     }
     
@@ -224,12 +230,6 @@ class AspireHostModel private constructor(
         config: AspireHostModelConfig
     ) : this(
         config,
-        RdCall<CreateSessionRequest, CreateSessionResponse>(AbstractPolymorphic(CreateSessionRequest), CreateSessionResponse),
-        RdCall<DeleteSessionRequest, DeleteSessionResponse>(DeleteSessionRequest, DeleteSessionResponse),
-        RdSignal<ProcessStarted>(ProcessStarted),
-        RdSignal<ProcessTerminated>(ProcessTerminated),
-        RdSignal<LogReceived>(LogReceived),
-        RdSignal<MessageReceived>(MessageReceived),
         RdMap<String, ResourceWrapper>(FrameworkMarshallers.String, ResourceWrapper)
     )
     
@@ -240,12 +240,6 @@ class AspireHostModel private constructor(
         printer.println("AspireHostModel (")
         printer.indent {
             print("config = "); config.print(printer); println()
-            print("createSession = "); _createSession.print(printer); println()
-            print("deleteSession = "); _deleteSession.print(printer); println()
-            print("processStarted = "); _processStarted.print(printer); println()
-            print("processTerminated = "); _processTerminated.print(printer); println()
-            print("logReceived = "); _logReceived.print(printer); println()
-            print("messageReceived = "); _messageReceived.print(printer); println()
             print("resources = "); _resources.print(printer); println()
         }
         printer.print(")")
@@ -254,12 +248,6 @@ class AspireHostModel private constructor(
     override fun deepClone(): AspireHostModel   {
         return AspireHostModel(
             config,
-            _createSession.deepClonePolymorphic(),
-            _deleteSession.deepClonePolymorphic(),
-            _processStarted.deepClonePolymorphic(),
-            _processTerminated.deepClonePolymorphic(),
-            _logReceived.deepClonePolymorphic(),
-            _messageReceived.deepClonePolymorphic(),
             _resources.deepClonePolymorphic()
         )
     }
@@ -889,7 +877,7 @@ data class DeleteSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:268]
+ * #### Generated from [AspireWorkerModel.kt:254]
  */
 enum class ErrorCode {
     UnsupportedLaunchConfigurationType, 

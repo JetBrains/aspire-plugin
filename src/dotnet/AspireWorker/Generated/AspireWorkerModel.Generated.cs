@@ -44,81 +44,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     //public fields
     [NotNull] public IViewableMap<string, AspireHostModel> AspireHosts => _AspireHosts;
     
-    //private fields
-    [NotNull] private readonly RdMap<string, AspireHostModel> _AspireHosts;
-    
-    //primary constructor
-    private AspireWorkerModel(
-      [NotNull] RdMap<string, AspireHostModel> aspireHosts
-    )
-    {
-      if (aspireHosts == null) throw new ArgumentNullException("aspireHosts");
-      
-      _AspireHosts = aspireHosts;
-      BindableChildren.Add(new KeyValuePair<string, object>("aspireHosts", _AspireHosts));
-    }
-    //secondary constructor
-    private AspireWorkerModel (
-    ) : this (
-      new RdMap<string, AspireHostModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, AspireHostModel.Read, AspireHostModel.Write)
-    ) {}
-    //deconstruct trait
-    //statics
-    
-    
-    
-    protected override long SerializationHash => -6551212551227247950L;
-    
-    protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
-    public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
-    {
-      serializers.Register(CreateProjectSessionRequest.Read, CreateProjectSessionRequest.Write);
-      serializers.Register(CreatePythonSessionRequest.Read, CreatePythonSessionRequest.Write);
-      serializers.Register(CreateSessionRequest_Unknown.Read, CreateSessionRequest_Unknown.Write);
-      
-      serializers.RegisterToplevelOnce(typeof(AspireWorkerRoot), AspireWorkerRoot.RegisterDeclaredTypesSerializers);
-    }
-    
-    public AspireWorkerModel(Lifetime lifetime, IProtocol protocol) : this()
-    {
-      Identify(protocol.Identities, protocol.Identities.Mix(RdId.Root, "AspireWorkerModel"));
-      this.BindTopLevel(lifetime, protocol, "AspireWorkerModel");
-    }
-    
-    //constants
-    
-    //custom body
-    //methods
-    //equals trait
-    //hash code trait
-    //pretty print
-    public override void Print(PrettyPrinter printer)
-    {
-      printer.Println("AspireWorkerModel (");
-      using (printer.IndentCookie()) {
-        printer.Print("aspireHosts = "); _AspireHosts.PrintEx(printer); printer.Println();
-      }
-      printer.Print(")");
-    }
-    //toString
-    public override string ToString()
-    {
-      var printer = new SingleLinePrettyPrinter();
-      Print(printer);
-      return printer.ToString();
-    }
-  }
-  
-  
-  /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:248</p>
-  /// </summary>
-  public sealed class AspireHostModel : RdBindableBase
-  {
-    //fields
-    //public fields
-    [NotNull] public AspireHostModelConfig Config {get; private set;}
-    
     /// <summary>
     /// Used to create a new run session for a particular Executable
     /// </summary>
@@ -148,52 +73,139 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     /// The notification is emitted when the IDE needs to notify the client (and the Aspire developer) about asynchronous events related to a debug session
     /// </summary>
     [NotNull] public ISource<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived> MessageReceived => _MessageReceived;
-    [NotNull] public IViewableMap<string, ResourceWrapper> Resources => _Resources;
     
     //private fields
+    [NotNull] private readonly RdMap<string, AspireHostModel> _AspireHosts;
     [NotNull] private readonly RdCall<CreateSessionRequest, CreateSessionResponse> _CreateSession;
     [NotNull] private readonly RdCall<DeleteSessionRequest, DeleteSessionResponse> _DeleteSession;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted> _ProcessStarted;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated> _ProcessTerminated;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived> _LogReceived;
     [NotNull] private readonly RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived> _MessageReceived;
-    [NotNull] private readonly RdMap<string, ResourceWrapper> _Resources;
     
     //primary constructor
-    private AspireHostModel(
-      [NotNull] AspireHostModelConfig config,
+    private AspireWorkerModel(
+      [NotNull] RdMap<string, AspireHostModel> aspireHosts,
       [NotNull] RdCall<CreateSessionRequest, CreateSessionResponse> createSession,
       [NotNull] RdCall<DeleteSessionRequest, DeleteSessionResponse> deleteSession,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted> processStarted,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated> processTerminated,
       [NotNull] RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived> logReceived,
-      [NotNull] RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived> messageReceived,
-      [NotNull] RdMap<string, ResourceWrapper> resources
+      [NotNull] RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived> messageReceived
     )
     {
-      if (config == null) throw new ArgumentNullException("config");
+      if (aspireHosts == null) throw new ArgumentNullException("aspireHosts");
       if (createSession == null) throw new ArgumentNullException("createSession");
       if (deleteSession == null) throw new ArgumentNullException("deleteSession");
       if (processStarted == null) throw new ArgumentNullException("processStarted");
       if (processTerminated == null) throw new ArgumentNullException("processTerminated");
       if (logReceived == null) throw new ArgumentNullException("logReceived");
       if (messageReceived == null) throw new ArgumentNullException("messageReceived");
-      if (resources == null) throw new ArgumentNullException("resources");
       
-      Config = config;
+      _AspireHosts = aspireHosts;
       _CreateSession = createSession;
       _DeleteSession = deleteSession;
       _ProcessStarted = processStarted;
       _ProcessTerminated = processTerminated;
       _LogReceived = logReceived;
       _MessageReceived = messageReceived;
-      _Resources = resources;
+      BindableChildren.Add(new KeyValuePair<string, object>("aspireHosts", _AspireHosts));
       BindableChildren.Add(new KeyValuePair<string, object>("createSession", _CreateSession));
       BindableChildren.Add(new KeyValuePair<string, object>("deleteSession", _DeleteSession));
       BindableChildren.Add(new KeyValuePair<string, object>("processStarted", _ProcessStarted));
       BindableChildren.Add(new KeyValuePair<string, object>("processTerminated", _ProcessTerminated));
       BindableChildren.Add(new KeyValuePair<string, object>("logReceived", _LogReceived));
       BindableChildren.Add(new KeyValuePair<string, object>("messageReceived", _MessageReceived));
+    }
+    //secondary constructor
+    private AspireWorkerModel (
+    ) : this (
+      new RdMap<string, AspireHostModel>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, AspireHostModel.Read, AspireHostModel.Write),
+      new RdCall<CreateSessionRequest, CreateSessionResponse>(CreateSessionRequest.Read, CreateSessionRequest.Write, CreateSessionResponse.Read, CreateSessionResponse.Write),
+      new RdCall<DeleteSessionRequest, DeleteSessionResponse>(DeleteSessionRequest.Read, DeleteSessionRequest.Write, DeleteSessionResponse.Read, DeleteSessionResponse.Write),
+      new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted>(JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Write),
+      new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated>(JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Write),
+      new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived>(JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Write),
+      new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived>(JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Write)
+    ) {}
+    //deconstruct trait
+    //statics
+    
+    
+    
+    protected override long SerializationHash => -3197080582296326862L;
+    
+    protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
+    public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
+    {
+      serializers.Register(CreateProjectSessionRequest.Read, CreateProjectSessionRequest.Write);
+      serializers.Register(CreatePythonSessionRequest.Read, CreatePythonSessionRequest.Write);
+      serializers.Register(CreateSessionRequest_Unknown.Read, CreateSessionRequest_Unknown.Write);
+      
+      serializers.RegisterToplevelOnce(typeof(AspireWorkerRoot), AspireWorkerRoot.RegisterDeclaredTypesSerializers);
+    }
+    
+    public AspireWorkerModel(Lifetime lifetime, IProtocol protocol) : this()
+    {
+      Identify(protocol.Identities, protocol.Identities.Mix(RdId.Root, "AspireWorkerModel"));
+      this.BindTopLevel(lifetime, protocol, "AspireWorkerModel");
+    }
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    //hash code trait
+    //pretty print
+    public override void Print(PrettyPrinter printer)
+    {
+      printer.Println("AspireWorkerModel (");
+      using (printer.IndentCookie()) {
+        printer.Print("aspireHosts = "); _AspireHosts.PrintEx(printer); printer.Println();
+        printer.Print("createSession = "); _CreateSession.PrintEx(printer); printer.Println();
+        printer.Print("deleteSession = "); _DeleteSession.PrintEx(printer); printer.Println();
+        printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
+        printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
+        printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
+        printer.Print("messageReceived = "); _MessageReceived.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspireWorkerModel.kt:248</p>
+  /// </summary>
+  public sealed class AspireHostModel : RdBindableBase
+  {
+    //fields
+    //public fields
+    [NotNull] public AspireHostModelConfig Config {get; private set;}
+    [NotNull] public IViewableMap<string, ResourceWrapper> Resources => _Resources;
+    
+    //private fields
+    [NotNull] private readonly RdMap<string, ResourceWrapper> _Resources;
+    
+    //primary constructor
+    private AspireHostModel(
+      [NotNull] AspireHostModelConfig config,
+      [NotNull] RdMap<string, ResourceWrapper> resources
+    )
+    {
+      if (config == null) throw new ArgumentNullException("config");
+      if (resources == null) throw new ArgumentNullException("resources");
+      
+      Config = config;
+      _Resources = resources;
       BindableChildren.Add(new KeyValuePair<string, object>("resources", _Resources));
     }
     //secondary constructor
@@ -201,12 +213,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       [NotNull] AspireHostModelConfig config
     ) : this (
       config,
-      new RdCall<CreateSessionRequest, CreateSessionResponse>(CreateSessionRequest.Read, CreateSessionRequest.Write, CreateSessionResponse.Read, CreateSessionResponse.Write),
-      new RdCall<DeleteSessionRequest, DeleteSessionResponse>(DeleteSessionRequest.Read, DeleteSessionRequest.Write, DeleteSessionResponse.Read, DeleteSessionResponse.Write),
-      new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted>(JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Write),
-      new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated>(JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Write),
-      new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived>(JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Write),
-      new RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived>(JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Write),
       new RdMap<string, ResourceWrapper>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write)
     ) {}
     //deconstruct trait
@@ -216,14 +222,8 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       var _id = RdId.Read(reader);
       var config = AspireHostModelConfig.Read(ctx, reader);
-      var createSession = RdCall<CreateSessionRequest, CreateSessionResponse>.Read(ctx, reader, CreateSessionRequest.Read, CreateSessionRequest.Write, CreateSessionResponse.Read, CreateSessionResponse.Write);
-      var deleteSession = RdCall<DeleteSessionRequest, DeleteSessionResponse>.Read(ctx, reader, DeleteSessionRequest.Read, DeleteSessionRequest.Write, DeleteSessionResponse.Read, DeleteSessionResponse.Write);
-      var processStarted = RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted>.Read(ctx, reader, JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted.Write);
-      var processTerminated = RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated>.Read(ctx, reader, JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Read, JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated.Write);
-      var logReceived = RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived>.Read(ctx, reader, JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.LogReceived.Write);
-      var messageReceived = RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived>.Read(ctx, reader, JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Read, JetBrains.Rider.Aspire.Worker.Generated.MessageReceived.Write);
       var resources = RdMap<string, ResourceWrapper>.Read(ctx, reader, JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString, ResourceWrapper.Read, ResourceWrapper.Write);
-      var _result = new AspireHostModel(config, createSession, deleteSession, processStarted, processTerminated, logReceived, messageReceived, resources).WithId(_id);
+      var _result = new AspireHostModel(config, resources).WithId(_id);
       return _result;
     };
     
@@ -231,12 +231,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       value.RdId.Write(writer);
       AspireHostModelConfig.Write(ctx, writer, value.Config);
-      RdCall<CreateSessionRequest, CreateSessionResponse>.Write(ctx, writer, value._CreateSession);
-      RdCall<DeleteSessionRequest, DeleteSessionResponse>.Write(ctx, writer, value._DeleteSession);
-      RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessStarted>.Write(ctx, writer, value._ProcessStarted);
-      RdSignal<JetBrains.Rider.Aspire.Worker.Generated.ProcessTerminated>.Write(ctx, writer, value._ProcessTerminated);
-      RdSignal<JetBrains.Rider.Aspire.Worker.Generated.LogReceived>.Write(ctx, writer, value._LogReceived);
-      RdSignal<JetBrains.Rider.Aspire.Worker.Generated.MessageReceived>.Write(ctx, writer, value._MessageReceived);
       RdMap<string, ResourceWrapper>.Write(ctx, writer, value._Resources);
     };
     
@@ -252,12 +246,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       printer.Println("AspireHostModel (");
       using (printer.IndentCookie()) {
         printer.Print("config = "); Config.PrintEx(printer); printer.Println();
-        printer.Print("createSession = "); _CreateSession.PrintEx(printer); printer.Println();
-        printer.Print("deleteSession = "); _DeleteSession.PrintEx(printer); printer.Println();
-        printer.Print("processStarted = "); _ProcessStarted.PrintEx(printer); printer.Println();
-        printer.Print("processTerminated = "); _ProcessTerminated.PrintEx(printer); printer.Println();
-        printer.Print("logReceived = "); _LogReceived.PrintEx(printer); printer.Println();
-        printer.Print("messageReceived = "); _MessageReceived.PrintEx(printer); printer.Println();
         printer.Print("resources = "); _Resources.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
@@ -1089,7 +1077,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:268</p>
+  /// <p>Generated from: AspireWorkerModel.kt:254</p>
   /// </summary>
   public enum ErrorCode {
     UnsupportedLaunchConfigurationType,
