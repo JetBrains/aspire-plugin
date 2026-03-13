@@ -35,7 +35,7 @@ internal sealed class InMemoryConnectionWrapper : IRdConnectionWrapper, IDisposa
         return Task.CompletedTask;
     }
 
-    public Task<CreateSessionResponse?> CreateSession(AspireHostModel host, CreateSessionRequest request)
+    public Task<CreateSessionResponse?> CreateSession(CreateSessionRequest request)
     {
         var sessionId = Guid.NewGuid().ToString();
         _createSessionRequests.Add((sessionId, request));
@@ -43,7 +43,7 @@ internal sealed class InMemoryConnectionWrapper : IRdConnectionWrapper, IDisposa
         return Task.FromResult(response);
     }
 
-    public Task<DeleteSessionResponse?> DeleteSession(AspireHostModel host, DeleteSessionRequest request)
+    public Task<DeleteSessionResponse?> DeleteSession(DeleteSessionRequest request)
     {
         var sessionId = request.SessionId;
         _deletedSessionRequests.Add((sessionId, request));
@@ -51,22 +51,22 @@ internal sealed class InMemoryConnectionWrapper : IRdConnectionWrapper, IDisposa
         return Task.FromResult(response);
     }
 
-    public Task AdviceOnProcessStarted(AspireHostModel host, Lifetime lifetime, Action<ProcessStarted> action)
+    public Task AdviceOnProcessStarted(Lifetime lifetime, Action<ProcessStarted> action)
     {
         return Task.CompletedTask;
     }
 
-    public Task AdviceOnProcessTerminated(AspireHostModel host, Lifetime lifetime, Action<ProcessTerminated> action)
+    public Task AdviceOnProcessTerminated(Lifetime lifetime, Action<ProcessTerminated> action)
     {
         return Task.CompletedTask;
     }
 
-    public Task AdviceOnLogReceived(AspireHostModel host, Lifetime lifetime, Action<LogReceived> action)
+    public Task AdviceOnLogReceived(Lifetime lifetime, Action<LogReceived> action)
     {
         return Task.CompletedTask;
     }
 
-    public Task AdviceOnMessageReceived(AspireHostModel host, Lifetime lifetime, Action<MessageReceived> action)
+    public Task AdviceOnMessageReceived(Lifetime lifetime, Action<MessageReceived> action)
     {
         return Task.CompletedTask;
     }

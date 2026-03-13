@@ -14,38 +14,37 @@ internal sealed class RdConnectionWrapper(RdConnection rdConnection) : IRdConnec
 {
     public async Task ViewHosts(Lifetime lifetime, Action<Lifetime, string, AspireHostModel> action)
     {
-        await rdConnection.DoWithModel(model => { model.AspireHosts.View(lifetime, action); });
+        await rdConnection.DoWithModel(model => model.AspireHosts.View(lifetime, action));
     }
 
-    public async Task<CreateSessionResponse?> CreateSession(AspireHostModel host, CreateSessionRequest request)
+    public async Task<CreateSessionResponse?> CreateSession(CreateSessionRequest request)
     {
-        return await rdConnection.DoWithModel(_ => host.CreateSession.Sync(request));
+        return await rdConnection.DoWithModel(model => model.CreateSession.Sync(request));
     }
 
-    public async Task<DeleteSessionResponse?> DeleteSession(AspireHostModel host, DeleteSessionRequest request)
+    public async Task<DeleteSessionResponse?> DeleteSession(DeleteSessionRequest request)
     {
-        return await rdConnection.DoWithModel(_ => host.DeleteSession.Sync(request));
+        return await rdConnection.DoWithModel(model => model.DeleteSession.Sync(request));
     }
 
-    public async Task AdviceOnProcessStarted(AspireHostModel host, Lifetime lifetime, Action<ProcessStarted> action)
+    public async Task AdviceOnProcessStarted(Lifetime lifetime, Action<ProcessStarted> action)
     {
-        await rdConnection.DoWithModel(_ => host.ProcessStarted.Advise(lifetime, action));
+        await rdConnection.DoWithModel(model => model.ProcessStarted.Advise(lifetime, action));
     }
 
-    public async Task AdviceOnProcessTerminated(AspireHostModel host, Lifetime lifetime,
-        Action<ProcessTerminated> action)
+    public async Task AdviceOnProcessTerminated(Lifetime lifetime, Action<ProcessTerminated> action)
     {
-        await rdConnection.DoWithModel(_ => host.ProcessTerminated.Advise(lifetime, action));
+        await rdConnection.DoWithModel(model => model.ProcessTerminated.Advise(lifetime, action));
     }
 
-    public async Task AdviceOnLogReceived(AspireHostModel host, Lifetime lifetime, Action<LogReceived> action)
+    public async Task AdviceOnLogReceived(Lifetime lifetime, Action<LogReceived> action)
     {
-        await rdConnection.DoWithModel(_ => host.LogReceived.Advise(lifetime, action));
+        await rdConnection.DoWithModel(model => model.LogReceived.Advise(lifetime, action));
     }
 
-    public async Task AdviceOnMessageReceived(AspireHostModel host, Lifetime lifetime, Action<MessageReceived> action)
+    public async Task AdviceOnMessageReceived(Lifetime lifetime, Action<MessageReceived> action)
     {
-        await rdConnection.DoWithModel(_ => host.MessageReceived.Advise(lifetime, action));
+        await rdConnection.DoWithModel(model => model.MessageReceived.Advise(lifetime, action));
     }
 
     public async Task<bool> AddResource(AspireHostModel host, string resourceName, ResourceWrapper resourceWrapper)

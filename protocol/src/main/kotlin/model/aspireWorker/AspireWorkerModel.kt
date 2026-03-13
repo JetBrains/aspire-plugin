@@ -57,6 +57,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
     }
 
     private val CreateSessionRequest = basestruct {
+        field("dcpInstancePrefix", string)
         field("debug", bool)
         field("args", array(string).nullable)
         field("envs", array(SessionEnvironmentVariable).nullable)
@@ -80,6 +81,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
     }
 
     private val DeleteSessionRequest = structdef {
+        field("dcpInstancePrefix", string)
         field("sessionId", string)
     }
 
@@ -231,8 +233,6 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
         field("id", string)
             .documentation =
             "Unique identifier for the Aspire Host, created from the `DCP_INSTANCE_ID_PREFIX` environment variable"
-        field("runConfigName", string.nullable)
-            .documentation = "Name of the started run configuration"
         field("aspireHostProjectPath", string)
             .documentation = "Path of the Aspire Host .csproj file"
         field("resourceServiceEndpointUrl", string.nullable)
@@ -248,6 +248,20 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
     private val AspireHostModel = classdef {
         field("config", AspireHostModelConfig)
 
+        map("resources", string, ResourceWrapper)
+    }
+
+    private val ErrorCode = enum {
+        +"AspireAppHostNotFound"
+        +"UnsupportedLaunchConfigurationType"
+        +"AspireSessionNotFound"
+        +"DotNetProjectNotFound"
+        +"Unexpected"
+    }
+
+    init {
+        map("aspireHosts", string, AspireHostModel)
+
         callback("createSession", CreateSessionRequest, CreateSessionResponse)
             .documentation = "Used to create a new run session for a particular Executable"
         callback("deleteSession", DeleteSessionRequest, DeleteSessionResponse)
@@ -261,18 +275,5 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
             .documentation = "The notification is emitted when the service program writes something to standard output stream (stdout) or standard error (stderr)"
         source("messageReceived", MessageReceived)
             .documentation = "The notification is emitted when the IDE needs to notify the client (and the Aspire developer) about asynchronous events related to a debug session"
-
-        map("resources", string, ResourceWrapper)
-    }
-
-    private val ErrorCode = enum {
-        +"UnsupportedLaunchConfigurationType"
-        +"AspireSessionNotFound"
-        +"DotNetProjectNotFound"
-        +"Unexpected"
-    }
-
-    init {
-        map("aspireHosts", string, AspireHostModel)
     }
 }

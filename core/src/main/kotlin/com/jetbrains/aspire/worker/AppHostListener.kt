@@ -12,6 +12,6 @@ interface AppHostListener {
         val TOPIC = Topic.create("Aspire AppHost Listener", AppHostListener::class.java)
     }
 
-    fun appHostStarted(appHostMainFilePath: Path, processHandler: ProcessHandler)
+    fun appHostStarted(appHostMainFilePath: Path, runConfigName: String?, processHandler: ProcessHandler)
     fun appHostStopped(appHostMainFilePath: Path)
 }

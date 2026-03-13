@@ -217,7 +217,6 @@ public class SessionEndpointTests(AspireWorkerWebApplicationFactory<Program> fac
     {
         var config = new AspireHostModelConfig(
             aspireHostId,
-            "AspireApp.AppHost: http",
             fixture.Create<string>(),
             null,
             null,

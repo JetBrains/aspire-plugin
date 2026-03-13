@@ -41,11 +41,12 @@ internal class AspireFileExecutorFactory(
     ): DotNetExecutable {
         val effectiveArguments = buildString {
             append("run --file ")
-            append(Path( parameters.filePath))
+            append(Path(parameters.filePath))
         }
 
+        val filePath = Path(parameters.filePath)
         val effectiveEnvs = parameters.envs.toMutableMap()
-        val environmentVariableValues = configureEnvironmentVariables(effectiveEnvs, activeRuntime)
+        val environmentVariableValues = configureEnvironmentVariables(filePath, effectiveEnvs, activeRuntime)
 
         var effectiveUrl = parameters.startBrowserParameters.url
         if (environmentVariableValues.browserToken != null) {

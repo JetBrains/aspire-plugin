@@ -6,7 +6,6 @@ using JetBrains.Rider.Aspire.Worker.Configuration;
 using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.HttpLogging;
 using Serilog;
 using Log = Serilog.Log;
 
@@ -28,6 +27,7 @@ try
     builder.Services.AddGrpc();
 
     builder.Services.AddRdConnectionServices();
+    builder.Services.AddAspireSessionServices();
     builder.Services.AddAspireHostServices();
 
     builder.Services.AddSerilog((services, lc) => lc

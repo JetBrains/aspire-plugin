@@ -33,6 +33,7 @@ import com.jetbrains.rider.run.environment.ProjectProcessOptions
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
+import java.nio.file.Path
 import kotlin.io.path.Path
 
 internal class AspireHostExecutorFactory(
@@ -65,7 +66,8 @@ internal class AspireHostExecutorFactory(
             .getProjectLaunchProfileByName(runnableProject, parameters.profileName)
             ?: throw CantRunException("Profile ${parameters.profileName} not found")
 
-        val executable = getDotNetExecutable(runnableProject, projectOutput, profile, activeRuntime)
+        val projectFilePath = Path(parameters.projectFilePath)
+        val executable = getDotNetExecutable(projectFilePath, runnableProject, projectOutput, profile, activeRuntime)
 
         return when (executorId) {
             DefaultRunExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
@@ -75,6 +77,7 @@ internal class AspireHostExecutorFactory(
     }
 
     private suspend fun getDotNetExecutable(
+        projectFilePath: Path,
         runnableProject: RunnableProject,
         projectOutput: ProjectOutput,
         launchProfile: LaunchProfile,
@@ -91,7 +94,7 @@ internal class AspireHostExecutorFactory(
         val effectiveEnvs =
             if (parameters.trackEnvs) getEnvironmentVariables(launchProfile.name, launchProfile.content).toMutableMap()
             else parameters.envs.toMutableMap()
-        val environmentVariableValues = configureEnvironmentVariables(effectiveEnvs, activeRuntime)
+        val environmentVariableValues = configureEnvironmentVariables(projectFilePath, effectiveEnvs, activeRuntime)
 
         var effectiveUrl =
             if (parameters.trackUrl) getApplicationUrl(launchProfile.content)
