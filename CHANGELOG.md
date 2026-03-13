@@ -8,6 +8,10 @@
 
 - Update platform version to RD-2026.1-EAP5 +
 
+### Fixed
+
+- [#613] Aspire plugin takes too much time to start.
+
 ## [2.4.1] - 2026-02-13
 
 ### Changed
