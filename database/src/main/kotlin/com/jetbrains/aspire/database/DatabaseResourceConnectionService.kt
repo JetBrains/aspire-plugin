@@ -6,7 +6,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.rd.util.lifetime.isNotAlive
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -38,6 +37,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
             for (command in connectionCommands) {
                 when (command) {
                     is AddDatabaseResourceConnection -> addConnection(command.resource)
+                    is RemoveDatabaseResourceConnection -> removeConnection(command.resourceId)
                 }
             }
         }
@@ -48,59 +48,64 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
     }
 
     private suspend fun addConnection(databaseResource: DatabaseResource) {
-        if (databaseResource.resourceLifetime.isNotAlive) return
-
-        val connectionStringModifier = DatabaseConnectionStringModifier.getInstance(project)
-        val modifyConnectionStringResult = connectionStringModifier.modifyConnectionString(databaseResource)
-
-        //If the connection string wasn't modified, use the resource one
-        val connectionString = modifyConnectionStringResult.getOrDefault(databaseResource.connectionString)
-
-        LOG.trace { "Processing connection string for ${databaseResource.name}" }
-
+        //This `addConnection` method can be called multiple times for a single resource (on each update),
+        //and we don't want to recreate the connection
         val dataSourceManager = DatabaseDataSourceManager.getInstance(project)
-        if (!dataSourceManager.tryRegisterConnectionString(connectionString)) {
-            LOG.trace { "Connection string for ${databaseResource.name} is already in use" }
+        if (!dataSourceManager.tryRegisterResourceId(databaseResource.resourceId)) {
+            LOG.trace { "Connection for resource ${databaseResource.name} was already created" }
             return
         }
 
         try {
+            val connectionStringModifier = DatabaseConnectionStringModifier.getInstance(project)
+            val modifyConnectionStringResult = connectionStringModifier.modifyConnectionString(databaseResource)
+
+            //If the connection string wasn't modified, use the resource one
+            val connectionString = modifyConnectionStringResult.getOrDefault(databaseResource.connectionString)
+
+            LOG.trace { "Processing connection string for ${databaseResource.name}" }
+
             val urlConverter = DatabaseConnectionUrlConverter.getInstance(project)
             val dataProvider = urlConverter.getDataProvider(databaseResource.type)
             val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
             if (driver == null) {
                 LOG.info("Unable to guess database driver for ${databaseResource.name}")
-                dataSourceManager.unregisterConnectionString(connectionString)
+                dataSourceManager.unregisterResourceId(databaseResource.resourceId)
                 return
             }
 
             val url = urlConverter.getConnectionUrl(connectionString, databaseResource, dataProvider, driver)
             if (url == null) {
                 LOG.info("Unable to convert a connection string to an url for ${databaseResource.name}")
-                dataSourceManager.unregisterConnectionString(connectionString)
+                dataSourceManager.unregisterResourceId(databaseResource.resourceId)
                 return
             }
 
-            val createdDataSource = dataSourceManager.createDataSource(
-                connectionString,
-                modifyConnectionStringResult.isSuccess,
-                databaseResource,
-                driver,
-                url
-            ) ?: return
+            val createdDataSource = dataSourceManager.createDataSource(databaseResource, driver, url)
+            if (createdDataSource == null) {
+                dataSourceManager.unregisterResourceId(databaseResource.resourceId)
+                return
+            }
 
             val connectionTester = DatabaseConnectionTester.getInstance(project)
             connectionTester.connectToDataSource(createdDataSource)
         } catch (ce: CancellationException) {
-            dataSourceManager.unregisterConnectionString(connectionString)
+            dataSourceManager.unregisterResourceId(databaseResource.resourceId)
             LOG.trace { "Connecting with to database resource ${databaseResource.name} was cancelled" }
             throw ce
         } catch (e: Exception) {
             LOG.warn("Unable to connect to database ${databaseResource.name}", e)
-            dataSourceManager.unregisterConnectionString(connectionString)
+            dataSourceManager.unregisterResourceId(databaseResource.resourceId)
         }
+    }
+
+    private suspend fun removeConnection(resourceId: String) {
+        val dataSourceManager = DatabaseDataSourceManager.getInstance(project)
+        dataSourceManager.unregisterResourceId(resourceId)
+        dataSourceManager.removeDataSource(resourceId)
     }
 
     sealed interface DatabaseResourceConnectionCommand
     data class AddDatabaseResourceConnection(val resource: DatabaseResource) : DatabaseResourceConnectionCommand
+    data class RemoveDatabaseResourceConnection(val resourceId: String) : DatabaseResourceConnectionCommand
 }

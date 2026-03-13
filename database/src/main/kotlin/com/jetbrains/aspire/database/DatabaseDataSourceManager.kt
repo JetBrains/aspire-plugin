@@ -10,7 +10,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.util.application
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
@@ -31,48 +30,37 @@ internal class DatabaseDataSourceManager(private val project: Project) {
         private const val ASPIRE_RESOURCE_ID = "aspireResourceId"
     }
 
-    private val connectionStrings = ConcurrentHashMap<String, Unit>()
-    private val urlToConnectionString = ConcurrentHashMap<String, String>()
+    private val registeredResources = ConcurrentHashMap<String, Unit>()
 
-    fun tryRegisterConnectionString(connectionString: String): Boolean {
-        return connectionStrings.putIfAbsent(connectionString, Unit) == null
+    fun tryRegisterResourceId(resourceId: String): Boolean {
+        return registeredResources.putIfAbsent(resourceId, Unit) == null
     }
 
-    fun unregisterConnectionString(connectionString: String) {
-        connectionStrings.remove(connectionString)
-    }
-
-    fun removeConnectionStringByUrl(url: String?) {
-        if (url == null) return
-        val connectionString = urlToConnectionString.remove(url) ?: return
-        connectionStrings.remove(connectionString)
+    fun unregisterResourceId(resourceId: String) {
+        registeredResources.remove(resourceId)
     }
 
     suspend fun createDataSource(
-        connectionString: String,
-        connectionStringWasModified: Boolean,
         databaseResource: DatabaseResource,
         driver: DatabaseDriver,
         url: String
     ): LocalDataSource? {
-        urlToConnectionString[url] = connectionString
-
         val dataSourceManager = LocalDataSourceManager.getInstance(project)
         if (dataSourceManager.dataSources.any { it.url == url }) {
-            LOG.trace { "Data source for ${databaseResource.name} is already in use" }
+            LOG.trace { "Data source with the same url as for ${databaseResource.name} is already in use" }
             return null
         }
 
-        dataSourceManager.dataSources
+        val dataSourceForResource = dataSourceManager.dataSources
             .singleOrNull { it.getAdditionalProperty(ASPIRE_RESOURCE_ID) == databaseResource.resourceId }
-            ?.let {
-                LOG.trace { "Replacing data source for ${databaseResource.name} (${databaseResource.resourceId})" }
-                withContext(Dispatchers.EDT) {
-                    dataSourceManager.removeDataSource(it)
-                }
+        if (dataSourceForResource != null) {
+            LOG.trace { "Removing existing data source for ${databaseResource.name} (${databaseResource.resourceId})" }
+            withContext(Dispatchers.EDT) {
+                dataSourceManager.removeDataSource(dataSourceForResource)
             }
+        }
 
-        LOG.trace { "Creating a new data source for ${databaseResource.name}" }
+        LOG.trace { "Creating a new data source for ${databaseResource.name} (${databaseResource.resourceId})" }
         val createdDataSource = LocalDataSource.fromDriver(driver, url, true).apply {
             name = databaseResource.name
             isAutoSynchronize = true
@@ -82,21 +70,26 @@ internal class DatabaseDataSourceManager(private val project: Project) {
             dataSourceManager.addDataSource(createdDataSource)
         }
 
-        if (!connectionStringWasModified || !databaseResource.isPersistent) {
-            databaseResource.resourceLifetime.onTerminationIfAlive {
-                LOG.trace { "Removing data source for ${databaseResource.name}" }
-                application.invokeLater {
-                    dataSourceManager.removeDataSource(createdDataSource)
-                }
-            }
-        }
-
         return createdDataSource
+    }
+
+    suspend fun removeDataSource(resourceId: String) {
+        val dataSourceManager = LocalDataSourceManager.getInstance(project)
+        val dataSource = dataSourceManager.dataSources
+            .singleOrNull { it.getAdditionalProperty(ASPIRE_RESOURCE_ID) == resourceId }
+            ?: return
+
+        LOG.trace { "Removing data source for resource $resourceId" }
+
+        withContext(Dispatchers.EDT) {
+            dataSourceManager.removeDataSource(dataSource)
+        }
     }
 
     class DataSourceListener(private val project: Project) : DataSourceStorage.Listener {
         override fun dataSourceRemoved(dataSource: LocalDataSource) {
-            getInstance(project).removeConnectionStringByUrl(dataSource.url)
+            val resourceId = dataSource.getAdditionalProperty(ASPIRE_RESOURCE_ID) ?: return
+            getInstance(project).unregisterResourceId(resourceId)
         }
     }
 }
