@@ -34,17 +34,15 @@ suspend fun setUpAspireHostModelAndSaveRunConfig(
     val aspireHostConfig = setUpAspireHostModel(environment, state, aspireHostProcessHandlerLifetimeDef.lifetime)
     LOG.trace { "Aspire session host config: $aspireHostConfig" }
 
-    val runConfigName = aspireHostConfig.runConfigName
-    if (runConfigName != null) {
-        LOG.trace { "Saving Aspire Host run configuration $runConfigName" }
+    val runConfigName = environment.runProfile.name
+    LOG.trace { "Saving Aspire Host run configuration $runConfigName" }
 
-        saveRunConfiguration(
-            environment.project,
-            Path(aspireHostConfig.aspireHostProjectPath),
-            runConfigName,
-            aspireHostProcessHandlerLifetimeDef
-        )
-    }
+    saveRunConfiguration(
+        environment.project,
+        Path(aspireHostConfig.aspireHostProjectPath),
+        runConfigName,
+        aspireHostProcessHandlerLifetimeDef
+    )
 }
 
 private suspend fun setUpAspireHostModel(
@@ -55,8 +53,6 @@ private suspend fun setUpAspireHostModel(
     val configuration = environment.runnerAndConfigurationSettings?.configuration
     val aspireRunConfiguration = (configuration as? AspireRunConfiguration)
             ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
-
-    val runConfigurationName = (configuration as? RunConfigurationBase<*>)?.name ?: "Unknown"
 
     val dcpInstancePrefix = requireNotNull(state.getDcpInstancePrefix())
     val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
@@ -75,7 +71,6 @@ private suspend fun setUpAspireHostModel(
 
     val aspireHostConfig = AspireHostModelConfig(
         dcpInstancePrefix,
-        runConfigurationName,
         aspireHostProjectPath.absolutePathString(),
         resourceServiceEndpointUrl,
         resourceServiceApiKey,

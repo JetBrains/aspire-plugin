@@ -86,7 +86,7 @@ class AspireWorkerModel private constructor(
         }
         
         
-        const val serializationHash = 4349089867498556290L
+        const val serializationHash = -7209014881339656477L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
@@ -185,7 +185,7 @@ val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:250]
+ * #### Generated from [AspireWorkerModel.kt:248]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -258,7 +258,6 @@ class AspireHostModel private constructor(
 
 /**
  * @property id Unique identifier for the Aspire Host, created from the `DCP_INSTANCE_ID_PREFIX` environment variable
- * @property runConfigName Name of the started run configuration
  * @property aspireHostProjectPath Path of the Aspire Host .csproj file
  * @property resourceServiceEndpointUrl `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL` environment variable
  * @property resourceServiceApiKey `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
@@ -268,7 +267,6 @@ class AspireHostModel private constructor(
  */
 data class AspireHostModelConfig (
     val id: String,
-    val runConfigName: String?,
     val aspireHostProjectPath: String,
     val resourceServiceEndpointUrl: String?,
     val resourceServiceApiKey: String?,
@@ -278,7 +276,6 @@ data class AspireHostModelConfig (
     //write-marshaller
     private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
         buffer.writeString(id)
-        buffer.writeNullable(runConfigName) { buffer.writeString(it) }
         buffer.writeString(aspireHostProjectPath)
         buffer.writeNullable(resourceServiceEndpointUrl) { buffer.writeString(it) }
         buffer.writeNullable(resourceServiceApiKey) { buffer.writeString(it) }
@@ -294,13 +291,12 @@ data class AspireHostModelConfig (
         @Suppress("UNCHECKED_CAST")
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireHostModelConfig  {
             val id = buffer.readString()
-            val runConfigName = buffer.readNullable { buffer.readString() }
             val aspireHostProjectPath = buffer.readString()
             val resourceServiceEndpointUrl = buffer.readNullable { buffer.readString() }
             val resourceServiceApiKey = buffer.readNullable { buffer.readString() }
             val otlpEndpointUrl = buffer.readNullable { buffer.readString() }
             val aspireHostProjectUrl = buffer.readNullable { buffer.readString() }
-            return AspireHostModelConfig(id, runConfigName, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, otlpEndpointUrl, aspireHostProjectUrl)
+            return AspireHostModelConfig(id, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, otlpEndpointUrl, aspireHostProjectUrl)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireHostModelConfig)  {
@@ -321,7 +317,6 @@ data class AspireHostModelConfig (
         other as AspireHostModelConfig
         
         if (id != other.id) return false
-        if (runConfigName != other.runConfigName) return false
         if (aspireHostProjectPath != other.aspireHostProjectPath) return false
         if (resourceServiceEndpointUrl != other.resourceServiceEndpointUrl) return false
         if (resourceServiceApiKey != other.resourceServiceApiKey) return false
@@ -334,7 +329,6 @@ data class AspireHostModelConfig (
     override fun hashCode(): Int  {
         var __r = 0
         __r = __r*31 + id.hashCode()
-        __r = __r*31 + if (runConfigName != null) runConfigName.hashCode() else 0
         __r = __r*31 + aspireHostProjectPath.hashCode()
         __r = __r*31 + if (resourceServiceEndpointUrl != null) resourceServiceEndpointUrl.hashCode() else 0
         __r = __r*31 + if (resourceServiceApiKey != null) resourceServiceApiKey.hashCode() else 0
@@ -347,7 +341,6 @@ data class AspireHostModelConfig (
         printer.println("AspireHostModelConfig (")
         printer.indent {
             print("id = "); id.print(printer); println()
-            print("runConfigName = "); runConfigName.print(printer); println()
             print("aspireHostProjectPath = "); aspireHostProjectPath.print(printer); println()
             print("resourceServiceEndpointUrl = "); resourceServiceEndpointUrl.print(printer); println()
             print("resourceServiceApiKey = "); resourceServiceApiKey.print(printer); println()
@@ -905,7 +898,7 @@ data class DeleteSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:256]
+ * #### Generated from [AspireWorkerModel.kt:254]
  */
 enum class ErrorCode {
     AspireAppHostNotFound, 

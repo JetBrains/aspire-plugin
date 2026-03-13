@@ -14,7 +14,6 @@ import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.sessions.*
-import com.jetbrains.aspire.util.generateDcpInstancePrefix
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
@@ -60,9 +59,7 @@ class AspireAppHost(
     private val cs = parentCs.childScope("Aspire AppHost")
 
     val dcpInstancePrefix = generateDcpInstancePrefix()
-
-    private val _runConfigName: MutableStateFlow<String?> = MutableStateFlow(null)
-    val runConfigName: StateFlow<String?> = _runConfigName.asStateFlow()
+    val browserToken = generateBrowserToken()
 
     private val _dashboardUrl: MutableStateFlow<String?> = MutableStateFlow(null)
     val dashboardUrl: StateFlow<String?> = _dashboardUrl.asStateFlow()
@@ -76,7 +73,11 @@ class AspireAppHost(
 
     val appHostState = project.messageBus.subscribeAsFlow(AppHostListener.TOPIC) {
         object : AppHostListener {
-            override fun appHostStarted(appHostMainFilePath: Path, processHandler: ProcessHandler) {
+            override fun appHostStarted(
+                appHostMainFilePath: Path,
+                runConfigName: String?,
+                processHandler: ProcessHandler
+            ) {
                 if (mainFilePath != appHostMainFilePath) return
 
                 LOG.trace { "Aspire AppHost $mainFilePath was started" }
@@ -90,7 +91,7 @@ class AspireAppHost(
                 )
                 Disposer.register(this@AspireAppHost, console)
 
-                trySend(AspireAppHostState.Started(handler, console))
+                trySend(AspireAppHostState.Started(runConfigName, handler, console))
             }
 
             override fun appHostStopped(appHostMainFilePath: Path) {
@@ -107,10 +108,8 @@ class AspireAppHost(
 
         val appHostConfig = appHostModel.config
         appHostLifetime.bracketIfAlive({
-            _runConfigName.value = appHostConfig.runConfigName
             _dashboardUrl.value = appHostConfig.aspireHostProjectUrl
         }, {
-            _runConfigName.value = null
             _dashboardUrl.value = null
         })
         setOTLPEndpointUrl(appHostConfig, appHostLifetime)
@@ -214,6 +213,8 @@ class AspireAppHost(
         sessionEvents: Channel<SessionEvent>,
         lifetime: Lifetime
     ): CreateSessionResponse {
+        val appHostStartedState = appHostState.value as? AspireAppHostState.Started
+
         val configuration = createSessionLaunchConfiguration(createSessionRequest)
         if (configuration == null) {
             LOG.warn("Unsupported session request type: ${createSessionRequest::class}")
@@ -228,7 +229,7 @@ class AspireAppHost(
             sessionId,
             configuration,
             sessionEvents,
-            runConfigName.value,
+            appHostStartedState?.runConfigName,
             lifetime.createNested()
         )
 
@@ -273,10 +274,25 @@ class AspireAppHost(
     override fun dispose() {
     }
 
+    private fun generateDcpInstancePrefix(): String {
+        val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+        return (1..5)
+            .map { allowedChars.random() }
+            .joinToString("")
+    }
+
+    private fun generateBrowserToken(): String {
+        return UUID.randomUUID().toString()
+    }
+
     sealed interface AspireAppHostState {
         data object Inactive : AspireAppHostState
 
-        data class Started(val processHandler: ProcessHandler, val console: ConsoleView) : AspireAppHostState
+        data class Started(
+            val runConfigName: String?,
+            val processHandler: ProcessHandler,
+            val console: ConsoleView
+        ) : AspireAppHostState
 
         data object Stopped : AspireAppHostState
     }

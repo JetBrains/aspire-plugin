@@ -78,7 +78,7 @@ internal abstract class AspireExecutorFactory(
         //see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#frontend-authentication
         var browserToken: String? = null
         if (!allowAnonymousDashboard) {
-            browserToken = UUID.randomUUID().toString()
+            browserToken = appHost.browserToken
             envs[ASPIRE_DASHBOARD_FRONTEND_BROWSERTOKEN] = browserToken
         }
 

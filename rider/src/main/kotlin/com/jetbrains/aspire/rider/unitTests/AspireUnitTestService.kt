@@ -71,7 +71,6 @@ internal class AspireUnitTestService(private val project: Project, private val s
 
                 val aspireHostConfig = AspireHostModelConfig(
                     appHost.dcpInstancePrefix,
-                    null,
                     appHostMainFilePath.absolutePathString(),
                     null,
                     null,

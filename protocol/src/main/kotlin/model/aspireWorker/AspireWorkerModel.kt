@@ -233,8 +233,6 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
         field("id", string)
             .documentation =
             "Unique identifier for the Aspire Host, created from the `DCP_INSTANCE_ID_PREFIX` environment variable"
-        field("runConfigName", string.nullable)
-            .documentation = "Name of the started run configuration"
         field("aspireHostProjectPath", string)
             .documentation = "Path of the Aspire Host .csproj file"
         field("resourceServiceEndpointUrl", string.nullable)

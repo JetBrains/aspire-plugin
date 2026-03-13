@@ -47,6 +47,7 @@ import kotlin.io.path.absolutePathString
  * Key responsibilities:
  * - Starting and stopping the AspireWorker process ([start], [stop])
  * - Configuring the RD protocol for bidirectional communication with the process
+ * - Subscribing to the `createSession`, `deleteSession` RD-calls and sending back session events
  * - Managing the list of [AspireAppHost] instances and binding them to models from AspireWorker
  * - Providing environment variables for DCP connection to the IDE ([getEnvironmentVariablesForDcpConnection])
  *

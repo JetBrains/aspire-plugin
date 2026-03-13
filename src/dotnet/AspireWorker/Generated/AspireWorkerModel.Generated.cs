@@ -133,7 +133,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     
     
-    protected override long SerializationHash => 4349089867498556290L;
+    protected override long SerializationHash => -7209014881339656477L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -183,7 +183,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:250</p>
+  /// <p>Generated from: AspireWorkerModel.kt:248</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
@@ -274,11 +274,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     [NotNull] public string Id {get; private set;}
     
     /// <summary>
-    /// Name of the started run configuration
-    /// </summary>
-    [CanBeNull] public string RunConfigName {get; private set;}
-    
-    /// <summary>
     /// Path of the Aspire Host .csproj file
     /// </summary>
     [NotNull] public string AspireHostProjectPath {get; private set;}
@@ -307,7 +302,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     //primary constructor
     public AspireHostModelConfig(
       [NotNull] string id,
-      [CanBeNull] string runConfigName,
       [NotNull] string aspireHostProjectPath,
       [CanBeNull] string resourceServiceEndpointUrl,
       [CanBeNull] string resourceServiceApiKey,
@@ -319,7 +313,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       if (aspireHostProjectPath == null) throw new ArgumentNullException("aspireHostProjectPath");
       
       Id = id;
-      RunConfigName = runConfigName;
       AspireHostProjectPath = aspireHostProjectPath;
       ResourceServiceEndpointUrl = resourceServiceEndpointUrl;
       ResourceServiceApiKey = resourceServiceApiKey;
@@ -328,10 +321,9 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string id, [CanBeNull] out string runConfigName, [NotNull] out string aspireHostProjectPath, [CanBeNull] out string resourceServiceEndpointUrl, [CanBeNull] out string resourceServiceApiKey, [CanBeNull] out string otlpEndpointUrl, [CanBeNull] out string aspireHostProjectUrl)
+    public void Deconstruct([NotNull] out string id, [NotNull] out string aspireHostProjectPath, [CanBeNull] out string resourceServiceEndpointUrl, [CanBeNull] out string resourceServiceApiKey, [CanBeNull] out string otlpEndpointUrl, [CanBeNull] out string aspireHostProjectUrl)
     {
       id = Id;
-      runConfigName = RunConfigName;
       aspireHostProjectPath = AspireHostProjectPath;
       resourceServiceEndpointUrl = ResourceServiceEndpointUrl;
       resourceServiceApiKey = ResourceServiceApiKey;
@@ -343,13 +335,12 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     public static CtxReadDelegate<AspireHostModelConfig> Read = (ctx, reader) => 
     {
       var id = reader.ReadString();
-      var runConfigName = ReadStringNullable(ctx, reader);
       var aspireHostProjectPath = reader.ReadString();
       var resourceServiceEndpointUrl = ReadStringNullable(ctx, reader);
       var resourceServiceApiKey = ReadStringNullable(ctx, reader);
       var otlpEndpointUrl = ReadStringNullable(ctx, reader);
       var aspireHostProjectUrl = ReadStringNullable(ctx, reader);
-      var _result = new AspireHostModelConfig(id, runConfigName, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, otlpEndpointUrl, aspireHostProjectUrl);
+      var _result = new AspireHostModelConfig(id, aspireHostProjectPath, resourceServiceEndpointUrl, resourceServiceApiKey, otlpEndpointUrl, aspireHostProjectUrl);
       return _result;
     };
     public static CtxReadDelegate<string> ReadStringNullable = JetBrains.Rd.Impl.Serializers.ReadString.NullableClass();
@@ -357,7 +348,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     public static CtxWriteDelegate<AspireHostModelConfig> Write = (ctx, writer, value) => 
     {
       writer.Write(value.Id);
-      WriteStringNullable(ctx, writer, value.RunConfigName);
       writer.Write(value.AspireHostProjectPath);
       WriteStringNullable(ctx, writer, value.ResourceServiceEndpointUrl);
       WriteStringNullable(ctx, writer, value.ResourceServiceApiKey);
@@ -382,7 +372,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Id == other.Id && Equals(RunConfigName, other.RunConfigName) && AspireHostProjectPath == other.AspireHostProjectPath && Equals(ResourceServiceEndpointUrl, other.ResourceServiceEndpointUrl) && Equals(ResourceServiceApiKey, other.ResourceServiceApiKey) && Equals(OtlpEndpointUrl, other.OtlpEndpointUrl) && Equals(AspireHostProjectUrl, other.AspireHostProjectUrl);
+      return Id == other.Id && AspireHostProjectPath == other.AspireHostProjectPath && Equals(ResourceServiceEndpointUrl, other.ResourceServiceEndpointUrl) && Equals(ResourceServiceApiKey, other.ResourceServiceApiKey) && Equals(OtlpEndpointUrl, other.OtlpEndpointUrl) && Equals(AspireHostProjectUrl, other.AspireHostProjectUrl);
     }
     //hash code trait
     public override int GetHashCode()
@@ -390,7 +380,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       unchecked {
         var hash = 0;
         hash = hash * 31 + Id.GetHashCode();
-        hash = hash * 31 + (RunConfigName != null ? RunConfigName.GetHashCode() : 0);
         hash = hash * 31 + AspireHostProjectPath.GetHashCode();
         hash = hash * 31 + (ResourceServiceEndpointUrl != null ? ResourceServiceEndpointUrl.GetHashCode() : 0);
         hash = hash * 31 + (ResourceServiceApiKey != null ? ResourceServiceApiKey.GetHashCode() : 0);
@@ -405,7 +394,6 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       printer.Println("AspireHostModelConfig (");
       using (printer.IndentCookie()) {
         printer.Print("id = "); Id.PrintEx(printer); printer.Println();
-        printer.Print("runConfigName = "); RunConfigName.PrintEx(printer); printer.Println();
         printer.Print("aspireHostProjectPath = "); AspireHostProjectPath.PrintEx(printer); printer.Println();
         printer.Print("resourceServiceEndpointUrl = "); ResourceServiceEndpointUrl.PrintEx(printer); printer.Println();
         printer.Print("resourceServiceApiKey = "); ResourceServiceApiKey.PrintEx(printer); printer.Println();
@@ -1109,7 +1097,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:256</p>
+  /// <p>Generated from: AspireWorkerModel.kt:254</p>
   /// </summary>
   public enum ErrorCode {
     AspireAppHostNotFound,
