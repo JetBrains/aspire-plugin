@@ -33,33 +33,31 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
     private fun applyChanges(resource: AspireResource) {
         if (!AspireSettings.getInstance().connectToDatabase) return
         val data = resource.resourceState.value
-        if (data.type != ResourceType.Container) return
+        if (data.type != ResourceType.Container || data.state != ResourceState.Running) return
         val connectionString = data.connectionString?.value ?: return
 
-        if (data.state == ResourceState.Running) {
-            val containerId = data.containerId?.value ?: return
-            val resourceType = findDatabaseType(data.name, data.containerImage?.value) ?: return
-            val urls = data.urls.mapNotNull { url -> runCatching { URI(url.fullUrl) }.getOrNull() }
-            if (urls.isEmpty()) return
-            val isPersistent = data.containerLifetime?.value.equals("persistent", true)
+        val containerId = data.containerId?.value ?: return
+        val resourceType = findDatabaseType(data.name, data.containerImage?.value) ?: return
+        val urls = data.urls.mapNotNull { url -> runCatching { URI(url.fullUrl) }.getOrNull() }
+        if (urls.isEmpty()) return
+        val isPersistent = data.containerLifetime?.value.equals("persistent", true)
 
-            val databaseResource = DatabaseResource(
-                data.displayName,
-                resource.resourceId,
-                containerId,
-                resourceType,
-                connectionString,
-                urls,
-                data.containerPorts?.value,
-                isPersistent,
-                resource.lifetime
-            )
+        val databaseResource = DatabaseResource(
+            data.displayName,
+            resource.resourceId,
+            containerId,
+            resourceType,
+            connectionString,
+            urls,
+            data.containerPorts?.value,
+            isPersistent,
+            resource.lifetime
+        )
 
-            LOG.trace { "Created database resource: ${databaseResource.name}" }
+        LOG.trace { "Created database resource: ${databaseResource.name}" }
 
-            val command = DatabaseResourceConnectionService.AddDatabaseResourceConnection(databaseResource)
-            DatabaseResourceConnectionService.getInstance(project).sendConnectionCommand(command)
-        }
+        val command = DatabaseResourceConnectionService.AddDatabaseResourceConnection(databaseResource)
+        DatabaseResourceConnectionService.getInstance(project).sendConnectionCommand(command)
     }
 
     private fun findDatabaseType(resourceName: String, resourceImage: String?): DatabaseType? {
@@ -82,5 +80,9 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
         if (value.contains(MONGO)) return DatabaseType.MONGO
         if (value.contains(REDIS)) return DatabaseType.REDIS
         return null
+    }
+
+    override fun resourceDeleted(resource: AspireResource) {
+        if (!AspireSettings.getInstance().connectToDatabase) return
     }
 }
