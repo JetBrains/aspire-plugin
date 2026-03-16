@@ -13,6 +13,9 @@ import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.*
+import com.jetbrains.aspire.generated.dashboard.InitialResourceData
+import com.jetbrains.aspire.generated.dashboard.Resource as ProtoResource
+import com.jetbrains.aspire.generated.dashboard.WatchResourcesChanges
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -21,7 +24,11 @@ import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
@@ -55,6 +62,9 @@ class AspireAppHost(
 ) : Disposable {
     companion object {
         private val LOG = logger<AspireAppHost>()
+
+        private const val INITIAL_RETRY_DELAY_MS = 1_000L
+        private const val MAX_RETRY_DELAY_MS = 5_000L
     }
 
     private val cs = parentCs.childScope("Aspire AppHost")
@@ -62,11 +72,11 @@ class AspireAppHost(
     val dcpInstancePrefix = generateDcpInstancePrefix()
     val browserToken = generateBrowserToken()
 
+    private val _appHostConfig = MutableStateFlow<AspireHostModelConfig?>(null)
     private val _dashboardUrl: MutableStateFlow<String?> = MutableStateFlow(null)
     val dashboardUrl: StateFlow<String?> = _dashboardUrl.asStateFlow()
 
     private val _resources = ConcurrentHashMap<String, AspireResource>()
-
     private val _pendingChildren = ConcurrentHashMap<String, MutableList<Pair<String, AspireResource>>>()
 
     private val _rootResources = MutableStateFlow<List<AspireResource>>(emptyList())
@@ -104,20 +114,26 @@ class AspireAppHost(
         }
     }.stateIn(cs, SharingStarted.Eagerly, AspireAppHostState.Inactive)
 
+    init {
+        cs.launch {
+            watchGrpcResources()
+        }
+    }
+
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
         LOG.trace("Subscribing to Aspire AppHost model")
 
         val appHostConfig = appHostModel.config
         appHostLifetime.bracketIfAlive({
+            _appHostConfig.value = appHostConfig
             _dashboardUrl.value = appHostConfig.aspireHostProjectUrl
         }, {
+            if (_appHostConfig.value?.id == appHostConfig.id) {
+                _appHostConfig.value = null
+            }
             _dashboardUrl.value = null
         })
         setOTLPEndpointUrl(appHostConfig, appHostLifetime)
-
-        appHostModel.resources.view(appHostLifetime) { resourceLifetime, resourceId, resourceModel ->
-            viewResource(resourceId, resourceModel, resourceLifetime)
-        }
     }
 
     private fun setOTLPEndpointUrl(appHostConfig: AspireHostModelConfig, appHostLifetime: Lifetime) {
@@ -132,73 +148,178 @@ class AspireAppHost(
         })
     }
 
-    private fun viewResource(
-        resourceId: String,
-        resourceModelWrapper: ResourceWrapper,
-        resourceLifetime: Lifetime
-    ) {
-        LOG.trace { "Adding a new Aspire resource with id $resourceId to the AppHost $mainFilePath" }
+    private suspend fun watchGrpcResources() {
+        combine(appHostState, _appHostConfig) { state, config -> state to config }
+            .collectLatest { (state, config) ->
+                clearResources()
 
-        val resourceModel = resourceModelWrapper.model.valueOrNull ?: return
+                if (state !is AspireAppHostState.Started) return@collectLatest
+
+                val appHostConfig = config ?: return@collectLatest
+                val resourceServiceEndpointUrl = appHostConfig.resourceServiceEndpointUrl
+                if (resourceServiceEndpointUrl.isNullOrBlank()) {
+                    LOG.trace { "Aspire AppHost $mainFilePath does not provide a resource service endpoint" }
+                    return@collectLatest
+                }
+
+                val client = try {
+                    AspireDashboardClient.create(project, resourceServiceEndpointUrl, appHostConfig.resourceServiceApiKey)
+                } catch (t: Throwable) {
+                    LOG.warn("Unable to initialize Aspire dashboard gRPC client for $mainFilePath", t)
+                    return@collectLatest
+                }
+
+                try {
+                    watchResources(client)
+                } finally {
+                    client.dispose()
+                    clearResources()
+                }
+            }
+    }
+
+    private suspend fun watchResources(client: AspireDashboardClient) {
+        var isReconnect = false
+        var retryDelayMs = INITIAL_RETRY_DELAY_MS
+
+        while (currentCoroutineContext().isActive) {
+            try {
+                client.watchResources(isReconnect).collect { update ->
+                    retryDelayMs = INITIAL_RETRY_DELAY_MS
+
+                    when {
+                        update.hasInitialData() ->
+                            handleInitialResourceData(update.initialData, client)
+
+                        update.hasChanges() ->
+                            handleResourceChanges(update.changes, client)
+
+                        else -> Unit
+                    }
+                }
+
+                if (!currentCoroutineContext().isActive) break
+
+                LOG.trace { "Aspire resource watch stream completed for $mainFilePath, reconnecting" }
+                isReconnect = true
+            } catch (cancellation: kotlinx.coroutines.CancellationException) {
+                throw cancellation
+            } catch (t: Throwable) {
+                if (!currentCoroutineContext().isActive) break
+                LOG.warn("Aspire resource watch failed for $mainFilePath, retrying", t)
+            }
+
+            delay(retryDelayMs)
+            retryDelayMs = nextRetryDelay(retryDelayMs)
+            isReconnect = true
+        }
+    }
+
+    private fun handleInitialResourceData(
+        initialData: InitialResourceData,
+        client: AspireDashboardClient
+    ) {
+        clearResources()
+
+        for (protoResource in initialData.resourcesList) {
+            upsertGrpcResource(protoResource, client)
+        }
+    }
+
+    private fun handleResourceChanges(
+        changes: WatchResourcesChanges,
+        client: AspireDashboardClient
+    ) {
+        for (change in changes.valueList) {
+            when {
+                change.hasUpsert() ->
+                    upsertGrpcResource(change.upsert, client)
+
+                change.hasDelete() ->
+                    deleteGrpcResource(change.delete.resourceName)
+
+                else -> Unit
+            }
+        }
+    }
+
+    private fun upsertGrpcResource(protoResource: ProtoResource, client: AspireDashboardClient) {
+        val resourceName = protoResource.name
+        val resourceModel = protoResource.toResourceModel()
+
         if (resourceModel.isHidden || resourceModel.state == ResourceState.Hidden) {
-            LOG.trace { "Aspire resource with id $resourceId is hidden" }
+            deleteGrpcResource(resourceName)
             return
         }
 
-        val resource = AspireResource(
-            resourceId,
-            resourceModelWrapper,
-            resourceLifetime,
-            project
-        )
-
-        val resourceName = resourceModel.displayName
         val parentResourceName = resourceModel.findParentResourceName()
+        val existingResource = _resources[resourceName]
+        if (existingResource == null) {
+            LOG.trace { "Adding a new Aspire resource with id $resourceName to the AppHost $mainFilePath" }
 
-        resourceLifetime.bracketIfAlive({
+            val resource = AspireResource(resourceName, resourceModel, protoResource.resourceType, client, cs, project)
+            resource.updateCommandParameters(protoResource.commandsList)
+
             createResource(resourceName, resource, parentResourceName)
-        }, {
-            removeResource(resourceName, resource, parentResourceName)
-        })
 
-        resourceModelWrapper.isInitialized.set(true)
+            project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(resource)
+            return
+        }
+
+        val previousParentResourceName = existingResource.resourceState.value.parentResourceName
+        existingResource.update(resourceModel)
+        existingResource.updateCommandParameters(protoResource.commandsList)
+
+        if (previousParentResourceName != parentResourceName) {
+            reparentResource(resourceName, existingResource, previousParentResourceName, parentResourceName)
+        }
     }
 
     private fun createResource(resourceName: String, resource: AspireResource, parentResourceName: String?) {
         _resources[resourceName] = resource
+        Disposer.register(this, resource)
 
+        attachResource(resourceName, resource, parentResourceName)
+        processPendingResources(resourceName, resource)
+    }
+
+    private fun attachResource(resourceName: String, resource: AspireResource, parentResourceName: String?) {
         val parentResource = parentResourceName?.let { _resources[it] }
         if (parentResourceName == null) {
-            Disposer.register(this, resource)
-            _rootResources.update { it + resource }
+            _rootResources.update { if (resource in it) it else it + resource }
         } else if (parentResource != null) {
-            Disposer.register(parentResource, resource)
+            _rootResources.update { it - resource }
             parentResource.addChildResource(resource)
         } else {
-            Disposer.register(this, resource)
-            _rootResources.update { it + resource }
+            _rootResources.update { if (resource in it) it else it + resource }
             _pendingChildren
                 .getOrPut(parentResourceName) { mutableListOf() }
+                .also { pending -> pending.removeIf { it.first == resourceName } }
                 .add(resourceName to resource)
         }
-
-        processPendingResources(resourceName, resource)
-
-        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(resource)
     }
 
     private fun processPendingResources(parentName: String, parentResource: AspireResource) {
         val pending = _pendingChildren.remove(parentName) ?: return
 
-        for ((_, childResource) in pending) {
+        for ((childName, childResource) in pending) {
+            if (_resources[childName] != childResource) continue
             _rootResources.update { it - childResource }
             parentResource.addChildResource(childResource)
         }
     }
 
-    private fun removeResource(resourceName: String, resource: AspireResource, parentResourceName: String?) {
-        val removedResource = _resources.remove(resourceName)
+    private fun reparentResource(
+        resourceName: String,
+        resource: AspireResource,
+        previousParentResourceName: String?,
+        parentResourceName: String?
+    ) {
+        detachResource(resourceName, resource, previousParentResourceName)
+        attachResource(resourceName, resource, parentResourceName)
+    }
 
+    private fun detachResource(resourceName: String, resource: AspireResource, parentResourceName: String?) {
         val parentResource = parentResourceName?.let { _resources[it] }
         if (parentResource == null) {
             _rootResources.update { it - resource }
@@ -209,8 +330,45 @@ class AspireAppHost(
         if (parentResourceName != null) {
             _pendingChildren[parentResourceName]?.removeIf { it.first == resourceName }
         }
+    }
 
-        removedResource?.let { project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceDeleted(it) }
+    private fun deleteGrpcResource(resourceName: String) {
+        val resource = _resources[resourceName] ?: return
+        removeResource(resourceName, resource, resource.resourceState.value.parentResourceName)
+    }
+
+    private fun removeResource(resourceName: String, resource: AspireResource, parentResourceName: String?) {
+        val removedResource = _resources.remove(resourceName)
+        if (removedResource == null) return
+
+        detachResource(resourceName, resource, parentResourceName)
+        orphanChildren(resourceName, removedResource)
+
+        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceDeleted(removedResource)
+        Disposer.dispose(removedResource)
+    }
+
+    private fun orphanChildren(parentResourceName: String, parentResource: AspireResource) {
+        for (childResource in parentResource.childrenResources.value.toList()) {
+            parentResource.removeChildResource(childResource)
+            attachResource(childResource.resourceState.value.name, childResource, parentResourceName)
+        }
+    }
+
+    private fun clearResources() {
+        val resources = _resources.values.toSet()
+        _resources.clear()
+        _pendingChildren.clear()
+        _rootResources.value = emptyList()
+
+        for (resource in resources) {
+            project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceDeleted(resource)
+            Disposer.dispose(resource)
+        }
+    }
+
+    private fun nextRetryDelay(currentDelayMs: Long): Long {
+        return (currentDelayMs * 3 / 2).coerceAtMost(MAX_RETRY_DELAY_MS)
     }
 
     fun createSession(
@@ -277,6 +435,7 @@ class AspireAppHost(
     }
 
     override fun dispose() {
+        clearResources()
     }
 
     private fun generateDcpInstancePrefix(): String {
