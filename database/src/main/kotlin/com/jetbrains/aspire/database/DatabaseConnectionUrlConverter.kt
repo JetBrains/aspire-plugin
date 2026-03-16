@@ -25,7 +25,7 @@ internal class DatabaseConnectionUrlConverter(private val project: Project) {
         private val LOG = logger<DatabaseConnectionUrlConverter>()
 
         private const val REDIS_CONNECTION_STRING_PATTERN =
-            "(?<host>\\w*):(?<port>\\d*)(,user=(?<user>\\w*))?(,password=(?<password>\\w*))?"
+            "(?<host>[\\w.]+):(?<port>\\d+)(?:,(?:user=(?<user>[^,]+)|password=(?<password>[^,]+)|ssl=(?<ssl>[^,]+)|[^,]+))*"
         private val REDIS_REGEX = Regex(REDIS_CONNECTION_STRING_PATTERN)
     }
 
@@ -76,12 +76,18 @@ internal class DatabaseConnectionUrlConverter(private val project: Project) {
         val port = matchResult.groups["port"]?.value
         val user = matchResult.groups["user"]?.value
         val password = matchResult.groups["password"]?.value
+        val ssl = matchResult.groups["ssl"]?.value
 
         val sb = StringBuilder("jdbc:redis://")
-        user?.let { sb.append(it).append(":") }
-        password?.let { sb.append(it).append("@") }
+        if (user != null || password != null) {
+            user?.let { sb.append(it) }
+            if (user != null && password != null) sb.append(":")
+            password?.let { sb.append(it) }
+            sb.append("@")
+        }
         host?.let { sb.append(it) }
         port?.let { sb.append(":").append(it) }
+        if (ssl?.lowercase() == "true") sb.append("?ssl=true")
 
         return sb.toString()
     }
