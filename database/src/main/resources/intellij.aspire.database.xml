@@ -27,7 +27,7 @@
     <projectListeners>
         <listener class="com.jetbrains.aspire.database.DatabaseResourceListener"
                   topic="com.jetbrains.aspire.dashboard.ResourceListener"/>
-        <listener class="com.jetbrains.aspire.database.DatabaseResourceConnectionService$DataSourceListener"
+        <listener class="com.jetbrains.aspire.database.DatabaseDataSourceManager$DataSourceListener"
                   topic="com.intellij.database.dataSource.DataSourceStorage$Listener"/>
     </projectListeners>
 

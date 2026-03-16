@@ -75,7 +75,7 @@ class AspireResource(
             model.toAspireResourceData(it.state)
         }
 
-        project.messageBus.syncPublisher(ResourceListener.Companion.TOPIC).resourceUpdated(this)
+        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(this)
     }
 
     fun addChildResource(resource: AspireResource) {

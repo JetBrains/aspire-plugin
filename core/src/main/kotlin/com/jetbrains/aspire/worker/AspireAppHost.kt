@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
+import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.sessions.*
@@ -182,6 +183,8 @@ class AspireAppHost(
         }
 
         processPendingResources(resourceName, resource)
+
+        project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(resource)
     }
 
     private fun processPendingResources(parentName: String, parentResource: AspireResource) {
@@ -194,7 +197,7 @@ class AspireAppHost(
     }
 
     private fun removeResource(resourceName: String, resource: AspireResource, parentResourceName: String?) {
-        _resources.remove(resourceName)
+        val removedResource = _resources.remove(resourceName)
 
         val parentResource = parentResourceName?.let { _resources[it] }
         if (parentResource == null) {
@@ -206,6 +209,8 @@ class AspireAppHost(
         if (parentResourceName != null) {
             _pendingChildren[parentResourceName]?.removeIf { it.first == resourceName }
         }
+
+        removedResource?.let { project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceDeleted(it) }
     }
 
     fun createSession(

@@ -13,4 +13,5 @@ interface ResourceListener {
 
     fun resourceCreated(resource: AspireResource)
     fun resourceUpdated(resource: AspireResource)
+    fun resourceDeleted(resource: AspireResource)
 }
