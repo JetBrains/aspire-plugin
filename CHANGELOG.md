@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [#607] Do not recreate the database connections every time the ports are different
+
+## [2.4.1] - 2026-03-13
+
 ### Changed
 
 - Update platform version to RD-2026.1-EAP5 +
@@ -621,7 +627,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.4.1...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.4.2...HEAD
+[2.4.2]: https://github.com/JetBrains/aspire-plugin/compare/2.4.1...2.4.2
 [2.4.1]: https://github.com/JetBrains/aspire-plugin/compare/2.4.0...2.4.1
 [2.4.0]: https://github.com/JetBrains/aspire-plugin/compare/2.3.1...2.4.0
 [2.3.1]: https://github.com/JetBrains/aspire-plugin/compare/2.3.0...2.3.1
