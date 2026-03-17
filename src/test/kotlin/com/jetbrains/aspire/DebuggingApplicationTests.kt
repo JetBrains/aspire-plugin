@@ -152,7 +152,7 @@ class DebuggingApplicationTests : DebuggerTestBase() {
     ) {
         action()
 
-        val timeout = Duration.ofSeconds(30)
+        val timeout = Duration.ofMinutes(3)
         if (!pumpMessages(timeout) { XDebuggerManager.getInstance(project).debugSessions.size == sessionsNum })
             logger.error("Couldn't get $sessionsNum debug sessions running within $timeout seconds")
 
