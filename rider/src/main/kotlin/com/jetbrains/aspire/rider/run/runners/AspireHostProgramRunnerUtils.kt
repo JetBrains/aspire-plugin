@@ -2,7 +2,6 @@ package com.jetbrains.aspire.rider.run.runners
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.ExecutionResult
-import com.intellij.execution.configurations.RunConfigurationBase
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -12,9 +11,11 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.aspire.generated.AspireHostModelConfig
+import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.rider.run.AspireRunConfigurationManager
 import com.jetbrains.aspire.rider.run.states.*
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.worker.AppHostListener
+import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
@@ -52,7 +53,7 @@ private suspend fun setUpAspireHostModel(
 ): AspireHostModelConfig {
     val configuration = environment.runnerAndConfigurationSettings?.configuration
     val aspireRunConfiguration = (configuration as? AspireRunConfiguration)
-            ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
+        ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
 
     val dcpInstancePrefix = requireNotNull(state.getDcpInstancePrefix())
     val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
@@ -77,6 +78,16 @@ private suspend fun setUpAspireHostModel(
         otlpEndpointUrl,
         aspireHostProjectUrl
     )
+
+    val appHostEnvironment = AppHostEnvironment(
+        aspireHostConfig.resourceServiceEndpointUrl,
+        aspireHostConfig.resourceServiceApiKey,
+        aspireHostConfig.otlpEndpointUrl,
+        aspireHostConfig.aspireHostProjectUrl
+    )
+    environment.project.messageBus
+        .syncPublisher(AppHostListener.TOPIC)
+        .appHostStarting(aspireHostProjectPath, appHostEnvironment)
 
     val aspireWorker = AspireWorker.getInstance(environment.project)
 
