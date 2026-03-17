@@ -11,8 +11,8 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.dashboard.hasNonDefaultCommands
-import com.jetbrains.aspire.generated.ResourceState
-import com.jetbrains.aspire.generated.ResourceType
+import com.jetbrains.aspire.worker.ResourceState
+import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.getIcon
 import com.jetbrains.aspire.worker.AspireResourceData

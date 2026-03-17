@@ -6,8 +6,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.generated.ResourceCommand
-import com.jetbrains.aspire.generated.ResourceCommandState
+import com.jetbrains.aspire.worker.ResourceCommand
+import com.jetbrains.aspire.worker.ResourceCommandState
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
 import kotlinx.coroutines.launch

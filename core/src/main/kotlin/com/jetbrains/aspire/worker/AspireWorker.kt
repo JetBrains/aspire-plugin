@@ -35,7 +35,6 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**
@@ -210,7 +209,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         dispatcher: RdDispatcher,
         appHostLifetime: Lifetime
     ) {
-        val appHostMainFilePath = Path(appHostModel.config.aspireHostProjectPath)
+        val appHostMainFilePath = Path.of(appHostModel.config.aspireHostProjectPath)
         val appHost = _appHosts.value.firstOrNull { it.mainFilePath == appHostMainFilePath }
         if (appHost == null) {
             LOG.warn("Could not find Aspire host $appHostMainFilePath")

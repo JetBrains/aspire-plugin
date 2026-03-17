@@ -1,10 +1,12 @@
 package com.jetbrains.aspire.util
 
-import com.jetbrains.aspire.generated.ResourceHealthReport
-import com.jetbrains.aspire.generated.ResourceHealthStatus
-import com.jetbrains.aspire.generated.ResourceState
-import com.jetbrains.aspire.generated.ResourceStateStyle
+import com.jetbrains.aspire.generated.dashboard.HealthReport
+import com.jetbrains.aspire.generated.dashboard.HealthStatus
 import com.jetbrains.aspire.worker.AspireResourceData
+import com.jetbrains.aspire.worker.ResourceHealthStatus
+import com.jetbrains.aspire.worker.ResourceState
+import com.jetbrains.aspire.worker.ResourceStateStyle
+import kotlin.collections.map
 
 internal enum class ResourceIconBadge {
     None,
@@ -15,17 +17,17 @@ internal enum class ResourceIconBadge {
 
 internal fun calculateHealthStatus(
     state: ResourceState?,
-    healthReports: Array<ResourceHealthReport>?
+    healthReports: List<HealthReport?>?
 ): ResourceHealthStatus? {
     if (state != ResourceState.Running) return null
     if (healthReports.isNullOrEmpty()) return ResourceHealthStatus.Healthy
 
-    val statuses = healthReports.map { it.status }
+    val statuses = healthReports.map { it?.status }
     if (statuses.any { it == null }) return ResourceHealthStatus.Unhealthy
 
     return when {
-        statuses.any { it == ResourceHealthStatus.Unhealthy } -> ResourceHealthStatus.Unhealthy
-        statuses.any { it == ResourceHealthStatus.Degraded } -> ResourceHealthStatus.Degraded
+        statuses.any { it == HealthStatus.HEALTH_STATUS_UNHEALTHY } -> ResourceHealthStatus.Unhealthy
+        statuses.any { it == HealthStatus.HEALTH_STATUS_DEGRADED } -> ResourceHealthStatus.Degraded
         else -> ResourceHealthStatus.Healthy
     }
 }
