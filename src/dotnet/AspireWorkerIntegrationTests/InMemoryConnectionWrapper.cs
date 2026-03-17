@@ -71,37 +71,6 @@ internal sealed class InMemoryConnectionWrapper : IRdConnectionWrapper, IDisposa
         return Task.CompletedTask;
     }
 
-    public Task<bool> AddResource(AspireHostModel host, string resourceName, ResourceWrapper resourceWrapper)
-    {
-        return Task.FromResult(true);
-    }
-
-    public Task UpsertResource(AspireHostModel host, ResourceModel resourceModel,
-        Func<ResourceModel, ResourceWrapper> resourceWrapperFactory)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task<bool> RemoveResource(AspireHostModel host, string resourceName)
-    {
-        return Task.FromResult(true);
-    }
-
-    public Task ClearResources(AspireHostModel host)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task ViewResources(AspireHostModel host, Lifetime lifetime, Action<Lifetime, string, ResourceWrapper> action)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task ResourceLogReceived(ResourceWrapper resource, ResourceLog resourceLog)
-    {
-        return Task.CompletedTask;
-    }
-
     public void Dispose()
     {
         _lifetimeDef.Terminate();

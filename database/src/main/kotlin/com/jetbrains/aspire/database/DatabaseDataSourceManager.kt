@@ -52,19 +52,19 @@ internal class DatabaseDataSourceManager(private val project: Project) {
         }
 
         val dataSourceForResource = dataSourceManager.dataSources
-            .singleOrNull { it.getAdditionalProperty(ASPIRE_RESOURCE_ID) == databaseResource.resourceId }
+            .singleOrNull { it.getAdditionalProperty(ASPIRE_RESOURCE_ID) == databaseResource.resourceName }
         if (dataSourceForResource != null) {
-            LOG.trace { "Removing existing data source for ${databaseResource.name} (${databaseResource.resourceId})" }
+            LOG.trace { "Removing existing data source for ${databaseResource.name} (${databaseResource.resourceName})" }
             withContext(Dispatchers.EDT) {
                 dataSourceManager.removeDataSource(dataSourceForResource)
             }
         }
 
-        LOG.trace { "Creating a new data source for ${databaseResource.name} (${databaseResource.resourceId})" }
+        LOG.trace { "Creating a new data source for ${databaseResource.name} (${databaseResource.resourceName})" }
         val createdDataSource = LocalDataSource.fromDriver(driver, url, true).apply {
             name = databaseResource.name
             isAutoSynchronize = true
-            setAdditionalProperty(ASPIRE_RESOURCE_ID, databaseResource.resourceId)
+            setAdditionalProperty(ASPIRE_RESOURCE_ID, databaseResource.resourceName)
         }
         withContext(Dispatchers.EDT) {
             dataSourceManager.addDataSource(createdDataSource)

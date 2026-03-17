@@ -19,14 +19,4 @@ internal interface IRdConnectionWrapper
     Task AdviceOnProcessTerminated(AspireHostModel host, Lifetime lifetime, Action<ProcessTerminated> action);
     Task AdviceOnLogReceived(AspireHostModel host, Lifetime lifetime, Action<LogReceived> action);
     Task AdviceOnMessageReceived(AspireHostModel host, Lifetime lifetime, Action<MessageReceived> action);
-
-    Task<bool> AddResource(AspireHostModel host, string resourceName, ResourceWrapper resourceWrapper);
-    Task UpsertResource(AspireHostModel host, ResourceModel resourceModel,
-        Func<ResourceModel, ResourceWrapper> resourceWrapperFactory);
-    Task<bool> RemoveResource(AspireHostModel host, string resourceName);
-    Task ClearResources(AspireHostModel host);
-    Task ViewResources(AspireHostModel host, Lifetime lifetime,
-        Action<Lifetime, string, ResourceWrapper> action);
-
-    Task ResourceLogReceived(ResourceWrapper resource, ResourceLog resourceLog);
 }

@@ -1,6 +1,8 @@
 <idea-plugin visibility="internal">
     <dependencies>
         <plugin id="com.intellij.modules.rider"/>
+        <module name="intellij.libraries.grpc"/>
+        <module name="intellij.libraries.grpc.netty.shaded"/>
     </dependencies>
 
     <resource-bundle>messages.AspireCoreBundle</resource-bundle>
@@ -26,6 +28,9 @@
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceInterface="com.jetbrains.aspire.worker.AspireDashboardClientFactory"
+                            serviceImplementation="com.jetbrains.aspire.worker.AspireDashboardClientFactoryImpl"/>
+
         <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
 
         <applicationConfigurable

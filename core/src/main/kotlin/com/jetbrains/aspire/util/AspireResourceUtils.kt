@@ -4,7 +4,7 @@ package com.jetbrains.aspire.util
 
 import com.intellij.icons.AllIcons
 import com.intellij.ui.BadgeIconSupplier
-import com.jetbrains.aspire.generated.ResourceType
+import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
 import com.jetbrains.aspire.worker.AspireAppHost

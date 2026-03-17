@@ -30,7 +30,7 @@ class AspireResourceViewModel(
 
     private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
 
-    val resourceId: String = resource.resourceId
+    val resourceName: String = resource.resourceName
 
     val uiState: StateFlow<ResourceUiState> =
         resource.resourceState
@@ -44,20 +44,20 @@ class AspireResourceViewModel(
     private val childViewModels: StateFlow<List<AspireResourceViewModel>> =
         resource.childrenResources
             .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
-                val currentViewModelsById = currentViewModels.associateBy { it.resource.resourceId }
-                val newIds = newResources.map { it.resourceId }.toSet()
+                val currentViewModelsByName = currentViewModels.associateBy { it.resource.resourceName }
+                val newIds = newResources.map { it.resourceName }.toSet()
 
                 buildList {
                     for (viewModel in currentViewModels) {
-                        if (viewModel.resourceId in newIds) {
-                            LOG.trace { "Resource ViewModel for ${viewModel.resourceId} already exists" }
+                        if (viewModel.resourceName in newIds) {
+                            LOG.trace { "Resource ViewModel for ${viewModel.resourceName} already exists" }
                             add(viewModel)
                         }
                     }
 
                     for (newResource in newResources) {
-                        if (newResource.resourceId !in currentViewModelsById) {
-                            LOG.trace { "Creating new Resource ViewModel for ${newResource.resourceId}" }
+                        if (newResource.resourceName !in currentViewModelsByName) {
+                            LOG.trace { "Creating new Resource ViewModel for ${newResource.resourceName}" }
                             val resourceVM = AspireResourceViewModel(project, cs, newResource)
                             Disposer.register(this@AspireResourceViewModel, resourceVM)
                             add(resourceVM)

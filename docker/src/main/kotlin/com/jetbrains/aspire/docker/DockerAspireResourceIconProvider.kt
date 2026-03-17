@@ -3,7 +3,7 @@ package com.jetbrains.aspire.docker
 import com.intellij.docker.DockerIcons
 import com.intellij.icons.AllIcons
 import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
-import com.jetbrains.aspire.generated.ResourceType
+import com.jetbrains.aspire.worker.ResourceType
 
 internal class DockerAspireResourceIconProvider : AspireResourceIconProvider {
     override fun getIcon(type: ResourceType, containerImage: String?) = when (type) {
