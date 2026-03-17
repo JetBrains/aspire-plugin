@@ -10,6 +10,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
+import com.intellij.platform.util.coroutines.flow.zipWithNext
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.*
@@ -22,6 +23,7 @@ import com.jetbrains.rider.run.createConsole
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
@@ -62,9 +64,6 @@ class AspireAppHost(
     val dcpInstancePrefix = generateDcpInstancePrefix()
     val browserToken = generateBrowserToken()
 
-    private val _dashboardUrl: MutableStateFlow<String?> = MutableStateFlow(null)
-    val dashboardUrl: StateFlow<String?> = _dashboardUrl.asStateFlow()
-
     private val _resources = ConcurrentHashMap<String, AspireResource>()
 
     private val _pendingChildren = ConcurrentHashMap<String, MutableList<Pair<String, AspireResource>>>()
@@ -72,64 +71,108 @@ class AspireAppHost(
     private val _rootResources = MutableStateFlow<List<AspireResource>>(emptyList())
     val rootResources: StateFlow<List<AspireResource>> = _rootResources.asStateFlow()
 
-    val appHostState = project.messageBus.subscribeAsFlow(AppHostListener.TOPIC) {
-        object : AppHostListener {
-            override fun appHostStarted(
-                appHostMainFilePath: Path,
-                runConfigName: String?,
-                processHandler: ProcessHandler
-            ) {
-                if (mainFilePath != appHostMainFilePath) return
+    private val appHostLifecycleEvents: Flow<AppHostLifecycleEvent> =
+        project.messageBus.subscribeAsFlow(AppHostListener.TOPIC) {
+            object : AppHostListener {
+                override fun appHostStarting(appHostMainFilePath: Path, environment: AppHostEnvironment) {
+                    if (mainFilePath != appHostMainFilePath) return
 
-                LOG.trace { "Aspire AppHost $mainFilePath was started" }
-                val handler =
-                    if (processHandler is DebuggerWorkerProcessHandler) processHandler.debuggerWorkerRealHandler
-                    else processHandler
-                val console = createConsole(
-                    ConsoleKind.Normal,
-                    handler,
-                    project
-                )
-                Disposer.register(this@AspireAppHost, console)
+                    LOG.trace { "Aspire AppHost $mainFilePath is starting" }
+                    trySend(AppHostLifecycleEvent.Starting(environment))
+                }
 
-                trySend(AspireAppHostState.Started(runConfigName, handler, console))
-            }
+                override fun appHostStarted(
+                    appHostMainFilePath: Path,
+                    runConfigName: String?,
+                    processHandler: ProcessHandler
+                ) {
+                    if (mainFilePath != appHostMainFilePath) return
 
-            override fun appHostStopped(appHostMainFilePath: Path) {
-                if (mainFilePath != appHostMainFilePath) return
-                LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
+                    LOG.trace { "Aspire AppHost $mainFilePath was started" }
+                    val handler =
+                        if (processHandler is DebuggerWorkerProcessHandler) processHandler.debuggerWorkerRealHandler
+                        else processHandler
+                    val console = createConsole(
+                        ConsoleKind.Normal,
+                        handler,
+                        project
+                    )
+                    Disposer.register(this@AspireAppHost, console)
 
-                trySend(AspireAppHostState.Stopped)
+                    trySend(
+                        AppHostLifecycleEvent.Started(
+                            runConfigName,
+                            handler,
+                            console
+                        )
+                    )
+                }
+
+                override fun appHostStopped(appHostMainFilePath: Path) {
+                    if (mainFilePath != appHostMainFilePath) return
+                    LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
+
+                    trySend(AppHostLifecycleEvent.Stopped)
+                }
             }
         }
-    }.stateIn(cs, SharingStarted.Eagerly, AspireAppHostState.Inactive)
+
+    val appHostState =
+        appHostLifecycleEvents.scan(AspireAppHostState.Inactive as AspireAppHostState) { previousState, event ->
+            when (event) {
+                is AppHostLifecycleEvent.Starting -> AspireAppHostState.Starting(event.environment)
+
+                is AppHostLifecycleEvent.Started -> {
+                    val environment = (previousState as? AspireAppHostState.Starting)?.environment
+                    if (environment == null) {
+                        LOG.warn("Aspire AppHost $mainFilePath started without a preceding Starting state")
+                    }
+
+                    AspireAppHostState.Started(
+                        event.runConfigName,
+                        event.processHandler,
+                        event.console,
+                        environment ?: AppHostEnvironment(null, null, null, null)
+                    )
+                }
+
+                AppHostLifecycleEvent.Stopped -> AspireAppHostState.Stopped
+            }
+        }.stateIn(cs, SharingStarted.Eagerly, AspireAppHostState.Inactive)
+
+    val dashboardUrl: StateFlow<String?> = appHostState.map {
+        when (it) {
+            AspireAppHostState.Inactive -> null
+            is AspireAppHostState.Started -> it.environment.aspireHostProjectUrl
+            is AspireAppHostState.Starting -> it.environment.aspireHostProjectUrl
+            AspireAppHostState.Stopped -> name
+        }
+    }.stateIn(cs, SharingStarted.Eagerly, null)
+
+    init {
+        cs.launch {
+            appHostState
+                .zipWithNext()
+                .collect { (previousState, currentState) ->
+                    if (currentState is AspireAppHostState.Starting) {
+                        val otlpEndpoint = currentState.environment.otlpEndpointUrl ?: return@collect
+                        val extension = OpenTelemetryProtocolServerExtension.getEnabledExtension() ?: return@collect
+                        extension.setOTLPServerEndpointForProxying(otlpEndpoint)
+                    } else if (previousState is AspireAppHostState.Started && currentState is AspireAppHostState.Stopped) {
+                        val otlpEndpoint = previousState.environment.otlpEndpointUrl ?: return@collect
+                        val extension = OpenTelemetryProtocolServerExtension.getEnabledExtension() ?: return@collect
+                        extension.removeOTLPServerEndpointForProxying(otlpEndpoint)
+                    }
+                }
+        }
+    }
 
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
         LOG.trace("Subscribing to Aspire AppHost model")
 
-        val appHostConfig = appHostModel.config
-        appHostLifetime.bracketIfAlive({
-            _dashboardUrl.value = appHostConfig.aspireHostProjectUrl
-        }, {
-            _dashboardUrl.value = null
-        })
-        setOTLPEndpointUrl(appHostConfig, appHostLifetime)
-
         appHostModel.resources.view(appHostLifetime) { resourceLifetime, resourceId, resourceModel ->
             viewResource(resourceId, resourceModel, resourceLifetime)
         }
-    }
-
-    private fun setOTLPEndpointUrl(appHostConfig: AspireHostModelConfig, appHostLifetime: Lifetime) {
-        if (appHostConfig.otlpEndpointUrl == null) return
-
-        val extension = OpenTelemetryProtocolServerExtension.getEnabledExtension() ?: return
-
-        appHostLifetime.bracketIfAlive({
-            extension.setOTLPServerEndpointForProxying(appHostConfig.otlpEndpointUrl)
-        }, {
-            extension.removeOTLPServerEndpointForProxying(appHostConfig.otlpEndpointUrl)
-        })
     }
 
     private fun viewResource(
@@ -290,13 +333,35 @@ class AspireAppHost(
         return UUID.randomUUID().toString()
     }
 
-    sealed interface AspireAppHostState {
-        data object Inactive : AspireAppHostState
+    data class AppHostEnvironment(
+        val resourceServiceEndpointUrl: String?,
+        val resourceServiceApiKey: String?,
+        val otlpEndpointUrl: String?,
+        val aspireHostProjectUrl: String?
+    )
+
+    private sealed interface AppHostLifecycleEvent {
+        data class Starting(val environment: AppHostEnvironment) : AppHostLifecycleEvent
 
         data class Started(
             val runConfigName: String?,
             val processHandler: ProcessHandler,
-            val console: ConsoleView
+            val console: ConsoleView,
+        ) : AppHostLifecycleEvent
+
+        data object Stopped : AppHostLifecycleEvent
+    }
+
+    sealed interface AspireAppHostState {
+        data object Inactive : AspireAppHostState
+
+        data class Starting(val environment: AppHostEnvironment) : AspireAppHostState
+
+        data class Started(
+            val runConfigName: String?,
+            val processHandler: ProcessHandler,
+            val console: ConsoleView,
+            val environment: AppHostEnvironment,
         ) : AspireAppHostState
 
         data object Stopped : AspireAppHostState
