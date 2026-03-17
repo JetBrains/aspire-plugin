@@ -21,14 +21,18 @@ import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.path.Path
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Domain object representing an Aspire AppHost project.
@@ -164,6 +168,49 @@ class AspireAppHost(
                         extension.removeOTLPServerEndpointForProxying(otlpEndpoint)
                     }
                 }
+        }
+
+        cs.launch {
+            var dashboardJob: Job? = null
+            appHostState
+                .zipWithNext()
+                .collect { (previousState, currentState) ->
+                    if (currentState is AspireAppHostState.Started) {
+                        dashboardJob = startDashboardClient(currentState.environment)
+                    } else if (previousState is AspireAppHostState.Started && currentState is AspireAppHostState.Stopped) {
+                        dashboardJob?.cancel()
+                        dashboardJob = null
+                    }
+                }
+        }
+    }
+
+    private fun CoroutineScope.startDashboardClient(environment: AppHostEnvironment): Job? {
+        val endpointUrl = environment.resourceServiceEndpointUrl ?: return null
+
+        LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
+
+        val client = AspireDashboardClient(endpointUrl, environment.resourceServiceApiKey)
+        return launch {
+            try {
+                client.watchResources()
+                    .retryWhen { cause, attempt ->
+                        if (cause is CancellationException) {
+                            false
+                        } else {
+                            val retryDelay = (500L * (1 shl attempt.coerceAtMost(6).toInt()))
+                                .coerceAtMost(30_000L)
+                            LOG.trace { "gRPC dashboard connection failed for $mainFilePath, retrying in ${retryDelay}ms (attempt ${attempt + 1}): ${cause.message}" }
+                            delay(retryDelay.milliseconds)
+                            true
+                        }
+                    }
+                    .collect { update ->
+                        LOG.trace { "Received resource update from gRPC dashboard: $update" }
+                    }
+            } finally {
+                client.shutdown()
+            }
         }
     }
 
