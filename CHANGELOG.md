@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [#584] Launch profile and build support for Aspire file configurations
+
 ### Fixed
 
 - [#607] Do not recreate the database connections every time the ports are different
