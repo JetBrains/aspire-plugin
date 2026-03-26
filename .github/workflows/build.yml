@@ -119,7 +119,7 @@ jobs:
       # Install Aspire templates
       - name: Install templates
         working-directory: /usr/share/dotnet
-        run: dotnet new install Aspire.ProjectTemplates@13.1.0
+        run: dotnet new install Aspire.ProjectTemplates@13.2.0
 
       # Install MAUI workload
       - name: Install MAUI workload
