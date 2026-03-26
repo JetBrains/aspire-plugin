@@ -1,5 +1,5 @@
 package com.jetbrains.aspire.dashboard
 
-const val StartResourceCommand = "resource-start"
-const val StopResourceCommand = "resource-stop"
-const val RestartResourceCommand = "resource-restart"
+const val StartResourceCommand = "start"
+const val StopResourceCommand = "stop"
+const val RestartResourceCommand = "restart"
