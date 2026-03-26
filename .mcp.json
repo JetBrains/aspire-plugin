@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "idea": {
+      "type": "sse",
+      "url": "http://localhost:64343/sse"
+    }
+  }
+}
