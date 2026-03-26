@@ -122,7 +122,7 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
         }
 
         session.templatesRaw.adviseNotNullOnce(advisingLifetime) { templates ->
-            val template = templates.firstOrNull { it.id.contains(templateId) }
+            val template = templates.filter { it.id.startsWith(templateId) }.maxByOrNull { it.id }
             deferredTemplate.complete(template)
         }
 
