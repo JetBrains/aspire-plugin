@@ -14,7 +14,6 @@ import com.intellij.util.NetworkUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.generated.*
-import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.*
 import com.jetbrains.rd.framework.*
@@ -26,12 +25,10 @@ import com.jetbrains.rd.util.threading.coroutines.asCoroutineDispatcher
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -172,17 +169,9 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     ) {
         LOG.trace("Subscribing to Aspire worker model")
 
-        val sessionEvents = Channel<SessionEvent>(Channel.UNLIMITED)
-
-        lifetime.coroutineScope.launch {
-            for (event in sessionEvents) {
-                handleSessionEvent(event, aspireWorkerModel, dispatcher)
-            }
-        }
-
         withContext(dispatcher.asCoroutineDispatcher) {
             aspireWorkerModel.createSession.set { request ->
-                createSession(request, sessionEvents, lifetime)
+                createSession(request, lifetime)
             }
 
             aspireWorkerModel.deleteSession.set { request ->
@@ -190,14 +179,13 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
             }
 
             aspireWorkerModel.aspireHosts.view(lifetime) { appHostLifetime, _, appHostModel ->
-                viewAspireAppHost(appHostModel, appHostLifetime)
+                viewAspireAppHost(appHostModel, dispatcher, appHostLifetime)
             }
         }
     }
 
     private fun createSession(
         createSessionRequest: CreateSessionRequest,
-        sessionEvents: Channel<SessionEvent>,
         lifetime: Lifetime
     ): CreateSessionResponse {
         val host = _appHosts.value.singleOrNull { it.dcpInstancePrefix == createSessionRequest.dcpInstancePrefix }
@@ -205,7 +193,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
             return CreateSessionResponse(null, ErrorCode.AspireSessionNotFound)
         }
 
-        return host.createSession(createSessionRequest, sessionEvents, lifetime)
+        return host.createSession(createSessionRequest, lifetime)
     }
 
     private fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
@@ -217,66 +205,11 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         return host.deleteSession(deleteSessionRequest)
     }
 
-    private suspend fun handleSessionEvent(
-        sessionEvent: SessionEvent,
-        aspireWorkerModel: AspireWorkerModel,
-        dispatcher: RdDispatcher
+    private fun viewAspireAppHost(
+        appHostModel: AspireHostModel,
+        dispatcher: RdDispatcher,
+        appHostLifetime: Lifetime
     ) {
-        when (sessionEvent) {
-            is SessionProcessStarted -> handleProcessStartedEvent(sessionEvent, aspireWorkerModel, dispatcher)
-            is SessionProcessTerminated -> handleProcessTerminatedEvent(sessionEvent, aspireWorkerModel, dispatcher)
-            is SessionLogReceived -> handleSessionLogReceivedEvent(sessionEvent, aspireWorkerModel, dispatcher)
-            is SessionMessageReceived -> handleSessionMessageReceivedEvent(sessionEvent, aspireWorkerModel, dispatcher)
-        }
-    }
-
-    private suspend fun handleProcessStartedEvent(
-        event: SessionProcessStarted,
-        aspireWorkerModel: AspireWorkerModel,
-        dispatcher: RdDispatcher
-    ) {
-        LOG.trace { "Aspire session started (${event.id}, ${event.pid})" }
-        withContext(dispatcher.asCoroutineDispatcher) {
-            aspireWorkerModel.processStarted.fire(ProcessStarted(event.id, event.pid))
-        }
-    }
-
-    private suspend fun handleProcessTerminatedEvent(
-        event: SessionProcessTerminated,
-        aspireWorkerModel: AspireWorkerModel,
-        dispatcher: RdDispatcher
-    ) {
-        LOG.trace { "Aspire session terminated (${event.id}, ${event.exitCode})" }
-        withContext(dispatcher.asCoroutineDispatcher) {
-            aspireWorkerModel.processTerminated.fire(ProcessTerminated(event.id, event.exitCode))
-        }
-    }
-
-    private suspend fun handleSessionLogReceivedEvent(
-        event: SessionLogReceived,
-        aspireWorkerModel: AspireWorkerModel,
-        dispatcher: RdDispatcher
-    ) {
-        LOG.trace { "Aspire session log received (${event.id}, ${event.isStdErr}, ${event.message})" }
-        withContext(dispatcher.asCoroutineDispatcher) {
-            aspireWorkerModel.logReceived.fire(LogReceived(event.id, event.isStdErr, event.message))
-        }
-    }
-
-    private suspend fun handleSessionMessageReceivedEvent(
-        event: SessionMessageReceived,
-        aspireWorkerModel: AspireWorkerModel,
-        dispatcher: RdDispatcher
-    ) {
-        LOG.trace { "Aspire session message received (${event.id}, ${event.level}, ${event.message})" }
-        withContext(dispatcher.asCoroutineDispatcher) {
-            aspireWorkerModel.messageReceived.fire(
-                MessageReceived(event.id, event.level, event.message, event.errorCode)
-            )
-        }
-    }
-
-    private fun viewAspireAppHost(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
         val appHostMainFilePath = Path(appHostModel.config.aspireHostProjectPath)
         val appHost = _appHosts.value.firstOrNull { it.mainFilePath == appHostMainFilePath }
         if (appHost == null) {
@@ -285,7 +218,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         }
 
         LOG.trace { "Setting Aspire host model to $appHostMainFilePath" }
-        appHost.subscribeToAspireAppHostModel(appHostModel, appHostLifetime)
+        appHost.subscribeToAspireAppHostModel(appHostModel, dispatcher, appHostLifetime)
     }
 
     private suspend fun calculateServerCertificate(workerLifetime: LifetimeDefinition): String? {

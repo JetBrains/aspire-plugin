@@ -1,5 +1,4 @@
-﻿using System.Threading.Channels;
-using JetBrains.Lifetimes;
+﻿using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
 using JetBrains.Rider.Aspire.Worker.RdConnection;
 
@@ -7,8 +6,6 @@ namespace JetBrains.Rider.Aspire.Worker.Sessions;
 
 internal interface ISessionService
 {
-    Task SubscribeToSessionEvents();
-    ChannelReader<ISessionEvent> SessionEventReader { get; }
     Task<(string? sessionId, Errors.IError? error)> CreateSession(string aspireHostId, Session session);
     Task<(string? sessionId, Errors.IError? error)> DeleteSession(string aspireHostId, string sessionId);
 }
@@ -19,20 +16,6 @@ internal sealed class SessionService(IRdConnectionWrapper connectionWrapper, ILo
     private readonly LifetimeDefinition _lifetimeDef = new();
 
     private readonly ILogger _logger = loggerFactory.CreateLogger<SessionService>();
-
-    private readonly Channel<ISessionEvent> _sessionEventChannel = Channel.CreateUnbounded<ISessionEvent>();
-    public ChannelReader<ISessionEvent> SessionEventReader => _sessionEventChannel.Reader;
-
-    public async Task SubscribeToSessionEvents()
-    {
-        var sessionEventWatcherLogger = loggerFactory.CreateLogger<SessionEventWatcher>();
-        var sessionEventWatcher = new SessionEventWatcher(
-            connectionWrapper,
-            _sessionEventChannel.Writer,
-            sessionEventWatcherLogger,
-            _lifetimeDef.Lifetime.CreateNested().Lifetime);
-        await sessionEventWatcher.WatchSessionEvents();
-    }
 
     public async Task<(string? sessionId, Errors.IError? error)> CreateSession(string aspireHostId, Session session)
     {

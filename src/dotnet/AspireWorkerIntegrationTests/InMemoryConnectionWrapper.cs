@@ -51,22 +51,22 @@ internal sealed class InMemoryConnectionWrapper : IRdConnectionWrapper, IDisposa
         return Task.FromResult(response);
     }
 
-    public Task AdviceOnProcessStarted(Lifetime lifetime, Action<ProcessStarted> action)
+    public Task AdviceOnProcessStarted(AspireHostModel host, Lifetime lifetime, Action<ProcessStarted> action)
     {
         return Task.CompletedTask;
     }
 
-    public Task AdviceOnProcessTerminated(Lifetime lifetime, Action<ProcessTerminated> action)
+    public Task AdviceOnProcessTerminated(AspireHostModel host, Lifetime lifetime, Action<ProcessTerminated> action)
     {
         return Task.CompletedTask;
     }
 
-    public Task AdviceOnLogReceived(Lifetime lifetime, Action<LogReceived> action)
+    public Task AdviceOnLogReceived(AspireHostModel host, Lifetime lifetime, Action<LogReceived> action)
     {
         return Task.CompletedTask;
     }
 
-    public Task AdviceOnMessageReceived(Lifetime lifetime, Action<MessageReceived> action)
+    public Task AdviceOnMessageReceived(AspireHostModel host, Lifetime lifetime, Action<MessageReceived> action)
     {
         return Task.CompletedTask;
     }

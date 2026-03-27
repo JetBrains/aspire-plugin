@@ -249,6 +249,16 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
         field("config", AspireHostModelConfig)
 
         map("resources", string, ResourceWrapper)
+
+        source("processStarted", ProcessStarted)
+            .documentation = "The notification is emitted when the run is started or the IDE restarts the service."
+        source("processTerminated", ProcessTerminated)
+            .documentation = "The notification is emitted when the session is terminated (the program ends, or is terminated by the developer)"
+        source("logReceived", LogReceived)
+            .documentation = "The notification is emitted when the service program writes something to standard output stream (stdout) or standard error (stderr)"
+        source("messageReceived", MessageReceived)
+            .documentation = "The notification is emitted when the IDE needs to notify the client (and the Aspire developer) about asynchronous events related to a debug session"
+
     }
 
     private val ErrorCode = enum {
@@ -266,14 +276,5 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
             .documentation = "Used to create a new run session for a particular Executable"
         callback("deleteSession", DeleteSessionRequest, DeleteSessionResponse)
             .documentation = "Used to stop an in-progress run session"
-
-        source("processStarted", ProcessStarted)
-            .documentation = "The notification is emitted when the run is started or the IDE restarts the service."
-        source("processTerminated", ProcessTerminated)
-            .documentation = "The notification is emitted when the session is terminated (the program ends, or is terminated by the developer)"
-        source("logReceived", LogReceived)
-            .documentation = "The notification is emitted when the service program writes something to standard output stream (stdout) or standard error (stderr)"
-        source("messageReceived", MessageReceived)
-            .documentation = "The notification is emitted when the IDE needs to notify the client (and the Aspire developer) about asynchronous events related to a debug session"
     }
 }

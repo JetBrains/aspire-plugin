@@ -26,4 +26,6 @@ internal sealed class AspireHostService(
 
         _hosts.AddLifetimed(lifetime, new KeyValuePair<string, AspireHost>(id, aspireHost));
     }
+
+    public AspireHost? GetHost(string id) => _hosts.TryGetValue(id, out var aspireHost) ? aspireHost : null;
 }
