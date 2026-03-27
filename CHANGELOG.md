@@ -7,6 +7,7 @@
 ### Added
 
 - [#584] Launch profile and build support for Aspire file configurations
+- Support for Aspire 13.2
 
 ## [2.4.3] - 2026-03-20
 
