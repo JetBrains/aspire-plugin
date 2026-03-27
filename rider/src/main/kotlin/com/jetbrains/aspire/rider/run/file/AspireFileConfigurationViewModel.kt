@@ -272,6 +272,7 @@ internal class AspireFileConfigurationViewModel(
             val effectiveLaunchBrowser =
                 if (trackBrowserLaunch) getLaunchBrowserFlag(selectedProfile?.content)
                 else dotNetStartBrowserParameters.startAfterLaunch
+
             val browserSettings = BrowserSettings(
                 effectiveLaunchBrowser,
                 dotNetStartBrowserParameters.withJavaScriptDebugger,
@@ -279,7 +280,6 @@ internal class AspireFileConfigurationViewModel(
             )
             dotNetBrowserSettingsEditor.settings.set(browserSettings)
             usePodmanRuntimeFlagEditor.isSelected.set(usePodmanRuntime)
-            urlEditor.text.set(dotNetStartBrowserParameters.url)
             isLoaded = true
         }
     }
