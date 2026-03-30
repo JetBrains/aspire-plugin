@@ -17,6 +17,8 @@ import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rd.util.threading.coroutines.asCoroutineDispatcher
+import com.jetbrains.rdclient.protocol.RdDispatcher
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.createConsole
@@ -24,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
@@ -60,6 +63,8 @@ class AspireAppHost(
     }
 
     private val cs = parentCs.childScope("Aspire AppHost")
+
+    private val sessionEvents = Channel<SessionEvent>(Channel.UNLIMITED)
 
     val dcpInstancePrefix = generateDcpInstancePrefix()
     val browserToken = generateBrowserToken()
@@ -167,11 +172,76 @@ class AspireAppHost(
         }
     }
 
-    fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, appHostLifetime: Lifetime) {
+    fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, dispatcher: RdDispatcher, appHostLifetime: Lifetime) {
         LOG.trace("Subscribing to Aspire AppHost model")
 
         appHostModel.resources.view(appHostLifetime) { resourceLifetime, resourceId, resourceModel ->
             viewResource(resourceId, resourceModel, resourceLifetime)
+        }
+
+        appHostLifetime.coroutineScope.launch {
+            for (event in sessionEvents) {
+                handleSessionEvent(event, appHostModel, dispatcher)
+            }
+        }
+    }
+
+    private suspend fun handleSessionEvent(
+        sessionEvent: SessionEvent,
+        appHostModel: AspireHostModel,
+        dispatcher: RdDispatcher
+    ) {
+        when (sessionEvent) {
+            is SessionProcessStarted -> handleProcessStartedEvent(sessionEvent, appHostModel, dispatcher)
+            is SessionProcessTerminated -> handleProcessTerminatedEvent(sessionEvent, appHostModel, dispatcher)
+            is SessionLogReceived -> handleSessionLogReceivedEvent(sessionEvent, appHostModel, dispatcher)
+            is SessionMessageReceived -> handleSessionMessageReceivedEvent(sessionEvent, appHostModel, dispatcher)
+        }
+    }
+
+    private suspend fun handleProcessStartedEvent(
+        event: SessionProcessStarted,
+        appHostModel: AspireHostModel,
+        dispatcher: RdDispatcher
+    ) {
+        LOG.trace { "Aspire session started (${event.id}, ${event.pid})" }
+        withContext(dispatcher.asCoroutineDispatcher) {
+            appHostModel.processStarted.fire(ProcessStarted(event.id, event.pid))
+        }
+    }
+
+    private suspend fun handleProcessTerminatedEvent(
+        event: SessionProcessTerminated,
+        appHostModel: AspireHostModel,
+        dispatcher: RdDispatcher
+    ) {
+        LOG.trace { "Aspire session terminated (${event.id}, ${event.exitCode})" }
+        withContext(dispatcher.asCoroutineDispatcher) {
+            appHostModel.processTerminated.fire(ProcessTerminated(event.id, event.exitCode))
+        }
+    }
+
+    private suspend fun handleSessionLogReceivedEvent(
+        event: SessionLogReceived,
+        appHostModel: AspireHostModel,
+        dispatcher: RdDispatcher
+    ) {
+        LOG.trace { "Aspire session log received (${event.id}, ${event.isStdErr}, ${event.message})" }
+        withContext(dispatcher.asCoroutineDispatcher) {
+            appHostModel.logReceived.fire(LogReceived(event.id, event.isStdErr, event.message))
+        }
+    }
+
+    private suspend fun handleSessionMessageReceivedEvent(
+        event: SessionMessageReceived,
+        appHostModel: AspireHostModel,
+        dispatcher: RdDispatcher
+    ) {
+        LOG.trace { "Aspire session message received (${event.id}, ${event.level}, ${event.message})" }
+        withContext(dispatcher.asCoroutineDispatcher) {
+            appHostModel.messageReceived.fire(
+                MessageReceived(event.id, event.level, event.message, event.errorCode)
+            )
         }
     }
 
@@ -258,7 +328,6 @@ class AspireAppHost(
 
     fun createSession(
         createSessionRequest: CreateSessionRequest,
-        sessionEvents: Channel<SessionEvent>,
         lifetime: Lifetime
     ): CreateSessionResponse {
         val appHostStartedState = appHostState.value as? AspireAppHostState.Started

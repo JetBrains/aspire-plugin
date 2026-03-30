@@ -1,6 +1,5 @@
 using System.Threading.Channels;
 using JetBrains.Lifetimes;
-using JetBrains.Rider.Aspire.Worker.AspireHost;
 using JetBrains.Rider.Aspire.Worker.Generated;
 using JetBrains.Rider.Aspire.Worker.RdConnection;
 
@@ -8,6 +7,7 @@ namespace JetBrains.Rider.Aspire.Worker.Sessions;
 
 internal sealed class SessionEventWatcher(
     IRdConnectionWrapper connectionWrapper,
+    AspireHostModel hostModel,
     ChannelWriter<ISessionEvent> sessionEventWriter,
     ILogger logger,
     Lifetime lifetime)
@@ -20,16 +20,16 @@ internal sealed class SessionEventWatcher(
 
     internal async Task WatchSessionEvents()
     {
-        await connectionWrapper.AdviceOnProcessStarted(lifetime,
+        await connectionWrapper.AdviceOnProcessStarted(hostModel, lifetime,
             it => { ProcessStarted(it, sessionEventWriter, logger); });
 
-        await connectionWrapper.AdviceOnProcessTerminated(lifetime,
+        await connectionWrapper.AdviceOnProcessTerminated(hostModel, lifetime,
             it => { ProcessTerminated(it, sessionEventWriter, logger); });
 
-        await connectionWrapper.AdviceOnLogReceived(lifetime,
+        await connectionWrapper.AdviceOnLogReceived(hostModel, lifetime,
             it => { LogReceived(it, sessionEventWriter, logger); });
 
-        await connectionWrapper.AdviceOnMessageReceived(lifetime,
+        await connectionWrapper.AdviceOnMessageReceived(hostModel, lifetime,
             it => { MessageReceived(it, sessionEventWriter, logger); });
     }
 

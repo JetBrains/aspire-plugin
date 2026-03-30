@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
+using JetBrains.Rider.Aspire.Worker.AspireHost;
 using JetBrains.Rider.Aspire.Worker.Configuration;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -155,7 +156,7 @@ internal static class SessionEndpoints
         [FromQuery(Name = "api-version")] string apiVersion,
         [FromHeader(Name = "Microsoft-Developer-DCP-Instance-ID")]
         string dcpInstanceId,
-        ISessionService sessionService,
+        IAspireHostService aspireHostService,
         IHostApplicationLifetime applicationLifetime,
         ILogger<SessionEndpointsLogger> logger)
     {
@@ -167,12 +168,12 @@ internal static class SessionEndpoints
             return;
         }
 
-        var aspireHostId = GetAspireHostId(dcpInstanceId);
-
-        var sessionEventReader = sessionService.SessionEventReader;
-
         if (context.WebSockets.IsWebSocketRequest)
         {
+            var aspireHostId = GetAspireHostId(dcpInstanceId);
+            var sessionEventReader = aspireHostService.GetHost(aspireHostId)?.SessionEventReader;
+            if (sessionEventReader == null) return;
+
             using var ws = await context.WebSockets.AcceptWebSocketAsync();
             await Receive(ws, sessionEventReader, logger, applicationLifetime.ApplicationStopping);
         }
