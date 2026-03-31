@@ -224,10 +224,10 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     private suspend fun calculateServerCertificate(workerLifetime: LifetimeDefinition): String? {
         if (!AspireSettings.getInstance().connectToDcpViaHttps) return null
 
-        val hasTrustedCertificate = checkDevCertificate(workerLifetime, project)
-        if (!hasTrustedCertificate) return null
+        val certificateCheckResult = checkDevCertificate(project)
+        if (!certificateCheckResult.isTrusted) return null
 
-        return exportCertificate(workerLifetime, project)
+        return exportCertificate(project)
     }
 
     suspend fun stop() {
