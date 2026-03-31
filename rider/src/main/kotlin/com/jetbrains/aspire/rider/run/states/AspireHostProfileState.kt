@@ -4,6 +4,7 @@ import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.util.getAspireDashboardFrontendBrowserToken
 import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
 import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
+import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
 import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
 
 interface AspireHostProfileState {
@@ -24,3 +25,6 @@ fun AspireHostProfileState.getResourceServiceApiKey() =
 
 fun AspireHostProfileState.getOtlpEndpointUrl() =
     environmentVariables.getAspireDashboardOtlpEndpointUrl()
+
+fun AspireHostProfileState.getAllowUnsecuredTransport() =
+    environmentVariables.getAspireAllowUnsecuredTransport()
