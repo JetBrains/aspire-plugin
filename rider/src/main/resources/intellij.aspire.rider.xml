@@ -1,6 +1,9 @@
 <idea-plugin>
     <dependencies>
         <module name="intellij.aspire.core"/>
+        <module name="intellij.rider.rdclient.dotnet"/>
+        <module name="intellij.rider.languages"/>
+        <module name="intellij.rd.client"/>
         <plugin id="com.intellij.modules.rider"/>
     </dependencies>
 

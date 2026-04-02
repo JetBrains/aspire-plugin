@@ -68,6 +68,8 @@ dependencies {
         testFramework(TestFrameworkType.Bundled)
 
         testBundledPlugins("tanvd.grazi")
+        testBundledModule("intellij.rider.rdclient.dotnet")
+        testBundledModule("intellij.rd.client")
     }
 
     implementation(libs.serializationJson)

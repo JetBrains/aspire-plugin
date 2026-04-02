@@ -26,5 +26,7 @@ dependencies {
             useCache = true
         }
         jetbrainsRuntime()
+        bundledModule("intellij.rider.rdclient.dotnet")
+        bundledModule("intellij.rd.client")
     }
 }

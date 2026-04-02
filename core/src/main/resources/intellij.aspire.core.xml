@@ -1,6 +1,8 @@
 <idea-plugin visibility="internal">
     <dependencies>
         <plugin id="com.intellij.modules.rider"/>
+        <module name="intellij.rider.rdclient.dotnet"/>
+        <module name="intellij.rd.client"/>
     </dependencies>
 
     <resource-bundle>messages.AspireCoreBundle</resource-bundle>
