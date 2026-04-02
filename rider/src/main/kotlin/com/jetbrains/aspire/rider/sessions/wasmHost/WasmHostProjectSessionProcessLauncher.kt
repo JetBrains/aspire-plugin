@@ -101,13 +101,4 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
 
         return executable
     }
-
-    override fun ExecutionEnvironmentBuilder.modifyExecutionEnvironmentForDebug(): ExecutionEnvironmentBuilder {
-        val defaultRunner = ProgramRunner.findRunnerById(WasmHostProjectSessionDebugProgramRunner.ID)
-        return if (defaultRunner != null) {
-            this.runner(defaultRunner)
-        } else {
-            this
-        }
-    }
 }

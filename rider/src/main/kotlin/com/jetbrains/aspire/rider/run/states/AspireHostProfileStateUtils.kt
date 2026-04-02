@@ -15,7 +15,12 @@ import java.util.concurrent.atomic.AtomicInteger
 internal fun ProcessHandler.addStoppedContainerRuntimeProcessListener(
     containerRuntimeNotificationCount: AtomicInteger,
     project: Project
-) = addProcessListener(object : ProcessListener {
+) = addProcessListener(createStoppedContainerRuntimeProcessListener(containerRuntimeNotificationCount, project))
+
+internal fun createStoppedContainerRuntimeProcessListener(
+    containerRuntimeNotificationCount: AtomicInteger,
+    project: Project
+): ProcessListener = object : ProcessListener {
     override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
         val text = decodeAnsiCommandsToString(event.text, outputType)
         checkRunningContainerRuntime(text)
@@ -31,7 +36,7 @@ internal fun ProcessHandler.addStoppedContainerRuntimeProcessListener(
             }
         }
     }
-})
+}
 
 private fun containsStoppedContainerRuntimeWarning(text: String) =
     text.contains("Ensure that Docker is running") ||
