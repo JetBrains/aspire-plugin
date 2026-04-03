@@ -55,6 +55,21 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("unitTestRunId", string)
     }
 
+    private val AspireRdResource = structdef {
+        field("name", string)
+        field("commands", immutableList(AspireRdResourceCommand))
+    }
+
+    private val AspireRdResourceCommand = structdef {
+        field("name", string)
+        field("displayName", string)
+        field("state", enum("AspireRdResourceCommandState") {
+            +"Enabled"
+            +"Disabled"
+            +"Hidden"
+        })
+    }
+
     init {
         setting(Kotlin11Generator.Namespace, "com.jetbrains.aspire.rider.generated")
         setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Plugin.Generated")
@@ -78,5 +93,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         callback("startAspireHost", StartAspireHostRequest, StartAspireHostResponse).async
         callback("stopAspireHost", StopAspireHostRequest, void).async
         sink("unitTestRunCancelled", string).async
+
+        map("resources", string, AspireRdResource)
     }
 }
