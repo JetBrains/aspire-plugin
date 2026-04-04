@@ -30,6 +30,7 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
 
     private fun mapResource(state: AspireResourceData) = AspireRdResource(
         state.name,
+        state.displayName,
         state.commands.map {
             val state = when (it.state) {
                 ResourceCommandState.Disabled -> AspireRdResourceCommandState.Disabled

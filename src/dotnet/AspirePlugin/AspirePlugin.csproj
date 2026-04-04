@@ -4,16 +4,16 @@
         <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
-    <Target BeforeTargets="CoreCompile" Name="CheckForGradlePrepared" Condition="!Exists('$(JetBrainsRiderRdBackendCommonReference)')">
+    <Target BeforeTargets="CoreCompile" Name="CheckForGradlePrepared" Condition="!Exists('$(JetBrainsRiderBackendReference)')">
         <Error Text="Please run `./gradlew :prepareDotNetPart`"/>
     </Target>
 
     <Import Project="$(MSBuildThisFileDirectory)..\..\..\build\DotNetSdkPath.Generated.props" Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\build\DotNetSdkPath.Generated.props')"/>
 
     <PropertyGroup>
-        <JetBrainsRiderRdBackendCommonReference>$(DotNetSdkPath)\Build\PackageReference.JetBrains.Rider.RdBackend.Common.Props</JetBrainsRiderRdBackendCommonReference>
+        <JetBrainsRiderBackendReference>$(DotNetSdkPath)\Build\PackageReference.JetBrains.Rider.Rider.Backend.Props</JetBrainsRiderBackendReference>
     </PropertyGroup>
 
-    <Import Project="$(JetBrainsRiderRdBackendCommonReference)" Condition="Exists('$(JetBrainsRiderRdBackendCommonReference)')"/>
+    <Import Project="$(JetBrainsRiderBackendReference)" Condition="Exists('$(JetBrainsRiderBackendReference)')"/>
 
 </Project>

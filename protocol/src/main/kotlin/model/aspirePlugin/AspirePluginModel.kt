@@ -55,8 +55,14 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("unitTestRunId", string)
     }
 
+    private val ExecuteResourceCommandRequest = structdef {
+        field("resourceName", string)
+        field("commandName", string)
+    }
+
     private val AspireRdResource = structdef {
         field("name", string)
+        field("displayName", string)
         field("commands", immutableList(AspireRdResourceCommand))
     }
 
@@ -93,6 +99,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         callback("startAspireHost", StartAspireHostRequest, StartAspireHostResponse).async
         callback("stopAspireHost", StopAspireHostRequest, void).async
         sink("unitTestRunCancelled", string).async
+        sink("executeResourceCommand", ExecuteResourceCommandRequest).async
 
         map("resources", string, AspireRdResource)
     }
