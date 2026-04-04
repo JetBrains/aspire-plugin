@@ -1,9 +1,33 @@
 using JetBrains.Rider.Aspire.Plugin.Generated;
+using JetBrains.Application.UI.Icons.CommonThemedIcons;
+using JetBrains.UI.Icons;
 
 namespace JetBrains.Rider.Aspire.Plugin.AspireResources;
 
 internal static class AspireResourcePresentation
 {
+    public static IconId GetIconId(AspireRdResource resource)
+    {
+        return resource.State switch
+        {
+            AspireRdResourceState.Running when resource.HealthStatus == AspireRdResourceHealthStatus.Unhealthy => CommonThemedIcons.Error.Id,
+            AspireRdResourceState.Running when resource.HealthStatus == AspireRdResourceHealthStatus.Degraded => CommonThemedIcons.Warning.Id,
+            AspireRdResourceState.Running => CommonThemedIcons.Success.Id,
+            AspireRdResourceState.Starting => CommonThemedIcons.Info.Id,
+            AspireRdResourceState.Waiting => CommonThemedIcons.Info.Id,
+            AspireRdResourceState.Stopping => CommonThemedIcons.Info.Id,
+            AspireRdResourceState.RuntimeUnhealthy => CommonThemedIcons.Error.Id,
+            AspireRdResourceState.FailedToStart => CommonThemedIcons.Error.Id,
+            AspireRdResourceState.Exited or AspireRdResourceState.NotStarted when resource.ExitCode is { } exitCode && exitCode != 0 => CommonThemedIcons.Error.Id,
+            AspireRdResourceState.Exited => CommonThemedIcons.Info.Id,
+            AspireRdResourceState.NotStarted => CommonThemedIcons.Info.Id,
+            AspireRdResourceState.Finished => CommonThemedIcons.Success.Id,
+            AspireRdResourceState.Hidden => CommonThemedIcons.Question.Id,
+            AspireRdResourceState.Unknown => CommonThemedIcons.Question.Id,
+            _ => CommonThemedIcons.Question.Id
+        };
+    }
+
     public static string GetDisplayText(AspireRdResource resource)
     {
         var stateText = GetStateText(resource);

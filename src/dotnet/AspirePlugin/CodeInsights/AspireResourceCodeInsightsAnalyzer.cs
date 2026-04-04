@@ -5,6 +5,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Rider.Aspire.Plugin.AspireResources;
 using JetBrains.Rider.Aspire.Plugin.RunMarkers;
+using JetBrains.Rider.Backend.Platform.Icons;
 
 namespace JetBrains.Rider.Aspire.Plugin.CodeInsights;
 
@@ -14,7 +15,8 @@ namespace JetBrains.Rider.Aspire.Plugin.CodeInsights;
     HighlightingTypes = new[] { typeof(CodeInsightsHighlighting) })]
 public class AspireResourceCodeInsightsAnalyzer(
     AspireResourceCodeInsightsProvider provider,
-    AspireResourceProtocolHost resourceProtocolHost)
+    AspireResourceProtocolHost resourceProtocolHost,
+    IconHost iconHost)
     : ElementProblemAnalyzer<ICSharpFile>, IConditionalElementProblemAnalyzer
 {
     public bool ShouldRun(IFile file, ElementProblemAnalyzerData data)
@@ -37,7 +39,7 @@ public class AspireResourceCodeInsightsAnalyzer(
                 description,
                 provider,
                 null,
-                null));
+                iconHost.Transform(AspireResourcePresentation.GetIconId(resource))));
         }
     }
 }
