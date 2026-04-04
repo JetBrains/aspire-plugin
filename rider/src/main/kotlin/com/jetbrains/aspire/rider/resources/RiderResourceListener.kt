@@ -3,9 +3,13 @@ package com.jetbrains.aspire.rider.resources
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.ResourceCommandState
+import com.jetbrains.aspire.generated.ResourceHealthStatus
+import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.rider.generated.AspireRdResource
 import com.jetbrains.aspire.rider.generated.AspireRdResourceCommand
 import com.jetbrains.aspire.rider.generated.AspireRdResourceCommandState
+import com.jetbrains.aspire.rider.generated.AspireRdResourceHealthStatus
+import com.jetbrains.aspire.rider.generated.AspireRdResourceState
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
@@ -31,6 +35,9 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
     private fun mapResource(state: AspireResourceData) = AspireRdResource(
         state.name,
         state.displayName,
+        state.state?.toRdState(),
+        state.healthStatus?.toRdHealthStatus(),
+        state.exitCode?.value,
         state.commands.map {
             val state = when (it.state) {
                 ResourceCommandState.Disabled -> AspireRdResourceCommandState.Disabled
@@ -40,4 +47,24 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
             AspireRdResourceCommand(it.name, it.displayName, state)
         }
     )
+
+    private fun ResourceState.toRdState() = when (this) {
+        ResourceState.Starting -> AspireRdResourceState.Starting
+        ResourceState.Running -> AspireRdResourceState.Running
+        ResourceState.FailedToStart -> AspireRdResourceState.FailedToStart
+        ResourceState.RuntimeUnhealthy -> AspireRdResourceState.RuntimeUnhealthy
+        ResourceState.Stopping -> AspireRdResourceState.Stopping
+        ResourceState.Exited -> AspireRdResourceState.Exited
+        ResourceState.Finished -> AspireRdResourceState.Finished
+        ResourceState.Waiting -> AspireRdResourceState.Waiting
+        ResourceState.NotStarted -> AspireRdResourceState.NotStarted
+        ResourceState.Hidden -> AspireRdResourceState.Hidden
+        ResourceState.Unknown -> AspireRdResourceState.Unknown
+    }
+
+    private fun ResourceHealthStatus.toRdHealthStatus() = when (this) {
+        ResourceHealthStatus.Healthy -> AspireRdResourceHealthStatus.Healthy
+        ResourceHealthStatus.Unhealthy -> AspireRdResourceHealthStatus.Unhealthy
+        ResourceHealthStatus.Degraded -> AspireRdResourceHealthStatus.Degraded
+    }
 }

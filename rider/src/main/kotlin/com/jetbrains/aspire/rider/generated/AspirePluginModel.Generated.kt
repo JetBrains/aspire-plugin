@@ -48,6 +48,8 @@ class AspirePluginModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(9193025171028044532), classLoader, "com.jetbrains.aspire.rider.generated.ExecuteResourceCommandRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(7139439153939830353), classLoader, "com.jetbrains.aspire.rider.generated.AspireRdResource"))
             serializers.register(LazyCompanionMarshaller(RdId(-1462618248788339782), classLoader, "com.jetbrains.aspire.rider.generated.AspireRdResourceCommand"))
+            serializers.register(LazyCompanionMarshaller(RdId(-3955766802724894528), classLoader, "com.jetbrains.aspire.rider.generated.AspireRdResourceState"))
+            serializers.register(LazyCompanionMarshaller(RdId(170121867097817695), classLoader, "com.jetbrains.aspire.rider.generated.AspireRdResourceHealthStatus"))
             serializers.register(LazyCompanionMarshaller(RdId(51593376884688119), classLoader, "com.jetbrains.aspire.rider.generated.AspireRdResourceCommandState"))
         }
         
@@ -59,7 +61,7 @@ class AspirePluginModel private constructor(
         private val __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer = ReferenceServiceDefaultsFromProjectsResponse.nullable()
         private val __GetReferencedProjectsFromAppHostResponseNullableSerializer = GetReferencedProjectsFromAppHostResponse.nullable()
         
-        const val serializationHash = -5082139564653298301L
+        const val serializationHash = -4819890500419889125L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspirePluginModel
@@ -229,12 +231,18 @@ data class AspireHostEnvironmentVariable (
 data class AspireRdResource (
     val name: String,
     val displayName: String,
+    val state: AspireRdResourceState?,
+    val healthStatus: AspireRdResourceHealthStatus?,
+    val exitCode: Int?,
     val commands: List<AspireRdResourceCommand>
 ) : IPrintable {
     //write-marshaller
     private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
         buffer.writeString(name)
         buffer.writeString(displayName)
+        buffer.writeNullable(state) { buffer.writeEnum(it) }
+        buffer.writeNullable(healthStatus) { buffer.writeEnum(it) }
+        buffer.writeNullable(exitCode) { buffer.writeInt(it) }
         buffer.writeList(commands) { v -> AspireRdResourceCommand.write(ctx, buffer, v) }
     }
     //companion
@@ -247,8 +255,11 @@ data class AspireRdResource (
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireRdResource  {
             val name = buffer.readString()
             val displayName = buffer.readString()
+            val state = buffer.readNullable { buffer.readEnum<AspireRdResourceState>() }
+            val healthStatus = buffer.readNullable { buffer.readEnum<AspireRdResourceHealthStatus>() }
+            val exitCode = buffer.readNullable { buffer.readInt() }
             val commands = buffer.readList { AspireRdResourceCommand.read(ctx, buffer) }
-            return AspireRdResource(name, displayName, commands)
+            return AspireRdResource(name, displayName, state, healthStatus, exitCode, commands)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireRdResource)  {
@@ -270,6 +281,9 @@ data class AspireRdResource (
         
         if (name != other.name) return false
         if (displayName != other.displayName) return false
+        if (state != other.state) return false
+        if (healthStatus != other.healthStatus) return false
+        if (exitCode != other.exitCode) return false
         if (commands != other.commands) return false
         
         return true
@@ -279,6 +293,9 @@ data class AspireRdResource (
         var __r = 0
         __r = __r*31 + name.hashCode()
         __r = __r*31 + displayName.hashCode()
+        __r = __r*31 + if (state != null) state.hashCode() else 0
+        __r = __r*31 + if (healthStatus != null) healthStatus.hashCode() else 0
+        __r = __r*31 + if (exitCode != null) exitCode.hashCode() else 0
         __r = __r*31 + commands.hashCode()
         return __r
     }
@@ -288,6 +305,9 @@ data class AspireRdResource (
         printer.indent {
             print("name = "); name.print(printer); println()
             print("displayName = "); displayName.print(printer); println()
+            print("state = "); state.print(printer); println()
+            print("healthStatus = "); healthStatus.print(printer); println()
+            print("exitCode = "); exitCode.print(printer); println()
             print("commands = "); commands.print(printer); println()
         }
         printer.print(")")
@@ -299,7 +319,7 @@ data class AspireRdResource (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:69]
+ * #### Generated from [AspirePluginModel.kt:88]
  */
 data class AspireRdResourceCommand (
     val name: String,
@@ -374,7 +394,7 @@ data class AspireRdResourceCommand (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:72]
+ * #### Generated from [AspirePluginModel.kt:91]
  */
 enum class AspireRdResourceCommandState {
     Enabled, 
@@ -393,6 +413,66 @@ enum class AspireRdResourceCommandState {
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireRdResourceCommandState)  {
+            marshaller.write(ctx, buffer, value)
+        }
+    }
+}
+
+
+/**
+ * #### Generated from [AspirePluginModel.kt:79]
+ */
+enum class AspireRdResourceHealthStatus {
+    Healthy, 
+    Unhealthy, 
+    Degraded;
+    
+    companion object : IMarshaller<AspireRdResourceHealthStatus> {
+        val marshaller = FrameworkMarshallers.enum<AspireRdResourceHealthStatus>()
+        
+        
+        override val _type: KClass<AspireRdResourceHealthStatus> = AspireRdResourceHealthStatus::class
+        override val id: RdId get() = RdId(170121867097817695)
+        
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireRdResourceHealthStatus {
+            return marshaller.read(ctx, buffer)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireRdResourceHealthStatus)  {
+            marshaller.write(ctx, buffer, value)
+        }
+    }
+}
+
+
+/**
+ * #### Generated from [AspirePluginModel.kt:66]
+ */
+enum class AspireRdResourceState {
+    Starting, 
+    Running, 
+    FailedToStart, 
+    RuntimeUnhealthy, 
+    Stopping, 
+    Exited, 
+    Finished, 
+    Waiting, 
+    NotStarted, 
+    Hidden, 
+    Unknown;
+    
+    companion object : IMarshaller<AspireRdResourceState> {
+        val marshaller = FrameworkMarshallers.enum<AspireRdResourceState>()
+        
+        
+        override val _type: KClass<AspireRdResourceState> = AspireRdResourceState::class
+        override val id: RdId get() = RdId(-3955766802724894528)
+        
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireRdResourceState {
+            return marshaller.read(ctx, buffer)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireRdResourceState)  {
             marshaller.write(ctx, buffer, value)
         }
     }

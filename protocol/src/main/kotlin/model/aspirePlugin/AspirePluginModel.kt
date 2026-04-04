@@ -63,6 +63,25 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
     private val AspireRdResource = structdef {
         field("name", string)
         field("displayName", string)
+        field("state", enum("AspireRdResourceState") {
+            +"Starting"
+            +"Running"
+            +"FailedToStart"
+            +"RuntimeUnhealthy"
+            +"Stopping"
+            +"Exited"
+            +"Finished"
+            +"Waiting"
+            +"NotStarted"
+            +"Hidden"
+            +"Unknown"
+        }.nullable)
+        field("healthStatus", enum("AspireRdResourceHealthStatus") {
+            +"Healthy"
+            +"Unhealthy"
+            +"Degraded"
+        }.nullable)
+        field("exitCode", int.nullable)
         field("commands", immutableList(AspireRdResourceCommand))
     }
 
