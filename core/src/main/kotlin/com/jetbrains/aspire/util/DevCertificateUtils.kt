@@ -1,5 +1,8 @@
 package com.jetbrains.aspire.util
 
+import com.intellij.execution.ExecutionException
+import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.util.ExecUtil
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
@@ -310,25 +313,42 @@ private suspend fun runDevCertificateCommands(project: Project, progressTitle: S
         return
     }
 
-    val eelApi = project.getEelDescriptor().toEelApi()
-    val executionResult = withBackgroundProgress(project, progressTitle) {
-        val allArgs = listOf("dev-certs", "https") + commands
-        LOG.trace { "Running dev certificate command: ${runtime.cliExePath.pathString} ${allArgs.joinToString(" ")}" }
-        val process = eelApi.exec.spawnProcess(runtime.cliExePath.pathString)
-            .args(allArgs)
-            .env(
-                mapOf(
-                    "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "1",
-                    "DOTNET_CLI_TELEMETRY_OPTOUT" to "1"
-                )
+    val allArgs = listOf("dev-certs", "https") + commands
+    val commandLine = GeneralCommandLine()
+        .withExePath(runtime.cliExePath.absolutePathString())
+        .withParameters(allArgs)
+        .withEnvironment("DOTNET_SKIP_FIRST_TIME_EXPERIENCE", "1")
+        .withEnvironment("DOTNET_CLI_TELEMETRY_OPTOUT", "1")
+        .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
+
+    LOG.trace { "Running dev certificate command with elevation: ${commandLine.exePath} ${allArgs.joinToString(" ")}" }
+
+    val executionResult = try {
+        withBackgroundProgress(project, progressTitle) {
+            val elevatedCommandLine = ExecUtil.sudoCommand(
+                commandLine,
+                AspireCoreBundle.message("notification.dev.certificate.elevation.prompt")
             )
-            .eelIt()
-        process.awaitProcessResult()
+            ExecUtil.execAndGetOutput(elevatedCommandLine)
+        }
+    } catch (ce: CancellationException) {
+        throw ce
+    } catch (e: ExecutionException) {
+        LOG.warn("Failed to execute elevated dev certificate command", e)
+        notifyDevCertificateCommandFailure(
+            project,
+            AspireCoreBundle.message("notification.dev.certificate.command.failed")
+        )
+        return
     }
 
     if (executionResult.exitCode == 0) {
         notifyDevCertificateCommandSuccess(project)
     } else {
+        LOG.warn(
+            "Dev certificate command failed with exit code ${executionResult.exitCode}. " +
+                    "stdout='${executionResult.stdout}', stderr='${executionResult.stderr}'"
+        )
         notifyDevCertificateCommandFailure(
             project,
             AspireCoreBundle.message("notification.dev.certificate.command.failed")
