@@ -4,8 +4,6 @@ package com.jetbrains.aspire.util
 
 import com.intellij.icons.AllIcons
 import com.intellij.ui.BadgeIconSupplier
-import com.jetbrains.aspire.generated.ResourceHealthStatus
-import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
@@ -19,22 +17,12 @@ import javax.swing.Icon
 internal fun getIcon(resourceData: AspireResourceData): Icon {
     val baseIcon = getResourceIcon(resourceData.type, resourceData.containerImage?.value)
 
-    val icon = when (resourceData.state) {
-        ResourceState.FailedToStart -> BadgeIconSupplier(baseIcon).errorIcon
-        ResourceState.RuntimeUnhealthy -> BadgeIconSupplier(baseIcon).errorIcon
-        ResourceState.Waiting -> BadgeIconSupplier(baseIcon).warningIcon
-        ResourceState.Running -> {
-            if (resourceData.healthStatus == ResourceHealthStatus.Healthy || resourceData.healthStatus == null) {
-                BadgeIconSupplier(baseIcon).liveIndicatorIcon
-            } else {
-                BadgeIconSupplier(baseIcon).warningIcon
-            }
-        }
-
-        else -> baseIcon
+    return when (getHealthStatusBadge(resourceData)) {
+        ResourceIconBadge.Error -> BadgeIconSupplier(baseIcon).errorIcon
+        ResourceIconBadge.Warning -> BadgeIconSupplier(baseIcon).warningIcon
+        ResourceIconBadge.Live -> BadgeIconSupplier(baseIcon).liveIndicatorIcon
+        ResourceIconBadge.None -> baseIcon
     }
-
-    return icon
 }
 
 @ApiStatus.Internal

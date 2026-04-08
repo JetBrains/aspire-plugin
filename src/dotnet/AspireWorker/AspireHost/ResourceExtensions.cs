@@ -53,6 +53,11 @@ internal static class ResourceExtensions
         "FailedToStart" => ResourceState.FailedToStart,
         "Starting" => ResourceState.Starting,
         "Running" => ResourceState.Running,
+        "Stopping" => ResourceState.Stopping,
+        "Waiting" => ResourceState.Waiting,
+        "NotStarted" => ResourceState.NotStarted,
+        "RuntimeUnhealthy" => ResourceState.RuntimeUnhealthy,
+        "Building" => ResourceState.Building,
         "Hidden" => ResourceState.Hidden,
         _ => ResourceState.Unknown
     };
@@ -130,10 +135,11 @@ internal static class ResourceExtensions
     );
 
     private static ResourceHealthReport ToModel(this HealthReport report) => new(
-        MapHealthStatus(report.Status),
+        report.HasStatus ? MapHealthStatus(report.Status) : null,
         report.Key,
         report.Description,
-        report.Exception
+        report.Exception,
+        report.LastRunAt?.ToDateTime()
     );
 
     private static ResourceCommand ToModel(this global::Aspire.DashboardService.Proto.V1.ResourceCommand command) => new(

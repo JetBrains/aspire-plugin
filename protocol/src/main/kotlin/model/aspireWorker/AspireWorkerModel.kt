@@ -126,6 +126,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
             +"NotStarted"
             +"Hidden"
             +"Unknown"
+            +"Building"
         }.nullable)
         field("stateStyle", enum("ResourceStateStyle") {
             +"Success"
@@ -186,6 +187,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
         field("key", string)
         field("description", string)
         field("exception", string)
+        field("lastRunAt", dateTime.nullable)
     }
 
     private val ResourceCommand = structdef {

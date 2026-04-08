@@ -86,16 +86,13 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
             val healthStatus = data.healthStatus
             val hasHealthStatus = state == ResourceState.Running && healthStatus != null
 
-            copyableLabel(state.name, color = UIUtil.FontColor.BRIGHTER)
-                .apply {
-                    if (hasHealthStatus) gap(RightGap.SMALL)
-                    else gap(RightGap.COLUMNS)
-                }
-
-            if (hasHealthStatus) {
-                copyableLabel("(${healthStatus.name})", color = UIUtil.FontColor.BRIGHTER)
-                    .gap(RightGap.COLUMNS)
+            val text = if (hasHealthStatus) {
+                "${state.name} (${healthStatus.name})"
+            } else {
+                state.name
             }
+            copyableLabel(text, color = UIUtil.FontColor.BRIGHTER)
+                .gap(RightGap.COLUMNS)
         }
     }
 
