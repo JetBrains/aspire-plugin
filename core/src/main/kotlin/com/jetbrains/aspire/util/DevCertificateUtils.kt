@@ -1,5 +1,6 @@
 package com.jetbrains.aspire.util
 
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
@@ -9,9 +10,8 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.AspireService
 import com.intellij.platform.eel.EelApi
-import com.intellij.platform.eel.EelOsFamily
-import com.intellij.platform.eel.EelPlatform
 import com.intellij.platform.eel.isMac
 import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
@@ -22,6 +22,7 @@ import com.intellij.platform.eel.spawnProcess
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.io.createDirectories
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.rider.run.configurations.runInRunToolWindow
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.web.DotNetSslCerts
 import com.jetbrains.rider.web.RiderWebBundle
@@ -33,6 +34,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.concurrency.await
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
@@ -61,8 +63,7 @@ private data class DevCertificate(
     @SerialName("Thumbprint") val thumbprint: String? = null,
     @SerialName("Version") val version: Int = 0,
     @SerialName("TrustLevel") val trustLevel: DevCertificateTrustLevel = DevCertificateTrustLevel.Unknown
-) {
-}
+)
 
 @ApiStatus.Internal
 sealed interface DevCertificateCheckResult {
@@ -124,7 +125,7 @@ suspend fun checkDevCertificate(project: Project, showNotification: Boolean = fa
     LOG.trace { "Checking dev certificate result: $result" }
 
     if (showNotification && diagnostics.requiresAttention) {
-        showNotification(project, eelApi.platform, diagnostics)
+        showNotification(project, diagnostics)
     }
 
     return result
@@ -203,8 +204,7 @@ private fun analyzeCurrentCertificates(certificates: List<DevCertificate>): DevC
 }
 
 
-@Suppress("UnstableApiUsage")
-private fun showNotification(project: Project, platform: EelPlatform, diagnostics: DevCertificateDiagnostics) {
+private fun showNotification(project: Project, diagnostics: DevCertificateDiagnostics) {
     val notificationDescription = when (val result = diagnostics.result) {
         DevCertificateCheckResult.NoCertificate ->
             AspireCoreBundle.message("notification.dev.certificate.no.certificate")
@@ -236,26 +236,22 @@ private fun showNotification(project: Project, platform: EelPlatform, diagnostic
         notificationDescription,
         NotificationType.WARNING
     )
-        .addDevCertificateActions(project, platform, diagnostics)
+        .addDevCertificateActions(project, diagnostics)
         .notify(project)
 }
 
-@Suppress("UnstableApiUsage")
 private fun Notification.addDevCertificateActions(
     project: Project,
-    platform: EelPlatform,
     diagnostics: DevCertificateDiagnostics
 ): Notification {
-    if (!platform.isMac &&
-        (diagnostics.result is DevCertificateCheckResult.NoCertificate ||
-                diagnostics.result is DevCertificateCheckResult.NotTrusted)
+    if (diagnostics.result is DevCertificateCheckResult.NoCertificate ||
+        diagnostics.result is DevCertificateCheckResult.NotTrusted
     ) {
         addAction(trustDevCertificateAction(project))
     }
 
-    if (!platform.isMac &&
-        ((diagnostics.result is DevCertificateCheckResult.Trusted && diagnostics.oldTrustedVersions.isNotEmpty()) ||
-                diagnostics.result is DevCertificateCheckResult.MultipleCertificatesIssue)
+    if ((diagnostics.result is DevCertificateCheckResult.Trusted && diagnostics.oldTrustedVersions.isNotEmpty()) ||
+        diagnostics.result is DevCertificateCheckResult.MultipleCertificatesIssue
     ) {
         addAction(cleanAndTrustDevCertificateAction(project))
     }
@@ -323,37 +319,113 @@ private suspend fun runDevCertificateCommands(project: Project, progressTitle: S
     }
 
     val eelApi = project.getEelDescriptor().toEelApi()
-    withBackgroundProgress(project, progressTitle) {
+    val environment = mapOf(
+        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "1",
+        "DOTNET_CLI_TELEMETRY_OPTOUT" to "1"
+    )
+
+    val succeeded = try {
+        if (eelApi.platform.isMac) {
+            runDevCertificateCommandsInRunToolWindow(
+                project,
+                progressTitle,
+                runtime.cliExePath.pathString,
+                commands,
+                environment
+            )
+        } else {
+            runDevCertificateCommandsWithEel(
+                project,
+                eelApi,
+                progressTitle,
+                runtime.cliExePath.pathString,
+                commands,
+                environment
+            )
+        }
+    } catch (ce: CancellationException) {
+        throw ce
+    } catch (e: Exception) {
+        LOG.warn("Unable to update HTTPS development certificates", e)
+        false
+    }
+
+    if (succeeded) {
+        notifyDevCertificateCommandSuccess(project)
+    } else {
+        notifyDevCertificateCommandFailure(
+            project,
+            AspireCoreBundle.message("notification.dev.certificate.command.failed")
+        )
+    }
+}
+
+@Suppress("UnstableApiUsage")
+private suspend fun runDevCertificateCommandsWithEel(
+    project: Project,
+    eelApi: EelApi,
+    progressTitle: String,
+    executablePath: String,
+    commands: List<String>,
+    environment: Map<String, String>
+): Boolean = withBackgroundProgress(project, progressTitle) {
+    for (command in commands) {
+        val allArgs = listOf("dev-certs", "https", command)
+        LOG.trace { "Running dev certificate command: $executablePath ${allArgs.joinToString(" ")}" }
+        val process = eelApi.exec.spawnProcess(executablePath)
+            .args(allArgs)
+            .env(environment)
+            .eelIt()
+        val executionResult = process.awaitProcessResult()
+
+        if (executionResult.exitCode != 0) {
+            val outString = executionResult.stdoutString
+            val errString = executionResult.stderrString
+            LOG.warn("Unable to update HTTPS development certificates; stdout: $outString; stderr: $errString")
+            return@withBackgroundProgress false
+        }
+    }
+
+    true
+}
+
+private suspend fun runDevCertificateCommandsInRunToolWindow(
+    project: Project,
+    progressTitle: String,
+    executablePath: String,
+    commands: List<String>,
+    environment: Map<String, String>
+): Boolean {
+    val lifetimeDef = AspireService.getInstance(project).lifetime.createNested()
+
+    try {
         for (command in commands) {
             val allArgs = listOf("dev-certs", "https", command)
-            LOG.trace { "Running dev certificate command: ${runtime.cliExePath.pathString} ${allArgs.joinToString(" ")}" }
-            val process = eelApi.exec.spawnProcess(runtime.cliExePath.pathString)
-                .args(allArgs)
-                .env(
-                    mapOf(
-                        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "1",
-                        "DOTNET_CLI_TELEMETRY_OPTOUT" to "1"
-                    )
-                )
-                .eelIt()
-            val executionResult = process.awaitProcessResult()
+            val commandLine = createDevCertificateCommandLine(executablePath, allArgs, environment)
+            LOG.trace { "Running dev certificate command in Run tool window: $commandLine" }
 
-            if (executionResult.exitCode != 0) {
-                val outString = executionResult.stdoutString
-                val errString = executionResult.stderrString
-                LOG.warn("Unable to update HTTPS development certificates; stdout: $outString; stderr: $errString")
-
-                notifyDevCertificateCommandFailure(
-                    project,
-                    AspireCoreBundle.message("notification.dev.certificate.command.failed")
-                )
-                return@withBackgroundProgress
+            val exitCode = commandLine.runInRunToolWindow(project, lifetimeDef.lifetime, progressTitle, LOG).await()
+            if (exitCode != 0) {
+                LOG.warn("Unable to update HTTPS development certificates; exitCode=$exitCode")
+                return false
             }
         }
 
-        notifyDevCertificateCommandSuccess(project)
+        return true
+    } finally {
+        lifetimeDef.terminate()
     }
 }
+
+private fun createDevCertificateCommandLine(
+    executablePath: String,
+    arguments: List<String>,
+    environment: Map<String, String>
+): GeneralCommandLine =
+    GeneralCommandLine()
+        .withExePath(executablePath)
+        .withParameters(arguments)
+        .withEnvironment(environment)
 
 private suspend fun notifyDevCertificateCommandFailure(project: Project, details: String) =
     withContext(Dispatchers.EDT) {
