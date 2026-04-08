@@ -8,6 +8,10 @@
 
 - [RIDER-137693](https://youtrack.jetbrains.com/issue/RIDER-137693) A notification about a not trusted dev-certificate
 
+### Changed
+
+- [RIDER-137695](https://youtrack.jetbrains.com/issue/RIDER-137695) Improve Aspire resource health status presentation
+
 ## [2.5.1] - 2026-03-30
 
 ### Fixed
