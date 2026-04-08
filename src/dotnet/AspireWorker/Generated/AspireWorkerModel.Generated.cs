@@ -89,7 +89,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     
     
-    protected override long SerializationHash => 2601889185461007971L;
+    protected override long SerializationHash => 2552178742071727570L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -135,7 +135,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:248</p>
+  /// <p>Generated from: AspireWorkerModel.kt:250</p>
   /// </summary>
   public sealed class AspireHostModel : RdBindableBase
   {
@@ -269,7 +269,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:232</p>
+  /// <p>Generated from: AspireWorkerModel.kt:234</p>
   /// </summary>
   public sealed class AspireHostModelConfig : IPrintable, IEquatable<AspireHostModelConfig>
   {
@@ -1105,7 +1105,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:264</p>
+  /// <p>Generated from: AspireWorkerModel.kt:266</p>
   /// </summary>
   public enum ErrorCode {
     AspireAppHostNotFound,
@@ -1567,7 +1567,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:191</p>
+  /// <p>Generated from: AspireWorkerModel.kt:193</p>
   /// </summary>
   public sealed class ResourceCommand : IPrintable, IEquatable<ResourceCommand>
   {
@@ -1703,7 +1703,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:216</p>
+  /// <p>Generated from: AspireWorkerModel.kt:218</p>
   /// </summary>
   public sealed class ResourceCommandRequest : IPrintable, IEquatable<ResourceCommandRequest>
   {
@@ -1806,7 +1806,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:222</p>
+  /// <p>Generated from: AspireWorkerModel.kt:224</p>
   /// </summary>
   public sealed class ResourceCommandResponse : IPrintable, IEquatable<ResourceCommandResponse>
   {
@@ -1899,7 +1899,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:223</p>
+  /// <p>Generated from: AspireWorkerModel.kt:225</p>
   /// </summary>
   public enum ResourceCommandResponseKind {
     Undefined,
@@ -1910,7 +1910,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:198</p>
+  /// <p>Generated from: AspireWorkerModel.kt:200</p>
   /// </summary>
   public enum ResourceCommandState {
     Enabled,
@@ -1920,7 +1920,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:157</p>
+  /// <p>Generated from: AspireWorkerModel.kt:158</p>
   /// </summary>
   public sealed class ResourceEnvironmentVariable : IPrintable, IEquatable<ResourceEnvironmentVariable>
   {
@@ -2015,7 +2015,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:184</p>
+  /// <p>Generated from: AspireWorkerModel.kt:185</p>
   /// </summary>
   public sealed class ResourceHealthReport : IPrintable, IEquatable<ResourceHealthReport>
   {
@@ -2025,6 +2025,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     [NotNull] public string Key {get; private set;}
     [NotNull] public string Description {get; private set;}
     [NotNull] public string Exception {get; private set;}
+    [CanBeNull] public DateTime? LastRunAt {get; private set;}
     
     //private fields
     //primary constructor
@@ -2032,7 +2033,8 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       [CanBeNull] ResourceHealthStatus? status,
       [NotNull] string key,
       [NotNull] string description,
-      [NotNull] string exception
+      [NotNull] string exception,
+      [CanBeNull] DateTime? lastRunAt
     )
     {
       if (key == null) throw new ArgumentNullException("key");
@@ -2043,15 +2045,17 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       Key = key;
       Description = description;
       Exception = exception;
+      LastRunAt = lastRunAt;
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([CanBeNull] out ResourceHealthStatus? status, [NotNull] out string key, [NotNull] out string description, [NotNull] out string exception)
+    public void Deconstruct([CanBeNull] out ResourceHealthStatus? status, [NotNull] out string key, [NotNull] out string description, [NotNull] out string exception, [CanBeNull] out DateTime? lastRunAt)
     {
       status = Status;
       key = Key;
       description = Description;
       exception = Exception;
+      lastRunAt = LastRunAt;
     }
     //statics
     
@@ -2061,10 +2065,12 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       var key = reader.ReadString();
       var description = reader.ReadString();
       var exception = reader.ReadString();
-      var _result = new ResourceHealthReport(status, key, description, exception);
+      var lastRunAt = ReadDateTimeNullable(ctx, reader);
+      var _result = new ResourceHealthReport(status, key, description, exception, lastRunAt);
       return _result;
     };
     public static CtxReadDelegate<ResourceHealthStatus?> ReadResourceHealthStatusNullable = new CtxReadDelegate<ResourceHealthStatus>(JetBrains.Rd.Impl.Serializers.ReadEnum<ResourceHealthStatus>).NullableStruct();
+    public static CtxReadDelegate<DateTime?> ReadDateTimeNullable = JetBrains.Rd.Impl.Serializers.ReadDateTime.NullableStruct();
     
     public static CtxWriteDelegate<ResourceHealthReport> Write = (ctx, writer, value) => 
     {
@@ -2072,8 +2078,10 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
       writer.Write(value.Key);
       writer.Write(value.Description);
       writer.Write(value.Exception);
+      WriteDateTimeNullable(ctx, writer, value.LastRunAt);
     };
     public static  CtxWriteDelegate<ResourceHealthStatus?> WriteResourceHealthStatusNullable = new CtxWriteDelegate<ResourceHealthStatus>(JetBrains.Rd.Impl.Serializers.WriteEnum<ResourceHealthStatus>).NullableStruct();
+    public static  CtxWriteDelegate<DateTime?> WriteDateTimeNullable = JetBrains.Rd.Impl.Serializers.WriteDateTime.NullableStruct();
     
     //constants
     
@@ -2091,7 +2099,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Equals(Status, other.Status) && Key == other.Key && Description == other.Description && Exception == other.Exception;
+      return Equals(Status, other.Status) && Key == other.Key && Description == other.Description && Exception == other.Exception && Equals(LastRunAt, other.LastRunAt);
     }
     //hash code trait
     public override int GetHashCode()
@@ -2102,6 +2110,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
         hash = hash * 31 + Key.GetHashCode();
         hash = hash * 31 + Description.GetHashCode();
         hash = hash * 31 + Exception.GetHashCode();
+        hash = hash * 31 + (LastRunAt != null ? LastRunAt.GetHashCode() : 0);
         return hash;
       }
     }
@@ -2114,6 +2123,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
         printer.Print("key = "); Key.PrintEx(printer); printer.Println();
         printer.Print("description = "); Description.PrintEx(printer); printer.Println();
         printer.Print("exception = "); Exception.PrintEx(printer); printer.Println();
+        printer.Print("lastRunAt = "); LastRunAt.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -2128,7 +2138,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:178</p>
+  /// <p>Generated from: AspireWorkerModel.kt:179</p>
   /// </summary>
   public enum ResourceHealthStatus {
     Healthy,
@@ -2138,7 +2148,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:210</p>
+  /// <p>Generated from: AspireWorkerModel.kt:212</p>
   /// </summary>
   public sealed class ResourceLog : IPrintable, IEquatable<ResourceLog>
   {
@@ -2481,7 +2491,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:150</p>
+  /// <p>Generated from: AspireWorkerModel.kt:151</p>
   /// </summary>
   public sealed class ResourceProperty : IPrintable, IEquatable<ResourceProperty>
   {
@@ -2594,7 +2604,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:205</p>
+  /// <p>Generated from: AspireWorkerModel.kt:207</p>
   /// </summary>
   public sealed class ResourceRelationship : IPrintable, IEquatable<ResourceRelationship>
   {
@@ -2701,12 +2711,13 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     Waiting,
     NotStarted,
     Hidden,
-    Unknown
+    Unknown,
+    Building
   }
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:130</p>
+  /// <p>Generated from: AspireWorkerModel.kt:131</p>
   /// </summary>
   public enum ResourceStateStyle {
     Success,
@@ -2735,7 +2746,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:162</p>
+  /// <p>Generated from: AspireWorkerModel.kt:163</p>
   /// </summary>
   public sealed class ResourceUrl : IPrintable, IEquatable<ResourceUrl>
   {
@@ -2863,7 +2874,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspireWorkerModel.kt:171</p>
+  /// <p>Generated from: AspireWorkerModel.kt:172</p>
   /// </summary>
   public sealed class ResourceVolume : IPrintable, IEquatable<ResourceVolume>
   {

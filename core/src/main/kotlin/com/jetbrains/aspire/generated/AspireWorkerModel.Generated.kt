@@ -82,7 +82,7 @@ class AspireWorkerModel private constructor(
         }
         
         
-        const val serializationHash = 2601889185461007971L
+        const val serializationHash = 2552178742071727570L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
@@ -145,7 +145,7 @@ val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:248]
+ * #### Generated from [AspireWorkerModel.kt:250]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -271,7 +271,7 @@ class AspireHostModel private constructor(
  * @property resourceServiceApiKey `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
  * @property otlpEndpointUrl `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
- * #### Generated from [AspireWorkerModel.kt:232]
+ * #### Generated from [AspireWorkerModel.kt:234]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -906,7 +906,7 @@ data class DeleteSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:264]
+ * #### Generated from [AspireWorkerModel.kt:266]
  */
 enum class ErrorCode {
     AspireAppHostNotFound, 
@@ -1264,7 +1264,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:191]
+ * #### Generated from [AspireWorkerModel.kt:193]
  */
 data class ResourceCommand (
     val name: String,
@@ -1363,7 +1363,7 @@ data class ResourceCommand (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:216]
+ * #### Generated from [AspireWorkerModel.kt:218]
  */
 data class ResourceCommandRequest (
     val commandName: String,
@@ -1438,7 +1438,7 @@ data class ResourceCommandRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:222]
+ * #### Generated from [AspireWorkerModel.kt:224]
  */
 data class ResourceCommandResponse (
     val kind: ResourceCommandResponseKind,
@@ -1507,7 +1507,7 @@ data class ResourceCommandResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:223]
+ * #### Generated from [AspireWorkerModel.kt:225]
  */
 enum class ResourceCommandResponseKind {
     Undefined, 
@@ -1534,7 +1534,7 @@ enum class ResourceCommandResponseKind {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:198]
+ * #### Generated from [AspireWorkerModel.kt:200]
  */
 enum class ResourceCommandState {
     Enabled, 
@@ -1560,7 +1560,7 @@ enum class ResourceCommandState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:157]
+ * #### Generated from [AspireWorkerModel.kt:158]
  */
 data class ResourceEnvironmentVariable (
     val key: String,
@@ -1629,13 +1629,14 @@ data class ResourceEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:184]
+ * #### Generated from [AspireWorkerModel.kt:185]
  */
 data class ResourceHealthReport (
     val status: ResourceHealthStatus?,
     val key: String,
     val description: String,
-    val exception: String
+    val exception: String,
+    val lastRunAt: Date?
 ) : IPrintable {
     //write-marshaller
     private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
@@ -1643,6 +1644,7 @@ data class ResourceHealthReport (
         buffer.writeString(key)
         buffer.writeString(description)
         buffer.writeString(exception)
+        buffer.writeNullable(lastRunAt) { buffer.writeDateTime(it) }
     }
     //companion
     
@@ -1656,7 +1658,8 @@ data class ResourceHealthReport (
             val key = buffer.readString()
             val description = buffer.readString()
             val exception = buffer.readString()
-            return ResourceHealthReport(status, key, description, exception)
+            val lastRunAt = buffer.readNullable { buffer.readDateTime() }
+            return ResourceHealthReport(status, key, description, exception, lastRunAt)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ResourceHealthReport)  {
@@ -1680,6 +1683,7 @@ data class ResourceHealthReport (
         if (key != other.key) return false
         if (description != other.description) return false
         if (exception != other.exception) return false
+        if (lastRunAt != other.lastRunAt) return false
         
         return true
     }
@@ -1690,6 +1694,7 @@ data class ResourceHealthReport (
         __r = __r*31 + key.hashCode()
         __r = __r*31 + description.hashCode()
         __r = __r*31 + exception.hashCode()
+        __r = __r*31 + if (lastRunAt != null) lastRunAt.hashCode() else 0
         return __r
     }
     //pretty print
@@ -1700,6 +1705,7 @@ data class ResourceHealthReport (
             print("key = "); key.print(printer); println()
             print("description = "); description.print(printer); println()
             print("exception = "); exception.print(printer); println()
+            print("lastRunAt = "); lastRunAt.print(printer); println()
         }
         printer.print(")")
     }
@@ -1710,7 +1716,7 @@ data class ResourceHealthReport (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:178]
+ * #### Generated from [AspireWorkerModel.kt:179]
  */
 enum class ResourceHealthStatus {
     Healthy, 
@@ -1736,7 +1742,7 @@ enum class ResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:210]
+ * #### Generated from [AspireWorkerModel.kt:212]
  */
 data class ResourceLog (
     val text: String,
@@ -1970,7 +1976,7 @@ data class ResourceModel (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:150]
+ * #### Generated from [AspireWorkerModel.kt:151]
  */
 data class ResourceProperty (
     val name: String,
@@ -2051,7 +2057,7 @@ data class ResourceProperty (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:205]
+ * #### Generated from [AspireWorkerModel.kt:207]
  */
 data class ResourceRelationship (
     val resourceName: String,
@@ -2133,7 +2139,8 @@ enum class ResourceState {
     Waiting, 
     NotStarted, 
     Hidden, 
-    Unknown;
+    Unknown, 
+    Building;
     
     companion object : IMarshaller<ResourceState> {
         val marshaller = FrameworkMarshallers.enum<ResourceState>()
@@ -2154,7 +2161,7 @@ enum class ResourceState {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:130]
+ * #### Generated from [AspireWorkerModel.kt:131]
  */
 enum class ResourceStateStyle {
     Success, 
@@ -2215,7 +2222,7 @@ enum class ResourceType {
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:162]
+ * #### Generated from [AspireWorkerModel.kt:163]
  */
 data class ResourceUrl (
     val endpointName: String?,
@@ -2308,7 +2315,7 @@ data class ResourceUrl (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:171]
+ * #### Generated from [AspireWorkerModel.kt:172]
  */
 data class ResourceVolume (
     val source: String,

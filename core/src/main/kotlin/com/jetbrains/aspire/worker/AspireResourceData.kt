@@ -1,6 +1,7 @@
 package com.jetbrains.aspire.worker
 
 import com.jetbrains.aspire.generated.*
+import com.jetbrains.aspire.util.calculateHealthStatus
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -20,6 +21,7 @@ data class AspireResourceData(
     val type: ResourceType,
     val displayName: String,
     val state: ResourceState?,
+    val stateStyle: ResourceStateStyle?,
     val isHidden: Boolean,
     val healthStatus: ResourceHealthStatus?,
     val urls: List<ResourceUrl>,
@@ -66,9 +68,8 @@ internal fun ResourceModel?.toAspireResourceData(previousState: ResourceState? =
         ?.let { Instant.fromEpochMilliseconds(it) }
         ?.toLocalDateTime(timezone)
 
-    val healthStatus = extractHealthStatus(this?.healthReports ?: emptyArray())
-
     val state = if (previousState != ResourceState.Hidden) this?.state else ResourceState.Hidden
+    val healthStatus = calculateHealthStatus(state, this?.healthReports)
 
     val properties = this?.properties ?: emptyArray()
 
@@ -120,6 +121,7 @@ internal fun ResourceModel?.toAspireResourceData(previousState: ResourceState? =
         type = this?.type ?: ResourceType.Unknown,
         displayName = this?.displayName ?: "",
         state = state,
+        stateStyle = this?.stateStyle,
         isHidden = this?.isHidden ?: false,
         healthStatus = healthStatus,
         urls = this?.urls?.toList() ?: emptyList(),
@@ -151,10 +153,3 @@ internal fun ResourceModel?.toAspireResourceData(previousState: ResourceState? =
 
 internal fun ResourceModel.findParentResourceName(): String? =
     relationships.firstOrNull { it.type.equals("parent", true) }?.resourceName
-
-private fun extractHealthStatus(healthReports: Array<ResourceHealthReport>): ResourceHealthStatus? {
-    if (healthReports.isEmpty()) return null
-    return healthReports.last().status
-}
-
-
