@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- [RIDER-137693](https://youtrack.jetbrains.com/issue/RIDER-137693) A notification about a not trusted dev-certificate
+
+## [2.5.1] - 2026-03-30
+
 ### Fixed
 
 - Some logs can be missing after the restart of an AppHost project 
@@ -640,7 +646,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.5.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.5.1...HEAD
+[2.5.1]: https://github.com/JetBrains/aspire-plugin/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/JetBrains/aspire-plugin/compare/2.4.3...2.5.0
 [2.4.3]: https://github.com/JetBrains/aspire-plugin/compare/2.4.2...2.4.3
 [2.4.2]: https://github.com/JetBrains/aspire-plugin/compare/2.4.1...2.4.2

@@ -53,6 +53,8 @@ class AspireHostDebugProgramRunner : DotNetDebugRunner() {
             .lifetime
             .createNested()
 
+        checkAndNotifyDevCertificate(state, env.project)
+
         setUpAspireHostModelAndSaveRunConfig(env, state, aspireHostProcessHandlerLifetime)
 
         val executionResult = state.execute(env.executor, this, workerProcessHandler, sessionLifetime)
