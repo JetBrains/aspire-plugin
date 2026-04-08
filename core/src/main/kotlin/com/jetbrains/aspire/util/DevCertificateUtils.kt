@@ -144,8 +144,9 @@ private suspend fun collectDevCertificateDiagnostics(eelApi: EelApi, project: Pr
             .args("dev-certs", "https", "--check-trust-machine-readable")
             .env(
                 mapOf(
-                    "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "1",
-                    "DOTNET_CLI_TELEMETRY_OPTOUT" to "1",
+                    "DOTNET_NOLOGO" to "true",
+                    "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "true",
+                    "DOTNET_CLI_TELEMETRY_OPTOUT" to "true",
                     "DOTNET_GENERATE_ASPNET_CERTIFICATE" to "false"
                 )
             )
@@ -320,8 +321,9 @@ private suspend fun runDevCertificateCommands(project: Project, progressTitle: S
 
     val eelApi = project.getEelDescriptor().toEelApi()
     val environment = mapOf(
-        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "1",
-        "DOTNET_CLI_TELEMETRY_OPTOUT" to "1"
+        "DOTNET_NOLOGO" to "true",
+        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "true",
+        "DOTNET_CLI_TELEMETRY_OPTOUT" to "true"
     )
 
     val succeeded = try {
@@ -466,8 +468,9 @@ internal suspend fun exportCertificate(project: Project): String? {
                 .args("dev-certs", "https", "--export-path", certificateFile.absolutePathString(), "--format", "PEM")
                 .env(
                     mapOf(
-                        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "1",
-                        "DOTNET_CLI_TELEMETRY_OPTOUT" to "1",
+                        "DOTNET_NOLOGO" to "true",
+                        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "true",
+                        "DOTNET_CLI_TELEMETRY_OPTOUT" to "true",
                         "DOTNET_GENERATE_ASPNET_CERTIFICATE" to "false"
                     )
                 )
