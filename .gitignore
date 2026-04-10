@@ -11,3 +11,5 @@ output
 *.DotSettings.user
 nuget.config
 *.private.env.json
+.air
+.junie

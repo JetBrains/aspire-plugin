@@ -1,7 +1,0 @@
-{
-  "model": "opus",
-  "permissions": {
-    "defaultMode": "plan"
-  },
-  "enabledMcpjsonServers": ["idea"]
-}
