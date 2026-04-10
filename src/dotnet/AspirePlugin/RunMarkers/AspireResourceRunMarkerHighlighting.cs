@@ -10,7 +10,7 @@ namespace JetBrains.Rider.Aspire.Plugin.RunMarkers;
 public class AspireResourceRunMarkerHighlighting(
     IProject project,
     string fullName,
-    string declarationResourceName,
+    string resourceName,
     string toolTip,
     string attributeId,
     DocumentRange range,
@@ -24,7 +24,7 @@ public class AspireResourceRunMarkerHighlighting(
 
     public string FullName { get; } = fullName;
 
-    public string DeclarationResourceName { get; } = declarationResourceName;
+    public string ResourceName { get; } = resourceName;
 
     public string ToolTip { get; } = toolTip;
 

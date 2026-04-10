@@ -5,11 +5,13 @@ import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.ResourceCommandState
 import com.jetbrains.aspire.generated.ResourceHealthStatus
 import com.jetbrains.aspire.generated.ResourceState
+import com.jetbrains.aspire.generated.ResourceStateStyle
 import com.jetbrains.aspire.rider.generated.AspireRdResource
 import com.jetbrains.aspire.rider.generated.AspireRdResourceCommand
 import com.jetbrains.aspire.rider.generated.AspireRdResourceCommandState
 import com.jetbrains.aspire.rider.generated.AspireRdResourceHealthStatus
 import com.jetbrains.aspire.rider.generated.AspireRdResourceState
+import com.jetbrains.aspire.rider.generated.AspireRdResourceStateStyle
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
@@ -36,6 +38,7 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
         state.name,
         state.displayName,
         state.state?.toRdState(),
+        state.stateStyle?.toRdStateStyle(),
         state.healthStatus?.toRdHealthStatus(),
         state.exitCode?.value,
         state.commands.map {
@@ -49,6 +52,7 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
     )
 
     private fun ResourceState.toRdState() = when (this) {
+        ResourceState.Building -> AspireRdResourceState.Building
         ResourceState.Starting -> AspireRdResourceState.Starting
         ResourceState.Running -> AspireRdResourceState.Running
         ResourceState.FailedToStart -> AspireRdResourceState.FailedToStart
@@ -60,6 +64,14 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
         ResourceState.NotStarted -> AspireRdResourceState.NotStarted
         ResourceState.Hidden -> AspireRdResourceState.Hidden
         ResourceState.Unknown -> AspireRdResourceState.Unknown
+    }
+
+    private fun ResourceStateStyle.toRdStateStyle() = when (this) {
+        ResourceStateStyle.Success -> AspireRdResourceStateStyle.Success
+        ResourceStateStyle.Info -> AspireRdResourceStateStyle.Info
+        ResourceStateStyle.Warning -> AspireRdResourceStateStyle.Warning
+        ResourceStateStyle.Error -> AspireRdResourceStateStyle.Error
+        ResourceStateStyle.Unknown -> AspireRdResourceStateStyle.Unknown
     }
 
     private fun ResourceHealthStatus.toRdHealthStatus() = when (this) {

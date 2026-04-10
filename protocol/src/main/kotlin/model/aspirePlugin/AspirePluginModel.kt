@@ -64,6 +64,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("name", string)
         field("displayName", string)
         field("state", enum("AspireRdResourceState") {
+            +"Building"
             +"Starting"
             +"Running"
             +"FailedToStart"
@@ -74,6 +75,13 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
             +"Waiting"
             +"NotStarted"
             +"Hidden"
+            +"Unknown"
+        }.nullable)
+        field("stateStyle", enum("AspireRdResourceStateStyle") {
+            +"Success"
+            +"Info"
+            +"Warning"
+            +"Error"
             +"Unknown"
         }.nullable)
         field("healthStatus", enum("AspireRdResourceHealthStatus") {

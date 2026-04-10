@@ -14,18 +14,28 @@ internal static class AspireResourceDeclarationCollector
         "apphost.cs"
     };
 
-    public static bool IsApplicable(IFile file)
+    internal static bool IsApplicable(IFile file)
     {
         if (file is not ICSharpFile) return false;
 
-        var project = file.GetProject();
-        if (project == null || !project.IsAspireHostProject()) return false;
-
         var sourceFile = file.GetSourceFile();
-        return sourceFile != null && OurAppHostFileNames.Contains(sourceFile.Name);
+        var project = file.GetProject();
+        if (sourceFile is null || project is null) return false;
+
+        return IsApplicable(project, sourceFile.Name);
     }
 
-    public static IEnumerable<AspireResourceDeclarationInfo> Collect(ICSharpFile csharpFile)
+    internal static bool IsApplicable(IProjectFile? projectFile)
+    {
+        if (projectFile?.LanguageType is not CSharpProjectFileType) return false;
+
+        var project = projectFile.GetProject();
+        if (project is null) return false;
+
+        return IsApplicable(project, projectFile.Name);
+    }
+
+    internal static IEnumerable<AspireResourceDeclarationInfo> Collect(ICSharpFile csharpFile)
     {
         foreach (var declarationStatement in csharpFile.Descendants<IDeclarationStatement>())
         {
@@ -48,7 +58,7 @@ internal static class AspireResourceDeclarationCollector
         IDeclarationStatement declarationStatement,
         out AspireResourceDeclarationInfo? declarationInfo)
     {
-        var variableDeclaration = declarationStatement.VariableDeclarations.FirstOrDefault();
+        var variableDeclaration = declarationStatement.VariableDeclarationsEnumerable.FirstOrDefault();
         var expression = (variableDeclaration?.Initial as IExpressionInitializer)?.Value;
         return TryCreateDeclarationInfo(declarationStatement, expression, out declarationInfo);
     }
@@ -118,6 +128,11 @@ internal static class AspireResourceDeclarationCollector
         }
 
         return null;
+    }
+
+    private static bool IsApplicable(IProject project, string fileName)
+    {
+        return project.IsAspireHostProject() && OurAppHostFileNames.Contains(fileName);
     }
 }
 
