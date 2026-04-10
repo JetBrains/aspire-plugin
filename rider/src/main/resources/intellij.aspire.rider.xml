@@ -22,6 +22,8 @@
                   topic="com.intellij.execution.ExecutionListener"/>
         <listener class="com.jetbrains.aspire.rider.sessions.SessionProfileModeService$Listener"
                   topic="com.intellij.execution.ExecutionListener"/>
+        <listener class="com.jetbrains.aspire.rider.resources.RiderResourceListener"
+                  topic="com.jetbrains.aspire.dashboard.ResourceListener"/>
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -41,6 +43,8 @@
 
         <rd.solutionExtListener endpoint="IDE Frontend"
                                 listener="com.jetbrains.aspire.rider.unitTests.AspireUnitTestProtocolListener"/>
+        <rd.solutionExtListener endpoint="IDE Frontend"
+                                listener="com.jetbrains.aspire.rider.resources.RiderResourceProtocolListener"/>
         <stepsBeforeRunProvider implementation="com.jetbrains.aspire.rider.run.file.BuildAspireFileBeforeRunTaskProvider"/>
     </extensions>
 

@@ -55,6 +55,54 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("unitTestRunId", string)
     }
 
+    private val ExecuteResourceCommandRequest = structdef {
+        field("resourceName", string)
+        field("commandName", string)
+    }
+
+    private val AspireRdResource = structdef {
+        field("name", string)
+        field("displayName", string)
+        field("state", enum("AspireRdResourceState") {
+            +"Building"
+            +"Starting"
+            +"Running"
+            +"FailedToStart"
+            +"RuntimeUnhealthy"
+            +"Stopping"
+            +"Exited"
+            +"Finished"
+            +"Waiting"
+            +"NotStarted"
+            +"Hidden"
+            +"Unknown"
+        }.nullable)
+        field("stateStyle", enum("AspireRdResourceStateStyle") {
+            +"Success"
+            +"Info"
+            +"Warning"
+            +"Error"
+            +"Unknown"
+        }.nullable)
+        field("healthStatus", enum("AspireRdResourceHealthStatus") {
+            +"Healthy"
+            +"Unhealthy"
+            +"Degraded"
+        }.nullable)
+        field("exitCode", int.nullable)
+        field("commands", immutableList(AspireRdResourceCommand))
+    }
+
+    private val AspireRdResourceCommand = structdef {
+        field("name", string)
+        field("displayName", string)
+        field("state", enum("AspireRdResourceCommandState") {
+            +"Enabled"
+            +"Disabled"
+            +"Hidden"
+        })
+    }
+
     init {
         setting(Kotlin11Generator.Namespace, "com.jetbrains.aspire.rider.generated")
         setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Plugin.Generated")
@@ -78,5 +126,8 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         callback("startAspireHost", StartAspireHostRequest, StartAspireHostResponse).async
         callback("stopAspireHost", StopAspireHostRequest, void).async
         sink("unitTestRunCancelled", string).async
+        sink("executeResourceCommand", ExecuteResourceCommandRequest).async
+
+        map("resources", string, AspireRdResource)
     }
 }
