@@ -7,6 +7,7 @@
 ### Added
 
 - [RIDER-137693](https://youtrack.jetbrains.com/issue/RIDER-137693) A notification about a not trusted dev-certificate
+- [RIDER-137694](https://youtrack.jetbrains.com/issue/RIDER-137694) Show resource health status and commands in the editor
 
 ### Changed
 
