@@ -87,7 +87,7 @@ internal class DatabaseConnectionUrlConverter(private val project: Project) {
         }
         host?.let { sb.append(it) }
         port?.let { sb.append(":").append(it) }
-        if (ssl?.lowercase() == "true") sb.append("?ssl=true")
+        if (ssl?.lowercase() == "true") sb.append("?ssl=true&verifyServerCertificate=false")
 
         return sb.toString()
     }

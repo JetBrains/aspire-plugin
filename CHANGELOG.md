@@ -12,6 +12,10 @@
 
 - [RIDER-137695](https://youtrack.jetbrains.com/issue/RIDER-137695) Improve Aspire resource health status presentation
 
+### Fixed
+
+- [#639](https://github.com/JetBrains/aspire-plugin/issues/639) Use `verifyServerCertificate=false` for Redis SSL connection
+
 ## [2.5.1] - 2026-03-30
 
 ### Fixed
