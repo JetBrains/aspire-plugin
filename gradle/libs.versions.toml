@@ -9,7 +9,7 @@ testng = "7.12.0"
 
 # plugins
 kotlin = "2.3.20"
-intelliJPlatform = "2.13.1"
+intelliJPlatform = "2.14.0"
 changelog = "2.5.0"
 
 [libraries]
