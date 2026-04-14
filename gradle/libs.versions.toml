@@ -20,6 +20,7 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
 
 [plugins]
 intelliJPlatform = { id = "org.jetbrains.intellij.platform" }
+intelliJPlatformModule = { id = "org.jetbrains.intellij.platform.module" }
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

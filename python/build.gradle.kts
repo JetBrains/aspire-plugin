@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin)
-    id("org.jetbrains.intellij.platform.module")
+    alias(libs.plugins.intelliJPlatformModule)
 }
 
 dependencies {
