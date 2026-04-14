@@ -1,30 +1,16 @@
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.serialization)
-    id("org.jetbrains.intellij.platform.module")
-}
-
-kotlin {
-    jvmToolchain(21)
-}
-
-repositories {
-    mavenCentral()
-
-    intellijPlatform {
-        defaultRepositories()
-        jetbrainsRuntime()
-    }
+    alias(libs.plugins.intelliJPlatformModule)
 }
 
 dependencies {
-    implementation(libs.serializationJson)
+    compileOnly(libs.serializationJson)
 
     intellijPlatform {
         rider(providers.gradleProperty("riderVersion")) {
             useInstaller = false
             useCache = true
         }
-        jetbrainsRuntime()
     }
 }

@@ -5,10 +5,6 @@ plugins {
     id("com.jetbrains.rdgen") version libs.versions.rdGen
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(libs.rdGen)
     implementation(libs.kotlinStdLib)

@@ -1,18 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin)
-    id("org.jetbrains.intellij.platform.module")
-}
-
-kotlin {
-    jvmToolchain(21)
-}
-
-repositories {
-    mavenCentral()
-
-    intellijPlatform {
-        defaultRepositories()
-    }
+    alias(libs.plugins.intelliJPlatformModule)
 }
 
 dependencies {

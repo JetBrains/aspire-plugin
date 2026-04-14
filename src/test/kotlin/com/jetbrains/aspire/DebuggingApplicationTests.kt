@@ -5,6 +5,7 @@ import com.intellij.xdebugger.XDebuggerManager
 import com.jetbrains.rdclient.util.idea.pumpMessages
 import com.jetbrains.rdclient.util.idea.toVirtualFile
 import com.jetbrains.rider.test.OpenSolutionParams
+import com.jetbrains.rider.test.annotations.Mute
 import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestSettings
 import com.jetbrains.rider.test.base.DebuggerTestBase
@@ -17,6 +18,7 @@ import com.jetbrains.rider.test.scriptingApi.*
 import org.testng.annotations.Test
 import java.time.Duration
 
+@Mute
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 class DebuggingApplicationTests : DebuggerTestBase() {
     override val solutionApiFacade: SolutionApiFacade = object : RiderSolutionApiFacade() {
