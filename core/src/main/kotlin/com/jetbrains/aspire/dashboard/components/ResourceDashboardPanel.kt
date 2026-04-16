@@ -113,6 +113,10 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
             val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
             actionButton(restartAction)
         }
+        if (data.type == ResourceType.Project) {
+            val rebuildAction = ActionManager.getInstance().getAction("Aspire.Resource.Rebuild")
+            actionButton(rebuildAction)
+        }
         if (data.commands.hasNonDefaultCommands()) {
             val executeCommandAction = ActionManager.getInstance().getAction("Aspire.Resource.Execute.Command")
             actionButton(executeCommandAction)
