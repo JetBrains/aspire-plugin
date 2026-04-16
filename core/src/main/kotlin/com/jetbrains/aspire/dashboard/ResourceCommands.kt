@@ -24,8 +24,10 @@ internal fun List<ResourceCommand>.findRestartCommand() = firstOrNull {
 }
 
 internal const val RebuildResourceCommand = "rebuild"
+internal const val ObsoleteRebuildResourceCommand = "resource-rebuild"
 internal fun List<ResourceCommand>.findRebuildCommand() = firstOrNull {
-    it.name.equals(RebuildResourceCommand, true)
+    it.name.equals(RebuildResourceCommand, true) ||
+    it.name.equals(ObsoleteRebuildResourceCommand, true)
 }
 
 internal fun List<ResourceCommand>.hasNonDefaultCommands() = any {
@@ -43,4 +45,5 @@ private fun ResourceCommand.isNonDefault() =
     !name.equals(ObsoleteStopResourceCommand, true) &&
     !name.equals(RestartResourceCommand, true) &&
     !name.equals(ObsoleteRestartResourceCommand, true) &&
-    !name.equals(RebuildResourceCommand, true)
+    !name.equals(RebuildResourceCommand, true) &&
+    !name.equals(ObsoleteRebuildResourceCommand, true)
