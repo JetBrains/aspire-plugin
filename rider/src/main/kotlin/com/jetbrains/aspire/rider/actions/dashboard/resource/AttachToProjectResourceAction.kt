@@ -13,7 +13,7 @@ import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
 import kotlinx.coroutines.launch
 import kotlin.io.path.absolutePathString
 
-class AttachToProjectResourceAction : AspireResourceBaseAction() {
+internal class AttachToProjectResourceAction : AspireResourceBaseAction() {
     override fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project) {
         val resourceData = aspireResource.resourceState.value
         val pid = resourceData.pid?.value ?: return

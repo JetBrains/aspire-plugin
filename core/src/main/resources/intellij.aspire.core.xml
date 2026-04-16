@@ -116,6 +116,11 @@
                     icon="AllIcons.Actions.RestartDebugger">
                 <override-text place="GoToAction"/>
             </action>
+            <action id="Aspire.Resource.Rebuild"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.RebuildResourceAction"
+                    icon="AllIcons.Actions.Rebuild">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Resource.Execute.Command"
                     class="com.jetbrains.aspire.actions.dashboard.resource.PerformResourceAction"
                     icon="AllIcons.Actions.RunAnything">

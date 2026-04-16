@@ -12,7 +12,7 @@ import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
 import kotlinx.coroutines.launch
 
-abstract class ResourceCommandAction : AspireResourceBaseAction() {
+internal abstract class ResourceCommandAction : AspireResourceBaseAction() {
     override fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project) {
         val resourceData = aspireResource.resourceState.value
         val command = findCommand(resourceData) ?: return

@@ -16,8 +16,10 @@ import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rider.projectView.workspace.containingProjectEntity
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
+import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 
+@ApiStatus.Internal
 abstract class AspireResourceBaseAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
