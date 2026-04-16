@@ -98,13 +98,6 @@
                           anchor="after"/>
             <override-text place="GoToAction"/>
         </action>
-        <action id="Aspire.Resource.NavigateToDebugTab"
-                class="com.jetbrains.aspire.rider.actions.dashboard.resource.NavigateToResourceDebugTab"
-                icon="AllIcons.General.OpenInToolWindow">
-            <add-to-group group-id="Aspire.Resource" relative-to-action="Aspire.Resource.RestartWithDebugger"
-                          anchor="after"/>
-            <override-text place="GoToAction"/>
-        </action>
     </actions>
 
 </idea-plugin>
