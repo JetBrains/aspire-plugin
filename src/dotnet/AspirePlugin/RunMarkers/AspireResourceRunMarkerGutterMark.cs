@@ -5,6 +5,7 @@ using JetBrains.Rider.Aspire.Plugin.AspireResources;
 using JetBrains.Rider.Aspire.Plugin.Generated;
 using JetBrains.Rider.Backend.Features.RunMarkers;
 using JetBrains.TextControl.DocumentMarkup;
+using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
 using JetBrains.UI.ThemedIcons;
 
@@ -29,8 +30,17 @@ public class AspireResourceRunMarkerGutterMark()
             yield return new BulbMenuItem(
                 new ExecutableItem(() => resourceProtocolHost.ExecuteResourceCommand(resource.Name, command.Name)),
                 new RichText(command.DisplayName),
-                null,
+                GetIconForCommand(command),
                 BulbMenuAnchors.PermanentItem);
         }
     }
+
+    private static IconId? GetIconForCommand(AspireRdResourceCommand command) => command.Name switch
+    {
+        "start" or "resource-start" => AspireIconIds.StartResourceIconId,
+        "stop" or "resource-stop" => AspireIconIds.StopResourceIconId,
+        "restart" or "resource-restart" => AspireIconIds.RestartResourceIconId,
+        "rebuild" or "resource-rebuild" => AspireIconIds.RebuildResourceIconId,
+        _ => null
+    };
 }

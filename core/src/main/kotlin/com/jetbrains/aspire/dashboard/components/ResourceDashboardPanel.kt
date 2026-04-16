@@ -10,9 +10,7 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.aspire.AspireCoreBundle
-import com.jetbrains.aspire.dashboard.RestartResourceCommand
-import com.jetbrains.aspire.dashboard.StartResourceCommand
-import com.jetbrains.aspire.dashboard.StopResourceCommand
+import com.jetbrains.aspire.dashboard.hasNonDefaultCommands
 import com.jetbrains.aspire.generated.ResourceState
 import com.jetbrains.aspire.generated.ResourceType
 import com.jetbrains.aspire.settings.AspireSettings
@@ -115,11 +113,11 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
             val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
             actionButton(restartAction)
         }
-        if (data.commands.any {
-                !it.name.equals(StartResourceCommand, true) &&
-                        !it.name.equals(StopResourceCommand, true) &&
-                        !it.name.equals(RestartResourceCommand, true)
-            }) {
+        if (data.type == ResourceType.Project) {
+            val rebuildAction = ActionManager.getInstance().getAction("Aspire.Resource.Rebuild")
+            actionButton(rebuildAction)
+        }
+        if (data.commands.hasNonDefaultCommands()) {
             val executeCommandAction = ActionManager.getInstance().getAction("Aspire.Resource.Execute.Command")
             actionButton(executeCommandAction)
         }

@@ -14,18 +14,16 @@ import com.intellij.openapi.ui.popup.LightweightWindowEvent
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.dashboard.getNonDefaultCommands
 import com.jetbrains.aspire.generated.ResourceCommand
 import com.jetbrains.aspire.generated.ResourceCommandState
 import com.jetbrains.aspire.worker.AspireResource
-import com.jetbrains.aspire.dashboard.RestartResourceCommand
-import com.jetbrains.aspire.dashboard.StartResourceCommand
-import com.jetbrains.aspire.dashboard.StopResourceCommand
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.swing.Icon
 
-class PerformResourceAction : AspireResourceBaseAction() {
+internal class PerformResourceAction : AspireResourceBaseAction() {
     override fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project) {
         val commands = getCommands(aspireResource).filter { it.state == ResourceCommandState.Enabled }
         if (commands.isEmpty()) return
@@ -76,10 +74,6 @@ class PerformResourceAction : AspireResourceBaseAction() {
     }
 
     private fun getCommands(resourceService: AspireResource): List<ResourceCommand> {
-        return resourceService.resourceState.value.commands.filter {
-            !it.name.equals(StartResourceCommand, true) &&
-                    !it.name.equals(StopResourceCommand, true) &&
-                    !it.name.equals(RestartResourceCommand, true)
-        }
+        return resourceService.resourceState.value.commands.getNonDefaultCommands()
     }
 }

@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Show resource commands in the dashboard for the previous resource command names
+
+## [2.5.2] - 2026-04-13
+
 ### Added
 
 - [RIDER-137693](https://youtrack.jetbrains.com/issue/RIDER-137693) A notification about a not trusted dev-certificate
@@ -655,7 +661,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.5.1...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.5.2...HEAD
+[2.5.2]: https://github.com/JetBrains/aspire-plugin/compare/2.5.1...2.5.2
 [2.5.1]: https://github.com/JetBrains/aspire-plugin/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/JetBrains/aspire-plugin/compare/2.4.3...2.5.0
 [2.4.3]: https://github.com/JetBrains/aspire-plugin/compare/2.4.2...2.4.3
