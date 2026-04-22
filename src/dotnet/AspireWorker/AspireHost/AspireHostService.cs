@@ -8,7 +8,6 @@ namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal sealed class AspireHostService(
     IRdConnectionWrapper connectionWrapper,
-    ResiliencePipelineProvider<string> resiliencePipelineProvider,
     ILoggerFactory loggerFactory
 ) : IAspireHostService
 {
@@ -17,10 +16,8 @@ internal sealed class AspireHostService(
     public void AddNewHost(string id, AspireHostModel host, Lifetime lifetime)
     {
         var aspireHost = new AspireHost(
-            id,
             connectionWrapper,
             host,
-            resiliencePipelineProvider,
             loggerFactory,
             lifetime);
 

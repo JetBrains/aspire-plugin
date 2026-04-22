@@ -1,6 +1,3 @@
-using Polly;
-using Polly.Retry;
-
 namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 
 internal static class AspireHostRegistration
@@ -10,25 +7,5 @@ internal static class AspireHostRegistration
         services.AddHostedService<AspireHostListener>();
 
         services.AddSingleton<IAspireHostService, AspireHostService>();
-
-        services.AddResiliencePipeline(nameof(AspireHostResourceWatcher), builder =>
-        {
-            builder.AddRetry(new RetryStrategyOptions
-            {
-                MaxRetryAttempts = 10,
-                Delay = TimeSpan.FromSeconds(2),
-                BackoffType = DelayBackoffType.Constant
-            });
-        });
-
-        services.AddResiliencePipeline(nameof(AspireHostResourceLogWatcher), builder =>
-        {
-            builder.AddRetry(new RetryStrategyOptions
-            {
-                MaxRetryAttempts = 10,
-                Delay = TimeSpan.FromSeconds(2),
-                BackoffType = DelayBackoffType.Constant
-            });
-        });
     }
 }

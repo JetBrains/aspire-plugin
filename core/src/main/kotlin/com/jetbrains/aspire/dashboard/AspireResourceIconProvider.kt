@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.dashboard
 
 import com.intellij.openapi.extensions.ExtensionPointName
-import com.jetbrains.aspire.generated.ResourceType
+import com.jetbrains.aspire.worker.ResourceType
 import javax.swing.Icon
 
 interface AspireResourceIconProvider {

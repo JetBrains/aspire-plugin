@@ -2,7 +2,7 @@ package com.jetbrains.aspire.actions.dashboard.resource
 
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.dashboard.findRestartCommand
-import com.jetbrains.aspire.generated.ResourceType
+import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.sessions.SessionLaunchMode
 import com.jetbrains.aspire.sessions.SessionLaunchPreferenceService
 import com.jetbrains.aspire.worker.AspireResourceData

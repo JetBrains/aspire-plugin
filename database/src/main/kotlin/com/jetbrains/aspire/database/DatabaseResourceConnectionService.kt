@@ -51,7 +51,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
         //This `addConnection` method can be called multiple times for a single resource (on each update),
         //and we don't want to recreate the connection
         val dataSourceManager = DatabaseDataSourceManager.getInstance(project)
-        if (!dataSourceManager.tryRegisterResourceId(databaseResource.resourceId)) {
+        if (!dataSourceManager.tryRegisterResourceId(databaseResource.resourceName)) {
             LOG.trace { "Connection for resource ${databaseResource.name} was already created" }
             return
         }
@@ -70,32 +70,32 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
             val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
             if (driver == null) {
                 LOG.info("Unable to guess database driver for ${databaseResource.name}")
-                dataSourceManager.unregisterResourceId(databaseResource.resourceId)
+                dataSourceManager.unregisterResourceId(databaseResource.resourceName)
                 return
             }
 
             val url = urlConverter.getConnectionUrl(connectionString, databaseResource, dataProvider, driver)
             if (url == null) {
                 LOG.info("Unable to convert a connection string to an url for ${databaseResource.name}")
-                dataSourceManager.unregisterResourceId(databaseResource.resourceId)
+                dataSourceManager.unregisterResourceId(databaseResource.resourceName)
                 return
             }
 
             val createdDataSource = dataSourceManager.createDataSource(databaseResource, driver, url)
             if (createdDataSource == null) {
-                dataSourceManager.unregisterResourceId(databaseResource.resourceId)
+                dataSourceManager.unregisterResourceId(databaseResource.resourceName)
                 return
             }
 
             val connectionTester = DatabaseConnectionTester.getInstance(project)
             connectionTester.connectToDataSource(createdDataSource)
         } catch (ce: CancellationException) {
-            dataSourceManager.unregisterResourceId(databaseResource.resourceId)
+            dataSourceManager.unregisterResourceId(databaseResource.resourceName)
             LOG.trace { "Connecting with to database resource ${databaseResource.name} was cancelled" }
             throw ce
         } catch (e: Exception) {
             LOG.warn("Unable to connect to database ${databaseResource.name}", e)
-            dataSourceManager.unregisterResourceId(databaseResource.resourceId)
+            dataSourceManager.unregisterResourceId(databaseResource.resourceName)
         }
     }
 

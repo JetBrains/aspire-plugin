@@ -46,47 +46,4 @@ internal sealed class RdConnectionWrapper(RdConnection rdConnection) : IRdConnec
     {
         await rdConnection.DoWithModel(_ => host.MessageReceived.Advise(lifetime, action));
     }
-
-    public async Task<bool> AddResource(AspireHostModel host, string resourceName, ResourceWrapper resourceWrapper)
-    {
-        return await rdConnection.DoWithModel(_ => host.Resources.TryAdd(resourceName, resourceWrapper));
-    }
-
-    public async Task UpsertResource(AspireHostModel host, ResourceModel resourceModel,
-        Func<ResourceModel, ResourceWrapper> resourceWrapperFactory)
-    {
-        await rdConnection.DoWithModel(_ =>
-        {
-            if (host.Resources.ContainsKey(resourceModel.Name))
-            {
-                host.Resources[resourceModel.Name].Model.SetValue(resourceModel);
-            }
-            else
-            {
-                var resourceWrapper = resourceWrapperFactory(resourceModel);
-                host.Resources.TryAdd(resourceModel.Name, resourceWrapper);
-            }
-        });
-    }
-
-    public async Task<bool> RemoveResource(AspireHostModel host, string resourceName)
-    {
-        return await rdConnection.DoWithModel(_ => host.Resources.Remove(resourceName));
-    }
-
-    public async Task ClearResources(AspireHostModel host)
-    {
-        await rdConnection.DoWithModel(_ => host.Resources.Clear());
-    }
-
-    public async Task ViewResources(AspireHostModel host, Lifetime lifetime,
-        Action<Lifetime, string, ResourceWrapper> action)
-    {
-        await rdConnection.DoWithModel(_ => { host.Resources.View(lifetime, action); });
-    }
-
-    public async Task ResourceLogReceived(ResourceWrapper resource, ResourceLog resourceLog)
-    {
-        await rdConnection.DoWithModel(_ => resource.LogReceived(resourceLog));
-    }
 }

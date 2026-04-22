@@ -1,6 +1,6 @@
 package com.jetbrains.aspire.dashboard
 
-import com.jetbrains.aspire.generated.ResourceCommand
+import com.jetbrains.aspire.worker.ResourceCommand
 
 internal const val StartResourceCommand = "start"
 internal const val ObsoleteStartResourceCommand = "resource-start"
