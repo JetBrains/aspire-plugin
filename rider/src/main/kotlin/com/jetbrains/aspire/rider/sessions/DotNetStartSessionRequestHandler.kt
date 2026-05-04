@@ -32,6 +32,7 @@ import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.ijent.extensions.toNioPath
 import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.BuildTarget
+import com.jetbrains.rider.model.SilentMode
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.findProjects
 import com.jetbrains.rider.run.pid
@@ -128,7 +129,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             val buildParameters = BuildParameters(
                 BuildTarget(),
                 pathStrings,
-                silentMode = true
+                silentMode = SilentMode.Silent
             )
             BuildTaskThrottler.getInstance(project).buildSequentially(buildParameters)
         }

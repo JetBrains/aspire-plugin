@@ -13,7 +13,7 @@ dependencies {
             useInstaller = false
             useCache = true
         }
-        bundledModule("intellij.rd.client")
+        bundledModule("intellij.rd.client.base")
         bundledModule("intellij.rider.rdclient.dotnet")
         bundledModule("intellij.rider.languages")
     }
