@@ -13,7 +13,9 @@ dependencies {
             useInstaller = false
             useCache = true
         }
-        bundledModules("intellij.rider.rdclient.dotnet")
+        bundledModule("intellij.rd.client")
+        bundledModule("intellij.rider.rdclient.dotnet")
+        bundledModule("intellij.rider.languages")
     }
 
     implementation(project(":core"))

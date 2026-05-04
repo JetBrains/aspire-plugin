@@ -2,13 +2,16 @@
 
 package com.jetbrains.aspire.rider.run.states
 
-import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.ExecutionResult
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.execution.ui.ConsoleView
+import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.rider.run.runners.connectExecutionHandlerAndLifetime
+import com.jetbrains.aspire.rider.run.runners.setUpAspireHostModelAndSaveRunConfig
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
-import com.jetbrains.rider.model.debuggerWorker.DebuggerWorkerModel
-import com.jetbrains.rider.run.configurations.shouldUsePty
+import com.jetbrains.rider.run.WorkerRunInfo
 import com.jetbrains.rider.run.dotNetCore.DotNetCoreDebugProfile
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -34,25 +37,33 @@ class AspireHostDebugProfileState(
         lifetime: Lifetime,
         helper: DebuggerHelperHost,
         port: Int
-    ) = createWorkerRunInfoForLauncherInfo(
-        consoleKind,
-        port,
-        getLauncherInfo(lifetime, helper),
-        dotNetExecutable.executableType,
-        dotNetExecutable.terminalMode.shouldUsePty() != false
-    )
+    ): WorkerRunInfo {
+        return super.createWorkerRunInfo(lifetime, helper, port).apply {
+            addProcessListener(
+                createStoppedContainerRuntimeProcessListener(
+                    containerRuntimeNotificationCount,
+                    executionEnvironment.project
+                )
+            )
+        }
+    }
 
-    override suspend fun startDebuggerWorker(
-        workerCmd: GeneralCommandLine,
-        protocolModel: DebuggerWorkerModel,
-        protocolServerPort: Int,
-        projectLifetime: Lifetime
-    ): DebuggerWorkerProcessHandler {
-        val handler = super.startDebuggerWorker(workerCmd, protocolModel, protocolServerPort, projectLifetime)
-        handler.addStoppedContainerRuntimeProcessListener(
-            containerRuntimeNotificationCount,
-            executionEnvironment.project
-        )
-        return handler
+    override suspend fun execute(
+        workerConsole: ConsoleView,
+        workerProcessHandler: DebuggerWorkerProcessHandler,
+        lifetime: Lifetime
+    ): ExecutionResult {
+        val aspireHostProcessHandlerLifetime = AspireService
+            .getInstance(executionEnvironment.project)
+            .lifetime
+            .createNested()
+
+        setUpAspireHostModelAndSaveRunConfig(executionEnvironment, this, aspireHostProcessHandlerLifetime)
+
+        val executionResult = super.execute(workerConsole, workerProcessHandler, lifetime)
+
+        connectExecutionHandlerAndLifetime(executionResult, aspireHostProcessHandlerLifetime)
+
+        return executionResult
     }
 }
