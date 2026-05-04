@@ -28,6 +28,7 @@ val riderSdkPath by lazy {
 }
 
 kotlin {
+    jvmToolchain(25)
     compilerOptions {
         freeCompilerArgs.add("-Xcontext-parameters")
     }
