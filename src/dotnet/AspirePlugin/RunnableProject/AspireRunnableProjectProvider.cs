@@ -47,5 +47,6 @@ public class AspireRunnableProjectProvider(
         );
     }
 
-    public IEnumerable<RunnableProjectKind> HiddenRunnableProjectKinds => EmptyList<RunnableProjectKind>.Instance;
+    public IEnumerable<RunnableProjectKind> HiddenRunnableProjectKinds { get; } =
+        [CommonRunnableProjectKinds.LaunchSettings, CommonRunnableProjectKinds.Console, CommonRunnableProjectKinds.DotNetFile];
 }
