@@ -3,6 +3,7 @@ package com.jetbrains.aspire
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.refreshAndFindVirtualFile
 import com.intellij.xdebugger.XDebuggerManager
+import com.jetbrains.rdclient.util.idea.waitAndPump
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Mute
 import com.jetbrains.rider.test.annotations.Solution
@@ -36,9 +37,12 @@ class DebuggingApplicationTests : DebuggerTestBase() {
 
     override val projectName = "DefaultAspireSolution"
 
-    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor,
-        aspireLoggedErrorProcessor
-    ) }
+    override val testRunner: IntegrationTestRunner by lazy {
+        IntegrationTestRunner(
+            testProcessor,
+            aspireLoggedErrorProcessor
+        )
+    }
 
     @Test
     @Solution("DefaultAspireSolution")
@@ -151,8 +155,14 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         action()
 
         val timeout = Duration.ofSeconds(30)
-        if (!pumpMessages(timeout) { XDebuggerManager.getInstance(project).debugSessions.size == sessionsNum })
-            logger.error("Couldn't get $sessionsNum debug sessions running within $timeout seconds")
+        try {
+            waitAndPump(
+                timeout,
+                { XDebuggerManager.getInstance(project).debugSessions.size == sessionsNum }
+            )
+        } catch (e: Exception) {
+            logger.error("Couldn't get $sessionsNum debug sessions running within $timeout seconds", e)
+        }
 
         for (debugSession in XDebuggerManager.getInstance(project).debugSessions) {
             if (debugSession != session)
