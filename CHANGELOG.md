@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Update platform version to RD-2026.2-SNAPSHOT
+
+## [2.5.3] - 2026-04-16
+
 ### Fixed
 
 - Show resource commands in the dashboard for the previous resource command names
@@ -661,7 +667,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.5.2...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.5.3...HEAD
+[2.5.3]: https://github.com/JetBrains/aspire-plugin/compare/2.5.2...2.5.3
 [2.5.2]: https://github.com/JetBrains/aspire-plugin/compare/2.5.1...2.5.2
 [2.5.1]: https://github.com/JetBrains/aspire-plugin/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/JetBrains/aspire-plugin/compare/2.4.3...2.5.0
