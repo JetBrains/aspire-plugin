@@ -6,8 +6,8 @@ import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.actions.dashboard.resource.AspireResourceBaseAction
 import com.jetbrains.aspire.worker.AspireResource
-import com.jetbrains.aspire.generated.ResourceState
-import com.jetbrains.aspire.generated.ResourceType
+import com.jetbrains.aspire.worker.ResourceState
+import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.rider.debugger.AttachDebuggerService
 import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
 import kotlinx.coroutines.launch

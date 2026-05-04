@@ -7,8 +7,8 @@ import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.database.DatabaseResourceConnectionService.AddDatabaseResourceConnection
 import com.jetbrains.aspire.database.DatabaseResourceConnectionService.RemoveDatabaseResourceConnection
-import com.jetbrains.aspire.generated.ResourceState
-import com.jetbrains.aspire.generated.ResourceType
+import com.jetbrains.aspire.worker.ResourceState
+import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.settings.AspireSettings
 import java.net.URI
 
@@ -45,7 +45,7 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
 
         val databaseResource = DatabaseResource(
             data.displayName,
-            resource.resourceId,
+            resource.resourceName,
             containerId,
             resourceType,
             connectionString,
@@ -89,7 +89,7 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
         val isPersistent = data.containerLifetime?.value.equals("persistent", true)
         if (isPersistent) return
 
-        val command = RemoveDatabaseResourceConnection(resource.resourceId)
+        val command = RemoveDatabaseResourceConnection(resource.resourceName)
         DatabaseResourceConnectionService.getInstance(project).sendConnectionCommand(command)
     }
 }
