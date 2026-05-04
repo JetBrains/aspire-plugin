@@ -6,6 +6,7 @@ import com.intellij.execution.ExecutionResult
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
 import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.rider.run.runners.checkAndNotifyDevCertificate
 import com.jetbrains.aspire.rider.run.runners.connectExecutionHandlerAndLifetime
 import com.jetbrains.aspire.rider.run.runners.setUpAspireHostModelAndSaveRunConfig
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -57,6 +58,8 @@ class AspireHostDebugProfileState(
             .getInstance(executionEnvironment.project)
             .lifetime
             .createNested()
+
+        checkAndNotifyDevCertificate(this, executionEnvironment.project)
 
         setUpAspireHostModelAndSaveRunConfig(executionEnvironment, this, aspireHostProcessHandlerLifetime)
 
