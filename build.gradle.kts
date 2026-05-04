@@ -1,10 +1,9 @@
 ﻿import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.kotlin.dsl.testImplementation
-import org.jetbrains.changelog.Changelog
-import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.Constants
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.io.path.absolute
 import kotlin.io.path.isDirectory
@@ -66,6 +65,22 @@ dependencies {
 intellijPlatform {
     publishing {
         hidden = true
+    }
+
+    pluginVerification {
+        failureLevel = listOf(
+            VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
+            VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES,
+        )
+        ides {
+            create(
+                IntelliJPlatformType.Rider,
+                providers.gradleProperty("pluginVerificationIdeVersion").get()
+            ) {
+                useInstaller = false
+                useCache = true
+            }
+        }
     }
 }
 
