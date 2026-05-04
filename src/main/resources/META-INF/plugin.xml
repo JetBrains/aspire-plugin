@@ -3,6 +3,17 @@
     <id>me.rafaelldi.aspire</id>
     <name>Aspire</name>
     <vendor>JetBrains</vendor>
+    <description><![CDATA[
+        <p>The plugin provides support for Aspire projects in JetBrains Rider.</p>
+        <p><b>Features:</b></p>
+        <ul>
+            <li>Support for running and debugging of Aspire projects</li>
+            <li>Unit testing</li>
+            <li>Resource dashboard</li>
+            <li>Manifest generation</li>
+            <li>Automatic database connection</li>
+        </ul>
+    ]]></description>
 
     <dependencies>
         <plugin id="com.intellij.modules.rider"/>
