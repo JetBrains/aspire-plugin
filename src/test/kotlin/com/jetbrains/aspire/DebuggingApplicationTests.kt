@@ -1,9 +1,9 @@
 package com.jetbrains.aspire
 
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.refreshAndFindVirtualFile
 import com.intellij.xdebugger.XDebuggerManager
-import com.jetbrains.rdclient.util.idea.pumpMessages
-import com.jetbrains.rdclient.util.idea.toVirtualFile
+import com.jetbrains.rdclient.util.idea.waitAndPump
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Mute
 import com.jetbrains.rider.test.annotations.Solution
@@ -37,9 +37,12 @@ class DebuggingApplicationTests : DebuggerTestBase() {
 
     override val projectName = "DefaultAspireSolution"
 
-    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor,
-        aspireLoggedErrorProcessor
-    ) }
+    override val testRunner: IntegrationTestRunner by lazy {
+        IntegrationTestRunner(
+            testProcessor,
+            aspireLoggedErrorProcessor
+        )
+    }
 
     @Test
     @Solution("DefaultAspireSolution")
@@ -47,7 +50,7 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         val fileForBreakpoint = activeSolutionDirectory
             .resolve("DefaultAspireSolution.AppHost")
             .resolve("AppHost.cs")
-            .toVirtualFile(true)
+            .refreshAndFindVirtualFile()
         requireNotNull(fileForBreakpoint)
         runTest(
             "DefaultAspireSolution.AppHost: http",
@@ -66,12 +69,11 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         val fileForBreakpoint = activeSolutionDirectory
             .resolve("DefaultAspireSolution.ApiService")
             .resolve("Program.cs")
-            .toVirtualFile(true)
+            .refreshAndFindVirtualFile()
         requireNotNull(fileForBreakpoint)
         val apiProjectPath = activeSolutionDirectory
             .resolve("DefaultAspireSolution.ApiService")
             .resolve("DefaultAspireSolution.ApiService.csproj")
-            .toPath()
         runTest(
             "DefaultAspireSolution.AppHost: http",
             fileForBreakpoint,
@@ -89,12 +91,11 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         val fileForBreakpoint = activeSolutionDirectory
             .resolve("DefaultAspireSolution.Web")
             .resolve("Program.cs")
-            .toVirtualFile(true)
+            .refreshAndFindVirtualFile()
         requireNotNull(fileForBreakpoint)
         val webProjectPath = activeSolutionDirectory
             .resolve("DefaultAspireSolution.Web")
             .resolve("DefaultAspireSolution.Web.csproj")
-            .toPath()
         runTest(
             "DefaultAspireSolution.AppHost: http",
             fileForBreakpoint,
@@ -112,12 +113,11 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         val fileForBreakpoint = activeSolutionDirectory
             .resolve("WebApplication1")
             .resolve("Program.cs")
-            .toVirtualFile(true)
+            .refreshAndFindVirtualFile()
         requireNotNull(fileForBreakpoint)
         val externalProjectPath = activeSolutionDirectory
             .resolve("WebApplication1")
             .resolve("WebApplication1.csproj")
-            .toPath()
         runTest(
             "AppHost1: http",
             fileForBreakpoint,
@@ -155,8 +155,14 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         action()
 
         val timeout = Duration.ofSeconds(30)
-        if (!pumpMessages(timeout) { XDebuggerManager.getInstance(project).debugSessions.size == sessionsNum })
-            logger.error("Couldn't get $sessionsNum debug sessions running within $timeout seconds")
+        try {
+            waitAndPump(
+                timeout,
+                { XDebuggerManager.getInstance(project).debugSessions.size == sessionsNum }
+            )
+        } catch (e: Exception) {
+            logger.error("Couldn't get $sessionsNum debug sessions running within $timeout seconds", e)
+        }
 
         for (debugSession in XDebuggerManager.getInstance(project).debugSessions) {
             if (debugSession != session)

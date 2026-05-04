@@ -4,6 +4,10 @@ plugins {
     alias(libs.plugins.intelliJPlatformModule)
 }
 
+kotlin {
+    jvmToolchain(25)
+}
+
 dependencies {
     compileOnly(libs.serializationJson)
 
@@ -12,5 +16,7 @@ dependencies {
             useInstaller = false
             useCache = true
         }
+        bundledModule("intellij.rd.client.base")
+        bundledModule("intellij.rider.rdclient.dotnet")
     }
 }

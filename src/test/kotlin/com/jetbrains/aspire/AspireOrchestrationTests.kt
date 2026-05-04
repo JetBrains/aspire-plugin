@@ -81,8 +81,8 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
     ) {
         prepareProjectView(project)
 
-        val solutionDirectoryPath = activeSolutionDirectory.toPath()
-        val solution = activeSolutionDirectory.toPath().resolve("$activeSolution.sln")
+        val solutionDirectoryPath = activeSolutionDirectory
+        val solution = activeSolutionDirectory.resolve("$activeSolution.sln")
         val hostProjectPath =
             solutionDirectoryPath.resolve(appHostName).resolve("$appHostName.csproj")
         val sharedProjectPath =

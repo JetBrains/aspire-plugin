@@ -1,6 +1,7 @@
 package com.jetbrains.aspire.rider.sessions.projectLaunchers
 
 import com.intellij.execution.configurations.RunProfile
+import com.jetbrains.rider.debugger.IRiderDebuggable
 import com.jetbrains.rider.runtime.DotNetExecutable
 import icons.RiderIcons
 import java.nio.file.Path
@@ -12,8 +13,10 @@ abstract class DotNetSessionProfile(
     val dotnetExecutable: DotNetExecutable,
     val aspireHostProjectPath: Path?,
     val isDebugMode: Boolean,
-) : RunProfile {
+) : RunProfile, IRiderDebuggable {
     override fun getName() = projectPath.nameWithoutExtension
 
     override fun getIcon() = RiderIcons.RunConfigurations.DotNetProject
+
+    override fun canDebug(): Boolean = isDebugMode
 }

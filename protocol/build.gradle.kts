@@ -5,6 +5,10 @@ plugins {
     id("com.jetbrains.rdgen") version libs.versions.rdGen
 }
 
+kotlin {
+    jvmToolchain(25)
+}
+
 dependencies {
     implementation(libs.rdGen)
     implementation(libs.kotlinStdLib)

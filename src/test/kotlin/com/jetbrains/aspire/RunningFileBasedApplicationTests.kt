@@ -16,12 +16,12 @@ import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
 import com.jetbrains.rider.test.scriptingApi.buildSolutionWithReSharperBuild
-import com.jetbrains.rider.test.scriptingApi.div
 import com.jetbrains.rider.test.scriptingApi.executeBeforeRunTasksForSelectedConfiguration
 import org.testng.annotations.Test
 import java.net.URI
 import java.net.URL
 import java.time.Duration
+import kotlin.io.path.div
 
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {

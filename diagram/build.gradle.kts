@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.intelliJPlatformModule)
 }
 
+kotlin {
+    jvmToolchain(25)
+}
+
 dependencies {
     intellijPlatform {
         intellijIdea(providers.gradleProperty("ideaVersion")) {

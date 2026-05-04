@@ -28,6 +28,7 @@ val riderSdkPath by lazy {
 }
 
 kotlin {
+    jvmToolchain(25)
     compilerOptions {
         freeCompilerArgs.add("-Xcontext-parameters")
     }
@@ -51,6 +52,8 @@ dependencies {
         testFramework(TestFrameworkType.Bundled)
 
         testBundledPlugins("tanvd.grazi")
+        testBundledModule("intellij.rider.rdclient.dotnet")
+        testBundledModule("intellij.rd.client")
     }
 
     compileOnly(libs.serializationJson)

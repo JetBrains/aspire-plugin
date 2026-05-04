@@ -6,6 +6,7 @@ import com.intellij.execution.Executor
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -14,7 +15,9 @@ import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionDebugPr
 import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentHost
+import com.jetbrains.rider.debugger.editAndContinue.web.BrowserRefreshAgentManager
 import com.jetbrains.rider.debugger.wasm.BrowserHub
+import com.jetbrains.rider.debugger.wasm.BrowserHubManager
 import com.jetbrains.rider.run.configurations.HotReloadEnvironmentBuilder
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -42,40 +45,46 @@ internal class WasmHostProjectSessionDebugProfileState(
         private val LOG = logger<WasmHostProjectSessionDebugProfileState>()
     }
 
-    var browserRefreshHost: BrowserRefreshAgentHost? = null
-    var browserHub: BrowserHub? = null
+    lateinit var browserRefreshHost: BrowserRefreshAgentHost
+    lateinit var browserHub: BrowserHub
     val browserHubLifetimeDef = AspireService.getInstance(project).lifetime.createNested()
+
+    override suspend fun beforeWorkerStart(lifetime: Lifetime, environment: ExecutionEnvironment) {
+        browserRefreshHost =
+            BrowserRefreshAgentManager
+                .getInstance(environment.project)
+                .startHost(
+                    dotNetExecutable.projectTfm,
+                    dotNetExecutable.environmentVariables,
+                    lifetime
+                )
+
+        browserHub =
+            BrowserHubManager
+                .getInstance(environment.project)
+                .start(dotNetExecutable.environmentVariables, browserHubLifetimeDef)
+    }
 
     override suspend fun createWorkerRunInfo(
         lifetime: Lifetime,
         helper: DebuggerHelperHost,
         port: Int
     ) = super.createWorkerRunInfo(lifetime, helper, port).apply {
-        browserRefreshHost?.let { host ->
-            val hotReloadEnvs = HotReloadEnvironmentBuilder()
-                .addDeltaApplier()
-                .addBlazorRefreshClient()
-                .setBlazorRefreshServerUrls(host.wsUrls, host.serverKey)
-                .build()
-            commandLine.environment.putAll(hotReloadEnvs)
-        }
+        val hotReloadEnvs = HotReloadEnvironmentBuilder()
+            .addDeltaApplier()
+            .addBlazorRefreshClient()
+            .setBlazorRefreshServerUrls(browserRefreshHost.wsUrls, browserRefreshHost.serverKey)
+            .build()
+        commandLine.environment.putAll(hotReloadEnvs)
     }
 
     override suspend fun execute(
-        executor: Executor,
-        runner: ProgramRunner<*>,
+        workerConsole: ConsoleView,
         workerProcessHandler: DebuggerWorkerProcessHandler,
         lifetime: Lifetime
     ): ExecutionResult {
-        val refresherHost = browserRefreshHost
-        val hub = browserHub
-        if (refresherHost == null || hub == null) {
-            LOG.warn("Browser refresh host or browser host are not initialized yet")
-            throw CantRunException("Browser refresh host or browser host are not initialized yet")
-        }
-
         val connectedBrowser = startBrowserAndAttach(
-            hub,
+            browserHub,
             browserHubLifetimeDef,
             browserSettings,
             sessionProcessLifetime,
@@ -86,12 +95,12 @@ internal class WasmHostProjectSessionDebugProfileState(
             throw CantRunException("Unable to obtain connected browser")
         }
 
-        val hostExecutionResult = super.execute(executor, runner, workerProcessHandler, lifetime)
+        val hostExecutionResult = super.execute(workerConsole, workerProcessHandler, lifetime)
 
         executeClient(
             projectPath.absolutePathString(),
-            hub,
-            refresherHost,
+            browserHub,
+            browserRefreshHost,
             connectedBrowser,
             browserSettings,
             sessionProcessLifetime,
