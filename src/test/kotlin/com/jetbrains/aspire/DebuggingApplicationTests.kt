@@ -2,10 +2,7 @@ package com.jetbrains.aspire
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.refreshAndFindVirtualFile
-import com.intellij.xdebugger.XDebuggerManager
-import com.jetbrains.rdclient.util.idea.waitAndPump
 import com.jetbrains.rider.test.OpenSolutionParams
-import com.jetbrains.rider.test.annotations.Mute
 import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestSettings
 import com.jetbrains.rider.test.base.DebuggerTestBase
@@ -14,11 +11,13 @@ import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
-import com.jetbrains.rider.test.scriptingApi.*
+import com.jetbrains.rider.test.scriptingApi.DebugTestExecutionContext
+import com.jetbrains.rider.test.scriptingApi.executeBeforeRunTasksForSelectedConfiguration
+import com.jetbrains.rider.test.scriptingApi.testDebugProgram
+import com.jetbrains.rider.test.scriptingApi.toggleBreakpoint
 import org.testng.annotations.Test
 import java.time.Duration
 
-@Mute
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
 class DebuggingApplicationTests : DebuggerTestBase() {
     override val solutionApiFacade: SolutionApiFacade = object : RiderSolutionApiFacade() {
@@ -55,11 +54,11 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         runTest(
             "DefaultAspireSolution.AppHost: http",
             fileForBreakpoint,
-            12
+            12,
+            "DefaultAspireSolution.AppHost: http",
+            1
         ) {
-            trackAllDebugSessions(3) {
-                dumpDebugContext()
-            }
+            dumpDebugContext()
         }
     }
 
@@ -71,17 +70,14 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             .resolve("Program.cs")
             .refreshAndFindVirtualFile()
         requireNotNull(fileForBreakpoint)
-        val apiProjectPath = activeSolutionDirectory
-            .resolve("DefaultAspireSolution.ApiService")
-            .resolve("DefaultAspireSolution.ApiService.csproj")
         runTest(
             "DefaultAspireSolution.AppHost: http",
             fileForBreakpoint,
-            43
+            43,
+            "DefaultAspireSolution.ApiService",
+            2
         ) {
-            trackAllDebugSessions(3) {
-                dumpDebugContextForProject(apiProjectPath)
-            }
+            dumpDebugContext()
         }
     }
 
@@ -93,17 +89,14 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             .resolve("Program.cs")
             .refreshAndFindVirtualFile()
         requireNotNull(fileForBreakpoint)
-        val webProjectPath = activeSolutionDirectory
-            .resolve("DefaultAspireSolution.Web")
-            .resolve("DefaultAspireSolution.Web.csproj")
         runTest(
             "DefaultAspireSolution.AppHost: http",
             fileForBreakpoint,
-            44
+            44,
+            "DefaultAspireSolution.Web",
+            3
         ) {
-            trackAllDebugSessions(3) {
-                dumpDebugContextForProject(webProjectPath)
-            }
+            dumpDebugContext()
         }
     }
 
@@ -115,17 +108,14 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             .resolve("Program.cs")
             .refreshAndFindVirtualFile()
         requireNotNull(fileForBreakpoint)
-        val externalProjectPath = activeSolutionDirectory
-            .resolve("WebApplication1")
-            .resolve("WebApplication1.csproj")
         runTest(
             "AppHost1: http",
             fileForBreakpoint,
-            6
+            6,
+            "WebApplication1",
+            2
         ) {
-            trackAllDebugSessions(2) {
-                dumpDebugContextForProject(externalProjectPath)
-            }
+            dumpDebugContext()
         }
     }
 
@@ -133,6 +123,8 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         runConfigName: String,
         fileForBreakpoint: VirtualFile,
         lineForBreakpoint: Int,
+        debugSessionName: String,
+        numOfSessionsExpectedToRun: Int,
         testDebugContext: DebugTestExecutionContext.() -> Unit
     ) {
         selectAspireRunConfiguration(runConfigName, project)
@@ -142,31 +134,11 @@ class DebuggingApplicationTests : DebuggerTestBase() {
             beforeRun = {
                 toggleBreakpoint(fileForBreakpoint, lineForBreakpoint)
             }, test = {
-                testDebugContext()
+                withSession(debugSessionName, numOfSessionsExpectedToRun) {
+                    testDebugContext()
+                }
             },
             exitProcessAfterTest = true
         )
-    }
-
-    fun DebugTestExecutionContext.trackAllDebugSessions(
-        sessionsNum: Int,
-        action: DebugTestExecutionContext.() -> Unit
-    ) {
-        action()
-
-        val timeout = Duration.ofSeconds(30)
-        try {
-            waitAndPump(
-                timeout,
-                { XDebuggerManager.getInstance(project).debugSessions.size == sessionsNum }
-            )
-        } catch (e: Exception) {
-            logger.error("Couldn't get $sessionsNum debug sessions running within $timeout seconds", e)
-        }
-
-        for (debugSession in XDebuggerManager.getInstance(project).debugSessions) {
-            if (debugSession != session)
-                shutdownDebuggerSession(debugSession, true)
-        }
     }
 }

@@ -1,9 +1,7 @@
 using JetBrains.Application.changes;
 using JetBrains.Application.Parts;
-using JetBrains.Application.Threading;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
-using JetBrains.ProjectModel.Caches;
 using JetBrains.ProjectModel.DotNetCore;
 using JetBrains.ReSharper.Features.Running;
 using JetBrains.Rider.Aspire.Plugin.RunnableProject;
@@ -16,20 +14,15 @@ using JetBrains.Util.Dotnet.TargetFrameworkIds;
 namespace JetBrains.Rider.Aspire.Plugin.RunGutterMarks;
 
 [SolutionComponent(Instantiation.DemandAnyThreadSafe)]
-internal sealed class AspireTemplateProvider : IRunConfigurationTemplateProvider
+internal sealed class AspireTemplateProvider(
+    Lifetime lifetime,
+    FileBasedAspireLaunchSettingsJsonDataCache cache,
+    ChangeManager changeManager,
+    ISolution solution
+) : IRunConfigurationTemplateProvider
 {
-    private readonly DotNetCoreLaunchSettingsJsonProfileProvider _launchSettingsJsonProfileProvider;
-
-    public AspireTemplateProvider(
-        Lifetime lifetime,
-        FileBasedAspireLaunchSettingsJsonDataCache cache,
-        ChangeManager changeManager,
-        ISolution solution
-    )
-    {
-        _launchSettingsJsonProfileProvider =
-            new DotNetCoreLaunchSettingsJsonProfileProvider(lifetime, cache, changeManager, solution);
-    }
+    private readonly DotNetCoreLaunchSettingsJsonProfileProvider _launchSettingsJsonProfileProvider =
+        new(lifetime, cache, changeManager, solution);
 
     private const string AspireHostConfigurationTypeId = "AspireHostConfiguration";
 
@@ -55,7 +48,7 @@ internal sealed class AspireTemplateProvider : IRunConfigurationTemplateProvider
         if (aspireTemplates.IsEmpty() || aspireRunnableProjects.IsEmpty()) return [];
 
         var csFilePath = (runMarkerHighlighting as FileBasedProgramRunMarkerHighlighting)?.FilePath;
-        var launchSettingsFilePath = csFilePath?.Parent / "apphost.run.json";
+        var launchSettingsFilePath = csFilePath?.Parent.Combine("apphost.run.json");
         if (launchSettingsFilePath == null || csFilePath == null) return [];
 
         var profiles = _launchSettingsJsonProfileProvider.TryGetLaunchJsonSettingsProfiles(launchSettingsFilePath)
@@ -73,7 +66,7 @@ internal sealed class AspireTemplateProvider : IRunConfigurationTemplateProvider
                         templateDescriptor.CompatibleRunnableProjectKinds,
                         [
                             new(RunConfigurationTemplateKey.Name, name),
-                            new (RunConfigurationTemplateKey.DotNetFilePath, csFilePath.FullPath),
+                            new(RunConfigurationTemplateKey.DotNetFilePath, csFilePath.FullPath),
                             new(RunConfigurationTemplateKey.ProjectKind, runnableProject.Kind.Name),
                             new(RunConfigurationTemplateKey.TargetFramework, tfmId?.PresentableString ?? string.Empty),
                             new(RunConfigurationTemplateKey.LaunchSettingsProfile, profile.Name)
@@ -87,20 +80,4 @@ internal sealed class AspireTemplateProvider : IRunConfigurationTemplateProvider
     private static string? GetProfileNameFromRunConfiguration(RunConfigurationExt runConfiguration) => runConfiguration
         .AdditionalEntries.Where(x => x.Key == RunConfigurationEntryKey.LaunchSettingsProfile)
         .SingleOrFirstOrDefaultErr()?.Value;
-}
-
-[SolutionInstanceComponent(Instantiation.DemandAnyThreadSafe)]
-internal class FileBasedAspireLaunchSettingsJsonDataCache(
-    Lifetime lifetime,
-    ISolution solution,
-    ISolutionCaches caches,
-    ChangeManager changeManager,
-    IShellLocks locks)
-    : LaunchSettingsJsonDataCacheImpl(lifetime, solution, caches, changeManager, locks)
-{
-    protected override bool ShouldProcessChangedFile(IProjectFile changedFile, IProject project)
-    {
-        return changedFile.Name.Equals("apphost.run.json", FileSystemDefinition.PathStringComparison)
-               && Equals(changedFile.ParentFolder, project);
-    }
 }

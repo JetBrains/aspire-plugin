@@ -132,28 +132,3 @@ fun DebugTestExecutionContext.dumpDebugContext() {
     dumpFullCurrentData()
     resumeSession()
 }
-
-fun DebugTestExecutionContext.dumpDebugContextForProject(projectPath: Path) {
-    val session = findDebugSessionForProject(projectPath, project)
-    val context = DebugTestExecutionContext(this.stream, session)
-    context.dumpDebugContext()
-}
-
-private fun findDebugSessionForProject(projectPath: Path, project: Project): XDebugSession {
-    val debuggerManager = XDebuggerManager.getInstance(project)
-    var targetSession: XDebugSession? = null
-    waitAndPump(Duration.ofMinutes(3), {
-        val sessions = debuggerManager.debugSessions
-        for (session in sessions) {
-            val sessionRunProfile = session.runProfile
-            if (sessionRunProfile !is DotNetSessionProfile) continue
-            if (sessionRunProfile.projectPath == projectPath) {
-                targetSession = session
-                return@waitAndPump true
-            }
-        }
-        return@waitAndPump false
-    })
-    assertNotNull(targetSession)
-    return targetSession
-}
