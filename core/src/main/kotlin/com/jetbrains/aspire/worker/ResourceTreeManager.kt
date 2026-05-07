@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -44,6 +45,7 @@ internal class ResourceTreeManager(
     private val project: Project,
     private val parentCs: CoroutineScope,
     private val parentDisposable: Disposable,
+    private val uiDispatcher: CoroutineContext = Dispatchers.EDT,
 ) {
     companion object {
         private val LOG = logger<ResourceTreeManager>()
@@ -155,7 +157,7 @@ internal class ResourceTreeManager(
 
         processPendingResources(resource.displayName)
 
-        withContext(Dispatchers.EDT) {
+        withContext(uiDispatcher) {
             project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(resource)
         }
     }
@@ -163,7 +165,7 @@ internal class ResourceTreeManager(
     private suspend fun updateResource(resource: AspireResource, data: AspireResourceData) {
         resource.update(data)
 
-        withContext(Dispatchers.EDT) {
+        withContext(uiDispatcher) {
             project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(resource)
         }
     }
@@ -183,7 +185,7 @@ internal class ResourceTreeManager(
 
         Disposer.dispose(resource)
 
-        withContext(Dispatchers.EDT) {
+        withContext(uiDispatcher) {
             project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceDeleted(resource)
         }
     }

@@ -7,12 +7,14 @@ import com.intellij.testFramework.DisposableRule
 import com.intellij.testFramework.replaceService
 import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.dashboard.*
-import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate.*
+import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate.newBuilder
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Rule
@@ -495,7 +497,8 @@ class ResourceTreeManagerTest {
         Path.of("test/path/AppHost.csproj"),
         project,
         this,
-        testRootDisposable
+        testRootDisposable,
+        uiDispatcher = StandardTestDispatcher(testScheduler),
     )
 
     private fun TestScope.startDashboardClient(treeManager: ResourceTreeManager): Pair<Job, MockAspireDashboardClientApi> {
