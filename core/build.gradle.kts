@@ -49,7 +49,7 @@ dependencies {
 sourceSets {
     main {
         proto {
-            srcDir("src/main/kotlin/com/jetbrains/aspire/protos")
+            srcDir("src/main/protos")
         }
     }
 }
