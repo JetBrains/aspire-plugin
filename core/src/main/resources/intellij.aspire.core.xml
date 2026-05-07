@@ -1,8 +1,8 @@
 <idea-plugin visibility="internal">
     <dependencies>
         <plugin id="com.intellij.modules.rider"/>
+        <module name="intellij.rd.client.base"/>
         <module name="intellij.rider.rdclient.dotnet"/>
-        <module name="intellij.rd.client"/>
         <module name="intellij.libraries.grpc"/>
         <module name="intellij.libraries.grpc.netty.shaded"/>
     </dependencies>

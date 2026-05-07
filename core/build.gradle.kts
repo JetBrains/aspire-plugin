@@ -21,7 +21,7 @@ dependencies {
     compileOnly(libs.grpc.kotlin.stub)
     compileOnly(libs.grpc.netty.shaded)
     compileOnly(libs.protobuf.java)
-    compileOnly(libs.protobuf.kotlin)
+    implementation(libs.protobuf.kotlin)
     compileOnly(libs.javaxAnnotationApi)
 
     testImplementation(libs.junit)
