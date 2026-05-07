@@ -20,7 +20,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.rider.run.AspireConfigurationType
-import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
+import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -55,8 +55,8 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
     ) {
         LOG.trace { "Starting run session for ${launchConfiguration.projectPath}" }
 
-        val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, _) = getDotNetExecutable(launchConfiguration, false, aspireHostRunConfig, project)
+        val aspireRunConfig = getAspireRunConfiguration(aspireHostRunConfigName, project)
+        val (executable, _) = getDotNetExecutable(launchConfiguration, false, aspireRunConfig, project)
             ?: return
         val executableWithOTLPEndpoint = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
         val (modifiedExecutable, callback) = modifyDotNetExecutable(
@@ -69,7 +69,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         val runtime = getDotNetRuntime(modifiedExecutable, project) ?: return
 
         val projectPath = launchConfiguration.projectPath
-        val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
+        val appHostFilePath = aspireRunConfig?.let { Path(it.parameters.appHostFilePath) }
         val profile = getRunProfile(
             sessionId,
             projectPath,
@@ -77,7 +77,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
             runtime,
             sessionProcessEventListener,
             sessionProcessLifetime,
-            aspireHostProjectPath
+            appHostFilePath
         )
 
         executeProfile(profile, false, callback, project)
@@ -93,14 +93,14 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
     ) {
         LOG.trace { "Starting debug session for project ${launchConfiguration.projectPath}" }
 
-        val aspireHostRunConfig = getAspireHostRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, browserSettings) = getDotNetExecutable(launchConfiguration, true, aspireHostRunConfig, project)
+        val aspireRunConfig = getAspireRunConfiguration(aspireHostRunConfigName, project)
+        val (executable, browserSettings) = getDotNetExecutable(launchConfiguration, true, aspireRunConfig, project)
             ?: return
         val modifiedExecutable = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
         val runtime = getDotNetRuntime(modifiedExecutable, project) ?: return
 
         val projectPath = launchConfiguration.projectPath
-        val aspireHostProjectPath = aspireHostRunConfig?.let { Path(it.parameters.projectFilePath) }
+        val appHostFilePath = aspireRunConfig?.let { Path(it.parameters.appHostFilePath) }
         val profile = getDebugProfile(
             sessionId,
             projectPath,
@@ -109,24 +109,24 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
             browserSettings,
             sessionProcessEventListener,
             sessionProcessLifetime,
-            aspireHostProjectPath
+            appHostFilePath
         )
 
         executeProfile(profile, true, null, project)
     }
 
-    private fun getAspireHostRunConfiguration(name: String?, project: Project): AspireHostConfiguration? {
+    private fun getAspireRunConfiguration(name: String?, project: Project): AspireRunConfiguration? {
         if (name == null) return null
 
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireConfigurationType::class.java)
         val runConfiguration = RunManager.getInstance(project)
             .getConfigurationsList(configurationType)
-            .singleOrNull { it is AspireHostConfiguration && it.name == name }
+            .singleOrNull { it is AspireRunConfiguration && it.name == name }
         if (runConfiguration == null) {
             LOG.warn("Unable to find Aspire run configuration type: $name")
         }
 
-        return runConfiguration as? AspireHostConfiguration
+        return runConfiguration as? AspireRunConfiguration
     }
 
     private fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
@@ -148,7 +148,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
     protected abstract suspend fun getDotNetExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireRunConfiguration: AspireRunConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>?
 

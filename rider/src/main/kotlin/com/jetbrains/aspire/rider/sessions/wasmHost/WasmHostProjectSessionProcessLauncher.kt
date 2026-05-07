@@ -1,13 +1,11 @@
 package com.jetbrains.aspire.rider.sessions.wasmHost
 
 import com.intellij.execution.process.ProcessListener
-import com.intellij.execution.runners.ExecutionEnvironmentBuilder
-import com.intellij.execution.runners.ProgramRunner
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
+import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.aspire.rider.sessions.findRunnableProjectByPath
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
@@ -89,12 +87,12 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
     override suspend fun getDotNetExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireRunConfiguration: AspireRunConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
         val addBrowserAction = !isDebugSession
-        val executable = factory.createExecutable(launchConfiguration, hostRunConfiguration, addBrowserAction)
+        val executable = factory.createExecutable(launchConfiguration, aspireRunConfiguration, addBrowserAction)
         if (executable == null) {
             LOG.warn("Unable to create executable for project: ${launchConfiguration.projectPath}")
         }

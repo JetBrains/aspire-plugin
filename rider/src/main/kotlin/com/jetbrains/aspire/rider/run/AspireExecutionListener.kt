@@ -16,12 +16,12 @@ internal class AspireExecutionListener(private val project: Project) : Execution
         val profile = env.runProfile
         if (profile !is AspireRunConfiguration) return
 
-        val mainFilePath = Path(profile.parameters.mainFilePath)
+        val appHostFilePath = Path(profile.parameters.appHostFilePath)
         val runConfigName = profile.name
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(mainFilePath, runConfigName, handler)
+            .appHostStarted(appHostFilePath, runConfigName, handler)
     }
 
     override fun processTerminated(
@@ -33,10 +33,10 @@ internal class AspireExecutionListener(private val project: Project) : Execution
         val profile = env.runProfile
         if (profile !is AspireRunConfiguration) return
 
-        val mainFilePath = Path(profile.parameters.mainFilePath)
+        val appHostFilePath = Path(profile.parameters.appHostFilePath)
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStopped(mainFilePath)
+            .appHostStopped(appHostFilePath)
     }
 }

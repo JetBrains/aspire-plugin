@@ -14,33 +14,33 @@ internal class AspireRunConfigurationListener(private val project: Project) : Ru
         val configuration = settings.configuration
         if (configuration !is AspireRunConfiguration) return
 
-        val mainFilePath = Path.of(configuration.parameters.mainFilePath)
+        val appHostFilePath = Path.of(configuration.parameters.appHostFilePath)
 
         project.messageBus
             .syncPublisher(AppHostDetectionListener.TOPIC)
-            .appHostDetected(mainFilePath.nameWithoutExtension, mainFilePath)
+            .appHostDetected(appHostFilePath.nameWithoutExtension, appHostFilePath)
     }
 
     override fun runConfigurationRemoved(settings: RunnerAndConfigurationSettings) {
         val configuration = settings.configuration
         if (configuration !is AspireRunConfiguration) return
 
-        val mainFilePath = configuration.parameters.mainFilePath
+        val appHostFilePath = configuration.parameters.appHostFilePath
 
-        val configurations = getAspireRunConfigurationsByMainFilePath(mainFilePath)
+        val configurations = getAspireRunConfigurationsByMainFilePath(appHostFilePath)
         if (configurations.isNotEmpty()) return
 
-        val path = Path.of(mainFilePath)
+        val path = Path.of(appHostFilePath)
         project.messageBus
             .syncPublisher(AppHostDetectionListener.TOPIC)
             .appHostRemoved(path)
     }
 
-    private fun getAspireRunConfigurationsByMainFilePath(mainFilePath: String): List<AspireRunConfiguration> {
+    private fun getAspireRunConfigurationsByMainFilePath(appHostFilePath: String): List<AspireRunConfiguration> {
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireConfigurationType::class.java)
         return RunManager.getInstance(project)
             .getConfigurationsList(configurationType)
             .filterIsInstance<AspireRunConfiguration>()
-            .filter { it.parameters.mainFilePath == mainFilePath }
+            .filter { it.parameters.appHostFilePath == appHostFilePath }
     }
 }

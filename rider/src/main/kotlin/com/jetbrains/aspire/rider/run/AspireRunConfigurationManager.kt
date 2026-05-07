@@ -48,7 +48,7 @@ class AspireRunConfigurationManager(private val project: Project) {
         val selected = runManager.selectedConfiguration
         val selectedConfiguration = selected?.configuration
         if (selectedConfiguration != null && selectedConfiguration is AspireRunConfiguration) {
-            if (appHost.mainFilePath == Path(selectedConfiguration.parameters.mainFilePath)) {
+            if (appHost.mainFilePath == Path(selectedConfiguration.parameters.appHostFilePath)) {
                 ProgramRunnerUtil.executeConfiguration(selected, executor)
                 return
             }
@@ -58,7 +58,7 @@ class AspireRunConfigurationManager(private val project: Project) {
             .filter {
                 val configuration = it.configuration
                 if (configuration !is AspireRunConfiguration) return@filter false
-                Path(configuration.parameters.mainFilePath) == appHost.mainFilePath
+                Path(configuration.parameters.appHostFilePath) == appHost.mainFilePath
             }
 
         if (configurations.isEmpty()) {

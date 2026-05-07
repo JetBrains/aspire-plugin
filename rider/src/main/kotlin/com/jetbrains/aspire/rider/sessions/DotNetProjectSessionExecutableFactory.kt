@@ -8,7 +8,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.aspire.rider.launchProfiles.getWorkingDirectory
-import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
+import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.MSBuildPropertyService
@@ -46,7 +46,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
 
     suspend fun createExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireRunConfiguration: AspireRunConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val sessionProjectPath = launchConfiguration.projectPath
@@ -58,14 +58,14 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
                 sessionProjectPath,
                 runnableProject,
                 launchConfiguration,
-                hostRunConfiguration,
+                aspireRunConfiguration,
                 addBrowserAction
             )
         } else {
             getExecutableForExternalProject(
                 sessionProjectPath,
                 launchConfiguration,
-                hostRunConfiguration,
+                aspireRunConfiguration,
                 addBrowserAction
             )
         }
@@ -75,7 +75,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
         sessionProjectPath: Path,
         runnableProject: RunnableProject,
         launchConfiguration: DotNetSessionLaunchConfiguration,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireRunConfiguration: AspireRunConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val output = runnableProject.projectOutputs.firstOrNull() ?: return null
@@ -96,12 +96,12 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
         )
 
         val browserSettings = launchProfile?.let {
-            getStartBrowserSettings(Path(runnableProject.projectFilePath), it, envs, output.tfm, hostRunConfiguration)
+            getStartBrowserSettings(Path(runnableProject.projectFilePath), it, envs, output.tfm, aspireRunConfiguration)
         }
         val launchBrowser = AspireSettings.getInstance().doNotLaunchBrowserForProjects.not()
         val browserAction =
-            if (launchBrowser && addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
-                getStartBrowserAction(hostRunConfiguration, browserSettings)
+            if (launchBrowser && addBrowserAction && browserSettings != null && aspireRunConfiguration != null) {
+                getStartBrowserAction(aspireRunConfiguration, browserSettings)
             } else {
                 { _, _, _ -> }
             }
@@ -128,7 +128,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
         launchConfiguration: DotNetSessionLaunchConfiguration,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireRunConfiguration: AspireRunConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val propertyService = MSBuildPropertyService.getInstance(project)
@@ -150,12 +150,12 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
         )
 
         val browserSettings = launchProfile?.let {
-            getStartBrowserSettings(sessionProjectPath, it, envs, properties.targetFramework, hostRunConfiguration)
+            getStartBrowserSettings(sessionProjectPath, it, envs, properties.targetFramework, aspireRunConfiguration)
         }
         val launchBrowser = AspireSettings.getInstance().doNotLaunchBrowserForProjects.not()
         val browserAction =
-            if (launchBrowser && addBrowserAction && browserSettings != null && hostRunConfiguration != null) {
-                getStartBrowserAction(hostRunConfiguration, browserSettings)
+            if (launchBrowser && addBrowserAction && browserSettings != null && aspireRunConfiguration != null) {
+                getStartBrowserAction(aspireRunConfiguration, browserSettings)
             } else {
                 { _, _, _ -> }
             }
@@ -184,7 +184,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
         launchProfile: LaunchSettingsJson.Profile,
         envs: Map<String, String>,
         tfm: RdTargetFrameworkId?,
-        hostRunConfiguration: AspireHostConfiguration?
+        aspireRunConfiguration: AspireRunConfiguration?
     ): StartBrowserSettings {
         val applicationUrlKey = "ApplicationUrl"
         val applicationRawUrl = launchProfile.applicationUrl
@@ -205,9 +205,9 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
         val launchUrl = processedParams[launchUrlKey]
         val applicationUrl = processedParams[applicationUrlKey]?.split(';')?.firstOrNull()
         val browserUrl = concatUrl(applicationUrl, launchUrl)
-        val webBrowser = hostRunConfiguration?.parameters?.startBrowserParameters?.browser
+        val webBrowser = aspireRunConfiguration?.parameters?.startBrowserParameters?.browser
         val withJavaScriptDebugger =
-            hostRunConfiguration?.parameters?.startBrowserParameters?.withJavaScriptDebugger == true
+            aspireRunConfiguration?.parameters?.startBrowserParameters?.withJavaScriptDebugger == true
 
         return StartBrowserSettings().apply {
             browser = webBrowser

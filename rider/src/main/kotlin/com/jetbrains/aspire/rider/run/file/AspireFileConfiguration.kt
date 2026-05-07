@@ -34,12 +34,12 @@ class AspireFileConfiguration(
     }
 
     override fun readExternal(element: Element) {
-        super.readExternal(element)
+        super<RiderAsyncRunConfiguration>.readExternal(element)
         parameters.readExternal(element)
     }
 
     override fun writeExternal(element: Element) {
-        super.writeExternal(element)
+        super<RiderAsyncRunConfiguration>.writeExternal(element)
         parameters.writeExternal(element)
     }
 

@@ -62,7 +62,7 @@ private suspend fun setUpAspireHostModel(
     val otlpEndpointUrl = state.getOtlpEndpointUrl()
 
     val parameters = aspireRunConfiguration.parameters
-    val aspireHostProjectPath = Path(parameters.mainFilePath)
+    val appHostFilePath = Path(parameters.appHostFilePath)
 
     val browserToken = state.getDashboardBrowserToken()
     val aspireHostProjectUrl = if (browserToken != null) {
@@ -73,7 +73,7 @@ private suspend fun setUpAspireHostModel(
 
     val aspireHostConfig = AspireHostModelConfig(
         dcpInstancePrefix,
-        aspireHostProjectPath.absolutePathString(),
+        appHostFilePath.absolutePathString(),
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
         otlpEndpointUrl,
@@ -88,7 +88,7 @@ private suspend fun setUpAspireHostModel(
     )
     environment.project.messageBus
         .syncPublisher(AppHostListener.TOPIC)
-        .appHostStarting(aspireHostProjectPath, appHostEnvironment)
+        .appHostStarting(appHostFilePath, appHostEnvironment)
 
     val aspireWorker = AspireWorker.getInstance(environment.project)
 

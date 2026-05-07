@@ -63,7 +63,7 @@ class AspireFileConfigurationParameters(
         )
     }
 
-    override val mainFilePath: String
+    override val appHostFilePath: String
         get() = filePath
 
     fun validate() {
