@@ -60,6 +60,10 @@ class AspireWorkerViewModel(
         cs.launch {
             appHostViewModels
                 .runningFold(emptyList<AspireAppHostViewModel>() to emptyList<AspireAppHostViewModel>()) { (previousList, _), currentList ->
+                    if ((previousList.isEmpty() && currentList.isNotEmpty()) || (currentList.isEmpty() && previousList.isNotEmpty())) {
+                        sendResetEvent()
+                    }
+
                     val previousPaths = previousList.map { it.appHostMainFilePath }.toSet()
                     val currentPaths = currentList.map { it.appHostMainFilePath }.toSet()
 
@@ -97,6 +101,13 @@ class AspireWorkerViewModel(
     ) = appHostViewModel.getViewDescriptor(project)
 
     override fun getServices(project: Project) = appHostViewModels.value
+
+    private fun sendResetEvent() {
+        val event = ServiceEventListener.ServiceEvent.createResetEvent(
+            AspireMainServiceViewContributor::class.java,
+        )
+        project.messageBus.syncPublisher(ServiceEventListener.TOPIC).handle(event)
+    }
 
     private fun sendServiceAddedEvent(appHostViewModel: AspireAppHostViewModel) {
         val event = ServiceEventListener.ServiceEvent.createServiceAddedEvent(

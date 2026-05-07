@@ -23,15 +23,15 @@ interface AppHostListener {
      * Notifies that an Aspire AppHost is about to start and publishes the connection metadata
      * needed later by the started state.
      */
-    fun appHostStarting(appHostMainFilePath: Path, environment: AppHostEnvironment)
+    fun appHostStarting(appHostFilePath: Path, environment: AppHostEnvironment)
 
     /**
      * Notifies that an Aspire AppHost process has started.
      */
-    fun appHostStarted(appHostMainFilePath: Path, runConfigName: String?, processHandler: ProcessHandler)
+    fun appHostStarted(appHostFilePath: Path, runConfigName: String?, processHandler: ProcessHandler)
 
     /**
      * Notifies that an Aspire AppHost process has stopped.
      */
-    fun appHostStopped(appHostMainFilePath: Path)
+    fun appHostStopped(appHostFilePath: Path)
 }

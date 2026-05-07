@@ -4,7 +4,7 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
+import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
@@ -67,11 +67,11 @@ internal class DotNetProjectSessionProcessLauncher : DotNetSessionWithHotReloadP
     override suspend fun getDotNetExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireRunConfiguration: AspireRunConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
-        val executable = factory.createExecutable(launchConfiguration, hostRunConfiguration, true)
+        val executable = factory.createExecutable(launchConfiguration, aspireRunConfiguration, true)
         if (executable == null) {
             LOG.warn("Unable to create executable for project: ${launchConfiguration.projectPath}")
         }

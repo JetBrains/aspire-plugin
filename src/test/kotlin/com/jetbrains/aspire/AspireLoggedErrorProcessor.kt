@@ -11,5 +11,6 @@ val aspireLoggedErrorProcessor: RiderLoggedErrorProcessor = RiderLoggedErrorProc
         "HighlighterHasNotBeenRegistered" to { it.contains("Removing highlighter hasn't been registered by markup adapter") },
         "RiderHotReloadExecutionListenerDisposable" to { it.contains("com.jetbrains.rider.debugger.dialogs.RiderHotReloadExecutionListener.processStarted") },
         "DoubleReleaseOfEditor" to { it.contains($$"TraceableDisposable$DisposalException: Double release of editor") },
+        "WriteLockModalProgress" to { it.contains("This thread holds write lock while trying to invoke a modal progress") },
     )
 )

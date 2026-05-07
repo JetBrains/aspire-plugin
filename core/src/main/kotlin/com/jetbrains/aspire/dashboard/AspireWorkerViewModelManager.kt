@@ -16,19 +16,23 @@ import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-internal class AspireWorkerViewModelFactory(private val project: Project, private val cs: CoroutineScope): Disposable {
+internal class AspireWorkerViewModelManager(private val project: Project, private val cs: CoroutineScope) : Disposable {
     companion object {
-        fun getInstance(project: Project): AspireWorkerViewModelFactory = project.service()
+        fun getInstance(project: Project): AspireWorkerViewModelManager = project.service()
     }
 
-    fun create(): AspireWorkerViewModel {
+    private val vm by lazy {
         val vmCs = cs.childScope(javaClass.name)
-        val vm = AspireWorkerViewModel(
+        val workerVm = AspireWorkerViewModel(
             project,
             vmCs + Dispatchers.Default,
             AspireWorker.getInstance(project)
         )
-        Disposer.register(this, vm)
+        Disposer.register(this, workerVm)
+        workerVm
+    }
+
+    fun getOrCreate(): AspireWorkerViewModel {
         return vm
     }
 

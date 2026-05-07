@@ -11,6 +11,6 @@ interface AppHostDetectionListener {
         val TOPIC = Topic.create("Aspire AppHost Detection Listener", AppHostDetectionListener::class.java)
     }
 
-    fun appHostDetected(appHostName: String, appHostMainFilePath: Path)
-    fun appHostRemoved(appHostMainFilePath: Path)
+    fun appHostDetected(appHostName: String, appHostFilePath: Path)
+    fun appHostRemoved(appHostFilePath: Path)
 }

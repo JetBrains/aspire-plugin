@@ -2,7 +2,7 @@ package com.jetbrains.aspire.database
 
 import com.intellij.icons.AllIcons
 import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
-import com.jetbrains.aspire.generated.ResourceType
+import com.jetbrains.aspire.worker.ResourceType
 
 internal class DatabaseAspireResourceIconProvider : AspireResourceIconProvider {
     override fun getIcon(type: ResourceType, containerImage: String?) = when (type) {

@@ -1,0 +1,285 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+syntax = "proto3";
+
+package aspire.v1;
+
+option csharp_namespace = "Aspire.DashboardService.Proto.V1";
+option java_multiple_files = true;
+option java_package = "com.jetbrains.aspire.generated.dashboard";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+message ApplicationInformationRequest {
+}
+
+message ApplicationInformationResponse {
+  string application_name = 1;
+}
+
+message ResourceCommand {
+  string name = 1;
+  string display_name = 2;
+  optional string confirmation_message = 3;
+  optional google.protobuf.Value parameter = 4;
+  bool is_highlighted = 5;
+  optional string icon_name = 6;
+  optional IconVariant icon_variant = 7;
+  optional string display_description = 8;
+  ResourceCommandState state = 9;
+}
+
+enum IconVariant {
+  ICON_VARIANT_REGULAR = 0;
+  ICON_VARIANT_FILLED = 1;
+}
+
+message ResourceCommandRequest {
+  string command_name = 1;
+  string resource_name = 2;
+  string resource_type = 3;
+  optional google.protobuf.Value parameter = 4;
+}
+
+enum ResourceCommandState {
+  RESOURCE_COMMAND_STATE_ENABLED = 0;
+  RESOURCE_COMMAND_STATE_DISABLED = 1;
+  RESOURCE_COMMAND_STATE_HIDDEN = 2;
+}
+
+enum ResourceCommandResponseKind {
+  RESOURCE_COMMAND_RESPONSE_KIND_UNDEFINED = 0;
+  RESOURCE_COMMAND_RESPONSE_KIND_SUCCEEDED = 1;
+  RESOURCE_COMMAND_RESPONSE_KIND_FAILED = 2;
+  RESOURCE_COMMAND_RESPONSE_KIND_CANCELLED = 3;
+}
+
+message ResourceCommandResponse {
+  ResourceCommandResponseKind kind = 1;
+  optional string error_message = 2;
+}
+
+message ResourceType {
+  string unique_name = 1;
+  optional string display_name = 2;
+  repeated ResourceCommand commands = 3;
+}
+
+message EnvironmentVariable {
+  string name = 1;
+  optional string value = 2;
+  bool is_from_spec = 3;
+}
+
+message Url {
+  optional string endpoint_name = 1;
+  string full_url = 2;
+  bool is_internal = 3;
+  bool is_inactive = 4;
+  UrlDisplayProperties display_properties = 5;
+}
+
+message UrlDisplayProperties {
+  int32 sort_order = 1;
+  string display_name = 2;
+}
+
+message Volume {
+  string source = 1;
+  string target = 2;
+  string mount_type = 3;
+  bool is_read_only = 4;
+}
+
+message HealthReport {
+  optional HealthStatus status = 1;
+  string key = 2;
+  string description = 3;
+  string exception = 4;
+  optional google.protobuf.Timestamp last_run_at = 5;
+}
+
+enum HealthStatus {
+  HEALTH_STATUS_HEALTHY = 0;
+  HEALTH_STATUS_UNHEALTHY = 1;
+  HEALTH_STATUS_DEGRADED = 2;
+}
+
+message ResourceRelationship {
+  string resource_name = 1;
+  string type = 2;
+}
+
+message ResourceProperty {
+  string name = 1;
+  optional string display_name = 2;
+  google.protobuf.Value value = 3;
+  optional bool is_sensitive = 4;
+}
+
+message Resource {
+  reserved 8, 9, 10, 16;
+  string name = 1;
+  string resource_type = 2;
+  string display_name = 3;
+  string uid = 4;
+  optional string state = 5;
+  optional google.protobuf.Timestamp created_at = 6;
+  repeated EnvironmentVariable environment = 7;
+  repeated ResourceCommand commands = 11;
+  repeated ResourceProperty properties = 12;
+  repeated Url urls = 13;
+  optional string state_style = 14;
+  repeated Volume volumes = 15;
+  repeated HealthReport health_reports = 17;
+  optional google.protobuf.Timestamp started_at = 18;
+  optional google.protobuf.Timestamp stopped_at = 19;
+  repeated ResourceRelationship relationships = 20;
+  bool is_hidden = 21;
+  bool supports_detailed_telemetry = 22;
+  optional string icon_name = 23;
+  optional IconVariant icon_variant = 24;
+}
+
+message InitialResourceData {
+  repeated Resource resources = 1;
+  repeated ResourceType resource_types = 2;
+}
+
+message ResourceDeletion {
+  string resource_name = 1;
+  string resource_type = 2;
+}
+
+message WatchResourcesChange {
+  oneof kind {
+    ResourceDeletion delete = 1;
+    Resource upsert = 2;
+  }
+}
+
+message WatchResourcesChanges {
+  repeated WatchResourcesChange value = 1;
+}
+
+message WatchResourcesRequest {
+  optional bool is_reconnect = 1;
+}
+
+message WatchResourcesUpdate {
+  oneof kind {
+    InitialResourceData initial_data = 1;
+    WatchResourcesChanges changes = 2;
+  }
+}
+
+message ConsoleLogLine {
+  string text = 1;
+  optional bool is_std_err = 2;
+  int32 line_number = 3;
+}
+
+message WatchResourceConsoleLogsRequest {
+  string resource_name = 1;
+  bool suppress_follow = 2;
+}
+
+message WatchResourceConsoleLogsUpdate {
+  repeated ConsoleLogLine log_lines = 1;
+}
+
+message WatchInteractionsRequestUpdate {
+  int32 interaction_id = 1;
+
+  oneof kind {
+    InteractionComplete complete = 2;
+    InteractionMessageBox message_box = 3;
+    InteractionInputsDialog inputs_dialog = 4;
+    InteractionNotification notification = 5;
+  }
+
+  optional bool response_update = 6;
+}
+
+message WatchInteractionsResponseUpdate {
+  int32 interaction_id = 1;
+  string title = 2;
+  string message = 3;
+  string primary_button_text = 4;
+  string secondary_button_text = 5;
+  bool show_secondary_button = 6;
+  bool show_dismiss = 7;
+  bool enable_message_markdown = 8;
+
+  oneof kind {
+    InteractionComplete complete = 16;
+    InteractionMessageBox message_box = 17;
+    InteractionInputsDialog inputs_dialog = 18;
+    InteractionNotification notification = 19;
+  }
+}
+
+message InteractionComplete {
+}
+
+message InteractionMessageBox {
+  MessageIntent intent = 1;
+  optional bool result = 2;
+}
+
+message InteractionNotification {
+  MessageIntent intent = 1;
+  optional bool result = 2;
+  string link_text = 3;
+  string link_url = 4;
+}
+
+message InteractionInputsDialog {
+  repeated InteractionInput input_items = 1;
+}
+
+message InteractionInput {
+  string label = 1;
+  string placeholder = 2;
+  InputType input_type = 3;
+  bool required = 4;
+  map<string, string> options = 5;
+  string value = 6;
+  repeated string validation_errors = 7;
+  string description = 8;
+  bool enable_description_markdown = 9;
+  int32 max_length = 10;
+  bool allow_custom_choice = 11;
+  bool loading = 12;
+  bool update_state_on_change = 13;
+  string name = 14;
+  bool disabled = 15;
+}
+
+enum MessageIntent {
+  MESSAGE_INTENT_NONE = 0;
+  MESSAGE_INTENT_SUCCESS = 1;
+  MESSAGE_INTENT_WARNING = 2;
+  MESSAGE_INTENT_ERROR = 3;
+  MESSAGE_INTENT_INFORMATION = 4;
+  MESSAGE_INTENT_CONFIRMATION = 5;
+}
+
+enum InputType {
+  INPUT_TYPE_UNSPECIFIED = 0;
+  INPUT_TYPE_TEXT = 1;
+  INPUT_TYPE_SECRET_TEXT = 2;
+  INPUT_TYPE_CHOICE = 3;
+  INPUT_TYPE_BOOLEAN = 4;
+  INPUT_TYPE_NUMBER = 5;
+}
+
+service DashboardService {
+  rpc GetApplicationInformation(ApplicationInformationRequest) returns (ApplicationInformationResponse);
+  rpc WatchResources(WatchResourcesRequest) returns (stream WatchResourcesUpdate);
+  rpc WatchResourceConsoleLogs(WatchResourceConsoleLogsRequest) returns (stream WatchResourceConsoleLogsUpdate);
+  rpc ExecuteResourceCommand(ResourceCommandRequest) returns (ResourceCommandResponse);
+  rpc WatchInteractions(stream WatchInteractionsRequestUpdate) returns (stream WatchInteractionsResponseUpdate);
+}

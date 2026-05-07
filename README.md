@@ -8,7 +8,6 @@
   <a href="https://plugins.jetbrains.com/plugin/23289-aspire"><img src="https://img.shields.io/jetbrains/plugin/d/23289-aspire.svg" alt="Downloads"></a>
 </div>
 
-<!-- Plugin description -->
 The plugin provides support for Aspire projects in JetBrains Rider.
 
 **Features:**
@@ -16,8 +15,6 @@ The plugin provides support for Aspire projects in JetBrains Rider.
 * Resource dashboard
 * Manifest generation
 * Automatic database connection
-
-<!-- Plugin description end -->
 
 **Documentation**:
 * [Changelog][docs.changelog]

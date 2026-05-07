@@ -35,7 +35,6 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 
 /**
@@ -69,28 +68,28 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     }
     private val mutex = Mutex()
 
-    private fun addAspireAppHost(name: String, mainFilePath: Path) {
-        LOG.trace { "Adding a new Aspire AppHost ${mainFilePath.absolutePathString()}" }
+    private fun addAspireAppHost(name: String, appHostFilePath: Path) {
+        LOG.trace { "Adding a new Aspire AppHost ${appHostFilePath.absolutePathString()}" }
 
         _appHosts.update { currentList ->
-            if (currentList.any { it.mainFilePath == mainFilePath }) return@update currentList
+            if (currentList.any { it.mainFilePath == appHostFilePath }) return@update currentList
 
-            val appHost = AspireAppHost(name, mainFilePath, project, cs)
+            val appHost = AspireAppHost(name, appHostFilePath, project, cs)
             Disposer.register(this@AspireWorker, appHost)
             currentList + appHost
         }
     }
 
-    private fun removeAspireAppHost(mainFilePath: Path) {
-        LOG.trace { "Removing the Aspire AppHost ${mainFilePath.absolutePathString()}" }
+    private fun removeAspireAppHost(appHostFilePath: Path) {
+        LOG.trace { "Removing the Aspire AppHost ${appHostFilePath.absolutePathString()}" }
 
         _appHosts.update { currentList ->
-            currentList.filter { it.mainFilePath != mainFilePath }
+            currentList.filter { it.mainFilePath != appHostFilePath }
         }
     }
 
-    fun getAppHostByPath(mainFilePath: Path): AspireAppHost? {
-        return _appHosts.value.firstOrNull { it.mainFilePath == mainFilePath }
+    fun getAppHostByPath(appHostFilePath: Path): AspireAppHost? {
+        return _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }
     }
 
     //Switch DCP to the IDE mode
@@ -210,7 +209,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         dispatcher: RdDispatcher,
         appHostLifetime: Lifetime
     ) {
-        val appHostMainFilePath = Path(appHostModel.config.aspireHostProjectPath)
+        val appHostMainFilePath = Path.of(appHostModel.config.aspireHostProjectPath)
         val appHost = _appHosts.value.firstOrNull { it.mainFilePath == appHostMainFilePath }
         if (appHost == null) {
             LOG.warn("Could not find Aspire host $appHostMainFilePath")
@@ -282,12 +281,12 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     }
 
     private class DetectionListener(private val project: Project) : AppHostDetectionListener {
-        override fun appHostDetected(appHostName: String, appHostMainFilePath: Path) {
-            getInstance(project).addAspireAppHost(appHostName, appHostMainFilePath)
+        override fun appHostDetected(appHostName: String, appHostFilePath: Path) {
+            getInstance(project).addAspireAppHost(appHostName, appHostFilePath)
         }
 
-        override fun appHostRemoved(appHostMainFilePath: Path) {
-            getInstance(project).removeAspireAppHost(appHostMainFilePath)
+        override fun appHostRemoved(appHostFilePath: Path) {
+            getInstance(project).removeAspireAppHost(appHostFilePath)
         }
     }
 }

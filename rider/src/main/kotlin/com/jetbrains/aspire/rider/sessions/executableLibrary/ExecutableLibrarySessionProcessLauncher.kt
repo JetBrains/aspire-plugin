@@ -9,7 +9,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
-import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
+import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProcessLauncher
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -61,7 +61,7 @@ internal class ExecutableLibrarySessionProcessLauncher : DotNetSessionProcessLau
     override suspend fun getDotNetExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
-        hostRunConfiguration: AspireHostConfiguration?,
+        aspireRunConfiguration: AspireRunConfiguration?,
         project: Project
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = ExecutableLibraryExecutableFactory.getInstance(project)
