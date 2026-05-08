@@ -6,6 +6,17 @@
 
 ### Changed
 
+- Connect to the Aspire Resource gRPC endpoint from the frontend part
+
+### Fixed
+
+- Worker view model is not created for a created run configuration
+- Run configuration can't be found for the file-based applications
+
+## [2.6.0] - 2026-05-06
+
+### Changed
+
 - Update platform version to RD-2026.2-SNAPSHOT
 
 ## [2.5.3] - 2026-04-16
@@ -667,7 +678,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.5.3...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.6.0...HEAD
+[2.6.0]: https://github.com/JetBrains/aspire-plugin/compare/2.5.3...2.6.0
 [2.5.3]: https://github.com/JetBrains/aspire-plugin/compare/2.5.2...2.5.3
 [2.5.2]: https://github.com/JetBrains/aspire-plugin/compare/2.5.1...2.5.2
 [2.5.1]: https://github.com/JetBrains/aspire-plugin/compare/2.5.0...2.5.1
