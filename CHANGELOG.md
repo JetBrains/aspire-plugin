@@ -7,6 +7,7 @@
 ### Changed
 
 - Connect to the Aspire Resource gRPC endpoint from the frontend part
+- Change the supported Aspire version to 13.3
 
 ### Fixed
 

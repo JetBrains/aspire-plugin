@@ -41,145 +41,154 @@ namespace Aspire.DashboardService.Proto.V1 {
             "b21tYW5kUmVxdWVzdBIUCgxjb21tYW5kX25hbWUYASABKAkSFQoNcmVzb3Vy",
             "Y2VfbmFtZRgCIAEoCRIVCg1yZXNvdXJjZV90eXBlGAMgASgJEi4KCXBhcmFt",
             "ZXRlchgEIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5WYWx1ZUgAiAEBQgwKCl9w",
-            "YXJhbWV0ZXIifQoXUmVzb3VyY2VDb21tYW5kUmVzcG9uc2USNAoEa2luZBgB",
-            "IAEoDjImLmFzcGlyZS52MS5SZXNvdXJjZUNvbW1hbmRSZXNwb25zZUtpbmQS",
-            "GgoNZXJyb3JfbWVzc2FnZRgCIAEoCUgAiAEBQhAKDl9lcnJvcl9tZXNzYWdl",
-            "In0KDFJlc291cmNlVHlwZRITCgt1bmlxdWVfbmFtZRgBIAEoCRIZCgxkaXNw",
-            "bGF5X25hbWUYAiABKAlIAIgBARIsCghjb21tYW5kcxgDIAMoCzIaLmFzcGly",
-            "ZS52MS5SZXNvdXJjZUNvbW1hbmRCDwoNX2Rpc3BsYXlfbmFtZSJXChNFbnZp",
-            "cm9ubWVudFZhcmlhYmxlEgwKBG5hbWUYASABKAkSEgoFdmFsdWUYAiABKAlI",
-            "AIgBARIUCgxpc19mcm9tX3NwZWMYAyABKAhCCAoGX3ZhbHVlIqwBCgNVcmwS",
-            "GgoNZW5kcG9pbnRfbmFtZRgBIAEoCUgAiAEBEhAKCGZ1bGxfdXJsGAIgASgJ",
-            "EhMKC2lzX2ludGVybmFsGAMgASgIEhMKC2lzX2luYWN0aXZlGAQgASgIEjsK",
-            "EmRpc3BsYXlfcHJvcGVydGllcxgFIAEoCzIfLmFzcGlyZS52MS5VcmxEaXNw",
-            "bGF5UHJvcGVydGllc0IQCg5fZW5kcG9pbnRfbmFtZSJAChRVcmxEaXNwbGF5",
-            "UHJvcGVydGllcxISCgpzb3J0X29yZGVyGAEgASgFEhQKDGRpc3BsYXlfbmFt",
-            "ZRgCIAEoCSJSCgZWb2x1bWUSDgoGc291cmNlGAEgASgJEg4KBnRhcmdldBgC",
-            "IAEoCRISCgptb3VudF90eXBlGAMgASgJEhQKDGlzX3JlYWRfb25seRgEIAEo",
-            "CCLCAQoMSGVhbHRoUmVwb3J0EiwKBnN0YXR1cxgBIAEoDjIXLmFzcGlyZS52",
-            "MS5IZWFsdGhTdGF0dXNIAIgBARILCgNrZXkYAiABKAkSEwoLZGVzY3JpcHRp",
-            "b24YAyABKAkSEQoJZXhjZXB0aW9uGAQgASgJEjQKC2xhc3RfcnVuX2F0GAUg",
-            "ASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgBiAEBQgkKB19zdGF0",
-            "dXNCDgoMX2xhc3RfcnVuX2F0IjsKFFJlc291cmNlUmVsYXRpb25zaGlwEhUK",
-            "DXJlc291cmNlX25hbWUYASABKAkSDAoEdHlwZRgCIAEoCSKfAQoQUmVzb3Vy",
-            "Y2VQcm9wZXJ0eRIMCgRuYW1lGAEgASgJEhkKDGRpc3BsYXlfbmFtZRgCIAEo",
-            "CUgAiAEBEiUKBXZhbHVlGAMgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVl",
-            "EhkKDGlzX3NlbnNpdGl2ZRgEIAEoCEgBiAEBQg8KDV9kaXNwbGF5X25hbWVC",
-            "DwoNX2lzX3NlbnNpdGl2ZSLfBgoIUmVzb3VyY2USDAoEbmFtZRgBIAEoCRIV",
-            "Cg1yZXNvdXJjZV90eXBlGAIgASgJEhQKDGRpc3BsYXlfbmFtZRgDIAEoCRIL",
-            "CgN1aWQYBCABKAkSEgoFc3RhdGUYBSABKAlIAIgBARIzCgpjcmVhdGVkX2F0",
-            "GAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgBiAEBEjMKC2Vu",
-            "dmlyb25tZW50GAcgAygLMh4uYXNwaXJlLnYxLkVudmlyb25tZW50VmFyaWFi",
-            "bGUSLAoIY29tbWFuZHMYCyADKAsyGi5hc3BpcmUudjEuUmVzb3VyY2VDb21t",
-            "YW5kEi8KCnByb3BlcnRpZXMYDCADKAsyGy5hc3BpcmUudjEuUmVzb3VyY2VQ",
-            "cm9wZXJ0eRIcCgR1cmxzGA0gAygLMg4uYXNwaXJlLnYxLlVybBIYCgtzdGF0",
-            "ZV9zdHlsZRgOIAEoCUgCiAEBEiIKB3ZvbHVtZXMYDyADKAsyES5hc3BpcmUu",
-            "djEuVm9sdW1lEi8KDmhlYWx0aF9yZXBvcnRzGBEgAygLMhcuYXNwaXJlLnYx",
-            "LkhlYWx0aFJlcG9ydBIzCgpzdGFydGVkX2F0GBIgASgLMhouZ29vZ2xlLnBy",
-            "b3RvYnVmLlRpbWVzdGFtcEgDiAEBEjMKCnN0b3BwZWRfYXQYEyABKAsyGi5n",
-            "b29nbGUucHJvdG9idWYuVGltZXN0YW1wSASIAQESNgoNcmVsYXRpb25zaGlw",
-            "cxgUIAMoCzIfLmFzcGlyZS52MS5SZXNvdXJjZVJlbGF0aW9uc2hpcBIRCglp",
-            "c19oaWRkZW4YFSABKAgSIwobc3VwcG9ydHNfZGV0YWlsZWRfdGVsZW1ldHJ5",
-            "GBYgASgIEhYKCWljb25fbmFtZRgXIAEoCUgFiAEBEjEKDGljb25fdmFyaWFu",
-            "dBgYIAEoDjIWLmFzcGlyZS52MS5JY29uVmFyaWFudEgGiAEBQggKBl9zdGF0",
-            "ZUINCgtfY3JlYXRlZF9hdEIOCgxfc3RhdGVfc3R5bGVCDQoLX3N0YXJ0ZWRf",
-            "YXRCDQoLX3N0b3BwZWRfYXRCDAoKX2ljb25fbmFtZUIPCg1faWNvbl92YXJp",
-            "YW50SgQICBAJSgQICRAKSgQIChALSgQIEBARIm4KE0luaXRpYWxSZXNvdXJj",
-            "ZURhdGESJgoJcmVzb3VyY2VzGAEgAygLMhMuYXNwaXJlLnYxLlJlc291cmNl",
-            "Ei8KDnJlc291cmNlX3R5cGVzGAIgAygLMhcuYXNwaXJlLnYxLlJlc291cmNl",
-            "VHlwZSJAChBSZXNvdXJjZURlbGV0aW9uEhUKDXJlc291cmNlX25hbWUYASAB",
-            "KAkSFQoNcmVzb3VyY2VfdHlwZRgCIAEoCSJ0ChRXYXRjaFJlc291cmNlc0No",
-            "YW5nZRItCgZkZWxldGUYASABKAsyGy5hc3BpcmUudjEuUmVzb3VyY2VEZWxl",
-            "dGlvbkgAEiUKBnVwc2VydBgCIAEoCzITLmFzcGlyZS52MS5SZXNvdXJjZUgA",
-            "QgYKBGtpbmQiRwoVV2F0Y2hSZXNvdXJjZXNDaGFuZ2VzEi4KBXZhbHVlGAEg",
-            "AygLMh8uYXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzQ2hhbmdlIkMKFVdhdGNo",
-            "UmVzb3VyY2VzUmVxdWVzdBIZCgxpc19yZWNvbm5lY3QYASABKAhIAIgBAUIP",
-            "Cg1faXNfcmVjb25uZWN0IosBChRXYXRjaFJlc291cmNlc1VwZGF0ZRI2Cgxp",
-            "bml0aWFsX2RhdGEYASABKAsyHi5hc3BpcmUudjEuSW5pdGlhbFJlc291cmNl",
-            "RGF0YUgAEjMKB2NoYW5nZXMYAiABKAsyIC5hc3BpcmUudjEuV2F0Y2hSZXNv",
-            "dXJjZXNDaGFuZ2VzSABCBgoEa2luZCJbCg5Db25zb2xlTG9nTGluZRIMCgR0",
-            "ZXh0GAEgASgJEhcKCmlzX3N0ZF9lcnIYAiABKAhIAIgBARITCgtsaW5lX251",
-            "bWJlchgDIAEoBUINCgtfaXNfc3RkX2VyciJRCh9XYXRjaFJlc291cmNlQ29u",
-            "c29sZUxvZ3NSZXF1ZXN0EhUKDXJlc291cmNlX25hbWUYASABKAkSFwoPc3Vw",
-            "cHJlc3NfZm9sbG93GAIgASgIIk4KHldhdGNoUmVzb3VyY2VDb25zb2xlTG9n",
-            "c1VwZGF0ZRIsCglsb2dfbGluZXMYASADKAsyGS5hc3BpcmUudjEuQ29uc29s",
-            "ZUxvZ0xpbmUi2AIKHldhdGNoSW50ZXJhY3Rpb25zUmVxdWVzdFVwZGF0ZRIW",
-            "Cg5pbnRlcmFjdGlvbl9pZBgBIAEoBRIyCghjb21wbGV0ZRgCIAEoCzIeLmFz",
-            "cGlyZS52MS5JbnRlcmFjdGlvbkNvbXBsZXRlSAASNwoLbWVzc2FnZV9ib3gY",
-            "AyABKAsyIC5hc3BpcmUudjEuSW50ZXJhY3Rpb25NZXNzYWdlQm94SAASOwoN",
-            "aW5wdXRzX2RpYWxvZxgEIAEoCzIiLmFzcGlyZS52MS5JbnRlcmFjdGlvbklu",
-            "cHV0c0RpYWxvZ0gAEjoKDG5vdGlmaWNhdGlvbhgFIAEoCzIiLmFzcGlyZS52",
-            "MS5JbnRlcmFjdGlvbk5vdGlmaWNhdGlvbkgAEhwKD3Jlc3BvbnNlX3VwZGF0",
-            "ZRgGIAEoCEgBiAEBQgYKBGtpbmRCEgoQX3Jlc3BvbnNlX3VwZGF0ZSLZAwof",
-            "V2F0Y2hJbnRlcmFjdGlvbnNSZXNwb25zZVVwZGF0ZRIWCg5pbnRlcmFjdGlv",
-            "bl9pZBgBIAEoBRINCgV0aXRsZRgCIAEoCRIPCgdtZXNzYWdlGAMgASgJEhsK",
-            "E3ByaW1hcnlfYnV0dG9uX3RleHQYBCABKAkSHQoVc2Vjb25kYXJ5X2J1dHRv",
-            "bl90ZXh0GAUgASgJEh0KFXNob3dfc2Vjb25kYXJ5X2J1dHRvbhgGIAEoCBIU",
-            "CgxzaG93X2Rpc21pc3MYByABKAgSHwoXZW5hYmxlX21lc3NhZ2VfbWFya2Rv",
-            "d24YCCABKAgSMgoIY29tcGxldGUYECABKAsyHi5hc3BpcmUudjEuSW50ZXJh",
-            "Y3Rpb25Db21wbGV0ZUgAEjcKC21lc3NhZ2VfYm94GBEgASgLMiAuYXNwaXJl",
-            "LnYxLkludGVyYWN0aW9uTWVzc2FnZUJveEgAEjsKDWlucHV0c19kaWFsb2cY",
-            "EiABKAsyIi5hc3BpcmUudjEuSW50ZXJhY3Rpb25JbnB1dHNEaWFsb2dIABI6",
-            "Cgxub3RpZmljYXRpb24YEyABKAsyIi5hc3BpcmUudjEuSW50ZXJhY3Rpb25O",
-            "b3RpZmljYXRpb25IAEIGCgRraW5kIhUKE0ludGVyYWN0aW9uQ29tcGxldGUi",
-            "YQoVSW50ZXJhY3Rpb25NZXNzYWdlQm94EigKBmludGVudBgBIAEoDjIYLmFz",
-            "cGlyZS52MS5NZXNzYWdlSW50ZW50EhMKBnJlc3VsdBgCIAEoCEgAiAEBQgkK",
-            "B19yZXN1bHQiiAEKF0ludGVyYWN0aW9uTm90aWZpY2F0aW9uEigKBmludGVu",
-            "dBgBIAEoDjIYLmFzcGlyZS52MS5NZXNzYWdlSW50ZW50EhMKBnJlc3VsdBgC",
-            "IAEoCEgAiAEBEhEKCWxpbmtfdGV4dBgDIAEoCRIQCghsaW5rX3VybBgEIAEo",
-            "CUIJCgdfcmVzdWx0IksKF0ludGVyYWN0aW9uSW5wdXRzRGlhbG9nEjAKC2lu",
-            "cHV0X2l0ZW1zGAEgAygLMhsuYXNwaXJlLnYxLkludGVyYWN0aW9uSW5wdXQi",
-            "wwMKEEludGVyYWN0aW9uSW5wdXQSDQoFbGFiZWwYASABKAkSEwoLcGxhY2Vo",
-            "b2xkZXIYAiABKAkSKAoKaW5wdXRfdHlwZRgDIAEoDjIULmFzcGlyZS52MS5J",
-            "bnB1dFR5cGUSEAoIcmVxdWlyZWQYBCABKAgSOQoHb3B0aW9ucxgFIAMoCzIo",
-            "LmFzcGlyZS52MS5JbnRlcmFjdGlvbklucHV0Lk9wdGlvbnNFbnRyeRINCgV2",
-            "YWx1ZRgGIAEoCRIZChF2YWxpZGF0aW9uX2Vycm9ycxgHIAMoCRITCgtkZXNj",
-            "cmlwdGlvbhgIIAEoCRIjChtlbmFibGVfZGVzY3JpcHRpb25fbWFya2Rvd24Y",
-            "CSABKAgSEgoKbWF4X2xlbmd0aBgKIAEoBRIbChNhbGxvd19jdXN0b21fY2hv",
-            "aWNlGAsgASgIEg8KB2xvYWRpbmcYDCABKAgSHgoWdXBkYXRlX3N0YXRlX29u",
-            "X2NoYW5nZRgNIAEoCBIMCgRuYW1lGA4gASgJEhAKCGRpc2FibGVkGA8gASgI",
-            "Gi4KDE9wdGlvbnNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6",
-            "AjgBKkAKC0ljb25WYXJpYW50EhgKFElDT05fVkFSSUFOVF9SRUdVTEFSEAAS",
-            "FwoTSUNPTl9WQVJJQU5UX0ZJTExFRBABKoIBChRSZXNvdXJjZUNvbW1hbmRT",
-            "dGF0ZRIiCh5SRVNPVVJDRV9DT01NQU5EX1NUQVRFX0VOQUJMRUQQABIjCh9S",
-            "RVNPVVJDRV9DT01NQU5EX1NUQVRFX0RJU0FCTEVEEAESIQodUkVTT1VSQ0Vf",
-            "Q09NTUFORF9TVEFURV9ISURERU4QAirSAQobUmVzb3VyY2VDb21tYW5kUmVz",
-            "cG9uc2VLaW5kEiwKKFJFU09VUkNFX0NPTU1BTkRfUkVTUE9OU0VfS0lORF9V",
-            "TkRFRklORUQQABIsCihSRVNPVVJDRV9DT01NQU5EX1JFU1BPTlNFX0tJTkRf",
-            "U1VDQ0VFREVEEAESKQolUkVTT1VSQ0VfQ09NTUFORF9SRVNQT05TRV9LSU5E",
-            "X0ZBSUxFRBACEiwKKFJFU09VUkNFX0NPTU1BTkRfUkVTUE9OU0VfS0lORF9D",
-            "QU5DRUxMRUQQAypiCgxIZWFsdGhTdGF0dXMSGQoVSEVBTFRIX1NUQVRVU19I",
-            "RUFMVEhZEAASGwoXSEVBTFRIX1NUQVRVU19VTkhFQUxUSFkQARIaChZIRUFM",
-            "VEhfU1RBVFVTX0RFR1JBREVEEAIquwEKDU1lc3NhZ2VJbnRlbnQSFwoTTUVT",
-            "U0FHRV9JTlRFTlRfTk9ORRAAEhoKFk1FU1NBR0VfSU5URU5UX1NVQ0NFU1MQ",
-            "ARIaChZNRVNTQUdFX0lOVEVOVF9XQVJOSU5HEAISGAoUTUVTU0FHRV9JTlRF",
-            "TlRfRVJST1IQAxIeChpNRVNTQUdFX0lOVEVOVF9JTkZPUk1BVElPThAEEh8K",
-            "G01FU1NBR0VfSU5URU5UX0NPTkZJUk1BVElPThAFKp4BCglJbnB1dFR5cGUS",
-            "GgoWSU5QVVRfVFlQRV9VTlNQRUNJRklFRBAAEhMKD0lOUFVUX1RZUEVfVEVY",
-            "VBABEhoKFklOUFVUX1RZUEVfU0VDUkVUX1RFWFQQAhIVChFJTlBVVF9UWVBF",
-            "X0NIT0lDRRADEhYKEklOUFVUX1RZUEVfQk9PTEVBThAEEhUKEUlOUFVUX1RZ",
-            "UEVfTlVNQkVSEAUyoQQKEERhc2hib2FyZFNlcnZpY2UScAoZR2V0QXBwbGlj",
-            "YXRpb25JbmZvcm1hdGlvbhIoLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9y",
-            "bWF0aW9uUmVxdWVzdBopLmFzcGlyZS52MS5BcHBsaWNhdGlvbkluZm9ybWF0",
-            "aW9uUmVzcG9uc2USVQoOV2F0Y2hSZXNvdXJjZXMSIC5hc3BpcmUudjEuV2F0",
-            "Y2hSZXNvdXJjZXNSZXF1ZXN0Gh8uYXNwaXJlLnYxLldhdGNoUmVzb3VyY2Vz",
-            "VXBkYXRlMAEScwoYV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dzEiouYXNwaXJl",
-            "LnYxLldhdGNoUmVzb3VyY2VDb25zb2xlTG9nc1JlcXVlc3QaKS5hc3BpcmUu",
-            "djEuV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dzVXBkYXRlMAESXwoWRXhlY3V0",
-            "ZVJlc291cmNlQ29tbWFuZBIhLmFzcGlyZS52MS5SZXNvdXJjZUNvbW1hbmRS",
-            "ZXF1ZXN0GiIuYXNwaXJlLnYxLlJlc291cmNlQ29tbWFuZFJlc3BvbnNlEm4K",
-            "EVdhdGNoSW50ZXJhY3Rpb25zEikuYXNwaXJlLnYxLldhdGNoSW50ZXJhY3Rp",
-            "b25zUmVxdWVzdFVwZGF0ZRoqLmFzcGlyZS52MS5XYXRjaEludGVyYWN0aW9u",
-            "c1Jlc3BvbnNlVXBkYXRlKAEwAUIjqgIgQXNwaXJlLkRhc2hib2FyZFNlcnZp",
-            "Y2UuUHJvdG8uVjFiBnByb3RvMw=="));
+            "YXJhbWV0ZXIi5QEKF1Jlc291cmNlQ29tbWFuZFJlc3BvbnNlEjQKBGtpbmQY",
+            "ASABKA4yJi5hc3BpcmUudjEuUmVzb3VyY2VDb21tYW5kUmVzcG9uc2VLaW5k",
+            "Eh4KDWVycm9yX21lc3NhZ2UYAiABKAlCAhgBSACIAQESFAoHbWVzc2FnZRgD",
+            "IAEoCUgBiAEBEjUKBnJlc3VsdBgEIAEoCzIgLmFzcGlyZS52MS5SZXNvdXJj",
+            "ZUNvbW1hbmRSZXN1bHRIAogBAUIQCg5fZXJyb3JfbWVzc2FnZUIKCghfbWVz",
+            "c2FnZUIJCgdfcmVzdWx0InMKFVJlc291cmNlQ29tbWFuZFJlc3VsdBINCgV2",
+            "YWx1ZRgBIAEoCRIuCgZmb3JtYXQYAiABKA4yHi5hc3BpcmUudjEuQ29tbWFu",
+            "ZFJlc3VsdEZvcm1hdBIbChNkaXNwbGF5X2ltbWVkaWF0ZWx5GAMgASgIIn0K",
+            "DFJlc291cmNlVHlwZRITCgt1bmlxdWVfbmFtZRgBIAEoCRIZCgxkaXNwbGF5",
+            "X25hbWUYAiABKAlIAIgBARIsCghjb21tYW5kcxgDIAMoCzIaLmFzcGlyZS52",
+            "MS5SZXNvdXJjZUNvbW1hbmRCDwoNX2Rpc3BsYXlfbmFtZSJXChNFbnZpcm9u",
+            "bWVudFZhcmlhYmxlEgwKBG5hbWUYASABKAkSEgoFdmFsdWUYAiABKAlIAIgB",
+            "ARIUCgxpc19mcm9tX3NwZWMYAyABKAhCCAoGX3ZhbHVlIqwBCgNVcmwSGgoN",
+            "ZW5kcG9pbnRfbmFtZRgBIAEoCUgAiAEBEhAKCGZ1bGxfdXJsGAIgASgJEhMK",
+            "C2lzX2ludGVybmFsGAMgASgIEhMKC2lzX2luYWN0aXZlGAQgASgIEjsKEmRp",
+            "c3BsYXlfcHJvcGVydGllcxgFIAEoCzIfLmFzcGlyZS52MS5VcmxEaXNwbGF5",
+            "UHJvcGVydGllc0IQCg5fZW5kcG9pbnRfbmFtZSJAChRVcmxEaXNwbGF5UHJv",
+            "cGVydGllcxISCgpzb3J0X29yZGVyGAEgASgFEhQKDGRpc3BsYXlfbmFtZRgC",
+            "IAEoCSJSCgZWb2x1bWUSDgoGc291cmNlGAEgASgJEg4KBnRhcmdldBgCIAEo",
+            "CRISCgptb3VudF90eXBlGAMgASgJEhQKDGlzX3JlYWRfb25seRgEIAEoCCLC",
+            "AQoMSGVhbHRoUmVwb3J0EiwKBnN0YXR1cxgBIAEoDjIXLmFzcGlyZS52MS5I",
+            "ZWFsdGhTdGF0dXNIAIgBARILCgNrZXkYAiABKAkSEwoLZGVzY3JpcHRpb24Y",
+            "AyABKAkSEQoJZXhjZXB0aW9uGAQgASgJEjQKC2xhc3RfcnVuX2F0GAUgASgL",
+            "MhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgBiAEBQgkKB19zdGF0dXNC",
+            "DgoMX2xhc3RfcnVuX2F0IjsKFFJlc291cmNlUmVsYXRpb25zaGlwEhUKDXJl",
+            "c291cmNlX25hbWUYASABKAkSDAoEdHlwZRgCIAEoCSKfAQoQUmVzb3VyY2VQ",
+            "cm9wZXJ0eRIMCgRuYW1lGAEgASgJEhkKDGRpc3BsYXlfbmFtZRgCIAEoCUgA",
+            "iAEBEiUKBXZhbHVlGAMgASgLMhYuZ29vZ2xlLnByb3RvYnVmLlZhbHVlEhkK",
+            "DGlzX3NlbnNpdGl2ZRgEIAEoCEgBiAEBQg8KDV9kaXNwbGF5X25hbWVCDwoN",
+            "X2lzX3NlbnNpdGl2ZSLfBgoIUmVzb3VyY2USDAoEbmFtZRgBIAEoCRIVCg1y",
+            "ZXNvdXJjZV90eXBlGAIgASgJEhQKDGRpc3BsYXlfbmFtZRgDIAEoCRILCgN1",
+            "aWQYBCABKAkSEgoFc3RhdGUYBSABKAlIAIgBARIzCgpjcmVhdGVkX2F0GAYg",
+            "ASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEgBiAEBEjMKC2Vudmly",
+            "b25tZW50GAcgAygLMh4uYXNwaXJlLnYxLkVudmlyb25tZW50VmFyaWFibGUS",
+            "LAoIY29tbWFuZHMYCyADKAsyGi5hc3BpcmUudjEuUmVzb3VyY2VDb21tYW5k",
+            "Ei8KCnByb3BlcnRpZXMYDCADKAsyGy5hc3BpcmUudjEuUmVzb3VyY2VQcm9w",
+            "ZXJ0eRIcCgR1cmxzGA0gAygLMg4uYXNwaXJlLnYxLlVybBIYCgtzdGF0ZV9z",
+            "dHlsZRgOIAEoCUgCiAEBEiIKB3ZvbHVtZXMYDyADKAsyES5hc3BpcmUudjEu",
+            "Vm9sdW1lEi8KDmhlYWx0aF9yZXBvcnRzGBEgAygLMhcuYXNwaXJlLnYxLkhl",
+            "YWx0aFJlcG9ydBIzCgpzdGFydGVkX2F0GBIgASgLMhouZ29vZ2xlLnByb3Rv",
+            "YnVmLlRpbWVzdGFtcEgDiAEBEjMKCnN0b3BwZWRfYXQYEyABKAsyGi5nb29n",
+            "bGUucHJvdG9idWYuVGltZXN0YW1wSASIAQESNgoNcmVsYXRpb25zaGlwcxgU",
+            "IAMoCzIfLmFzcGlyZS52MS5SZXNvdXJjZVJlbGF0aW9uc2hpcBIRCglpc19o",
+            "aWRkZW4YFSABKAgSIwobc3VwcG9ydHNfZGV0YWlsZWRfdGVsZW1ldHJ5GBYg",
+            "ASgIEhYKCWljb25fbmFtZRgXIAEoCUgFiAEBEjEKDGljb25fdmFyaWFudBgY",
+            "IAEoDjIWLmFzcGlyZS52MS5JY29uVmFyaWFudEgGiAEBQggKBl9zdGF0ZUIN",
+            "CgtfY3JlYXRlZF9hdEIOCgxfc3RhdGVfc3R5bGVCDQoLX3N0YXJ0ZWRfYXRC",
+            "DQoLX3N0b3BwZWRfYXRCDAoKX2ljb25fbmFtZUIPCg1faWNvbl92YXJpYW50",
+            "SgQICBAJSgQICRAKSgQIChALSgQIEBARIm4KE0luaXRpYWxSZXNvdXJjZURh",
+            "dGESJgoJcmVzb3VyY2VzGAEgAygLMhMuYXNwaXJlLnYxLlJlc291cmNlEi8K",
+            "DnJlc291cmNlX3R5cGVzGAIgAygLMhcuYXNwaXJlLnYxLlJlc291cmNlVHlw",
+            "ZSJAChBSZXNvdXJjZURlbGV0aW9uEhUKDXJlc291cmNlX25hbWUYASABKAkS",
+            "FQoNcmVzb3VyY2VfdHlwZRgCIAEoCSJ0ChRXYXRjaFJlc291cmNlc0NoYW5n",
+            "ZRItCgZkZWxldGUYASABKAsyGy5hc3BpcmUudjEuUmVzb3VyY2VEZWxldGlv",
+            "bkgAEiUKBnVwc2VydBgCIAEoCzITLmFzcGlyZS52MS5SZXNvdXJjZUgAQgYK",
+            "BGtpbmQiRwoVV2F0Y2hSZXNvdXJjZXNDaGFuZ2VzEi4KBXZhbHVlGAEgAygL",
+            "Mh8uYXNwaXJlLnYxLldhdGNoUmVzb3VyY2VzQ2hhbmdlIkMKFVdhdGNoUmVz",
+            "b3VyY2VzUmVxdWVzdBIZCgxpc19yZWNvbm5lY3QYASABKAhIAIgBAUIPCg1f",
+            "aXNfcmVjb25uZWN0IosBChRXYXRjaFJlc291cmNlc1VwZGF0ZRI2Cgxpbml0",
+            "aWFsX2RhdGEYASABKAsyHi5hc3BpcmUudjEuSW5pdGlhbFJlc291cmNlRGF0",
+            "YUgAEjMKB2NoYW5nZXMYAiABKAsyIC5hc3BpcmUudjEuV2F0Y2hSZXNvdXJj",
+            "ZXNDaGFuZ2VzSABCBgoEa2luZCJbCg5Db25zb2xlTG9nTGluZRIMCgR0ZXh0",
+            "GAEgASgJEhcKCmlzX3N0ZF9lcnIYAiABKAhIAIgBARITCgtsaW5lX251bWJl",
+            "chgDIAEoBUINCgtfaXNfc3RkX2VyciJRCh9XYXRjaFJlc291cmNlQ29uc29s",
+            "ZUxvZ3NSZXF1ZXN0EhUKDXJlc291cmNlX25hbWUYASABKAkSFwoPc3VwcHJl",
+            "c3NfZm9sbG93GAIgASgIIk4KHldhdGNoUmVzb3VyY2VDb25zb2xlTG9nc1Vw",
+            "ZGF0ZRIsCglsb2dfbGluZXMYASADKAsyGS5hc3BpcmUudjEuQ29uc29sZUxv",
+            "Z0xpbmUi2AIKHldhdGNoSW50ZXJhY3Rpb25zUmVxdWVzdFVwZGF0ZRIWCg5p",
+            "bnRlcmFjdGlvbl9pZBgBIAEoBRIyCghjb21wbGV0ZRgCIAEoCzIeLmFzcGly",
+            "ZS52MS5JbnRlcmFjdGlvbkNvbXBsZXRlSAASNwoLbWVzc2FnZV9ib3gYAyAB",
+            "KAsyIC5hc3BpcmUudjEuSW50ZXJhY3Rpb25NZXNzYWdlQm94SAASOwoNaW5w",
+            "dXRzX2RpYWxvZxgEIAEoCzIiLmFzcGlyZS52MS5JbnRlcmFjdGlvbklucHV0",
+            "c0RpYWxvZ0gAEjoKDG5vdGlmaWNhdGlvbhgFIAEoCzIiLmFzcGlyZS52MS5J",
+            "bnRlcmFjdGlvbk5vdGlmaWNhdGlvbkgAEhwKD3Jlc3BvbnNlX3VwZGF0ZRgG",
+            "IAEoCEgBiAEBQgYKBGtpbmRCEgoQX3Jlc3BvbnNlX3VwZGF0ZSLZAwofV2F0",
+            "Y2hJbnRlcmFjdGlvbnNSZXNwb25zZVVwZGF0ZRIWCg5pbnRlcmFjdGlvbl9p",
+            "ZBgBIAEoBRINCgV0aXRsZRgCIAEoCRIPCgdtZXNzYWdlGAMgASgJEhsKE3By",
+            "aW1hcnlfYnV0dG9uX3RleHQYBCABKAkSHQoVc2Vjb25kYXJ5X2J1dHRvbl90",
+            "ZXh0GAUgASgJEh0KFXNob3dfc2Vjb25kYXJ5X2J1dHRvbhgGIAEoCBIUCgxz",
+            "aG93X2Rpc21pc3MYByABKAgSHwoXZW5hYmxlX21lc3NhZ2VfbWFya2Rvd24Y",
+            "CCABKAgSMgoIY29tcGxldGUYECABKAsyHi5hc3BpcmUudjEuSW50ZXJhY3Rp",
+            "b25Db21wbGV0ZUgAEjcKC21lc3NhZ2VfYm94GBEgASgLMiAuYXNwaXJlLnYx",
+            "LkludGVyYWN0aW9uTWVzc2FnZUJveEgAEjsKDWlucHV0c19kaWFsb2cYEiAB",
+            "KAsyIi5hc3BpcmUudjEuSW50ZXJhY3Rpb25JbnB1dHNEaWFsb2dIABI6Cgxu",
+            "b3RpZmljYXRpb24YEyABKAsyIi5hc3BpcmUudjEuSW50ZXJhY3Rpb25Ob3Rp",
+            "ZmljYXRpb25IAEIGCgRraW5kIhUKE0ludGVyYWN0aW9uQ29tcGxldGUiYQoV",
+            "SW50ZXJhY3Rpb25NZXNzYWdlQm94EigKBmludGVudBgBIAEoDjIYLmFzcGly",
+            "ZS52MS5NZXNzYWdlSW50ZW50EhMKBnJlc3VsdBgCIAEoCEgAiAEBQgkKB19y",
+            "ZXN1bHQiiAEKF0ludGVyYWN0aW9uTm90aWZpY2F0aW9uEigKBmludGVudBgB",
+            "IAEoDjIYLmFzcGlyZS52MS5NZXNzYWdlSW50ZW50EhMKBnJlc3VsdBgCIAEo",
+            "CEgAiAEBEhEKCWxpbmtfdGV4dBgDIAEoCRIQCghsaW5rX3VybBgEIAEoCUIJ",
+            "CgdfcmVzdWx0IksKF0ludGVyYWN0aW9uSW5wdXRzRGlhbG9nEjAKC2lucHV0",
+            "X2l0ZW1zGAEgAygLMhsuYXNwaXJlLnYxLkludGVyYWN0aW9uSW5wdXQiwwMK",
+            "EEludGVyYWN0aW9uSW5wdXQSDQoFbGFiZWwYASABKAkSEwoLcGxhY2Vob2xk",
+            "ZXIYAiABKAkSKAoKaW5wdXRfdHlwZRgDIAEoDjIULmFzcGlyZS52MS5JbnB1",
+            "dFR5cGUSEAoIcmVxdWlyZWQYBCABKAgSOQoHb3B0aW9ucxgFIAMoCzIoLmFz",
+            "cGlyZS52MS5JbnRlcmFjdGlvbklucHV0Lk9wdGlvbnNFbnRyeRINCgV2YWx1",
+            "ZRgGIAEoCRIZChF2YWxpZGF0aW9uX2Vycm9ycxgHIAMoCRITCgtkZXNjcmlw",
+            "dGlvbhgIIAEoCRIjChtlbmFibGVfZGVzY3JpcHRpb25fbWFya2Rvd24YCSAB",
+            "KAgSEgoKbWF4X2xlbmd0aBgKIAEoBRIbChNhbGxvd19jdXN0b21fY2hvaWNl",
+            "GAsgASgIEg8KB2xvYWRpbmcYDCABKAgSHgoWdXBkYXRlX3N0YXRlX29uX2No",
+            "YW5nZRgNIAEoCBIMCgRuYW1lGA4gASgJEhAKCGRpc2FibGVkGA8gASgIGi4K",
+            "DE9wdGlvbnNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgB",
+            "KkAKC0ljb25WYXJpYW50EhgKFElDT05fVkFSSUFOVF9SRUdVTEFSEAASFwoT",
+            "SUNPTl9WQVJJQU5UX0ZJTExFRBABKoIBChRSZXNvdXJjZUNvbW1hbmRTdGF0",
+            "ZRIiCh5SRVNPVVJDRV9DT01NQU5EX1NUQVRFX0VOQUJMRUQQABIjCh9SRVNP",
+            "VVJDRV9DT01NQU5EX1NUQVRFX0RJU0FCTEVEEAESIQodUkVTT1VSQ0VfQ09N",
+            "TUFORF9TVEFURV9ISURERU4QAirSAQobUmVzb3VyY2VDb21tYW5kUmVzcG9u",
+            "c2VLaW5kEiwKKFJFU09VUkNFX0NPTU1BTkRfUkVTUE9OU0VfS0lORF9VTkRF",
+            "RklORUQQABIsCihSRVNPVVJDRV9DT01NQU5EX1JFU1BPTlNFX0tJTkRfU1VD",
+            "Q0VFREVEEAESKQolUkVTT1VSQ0VfQ09NTUFORF9SRVNQT05TRV9LSU5EX0ZB",
+            "SUxFRBACEiwKKFJFU09VUkNFX0NPTU1BTkRfUkVTUE9OU0VfS0lORF9DQU5D",
+            "RUxMRUQQAyqZAQoTQ29tbWFuZFJlc3VsdEZvcm1hdBIeChpDT01NQU5EX1JF",
+            "U1VMVF9GT1JNQVRfTk9ORRAAEh4KGkNPTU1BTkRfUkVTVUxUX0ZPUk1BVF9U",
+            "RVhUEAESHgoaQ09NTUFORF9SRVNVTFRfRk9STUFUX0pTT04QAhIiCh5DT01N",
+            "QU5EX1JFU1VMVF9GT1JNQVRfTUFSS0RPV04QAypiCgxIZWFsdGhTdGF0dXMS",
+            "GQoVSEVBTFRIX1NUQVRVU19IRUFMVEhZEAASGwoXSEVBTFRIX1NUQVRVU19V",
+            "TkhFQUxUSFkQARIaChZIRUFMVEhfU1RBVFVTX0RFR1JBREVEEAIquwEKDU1l",
+            "c3NhZ2VJbnRlbnQSFwoTTUVTU0FHRV9JTlRFTlRfTk9ORRAAEhoKFk1FU1NB",
+            "R0VfSU5URU5UX1NVQ0NFU1MQARIaChZNRVNTQUdFX0lOVEVOVF9XQVJOSU5H",
+            "EAISGAoUTUVTU0FHRV9JTlRFTlRfRVJST1IQAxIeChpNRVNTQUdFX0lOVEVO",
+            "VF9JTkZPUk1BVElPThAEEh8KG01FU1NBR0VfSU5URU5UX0NPTkZJUk1BVElP",
+            "ThAFKp4BCglJbnB1dFR5cGUSGgoWSU5QVVRfVFlQRV9VTlNQRUNJRklFRBAA",
+            "EhMKD0lOUFVUX1RZUEVfVEVYVBABEhoKFklOUFVUX1RZUEVfU0VDUkVUX1RF",
+            "WFQQAhIVChFJTlBVVF9UWVBFX0NIT0lDRRADEhYKEklOUFVUX1RZUEVfQk9P",
+            "TEVBThAEEhUKEUlOUFVUX1RZUEVfTlVNQkVSEAUyoQQKEERhc2hib2FyZFNl",
+            "cnZpY2UScAoZR2V0QXBwbGljYXRpb25JbmZvcm1hdGlvbhIoLmFzcGlyZS52",
+            "MS5BcHBsaWNhdGlvbkluZm9ybWF0aW9uUmVxdWVzdBopLmFzcGlyZS52MS5B",
+            "cHBsaWNhdGlvbkluZm9ybWF0aW9uUmVzcG9uc2USVQoOV2F0Y2hSZXNvdXJj",
+            "ZXMSIC5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZXNSZXF1ZXN0Gh8uYXNwaXJl",
+            "LnYxLldhdGNoUmVzb3VyY2VzVXBkYXRlMAEScwoYV2F0Y2hSZXNvdXJjZUNv",
+            "bnNvbGVMb2dzEiouYXNwaXJlLnYxLldhdGNoUmVzb3VyY2VDb25zb2xlTG9n",
+            "c1JlcXVlc3QaKS5hc3BpcmUudjEuV2F0Y2hSZXNvdXJjZUNvbnNvbGVMb2dz",
+            "VXBkYXRlMAESXwoWRXhlY3V0ZVJlc291cmNlQ29tbWFuZBIhLmFzcGlyZS52",
+            "MS5SZXNvdXJjZUNvbW1hbmRSZXF1ZXN0GiIuYXNwaXJlLnYxLlJlc291cmNl",
+            "Q29tbWFuZFJlc3BvbnNlEm4KEVdhdGNoSW50ZXJhY3Rpb25zEikuYXNwaXJl",
+            "LnYxLldhdGNoSW50ZXJhY3Rpb25zUmVxdWVzdFVwZGF0ZRoqLmFzcGlyZS52",
+            "MS5XYXRjaEludGVyYWN0aW9uc1Jlc3BvbnNlVXBkYXRlKAEwAUIjqgIgQXNw",
+            "aXJlLkRhc2hib2FyZFNlcnZpY2UuUHJvdG8uVjFiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.StructReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Aspire.DashboardService.Proto.V1.IconVariant), typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandState), typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind), typeof(global::Aspire.DashboardService.Proto.V1.HealthStatus), typeof(global::Aspire.DashboardService.Proto.V1.MessageIntent), typeof(global::Aspire.DashboardService.Proto.V1.InputType), }, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Aspire.DashboardService.Proto.V1.IconVariant), typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandState), typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind), typeof(global::Aspire.DashboardService.Proto.V1.CommandResultFormat), typeof(global::Aspire.DashboardService.Proto.V1.HealthStatus), typeof(global::Aspire.DashboardService.Proto.V1.MessageIntent), typeof(global::Aspire.DashboardService.Proto.V1.InputType), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest), global::Aspire.DashboardService.Proto.V1.ApplicationInformationRequest.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse), global::Aspire.DashboardService.Proto.V1.ApplicationInformationResponse.Parser, new[]{ "ApplicationName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommand), global::Aspire.DashboardService.Proto.V1.ResourceCommand.Parser, new[]{ "Name", "DisplayName", "ConfirmationMessage", "Parameter", "IsHighlighted", "IconName", "IconVariant", "DisplayDescription", "State" }, new[]{ "ConfirmationMessage", "Parameter", "IconName", "IconVariant", "DisplayDescription" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest), global::Aspire.DashboardService.Proto.V1.ResourceCommandRequest.Parser, new[]{ "CommandName", "ResourceName", "ResourceType", "Parameter" }, new[]{ "Parameter" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse), global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse.Parser, new[]{ "Kind", "ErrorMessage" }, new[]{ "ErrorMessage" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse), global::Aspire.DashboardService.Proto.V1.ResourceCommandResponse.Parser, new[]{ "Kind", "ErrorMessage", "Message", "Result" }, new[]{ "ErrorMessage", "Message", "Result" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceCommandResult), global::Aspire.DashboardService.Proto.V1.ResourceCommandResult.Parser, new[]{ "Value", "Format", "DisplayImmediately" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.ResourceType), global::Aspire.DashboardService.Proto.V1.ResourceType.Parser, new[]{ "UniqueName", "DisplayName", "Commands" }, new[]{ "DisplayName" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.EnvironmentVariable), global::Aspire.DashboardService.Proto.V1.EnvironmentVariable.Parser, new[]{ "Name", "Value", "IsFromSpec" }, new[]{ "Value" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aspire.DashboardService.Proto.V1.Url), global::Aspire.DashboardService.Proto.V1.Url.Parser, new[]{ "EndpointName", "FullUrl", "IsInternal", "IsInactive", "DisplayProperties" }, new[]{ "EndpointName" }, null, null, null),
@@ -227,6 +236,13 @@ namespace Aspire.DashboardService.Proto.V1 {
     [pbr::OriginalName("RESOURCE_COMMAND_RESPONSE_KIND_SUCCEEDED")] Succeeded = 1,
     [pbr::OriginalName("RESOURCE_COMMAND_RESPONSE_KIND_FAILED")] Failed = 2,
     [pbr::OriginalName("RESOURCE_COMMAND_RESPONSE_KIND_CANCELLED")] Cancelled = 3,
+  }
+
+  public enum CommandResultFormat {
+    [pbr::OriginalName("COMMAND_RESULT_FORMAT_NONE")] None = 0,
+    [pbr::OriginalName("COMMAND_RESULT_FORMAT_TEXT")] Text = 1,
+    [pbr::OriginalName("COMMAND_RESULT_FORMAT_JSON")] Json = 2,
+    [pbr::OriginalName("COMMAND_RESULT_FORMAT_MARKDOWN")] Markdown = 3,
   }
 
   public enum HealthStatus {
@@ -1593,6 +1609,8 @@ namespace Aspire.DashboardService.Proto.V1 {
     public ResourceCommandResponse(ResourceCommandResponse other) : this() {
       kind_ = other.kind_;
       errorMessage_ = other.errorMessage_;
+      message_ = other.message_;
+      result_ = other.result_ != null ? other.result_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1619,6 +1637,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     private readonly static string ErrorMessageDefaultValue = "";
 
     private string errorMessage_;
+    [global::System.ObsoleteAttribute]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string ErrorMessage {
@@ -1628,16 +1647,56 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
     }
     /// <summary>Gets whether the "error_message" field is set</summary>
+    [global::System.ObsoleteAttribute]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public bool HasErrorMessage {
       get { return errorMessage_ != null; }
     }
     /// <summary>Clears the value of the "error_message" field</summary>
+    [global::System.ObsoleteAttribute]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public void ClearErrorMessage() {
       errorMessage_ = null;
+    }
+
+    /// <summary>Field number for the "message" field.</summary>
+    public const int MessageFieldNumber = 3;
+    private readonly static string MessageDefaultValue = "";
+
+    private string message_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Message {
+      get { return message_ ?? MessageDefaultValue; }
+      set {
+        message_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+    /// <summary>Gets whether the "message" field is set</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool HasMessage {
+      get { return message_ != null; }
+    }
+    /// <summary>Clears the value of the "message" field</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearMessage() {
+      message_ = null;
+    }
+
+    /// <summary>Field number for the "result" field.</summary>
+    public const int ResultFieldNumber = 4;
+    private global::Aspire.DashboardService.Proto.V1.ResourceCommandResult result_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.ResourceCommandResult Result {
+      get { return result_; }
+      set {
+        result_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1657,6 +1716,8 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
       if (Kind != other.Kind) return false;
       if (ErrorMessage != other.ErrorMessage) return false;
+      if (Message != other.Message) return false;
+      if (!object.Equals(Result, other.Result)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1666,6 +1727,8 @@ namespace Aspire.DashboardService.Proto.V1 {
       int hash = 1;
       if (Kind != global::Aspire.DashboardService.Proto.V1.ResourceCommandResponseKind.Undefined) hash ^= Kind.GetHashCode();
       if (HasErrorMessage) hash ^= ErrorMessage.GetHashCode();
+      if (HasMessage) hash ^= Message.GetHashCode();
+      if (result_ != null) hash ^= Result.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1692,6 +1755,14 @@ namespace Aspire.DashboardService.Proto.V1 {
         output.WriteRawTag(18);
         output.WriteString(ErrorMessage);
       }
+      if (HasMessage) {
+        output.WriteRawTag(26);
+        output.WriteString(Message);
+      }
+      if (result_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Result);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1710,6 +1781,14 @@ namespace Aspire.DashboardService.Proto.V1 {
         output.WriteRawTag(18);
         output.WriteString(ErrorMessage);
       }
+      if (HasMessage) {
+        output.WriteRawTag(26);
+        output.WriteString(Message);
+      }
+      if (result_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Result);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1725,6 +1804,12 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
       if (HasErrorMessage) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(ErrorMessage);
+      }
+      if (HasMessage) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Message);
+      }
+      if (result_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Result);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1743,6 +1828,15 @@ namespace Aspire.DashboardService.Proto.V1 {
       }
       if (other.HasErrorMessage) {
         ErrorMessage = other.ErrorMessage;
+      }
+      if (other.HasMessage) {
+        Message = other.Message;
+      }
+      if (other.result_ != null) {
+        if (result_ == null) {
+          Result = new global::Aspire.DashboardService.Proto.V1.ResourceCommandResult();
+        }
+        Result.MergeFrom(other.Result);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1769,6 +1863,17 @@ namespace Aspire.DashboardService.Proto.V1 {
           }
           case 18: {
             ErrorMessage = input.ReadString();
+            break;
+          }
+          case 26: {
+            Message = input.ReadString();
+            break;
+          }
+          case 34: {
+            if (result_ == null) {
+              Result = new global::Aspire.DashboardService.Proto.V1.ResourceCommandResult();
+            }
+            input.ReadMessage(Result);
             break;
           }
         }
@@ -1798,6 +1903,289 @@ namespace Aspire.DashboardService.Proto.V1 {
             ErrorMessage = input.ReadString();
             break;
           }
+          case 26: {
+            Message = input.ReadString();
+            break;
+          }
+          case 34: {
+            if (result_ == null) {
+              Result = new global::Aspire.DashboardService.Proto.V1.ResourceCommandResult();
+            }
+            input.ReadMessage(Result);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class ResourceCommandResult : pb::IMessage<ResourceCommandResult>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ResourceCommandResult> _parser = new pb::MessageParser<ResourceCommandResult>(() => new ResourceCommandResult());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<ResourceCommandResult> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ResourceCommandResult() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ResourceCommandResult(ResourceCommandResult other) : this() {
+      value_ = other.value_;
+      format_ = other.format_;
+      displayImmediately_ = other.displayImmediately_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ResourceCommandResult Clone() {
+      return new ResourceCommandResult(this);
+    }
+
+    /// <summary>Field number for the "value" field.</summary>
+    public const int ValueFieldNumber = 1;
+    private string value_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Value {
+      get { return value_; }
+      set {
+        value_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "format" field.</summary>
+    public const int FormatFieldNumber = 2;
+    private global::Aspire.DashboardService.Proto.V1.CommandResultFormat format_ = global::Aspire.DashboardService.Proto.V1.CommandResultFormat.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Aspire.DashboardService.Proto.V1.CommandResultFormat Format {
+      get { return format_; }
+      set {
+        format_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "display_immediately" field.</summary>
+    public const int DisplayImmediatelyFieldNumber = 3;
+    private bool displayImmediately_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool DisplayImmediately {
+      get { return displayImmediately_; }
+      set {
+        displayImmediately_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as ResourceCommandResult);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(ResourceCommandResult other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Value != other.Value) return false;
+      if (Format != other.Format) return false;
+      if (DisplayImmediately != other.DisplayImmediately) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Value.Length != 0) hash ^= Value.GetHashCode();
+      if (Format != global::Aspire.DashboardService.Proto.V1.CommandResultFormat.None) hash ^= Format.GetHashCode();
+      if (DisplayImmediately != false) hash ^= DisplayImmediately.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Value.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Value);
+      }
+      if (Format != global::Aspire.DashboardService.Proto.V1.CommandResultFormat.None) {
+        output.WriteRawTag(16);
+        output.WriteEnum((int) Format);
+      }
+      if (DisplayImmediately != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(DisplayImmediately);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Value.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Value);
+      }
+      if (Format != global::Aspire.DashboardService.Proto.V1.CommandResultFormat.None) {
+        output.WriteRawTag(16);
+        output.WriteEnum((int) Format);
+      }
+      if (DisplayImmediately != false) {
+        output.WriteRawTag(24);
+        output.WriteBool(DisplayImmediately);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Value.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Value);
+      }
+      if (Format != global::Aspire.DashboardService.Proto.V1.CommandResultFormat.None) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Format);
+      }
+      if (DisplayImmediately != false) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(ResourceCommandResult other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Value.Length != 0) {
+        Value = other.Value;
+      }
+      if (other.Format != global::Aspire.DashboardService.Proto.V1.CommandResultFormat.None) {
+        Format = other.Format;
+      }
+      if (other.DisplayImmediately != false) {
+        DisplayImmediately = other.DisplayImmediately;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Value = input.ReadString();
+            break;
+          }
+          case 16: {
+            Format = (global::Aspire.DashboardService.Proto.V1.CommandResultFormat) input.ReadEnum();
+            break;
+          }
+          case 24: {
+            DisplayImmediately = input.ReadBool();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Value = input.ReadString();
+            break;
+          }
+          case 16: {
+            Format = (global::Aspire.DashboardService.Proto.V1.CommandResultFormat) input.ReadEnum();
+            break;
+          }
+          case 24: {
+            DisplayImmediately = input.ReadBool();
+            break;
+          }
         }
       }
     }
@@ -1820,7 +2208,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[5]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2112,7 +2500,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[6]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2398,7 +2786,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[7]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2784,7 +3172,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[8]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3028,7 +3416,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[9]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3350,7 +3738,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3736,7 +4124,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3978,7 +4366,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4033,7 +4421,7 @@ namespace Aspire.DashboardService.Proto.V1 {
 
     private string displayName_;
     /// <summary>
-    /// TODO move display_name to reference data, sent once when the connection starts (https://github.com/dotnet/aspire/issues/1644)
+    /// TODO move display_name to reference data, sent once when the connection starts (https://github.com/microsoft/aspire/issues/1644)
     /// Optional display name, may be localized
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4078,7 +4466,7 @@ namespace Aspire.DashboardService.Proto.V1 {
 
     private bool isSensitive_;
     /// <summary>
-    /// TODO move is_sensitive to reference data, sent once when the connection starts (https://github.com/dotnet/aspire/issues/1644)
+    /// TODO move is_sensitive to reference data, sent once when the connection starts (https://github.com/microsoft/aspire/issues/1644)
     /// Whether the value is sensitive and should be masked in the UI by default.
     /// Defaults to false. When true, the user must explicitly unmask the value to view it.
     /// </summary>
@@ -4345,7 +4733,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[13]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5301,7 +5689,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[14]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5514,7 +5902,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[15]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5749,7 +6137,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[16]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6043,7 +6431,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[17]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6234,7 +6622,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[18]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6454,7 +6842,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[19]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6756,7 +7144,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[20]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7050,7 +7438,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[21]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[22]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7296,7 +7684,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[22]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[23]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7487,7 +7875,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[23]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[24]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7987,7 +8375,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[24]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[25]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8689,7 +9077,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[25]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[26]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8854,7 +9242,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[26]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[27]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -9109,7 +9497,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[27]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[28]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -9437,7 +9825,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[28]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[29]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -9627,7 +10015,7 @@ namespace Aspire.DashboardService.Proto.V1 {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[29]; }
+      get { return global::Aspire.DashboardService.Proto.V1.DashboardServiceReflection.Descriptor.MessageTypes[30]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

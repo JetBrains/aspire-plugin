@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "AspireAppWithEvents.AppHost/AspireAppWithEvents.AppHost.csproj"
+  }
+}

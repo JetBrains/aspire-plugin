@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "DataBaseApp.AppHost/DataBaseApp.AppHost.csproj"
+  }
+}
