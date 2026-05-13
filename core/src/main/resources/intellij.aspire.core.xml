@@ -22,6 +22,9 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.appHostLauncher"
                         interface="com.jetbrains.aspire.worker.AspireAppHostLauncher"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.connectionStringModifier"
+                        interface="com.jetbrains.aspire.util.ConnectionStringModifier"
+                        dynamic="true"/>
     </extensionPoints>
 
     <projectListeners>

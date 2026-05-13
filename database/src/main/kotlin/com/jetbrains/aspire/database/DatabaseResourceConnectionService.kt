@@ -6,6 +6,8 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.util.ConnectionStringContext
+import com.jetbrains.aspire.util.ConnectionStringModifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -57,11 +59,20 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
         }
 
         try {
-            val connectionStringModifier = DatabaseConnectionStringModifier.getInstance(project)
-            val modifyConnectionStringResult = connectionStringModifier.modifyConnectionString(databaseResource)
+            val context = ConnectionStringContext(
+                name = databaseResource.name,
+                connectionString = databaseResource.connectionString,
+                urls = databaseResource.urls,
+                containerId = databaseResource.containerId,
+                containerPorts = databaseResource.containerPorts,
+            )
+            val modifiedConnectionString = ConnectionStringModifier
+                .getModifier()
+                ?.modifyConnectionString(project, context)
+                ?.getOrNull()
 
             //If the connection string wasn't modified, use the resource one
-            val connectionString = modifyConnectionStringResult.getOrDefault(databaseResource.connectionString)
+            val connectionString = modifiedConnectionString ?: databaseResource.connectionString
 
             LOG.trace { "Processing connection string for ${databaseResource.name}" }
 

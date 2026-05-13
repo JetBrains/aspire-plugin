@@ -14,7 +14,7 @@ dependencies {
             useCache = true
         }
 
-        bundledPlugins("com.intellij.database", "Docker", "rider.intellij.plugin.appender")
+        bundledPlugins("com.intellij.database", "rider.intellij.plugin.appender")
     }
 
     implementation(project(":core"))
