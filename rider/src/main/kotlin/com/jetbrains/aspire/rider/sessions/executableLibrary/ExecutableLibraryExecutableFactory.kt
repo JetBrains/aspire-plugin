@@ -9,7 +9,7 @@ import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.rider.sessions.getExecutableParams
 import com.jetbrains.aspire.rider.sessions.getLaunchProfile
 import com.jetbrains.aspire.rider.sessions.mergeEnvironmentVariables
-import com.jetbrains.aspire.util.MSBuildPropertyService
+import com.jetbrains.aspire.rider.util.MSBuildPropertyService
 import com.jetbrains.rider.run.configurations.TerminalMode
 import com.jetbrains.rider.run.configurations.launchSettings.commands.ExecutableCommand
 import com.jetbrains.rider.runtime.DotNetExecutable

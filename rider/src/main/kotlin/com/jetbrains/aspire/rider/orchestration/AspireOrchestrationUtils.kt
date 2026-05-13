@@ -12,8 +12,8 @@ import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.rider.generated.*
-import com.jetbrains.aspire.util.isAspireHostProject
-import com.jetbrains.aspire.util.isAspireSharedProject
+import com.jetbrains.aspire.rider.util.isAspireHostProject
+import com.jetbrains.aspire.rider.util.isAspireSharedProject
 import com.jetbrains.rd.ide.model.RdPostProcessParameters
 import com.jetbrains.rd.platform.util.TimeoutTracker
 import com.jetbrains.rd.util.reactive.hasTrueValue

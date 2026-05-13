@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.util
+package com.jetbrains.aspire.rider.util
 
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.util.ExecUtil
@@ -22,7 +22,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.nameWithoutExtension
 
 @Service(Service.Level.PROJECT)
-class MSBuildPropertyService(private val project: Project) {
+internal class MSBuildPropertyService(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<MSBuildPropertyService>()
 
