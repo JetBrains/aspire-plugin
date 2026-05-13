@@ -4,8 +4,8 @@ import com.intellij.execution.Executor
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionDebugProfileState
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
+import com.jetbrains.rider.run.aspire.DotNetSessionDebugProfileState
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
@@ -19,6 +19,8 @@ internal class DotNetProjectSessionDebugProfile(
     private val sessionProcessLifetime: Lifetime,
     aspireHostProjectPath: Path?
 ) : DotNetSessionProfile(sessionId, projectPath, dotnetExecutable, aspireHostProjectPath, true) {
+
+    @Suppress("UnstableApiUsage")
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment
