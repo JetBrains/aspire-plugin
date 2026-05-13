@@ -150,6 +150,7 @@ private fun mapResourceType(type: String): ResourceType = when (type) {
     "MySqlDatabaseResource" -> ResourceType.MySql
     "PostgresDatabaseResource" -> ResourceType.Postgres
     "SqlServerDatabaseResource" -> ResourceType.SqlServer
+    "AzureStorageResource" -> ResourceType.AzureStorageResource
     else -> ResourceType.Unknown
 }
 

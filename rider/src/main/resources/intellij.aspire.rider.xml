@@ -64,6 +64,8 @@
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.DefaultProjectOrchestrationHandler"/>
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.MauiProjectOrchestrationHandler"/>
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.AzureFunctionOrchestrationHandler"/>
+
+        <resourceIconProvider implementation="com.jetbrains.aspire.rider.resources.DotNetAspireResourceIconProvider"/>
     </extensions>
 
     <actions>

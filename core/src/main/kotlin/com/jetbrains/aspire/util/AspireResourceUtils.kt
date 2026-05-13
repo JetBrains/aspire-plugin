@@ -4,13 +4,12 @@ package com.jetbrains.aspire.util
 
 import com.intellij.icons.AllIcons
 import com.intellij.ui.BadgeIconSupplier
-import com.jetbrains.aspire.worker.ResourceType
-import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
 import com.jetbrains.aspire.worker.AspireAppHost
+import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
+import com.jetbrains.aspire.worker.ResourceType
 import icons.ReSharperIcons
-import icons.RiderIcons
 import org.jetbrains.annotations.ApiStatus
 import javax.swing.Icon
 
@@ -37,7 +36,6 @@ fun getResourceIcon(type: ResourceType, containerImage: String?): Icon {
 
 internal class BaseAspireResourceIconProvider : AspireResourceIconProvider {
     override fun getIcon(type: ResourceType, containerImage: String?) = when (type) {
-        ResourceType.Project -> RiderIcons.RunConfigurations.DotNetProject
         ResourceType.Executable -> AllIcons.Nodes.Console
         ResourceType.Parameter -> ReSharperIcons.PsiSymbols.Parameter
         ResourceType.ExternalService -> AllIcons.General.Web
