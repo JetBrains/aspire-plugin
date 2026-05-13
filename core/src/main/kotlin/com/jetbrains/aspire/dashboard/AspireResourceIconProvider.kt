@@ -10,9 +10,11 @@ interface AspireResourceIconProvider {
             ExtensionPointName<AspireResourceIconProvider>("com.jetbrains.aspire.resourceIconProvider")
 
         fun getAvailableProviders() : List<AspireResourceIconProvider> {
-            return EP_NAME.extensionList
+            return EP_NAME.extensionList.sortedByDescending { it.priority }
         }
     }
+
+    val priority: Int
 
     fun getIcon(type: ResourceType, containerImage: String?): Icon?
 }

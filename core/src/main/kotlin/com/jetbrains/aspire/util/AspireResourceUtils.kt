@@ -35,6 +35,8 @@ fun getResourceIcon(type: ResourceType, containerImage: String?): Icon {
 }
 
 internal class BaseAspireResourceIconProvider : AspireResourceIconProvider {
+    override val priority = 0
+
     override fun getIcon(type: ResourceType, containerImage: String?) = when (type) {
         ResourceType.Executable -> AllIcons.Nodes.Console
         ResourceType.Parameter -> ReSharperIcons.PsiSymbols.Parameter
