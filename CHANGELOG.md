@@ -12,6 +12,7 @@
 
 - Worker view model is not created for a created run configuration
 - Run configuration can't be found for the file-based applications
+- Return back Azure Functions support
 
 ## [2.6.0] - 2026-05-06
 
