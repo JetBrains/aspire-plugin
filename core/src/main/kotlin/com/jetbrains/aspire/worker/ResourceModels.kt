@@ -13,6 +13,7 @@ enum class ResourceType {
     MySql,
     Postgres,
     SqlServer,
+    AzureStorageResource,
     Unknown
 }
 

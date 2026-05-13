@@ -1,16 +1,17 @@
-package com.jetbrains.aspire.rider.sessions.dotnetProject
+package com.jetbrains.aspire.rider.sessions.azureFunctions
 
 import com.intellij.execution.Executor
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
-import com.jetbrains.rider.run.aspire.DotNetSessionDebugProfileState
+import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
+import icons.ReSharperIcons
 import java.nio.file.Path
+import javax.swing.Icon
 
-internal class DotNetProjectSessionDebugProfile(
+internal class AzureFunctionsSessionDebugProfile(
     sessionId: String,
     projectPath: Path,
     dotnetExecutable: DotNetExecutable,
@@ -20,11 +21,12 @@ internal class DotNetProjectSessionDebugProfile(
     aspireHostProjectPath: Path?
 ) : DotNetSessionProfile(sessionId, projectPath, dotnetExecutable, aspireHostProjectPath, true) {
 
-    @Suppress("UnstableApiUsage")
+    override fun getIcon(): Icon = ReSharperIcons.AzureFrontend.FunctionAppRun
+
     override fun getState(
         executor: Executor,
         environment: ExecutionEnvironment
-    ) = DotNetSessionDebugProfileState(
+    ) = AzureFunctionsSessionDebugProfileState(
         sessionId,
         dotnetExecutable,
         dotnetRuntime,
