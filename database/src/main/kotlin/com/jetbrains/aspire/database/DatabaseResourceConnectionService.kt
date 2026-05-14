@@ -76,15 +76,15 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
 
             LOG.trace { "Processing connection string for ${databaseResource.name}" }
 
-            val urlConverter = DatabaseConnectionUrlConverter.getInstance(project)
-            val dataProvider = urlConverter.getDataProvider(databaseResource.type)
-            val driver = DbImplUtil.guessDatabaseDriver(dataProvider.dbms.first())
+            val driver = DbImplUtil.guessDatabaseDriver(databaseResource.type.getDbms())
             if (driver == null) {
                 LOG.info("Unable to guess database driver for ${databaseResource.name}")
                 dataSourceManager.unregisterResourceId(databaseResource.resourceName)
                 return
             }
 
+            val urlConverter = DatabaseConnectionUrlConverter.getInstance(project)
+            val dataProvider = urlConverter.getDataProvider(databaseResource.type)
             val url = urlConverter.getConnectionUrl(connectionString, databaseResource, dataProvider, driver)
             if (url == null) {
                 LOG.info("Unable to convert a connection string to an url for ${databaseResource.name}")
