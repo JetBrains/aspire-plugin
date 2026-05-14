@@ -2,7 +2,6 @@
     <dependencies>
         <module name="intellij.aspire.core"/>
         <plugin id="com.intellij.database"/>
-        <module name="intellij.database.impl"/>
         <module name="intellij.database.dialects.redis"/>
         <plugin id="rider.intellij.plugin.appender"/>
         <module name="intellij.rider.plugins.appender.database"/>
