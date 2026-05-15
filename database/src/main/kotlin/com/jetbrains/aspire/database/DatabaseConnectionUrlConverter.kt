@@ -47,36 +47,42 @@ internal class DatabaseConnectionUrlConverter(private val project: Project) {
         dataProvider: DotnetDataProvider,
         driver: DatabaseDriver
     ): String? {
-        return if (databaseResource.type == DatabaseType.REDIS) {
-            convertRedisConnectionString(connectionString)
-        } else if (rawConnectionStringTypes.contains(databaseResource.type)) {
-            connectionString
-        } else {
-            val factory = ConnectionStringsFactory.get(dataProvider, project)
-            if (factory == null) {
-                LOG.warn("Unable to find connection string factory")
-                return null
+        return try {
+            if (databaseResource.type == DatabaseType.REDIS) {
+                convertRedisConnectionString(connectionString)
+            } else if (rawConnectionStringTypes.contains(databaseResource.type)) {
+                connectionString
+            } else {
+                val factory = ConnectionStringsFactory.get(dataProvider, project)
+                if (factory == null) {
+                    LOG.warn("Unable to find connection string factory")
+                    return null
+                }
+                val parsedConnectionString =
+                    factory.create(connectionString, dataProvider).getOrNull()
+                if (parsedConnectionString == null) {
+                    LOG.warn("Unable to parse connection string for ${databaseResource.name}")
+                    return null
+                }
+                ConnectionStringToJdbcUrlConverter.convert(parsedConnectionString, driver, project)
+                    ?.build()
+                    ?.getOrNull()
             }
-            val parsedConnectionString =
-                factory.create(connectionString, dataProvider).getOrNull()
-            if (parsedConnectionString == null) {
-                LOG.warn("Unable to parse connection string for ${databaseResource.name}")
-                return null
-            }
-            ConnectionStringToJdbcUrlConverter.convert(parsedConnectionString, driver, project)
-                ?.build()
-                ?.getOrNull()
+        } catch (e: Exception) {
+            LOG.warn("Failed to get connection URL for ${databaseResource.name}", e)
+            return null
         }
     }
 
     private fun convertRedisConnectionString(connectionString: String): String? {
-        val matchResult = REDIS_REGEX.matchEntire(connectionString) ?: return null
+        val matcher = REDIS_REGEX.toPattern().matcher(connectionString)
+        if (!matcher.matches()) return null
 
-        val host = matchResult.groups["host"]?.value
-        val port = matchResult.groups["port"]?.value
-        val user = matchResult.groups["user"]?.value
-        val password = matchResult.groups["password"]?.value
-        val ssl = matchResult.groups["ssl"]?.value
+        val host = matcher.group("host")
+        val port = matcher.group("port")
+        val user = matcher.group("user")
+        val password = matcher.group("password")
+        val ssl = matcher.group("ssl")
 
         val sb = StringBuilder("jdbc:redis://")
         if (user != null || password != null) {
