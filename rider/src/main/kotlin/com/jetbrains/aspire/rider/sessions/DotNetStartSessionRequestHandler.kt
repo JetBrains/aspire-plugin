@@ -36,13 +36,12 @@ import com.jetbrains.rider.model.SilentMode
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.findProjects
 import com.jetbrains.rider.run.pid
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.io.path.absolutePathString
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  *  Starting point for handling all dotnet-related Aspire session requests.
@@ -203,8 +202,10 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         sessionId: String,
         sessionEvents: Channel<SessionEvent>,
         processLifetimeDefinition: LifetimeDefinition
-    ): ProcessListener =
-        object : ProcessListener {
+    ): ProcessListener {
+        val stdOutBuffer = SessionLogBuffer(sessionId, false, sessionEvents, processLifetimeDefinition.lifetime)
+        val stdErrBuffer = SessionLogBuffer(sessionId, true, sessionEvents, processLifetimeDefinition.lifetime)
+        return object : ProcessListener {
             override fun startNotified(event: ProcessEvent) {
                 LOG.info("Session $sessionId process was started")
                 val pid = when (val processHandler = event.processHandler) {
@@ -225,10 +226,10 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             }
 
             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                val isStdErr = outputType == ProcessOutputType.STDERR
-                val eventSendingResult = sessionEvents.trySend(SessionLogReceived(sessionId, isStdErr, event.text))
-                if (!eventSendingResult.isSuccess) {
-                    LOG.warn("Unable to send an event for session $sessionId log")
+                if (outputType == ProcessOutputType.STDERR) {
+                    stdErrBuffer.append(event.text)
+                } else {
+                    stdOutBuffer.append(event.text)
                 }
             }
 
@@ -239,6 +240,8 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
 
             override fun processTerminated(event: ProcessEvent) {
                 LOG.info("Session $sessionId process was terminated (${event.exitCode}, ${event.text})")
+                stdOutBuffer.flush()
+                stdErrBuffer.flush()
                 terminateSession(event.exitCode)
             }
 
@@ -256,6 +259,62 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
                 }
             }
         }
+    }
+
+    private class SessionLogBuffer(
+        private val sessionId: String,
+        private val isStdErr: Boolean,
+        private val sessionEvents: Channel<SessionEvent>,
+        private val lifetime: Lifetime
+    ) {
+        companion object {
+            private val FLUSH_INTERVAL_MS = 100L.milliseconds
+            private const val BUFFER_SIZE_LIMIT = 8192
+        }
+
+        init {
+            lifetime.launch {
+                while (lifetime.isAlive) {
+                    delay(FLUSH_INTERVAL_MS)
+                    if(isFlushedOnLimit.compareAndSet(true, false)) continue // we've flushed the buffer, no need to do it again
+                    flush()
+                }
+            }
+        }
+
+        private val buffer = StringBuilder()
+        private val lock = Any()
+        private val isFlushedOnLimit: AtomicBoolean = AtomicBoolean(false)
+
+        fun append(text: String) {
+            synchronized(lock) {
+                buffer.append(text)
+                if (buffer.length >= BUFFER_SIZE_LIMIT) {
+                    isFlushedOnLimit.set(true)
+                    LOG.trace { "Session $sessionId log buffer size limit reached, flushing" }
+                    flush()
+                }
+            }
+        }
+
+        fun flush() {
+            var toSend: String? = null
+            synchronized(lock) {
+                if (buffer.isNotEmpty()) {
+                    toSend = buffer.toString()
+                    buffer.setLength(0)
+                }
+            }
+            toSend?.let { send(it) }
+        }
+
+        private fun send(text: String) {
+            val result = sessionEvents.trySend(SessionLogReceived(sessionId, isStdErr, text))
+            if (!result.isSuccess) {
+                LOG.warn("Unable to send an event for session $sessionId log")
+            }
+        }
+    }
 
     private suspend fun launchSessionProcess(
         sessionId: String,
