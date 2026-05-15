@@ -28,38 +28,45 @@ internal class DockerConnectionStringModifier : ConnectionStringModifier {
     }
 
     override suspend fun modifyConnectionString(project: Project, context: ConnectionStringContext): Result<String> {
-        val resourceUrl = context.urls.find { url ->
-            context.connectionString.contains(url.port.toString())
+        try {
+            val resourceUrl = context.urls.find { url ->
+                context.connectionString.contains(url.port.toString())
+            }
+
+            if (resourceUrl == null) {
+                LOG.warn("Unable to find resource url for ${context.name}")
+                return Result.failure(IllegalStateException())
+            }
+
+            val containerPorts = getContainerPorts(project, context.containerId)
+            if (containerPorts.isEmpty()) {
+                LOG.info("Unable to get container ports for ${context.containerId}")
+                return Result.failure(IllegalStateException())
+            }
+            LOG.trace { "Found container ports for ${containerPorts.joinToString()}" }
+
+            val resourcePort = getResourcePort(context.containerPorts)
+            if (resourcePort == null) {
+                LOG.info("Unable to find resource port for ${context.containerId}")
+                return Result.failure(IllegalStateException())
+            }
+            LOG.trace { "Found resource port $resourcePort" }
+
+            val targetPort = containerPorts.firstOrNull { it.second == resourcePort }?.first?.toString()
+            if (targetPort == null) {
+                LOG.warn("Unable to find a corresponding resource port $resourcePort from container ports")
+                return Result.failure(IllegalStateException())
+            }
+
+            val sourcePort = resourceUrl.port.toString()
+
+            return Result.success(context.connectionString.replace(sourcePort, targetPort))
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (e: Exception) {
+            LOG.error("Failed to modify connection string for ${context.name}", e)
+            return Result.failure(e)
         }
-
-        if (resourceUrl == null) {
-            LOG.warn("Unable to find resource url for ${context.name}")
-            return Result.failure(IllegalStateException())
-        }
-
-        val containerPorts = getContainerPorts(project, context.containerId)
-        if (containerPorts.isEmpty()) {
-            LOG.info("Unable to get container ports for ${context.containerId}")
-            return Result.failure(IllegalStateException())
-        }
-        LOG.trace { "Found container ports for ${containerPorts.joinToString()}" }
-
-        val resourcePort = getResourcePort(context.containerPorts)
-        if (resourcePort == null) {
-            LOG.info("Unable to find resource port for ${context.containerId}")
-            return Result.failure(IllegalStateException())
-        }
-        LOG.trace { "Found resource port $resourcePort" }
-
-        val targetPort = containerPorts.firstOrNull { it.second == resourcePort }?.first?.toString()
-        if (targetPort == null) {
-            LOG.warn("Unable to find a corresponding resource port $resourcePort from container ports")
-            return Result.failure(IllegalStateException())
-        }
-
-        val sourcePort = resourceUrl.port.toString()
-
-        return Result.success(context.connectionString.replace(sourcePort, targetPort))
     }
 
     private suspend fun getContainerPorts(project: Project, containerId: String): List<Pair<Int?, Int?>> {
