@@ -2,7 +2,7 @@ package com.jetbrains.aspire.rider.launchProfiles
 
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.systemIndependentPath
-import com.jetbrains.aspire.util.MSBuildPropertyService.ProjectRunProperties
+import com.jetbrains.aspire.rider.util.MSBuildPropertyService.ProjectRunProperties
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 
@@ -20,14 +20,14 @@ internal fun getArguments(profile: LaunchSettingsJson.Profile?, projectOutput: P
     }
 }
 
-fun getWorkingDirectory(
+internal fun getWorkingDirectory(
     profile: LaunchSettingsJson.Profile?,
     projectOutput: ProjectOutput?
 ): String {
     return profile?.workingDirectory ?: projectOutput?.workingDirectory ?: ""
 }
 
-fun getWorkingDirectory(
+internal fun getWorkingDirectory(
     profile: LaunchSettingsJson.Profile?,
     projectProperties: ProjectRunProperties?
 ): String {

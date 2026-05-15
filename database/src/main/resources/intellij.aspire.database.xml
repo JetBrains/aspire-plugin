@@ -2,10 +2,7 @@
     <dependencies>
         <module name="intellij.aspire.core"/>
         <plugin id="com.intellij.database"/>
-        <module name="intellij.database.impl"/>
         <module name="intellij.database.dialects.redis"/>
-        <plugin id="Docker"/>
-        <module name="intellij.clouds.docker"/>
         <plugin id="rider.intellij.plugin.appender"/>
         <module name="intellij.rider.plugins.appender.database"/>
     </dependencies>

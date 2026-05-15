@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.workspaceModel.ide.toPath
-import com.jetbrains.aspire.util.isAspireSharedProject
+import com.jetbrains.aspire.rider.util.isAspireSharedProject
 import com.jetbrains.rider.model.RdNuGetProjects
 import com.jetbrains.rider.model.RdProjectType
 import com.jetbrains.rider.nuget.RiderNuGetFacade

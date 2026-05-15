@@ -1,14 +1,14 @@
-package com.jetbrains.aspire.database
+package com.jetbrains.aspire.docker
 
 import com.intellij.docker.DockerServerRuntimesManager
 import com.intellij.docker.runtimes.DockerApplicationRuntime
 import com.intellij.docker.utils.findRuntimeById
 import com.intellij.docker.utils.getOrCreateDockerLocalServer
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.util.ConnectionStringContext
+import com.jetbrains.aspire.util.ConnectionStringModifier
 import kotlinx.coroutines.future.await
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -22,34 +22,31 @@ import kotlin.coroutines.cancellation.CancellationException
  *
  * @see <a href="https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/networking-overview">Aspire Networking Overview</a>
  */
-@Service(Service.Level.PROJECT)
-internal class DatabaseConnectionStringModifier(private val project: Project) {
+internal class DockerConnectionStringModifier : ConnectionStringModifier {
     companion object {
-        fun getInstance(project: Project): DatabaseConnectionStringModifier = project.service()
-
-        private val LOG = logger<DatabaseConnectionStringModifier>()
+        private val LOG = logger<DockerConnectionStringModifier>()
     }
 
-    suspend fun modifyConnectionString(databaseResource: DatabaseResource): Result<String> {
-        val resourceUrl = databaseResource.urls.find { url ->
-            databaseResource.connectionString.contains(url.port.toString())
+    override suspend fun modifyConnectionString(project: Project, context: ConnectionStringContext): Result<String> {
+        val resourceUrl = context.urls.find { url ->
+            context.connectionString.contains(url.port.toString())
         }
 
         if (resourceUrl == null) {
-            LOG.warn("Unable to find resource url for ${databaseResource.name}")
+            LOG.warn("Unable to find resource url for ${context.name}")
             return Result.failure(IllegalStateException())
         }
 
-        val containerPorts = getContainerPorts(databaseResource.containerId)
+        val containerPorts = getContainerPorts(project, context.containerId)
         if (containerPorts.isEmpty()) {
-            LOG.info("Unable to get container ports for ${databaseResource.containerId}")
+            LOG.info("Unable to get container ports for ${context.containerId}")
             return Result.failure(IllegalStateException())
         }
         LOG.trace { "Found container ports for ${containerPorts.joinToString()}" }
 
-        val resourcePort = getResourcePort(databaseResource)
+        val resourcePort = getResourcePort(context.containerPorts)
         if (resourcePort == null) {
-            LOG.info("Unable to find resource port for ${databaseResource.containerId}")
+            LOG.info("Unable to find resource port for ${context.containerId}")
             return Result.failure(IllegalStateException())
         }
         LOG.trace { "Found resource port $resourcePort" }
@@ -62,10 +59,10 @@ internal class DatabaseConnectionStringModifier(private val project: Project) {
 
         val sourcePort = resourceUrl.port.toString()
 
-        return Result.success(databaseResource.connectionString.replace(sourcePort, targetPort))
+        return Result.success(context.connectionString.replace(sourcePort, targetPort))
     }
 
-    private suspend fun getContainerPorts(containerId: String): List<Pair<Int?, Int?>> {
+    private suspend fun getContainerPorts(project: Project, containerId: String): List<Pair<Int?, Int?>> {
         try {
             val localServer = getOrCreateDockerLocalServer()
             val manager = DockerServerRuntimesManager.getInstance(project)
@@ -85,8 +82,8 @@ internal class DatabaseConnectionStringModifier(private val project: Project) {
         }
     }
 
-    private fun getResourcePort(databaseResource: DatabaseResource): Int? {
-        val portString = databaseResource.containerPorts ?: return null
+    private fun getResourcePort(containerPorts: String?): Int? {
+        val portString = containerPorts ?: return null
 
         return portString
             .removePrefix("[")

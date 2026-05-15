@@ -24,7 +24,7 @@ private val regex = Regex(PATTERN)
  * @param logEntry the log entry string to parse
  * @return a pair containing the timestamp and log content, or null if the log entry does not have the expected format
  */
-fun parseLogEntry(logEntry: String): Pair<String, String>? {
+internal fun parseLogEntry(logEntry: String): Pair<String, String>? {
     val match = regex.find(logEntry) ?: return null
 
     val timestamp = match.value

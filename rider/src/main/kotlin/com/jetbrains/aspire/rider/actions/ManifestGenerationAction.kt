@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.platform.backend.workspace.virtualFile
 import com.jetbrains.aspire.rider.manifest.ManifestService
-import com.jetbrains.aspire.util.isAspireHostProject
+import com.jetbrains.aspire.rider.util.isAspireHostProject
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.Dispatchers
