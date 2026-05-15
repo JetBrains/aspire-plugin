@@ -2,6 +2,9 @@ package com.jetbrains.aspire.database
 
 import com.intellij.database.access.DatabaseCredentialsUi
 import com.intellij.database.dataSource.LocalDataSource
+import com.intellij.database.dataSource.ui.DataSourceTestConnectionManager
+import com.intellij.database.util.AsyncUtil
+import com.intellij.database.util.ErrorHandler
 import com.intellij.database.util.LoaderContext
 import com.intellij.database.util.performAutoIntrospection
 import com.intellij.openapi.components.Service
@@ -10,8 +13,7 @@ import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.withBackgroundProgress
-import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.services.connection.ConnectionManager
-import com.jetbrains.rider.plugins.appender.database.dialog.steps.shared.services.connection.TestConnectionExecutionResult
+import com.intellij.util.ThreeState
 import kotlinx.coroutines.delay
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
@@ -52,20 +54,41 @@ internal class DatabaseConnectionTester(private val project: Project) {
     private suspend fun waitForConnection(dataSource: LocalDataSource): Boolean {
         val credentials = DatabaseCredentialsUi.newUIInstance()
 
-        val connectionManager = ConnectionManager(project)
         (1..<5).forEach { _ ->
-            when (val connectionResult = connectionManager.testConnection(dataSource, credentials)) {
-                TestConnectionExecutionResult.Cancelled -> {
-                    LOG.debug("Connection cancelled")
-                    return false
-                }
+            val errorHandler = ErrorHandler()
+            val rawResult = runCatching {
+                DataSourceTestConnectionManager.performTestConnection(
+                    project,
+                    dataSource,
+                    credentials,
+                    errorHandler,
+                    false
+                )
+            }
+            val error = rawResult.exceptionOrNull()
 
-                is TestConnectionExecutionResult.Failure -> {
-                    LOG.debug { "Unable to connect to database, ${connectionResult.result.summary}" }
+            if (AsyncUtil.isCancellation(error) && !errorHandler.hasErrors()) {
+                LOG.debug("Connection cancelled")
+                return false
+            }
+
+            if (error != null) {
+                AsyncUtil.addUnhandledError(errorHandler, error, dataSource, project)
+            }
+
+            val processed = DataSourceTestConnectionManager.processTestConnectionResult(
+                rawResult.getOrNull(),
+                dataSource,
+                errorHandler
+            )
+            when (processed.state) {
+                ThreeState.YES -> {
+                    LOG.debug { "Unable to connect to database, ${processed.summary}" }
                     delay(300.milliseconds)
                 }
 
-                is TestConnectionExecutionResult.Success -> return true
+                ThreeState.UNSURE,
+                ThreeState.NO -> return true
             }
         }
 
