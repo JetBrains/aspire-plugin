@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [DEXP-940635](https://youtrack.jetbrains.com/issue/DEXP-940635) Component CodeInsightsHost construction has failed
+
+## [2.7.0] - 2026-05-15
+
 ### Changed
 
 - Connect to the Aspire Resource gRPC endpoint from the frontend part
@@ -680,7 +686,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.6.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.0...HEAD
+[2.7.0]: https://github.com/JetBrains/aspire-plugin/compare/2.6.0...2.7.0
 [2.6.0]: https://github.com/JetBrains/aspire-plugin/compare/2.5.3...2.6.0
 [2.5.3]: https://github.com/JetBrains/aspire-plugin/compare/2.5.2...2.5.3
 [2.5.2]: https://github.com/JetBrains/aspire-plugin/compare/2.5.1...2.5.2

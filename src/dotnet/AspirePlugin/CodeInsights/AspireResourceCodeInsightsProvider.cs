@@ -6,7 +6,7 @@ using JetBrains.Rider.Model;
 
 namespace JetBrains.Rider.Aspire.Plugin.CodeInsights;
 
-[ShellComponent(Instantiation.DemandAnyThreadSafe)]
+[SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 public class AspireResourceCodeInsightsProvider : ICodeInsightsProvider
 {
     private const string Id = "Aspire Resource State";
@@ -19,8 +19,7 @@ public class AspireResourceCodeInsightsProvider : ICodeInsightsProvider
 
     public ICollection<CodeVisionRelativeOrdering> RelativeOrderings { get; } = [new CodeVisionRelativeOrderingFirst()];
 
-    public bool IsAvailableIn(ISolution solution) =>
-        solution.GetAllProjects().Any(project => project.IsAspireHostProject());
+    public bool IsAvailableIn(ISolution solution) => true;
 
     public void OnClick(CodeInsightHighlightInfo highlightInfo, ISolution solution, CodeInsightsClickInfo? clickInfo)
     {
