@@ -240,8 +240,6 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
 
             override fun processTerminated(event: ProcessEvent) {
                 LOG.info("Session $sessionId process was terminated (${event.exitCode}, ${event.text})")
-                stdOutBuffer.flush()
-                stdErrBuffer.flush()
                 terminateSession(event.exitCode)
             }
 
@@ -274,10 +272,15 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
 
         init {
             lifetime.launch {
-                while (lifetime.isAlive) {
-                    delay(FLUSH_INTERVAL_MS)
-                    if(isFlushedOnLimit.compareAndSet(true, false)) continue // we've flushed the buffer, no need to do it again
+                try {
+                    while (lifetime.isAlive) {
+                        delay(FLUSH_INTERVAL_MS)
+                        if (isFlushedOnLimit.compareAndSet(true, false)) continue // we've flushed the buffer, no need to do it again
+                        flush()
+                    }
+                } catch (e: CancellationException) {
                     flush()
+                    throw e
                 }
             }
         }
@@ -287,6 +290,8 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         private val isFlushedOnLimit: AtomicBoolean = AtomicBoolean(false)
 
         fun append(text: String) {
+            if (lifetime.isNotAlive) throw IllegalStateException("Session $sessionId is terminated, cannot append to log buffer")
+
             synchronized(lock) {
                 buffer.append(text)
                 if (buffer.length >= BUFFER_SIZE_LIMIT) {
@@ -305,10 +310,10 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
                     buffer.setLength(0)
                 }
             }
-            toSend?.let { send(it) }
+            toSend?.let { trySend(it) }
         }
 
-        private fun send(text: String) {
+        private fun trySend(text: String) {
             val result = sessionEvents.trySend(SessionLogReceived(sessionId, isStdErr, text))
             if (!result.isSuccess) {
                 LOG.warn("Unable to send an event for session $sessionId log")
