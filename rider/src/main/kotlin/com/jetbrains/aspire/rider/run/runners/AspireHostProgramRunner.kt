@@ -12,9 +12,9 @@ import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.rider.run.file.AspireFileConfiguration
 import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
 import com.jetbrains.aspire.rider.run.states.AspireHostRunProfileState
-import com.jetbrains.rider.debugger.DotNetProgramRunner
+import com.jetbrains.rider.run.RiderProgramRunner
 
-class AspireHostProgramRunner : DotNetProgramRunner() {
+class AspireHostProgramRunner : RiderProgramRunner() {
     companion object {
         private const val RUNNER_ID = "aspire-runner"
 

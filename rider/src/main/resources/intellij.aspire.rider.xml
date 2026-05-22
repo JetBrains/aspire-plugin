@@ -36,9 +36,6 @@
 
         <programRunner implementation="com.jetbrains.aspire.rider.run.runners.AspireHostProgramRunner"/>
 
-        <programRunner
-                implementation="com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProgramRunner"/>
-
         <rd.solutionExtListener endpoint="IDE Frontend"
                                 listener="com.jetbrains.aspire.rider.unitTests.AspireUnitTestProtocolListener"/>
         <rd.solutionExtListener endpoint="IDE Frontend"

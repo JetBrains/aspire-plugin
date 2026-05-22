@@ -204,7 +204,6 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
             if (!isDebugSession) {
                 ExecutionEnvironmentBuilder
                     .createOrNull(project, DefaultRunExecutor.getRunExecutorInstance(), profile)
-                    ?.modifyExecutionEnvironmentForRun()
                     ?.build()
             } else {
                 ExecutionEnvironmentBuilder
@@ -221,15 +220,6 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
 
         withContext(Dispatchers.EDT) {
             environment.runner.execute(environment)
-        }
-    }
-
-    protected open fun ExecutionEnvironmentBuilder.modifyExecutionEnvironmentForRun(): ExecutionEnvironmentBuilder {
-        val defaultRunner = ProgramRunner.findRunnerById(DotNetSessionProgramRunner.ID)
-        return if (defaultRunner != null) {
-            this.runner(defaultRunner)
-        } else {
-            this
         }
     }
 

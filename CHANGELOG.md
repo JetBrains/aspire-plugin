@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Internal changes
+
+## [2.7.1] - 2026-05-19
+
 ### Fixed
 
 - [DEXP-940635](https://youtrack.jetbrains.com/issue/DEXP-940635) Component CodeInsightsHost construction has failed
@@ -686,7 +692,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.1...HEAD
+[2.7.1]: https://github.com/JetBrains/aspire-plugin/compare/2.7.0...2.7.1
 [2.7.0]: https://github.com/JetBrains/aspire-plugin/compare/2.6.0...2.7.0
 [2.6.0]: https://github.com/JetBrains/aspire-plugin/compare/2.5.3...2.6.0
 [2.5.3]: https://github.com/JetBrains/aspire-plugin/compare/2.5.2...2.5.3
