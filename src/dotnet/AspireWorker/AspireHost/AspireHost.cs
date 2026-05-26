@@ -1,13 +1,8 @@
 using System.Threading.Channels;
-using Aspire.DashboardService.Proto.V1;
-using Grpc.Core;
-using Grpc.Net.Client;
-using Grpc.Net.Client.Configuration;
 using JetBrains.Lifetimes;
 using JetBrains.Rider.Aspire.Worker.Generated;
 using JetBrains.Rider.Aspire.Worker.RdConnection;
 using JetBrains.Rider.Aspire.Worker.Sessions;
-using Polly.Registry;
 
 namespace JetBrains.Rider.Aspire.Worker.AspireHost;
 

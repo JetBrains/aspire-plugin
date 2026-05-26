@@ -24,8 +24,6 @@ try
     builder.Services.ConfigureOptions<ConfigureConnectionOptions>();
     builder.Services.ConfigureOptions<ConfigureDcpSessionOptions>();
 
-    builder.Services.AddGrpc();
-
     builder.Services.AddRdConnectionServices();
     builder.Services.AddAspireSessionServices();
     builder.Services.AddAspireHostServices();
