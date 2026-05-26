@@ -19,7 +19,6 @@ import com.jetbrains.aspire.util.*
 import com.jetbrains.rd.framework.*
 import com.jetbrains.rd.protocol.IdeRootMarshallersProvider
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.SequentialLifetimes
 import com.jetbrains.rd.util.threading.coroutines.asCoroutineDispatcher
 import com.jetbrains.rdclient.protocol.RdDispatcher
@@ -124,7 +123,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
 
             val token = UUID.randomUUID().toString()
             val port = NetworkUtils.findFreePort(47100)
-            val certificate = calculateServerCertificate(workerLifetime)
+            val certificate = calculateServerCertificate()
             val model = protocol.aspireWorkerModel
 
             val aspireWorkerConfig = AspireWorkerConfig(
@@ -220,7 +219,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         appHost.subscribeToAspireAppHostModel(appHostModel, dispatcher, appHostLifetime)
     }
 
-    private suspend fun calculateServerCertificate(workerLifetime: LifetimeDefinition): String? {
+    private suspend fun calculateServerCertificate(): String? {
         if (!AspireSettings.getInstance().connectToDcpViaHttps) return null
 
         val certificateCheckResult = checkDevCertificate(project)
