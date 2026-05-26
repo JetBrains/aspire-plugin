@@ -7,7 +7,6 @@
     </dependencies>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
-        <resourceIconProvider implementation="com.jetbrains.aspire.docker.DockerAspireResourceIconProvider"/>
         <connectionStringModifier implementation="com.jetbrains.aspire.docker.DockerConnectionStringModifier"/>
     </extensions>
 

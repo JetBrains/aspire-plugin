@@ -41,6 +41,7 @@ internal class BaseAspireResourceIconProvider : AspireResourceIconProvider {
         ResourceType.Executable -> AllIcons.Nodes.Console
         ResourceType.Parameter -> ReSharperIcons.PsiSymbols.Parameter
         ResourceType.ExternalService -> AllIcons.General.Web
+        ResourceType.Container -> AllIcons.FileTypes.Docker
         ResourceType.Unknown -> AllIcons.FileTypes.Unknown
         else -> null
     }
