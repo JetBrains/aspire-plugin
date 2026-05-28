@@ -2,15 +2,10 @@
 
 package com.jetbrains.aspire.worker
 
-import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
-import com.intellij.terminal.TerminalExecutionConsoleBuilder
 import com.jetbrains.aspire.generated.dashboard.ConsoleLogLine
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandRequest
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
@@ -18,6 +13,7 @@ import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponseKind
 import com.jetbrains.aspire.util.parseLogEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
@@ -28,9 +24,14 @@ import kotlin.coroutines.cancellation.CancellationException
  *
  * Key responsibilities:
  * - Tracking the resource's current state via [resourceState] (type, status, properties, endpoints, etc.)
- * - Collecting and displaying resource console logs through a [LogProcessHandler] and terminal console
+ * - Collecting resource console logs into a bounded in-memory buffer exposed as [logFlow]
  * - Executing resource commands (start, stop, restart) via the dashboard gRPC client
  * - Managing child resources in a parent-child tree structure ([childrenResources])
+ *
+ * Log lines are kept in a [MutableSharedFlow] with a fixed replay capacity, so a lazily created
+ * UI consumer (e.g. an [com.jetbrains.aspire.dashboard.AspireResourceViewModel]) receives the most
+ * recent history immediately, then continues to receive live emissions. Older entries are dropped
+ * once the replay capacity is exceeded to bound memory.
  *
  * Instances are created and managed exclusively by [ResourceTreeManager]. The [update] method
  * is internal and should only be called by the owning resource manager to apply state changes
@@ -46,12 +47,12 @@ import kotlin.coroutines.cancellation.CancellationException
 class AspireResource(
     val resourceName: String,
     initialData: AspireResourceData,
-    project: Project,
     parentCs: CoroutineScope,
     private val dashboardClient: AspireDashboardClientApi,
 ) : Disposable {
     companion object {
         private val LOG = logger<AspireResource>()
+        private const val LOG_REPLAY_CAPACITY = 500
     }
 
     private val cs = parentCs.childScope("Aspire Resource")
@@ -68,14 +69,11 @@ class AspireResource(
     private val _childrenResources = MutableStateFlow<List<AspireResource>>(emptyList())
     val childrenResources: StateFlow<List<AspireResource>> = _childrenResources.asStateFlow()
 
-    private val logProcessHandler = LogProcessHandler()
-    private val logConsole = TerminalExecutionConsoleBuilder(project)
-        .build()
-        .apply { attachToProcess(logProcessHandler) }
-        .also { Disposer.register(this, it) }
-
-    val logConsoleComponent
-        get() = logConsole.component
+    private val _logFlow = MutableSharedFlow<AspireResourceLogEntry>(
+        replay = LOG_REPLAY_CAPACITY,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val logFlow: SharedFlow<AspireResourceLogEntry> = _logFlow.asSharedFlow()
 
     init {
         cs.launch {
@@ -91,8 +89,6 @@ class AspireResource(
                     }
                 }
         }
-
-        logProcessHandler.startNotify()
     }
 
     /**
@@ -132,7 +128,6 @@ class AspireResource(
 
     private fun processResourceLog(log: ConsoleLogLine) {
         LOG.trace { "Received log: $log for the resource $resourceName" }
-        val outputType = if (!log.isStdErr) ProcessOutputTypes.STDOUT else ProcessOutputTypes.STDERR
 
         val (_, logContent) = parseLogEntry(log.text) ?: run {
             // In some situations (when receiving a huge multiline string in one go),
@@ -141,24 +136,11 @@ class AspireResource(
             null to log.text
         }
 
-        logProcessHandler.notifyTextAvailable(logContent + "\r\n", outputType)
+        _logFlow.tryEmit(AspireResourceLogEntry(logContent, log.isStdErr))
     }
 
     override fun dispose() {
         LOG.trace { "Disposing AspireResource for $resourceName" }
         cs.cancel()
-    }
-
-    /**
-     * A no-op [ProcessHandler] used solely as a sink for resource console log output.
-     *
-     * The terminal console requires a [ProcessHandler] to attach to; this implementation
-     * provides one that does not manage any real process.
-     */
-    private class LogProcessHandler : ProcessHandler() {
-        override fun destroyProcessImpl() {}
-        override fun detachProcessImpl() {}
-        override fun detachIsDefault() = false
-        override fun getProcessInput() = null
     }
 }

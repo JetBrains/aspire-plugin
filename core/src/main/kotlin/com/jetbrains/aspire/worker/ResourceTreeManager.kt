@@ -131,7 +131,6 @@ internal class ResourceTreeManager(
             val resource = AspireResource(
                 data.name,
                 data,
-                project,
                 parentCs,
                 client
             )
