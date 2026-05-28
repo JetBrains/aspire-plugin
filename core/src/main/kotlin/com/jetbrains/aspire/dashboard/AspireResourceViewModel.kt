@@ -12,6 +12,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.jetbrains.aspire.worker.AspireResource
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
@@ -52,6 +53,9 @@ class AspireResourceViewModel(
                         if (viewModel.resourceName in newIds) {
                             LOG.trace { "Resource ViewModel for ${viewModel.resourceName} already exists" }
                             add(viewModel)
+                        } else {
+                            LOG.trace { "Disposing Resource ViewModel for ${viewModel.resourceName}" }
+                            Disposer.dispose(viewModel)
                         }
                     }
 
@@ -114,5 +118,7 @@ class AspireResourceViewModel(
     }
 
     override fun dispose() {
+        LOG.trace { "Disposing AspireResource VM for $resourceName" }
+        cs.cancel()
     }
 }

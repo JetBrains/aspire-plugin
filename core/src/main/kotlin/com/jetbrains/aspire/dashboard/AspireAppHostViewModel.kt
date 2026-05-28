@@ -15,6 +15,7 @@ import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.application
 import com.jetbrains.aspire.worker.AspireAppHost
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
@@ -60,6 +61,9 @@ class AspireAppHostViewModel(
                         if (viewModel.resourceName in newIds) {
                             LOG.trace { "Resource ViewModel for ${viewModel.resourceName} already exists" }
                             add(viewModel)
+                        } else {
+                            LOG.trace { "Disposing Resource ViewModel for ${viewModel.resourceName}" }
+                            Disposer.dispose(viewModel)
                         }
                     }
 
@@ -154,5 +158,7 @@ class AspireAppHostViewModel(
     }
 
     override fun dispose() {
+        LOG.trace { "Disposing AspireAppHost VM for project: $appHostMainFilePath" }
+        cs.cancel()
     }
 }
