@@ -145,6 +145,7 @@ class AspireResource(
     }
 
     override fun dispose() {
+        LOG.trace { "Disposing AspireResource for $resourceName" }
         cs.cancel()
     }
 

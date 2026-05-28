@@ -259,6 +259,7 @@ class AspireAppHost(
     }
 
     override fun dispose() {
+        LOG.trace { "Disposing AspireAppHost for project: $mainFilePath" }
         cs.cancel()
     }
 
