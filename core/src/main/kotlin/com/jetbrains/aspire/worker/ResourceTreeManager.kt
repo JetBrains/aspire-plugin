@@ -148,10 +148,11 @@ internal class ResourceTreeManager(
     private suspend fun createResource(resource: AspireResource) {
         if (resources.containsKey(resource.resourceName)) return
 
+        Disposer.register(parentDisposable, resource)
+
         resources[resource.resourceName] = resource
         resourcesByDisplayName[resource.displayName] = resource
 
-        Disposer.register(parentDisposable, resource)
         attachResource(resource)
 
         processPendingResources(resource.displayName)
@@ -182,11 +183,11 @@ internal class ResourceTreeManager(
             attachResource(childResource)
         }
 
-        Disposer.dispose(resource)
-
         withContext(uiDispatcher) {
             project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceDeleted(resource)
         }
+
+        Disposer.dispose(resource)
     }
 
     /**
