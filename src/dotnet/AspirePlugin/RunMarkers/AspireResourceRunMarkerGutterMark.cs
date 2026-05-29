@@ -27,6 +27,30 @@ public class AspireResourceRunMarkerGutterMark()
         {
             if (command.State != AspireRdResourceCommandState.Enabled) continue;
 
+            var isRestart = command.Name is "restart" or "resource-restart";
+            if (isRestart && resource.Type == AspireRdResourceType.Project)
+            {
+                yield return new BulbMenuItem(
+                    new ExecutableItem(() => resourceProtocolHost.ExecuteResourceCommand(
+                        resource.Name,
+                        command.Name,
+                        AspireRdSessionLaunchMode.Run)),
+                    new RichText("Restart without Debugger"),
+                    AspireIconIds.RestartResourceWithoutDebuggerIconId,
+                    BulbMenuAnchors.PermanentItem);
+
+                yield return new BulbMenuItem(
+                    new ExecutableItem(() => resourceProtocolHost.ExecuteResourceCommand(
+                        resource.Name,
+                        command.Name,
+                        AspireRdSessionLaunchMode.Debug)),
+                    new RichText("Restart with Debugger"),
+                    AspireIconIds.RestartResourceWithDebuggerIconId,
+                    BulbMenuAnchors.PermanentItem);
+
+                continue;
+            }
+
             yield return new BulbMenuItem(
                 new ExecutableItem(() => resourceProtocolHost.ExecuteResourceCommand(resource.Name, command.Name)),
                 new RichText(command.DisplayName),

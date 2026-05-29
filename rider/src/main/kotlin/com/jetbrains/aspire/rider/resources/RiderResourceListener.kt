@@ -8,6 +8,7 @@ import com.jetbrains.aspire.rider.generated.AspireRdResourceCommandState
 import com.jetbrains.aspire.rider.generated.AspireRdResourceHealthStatus
 import com.jetbrains.aspire.rider.generated.AspireRdResourceState
 import com.jetbrains.aspire.rider.generated.AspireRdResourceStateStyle
+import com.jetbrains.aspire.rider.generated.AspireRdResourceType
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
@@ -15,6 +16,7 @@ import com.jetbrains.aspire.worker.ResourceCommandState
 import com.jetbrains.aspire.worker.ResourceHealthStatus
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceStateStyle
+import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.rider.projectView.solution
 
 internal class RiderResourceListener(private val project: Project) : ResourceListener {
@@ -37,6 +39,7 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
     private fun mapResource(state: AspireResourceData) = AspireRdResource(
         state.name,
         state.displayName,
+        state.type.toRdType(),
         state.state?.toRdState(),
         state.stateStyle?.toRdStateStyle(),
         state.healthStatus?.toRdHealthStatus(),
@@ -78,5 +81,19 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
         ResourceHealthStatus.Healthy -> AspireRdResourceHealthStatus.Healthy
         ResourceHealthStatus.Unhealthy -> AspireRdResourceHealthStatus.Unhealthy
         ResourceHealthStatus.Degraded -> AspireRdResourceHealthStatus.Degraded
+    }
+
+    private fun ResourceType.toRdType() = when (this) {
+        ResourceType.Project -> AspireRdResourceType.Project
+        ResourceType.Container -> AspireRdResourceType.Container
+        ResourceType.Executable -> AspireRdResourceType.Executable
+        ResourceType.Parameter -> AspireRdResourceType.Parameter
+        ResourceType.ExternalService -> AspireRdResourceType.ExternalService
+        ResourceType.MongoDB -> AspireRdResourceType.MongoDB
+        ResourceType.MySql -> AspireRdResourceType.MySql
+        ResourceType.Postgres -> AspireRdResourceType.Postgres
+        ResourceType.SqlServer -> AspireRdResourceType.SqlServer
+        ResourceType.AzureStorageResource -> AspireRdResourceType.AzureStorageResource
+        ResourceType.Unknown -> AspireRdResourceType.Unknown
     }
 }

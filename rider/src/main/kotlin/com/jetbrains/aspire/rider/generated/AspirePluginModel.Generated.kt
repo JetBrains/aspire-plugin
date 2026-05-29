@@ -45,6 +45,8 @@ class AspirePluginModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(-7704547362275130218), classLoader, "com.jetbrains.aspire.rider.generated.AspireHostEnvironmentVariable"))
             serializers.register(LazyCompanionMarshaller(RdId(-4767979015991107402), classLoader, "com.jetbrains.aspire.rider.generated.StartAspireHostResponse"))
             serializers.register(LazyCompanionMarshaller(RdId(-2676024516763561580), classLoader, "com.jetbrains.aspire.rider.generated.StopAspireHostRequest"))
+            serializers.register(LazyCompanionMarshaller(RdId(4955767770943235145), classLoader, "com.jetbrains.aspire.rider.generated.AspireRdSessionLaunchMode"))
+            serializers.register(LazyCompanionMarshaller(RdId(2252619661035948331), classLoader, "com.jetbrains.aspire.rider.generated.AspireRdResourceType"))
             serializers.register(LazyCompanionMarshaller(RdId(9193025171028044532), classLoader, "com.jetbrains.aspire.rider.generated.ExecuteResourceCommandRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(7139439153939830353), classLoader, "com.jetbrains.aspire.rider.generated.AspireRdResource"))
             serializers.register(LazyCompanionMarshaller(RdId(-1462618248788339782), classLoader, "com.jetbrains.aspire.rider.generated.AspireRdResourceCommand"))
@@ -62,7 +64,7 @@ class AspirePluginModel private constructor(
         private val __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer = ReferenceServiceDefaultsFromProjectsResponse.nullable()
         private val __GetReferencedProjectsFromAppHostResponseNullableSerializer = GetReferencedProjectsFromAppHostResponse.nullable()
         
-        const val serializationHash = -1407140445839717878L
+        const val serializationHash = 3759181383852920486L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspirePluginModel
@@ -227,11 +229,12 @@ data class AspireHostEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:63]
+ * #### Generated from [AspirePluginModel.kt:83]
  */
 data class AspireRdResource (
     val name: String,
     val displayName: String,
+    val type: AspireRdResourceType,
     val state: AspireRdResourceState?,
     val stateStyle: AspireRdResourceStateStyle?,
     val healthStatus: AspireRdResourceHealthStatus?,
@@ -242,6 +245,7 @@ data class AspireRdResource (
     private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
         buffer.writeString(name)
         buffer.writeString(displayName)
+        buffer.writeEnum(type)
         buffer.writeNullable(state) { buffer.writeEnum(it) }
         buffer.writeNullable(stateStyle) { buffer.writeEnum(it) }
         buffer.writeNullable(healthStatus) { buffer.writeEnum(it) }
@@ -258,12 +262,13 @@ data class AspireRdResource (
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireRdResource  {
             val name = buffer.readString()
             val displayName = buffer.readString()
+            val type = buffer.readEnum<AspireRdResourceType>()
             val state = buffer.readNullable { buffer.readEnum<AspireRdResourceState>() }
             val stateStyle = buffer.readNullable { buffer.readEnum<AspireRdResourceStateStyle>() }
             val healthStatus = buffer.readNullable { buffer.readEnum<AspireRdResourceHealthStatus>() }
             val exitCode = buffer.readNullable { buffer.readInt() }
             val commands = buffer.readList { AspireRdResourceCommand.read(ctx, buffer) }
-            return AspireRdResource(name, displayName, state, stateStyle, healthStatus, exitCode, commands)
+            return AspireRdResource(name, displayName, type, state, stateStyle, healthStatus, exitCode, commands)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireRdResource)  {
@@ -285,6 +290,7 @@ data class AspireRdResource (
         
         if (name != other.name) return false
         if (displayName != other.displayName) return false
+        if (type != other.type) return false
         if (state != other.state) return false
         if (stateStyle != other.stateStyle) return false
         if (healthStatus != other.healthStatus) return false
@@ -298,6 +304,7 @@ data class AspireRdResource (
         var __r = 0
         __r = __r*31 + name.hashCode()
         __r = __r*31 + displayName.hashCode()
+        __r = __r*31 + type.hashCode()
         __r = __r*31 + if (state != null) state.hashCode() else 0
         __r = __r*31 + if (stateStyle != null) stateStyle.hashCode() else 0
         __r = __r*31 + if (healthStatus != null) healthStatus.hashCode() else 0
@@ -311,6 +318,7 @@ data class AspireRdResource (
         printer.indent {
             print("name = "); name.print(printer); println()
             print("displayName = "); displayName.print(printer); println()
+            print("type = "); type.print(printer); println()
             print("state = "); state.print(printer); println()
             print("stateStyle = "); stateStyle.print(printer); println()
             print("healthStatus = "); healthStatus.print(printer); println()
@@ -326,7 +334,7 @@ data class AspireRdResource (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:96]
+ * #### Generated from [AspirePluginModel.kt:117]
  */
 data class AspireRdResourceCommand (
     val name: String,
@@ -401,7 +409,7 @@ data class AspireRdResourceCommand (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:99]
+ * #### Generated from [AspirePluginModel.kt:120]
  */
 enum class AspireRdResourceCommandState {
     Enabled, 
@@ -427,7 +435,7 @@ enum class AspireRdResourceCommandState {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:87]
+ * #### Generated from [AspirePluginModel.kt:108]
  */
 enum class AspireRdResourceHealthStatus {
     Healthy, 
@@ -453,7 +461,7 @@ enum class AspireRdResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:66]
+ * #### Generated from [AspirePluginModel.kt:87]
  */
 enum class AspireRdResourceState {
     Building, 
@@ -488,7 +496,7 @@ enum class AspireRdResourceState {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:80]
+ * #### Generated from [AspirePluginModel.kt:101]
  */
 enum class AspireRdResourceStateStyle {
     Success, 
@@ -516,16 +524,77 @@ enum class AspireRdResourceStateStyle {
 
 
 /**
+ * #### Generated from [AspirePluginModel.kt:63]
+ */
+enum class AspireRdResourceType {
+    Project, 
+    Container, 
+    Executable, 
+    Parameter, 
+    ExternalService, 
+    MongoDB, 
+    MySql, 
+    Postgres, 
+    SqlServer, 
+    AzureStorageResource, 
+    Unknown;
+    
+    companion object : IMarshaller<AspireRdResourceType> {
+        val marshaller = FrameworkMarshallers.enum<AspireRdResourceType>()
+        
+        
+        override val _type: KClass<AspireRdResourceType> = AspireRdResourceType::class
+        override val id: RdId get() = RdId(2252619661035948331)
+        
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireRdResourceType {
+            return marshaller.read(ctx, buffer)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireRdResourceType)  {
+            marshaller.write(ctx, buffer, value)
+        }
+    }
+}
+
+
+/**
  * #### Generated from [AspirePluginModel.kt:58]
+ */
+enum class AspireRdSessionLaunchMode {
+    Run, 
+    Debug;
+    
+    companion object : IMarshaller<AspireRdSessionLaunchMode> {
+        val marshaller = FrameworkMarshallers.enum<AspireRdSessionLaunchMode>()
+        
+        
+        override val _type: KClass<AspireRdSessionLaunchMode> = AspireRdSessionLaunchMode::class
+        override val id: RdId get() = RdId(4955767770943235145)
+        
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): AspireRdSessionLaunchMode {
+            return marshaller.read(ctx, buffer)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: AspireRdSessionLaunchMode)  {
+            marshaller.write(ctx, buffer, value)
+        }
+    }
+}
+
+
+/**
+ * #### Generated from [AspirePluginModel.kt:77]
  */
 data class ExecuteResourceCommandRequest (
     val resourceName: String,
-    val commandName: String
+    val commandName: String,
+    val launchMode: AspireRdSessionLaunchMode?
 ) : IPrintable {
     //write-marshaller
     private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
         buffer.writeString(resourceName)
         buffer.writeString(commandName)
+        buffer.writeNullable(launchMode) { buffer.writeEnum(it) }
     }
     //companion
     
@@ -537,7 +606,8 @@ data class ExecuteResourceCommandRequest (
         override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): ExecuteResourceCommandRequest  {
             val resourceName = buffer.readString()
             val commandName = buffer.readString()
-            return ExecuteResourceCommandRequest(resourceName, commandName)
+            val launchMode = buffer.readNullable { buffer.readEnum<AspireRdSessionLaunchMode>() }
+            return ExecuteResourceCommandRequest(resourceName, commandName, launchMode)
         }
         
         override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: ExecuteResourceCommandRequest)  {
@@ -559,6 +629,7 @@ data class ExecuteResourceCommandRequest (
         
         if (resourceName != other.resourceName) return false
         if (commandName != other.commandName) return false
+        if (launchMode != other.launchMode) return false
         
         return true
     }
@@ -567,6 +638,7 @@ data class ExecuteResourceCommandRequest (
         var __r = 0
         __r = __r*31 + resourceName.hashCode()
         __r = __r*31 + commandName.hashCode()
+        __r = __r*31 + if (launchMode != null) launchMode.hashCode() else 0
         return __r
     }
     //pretty print
@@ -575,6 +647,7 @@ data class ExecuteResourceCommandRequest (
         printer.indent {
             print("resourceName = "); resourceName.print(printer); println()
             print("commandName = "); commandName.print(printer); println()
+            print("launchMode = "); launchMode.print(printer); println()
         }
         printer.print(")")
     }
