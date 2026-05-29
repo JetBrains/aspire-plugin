@@ -12,6 +12,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.jetbrains.aspire.worker.AspireWorker
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
@@ -85,6 +86,8 @@ class AspireWorkerViewModel(
                             sendServiceAddedEvent(viewModel)
                         } else {
                             sendServiceRemovedEvent(viewModel)
+                            LOG.trace { "Disposing AppHost ViewModel for ${viewModel.appHostMainFilePath}" }
+                            Disposer.dispose(viewModel)
                         }
                     }
                 }
@@ -128,5 +131,7 @@ class AspireWorkerViewModel(
     }
 
     override fun dispose() {
+        LOG.trace { "Disposing AspireWorker VM" }
+        cs.cancel()
     }
 }
