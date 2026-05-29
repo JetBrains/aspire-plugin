@@ -1,5 +1,6 @@
 using JetBrains.Rider.Aspire.Plugin.Generated;
 using JetBrains.Application.UI.Icons.CommonThemedIcons;
+using JetBrains.Rider.Aspire.Plugin.Resources;
 using JetBrains.UI.Icons;
 
 namespace JetBrains.Rider.Aspire.Plugin.AspireResources;
@@ -11,7 +12,7 @@ internal static class AspireResourcePresentation
         var stateText = GetStateText(resource);
         if (ShouldAppendExitCode(resource) && resource.ExitCode is { } exitCode)
         {
-            return $"{stateText} (exit code {exitCode})";
+            return $"{stateText} ({Strings.ExitCode} {exitCode})";
         }
 
         return stateText;
@@ -20,25 +21,34 @@ internal static class AspireResourcePresentation
     public static string GetDescriptionText(AspireRdResource resource)
     {
         var resourceName = string.IsNullOrEmpty(resource.DisplayName) ? resource.Name : resource.DisplayName;
-        return $"Aspire resource '{resourceName}' has state '{GetStateText(resource)}'";
+        return $"{Strings.AspireResource} '{resourceName}'";
     }
 
     private static string GetStateText(AspireRdResource resource) =>
         resource.State switch
         {
-            AspireRdResourceState.Running when resource.HealthStatus is { } healthStatus => $"Running ({healthStatus})",
-            AspireRdResourceState.Building => "Building",
-            AspireRdResourceState.Starting => "Starting",
-            AspireRdResourceState.Running => "Running",
-            AspireRdResourceState.FailedToStart => "Failed to start",
-            AspireRdResourceState.RuntimeUnhealthy => "Runtime unhealthy",
-            AspireRdResourceState.Stopping => "Stopping",
-            AspireRdResourceState.Exited => "Exited",
-            AspireRdResourceState.Finished => "Finished",
-            AspireRdResourceState.Waiting => "Waiting",
-            AspireRdResourceState.NotStarted => "Not started",
-            AspireRdResourceState.Hidden => "Hidden",
-            _ => "Unknown"
+            AspireRdResourceState.Running when resource.HealthStatus is { } healthStatus => $"{Strings.Running} ({GetHealthText(healthStatus)})",
+            AspireRdResourceState.Building => Strings.Building,
+            AspireRdResourceState.Starting => Strings.Starting,
+            AspireRdResourceState.Running => Strings.Running,
+            AspireRdResourceState.FailedToStart => Strings.FailedToStart,
+            AspireRdResourceState.RuntimeUnhealthy => Strings.RuntimeUnhealthy,
+            AspireRdResourceState.Stopping => Strings.Stopping,
+            AspireRdResourceState.Exited => Strings.Exited,
+            AspireRdResourceState.Finished => Strings.Finished,
+            AspireRdResourceState.Waiting => Strings.Waiting,
+            AspireRdResourceState.NotStarted => Strings.NotStarted,
+            AspireRdResourceState.Hidden => Strings.Hidden,
+            _ => Strings.Unknown
+        };
+
+    private static string GetHealthText(AspireRdResourceHealthStatus status) =>
+        status switch
+        {
+            AspireRdResourceHealthStatus.Healthy => Strings.Healthy,
+            AspireRdResourceHealthStatus.Unhealthy => Strings.Unhealthy,
+            AspireRdResourceHealthStatus.Degraded => Strings.Degraded,
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
         };
 
     private static bool ShouldAppendExitCode(AspireRdResource resource)

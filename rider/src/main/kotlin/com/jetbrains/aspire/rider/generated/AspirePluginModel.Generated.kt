@@ -64,7 +64,7 @@ class AspirePluginModel private constructor(
         private val __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer = ReferenceServiceDefaultsFromProjectsResponse.nullable()
         private val __GetReferencedProjectsFromAppHostResponseNullableSerializer = GetReferencedProjectsFromAppHostResponse.nullable()
         
-        const val serializationHash = 3759181383852920486L
+        const val serializationHash = 344688638181968712L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspirePluginModel
@@ -233,7 +233,7 @@ data class AspireHostEnvironmentVariable (
  */
 data class AspireRdResource (
     val name: String,
-    val displayName: String,
+    val displayName: @com.intellij.openapi.util.NlsSafe String,
     val type: AspireRdResourceType,
     val state: AspireRdResourceState?,
     val stateStyle: AspireRdResourceStateStyle?,
@@ -338,7 +338,7 @@ data class AspireRdResource (
  */
 data class AspireRdResourceCommand (
     val name: String,
-    val displayName: String,
+    val displayName: @com.intellij.openapi.util.NlsSafe String,
     val state: AspireRdResourceCommandState
 ) : IPrintable {
     //write-marshaller

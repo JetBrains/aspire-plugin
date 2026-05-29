@@ -3,6 +3,7 @@ using JetBrains.Application.UI.Controls.BulbMenu.Items;
 using JetBrains.ProjectModel;
 using JetBrains.Rider.Aspire.Plugin.AspireResources;
 using JetBrains.Rider.Aspire.Plugin.Generated;
+using JetBrains.Rider.Aspire.Plugin.Resources;
 using JetBrains.Rider.Backend.Features.RunMarkers;
 using JetBrains.TextControl.DocumentMarkup;
 using JetBrains.UI.Icons;
@@ -35,7 +36,7 @@ public class AspireResourceRunMarkerGutterMark()
                         resource.Name,
                         command.Name,
                         AspireRdSessionLaunchMode.Run)),
-                    new RichText("Restart without Debugger"),
+                    new RichText(Strings.RestartWithoutDebugger),
                     AspireIconIds.RestartResourceWithoutDebuggerIconId,
                     BulbMenuAnchors.PermanentItem);
 
@@ -44,7 +45,7 @@ public class AspireResourceRunMarkerGutterMark()
                         resource.Name,
                         command.Name,
                         AspireRdSessionLaunchMode.Debug)),
-                    new RichText("Restart with Debugger"),
+                    new RichText(Strings.RestartWithDebugger),
                     AspireIconIds.RestartResourceWithDebuggerIconId,
                     BulbMenuAnchors.PermanentItem);
 
@@ -53,11 +54,20 @@ public class AspireResourceRunMarkerGutterMark()
 
             yield return new BulbMenuItem(
                 new ExecutableItem(() => resourceProtocolHost.ExecuteResourceCommand(resource.Name, command.Name)),
-                new RichText(command.DisplayName),
+                new RichText(GetTextForCommand(command) ?? command.DisplayName),
                 GetIconForCommand(command),
                 BulbMenuAnchors.PermanentItem);
         }
     }
+
+    private static string? GetTextForCommand(AspireRdResourceCommand command) => command.Name switch
+    {
+        "start" or "resource-start" => Strings.Start,
+        "stop" or "resource-stop" => Strings.Stop,
+        "restart" or "resource-restart" => Strings.Restart,
+        "rebuild" or "resource-rebuild" => Strings.Rebuild,
+        _ => null
+    };
 
     private static IconId? GetIconForCommand(AspireRdResourceCommand command) => command.Name switch
     {

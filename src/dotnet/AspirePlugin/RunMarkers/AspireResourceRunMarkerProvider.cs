@@ -7,6 +7,7 @@ using JetBrains.ReSharper.Psi.CSharp.Tree;
 using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Rider.Aspire.Plugin.AspireResources;
 using JetBrains.Rider.Aspire.Plugin.Generated;
+using JetBrains.Rider.Aspire.Plugin.Resources;
 using JetBrains.Rider.Backend.Features.RunMarkers;
 
 namespace JetBrains.Rider.Aspire.Plugin.RunMarkers;
@@ -48,6 +49,6 @@ public class AspireResourceRunMarkerProvider : IRunMarkerProvider
     private static string GetToolTip(AspireRdResource resource)
     {
         var resourceName = string.IsNullOrEmpty(resource.DisplayName) ? resource.Name : resource.DisplayName;
-        return $"Aspire resource '{resourceName}'";
+        return $"{Strings.AspireResource} '{resourceName}'";
     }
 }
