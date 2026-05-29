@@ -5,10 +5,14 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.client.ClientProjectSession
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.rider.generated.AspirePluginModel
+import com.jetbrains.aspire.rider.generated.AspireRdSessionLaunchMode
 import com.jetbrains.aspire.rider.generated.ExecuteResourceCommandRequest
+import com.jetbrains.aspire.sessions.SessionLaunchMode
+import com.jetbrains.aspire.sessions.SessionLaunchPreferenceService
 import com.jetbrains.aspire.util.findResource
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireWorker
@@ -17,6 +21,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.io.path.absolutePathString
 
 internal class RiderResourceProtocolListener : SolutionExtListener<AspirePluginModel> {
     companion object {
@@ -32,6 +37,19 @@ internal class RiderResourceProtocolListener : SolutionExtListener<AspirePluginM
                     LOG.warn("Unable to find Aspire resource '${request.resourceName}' to execute '${request.commandName}'")
                     notifyAboutMissingResource(session.project, request.resourceName)
                     return@launch
+                }
+
+                val launchMode = request.launchMode
+                val projectPath = resource.resourceState.value.projectPath?.value
+                if (launchMode != null && projectPath != null) {
+                    val sessionLaunchMode = when (launchMode) {
+                        AspireRdSessionLaunchMode.Run -> SessionLaunchMode.RUN
+                        AspireRdSessionLaunchMode.Debug -> SessionLaunchMode.DEBUG
+                    }
+                    LOG.trace { "Applying preferred launch mode $sessionLaunchMode for '${projectPath.absolutePathString()}' before executing '${request.commandName}'" }
+                    SessionLaunchPreferenceService
+                        .getInstance(session.project)
+                        .setPreferredLaunchMode(projectPath.absolutePathString(), sessionLaunchMode)
                 }
 
                 resource.executeCommand(request.commandName)
@@ -54,12 +72,13 @@ internal class RiderResourceProtocolListener : SolutionExtListener<AspirePluginM
             .firstNotNullOfOrNull { appHost -> appHost.findResource(predicate) }
     }
 
-    private suspend fun notifyAboutMissingResource(project: Project, resourceName: String) = withContext(Dispatchers.EDT) {
-        Notification(
-            "Aspire",
-            AspireRiderBundle.message("notification.unable.to.find.aspire.resource"),
-            AspireRiderBundle.message("notification.aspire.resource.not.found.description", resourceName),
-            NotificationType.WARNING
-        ).notify(project)
-    }
+    private suspend fun notifyAboutMissingResource(project: Project, resourceName: String) =
+        withContext(Dispatchers.EDT) {
+            Notification(
+                "Aspire",
+                AspireRiderBundle.message("notification.unable.to.find.aspire.resource"),
+                AspireRiderBundle.message("notification.aspire.resource.not.found.description", resourceName),
+                NotificationType.WARNING
+            ).notify(project)
+        }
 }

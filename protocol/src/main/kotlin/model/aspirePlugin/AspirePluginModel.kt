@@ -55,14 +55,35 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("unitTestRunId", string)
     }
 
+    private val AspireRdSessionLaunchMode = enum("AspireRdSessionLaunchMode") {
+        +"Run"
+        +"Debug"
+    }
+
+    private val AspireRdResourceType = enum("AspireRdResourceType") {
+        +"Project"
+        +"Container"
+        +"Executable"
+        +"Parameter"
+        +"ExternalService"
+        +"MongoDB"
+        +"MySql"
+        +"Postgres"
+        +"SqlServer"
+        +"AzureStorageResource"
+        +"Unknown"
+    }
+
     private val ExecuteResourceCommandRequest = structdef {
         field("resourceName", string)
         field("commandName", string)
+        field("launchMode", AspireRdSessionLaunchMode.nullable)
     }
 
     private val AspireRdResource = structdef {
         field("name", string)
-        field("displayName", string)
+        field("displayName", nlsSafeString)
+        field("type", AspireRdResourceType)
         field("state", enum("AspireRdResourceState") {
             +"Building"
             +"Starting"
@@ -95,7 +116,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
 
     private val AspireRdResourceCommand = structdef {
         field("name", string)
-        field("displayName", string)
+        field("displayName", nlsSafeString)
         field("state", enum("AspireRdResourceCommandState") {
             +"Enabled"
             +"Disabled"

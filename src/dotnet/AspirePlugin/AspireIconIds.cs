@@ -8,5 +8,7 @@ internal static class AspireIconIds
     internal static readonly IconId StartResourceIconId = new FrontendIconId("icons/startResource.svg");
     internal static readonly IconId StopResourceIconId = new FrontendIconId("icons/stopResource.svg");
     internal static readonly IconId RestartResourceIconId = new FrontendIconId("icons/restartResource.svg");
+    internal static readonly IconId RestartResourceWithoutDebuggerIconId = new FrontendIconId("icons/restartResourceWithoutDebugger.svg");
+    internal static readonly IconId RestartResourceWithDebuggerIconId = new FrontendIconId("icons/restartResourceWithDebugger.svg");
     internal static readonly IconId RebuildResourceIconId = new FrontendIconId("icons/rebuildResource.svg");
 }

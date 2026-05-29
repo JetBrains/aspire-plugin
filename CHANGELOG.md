@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- [RIDER-138670](https://youtrack.jetbrains.com/issue/RIDER-138670) Show `restartWithDebugger` and `restartWithoutDebugger` actions in the gutter
+
+## [2.7.2] - 2026-05-22
+
 ### Changed
 
 - Internal changes
@@ -692,7 +698,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.1...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.2...HEAD
+[2.7.2]: https://github.com/JetBrains/aspire-plugin/compare/2.7.1...2.7.2
 [2.7.1]: https://github.com/JetBrains/aspire-plugin/compare/2.7.0...2.7.1
 [2.7.0]: https://github.com/JetBrains/aspire-plugin/compare/2.6.0...2.7.0
 [2.6.0]: https://github.com/JetBrains/aspire-plugin/compare/2.5.3...2.6.0

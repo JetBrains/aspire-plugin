@@ -40,9 +40,10 @@ public class AspireResourceProtocolHost
             string.Equals(resource.Name, declarationResourceName, StringComparison.Ordinal));
     }
 
-    public void ExecuteResourceCommand(string resourceName, string commandName)
+    public void ExecuteResourceCommand(string resourceName, string commandName,
+        AspireRdSessionLaunchMode? launchMode = null)
     {
-        _model.ExecuteResourceCommand(new ExecuteResourceCommandRequest(resourceName, commandName));
+        _model.ExecuteResourceCommand(new ExecuteResourceCommandRequest(resourceName, commandName, launchMode));
     }
 
     // ReSharper disable once CognitiveComplexity
