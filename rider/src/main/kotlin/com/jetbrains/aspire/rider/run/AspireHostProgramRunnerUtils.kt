@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.rider.run.runners
+package com.jetbrains.aspire.rider.run
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.ExecutionResult
@@ -11,8 +11,6 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.aspire.generated.AspireHostModelConfig
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
-import com.jetbrains.aspire.rider.run.AspireRunConfigurationManager
 import com.jetbrains.aspire.rider.run.states.*
 import com.jetbrains.aspire.util.checkDevCertificate
 import com.jetbrains.aspire.worker.AppHostListener

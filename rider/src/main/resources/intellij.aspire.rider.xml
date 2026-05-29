@@ -33,9 +33,6 @@
         <configurationType implementation="com.jetbrains.aspire.rider.run.AspireConfigurationType"/>
         <runConfigurationProducer
                 implementation="com.jetbrains.aspire.rider.run.host.AspireHostRunConfigurationProducer"/>
-
-        <programRunner implementation="com.jetbrains.aspire.rider.run.runners.AspireHostProgramRunner"/>
-
         <rd.solutionExtListener endpoint="IDE Frontend"
                                 listener="com.jetbrains.aspire.rider.unitTests.AspireUnitTestProtocolListener"/>
         <rd.solutionExtListener endpoint="IDE Frontend"

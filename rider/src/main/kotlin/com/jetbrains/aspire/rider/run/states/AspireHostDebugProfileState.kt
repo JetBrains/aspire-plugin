@@ -6,9 +6,9 @@ import com.intellij.execution.ExecutionResult
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
 import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.rider.run.runners.checkAndNotifyDevCertificate
-import com.jetbrains.aspire.rider.run.runners.connectExecutionHandlerAndLifetime
-import com.jetbrains.aspire.rider.run.runners.setUpAspireHostModelAndSaveRunConfig
+import com.jetbrains.aspire.rider.run.checkAndNotifyDevCertificate
+import com.jetbrains.aspire.rider.run.connectExecutionHandlerAndLifetime
+import com.jetbrains.aspire.rider.run.setUpAspireHostModelAndSaveRunConfig
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
