@@ -17,22 +17,26 @@ import com.jetbrains.aspire.worker.ResourceHealthStatus
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceStateStyle
 import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.rider.projectView.hasSolution
 import com.jetbrains.rider.projectView.solution
 
 internal class RiderResourceListener(private val project: Project) : ResourceListener {
     override fun resourceCreated(resource: AspireResource) {
+        if (!project.hasSolution) return
         val state = resource.resourceState.value
         val rdResource = mapResource(state)
         project.solution.aspirePluginModel.resources[resource.resourceName] = rdResource
     }
 
     override fun resourceUpdated(resource: AspireResource) {
+        if (!project.hasSolution) return
         val state = resource.resourceState.value
         val rdResource = mapResource(state)
         project.solution.aspirePluginModel.resources[resource.resourceName] = rdResource
     }
 
     override fun resourceDeleted(resource: AspireResource) {
+        if (!project.hasSolution) return
         project.solution.aspirePluginModel.resources.remove(resource.resourceName)
     }
 

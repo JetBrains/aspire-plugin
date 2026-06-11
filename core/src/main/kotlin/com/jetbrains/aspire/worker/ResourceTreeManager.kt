@@ -20,6 +20,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
@@ -40,7 +41,8 @@ import kotlin.time.Duration.Companion.milliseconds
  * in [startDashboardClient], so they are inherently single-threaded and do not require
  * additional synchronization. Plain [HashMap] is used instead of [java.util.concurrent.ConcurrentHashMap].
  */
-internal class ResourceTreeManager(
+@ApiStatus.Internal
+class ResourceTreeManager(
     private val mainFilePath: Path,
     private val project: Project,
     private val parentCs: CoroutineScope,

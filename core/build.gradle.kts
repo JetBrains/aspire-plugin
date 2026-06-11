@@ -24,15 +24,6 @@ dependencies {
     implementation(libs.protobuf.kotlin)
     compileOnly(libs.javaxAnnotationApi)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.testng)
-    testImplementation(libs.kotlin.test)
-    testImplementation(libs.kotlinx.coroutines.test) {
-        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
-        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core-jvm")
-        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-bom")
-    }
-
     intellijPlatform {
         rider(providers.gradleProperty("riderVersion")) {
             useInstaller = false

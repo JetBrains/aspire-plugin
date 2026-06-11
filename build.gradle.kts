@@ -60,6 +60,11 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.testng)
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test) {
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core-jvm")
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-bom")
+    }
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html

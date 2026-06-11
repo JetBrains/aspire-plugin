@@ -1,9 +1,10 @@
 package com.jetbrains.aspire.worker
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.ProjectManager
-import com.intellij.testFramework.ApplicationRule
-import com.intellij.testFramework.DisposableRule
+import com.intellij.openapi.util.Disposer
+import com.intellij.testFramework.TestApplicationManager
 import com.intellij.testFramework.replaceService
 import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.dashboard.*
@@ -13,41 +14,39 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.ClassRule
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.testng.annotations.AfterMethod
+import org.testng.annotations.BeforeClass
+import org.testng.annotations.BeforeMethod
+import org.testng.annotations.Test
 import java.nio.file.Path
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-@RunWith(JUnit4::class)
 class ResourceTreeManagerTest {
-    companion object {
-        @ClassRule
-        @JvmField
-        val appRule = ApplicationRule()
-    }
-
-    @Rule
-    @JvmField
-    val disposableRule = DisposableRule()
-
-    private val project get() = ProjectManager.getInstance().defaultProject
-    private val testRootDisposable get() = disposableRule.disposable
-
+    private lateinit var testRootDisposable: Disposable
     private lateinit var mockFactory: MockAspireDashboardClientFactory
 
-    @Before
+    private val project get() = ProjectManager.getInstance().defaultProject
+
+    @BeforeClass
+    fun setUpApplication() {
+        TestApplicationManager.getInstance()
+    }
+
+    @BeforeMethod
     fun setUpService() {
+        testRootDisposable = Disposer.newDisposable("ResourceTreeManagerTest")
         mockFactory = MockAspireDashboardClientFactory()
         ApplicationManager.getApplication().replaceService(
             AspireDashboardClientFactory::class.java,
             mockFactory,
             testRootDisposable
         )
+    }
+
+    @AfterMethod
+    fun tearDown() {
+        Disposer.dispose(testRootDisposable)
     }
 
     // region Resource CRUD
