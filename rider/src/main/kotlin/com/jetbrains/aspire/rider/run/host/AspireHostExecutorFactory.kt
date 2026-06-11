@@ -17,7 +17,7 @@ import com.jetbrains.aspire.rider.run.AspireExecutorFactory
 import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
 import com.jetbrains.aspire.rider.run.states.AspireHostDebugProfileState
 import com.jetbrains.aspire.rider.run.states.AspireHostRunProfileState
-import com.jetbrains.aspire.util.getStartBrowserAction
+import com.jetbrains.aspire.rider.util.getStartBrowserAction
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject

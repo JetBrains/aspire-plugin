@@ -9,7 +9,6 @@ import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.ResourceType
-import icons.ReSharperIcons
 import org.jetbrains.annotations.ApiStatus
 import javax.swing.Icon
 
@@ -39,7 +38,7 @@ internal class BaseAspireResourceIconProvider : AspireResourceIconProvider {
 
     override fun getIcon(type: ResourceType, containerImage: String?) = when (type) {
         ResourceType.Executable -> AllIcons.Nodes.Console
-        ResourceType.Parameter -> ReSharperIcons.PsiSymbols.Parameter
+        ResourceType.Parameter -> AllIcons.Nodes.Parameter
         ResourceType.ExternalService -> AllIcons.General.Web
         ResourceType.Container -> AllIcons.FileTypes.Docker
         ResourceType.Unknown -> AllIcons.FileTypes.Unknown

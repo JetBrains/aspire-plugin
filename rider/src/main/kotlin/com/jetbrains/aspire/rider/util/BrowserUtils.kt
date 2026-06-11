@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.util
+package com.jetbrains.aspire.rider.util
 
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.configurations.RunProfile

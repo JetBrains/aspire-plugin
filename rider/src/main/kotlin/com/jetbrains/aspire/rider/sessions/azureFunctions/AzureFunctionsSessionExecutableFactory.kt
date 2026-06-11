@@ -20,7 +20,7 @@ import com.jetbrains.aspire.rider.sessions.mergeEnvironmentVariables
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.rider.util.MSBuildPropertyService
-import com.jetbrains.aspire.util.getStartBrowserAction
+import com.jetbrains.aspire.rider.util.getStartBrowserAction
 import com.jetbrains.rider.azureFunctions.coreTools.AzureFunctionsCoreToolsExecutableService
 import com.jetbrains.rider.azureFunctions.localSettings.AzureFunctionsLocalSettings
 import com.jetbrains.rider.azureFunctions.utils.getApplicationUrl

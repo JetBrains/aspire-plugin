@@ -12,7 +12,7 @@ import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.rider.util.MSBuildPropertyService
-import com.jetbrains.aspire.util.getStartBrowserAction
+import com.jetbrains.aspire.rider.util.getStartBrowserAction
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.runnableProjectsModel
