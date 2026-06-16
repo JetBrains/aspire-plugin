@@ -30,6 +30,7 @@
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="com.jetbrains.aspire.rider.run.AspireHostDetectionStartupActivity"/>
         <configurationType implementation="com.jetbrains.aspire.rider.run.AspireConfigurationType"/>
         <runConfigurationProducer
                 implementation="com.jetbrains.aspire.rider.run.host.AspireHostRunConfigurationProducer"/>
