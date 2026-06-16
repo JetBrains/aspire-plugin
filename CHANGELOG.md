@@ -6,6 +6,12 @@
 
 ### Fixed
 
+- [RIDER-138483](https://youtrack.jetbrains.com/issue/RIDER-138483) Running Aspire integration tests stuck in `pending` state
+
+## [2.7.3] - 2026-05-29
+
+### Fixed
+
 - [RIDER-138670](https://youtrack.jetbrains.com/issue/RIDER-138670) Show `restartWithDebugger` and `restartWithoutDebugger` actions in the gutter
 
 ## [2.7.2] - 2026-05-22
@@ -698,7 +704,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.2...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.3...HEAD
+[2.7.3]: https://github.com/JetBrains/aspire-plugin/compare/2.7.2...2.7.3
 [2.7.2]: https://github.com/JetBrains/aspire-plugin/compare/2.7.1...2.7.2
 [2.7.1]: https://github.com/JetBrains/aspire-plugin/compare/2.7.0...2.7.1
 [2.7.0]: https://github.com/JetBrains/aspire-plugin/compare/2.6.0...2.7.0

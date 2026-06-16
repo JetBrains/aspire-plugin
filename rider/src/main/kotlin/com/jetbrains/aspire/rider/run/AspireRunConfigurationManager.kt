@@ -4,11 +4,14 @@ import com.intellij.execution.ProgramRunnerUtil
 import com.intellij.execution.RunManager
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isNotAlive
@@ -63,6 +66,13 @@ class AspireRunConfigurationManager(private val project: Project) {
 
         if (configurations.isEmpty()) {
             LOG.warn("Unable to find any Aspire run configurations with the given host path")
+            Notification(
+                "Aspire",
+                AspireRiderBundle.message("notification.unable.to.find.app.host.run.config.title"),
+                AspireRiderBundle.message("notification.unable.to.find.app.host.run.config.description"),
+                NotificationType.WARNING
+            )
+                .notify(project)
             return
         }
 

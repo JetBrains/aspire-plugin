@@ -5,6 +5,7 @@ import com.intellij.execution.RunManagerListener
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.rider.run.file.AspireFileConfiguration
 import com.jetbrains.aspire.worker.AppHostDetectionListener
 import java.nio.file.Path
 import kotlin.io.path.nameWithoutExtension
@@ -12,7 +13,7 @@ import kotlin.io.path.nameWithoutExtension
 internal class AspireRunConfigurationListener(private val project: Project) : RunManagerListener {
     override fun runConfigurationAdded(settings: RunnerAndConfigurationSettings) {
         val configuration = settings.configuration
-        if (configuration !is AspireRunConfiguration) return
+        if (configuration !is AspireFileConfiguration) return
 
         val appHostFilePath = Path.of(configuration.parameters.appHostFilePath)
 
@@ -23,7 +24,7 @@ internal class AspireRunConfigurationListener(private val project: Project) : Ru
 
     override fun runConfigurationRemoved(settings: RunnerAndConfigurationSettings) {
         val configuration = settings.configuration
-        if (configuration !is AspireRunConfiguration) return
+        if (configuration !is AspireFileConfiguration) return
 
         val appHostFilePath = configuration.parameters.appHostFilePath
 
@@ -36,11 +37,11 @@ internal class AspireRunConfigurationListener(private val project: Project) : Ru
             .appHostRemoved(path)
     }
 
-    private fun getAspireRunConfigurationsByMainFilePath(appHostFilePath: String): List<AspireRunConfiguration> {
+    private fun getAspireRunConfigurationsByMainFilePath(appHostFilePath: String): List<AspireFileConfiguration> {
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireConfigurationType::class.java)
         return RunManager.getInstance(project)
             .getConfigurationsList(configurationType)
-            .filterIsInstance<AspireRunConfiguration>()
+            .filterIsInstance<AspireFileConfiguration>()
             .filter { it.parameters.appHostFilePath == appHostFilePath }
     }
 }
