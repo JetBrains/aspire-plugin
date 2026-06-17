@@ -39,6 +39,7 @@
         <rd.solutionExtListener endpoint="IDE Frontend"
                                 listener="com.jetbrains.aspire.rider.resources.RiderResourceProtocolListener"/>
         <stepsBeforeRunProvider implementation="com.jetbrains.aspire.rider.run.file.BuildAspireFileBeforeRunTaskProvider"/>
+        <uiDataRule implementation="com.jetbrains.aspire.rider.actions.dashboard.resource.AspireProjectResourceUiDataRule"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">

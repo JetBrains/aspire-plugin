@@ -8,8 +8,10 @@ import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
+import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.aspire.worker.ResourceType
 import org.jetbrains.annotations.ApiStatus
+import java.nio.file.Path
 import javax.swing.Icon
 
 internal fun getIcon(resourceData: AspireResourceData): Icon {
@@ -56,6 +58,15 @@ private fun AspireResource.withDescendants(): List<AspireResource> =
 @ApiStatus.Internal
 fun AspireAppHost.findResource(predicate: (AspireResource) -> Boolean): AspireResource? =
     rootResources.value.findInTree(predicate)
+
+@ApiStatus.Internal
+fun AspireWorker.findProjectResource(projectPath: Path): AspireResource? =
+    appHosts.value.firstNotNullOfOrNull { host ->
+        host.findResource {
+            val data = it.resourceState.value
+            data.type == ResourceType.Project && data.projectPath?.value == projectPath
+        }
+    }
 
 private fun List<AspireResource>.findInTree(predicate: (AspireResource) -> Boolean): AspireResource? {
     for (resource in this) {
