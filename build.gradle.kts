@@ -53,6 +53,9 @@ dependencies {
         testBundledPlugins("tanvd.grazi")
         testBundledModule("intellij.rider.rdclient.dotnet")
         testBundledModule("intellij.rd.client")
+        testBundledPlugin("intellij.structureView.plugin")
+        testBundledPlugin("intellij.libraries.misc.plugin")
+        testBundledPlugin("intellij.bookmarks.plugin")
     }
 
     compileOnly(libs.serializationJson)

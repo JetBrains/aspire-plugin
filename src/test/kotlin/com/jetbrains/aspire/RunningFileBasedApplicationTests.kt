@@ -45,7 +45,7 @@ class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
 
     @Test
     @Solution("AspireFileBasedDefaultAspireSolution")
-    fun `Running aspire file based default solution launches dashboard`() {
+    fun runningAspireFileBasedSolutionLaunchesDashboard() {
         buildSolutionWithReSharperBuild()
         createAndSelectAspireFileConfiguration()
         runTestForSelectedConfiguration(URI("http://localhost:15273").toURL())
@@ -53,7 +53,7 @@ class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
 
     @Test
     @Solution("AspireFileBasedDefaultAspireSolution")
-    fun `Running aspire file based default solution launches web application`() {
+    fun runningAspireFileBasedSolutionLaunchesWebApp() {
         buildSolutionWithReSharperBuild()
         createAndSelectAspireFileConfiguration()
         runTestForSelectedConfiguration(URI("http://localhost:5183").toURL())
@@ -61,7 +61,7 @@ class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
 
     @Test
     @Solution("AspireFileBasedDefaultAspireSolution")
-    fun `Running aspire file based default solution launches api application`() {
+    fun runningAspireFileBasedSolutionLaunchesApiApplication() {
         buildSolutionWithReSharperBuild()
         createAndSelectAspireFileConfiguration()
         runTestForSelectedConfiguration(URI("http://localhost:5592/weatherforecast").toURL())

@@ -1,5 +1,5 @@
 --> Program.cs:44(1145,1155) // app.Run();
-Program.<Main>$() in DefaultAspireSolution.Web.dll
+Program.Main() in DefaultAspireSolution.Web.dll
     +app = {WebApplication} ApplicationName = "DefaultAspireSolution.Web", IsRunning = false
     args = {string[]} string[0]
     +builder = WebApplicationBuilder
