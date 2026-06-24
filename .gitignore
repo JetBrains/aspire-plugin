@@ -13,3 +13,4 @@ nuget.config
 *.private.env.json
 .air
 .junie
+.mcp.json
