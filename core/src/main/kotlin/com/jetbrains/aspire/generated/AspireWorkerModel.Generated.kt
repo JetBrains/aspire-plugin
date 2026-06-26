@@ -64,7 +64,7 @@ class AspireWorkerModel private constructor(
         }
         
         
-        const val serializationHash = -5723524623006190095L
+        const val serializationHash = 358566405792734029L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspireWorkerModel
@@ -887,6 +887,7 @@ enum class ErrorCode {
     UnsupportedLaunchConfigurationType, 
     AspireSessionNotFound, 
     DotNetProjectNotFound, 
+    UnableToFindSupportedLaunchConfiguration, 
     Unexpected;
     
     companion object : IMarshaller<ErrorCode> {
