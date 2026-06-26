@@ -89,7 +89,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     
     
     
-    protected override long SerializationHash => -5723524623006190095L;
+    protected override long SerializationHash => 358566405792734029L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -1102,6 +1102,7 @@ namespace JetBrains.Rider.Aspire.Worker.Generated
     UnsupportedLaunchConfigurationType,
     AspireSessionNotFound,
     DotNetProjectNotFound,
+    UnableToFindSupportedLaunchConfiguration,
     Unexpected
   }
   
