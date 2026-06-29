@@ -126,6 +126,7 @@ object AspireWorkerModel : Ext(AspireWorkerRoot) {
         +"UnsupportedLaunchConfigurationType"
         +"AspireSessionNotFound"
         +"DotNetProjectNotFound"
+        +"UnableToFindSupportedLaunchConfiguration"
         +"Unexpected"
     }
 

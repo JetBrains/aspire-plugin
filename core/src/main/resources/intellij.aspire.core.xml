@@ -5,6 +5,12 @@
         <module name="intellij.rider.rdclient.dotnet"/>
         <module name="intellij.libraries.grpc"/>
         <module name="intellij.libraries.grpc.netty.shaded"/>
+        <module name="intellij.libraries.ktor.server.cio"/>
+        <module name="intellij.libraries.ktor.client"/>
+        <module name="intellij.libraries.ktor.io"/>
+        <module name="intellij.libraries.ktor.utils"/>
+        <module name="intellij.libraries.ktor.network.tls"/>
+        <module name="intellij.libraries.kotlinx.serialization.json"/>
     </dependencies>
 
     <resource-bundle>messages.AspireCoreBundle</resource-bundle>
@@ -46,6 +52,10 @@
                 bundle="messages.AspireCoreBundle"/>
 
         <webHelpProvider implementation="com.jetbrains.aspire.AspireHelpProvider"/>
+
+        <registryKey key="aspire.embedded.session.host"
+                     description="Use embedded server to communicate with DCP"
+                     defaultValue="false"/>
 
         <iconMapper mappingFile="AspireCoreIconMappings.json"/>
     </extensions>
