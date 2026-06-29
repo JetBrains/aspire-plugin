@@ -53,6 +53,10 @@
 
         <webHelpProvider implementation="com.jetbrains.aspire.AspireHelpProvider"/>
 
+        <registryKey key="aspire.embedded.session.host"
+                     description="Use embedded server to communicate with DCP"
+                     defaultValue="false"/>
+
         <iconMapper mappingFile="AspireCoreIconMappings.json"/>
     </extensions>
 
