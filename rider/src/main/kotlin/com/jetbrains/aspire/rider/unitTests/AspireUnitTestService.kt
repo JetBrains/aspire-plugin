@@ -67,7 +67,7 @@ internal class AspireUnitTestService(private val project: Project, private val s
                 val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
 
                 val appHostMainFilePath = request.aspireHostProjectPath.toNioPath()
-                val appHost = requireNotNull(aspireWorker.getAppHostByPath(appHostMainFilePath))
+                val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
 
                 val aspireHostConfig = AspireHostModelConfig(
                     appHost.dcpInstancePrefix,

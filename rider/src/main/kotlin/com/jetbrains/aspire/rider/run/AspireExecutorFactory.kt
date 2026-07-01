@@ -37,7 +37,7 @@ internal abstract class AspireExecutorFactory(
         val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
         envs.putAll(dcpEnvironmentVariables)
 
-        val appHost = requireNotNull(aspireWorker.getAppHostByPath(appHostMainFilePath))
+        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
 
         envs[DCP_INSTANCE_ID_PREFIX] = appHost.dcpInstancePrefix
 

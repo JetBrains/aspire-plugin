@@ -35,6 +35,7 @@ import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.nameWithoutExtension
 
 /**
  * Domain service responsible for interaction with the AspireWorker.exe process.
@@ -67,7 +68,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     }
     private val mutex = Mutex()
 
-    private fun addAspireAppHost(name: String, appHostFilePath: Path) {
+    private fun addAppHost(name: String, appHostFilePath: Path) {
         LOG.trace { "Adding a new Aspire AppHost ${appHostFilePath.absolutePathString()}" }
 
         _appHosts.update { currentList ->
@@ -79,7 +80,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         }
     }
 
-    private fun removeAspireAppHost(appHostFilePath: Path) {
+    private fun removeAppHost(appHostFilePath: Path) {
         LOG.trace { "Removing the Aspire AppHost ${appHostFilePath.absolutePathString()}" }
 
         _appHosts.update { currentList ->
@@ -88,6 +89,14 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     }
 
     fun getAppHostByPath(appHostFilePath: Path): AspireAppHost? {
+        return _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }
+    }
+
+    fun getOrCreateAppHostByPath(appHostFilePath: Path): AspireAppHost? {
+        _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }?.let { return it }
+
+        addAppHost(appHostFilePath.nameWithoutExtension, appHostFilePath)
+
         return _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }
     }
 
@@ -281,11 +290,11 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
 
     private class DetectionListener(private val project: Project) : AppHostDetectionListener {
         override fun appHostDetected(appHostName: String, appHostFilePath: Path) {
-            getInstance(project).addAspireAppHost(appHostName, appHostFilePath)
+            getInstance(project).addAppHost(appHostName, appHostFilePath)
         }
 
         override fun appHostRemoved(appHostFilePath: Path) {
-            getInstance(project).removeAspireAppHost(appHostFilePath)
+            getInstance(project).removeAppHost(appHostFilePath)
         }
     }
 }
