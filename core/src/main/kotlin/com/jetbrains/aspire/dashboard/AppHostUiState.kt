@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.dashboard
 
-import com.intellij.execution.ui.ConsoleView
 import org.jetbrains.annotations.ApiStatus
+import javax.swing.JComponent
 
 @ApiStatus.Internal
 sealed interface AppHostUiState {
@@ -9,7 +9,7 @@ sealed interface AppHostUiState {
 
     data class Active(
         override val dashboardUrl: String?,
-        val consoleView: ConsoleView
+        val consoleComponent: JComponent
     ) : AppHostUiState
 
     data class Inactive(

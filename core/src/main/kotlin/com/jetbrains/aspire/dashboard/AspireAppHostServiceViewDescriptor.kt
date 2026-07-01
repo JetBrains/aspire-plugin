@@ -32,7 +32,7 @@ class AspireAppHostServiceViewDescriptor(
         return if (state is AppHostUiState.Active) {
             JPanel(BorderLayout()).apply {
                 border = JBUI.Borders.empty()
-                add(state.consoleView.component)
+                add(state.consoleComponent)
             }
         } else {
             JBPanelWithEmptyText()
