@@ -7,15 +7,12 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.util.coroutines.childScope
-import com.intellij.platform.util.coroutines.flow.zipWithNext
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.generated.*
-import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -32,19 +29,7 @@ import kotlin.io.path.Path
  * separately through run configurations. Instead, it subscribes to [AppHostListener] events
  * to track the AppHost lifecycle state ([appHostState]).
  *
- * Key responsibilities:
- * - Handling session create/delete requests from Aspire DCP ([createSession], [deleteSession])
- * - Tracking resources running within this AppHost (delegated to [ResourceTreeManager])
- * - Managing the dashboard URL and OTLP endpoint configuration
- * - Forwarding session events (started, terminated, log received) back to the AppHost model
- *   (delegated to [SessionEventHandler])
- *
  * @param mainFilePath path to the main project file (.csproj or .cs) of the AppHost
- *
- * @see AspireWorker for the service that manages this object
- * @see SessionManager for session request processing
- * @see ResourceTreeManager for resource tree management and dashboard client lifecycle
- * @see SessionEventHandler for session event dispatching
  */
 @ApiStatus.Internal
 class AspireAppHost(
@@ -66,6 +51,7 @@ class AspireAppHost(
     val browserToken = generateBrowserToken()
 
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this)
+    private val otlpProxyManager = AppHostOtlpProxyManager(cs)
 
     val rootResources: StateFlow<List<AspireResource>>
         get() = resourceTreeManager.rootResources
@@ -118,7 +104,7 @@ class AspireAppHost(
 
                     AspireAppHostState.Started(
                         event.runConfigName,
-                        environment ?: AppHostEnvironment(null, null, null, null)
+                        environment ?: AppHostEnvironment.EMPTY
                     )
                 }
 
@@ -126,47 +112,9 @@ class AspireAppHost(
             }
         }.stateIn(cs, SharingStarted.Eagerly, AspireAppHostState.Inactive)
 
-    val dashboardUrl: StateFlow<String?> = appHostState.map {
-        when (it) {
-            AspireAppHostState.Inactive -> null
-            is AspireAppHostState.Started -> it.environment.aspireHostProjectUrl
-            is AspireAppHostState.Starting -> it.environment.aspireHostProjectUrl
-            AspireAppHostState.Stopped -> name
-        }
-    }.stateIn(cs, SharingStarted.Eagerly, null)
-
     init {
-        cs.launch {
-            appHostState
-                .zipWithNext()
-                .collect { (previousState, currentState) ->
-                    if (currentState is AspireAppHostState.Starting) {
-                        val otlpEndpoint = currentState.environment.otlpEndpointUrl ?: return@collect
-                        val extension = OpenTelemetryProtocolServerExtension.getEnabledExtension() ?: return@collect
-                        extension.setOTLPServerEndpointForProxying(otlpEndpoint)
-                    } else if (previousState is AspireAppHostState.Started && currentState is AspireAppHostState.Stopped) {
-                        val otlpEndpoint = previousState.environment.otlpEndpointUrl ?: return@collect
-                        val extension = OpenTelemetryProtocolServerExtension.getEnabledExtension() ?: return@collect
-                        extension.removeOTLPServerEndpointForProxying(otlpEndpoint)
-                    }
-                }
-        }
-
-        cs.launch {
-            var dashboardJob: Job? = null
-            appHostState
-                .zipWithNext()
-                .collect { (previousState, currentState) ->
-                    if (currentState is AspireAppHostState.Started) {
-                        dashboardJob = with(resourceTreeManager) {
-                            this@launch.startDashboardClient(currentState.environment)
-                        }
-                    } else if (previousState is AspireAppHostState.Started && currentState is AspireAppHostState.Stopped) {
-                        dashboardJob?.cancel()
-                        dashboardJob = null
-                    }
-                }
-        }
+        otlpProxyManager.observeAppHostState(appHostState)
+        resourceTreeManager.observeAppHostState(appHostState)
     }
 
     fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, dispatcher: RdDispatcher, appHostLifetime: Lifetime) {
@@ -260,7 +208,11 @@ class AspireAppHost(
         val resourceServiceApiKey: String?,
         val otlpEndpointUrl: String?,
         val aspireHostProjectUrl: String?
-    )
+    ) {
+        companion object {
+            val EMPTY = AppHostEnvironment(null, null, null, null)
+        }
+    }
 
     private sealed interface AppHostLifecycleEvent {
         data class Starting(
