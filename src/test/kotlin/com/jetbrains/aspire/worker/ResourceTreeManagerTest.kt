@@ -10,6 +10,7 @@ import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate.newBuilder
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
+import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope

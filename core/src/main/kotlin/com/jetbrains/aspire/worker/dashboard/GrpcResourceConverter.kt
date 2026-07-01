@@ -1,15 +1,26 @@
-package com.jetbrains.aspire.worker
+package com.jetbrains.aspire.worker.dashboard
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.Value
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.util.calculateHealthStatus
-import kotlinx.datetime.Instant
+import com.jetbrains.aspire.worker.AspireResourceData
+import com.jetbrains.aspire.worker.AspireResourceProperty
+import com.jetbrains.aspire.worker.ResourceCommand
+import com.jetbrains.aspire.worker.ResourceCommandState
+import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
+import com.jetbrains.aspire.worker.ResourceRelationship
+import com.jetbrains.aspire.worker.ResourceState
+import com.jetbrains.aspire.worker.ResourceStateStyle
+import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceUrl
+import com.jetbrains.aspire.worker.ResourceVolume
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.math.roundToInt
+import kotlin.time.Instant
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandState as GrpcCommandState
 
 internal fun Resource.toAspireResourceData(): AspireResourceData {

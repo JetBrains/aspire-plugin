@@ -12,6 +12,9 @@ import com.intellij.openapi.util.Disposer
 import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
+import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientApi
+import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory
+import com.jetbrains.aspire.worker.dashboard.toAspireResourceData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -1,6 +1,7 @@
 package com.jetbrains.aspire.worker
 
 import com.jetbrains.aspire.generated.dashboard.*
+import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
