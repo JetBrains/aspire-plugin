@@ -45,18 +45,21 @@ class AspireAppHostViewModel(
         .apply { attachToProcess(logProcessHandler) }
         .also { Disposer.register(this, it) }
 
-    val uiState: StateFlow<AppHostUiState> = combine(
-        appHost.appHostState,
-        appHost.dashboardUrl
-    ) { state, url ->
+    val uiState: StateFlow<AppHostUiState> = appHost.appHostState.map { state ->
         when (state) {
-            is AspireAppHost.AspireAppHostState.Started ->
+            is AspireAppHost.AspireAppHostState.Starting -> {
+                val url = state.environment.aspireHostProjectUrl
                 AppHostUiState.Active(url, logConsole.component)
+            }
 
-            else ->
-                AppHostUiState.Inactive(url)
+            is AspireAppHost.AspireAppHostState.Started -> {
+                val url = state.environment.aspireHostProjectUrl
+                AppHostUiState.Active(url, logConsole.component)
+            }
+
+            else -> AppHostUiState.Inactive
         }
-    }.stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Inactive(null))
+    }.stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Inactive)
 
     private val resourceViewModels: StateFlow<List<AspireResourceViewModel>> =
         appHost.rootResources

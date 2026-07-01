@@ -9,7 +9,12 @@ import com.jetbrains.aspire.worker.AspireAppHost
 
 class AspireOpenDashboardAction : AspireHostBaseAction() {
     override fun performAction(appHost: AspireAppHost, project: Project) {
-        val dashboardUrl = appHost.dashboardUrl.value
+        val dashboardUrl = when (val appHostState = appHost.appHostState.value) {
+            AspireAppHost.AspireAppHostState.Inactive -> null
+            is AspireAppHost.AspireAppHostState.Starting -> appHostState.environment.aspireHostProjectUrl
+            is AspireAppHost.AspireAppHostState.Started -> appHostState.environment.aspireHostProjectUrl
+            AspireAppHost.AspireAppHostState.Stopped -> null
+        }
         if (dashboardUrl.isNullOrEmpty()) return
 
         BrowserUtil.browse(dashboardUrl)
@@ -17,7 +22,6 @@ class AspireOpenDashboardAction : AspireHostBaseAction() {
 
     override fun updateAction(event: AnActionEvent, appHostVm: AspireAppHostViewModel) {
         val state = appHostVm.uiState.value
-        event.presentation.isEnabledAndVisible =
-            state is AppHostUiState.Active && !state.dashboardUrl.isNullOrEmpty()
+        event.presentation.isEnabledAndVisible = state is AppHostUiState.Active && !state.dashboardUrl.isNullOrEmpty()
     }
 }
