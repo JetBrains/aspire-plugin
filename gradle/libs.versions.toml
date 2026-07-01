@@ -16,7 +16,7 @@ ktor = "3.4.1"
 # plugins
 kotlin = "2.3.21"
 changelog = "2.5.0"
-protobufPlugin = "0.9.6"
+protobufPlugin = "0.10.0"
 
 [libraries]
 rdGen = { group = "com.jetbrains.rd", name = "rd-gen", version.ref = "rdGen" }
