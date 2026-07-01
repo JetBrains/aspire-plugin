@@ -2,16 +2,17 @@
 
 package com.jetbrains.aspire.dashboard
 
+import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewManager
 import com.intellij.execution.services.ServiceViewProvidingContributor
-import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
+import com.intellij.terminal.TerminalExecutionConsoleBuilder
 import com.intellij.util.application
 import com.jetbrains.aspire.worker.AspireAppHost
 import kotlinx.coroutines.CoroutineScope
@@ -37,13 +38,20 @@ class AspireAppHostViewModel(
     val appHostMainFilePath = appHost.mainFilePath
     val displayName: String = appHost.name
 
+    private val logProcessHandler = LogProcessHandler()
+    private val logConsole = TerminalExecutionConsoleBuilder(project)
+        .convertLfToCrlfForProcessWithoutPty(true)
+        .build()
+        .apply { attachToProcess(logProcessHandler) }
+        .also { Disposer.register(this, it) }
+
     val uiState: StateFlow<AppHostUiState> = combine(
         appHost.appHostState,
         appHost.dashboardUrl
     ) { state, url ->
         when (state) {
             is AspireAppHost.AspireAppHostState.Started ->
-                AppHostUiState.Active(url, state.console)
+                AppHostUiState.Active(url, logConsole.component)
 
             else ->
                 AppHostUiState.Inactive(url)
@@ -84,20 +92,26 @@ class AspireAppHostViewModel(
             .stateIn(cs, SharingStarted.Eagerly, emptyList())
 
     init {
+        logProcessHandler.startNotify()
+
         cs.launch {
-            var previousConsole: ConsoleView? = null
+            appHost.currentLogFlow.collectLatest { logFlow ->
+                if (logFlow == null) return@collectLatest
 
+                logConsole.clear()
+                logFlow.collect { entry ->
+                    val outputType = if (entry.isStdErr) ProcessOutputTypes.STDERR else ProcessOutputTypes.STDOUT
+                    logProcessHandler.notifyTextAvailable(entry.text, outputType)
+                }
+            }
+        }
+
+        cs.launch {
+            var wasActive = false
             uiState.collect { state ->
-                val newConsole = (state as? AppHostUiState.Active)?.consoleView
-                if (previousConsole != null && previousConsole != newConsole) {
-                    Disposer.dispose(requireNotNull(previousConsole))
-                }
-
-                if (state is AppHostUiState.Active && previousConsole == null) {
-                    selectAppHost()
-                }
-                previousConsole = newConsole
-
+                val isActive = state is AppHostUiState.Active
+                if (isActive && !wasActive) selectAppHost()
+                wasActive = isActive
                 sendServiceChangedEvent()
             }
         }
