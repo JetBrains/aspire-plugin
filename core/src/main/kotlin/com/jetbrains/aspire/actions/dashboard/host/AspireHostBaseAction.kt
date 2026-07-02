@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.dashboard.AspireAppHostViewModel
-import com.jetbrains.aspire.util.ASPIRE_APP_HOST
+import com.jetbrains.aspire.util.ASPIRE_APP_HOST_VIEW_MODEL
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireWorker
 import java.nio.file.Path
@@ -13,7 +13,7 @@ import java.nio.file.Path
 abstract class AspireHostBaseAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        val appHostMainFilePath = event.getData(ASPIRE_APP_HOST)?.appHostMainFilePath ?: return
+        val appHostMainFilePath = event.getData(ASPIRE_APP_HOST_VIEW_MODEL)?.appHostMainFilePath ?: return
         val appHost = getAppHost(appHostMainFilePath, project) ?: return
 
         performAction(appHost, project)
@@ -23,7 +23,7 @@ abstract class AspireHostBaseAction : AnAction() {
 
     override fun update(event: AnActionEvent) {
         val project = event.project
-        val appHostVm = event.getData(ASPIRE_APP_HOST)
+        val appHostVm = event.getData(ASPIRE_APP_HOST_VIEW_MODEL)
         if (project == null || appHostVm == null) {
             event.presentation.isEnabledAndVisible = false
             return
