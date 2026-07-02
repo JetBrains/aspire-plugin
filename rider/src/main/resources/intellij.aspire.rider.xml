@@ -1,9 +1,9 @@
 <idea-plugin>
     <dependencies>
         <module name="intellij.aspire.core"/>
+        <module name="intellij.rd.client"/>
         <module name="intellij.rider.rdclient.dotnet"/>
         <module name="intellij.rider.languages"/>
-        <module name="intellij.rd.client"/>
         <plugin id="com.intellij.modules.rider"/>
     </dependencies>
 
@@ -62,6 +62,8 @@
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.AzureFunctionOrchestrationHandler"/>
 
         <resourceIconProvider implementation="com.jetbrains.aspire.rider.resources.DotNetAspireResourceIconProvider"/>
+
+        <devCertificateProvider implementation="com.jetbrains.aspire.rider.run.DotNetDevCertificateProvider"/>
     </extensions>
 
     <actions>

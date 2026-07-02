@@ -30,6 +30,9 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.connectionStringModifier"
                         interface="com.jetbrains.aspire.util.ConnectionStringModifier"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.devCertificateProvider"
+                        interface="com.jetbrains.aspire.worker.DevCertificateProvider"
+                        dynamic="true"/>
     </extensionPoints>
 
     <projectListeners>

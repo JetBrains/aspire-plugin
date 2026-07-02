@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.util
+package com.jetbrains.aspire.rider.run
 
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.ide.BrowserUtil
@@ -10,7 +10,6 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.AspireService
 import com.intellij.platform.eel.EelApi
 import com.intellij.platform.eel.isMac
 import com.intellij.platform.eel.provider.getEelDescriptor
@@ -22,6 +21,8 @@ import com.intellij.platform.eel.spawnProcess
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.io.createDirectories
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.worker.DevCertificateProvider.DevCertificateCheckResult
 import com.jetbrains.rider.run.configurations.runInRunToolWindow
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.web.DotNetSslCerts
@@ -65,38 +66,6 @@ private data class DevCertificate(
     @SerialName("TrustLevel") val trustLevel: DevCertificateTrustLevel = DevCertificateTrustLevel.Unknown
 )
 
-@ApiStatus.Internal
-sealed interface DevCertificateCheckResult {
-    val isTrusted: Boolean
-
-    data object Trusted : DevCertificateCheckResult {
-        override val isTrusted = true
-    }
-
-    data object NoCertificate : DevCertificateCheckResult {
-        override val isTrusted = false
-    }
-
-    data object NotTrusted : DevCertificateCheckResult {
-        override val isTrusted = false
-    }
-
-    data object PartiallyTrusted : DevCertificateCheckResult {
-        override val isTrusted = false
-    }
-
-    data class MultipleCertificatesIssue(
-        val count: Int,
-        val trustedCount: Int
-    ) : DevCertificateCheckResult {
-        override val isTrusted = trustedCount > 0 && trustedCount == count
-    }
-
-    data object CheckFailed : DevCertificateCheckResult {
-        override val isTrusted = false
-    }
-}
-
 private data class DevCertificateDiagnostics(
     val certificates: List<DevCertificate>,
     val result: DevCertificateCheckResult,
@@ -106,9 +75,8 @@ private data class DevCertificateDiagnostics(
         get() = !result.isTrusted || oldTrustedVersions.isNotEmpty()
 }
 
-@ApiStatus.Internal
 @Suppress("UnstableApiUsage")
-suspend fun checkDevCertificate(project: Project, showNotification: Boolean = false): DevCertificateCheckResult {
+internal suspend fun checkDevCertificate(project: Project, showNotification: Boolean = false): DevCertificateCheckResult {
     val eelApi = project.getEelDescriptor().toEelApi()
 
     val diagnostics = collectDevCertificateDiagnostics(eelApi, project)
@@ -275,7 +243,6 @@ private fun Notification.addDevCertificateActions(
     return this
 }
 
-@Suppress("UnstableApiUsage")
 private fun trustDevCertificateAction(project: Project): NotificationAction {
     return object : NotificationAction(AspireCoreBundle.message("notification.dev.certificate.action.trust")) {
         override fun actionPerformed(e: AnActionEvent, notification: Notification) {
@@ -291,7 +258,6 @@ private fun trustDevCertificateAction(project: Project): NotificationAction {
     }
 }
 
-@Suppress("UnstableApiUsage")
 private fun cleanAndTrustDevCertificateAction(project: Project): NotificationAction {
     return object :
         NotificationAction(AspireCoreBundle.message("notification.dev.certificate.action.clean.and.trust")) {
@@ -451,7 +417,7 @@ private suspend fun notifyDevCertificateCommandSuccess(project: Project) =
 
 
 @Suppress("UnstableApiUsage")
-internal suspend fun exportCertificate(project: Project): String? {
+internal suspend fun exportDevCertificate(project: Project): String? {
     val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value ?: return null
 
     val certificateFolder = DotNetSslCerts.getAspNetCoreCertificateFolder()
