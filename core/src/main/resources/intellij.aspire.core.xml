@@ -16,22 +16,22 @@
 
     <extensionPoints>
         <extensionPoint qualifiedName="com.jetbrains.aspire.startSessionRequestHandler"
-                        interface="com.jetbrains.aspire.sessions.StartSessionRequestHandler"
+                        interface="com.jetbrains.aspire.extensions.StartSessionRequestHandler"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.resourceIconProvider"
-                        interface="com.jetbrains.aspire.dashboard.AspireResourceIconProvider"
+                        interface="com.jetbrains.aspire.extensions.AspireResourceIconProvider"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.appHostLauncher"
-                        interface="com.jetbrains.aspire.worker.AspireAppHostLauncher"
+                        interface="com.jetbrains.aspire.extensions.AspireAppHostLauncher"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.connectionStringModifier"
-                        interface="com.jetbrains.aspire.util.ConnectionStringModifier"
+                        interface="com.jetbrains.aspire.extensions.ConnectionStringModifier"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.devCertificateProvider"
-                        interface="com.jetbrains.aspire.worker.DevCertificateProvider"
+                        interface="com.jetbrains.aspire.extensions.DevCertificateProvider"
                         dynamic="true"/>
     </extensionPoints>
 

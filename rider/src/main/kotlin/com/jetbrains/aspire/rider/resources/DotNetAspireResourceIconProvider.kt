@@ -1,6 +1,6 @@
 package com.jetbrains.aspire.rider.resources
 
-import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
+import com.jetbrains.aspire.extensions.AspireResourceIconProvider
 import com.jetbrains.aspire.worker.ResourceType
 import icons.ReSharperIcons
 import icons.RiderIcons

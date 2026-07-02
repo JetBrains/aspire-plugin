@@ -22,7 +22,7 @@ import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.io.createDirectories
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.worker.DevCertificateProvider.DevCertificateCheckResult
+import com.jetbrains.aspire.extensions.DevCertificateCheckResult
 import com.jetbrains.rider.run.configurations.runInRunToolWindow
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.web.DotNetSslCerts
@@ -34,7 +34,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.concurrency.await
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
@@ -76,7 +75,10 @@ private data class DevCertificateDiagnostics(
 }
 
 @Suppress("UnstableApiUsage")
-internal suspend fun checkDevCertificate(project: Project, showNotification: Boolean = false): DevCertificateCheckResult {
+internal suspend fun checkDevCertificate(
+    project: Project,
+    showNotification: Boolean = false
+): DevCertificateCheckResult {
     val eelApi = project.getEelDescriptor().toEelApi()
 
     val diagnostics = collectDevCertificateDiagnostics(eelApi, project)

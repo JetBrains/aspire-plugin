@@ -13,6 +13,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.util.NetworkUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.*

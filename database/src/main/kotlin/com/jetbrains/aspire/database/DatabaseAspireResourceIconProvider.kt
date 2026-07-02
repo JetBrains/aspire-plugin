@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.database
 
 import com.intellij.icons.AllIcons
-import com.jetbrains.aspire.dashboard.AspireResourceIconProvider
+import com.jetbrains.aspire.extensions.AspireResourceIconProvider
 import com.jetbrains.aspire.worker.ResourceType
 
 internal class DatabaseAspireResourceIconProvider : AspireResourceIconProvider {
@@ -23,6 +23,7 @@ internal class DatabaseAspireResourceIconProvider : AspireResourceIconProvider {
             containerImage?.contains("confluent") == true -> AllIcons.Providers.Kafka
             else -> null
         }
+
         else -> null
     }
 }

@@ -5,15 +5,15 @@ import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.dashboard.AppHostUiState
 import com.jetbrains.aspire.dashboard.AspireAppHostViewModel
+import com.jetbrains.aspire.extensions.AspireAppHostLauncher
 import com.jetbrains.aspire.worker.AspireAppHost
-import com.jetbrains.aspire.worker.AspireAppHostLauncher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class DebugHostAction : AspireHostBaseAction() {
     override fun performAction(appHost: AspireAppHost, project: Project) {
         currentThreadCoroutineScope().launch(Dispatchers.Default) {
-            AspireAppHostLauncher.getStarter()?.launchAppHost(appHost, true, project)
+            AspireAppHostLauncher.getInstance()?.launchAppHost(appHost, true, project)
         }
     }
 

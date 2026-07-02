@@ -19,6 +19,7 @@ import com.jetbrains.aspire.rider.generated.GetReferencedProjectsFromAppHostRequ
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.rider.util.DotNetBuildService
 import com.jetbrains.aspire.rider.util.findExistingAppHost
+import com.jetbrains.aspire.extensions.StartSessionRequestHandler
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -276,7 +277,9 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             lifetime.launch {
                 while (lifetime.isAlive) {
                     delay(FLUSH_INTERVAL_MS)
-                    if(isFlushedOnLimit.compareAndSet(true, false)) continue // we've flushed the buffer, no need to do it again
+                    if (isFlushedOnLimit.compareAndSet(true, false)) {
+                        continue // we've flushed the buffer, no need to do it again
+                    }
                     flush()
                 }
             }

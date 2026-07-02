@@ -6,8 +6,8 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.util.ConnectionStringContext
-import com.jetbrains.aspire.util.ConnectionStringModifier
+import com.jetbrains.aspire.extensions.ConnectionStringContext
+import com.jetbrains.aspire.extensions.ConnectionStringModifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -67,7 +67,7 @@ internal class DatabaseResourceConnectionService(private val project: Project, s
                 containerPorts = databaseResource.containerPorts,
             )
             val modifiedConnectionString = ConnectionStringModifier
-                .getModifier()
+                .getInstance()
                 ?.modifyConnectionString(project, context)
                 ?.getOrNull()
 

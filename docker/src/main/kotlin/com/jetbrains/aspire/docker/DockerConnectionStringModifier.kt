@@ -7,8 +7,8 @@ import com.intellij.docker.utils.getOrCreateDockerLocalServer
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.util.ConnectionStringContext
-import com.jetbrains.aspire.util.ConnectionStringModifier
+import com.jetbrains.aspire.extensions.ConnectionStringContext
+import com.jetbrains.aspire.extensions.ConnectionStringModifier
 import kotlinx.coroutines.future.await
 import kotlin.coroutines.cancellation.CancellationException
 
