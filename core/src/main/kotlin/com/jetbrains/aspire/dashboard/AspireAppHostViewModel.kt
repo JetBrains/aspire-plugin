@@ -47,6 +47,9 @@ class AspireAppHostViewModel(
 
     val uiState: StateFlow<AppHostUiState> = appHost.appHostState.map { state ->
         when (state) {
+            is AspireAppHost.AspireAppHostState.Inactive ->
+                AppHostUiState.Initial
+
             is AspireAppHost.AspireAppHostState.Starting -> {
                 val url = state.environment.aspireHostProjectUrl
                 AppHostUiState.Active(url, logConsole.component)
@@ -57,9 +60,11 @@ class AspireAppHostViewModel(
                 AppHostUiState.Active(url, logConsole.component)
             }
 
-            else -> AppHostUiState.Inactive
+            is AspireAppHost.AspireAppHostState.Stopped -> {
+                AppHostUiState.Inactive(logConsole.component)
+            }
         }
-    }.stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Inactive)
+    }.stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Initial)
 
     private val resourceViewModels: StateFlow<List<AspireResourceViewModel>> =
         appHost.rootResources

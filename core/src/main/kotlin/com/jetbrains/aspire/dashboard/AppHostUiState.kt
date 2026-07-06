@@ -5,10 +5,14 @@ import javax.swing.JComponent
 
 @ApiStatus.Internal
 sealed interface AppHostUiState {
+    data object Initial : AppHostUiState
+
     data class Active(
         val dashboardUrl: String?,
         val consoleComponent: JComponent
     ) : AppHostUiState
 
-    data object Inactive : AppHostUiState
+    data class Inactive(
+        val consoleComponent: JComponent
+    ) : AppHostUiState
 }

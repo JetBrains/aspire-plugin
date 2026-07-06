@@ -16,7 +16,7 @@ class AspireAppHostServiceViewDescriptor(
     private val vm: AspireAppHostViewModel
 ) : ServiceViewDescriptor, UiDataProvider {
 
-    private val appHostActions =  ActionManager.getInstance().getAction("Aspire.Host.Tollbar") as ActionGroup
+    private val appHostActions = ActionManager.getInstance().getAction("Aspire.Host.Tollbar") as ActionGroup
 
     override fun getPresentation() = PresentationData().apply {
         var icon = AspireIcons.Service
@@ -28,14 +28,24 @@ class AspireAppHostServiceViewDescriptor(
     }
 
     override fun getContentComponent(): JPanel {
-        val state = vm.uiState.value
-        return if (state is AppHostUiState.Active) {
-            JPanel(BorderLayout()).apply {
-                border = JBUI.Borders.empty()
-                add(state.consoleComponent)
+        return when (val state = vm.uiState.value) {
+            is AppHostUiState.Initial -> {
+                JBPanelWithEmptyText()
             }
-        } else {
-            JBPanelWithEmptyText()
+
+            is AppHostUiState.Active -> {
+                JPanel(BorderLayout()).apply {
+                    border = JBUI.Borders.empty()
+                    add(state.consoleComponent)
+                }
+            }
+
+            is AppHostUiState.Inactive -> {
+                JPanel(BorderLayout()).apply {
+                    border = JBUI.Borders.empty()
+                    add(state.consoleComponent)
+                }
+            }
         }
     }
 

@@ -19,6 +19,6 @@ class RunHostAction : AspireHostBaseAction() {
 
     override fun updateAction(event: AnActionEvent, appHostVm: AspireAppHostViewModel) {
         event.presentation.isVisible = true
-        event.presentation.isEnabled = appHostVm.uiState.value is AppHostUiState.Inactive
+        event.presentation.isEnabled = appHostVm.uiState.value !is AppHostUiState.Active
     }
 }
