@@ -2,7 +2,6 @@
 
 package com.jetbrains.aspire.dashboard
 
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewProvidingContributor
@@ -138,18 +137,5 @@ class AspireResourceViewModel(
     override fun dispose() {
         LOG.trace { "Disposing AspireResource VM for $resourceName" }
         cs.cancel()
-    }
-
-    /**
-     * A no-op [ProcessHandler] used solely as a sink for resource console log output.
-     *
-     * The terminal console requires a [ProcessHandler] to attach to; this implementation
-     * provides one that does not manage any real process.
-     */
-    private class LogProcessHandler : ProcessHandler() {
-        override fun destroyProcessImpl() {}
-        override fun detachProcessImpl() {}
-        override fun detachIsDefault() = false
-        override fun getProcessInput() = null
     }
 }
