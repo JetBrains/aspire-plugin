@@ -233,10 +233,10 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         if (!AspireSettings.getInstance().connectToDcpViaHttps) return null
 
         val provider = DevCertificateProvider.getInstance() ?: return null
-        val certificateCheckResult = provider.checkDevCertificate(project)
+        val certificateCheckResult = provider.checkDevCertificate(true, project)
         if (!certificateCheckResult.isTrusted) return null
 
-        return provider.exportCertificate(project)
+        return provider.exportCertificate(true, project)
     }
 
     suspend fun stop() {
