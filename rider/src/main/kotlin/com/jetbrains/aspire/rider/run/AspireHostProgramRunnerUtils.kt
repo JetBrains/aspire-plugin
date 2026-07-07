@@ -139,5 +139,5 @@ fun connectExecutionHandlerAndLifetime(
 
 internal suspend fun checkAndNotifyDevCertificate(state: AspireHostProfileState, project: Project) {
     if (state.getAllowUnsecuredTransport()) return
-    checkDevCertificate(project, true)
+    checkDevCertificate(false, project, true)
 }

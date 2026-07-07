@@ -12,9 +12,9 @@ interface DevCertificateProvider {
         fun getInstance(): DevCertificateProvider? = EP_NAME.extensionList.firstOrNull()
     }
 
-    suspend fun checkDevCertificate(project: Project): DevCertificateCheckResult
+    suspend fun checkDevCertificate(useBundledRuntime: Boolean, project: Project): DevCertificateCheckResult
 
-    suspend fun exportCertificate(project: Project): String?
+    suspend fun exportCertificate(useBundledRuntime: Boolean, project: Project): String?
 
 }
 

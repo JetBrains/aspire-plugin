@@ -23,6 +23,7 @@ import com.intellij.util.io.createDirectories
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.DevCertificateCheckResult
+import com.jetbrains.rider.environment.initializeAndGetEnvironment
 import com.jetbrains.rider.run.configurations.runInRunToolWindow
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import com.jetbrains.rider.web.DotNetSslCerts
@@ -76,12 +77,13 @@ private data class DevCertificateDiagnostics(
 
 @Suppress("UnstableApiUsage")
 internal suspend fun checkDevCertificate(
+    useBundledRuntime: Boolean,
     project: Project,
     showNotification: Boolean = false
 ): DevCertificateCheckResult {
     val eelApi = project.getEelDescriptor().toEelApi()
 
-    val diagnostics = collectDevCertificateDiagnostics(eelApi, project)
+    val diagnostics = collectDevCertificateDiagnostics(eelApi, useBundledRuntime, project)
 
     if (diagnostics.oldTrustedVersions.isNotEmpty()) {
         LOG.warn(
@@ -95,22 +97,31 @@ internal suspend fun checkDevCertificate(
     LOG.trace { "Checking dev certificate result: $result" }
 
     if (showNotification && diagnostics.requiresAttention) {
-        showNotification(project, diagnostics)
+        showNotification(useBundledRuntime, project, diagnostics)
     }
 
     return result
 }
 
 @Suppress("UnstableApiUsage")
-private suspend fun collectDevCertificateDiagnostics(eelApi: EelApi, project: Project): DevCertificateDiagnostics {
-    val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
-    if (runtime == null) {
-        LOG.debug("Unable to find any active dotnet runtime")
-        return DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.CheckFailed)
+private suspend fun collectDevCertificateDiagnostics(
+    eelApi: EelApi,
+    useBundledRuntime: Boolean,
+    project: Project
+): DevCertificateDiagnostics {
+    val dotnetCliPath = if (useBundledRuntime) {
+        project.initializeAndGetEnvironment().getRuntime().cliPath()
+    } else {
+        val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
+        if (runtime == null) {
+            LOG.debug("Unable to find any active dotnet runtime")
+            return DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.CheckFailed)
+        }
+        runtime.cliExePath
     }
 
     return try {
-        val process = eelApi.exec.spawnProcess(runtime.cliExePath.pathString)
+        val process = eelApi.exec.spawnProcess(dotnetCliPath.pathString)
             .args("dev-certs", "https", "--check-trust-machine-readable")
             .env(
                 mapOf(
@@ -175,7 +186,7 @@ private fun analyzeCurrentCertificates(certificates: List<DevCertificate>): DevC
 }
 
 
-private fun showNotification(project: Project, diagnostics: DevCertificateDiagnostics) {
+private fun showNotification(useBundledRuntime: Boolean, project: Project, diagnostics: DevCertificateDiagnostics) {
     val notificationDescription = when (val result = diagnostics.result) {
         DevCertificateCheckResult.NoCertificate ->
             AspireCoreBundle.message("notification.dev.certificate.no.certificate")
@@ -207,24 +218,25 @@ private fun showNotification(project: Project, diagnostics: DevCertificateDiagno
         notificationDescription,
         NotificationType.WARNING
     )
-        .addDevCertificateActions(project, diagnostics)
+        .addDevCertificateActions(useBundledRuntime, project, diagnostics)
         .notify(project)
 }
 
 private fun Notification.addDevCertificateActions(
+    useBundledRuntime: Boolean,
     project: Project,
     diagnostics: DevCertificateDiagnostics
 ): Notification {
     if (diagnostics.result is DevCertificateCheckResult.NoCertificate ||
         diagnostics.result is DevCertificateCheckResult.NotTrusted
     ) {
-        addAction(trustDevCertificateAction(project))
+        addAction(trustDevCertificateAction(useBundledRuntime, project))
     }
 
     if ((diagnostics.result is DevCertificateCheckResult.Trusted && diagnostics.oldTrustedVersions.isNotEmpty()) ||
         diagnostics.result is DevCertificateCheckResult.MultipleCertificatesIssue
     ) {
-        addAction(cleanAndTrustDevCertificateAction(project))
+        addAction(cleanAndTrustDevCertificateAction(useBundledRuntime, project))
     }
 
 
@@ -245,12 +257,13 @@ private fun Notification.addDevCertificateActions(
     return this
 }
 
-private fun trustDevCertificateAction(project: Project): NotificationAction {
+private fun trustDevCertificateAction(useBundledRuntime: Boolean, project: Project): NotificationAction {
     return object : NotificationAction(AspireCoreBundle.message("notification.dev.certificate.action.trust")) {
         override fun actionPerformed(e: AnActionEvent, notification: Notification) {
             notification.expire()
             e.coroutineScope.launch(Dispatchers.Default) {
                 runDevCertificateCommands(
+                    useBundledRuntime,
                     project,
                     AspireCoreBundle.message("progress.trusting.dev.certificate"),
                     listOf("--trust")
@@ -260,13 +273,14 @@ private fun trustDevCertificateAction(project: Project): NotificationAction {
     }
 }
 
-private fun cleanAndTrustDevCertificateAction(project: Project): NotificationAction {
+private fun cleanAndTrustDevCertificateAction(useBundledRuntime: Boolean, project: Project): NotificationAction {
     return object :
         NotificationAction(AspireCoreBundle.message("notification.dev.certificate.action.clean.and.trust")) {
         override fun actionPerformed(e: AnActionEvent, notification: Notification) {
             notification.expire()
             e.coroutineScope.launch(Dispatchers.Default) {
                 runDevCertificateCommands(
+                    useBundledRuntime,
                     project,
                     AspireCoreBundle.message("progress.cleaning.and.trusting.dev.certificate"),
                     listOf("--clean", "--trust")
@@ -277,15 +291,21 @@ private fun cleanAndTrustDevCertificateAction(project: Project): NotificationAct
 }
 
 @Suppress("UnstableApiUsage")
-private suspend fun runDevCertificateCommands(project: Project, progressTitle: String, commands: List<String>) {
-    val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
-    if (runtime == null) {
-        notifyDevCertificateCommandFailure(
-            project,
-            AspireCoreBundle.message("notification.dev.certificate.runtime.not.available")
-        )
-        return
+private suspend fun runDevCertificateCommands(useBundledRuntime: Boolean, project: Project, progressTitle: String, commands: List<String>) {
+    val dotnetCliPath = if (useBundledRuntime) {
+        project.initializeAndGetEnvironment().getRuntime().cliPath()
+    } else {
+        val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
+        if (runtime == null) {
+            notifyDevCertificateCommandFailure(
+                project,
+                AspireCoreBundle.message("notification.dev.certificate.runtime.not.available")
+            )
+            return
+        }
+        runtime.cliExePath
     }
+
 
     val eelApi = project.getEelDescriptor().toEelApi()
     val environment = mapOf(
@@ -299,7 +319,7 @@ private suspend fun runDevCertificateCommands(project: Project, progressTitle: S
             runDevCertificateCommandsInRunToolWindow(
                 project,
                 progressTitle,
-                runtime.cliExePath.pathString,
+                dotnetCliPath.pathString,
                 commands,
                 environment
             )
@@ -308,7 +328,7 @@ private suspend fun runDevCertificateCommands(project: Project, progressTitle: S
                 project,
                 eelApi,
                 progressTitle,
-                runtime.cliExePath.pathString,
+                dotnetCliPath.pathString,
                 commands,
                 environment
             )
@@ -419,8 +439,12 @@ private suspend fun notifyDevCertificateCommandSuccess(project: Project) =
 
 
 @Suppress("UnstableApiUsage")
-internal suspend fun exportDevCertificate(project: Project): String? {
-    val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value ?: return null
+internal suspend fun exportDevCertificate(useBundledRuntime: Boolean, project: Project): String? {
+    val dotnetCliPath = if (useBundledRuntime) {
+        project.initializeAndGetEnvironment().getRuntime().cliPath()
+    } else {
+        RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value?.cliExePath ?: return null
+    }
 
     val certificateFolder = DotNetSslCerts.getAspNetCoreCertificateFolder()
     if (!certificateFolder.exists()) {
@@ -432,7 +456,7 @@ internal suspend fun exportDevCertificate(project: Project): String? {
     val eelApi = project.getEelDescriptor().toEelApi()
     val exitCode =
         withBackgroundProgress(project, RiderWebBundle.message("DotNetSslCerts.progress.title.certificate.export")) {
-            val process = eelApi.exec.spawnProcess(runtime.cliExePath.pathString)
+            val process = eelApi.exec.spawnProcess(dotnetCliPath.pathString)
                 .args("dev-certs", "https", "--export-path", certificateFile.absolutePathString(), "--format", "PEM")
                 .env(
                     mapOf(
