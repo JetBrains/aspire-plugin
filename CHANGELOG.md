@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [2.7.4] - 2026-06-17
+
 ### Fixed
 
 - [RIDER-138483](https://youtrack.jetbrains.com/issue/RIDER-138483) Running Aspire integration tests stuck in `pending` state
@@ -704,7 +706,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.3...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.4...HEAD
+[2.7.4]: https://github.com/JetBrains/aspire-plugin/compare/2.7.3...2.7.4
 [2.7.3]: https://github.com/JetBrains/aspire-plugin/compare/2.7.2...2.7.3
 [2.7.2]: https://github.com/JetBrains/aspire-plugin/compare/2.7.1...2.7.2
 [2.7.1]: https://github.com/JetBrains/aspire-plugin/compare/2.7.0...2.7.1
