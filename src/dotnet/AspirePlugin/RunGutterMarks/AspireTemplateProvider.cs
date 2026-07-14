@@ -48,7 +48,9 @@ internal sealed class AspireTemplateProvider(
         if (aspireTemplates.IsEmpty() || aspireRunnableProjects.IsEmpty()) return [];
 
         var csFilePath = (runMarkerHighlighting as FileBasedProgramRunMarkerHighlighting)?.FilePath;
-        var launchSettingsFilePath = csFilePath?.Parent.Combine("apphost.run.json");
+        // Use the `.cs` path reported by the gutter mark as the app host file path; `aspire.config.json`
+        // is only used to read the launch profiles, not the app host path.
+        var launchSettingsFilePath = csFilePath?.Parent.Combine("aspire.config.json");
         if (launchSettingsFilePath == null || csFilePath == null) return [];
 
         var profiles = _launchSettingsJsonProfileProvider.TryGetLaunchJsonSettingsProfiles(launchSettingsFilePath)
