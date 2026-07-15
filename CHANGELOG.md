@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Debug session was not started for tests executed with Microsoft.Testing.Platform (MSTest runner, xUnit v3, TUnit), so breakpoints in Aspire resource projects were not hit when debugging such tests
+
 ## [2.7.4] - 2026-06-17
 
 ### Fixed
