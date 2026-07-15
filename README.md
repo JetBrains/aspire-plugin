@@ -8,6 +8,7 @@
   <a href="https://plugins.jetbrains.com/plugin/23289-aspire"><img src="https://img.shields.io/jetbrains/plugin/d/23289-aspire.svg" alt="Downloads"></a>
 </div>
 
+
 The plugin provides support for Aspire projects in JetBrains Rider.
 
 **Features:**
