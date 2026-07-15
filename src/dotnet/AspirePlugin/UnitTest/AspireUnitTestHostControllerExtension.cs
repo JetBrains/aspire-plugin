@@ -9,7 +9,6 @@ using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Hosting;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Launch;
-using JetBrains.ReSharper.UnitTestFramework.Execution.TestRunner;
 using JetBrains.Rider.Aspire.Plugin.Generated;
 using JetBrains.Util.Dotnet.TargetFrameworkIds;
 
@@ -24,7 +23,8 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
 
     public bool IsApplicable(IUnitTestRun run)
     {
-        if (run.RuntimeDescriptor is not TestRunnerRuntimeDescriptor.NetCore netDescriptor) return false;
+        if (run.RuntimeDescriptor is not IRuntimeDescriptorWithTargetFramework netDescriptor) return false;
+        if (!netDescriptor.TargetFrameworkId.IsNetCoreApp) return false;
 
         var project = netDescriptor.Project;
 
@@ -47,7 +47,8 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
 
     public async Task PrepareForRun(IUnitTestRun run, ITaskRunnerHostController next)
     {
-        if (run.RuntimeDescriptor is TestRunnerRuntimeDescriptor.NetCore netDescriptor)
+        if (run.RuntimeDescriptor is IRuntimeDescriptorWithTargetFramework netDescriptor &&
+            netDescriptor.TargetFrameworkId.IsNetCoreApp)
         {
             var project = netDescriptor.Project;
             var aspireHostProject = GetAspireHostProject(project, netDescriptor.TargetFrameworkId);
