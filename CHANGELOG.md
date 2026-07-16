@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Update platform version to 2026.2-RC1-SNAPSHOT
+
 ## [2.7.4] - 2026-06-17
 
 ### Fixed
