@@ -7,18 +7,21 @@ updates:
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    ignore:
+      - dependency-name: "io.grpc*"
+      - dependency-name: "com.google.protobuf*"
+      - dependency-name: "io.ktor*"
   # Maintain dependencies for NuGet dependencies
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
   # Maintain dependencies for global.json
   - package-ecosystem: "dotnet-sdk"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "wednesday"
+      interval: "monthly"
     ignore:
       - dependency-name: "*"
         update-types:
@@ -27,4 +30,4 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
