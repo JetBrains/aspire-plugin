@@ -9,9 +9,12 @@ updates:
     schedule:
       interval: "monthly"
     ignore:
+      # These must match the versions bundled in the target IDE (see gradle/libs.versions.toml).
       - dependency-name: "io.grpc*"
       - dependency-name: "com.google.protobuf*"
       - dependency-name: "io.ktor*"
+      - dependency-name: "org.jetbrains.kotlinx*"
+      - dependency-name: "com.jetbrains.rd*"
   # Maintain dependencies for NuGet dependencies
   - package-ecosystem: "nuget"
     directory: "/"
