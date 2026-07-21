@@ -4,6 +4,7 @@ using JetBrains.Core;
 using JetBrains.IDE;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Assemblies.Interfaces;
+using JetBrains.ProjectModel.NuGet.Packaging;
 using JetBrains.Rd.Tasks;
 using JetBrains.ReSharper.Feature.Services.Protocol;
 using JetBrains.ReSharper.UnitTestFramework.Execution.Hosting;
@@ -27,8 +28,11 @@ public class AspireUnitTestHostControllerExtension(ISolution solution) : ITaskRu
 
         var project = netDescriptor.Project;
 
-        var testingPackage = project.GetPackagesReference(_aspireHostingTesting, netDescriptor.TargetFrameworkId);
-        if (testingPackage is null) return false;
+        var checker = project.GetComponent<NuGetInstalledPackageChecker>();
+        if (checker.IsBusy.Value) return false;
+
+        var packageInstalled = checker.IsPackageInstalled(project, _aspireHostingTesting.ID);
+        if (!packageInstalled) return false;
 
         var aspireHostProject = GetAspireHostProject(project, netDescriptor.TargetFrameworkId);
         if (aspireHostProject is null) return false;
