@@ -1,18 +1,19 @@
 package com.jetbrains.aspire.rider.sessions
 
+import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
+import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
-import com.jetbrains.rider.run.environment.ExecutableParameterProcessingResult
-import com.jetbrains.rider.run.environment.ExecutableParameterProcessor
-import com.jetbrains.rider.run.environment.ExecutableRunParameters
-import com.jetbrains.rider.run.environment.ProjectProcessOptions
+import com.jetbrains.rider.run.environment.*
+import java.net.URI
+import java.net.URISyntaxException
 import java.nio.file.Path
 import kotlin.io.path.Path
 
@@ -132,4 +133,58 @@ suspend fun getExecutableParams(
     return ExecutableParameterProcessor
         .getInstance(project)
         .processEnvironment(runParameters, processOptions)
+}
+
+internal suspend fun getStartBrowserSettings(
+    project: Project,
+    projectFilePath: Path,
+    launchProfile: LaunchSettingsJson.Profile,
+    envs: Map<String, String>,
+    tfm: RdTargetFrameworkId?,
+    aspireRunConfiguration: AspireRunConfiguration?
+): StartBrowserSettings {
+    val applicationUrlKey = "ApplicationUrl"
+    val applicationRawUrl = launchProfile.applicationUrl
+    val launchUrlKey = "LaunchUrl"
+    val launchRawUrl = launchProfile.launchUrl
+    val params = StringProcessingParameters(
+        mapOf(applicationUrlKey to applicationRawUrl, launchUrlKey to launchRawUrl),
+        true,
+        envs,
+        tfm
+    )
+    val projectOptions = ProjectProcessOptions(
+        projectFilePath,
+        null
+    )
+    val parameterProcessor = ExecutableParameterProcessor.getInstance(project)
+    val processedParams = parameterProcessor.processStrings(params, projectOptions)
+    val launchUrl = processedParams[launchUrlKey]
+    val applicationUrl = processedParams[applicationUrlKey]?.split(';')?.firstOrNull()
+    val browserUrl = concatUrl(applicationUrl, launchUrl)
+    val webBrowser = aspireRunConfiguration?.parameters?.startBrowserParameters?.browser
+    val withJavaScriptDebugger =
+        aspireRunConfiguration?.parameters?.startBrowserParameters?.withJavaScriptDebugger == true
+
+    return StartBrowserSettings().apply {
+        browser = webBrowser
+        isSelected = launchProfile.launchBrowser
+        url = browserUrl
+        isStartJavaScriptDebugger = withJavaScriptDebugger
+    }
+}
+
+internal fun concatUrl(part1: String?, part2: String?): String? {
+    if (part1.isNullOrEmpty() || part2?.let(::isAbsoluteUrl) == true) return part2
+    if (part2.isNullOrEmpty()) return part1
+    return "$part1/$part2"
+}
+
+internal fun isAbsoluteUrl(url: String): Boolean {
+    return try {
+        val uri = URI(url)
+        uri.isAbsolute
+    } catch (_: URISyntaxException) {
+        false
+    }
 }
