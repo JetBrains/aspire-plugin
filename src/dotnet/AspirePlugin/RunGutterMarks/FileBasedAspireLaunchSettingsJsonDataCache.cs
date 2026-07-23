@@ -19,7 +19,7 @@ internal class FileBasedAspireLaunchSettingsJsonDataCache(
 {
     protected override bool ShouldProcessChangedFile(IProjectFile changedFile, IProject project)
     {
-        return changedFile.Name.Equals("apphost.run.json", FileSystemDefinition.PathStringComparison)
+        return changedFile.Name.Equals("aspire.config.json", FileSystemDefinition.PathStringComparison)
                && Equals(changedFile.ParentFolder, project);
     }
 }
