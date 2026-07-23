@@ -19,6 +19,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import io.ktor.util.AttributeKey
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -30,7 +31,11 @@ import java.security.KeyStore
 
 @ApiStatus.Internal
 interface AspireSessionHost {
-    val sessionEvents: ReceiveChannel<SessionEvent>
+    /**
+     * Returns the single-consumer event stream for the DCP AppHost identified by [dcpInstancePrefix],
+     * or `null` when that AppHost is no longer available.
+     */
+    fun sessionEvents(dcpInstancePrefix: String): ReceiveChannel<SessionEvent>?
 
     fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse
 
@@ -92,14 +97,16 @@ class AspireSessionServer(
 
         private val SUPPORTED_PROTOCOL_VERSIONS = listOf("2024-04-23", "2025-10-01")
         private val DEFAULT_SUPPORTED_SESSION_TYPES = listOf("project")
+
+        private val NOTIFY_CONNECTION = AttributeKey<NotifyConnection>("AspireNotifyConnection")
     }
 
     private val lifecycleMutex = Mutex()
     private var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? = null
 
-    /** Guards the single-consumer [AspireSessionHost.sessionEvents] channel against double draining. */
+    /** Guards the single-consumer event channel of each AppHost against double draining. */
     private val notifyMutex = Mutex()
-    private var notifyJob: Job? = null
+    private val notifyJobs = mutableMapOf<String, Job>()
 
     /** The Bearer token clients must present. Exposed so callers can build the DCP env vars. */
     val token: String get() = config.token
@@ -201,7 +208,27 @@ class AspireSessionServer(
 
                     delete("/{sessionId}") { handleDeleteSession(call) }
 
-                    webSocket("/notify") { handleNotify() }
+                    route("/notify") {
+                        intercept(ApplicationCallPipeline.Plugins) {
+                            val aspireHostId = aspireHostId(call) ?: run {
+                                finish()
+                                return@intercept
+                            }
+                            val sessionEvents = sessionHost.sessionEvents(aspireHostId)
+                            if (sessionEvents == null) {
+                                call.respond(
+                                    HttpStatusCode.BadRequest,
+                                    ErrorResponse(DcpErrors.InvalidAspireHostId.detail)
+                                )
+                                finish()
+                                return@intercept
+                            }
+
+                            call.attributes.put(NOTIFY_CONNECTION, NotifyConnection(aspireHostId, sessionEvents))
+                        }
+
+                        webSocket { handleNotify(call.attributes[NOTIFY_CONNECTION]) }
+                    }
                 }
             }
         }
@@ -281,18 +308,18 @@ class AspireSessionServer(
      * and one with an unsupported protocol version with a 400, so neither reaches this handler. DCP
      * always connects with a supported protocol version, so the latter only affects error paths.
      *
-     * Delivery is best-effort (at-most-once): [AspireSessionHost.sessionEvents] is the only buffer,
+     * Delivery is best-effort (at-most-once): the AppHost event channel is the only buffer,
      * so an event already taken from the channel but still in flight inside [send] when the transport
      * dies (or when a reconnecting client displaces this connection) is lost. DCP recovers authoritative
      * state on reconnect, so this is acceptable.
      */
-    private suspend fun DefaultWebSocketServerSession.handleNotify() {
-        // Take over as the single consumer of the events channel; a previous notify connection (if
-        // any) is cancelled so events are never split between two readers.
-        val myJob = coroutineContext[Job]
+    private suspend fun DefaultWebSocketServerSession.handleNotify(connection: NotifyConnection) {
+        // Take over as the single consumer of this AppHost's events channel; a previous notify
+        // connection for the same AppHost (if any) is cancelled so events are never split between
+        // two readers. Connections for other AppHosts remain active.
+        val myJob = checkNotNull(coroutineContext[Job])
         val previous = notifyMutex.withLock {
-            val prev = notifyJob
-            notifyJob = myJob
+            val prev = notifyJobs.put(connection.aspireHostId, myJob)
             prev
         }
         previous?.cancelAndJoin()
@@ -300,7 +327,7 @@ class AspireSessionServer(
         try {
             val sender = launch {
                 try {
-                    for (event in sessionHost.sessionEvents) {
+                    for (event in connection.sessionEvents) {
                         val frame = try {
                             SessionEventConverter.convertToFrame(DcpJson, event)
                         } catch (e: Exception) {
@@ -337,7 +364,9 @@ class AspireSessionServer(
         } finally {
             withContext(NonCancellable) {
                 notifyMutex.withLock {
-                    if (notifyJob === myJob) notifyJob = null
+                    if (notifyJobs[connection.aspireHostId] === myJob) {
+                        notifyJobs.remove(connection.aspireHostId)
+                    }
                 }
                 runCatching {
                     close(CloseReason(CloseReason.Codes.NORMAL, "Connection closed"))
@@ -348,15 +377,19 @@ class AspireSessionServer(
 
     private suspend fun aspireHostId(call: ApplicationCall): String? {
         val dcpInstanceId = call.request.header(DCP_INSTANCE_ID_HEADER).orEmpty()
-        val hostId = dcpInstanceId.take(DCP_INSTANCE_ID_PREFIX_LENGTH)
-        if (hostId.isNotEmpty()) {
-            return hostId
+        if (dcpInstanceId.length >= DCP_INSTANCE_ID_PREFIX_LENGTH) {
+            return dcpInstanceId.take(DCP_INSTANCE_ID_PREFIX_LENGTH)
         }
 
         call.respond(HttpStatusCode.BadRequest, ErrorResponse(DcpErrors.InvalidAspireHostId.detail))
 
         return null
     }
+
+    private data class NotifyConnection(
+        val aspireHostId: String,
+        val sessionEvents: ReceiveChannel<SessionEvent>,
+    )
 
     private suspend fun ApplicationCall.respondWithError(error: DcpError?, unexpectedMessage: String) {
         when {

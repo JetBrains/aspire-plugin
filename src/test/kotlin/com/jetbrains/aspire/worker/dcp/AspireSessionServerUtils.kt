@@ -100,15 +100,18 @@ internal fun connectNotify(
     listener: WebSocket.Listener,
     token: String? = TEST_TOKEN,
     apiVersion: String = DEFAULT_API_VERSION,
+    instanceId: String? = DEFAULT_INSTANCE_ID,
 ): WebSocket {
     val wsUrl = baseUrl.replaceFirst("http", "ws") + "/run_session/notify?api-version=$apiVersion"
     val builder = httpClient.newWebSocketBuilder()
     if (token != null) builder.header("Authorization", "Bearer $token")
+    if (instanceId != null) builder.header(DCP_INSTANCE_ID_HEADER, instanceId)
     return builder.buildAsync(URI.create(wsUrl), listener).get(5, TimeUnit.SECONDS)
 }
 
 internal class TestWsListener : WebSocket.Listener {
     private val messages = LinkedBlockingQueue<String>()
+    private val closeCodes = LinkedBlockingQueue<Int>()
     private val buffer = StringBuilder()
 
     override fun onOpen(webSocket: WebSocket) {
@@ -125,6 +128,16 @@ internal class TestWsListener : WebSocket.Listener {
         return CompletableFuture.completedFuture(null)
     }
 
+    override fun onClose(webSocket: WebSocket, statusCode: Int, reason: String): CompletionStage<*> {
+        closeCodes.add(statusCode)
+        return CompletableFuture.completedFuture(null)
+    }
+
     fun nextFrame(timeoutSeconds: Long = 5): String =
         checkNotNull(messages.poll(timeoutSeconds, TimeUnit.SECONDS)) { "Timed out waiting for a notify frame" }
+
+    fun hasFrame(timeoutMillis: Long = 250): Boolean = messages.poll(timeoutMillis, TimeUnit.MILLISECONDS) != null
+
+    fun nextClose(timeoutSeconds: Long = 5): Int =
+        checkNotNull(closeCodes.poll(timeoutSeconds, TimeUnit.SECONDS)) { "Timed out waiting for notify close" }
 }

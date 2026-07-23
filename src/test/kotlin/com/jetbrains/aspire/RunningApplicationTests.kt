@@ -1,5 +1,6 @@
 package com.jetbrains.aspire
 
+import com.intellij.openapi.util.registry.Registry
 import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestSettings
@@ -31,9 +32,12 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
         params.waitForCaches = true
     }
 
-    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor,
-        aspireLoggedErrorProcessor
-    ) }
+    override val testRunner: IntegrationTestRunner by lazy {
+        IntegrationTestRunner(
+            testProcessor,
+            aspireLoggedErrorProcessor
+        )
+    }
 
     @Test
     @Solution("DefaultAspireSolution")
@@ -45,6 +49,19 @@ class RunningApplicationTests : PerTestSolutionTestBase() {
     @Solution("DefaultAspireSolution")
     fun `Running default aspire solution launches web application`() {
         runTest("DefaultAspireSolution.AppHost: http", URI("http://localhost:5183").toURL())
+    }
+
+    @Test
+    @Solution("DefaultAspireSolution")
+    fun `Running default aspire solution launches web application with embedded session host`() {
+        val registryValue = Registry.get("aspire.embedded.session.host")
+        val previousValue = registryValue.asBoolean()
+        registryValue.setValue(true)
+        try {
+            runTest("DefaultAspireSolution.AppHost: http", URI("http://localhost:5183").toURL())
+        } finally {
+            registryValue.setValue(previousValue)
+        }
     }
 
     @Test

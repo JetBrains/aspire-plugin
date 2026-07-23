@@ -23,6 +23,7 @@ import com.intellij.util.io.createDirectories
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.DevCertificateCheckResult
+import com.jetbrains.aspire.worker.dcp.AspireSessionTlsConfig
 import com.jetbrains.rider.environment.initializeAndGetEnvironment
 import com.jetbrains.rider.run.configurations.runInRunToolWindow
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
@@ -36,6 +37,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.concurrency.await
+import java.nio.file.Files
+import java.security.KeyStore
+import java.util.UUID
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 import kotlin.io.path.pathString
@@ -291,7 +295,12 @@ private fun cleanAndTrustDevCertificateAction(useBundledRuntime: Boolean, projec
 }
 
 @Suppress("UnstableApiUsage")
-private suspend fun runDevCertificateCommands(useBundledRuntime: Boolean, project: Project, progressTitle: String, commands: List<String>) {
+private suspend fun runDevCertificateCommands(
+    useBundledRuntime: Boolean,
+    project: Project,
+    progressTitle: String,
+    commands: List<String>
+) {
     val dotnetCliPath = if (useBundledRuntime) {
         project.initializeAndGetEnvironment().getRuntime().cliPath()
     } else {
@@ -487,4 +496,84 @@ internal suspend fun exportDevCertificate(useBundledRuntime: Boolean, project: P
         .trim()
 
     return cleaned
+}
+
+/**
+ * Exports the ASP.NET development certificate as a temporary PKCS#12 archive, then loads the
+ * certificate and private key into memory for Ktor. The archive is always removed before return.
+ */
+@Suppress("UnstableApiUsage")
+internal suspend fun exportDevCertificateTlsConfig(
+    useBundledRuntime: Boolean,
+    project: Project,
+): AspireSessionTlsConfig? {
+    val dotnetCliPath = if (useBundledRuntime) {
+        project.initializeAndGetEnvironment().getRuntime().cliPath()
+    } else {
+        RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value?.cliExePath ?: return null
+    }
+    val password = UUID.randomUUID().toString().toCharArray()
+    val certificateFile = Files.createTempFile("aspire-session-host-", ".pfx")
+    var exported = false
+
+    try {
+        val eelApi = project.getEelDescriptor().toEelApi()
+        val exitCode = withBackgroundProgress(
+            project,
+            RiderWebBundle.message("DotNetSslCerts.progress.title.certificate.export")
+        ) {
+            val process = eelApi.exec.spawnProcess(dotnetCliPath.pathString)
+                .args(
+                    "dev-certs",
+                    "https",
+                    "--export-path",
+                    certificateFile.absolutePathString(),
+                    "--format",
+                    "PFX",
+                    "--password",
+                    password.concatToString(),
+                )
+                .env(
+                    mapOf(
+                        "DOTNET_NOLOGO" to "true",
+                        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "true",
+                        "DOTNET_CLI_TELEMETRY_OPTOUT" to "true",
+                        "DOTNET_GENERATE_ASPNET_CERTIFICATE" to "false"
+                    )
+                )
+                .eelIt()
+            process.awaitProcessResult().exitCode
+        }
+        if (exitCode != 0 || !Files.exists(certificateFile)) {
+            LOG.info("Failed to export PKCS#12 development certificate, exitCode=$exitCode")
+            return null
+        }
+
+        val keyStore = KeyStore.getInstance("PKCS12")
+        Files.newInputStream(certificateFile).use { keyStore.load(it, password) }
+        val aliases = keyStore.aliases()
+        val keyAlias = generateSequence {
+            if (aliases.hasMoreElements()) aliases.nextElement() else null
+        }.firstOrNull(keyStore::isKeyEntry)
+        if (keyAlias == null) {
+            LOG.info("PKCS#12 development certificate does not contain a private key")
+            return null
+        }
+
+        exported = true
+        return AspireSessionTlsConfig(
+            keyStore = keyStore,
+            keyAlias = keyAlias,
+            keyStorePassword = password,
+            privateKeyPassword = password.copyOf(),
+        )
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        LOG.info("Failed to prepare PKCS#12 development certificate", e)
+        return null
+    } finally {
+        runCatching { Files.deleteIfExists(certificateFile) }
+        if (!exported) password.fill('\u0000')
+    }
 }

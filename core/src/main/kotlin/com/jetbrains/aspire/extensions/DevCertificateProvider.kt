@@ -2,6 +2,7 @@ package com.jetbrains.aspire.extensions
 
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.worker.dcp.AspireSessionTlsConfig
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
@@ -15,6 +16,12 @@ interface DevCertificateProvider {
     suspend fun checkDevCertificate(useBundledRuntime: Boolean, project: Project): DevCertificateCheckResult
 
     suspend fun exportCertificate(useBundledRuntime: Boolean, project: Project): String?
+
+    /**
+     * Exports the development certificate and its private key for the embedded Ktor session host.
+     * The public certificate used in the DCP environment remains available through [exportCertificate].
+     */
+    suspend fun exportTlsConfig(useBundledRuntime: Boolean, project: Project): AspireSessionTlsConfig?
 
 }
 

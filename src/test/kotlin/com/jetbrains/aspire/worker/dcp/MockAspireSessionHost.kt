@@ -6,8 +6,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 
 internal class MockAspireSessionHost : AspireSessionHost {
-    private val events = Channel<SessionEvent>(Channel.UNLIMITED)
-    override val sessionEvents: ReceiveChannel<SessionEvent> get() = events
+    private val events = mutableMapOf(DEFAULT_HOST_ID to Channel<SessionEvent>(Channel.UNLIMITED))
+
+    override fun sessionEvents(dcpInstancePrefix: String): ReceiveChannel<SessionEvent>? = events[dcpInstancePrefix]
 
     var lastCreateRequest: CreateSessionRequest? = null
         private set
@@ -33,5 +34,11 @@ internal class MockAspireSessionHost : AspireSessionHost {
         return onDelete(deleteSessionRequest)
     }
 
-    suspend fun emit(event: SessionEvent) = events.send(event)
+    fun addHost(dcpInstancePrefix: String) {
+        events.getOrPut(dcpInstancePrefix) { Channel(Channel.UNLIMITED) }
+    }
+
+    suspend fun emit(event: SessionEvent, dcpInstancePrefix: String = DEFAULT_HOST_ID) {
+        events.getValue(dcpInstancePrefix).send(event)
+    }
 }

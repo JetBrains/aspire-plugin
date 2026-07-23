@@ -15,6 +15,7 @@ import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
@@ -44,7 +45,11 @@ class AspireAppHost(
 
     private val cs = parentCs.childScope("Aspire AppHost")
 
-    private val sessionEvents = Channel<SessionEvent>(Channel.UNLIMITED)
+    private val sessionEventChannel = Channel<SessionEvent>(Channel.UNLIMITED)
+
+    /** The AppHost-specific, single-consumer session-event stream used by the active DCP transport. */
+    internal val sessionEvents: ReceiveChannel<SessionEvent>
+        get() = sessionEventChannel
     private val sessionEventHandler = SessionEventHandler()
 
     val dcpInstancePrefix = generateDcpInstancePrefix()
@@ -117,9 +122,13 @@ class AspireAppHost(
         resourceTreeManager.observeAppHostState(appHostState)
     }
 
-    fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, dispatcher: RdDispatcher, appHostLifetime: Lifetime) {
+    fun subscribeToAspireAppHostModel(
+        appHostModel: AspireHostModel,
+        dispatcher: RdDispatcher,
+        appHostLifetime: Lifetime
+    ) {
         appHostLifetime.coroutineScope.launch {
-            for (event in sessionEvents) {
+            for (event in sessionEventChannel) {
                 sessionEventHandler.handleSessionEvent(event, appHostModel, dispatcher)
             }
         }
@@ -144,7 +153,7 @@ class AspireAppHost(
         val request = StartSessionRequest(
             sessionId,
             configuration,
-            sessionEvents,
+            sessionEventChannel,
             appHostStartedState?.runConfigName,
             lifetime.createNested()
         )

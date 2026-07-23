@@ -15,6 +15,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class AspireSessionServerTest {
+    companion object {
+        private const val SECOND_HOST_ID = "vwxyz"
+        private const val SECOND_INSTANCE_ID = "vwxyzGHIJK"
+    }
+
     @Test
     fun `info returns 200`() {
         withServer(MockAspireSessionHost()) { baseUrl, _ ->
@@ -146,6 +151,26 @@ class AspireSessionServerTest {
     }
 
     @Test
+    fun `notify upgrade for an unknown AppHost is rejected`() {
+        withServer(MockAspireSessionHost()) { baseUrl, _ ->
+            val failure = assertFailsWith<ExecutionException> {
+                connectNotify(baseUrl, TestWsListener(), instanceId = SECOND_INSTANCE_ID)
+            }
+            assertTrue(failure.cause is WebSocketHandshakeException, "cause was ${failure.cause}")
+        }
+    }
+
+    @Test
+    fun `notify upgrade without an AppHost ID is rejected`() {
+        withServer(MockAspireSessionHost()) { baseUrl, _ ->
+            val failure = assertFailsWith<ExecutionException> {
+                connectNotify(baseUrl, TestWsListener(), instanceId = null)
+            }
+            assertTrue(failure.cause is WebSocketHandshakeException, "cause was ${failure.cause}")
+        }
+    }
+
+    @Test
     fun `notify emits processRestarted for SessionProcessStarted`() {
         val host = MockAspireSessionHost()
         withServer(host) { baseUrl, _ ->
@@ -182,6 +207,56 @@ class AspireSessionServerTest {
                 assertTrue(!frame.contains("""hello\n"""), "Trailing newline should be trimmed: $frame")
             } finally {
                 webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done")
+            }
+        }
+    }
+
+    @Test
+    fun `notify streams are isolated by AppHost`() {
+        val host = MockAspireSessionHost().apply { addHost(SECOND_HOST_ID) }
+        withServer(host) { baseUrl, _ ->
+            val firstListener = TestWsListener()
+            val secondListener = TestWsListener()
+            val firstWebSocket = connectNotify(baseUrl, firstListener)
+            val secondWebSocket = connectNotify(baseUrl, secondListener, instanceId = SECOND_INSTANCE_ID)
+            try {
+                host.emit(SessionProcessStarted("first-session", 101L))
+                assertTrue(firstListener.nextFrame().contains("first-session"))
+                assertTrue(!secondListener.hasFrame(), "Second AppHost received a first AppHost event")
+
+                host.emit(SessionProcessStarted("second-session", 202L), SECOND_HOST_ID)
+                assertTrue(secondListener.nextFrame().contains("second-session"))
+                assertTrue(!firstListener.hasFrame(), "First AppHost received a second AppHost event")
+            } finally {
+                firstWebSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done")
+                secondWebSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done")
+            }
+        }
+    }
+
+    @Test
+    fun `reconnecting an AppHost replaces only its notify stream`() {
+        val host = MockAspireSessionHost().apply { addHost(SECOND_HOST_ID) }
+        withServer(host) { baseUrl, _ ->
+            val firstAppHostListener = TestWsListener()
+            val secondAppHostListener = TestWsListener()
+            val replacementListener = TestWsListener()
+            val firstAppHostWebSocket = connectNotify(baseUrl, firstAppHostListener)
+            val secondAppHostWebSocket = connectNotify(baseUrl, secondAppHostListener, instanceId = SECOND_INSTANCE_ID)
+            val replacementWebSocket = connectNotify(baseUrl, replacementListener)
+            try {
+                firstAppHostListener.nextClose()
+
+                host.emit(SessionProcessStarted("replacement-session", 303L))
+                host.emit(SessionProcessStarted("other-session", 404L), SECOND_HOST_ID)
+
+                assertTrue(replacementListener.nextFrame().contains("replacement-session"))
+                assertTrue(secondAppHostListener.nextFrame().contains("other-session"))
+                assertTrue(!firstAppHostListener.hasFrame(), "Replaced stream received an event")
+            } finally {
+                firstAppHostWebSocket.abort()
+                secondAppHostWebSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done")
+                replacementWebSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done")
             }
         }
     }
