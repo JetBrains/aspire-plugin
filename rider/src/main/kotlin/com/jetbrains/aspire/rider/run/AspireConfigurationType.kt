@@ -203,7 +203,7 @@ class AspireConfigurationType : ConfigurationTypeBase(
         }?.value
 
         val cfg = when {
-            dotNetFile != null -> {
+            !dotNetFile.isNullOrBlank() -> {
                 runManager.createConfiguration(name, fileFactory).also {
                     (it.configuration as AspireFileConfiguration).parameters.apply {
                         this.filePath = dotNetFile

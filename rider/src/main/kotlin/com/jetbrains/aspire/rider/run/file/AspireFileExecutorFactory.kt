@@ -86,7 +86,7 @@ internal class AspireFileExecutorFactory(
 
         val launchProfile = LaunchSettingsJsonService
             .getInstance(project)
-            .getProjectLaunchProfileByName(launchSettingsPath, parameters.profileName)
+            .getFileBasedLaunchProfileByName(launchSettingsPath, parameters.profileName)
             ?: throw CantRunException("Profile ${parameters.profileName} not found")
 
         val effectiveArguments =
