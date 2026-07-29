@@ -48,8 +48,11 @@ internal sealed class AspireTemplateProvider(
         if (aspireTemplates.IsEmpty() || aspireRunnableProjects.IsEmpty()) return [];
 
         var csFilePath = (runMarkerHighlighting as FileBasedProgramRunMarkerHighlighting)?.FilePath;
-        var launchSettingsFilePath = csFilePath?.Parent.Combine("apphost.run.json");
-        if (launchSettingsFilePath == null || csFilePath == null) return [];
+        // Use the `.cs` path reported by the gutter mark as the app host file path; `aspire.config.json`
+        // is only used to read the launch profiles, not the app host path.
+        var launchSettingsFilePath = csFilePath?.Parent.Combine("aspire.config.json") 
+                                     ?? project.Location / "Properties" / "launchSettings.json";
+        if (launchSettingsFilePath == null) return [];
 
         var profiles = _launchSettingsJsonProfileProvider.TryGetLaunchJsonSettingsProfiles(launchSettingsFilePath)
             .Profiles;
@@ -66,7 +69,8 @@ internal sealed class AspireTemplateProvider(
                         templateDescriptor.CompatibleRunnableProjectKinds,
                         [
                             new(RunConfigurationTemplateKey.Name, name),
-                            new(RunConfigurationTemplateKey.DotNetFilePath, csFilePath.FullPath),
+                            new(RunConfigurationTemplateKey.DotNetFilePath, csFilePath?.FullPath ?? ""),
+                            new(RunConfigurationTemplateKey.ProjectFilePath, project.ProjectFileLocation.FullPath),
                             new(RunConfigurationTemplateKey.ProjectKind, runnableProject.Kind.Name),
                             new(RunConfigurationTemplateKey.TargetFramework, tfmId?.PresentableString ?? string.Empty),
                             new(RunConfigurationTemplateKey.LaunchSettingsProfile, profile.Name)

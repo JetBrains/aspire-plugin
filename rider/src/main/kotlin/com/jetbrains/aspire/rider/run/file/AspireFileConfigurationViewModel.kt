@@ -108,7 +108,7 @@ internal class AspireFileConfigurationViewModel(
             return
         }
 
-        val profiles = LaunchSettingsJsonService.getInstance(project).getProjectLaunchProfiles(launchSettingsPath)
+        val profiles = LaunchSettingsJsonService.getInstance(project).getFileBasedLaunchProfiles(launchSettingsPath)
 
         launchProfileSelector.profileList.apply {
             clear()

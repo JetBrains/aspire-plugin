@@ -6,13 +6,9 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.util.execution.ParametersListUtil
-import com.jetbrains.aspire.rider.launchProfiles.getApplicationUrl
-import com.jetbrains.aspire.rider.launchProfiles.getArguments
-import com.jetbrains.aspire.rider.launchProfiles.getEnvironmentVariables
-import com.jetbrains.aspire.rider.launchProfiles.getLaunchBrowserFlag
-import com.jetbrains.aspire.rider.launchProfiles.getProjectLaunchProfileByName
-import com.jetbrains.aspire.rider.launchProfiles.getWorkingDirectory
+import com.jetbrains.aspire.rider.launchProfiles.*
 import com.jetbrains.aspire.rider.run.AspireExecutorFactory
 import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
 import com.jetbrains.aspire.rider.run.states.AspireHostDebugProfileState
@@ -51,8 +47,11 @@ internal class AspireHostExecutorFactory(
         val projects = project.solution.runnableProjectsModel.projects.valueOrNull
             ?: throw CantRunException(DotNetProjectConfigurationParameters.SOLUTION_IS_LOADING)
 
+        val projectPath = parameters.projectFilePath.toNioPathOrNull()
+            ?: throw CantRunException(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
+
         val runnableProject = projects.singleOrNull {
-            it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath == parameters.projectFilePath
+            it.kind == AspireRunnableProjectKinds.AspireHost && it.projectFilePath.toNioPathOrNull() == projectPath
         } ?: throw CantRunException(DotNetProjectConfigurationParameters.PROJECT_NOT_SPECIFIED)
 
         val projectOutput = runnableProject
