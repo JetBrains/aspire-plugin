@@ -88,7 +88,8 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
         aspireRunConfiguration: AspireRunConfiguration?,
-        project: Project
+        project: Project,
+        sessionProcessLifetime: Lifetime
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
         val addBrowserAction = !isDebugSession

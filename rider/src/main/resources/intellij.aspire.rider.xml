@@ -55,6 +55,8 @@
         <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
         <dotnetSessionProcessLauncherExtension
+                implementation="com.jetbrains.aspire.rider.sessions.fileBasedProject.FileBasedProjectSessionProcessLauncher"/>
+        <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.sessions.azureFunctions.AzureFunctionsSessionProcessLauncher"/>
 
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.DefaultProjectOrchestrationHandler"/>

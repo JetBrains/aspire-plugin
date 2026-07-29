@@ -62,7 +62,8 @@ internal class ExecutableLibrarySessionProcessLauncher : DotNetSessionProcessLau
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
         aspireRunConfiguration: AspireRunConfiguration?,
-        project: Project
+        project: Project,
+        sessionProcessLifetime: Lifetime
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = ExecutableLibraryExecutableFactory.getInstance(project)
         val executable = factory.createExecutable(launchConfiguration)
