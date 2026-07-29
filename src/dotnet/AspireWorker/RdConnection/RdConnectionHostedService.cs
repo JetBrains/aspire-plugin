@@ -71,7 +71,7 @@ internal sealed class RdConnectionHostedService(
         });
 
         var model = await tcs.Task;
-        rdConnection.InitializeWithModelAndScheduler(model, scheduler);
+        rdConnection.InitializeWithModelAndScheduler(model, scheduler, _lifetimeDef.Lifetime);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

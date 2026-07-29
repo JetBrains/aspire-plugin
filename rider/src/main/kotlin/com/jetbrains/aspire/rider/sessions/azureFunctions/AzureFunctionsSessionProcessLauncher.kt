@@ -41,7 +41,8 @@ internal class AzureFunctionsSessionProcessLauncher : DotNetSessionProcessLaunch
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
         aspireRunConfiguration: AspireRunConfiguration?,
-        project: Project
+        project: Project,
+        sessionProcessLifetime: Lifetime
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = AzureFunctionsSessionExecutableFactory.getInstance(project)
         val executable = factory.createExecutable(launchConfiguration, aspireRunConfiguration)

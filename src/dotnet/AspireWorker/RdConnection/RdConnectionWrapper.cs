@@ -1,6 +1,6 @@
 using JetBrains.Collections.Viewable;
 using JetBrains.Lifetimes;
-using JetBrains.Rd.Base;
+using JetBrains.Rd.Tasks;
 using JetBrains.Rider.Aspire.Worker.Generated;
 
 namespace JetBrains.Rider.Aspire.Worker.RdConnection;
@@ -17,15 +17,13 @@ internal sealed class RdConnectionWrapper(RdConnection rdConnection) : IRdConnec
         await rdConnection.DoWithModel(model => model.AspireHosts.View(lifetime, action));
     }
 
-    public async Task<CreateSessionResponse?> CreateSession(CreateSessionRequest request)
-    {
-        return await rdConnection.DoWithModel(model => model.CreateSession.Sync(request));
-    }
+    public Task<CreateSessionResponse?> CreateSession(CreateSessionRequest request) =>
+        rdConnection.DoWithModelAsync((model, lifetime) =>
+            model.CreateSession.Start(lifetime, request).AsTask());
 
-    public async Task<DeleteSessionResponse?> DeleteSession(DeleteSessionRequest request)
-    {
-        return await rdConnection.DoWithModel(model => model.DeleteSession.Sync(request));
-    }
+    public Task<DeleteSessionResponse?> DeleteSession(DeleteSessionRequest request) =>
+        rdConnection.DoWithModelAsync((model, lifetime) =>
+            model.DeleteSession.Start(lifetime, request).AsTask());
 
     public async Task AdviceOnProcessStarted(AspireHostModel host, Lifetime lifetime, Action<ProcessStarted> action)
     {

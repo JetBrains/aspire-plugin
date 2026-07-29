@@ -33,8 +33,10 @@ import kotlin.time.Duration.Companion.milliseconds
  * Manages the resource tree for an Aspire AppHost.
  *
  * Handles creating, updating, removing, and attaching resources,
- * as well as tracking pending parent-child relationships. Also manages the
- * dashboard client lifecycle including retry logic and resource watching.
+ * as well as tracking pending parent-child relationships. Also owns the dashboard
+ * client lifecycle: [observeAppHostState] starts the client when the AppHost starts and
+ * cancels it when the AppHost stops, while [startDashboardClient] performs the actual
+ * connection with retry logic and resource watching.
  *
  * Parent-child relationships are immutable: a resource's parent cannot change after creation,
  * though resources may arrive out of order (child before parent). Pending children are
@@ -65,6 +67,20 @@ class ResourceTreeManager(
 
     private val _rootResources = MutableStateFlow<List<AspireResource>>(emptyList())
     val rootResources: StateFlow<List<AspireResource>> = _rootResources.asStateFlow()
+
+    fun observeAppHostState(appHostState: StateFlow<AspireAppHost.AspireAppHostState>) {
+        var dashboardJob: Job? = null
+        parentCs.launchOnAppHostTransitions(
+            appHostState,
+            onStarted = { started ->
+                dashboardJob = startDashboardClient(started.environment)
+            },
+            onStoppedAfterStart = {
+                dashboardJob?.cancel()
+                dashboardJob = null
+            },
+        )
+    }
 
     fun CoroutineScope.startDashboardClient(environment: AspireAppHost.AppHostEnvironment): Job? {
         val endpointUrl = environment.resourceServiceEndpointUrl ?: return null

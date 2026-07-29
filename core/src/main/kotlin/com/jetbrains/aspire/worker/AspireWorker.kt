@@ -13,6 +13,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.util.NetworkUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.*
@@ -231,10 +232,11 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     private suspend fun calculateServerCertificate(): String? {
         if (!AspireSettings.getInstance().connectToDcpViaHttps) return null
 
-        val certificateCheckResult = checkDevCertificate(project)
+        val provider = DevCertificateProvider.getInstance() ?: return null
+        val certificateCheckResult = provider.checkDevCertificate(true, project)
         if (!certificateCheckResult.isTrusted) return null
 
-        return exportCertificate(project)
+        return provider.exportCertificate(true, project)
     }
 
     suspend fun stop() {

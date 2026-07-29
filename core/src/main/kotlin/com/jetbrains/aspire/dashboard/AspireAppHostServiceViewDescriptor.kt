@@ -8,7 +8,7 @@ import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.JBUI
 import com.jetbrains.aspire.AspireIcons
-import com.jetbrains.aspire.util.ASPIRE_APP_HOST
+import com.jetbrains.aspire.util.ASPIRE_APP_HOST_VIEW_MODEL
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
@@ -16,7 +16,7 @@ class AspireAppHostServiceViewDescriptor(
     private val vm: AspireAppHostViewModel
 ) : ServiceViewDescriptor, UiDataProvider {
 
-    private val appHostActions =  ActionManager.getInstance().getAction("Aspire.Host.Tollbar") as ActionGroup
+    private val appHostActions = ActionManager.getInstance().getAction("Aspire.Host.Tollbar") as ActionGroup
 
     override fun getPresentation() = PresentationData().apply {
         var icon = AspireIcons.Service
@@ -28,20 +28,30 @@ class AspireAppHostServiceViewDescriptor(
     }
 
     override fun getContentComponent(): JPanel {
-        val state = vm.uiState.value
-        return if (state is AppHostUiState.Active) {
-            JPanel(BorderLayout()).apply {
-                border = JBUI.Borders.empty()
-                add(state.consoleView.component)
+        return when (val state = vm.uiState.value) {
+            is AppHostUiState.Initial -> {
+                JBPanelWithEmptyText()
             }
-        } else {
-            JBPanelWithEmptyText()
+
+            is AppHostUiState.Active -> {
+                JPanel(BorderLayout()).apply {
+                    border = JBUI.Borders.empty()
+                    add(state.consoleComponent)
+                }
+            }
+
+            is AppHostUiState.Inactive -> {
+                JPanel(BorderLayout()).apply {
+                    border = JBUI.Borders.empty()
+                    add(state.consoleComponent)
+                }
+            }
         }
     }
 
     override fun getToolbarActions() = appHostActions
 
     override fun uiDataSnapshot(sink: DataSink) {
-        sink[ASPIRE_APP_HOST] = vm
+        sink[ASPIRE_APP_HOST_VIEW_MODEL] = vm
     }
 }

@@ -56,7 +56,13 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         LOG.trace { "Starting run session for ${launchConfiguration.projectPath}" }
 
         val aspireRunConfig = getAspireRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, _) = getDotNetExecutable(launchConfiguration, false, aspireRunConfig, project)
+        val (executable, _) = getDotNetExecutable(
+            launchConfiguration,
+            false,
+            aspireRunConfig,
+            project,
+            sessionProcessLifetime
+        )
             ?: return
         val executableWithOTLPEndpoint = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
         val (modifiedExecutable, callback) = modifyDotNetExecutable(
@@ -94,7 +100,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         LOG.trace { "Starting debug session for project ${launchConfiguration.projectPath}" }
 
         val aspireRunConfig = getAspireRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, browserSettings) = getDotNetExecutable(launchConfiguration, true, aspireRunConfig, project)
+        val (executable, browserSettings) = getDotNetExecutable(launchConfiguration, true, aspireRunConfig, project, sessionProcessLifetime)
             ?: return
         val modifiedExecutable = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
         val runtime = getDotNetRuntime(modifiedExecutable, project) ?: return
@@ -149,7 +155,8 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
         aspireRunConfiguration: AspireRunConfiguration?,
-        project: Project
+        project: Project,
+        sessionProcessLifetime: Lifetime,
     ): Pair<DotNetExecutable, StartBrowserSettings?>?
 
     private fun modifyDotNetExecutableToUseCustomOTLPEndpoint(executable: DotNetExecutable): DotNetExecutable {

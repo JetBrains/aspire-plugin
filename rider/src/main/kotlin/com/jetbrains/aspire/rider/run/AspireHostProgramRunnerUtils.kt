@@ -12,7 +12,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.aspire.generated.AspireHostModelConfig
 import com.jetbrains.aspire.rider.run.states.*
-import com.jetbrains.aspire.util.checkDevCertificate
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
@@ -140,5 +139,5 @@ fun connectExecutionHandlerAndLifetime(
 
 internal suspend fun checkAndNotifyDevCertificate(state: AspireHostProfileState, project: Project) {
     if (state.getAllowUnsecuredTransport()) return
-    checkDevCertificate(project, true)
+    checkDevCertificate(false, project, true)
 }

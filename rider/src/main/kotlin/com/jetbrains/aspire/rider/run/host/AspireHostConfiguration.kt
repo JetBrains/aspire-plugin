@@ -4,6 +4,9 @@ import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.rd.ide.model.RunConfigurationEntry
+import com.jetbrains.rd.ide.model.RunConfigurationEntryKey
+import com.jetbrains.rider.run.ICanRunFromBackendEx
 import com.jetbrains.rider.run.configurations.IAutoSelectableRunConfiguration
 import com.jetbrains.rider.run.configurations.IProjectBasedRunConfiguration
 import com.jetbrains.rider.run.configurations.RiderAsyncRunConfiguration
@@ -20,7 +23,7 @@ class AspireHostConfiguration(
     factory,
     { AspireHostConfigurationSettingsEditor(it) },
     AspireHostExecutorFactory(project, parameters)
-), IProjectBasedRunConfiguration, IAutoSelectableRunConfiguration, AspireRunConfiguration {
+), IProjectBasedRunConfiguration, IAutoSelectableRunConfiguration, AspireRunConfiguration, ICanRunFromBackendEx {
     override fun checkConfiguration() {
         parameters.validate()
     }
@@ -48,9 +51,14 @@ class AspireHostConfiguration(
 
     override fun getAutoSelectPriority() = 10
 
+    override fun getTypeId(): String = type.id
+
     override fun getProjectFilePath() = parameters.projectFilePath
 
     override fun setProjectFilePath(path: String) {
         parameters.projectFilePath = path
     }
+
+    override fun getAdditionalRunConfigurationEntries(): List<RunConfigurationEntry> =
+        listOf(RunConfigurationEntry(RunConfigurationEntryKey.LaunchSettingsProfile, parameters.profileName))
 }

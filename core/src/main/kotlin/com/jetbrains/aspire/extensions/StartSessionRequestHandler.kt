@@ -1,7 +1,8 @@
-package com.jetbrains.aspire.sessions
+package com.jetbrains.aspire.extensions
 
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.sessions.StartSessionRequest
 
 interface StartSessionRequestHandler {
     companion object {

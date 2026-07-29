@@ -17,6 +17,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.application
+import com.jetbrains.aspire.extension.StartSessionRequestHandler
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.python.run.PythonCommandLineState
 import com.jetbrains.rd.util.lifetime.Lifetime

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.intelliJPlatformModule)
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
