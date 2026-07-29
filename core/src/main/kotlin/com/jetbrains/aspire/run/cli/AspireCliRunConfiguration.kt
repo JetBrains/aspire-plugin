@@ -95,7 +95,8 @@ internal class AspireCliRunConfiguration(
     override fun getEnvs(): MutableMap<String, String> = LinkedHashMap(cliOptions.envs)
 
     override fun setEnvs(envs: MutableMap<String, String>) {
-        cliOptions.envs = envs
+        cliOptions.envs.clear()
+        cliOptions.envs.putAll(envs)
     }
 
     override fun isPassParentEnvs(): Boolean = cliOptions.passParentEnvs

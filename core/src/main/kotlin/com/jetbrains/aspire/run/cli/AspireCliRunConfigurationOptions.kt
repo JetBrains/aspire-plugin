@@ -5,73 +5,23 @@ import com.intellij.execution.configurations.RunConfigurationOptions
 /**
  * Persisted state of an [AspireCliRunConfiguration].
  *
+ * Each property is a [com.intellij.openapi.components.BaseState] stored-property delegate, so the property
+ * name is also the serialization name. Do not wrap these in separate accessor properties: the serializer
+ * would then write the accessor name while restoring into the delegate name, and the value would be lost
+ * on reload (this is what happened for the environment-variables map).
+ *
  * [arguments], [workingDirectory], [envs] and [passParentEnvs] back the
  * [com.intellij.execution.CommonProgramRunConfigurationParameters] implemented by the configuration,
  * so the standard fragment editors ([com.intellij.execution.ui.CommonParameterFragments]) can drive them.
  */
 internal class AspireCliRunConfigurationOptions : RunConfigurationOptions() {
-    private var appHostFilePathState by string()
-    private var argumentsState by string()
-    private var workingDirectoryState by string()
-    private var aspireCliPathState by string()
-    private var browserUrlState by string()
-    private var startBrowserAfterLaunchState by property(false)
-    private var enableIdeDebuggingState by property(false)
-    private var passParentEnvsState by property(true)
-    private val envsMap by linkedMap<String, String>()
-
-    var appHostFilePath: String?
-        get() = appHostFilePathState
-        set(value) {
-            appHostFilePathState = value
-        }
-
-    var arguments: String?
-        get() = argumentsState
-        set(value) {
-            argumentsState = value
-        }
-
-    var workingDirectory: String?
-        get() = workingDirectoryState
-        set(value) {
-            workingDirectoryState = value
-        }
-
-    var aspireCliPath: String?
-        get() = aspireCliPathState
-        set(value) {
-            aspireCliPathState = value
-        }
-
-    var browserUrl: String?
-        get() = browserUrlState
-        set(value) {
-            browserUrlState = value
-        }
-
-    var startBrowserAfterLaunch: Boolean
-        get() = startBrowserAfterLaunchState
-        set(value) {
-            startBrowserAfterLaunchState = value
-        }
-
-    var enableIdeDebugging: Boolean
-        get() = enableIdeDebuggingState
-        set(value) {
-            enableIdeDebuggingState = value
-        }
-
-    var passParentEnvs: Boolean
-        get() = passParentEnvsState
-        set(value) {
-            passParentEnvsState = value
-        }
-
-    var envs: Map<String, String>
-        get() = envsMap
-        set(value) {
-            envsMap.clear()
-            envsMap.putAll(value)
-        }
+    var appHostFilePath by string()
+    var arguments by string()
+    var workingDirectory by string()
+    var aspireCliPath by string()
+    var browserUrl by string()
+    var startBrowserAfterLaunch by property(false)
+    var enableIdeDebugging by property(false)
+    var passParentEnvs by property(true)
+    val envs by linkedMap<String, String>()
 }
