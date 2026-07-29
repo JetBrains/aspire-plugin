@@ -10,9 +10,7 @@ import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.sessions.*
-import com.jetbrains.aspire.worker.dcp.AspireSessionHost
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -39,20 +37,14 @@ class AspireAppHost(
     val mainFilePath: Path,
     private val project: Project,
     parentCs: CoroutineScope
-) : Disposable, AspireSessionHost {
+) : Disposable {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }
 
     private val cs = parentCs.childScope("Aspire AppHost")
 
-    /**
-     * Parent lifetime for sessions created through the embedded DCP server ([createSession]).
-     * Bound to [cs]: terminated in [dispose] so every in-flight session lifetime is closed with the host.
-     */
-    private val hostLifetime = LifetimeDefinition()
-
-    override val sessionEvents: Channel<SessionEvent> = Channel(Channel.UNLIMITED)
+    private val sessionEvents = Channel<SessionEvent>(Channel.UNLIMITED)
     private val sessionEventHandler = SessionEventHandler()
 
     val dcpInstancePrefix = generateDcpInstancePrefix()
@@ -133,13 +125,6 @@ class AspireAppHost(
         }
     }
 
-    /**
-     * Entry point for the embedded DCP server ([AspireSessionHost]). Delegates to the RD-shaped
-     * [createSession] overload with a session-parent lifetime bound to this host ([hostLifetime]).
-     */
-    override fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse =
-        createSession(createSessionRequest, hostLifetime.lifetime)
-
     fun createSession(
         createSessionRequest: CreateSessionRequest,
         lifetime: Lifetime
@@ -192,7 +177,7 @@ class AspireAppHost(
             else -> null
         }
 
-    override fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
+    fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
         LOG.trace { "Deleting Aspire session with id: ${deleteSessionRequest.sessionId}" }
 
         val request = StopSessionRequest(deleteSessionRequest.sessionId)
@@ -204,7 +189,6 @@ class AspireAppHost(
 
     override fun dispose() {
         LOG.trace { "Disposing AspireAppHost for project: $mainFilePath" }
-        hostLifetime.terminate()
         cs.cancel()
     }
 

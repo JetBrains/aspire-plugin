@@ -4,7 +4,6 @@ package com.jetbrains.aspire.worker.dcp
 
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
-import com.jetbrains.aspire.extensions.StartSessionRequestHandler
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.sessions.SessionEvent
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer.Companion.BEARER_AUTH
@@ -92,6 +91,7 @@ class AspireSessionServer(
         private const val BEARER_REALM = "Aspire DCP"
 
         private val SUPPORTED_PROTOCOL_VERSIONS = listOf("2024-04-23", "2025-10-01")
+        private val DEFAULT_SUPPORTED_SESSION_TYPES = listOf("project")
     }
 
     private val lifecycleMutex = Mutex()
@@ -185,12 +185,10 @@ class AspireSessionServer(
 
         routing {
             get("/info") {
-                // Advertise only the session types backed by a registered handler. DCP launches any
-                // other type itself, so this is safe in IDEs without a matching handler.
                 call.respond(
                     Info(
                         SUPPORTED_PROTOCOL_VERSIONS,
-                        StartSessionRequestHandler.getSupportedSessionTypes()
+                        DEFAULT_SUPPORTED_SESSION_TYPES
                     )
                 )
             }

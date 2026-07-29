@@ -37,7 +37,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -91,11 +90,15 @@ internal class AspireCliRunProfileState(
             .syncPublisher(AppHostListener.TOPIC)
             .appHostStarting(appHostFilePath, environmentResult.appHostEnvironment)
 
+        // Debug enables DCP IDE-execution: start the (Rider) AspireWorker and merge its DCP connection env
+        // so `aspire run` delegates child sessions to the IDE. Without debug, `aspire run` orchestrates
+        // children itself and no worker is needed.
+        // TODO: replace the external AspireWorker with the embedded DCP server (AspireSessionServer).
         val debug = executor.id == DefaultDebugExecutor.EXECUTOR_ID || options.enableIdeDebugging
-        val dcpHandle = if (debug) {
-            AspireEmbeddedDcpHost.getInstance(project).start(appHost).also { envs.putAll(it.envVars) }
-        } else {
-            null
+        if (debug) {
+            val aspireWorker = AspireWorker.getInstance(project)
+            aspireWorker.start()
+            envs.putAll(aspireWorker.getEnvironmentVariablesForDcpConnection())
         }
 
         val arguments = buildArguments(appHostFilePathString, options.arguments)
@@ -123,7 +126,7 @@ internal class AspireCliRunProfileState(
         val processScope = AspireService.getInstance(project).scope.childScope("Aspire CLI: ${configuration.name}")
         val processHandler = AspireCliProcessHandler(eelProcess, processScope, commandLineText)
 
-        wireAppHostLifecycle(project, appHostFilePath, configuration.name, processHandler, processScope, dcpHandle)
+        wireAppHostLifecycle(project, appHostFilePath, configuration.name, processHandler, processScope)
 
         maybeOpenBrowser(options.startBrowserAfterLaunch, environmentResult.appHostEnvironment.aspireHostProjectUrl, processHandler)
 
@@ -154,16 +157,12 @@ internal class AspireCliRunProfileState(
         appHostFilePath: Path,
         runConfigName: String,
         processHandler: AspireCliProcessHandler,
-        processScope: CoroutineScope,
-        dcpHandle: AspireEmbeddedDcpHost.Handle?
+        processScope: CoroutineScope
     ) {
         val logFlow = MutableSharedFlow<AppHostLogEntry>(
             replay = 100,
             onBufferOverflow = BufferOverflow.DROP_OLDEST
         )
-        // Tear-down runs on the (uncancelled) service scope so stopping the DCP server is not cancelled by
-        // the processScope.cancel() that ends the run's pumping coroutines.
-        val cleanupScope = AspireService.getInstance(project).scope
         processHandler.addProcessListener(object : ProcessListener {
             override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
                 logFlow.tryEmit(AppHostLogEntry(event.text, outputType == ProcessOutputType.STDERR))
@@ -174,13 +173,7 @@ internal class AspireCliRunProfileState(
                     .syncPublisher(AppHostListener.TOPIC)
                     .appHostStopped(appHostFilePath)
 
-                cleanupScope.launch {
-                    try {
-                        dcpHandle?.stop()
-                    } finally {
-                        processScope.cancel()
-                    }
-                }
+                processScope.cancel()
             }
         })
 
