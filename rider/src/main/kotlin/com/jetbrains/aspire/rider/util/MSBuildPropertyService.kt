@@ -11,7 +11,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rider.model.RdTargetFrameworkId
-import com.jetbrains.rider.model.RdVersionInfo
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,7 +39,7 @@ internal class MSBuildPropertyService(private val project: Project) {
         ) ?: return null
         val projectProperties = json.decodeFromString<ProjectRunPropertiesOutput>(projectRunPropertiesJson)
 
-        val targetFramework = getTargetFrameworkId(projectProperties.properties.targetFramework)
+        val targetFramework = parseTargetFrameworkId(projectProperties.properties.targetFramework)
             ?: return null
         val executable = getExecutablePath(projectProperties.properties.runCommand)
             ?: return null
@@ -62,7 +61,7 @@ internal class MSBuildPropertyService(private val project: Project) {
             "TargetFramework"
         )?.trim() ?: return null
 
-        return getTargetFrameworkId(targetFramework)
+        return parseTargetFrameworkId(targetFramework)
     }
 
     private suspend fun getProjectProperties(projectPath: Path, listOfProperties: String): String? {
@@ -103,43 +102,6 @@ internal class MSBuildPropertyService(private val project: Project) {
         }
 
         return propertyOutput.stdout
-    }
-
-    private fun getTargetFrameworkId(targetFramework: String): RdTargetFrameworkId? {
-        val targetFrameworkVersion = targetFramework.removePrefix("net")
-        val versionParts = targetFrameworkVersion.split('.').map { it.toIntOrNull() }
-
-        if (versionParts.any { it == null }) {
-            LOG.warn("Unable to parse target framework $targetFramework")
-            return null
-        }
-
-        val versionInfo = when (versionParts.size) {
-            1 -> {
-                RdVersionInfo(versionParts[0]!!, 0, 0)
-            }
-
-            2 -> {
-                RdVersionInfo(versionParts[0]!!, versionParts[1]!!, 0)
-            }
-
-            3 -> {
-                RdVersionInfo(versionParts[0]!!, versionParts[1]!!, versionParts[2]!!)
-            }
-
-            else -> {
-                LOG.warn("Unable to parse target framework $targetFramework")
-                return null
-            }
-        }
-
-        return RdTargetFrameworkId(
-            versionInfo,
-            ".NETCoreApp",
-            targetFramework,
-            isNetCoreApp = true,
-            isNetFramework = false
-        )
     }
 
     private fun getExecutablePath(runCommand: String): Path? {
