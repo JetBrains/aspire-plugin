@@ -4,7 +4,19 @@ const val DEBUG_SESSION_TOKEN = "DEBUG_SESSION_TOKEN"
 const val DEBUG_SESSION_PORT = "DEBUG_SESSION_PORT"
 const val DEBUG_SESSION_SERVER_CERTIFICATE = "DEBUG_SESSION_SERVER_CERTIFICATE"
 const val DCP_INSTANCE_ID_PREFIX = "DCP_INSTANCE_ID_PREFIX"
+
+// Launch mode the AppHost puts on the launch configurations of its DCP `run_session` requests.
+// The values must match the `Mode` enum in `com.jetbrains.aspire.worker.dcp.DcpModels`.
+const val DEBUG_SESSION_RUN_MODE = "DEBUG_SESSION_RUN_MODE"
+const val DEBUG_SESSION_RUN_MODE_DEBUG = "Debug"
+const val DEBUG_SESSION_RUN_MODE_NO_DEBUG = "NoDebug"
 const val ASPNETCORE_URLS = "ASPNETCORE_URLS"
+
+// Makes the AppHost block at the first line of `DistributedApplication.CreateBuilder`, print its own PID
+// to stdout and spin until a debugger attaches. Used by the CLI runner to attach a debugger to the
+// AppHost process itself (the `aspire run` CLI launches it as a plain child process).
+const val ASPIRE_WAIT_FOR_DEBUGGER = "ASPIRE_WAIT_FOR_DEBUGGER"
+const val ASPIRE_DEBUGGER_TIMEOUT = "ASPIRE_DEBUGGER_TIMEOUT"
 
 const val ASPIRE_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS = "ASPIRE_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS"
 const val DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS = "DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS"

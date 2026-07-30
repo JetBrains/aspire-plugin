@@ -7,13 +7,15 @@ import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import java.util.*
 
 /**
- * Rider-free port of `AspireExecutorFactory.configureEnvironmentVariables`.
+ * The single shared configurator for the Aspire/DCP environment variables, used by both the CLI runner
+ * (`AspireCliRunProfileState`) and the Rider run factory (`AspireExecutorFactory`).
  *
- * Fills in the environment variables `aspire run` needs so the IDE can connect to the resource service,
- * the dashboard and the OTLP endpoint, and returns the resulting [AppHostEnvironment] that drives the
- * Services tool window (resource-service endpoint + api key, OTLP endpoint, dashboard login URL).
+ * Merges the DCP connection env into [envs], fills in the environment variables the app host needs so the
+ * IDE can connect to the resource service, the dashboard and the OTLP endpoint, and returns the resulting
+ * [AppHostEnvironment] that drives the Services tool window (resource-service endpoint + api key, OTLP
+ * endpoint, dashboard login URL).
  */
-internal object AspireCliEnvironment {
+object AspireCliEnvironment {
     private const val RESOURCE_SERVICE_BASE_PORT = 47200
     private const val OTLP_BASE_PORT = 47300
 
@@ -24,14 +26,18 @@ internal object AspireCliEnvironment {
     )
 
     /**
-     * Mutates [envs] in place with the Aspire/DCP environment variables and returns the derived
-     * [AppHostEnvironment].
+     * Merges [dcpEnvironmentVariables] into [envs], mutates [envs] in place with the Aspire/DCP environment
+     * variables and returns the derived [AppHostEnvironment].
      */
     fun configure(
         appHost: AspireAppHost,
         browserUrl: String?,
+        dcpEnvironmentVariables: Map<String, String>,
+        usePodmanRuntime: Boolean,
         envs: MutableMap<String, String>
     ): Result {
+        envs.putAll(dcpEnvironmentVariables)
+
         envs[DCP_INSTANCE_ID_PREFIX] = appHost.dcpInstancePrefix
 
         val urls = envs[ASPNETCORE_URLS]
@@ -78,6 +84,13 @@ internal object AspireCliEnvironment {
         if (!allowAnonymousDashboard) {
             apiKey = UUID.randomUUID().toString()
             envs[ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY] = apiKey
+        }
+
+        // Set ASPIRE_CONTAINER_RUNTIME to `podman` when the run parameters request the podman runtime.
+        // see: https://learn.microsoft.com/en-us/dotnet/aspire/app-host/configuration#common-configuration
+        val containerRuntime = envs.getAspireContainerRuntime()
+        if (usePodmanRuntime && !containerRuntime.equals("podman", true)) {
+            envs[ASPIRE_CONTAINER_RUNTIME] = "podman"
         }
 
         // OTLP endpoint used to collect telemetry.

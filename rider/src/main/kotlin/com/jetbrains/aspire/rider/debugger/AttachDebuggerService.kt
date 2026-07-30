@@ -19,8 +19,11 @@ internal class AttachDebuggerService(private val project: Project) {
         fun getInstance(project: Project): AttachDebuggerService = project.service()
     }
 
-    suspend fun attach(pid: Int) {
-        withBackgroundProgress(project, AspireRiderBundle.message("progress.attach.debugger.to.resource")) {
+    suspend fun attach(
+        pid: Int,
+        progressTitle: String = AspireRiderBundle.message("progress.attach.debugger.to.resource")
+    ) {
+        withBackgroundProgress(project, progressTitle) {
             val processInfo = ProcessListUtil.getProcessList().firstOrNull { it.pid == pid }
                 ?: return@withBackgroundProgress
             val attachHost = LocalAttachHost.INSTANCE

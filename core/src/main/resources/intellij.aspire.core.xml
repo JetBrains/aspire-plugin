@@ -18,6 +18,9 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.startSessionRequestHandler"
                         interface="com.jetbrains.aspire.extensions.StartSessionRequestHandler"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.appHostDebugger"
+                        interface="com.jetbrains.aspire.extensions.AppHostDebuggerExtension"
+                        dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
                         dynamic="true"/>
