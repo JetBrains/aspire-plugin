@@ -6,7 +6,6 @@ import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.Executor
-import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.process.ProcessEvent
@@ -51,15 +50,15 @@ import kotlin.io.path.absolutePathString
 internal class AspireCliRunProfileState(
     private val configuration: AspireCliRunConfiguration,
     private val environment: ExecutionEnvironment
-) : RunProfileState {
+) : AsyncRunProfileState {
     companion object {
         private val LOG = logger<AspireCliRunProfileState>()
     }
 
-    override fun execute(executor: Executor, runner: ProgramRunner<*>): ExecutionResult =
-        runBlockingCancellable { executeSuspend(executor) }
+    override fun execute(executor: Executor, programRunner: ProgramRunner<*>): ExecutionResult =
+        runBlockingCancellable { executeSuspending(executor, programRunner) }
 
-    private suspend fun executeSuspend(executor: Executor): ExecutionResult {
+    override suspend fun executeSuspending(executor: Executor, programRunner: ProgramRunner<*>): ExecutionResult {
         val project = environment.project
         val options = configuration.cliOptions
 
