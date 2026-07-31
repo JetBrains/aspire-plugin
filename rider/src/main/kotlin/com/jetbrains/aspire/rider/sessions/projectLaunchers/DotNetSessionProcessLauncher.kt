@@ -24,7 +24,9 @@ import com.jetbrains.aspire.rider.run.AspireRunConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.model.RunnableProjectKind
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
+import com.jetbrains.rider.run.environment.withDetectedExecutableType
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.DotNetRuntime
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
@@ -56,15 +58,22 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         LOG.trace { "Starting run session for ${launchConfiguration.projectPath}" }
 
         val aspireRunConfig = getAspireRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, _) = getDotNetExecutable(
+        val executableAndBrowserSettings = getDotNetExecutable(
             launchConfiguration,
             false,
             aspireRunConfig,
             project,
             sessionProcessLifetime
         )
-            ?: return
-        val executableWithOTLPEndpoint = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
+        if (executableAndBrowserSettings == null) {
+            LOG.warn("Unable to create an executable for the project ${launchConfiguration.projectPath}")
+            sessionProcessEventListener.processNotStarted()
+            return
+        }
+
+        val (executable, _) = executableAndBrowserSettings
+        val executableWithDetectedType = executable.withDetectedExecutableType()
+        val executableWithOTLPEndpoint = modifyDotNetExecutableToUseCustomOTLPEndpoint(executableWithDetectedType)
         val (modifiedExecutable, callback) = modifyDotNetExecutable(
             executableWithOTLPEndpoint,
             launchConfiguration.projectPath,
@@ -72,7 +81,11 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
             sessionProcessLifetime,
             project
         )
-        val runtime = getDotNetRuntime(modifiedExecutable, project) ?: return
+        val runtime = getDotNetRuntime(modifiedExecutable, project)
+        if (runtime == null) {
+            sessionProcessEventListener.processNotStarted()
+            return
+        }
 
         val projectPath = launchConfiguration.projectPath
         val appHostFilePath = aspireRunConfig?.let { Path(it.parameters.appHostFilePath) }
@@ -86,7 +99,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
             appHostFilePath
         )
 
-        executeProfile(profile, false, callback, project)
+        executeProfile(profile, false, callback, sessionProcessEventListener, project)
     }
 
     override suspend fun launchDebugProcess(
@@ -100,10 +113,22 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         LOG.trace { "Starting debug session for project ${launchConfiguration.projectPath}" }
 
         val aspireRunConfig = getAspireRunConfiguration(aspireHostRunConfigName, project)
-        val (executable, browserSettings) = getDotNetExecutable(launchConfiguration, true, aspireRunConfig, project, sessionProcessLifetime)
-            ?: return
-        val modifiedExecutable = modifyDotNetExecutableToUseCustomOTLPEndpoint(executable)
-        val runtime = getDotNetRuntime(modifiedExecutable, project) ?: return
+        val executableAndBrowserSettings =
+            getDotNetExecutable(launchConfiguration, true, aspireRunConfig, project, sessionProcessLifetime)
+        if (executableAndBrowserSettings == null) {
+            LOG.warn("Unable to create an executable for the project ${launchConfiguration.projectPath}")
+            sessionProcessEventListener.processNotStarted()
+            return
+        }
+
+        val (executable, browserSettings) = executableAndBrowserSettings
+        val executableWithDetectedType = executable.withDetectedExecutableType()
+        val modifiedExecutable = modifyDotNetExecutableToUseCustomOTLPEndpoint(executableWithDetectedType)
+        val runtime = getDotNetRuntime(modifiedExecutable, project)
+        if (runtime == null) {
+            sessionProcessEventListener.processNotStarted()
+            return
+        }
 
         val projectPath = launchConfiguration.projectPath
         val appHostFilePath = aspireRunConfig?.let { Path(it.parameters.appHostFilePath) }
@@ -118,14 +143,14 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
             appHostFilePath
         )
 
-        executeProfile(profile, true, null, project)
+        executeProfile(profile, true, null, sessionProcessEventListener, project)
     }
 
-    private fun getAspireRunConfiguration(name: String?, project: Project): AspireRunConfiguration? {
+    private suspend fun getAspireRunConfiguration(name: String?, project: Project): AspireRunConfiguration? {
         if (name == null) return null
 
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireConfigurationType::class.java)
-        val runConfiguration = RunManager.getInstance(project)
+        val runConfiguration = RunManager.getInstanceAsync(project)
             .getConfigurationsList(configurationType)
             .singleOrNull { it is AspireRunConfiguration && it.name == name }
         if (runConfiguration == null) {
@@ -205,6 +230,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         profile: RunProfile,
         isDebugSession: Boolean,
         callback: ProgramRunner.Callback?,
+        sessionProcessEventListener: ProcessListener,
         project: Project
     ) {
         val environment =
@@ -218,7 +244,8 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
                     ?.build()
             }
         if (environment == null) {
-            LOG.warn("Unable to create debug execution environment")
+            LOG.warn("Unable to create ${if (isDebugSession) "debug" else "run"} execution environment")
+            sessionProcessEventListener.processNotStarted()
             return
         }
 
