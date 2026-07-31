@@ -59,7 +59,6 @@ private fun getFileBasedLaunchProfiles(launchSettings: LaunchSettingsJson.Launch
     val profiles = launchSettings.profiles ?: return emptyList()
 
     return profiles
-        .asSequence()
         .map { (name, content) -> LaunchProfile(name, content) }
         .sortedBy { it.name }
         .toList()
@@ -76,7 +75,7 @@ private fun getFileBasedLaunchProfileByName(
     launchProfileName: String?
 ): LaunchProfile? =
     launchSettings.profiles
-        ?.asSequence()
+        ?.entries
         ?.firstOrNull { it.key == launchProfileName }
         ?.let { (name, content) -> LaunchProfile(name, content) }
 

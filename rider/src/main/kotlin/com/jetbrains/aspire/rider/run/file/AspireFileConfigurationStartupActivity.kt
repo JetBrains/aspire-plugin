@@ -1,6 +1,5 @@
 package com.jetbrains.aspire.rider.run.file
 
-import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
 
@@ -9,6 +8,6 @@ import com.intellij.openapi.startup.ProjectActivity
  */
 internal class AspireFileConfigurationStartupActivity : ProjectActivity {
     override suspend fun execute(project: Project) {
-        project.serviceAsync<AspireFileConfigurationGenerator>().generateDefaultConfigurations()
+        AspireFileConfigurationGenerator.getInstance(project).generateDefaultConfigurations()
     }
 }

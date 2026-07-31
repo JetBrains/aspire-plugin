@@ -3,9 +3,6 @@ package com.jetbrains.aspire.rider.run.file
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * The name of the Aspire configuration file that replaced `apphost.run.json` for file-based app hosts.
- */
 internal const val ASPIRE_CONFIG_JSON_NAME = "aspire.config.json"
 
 /**
