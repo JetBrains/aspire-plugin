@@ -1,8 +1,5 @@
-using JetBrains.Application.changes;
 using JetBrains.Application.Parts;
-using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
-using JetBrains.ProjectModel.DotNetCore;
 using JetBrains.ReSharper.Features.Running;
 using JetBrains.Rider.Aspire.Plugin.RunnableProject;
 using JetBrains.Rider.Backend.Features.RunMarkers;
@@ -15,15 +12,9 @@ namespace JetBrains.Rider.Aspire.Plugin.RunGutterMarks;
 
 [SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 internal sealed class AspireTemplateProvider(
-    Lifetime lifetime,
-    FileBasedAspireLaunchSettingsJsonDataCache cache,
-    ChangeManager changeManager,
-    ISolution solution
+    FileBasedAspireLaunchSettingsJsonProfileProvider launchSettingsJsonProfileProvider
 ) : IRunConfigurationTemplateProvider
 {
-    private readonly DotNetCoreLaunchSettingsJsonProfileProvider _launchSettingsJsonProfileProvider =
-        new(lifetime, cache, changeManager, solution);
-
     private const string AspireHostConfigurationTypeId = "AspireHostConfiguration";
 
     public IEnumerable<GeneratedRunConfigurationTemplate> CreateRunConfigurationTemplates(IProject project,
@@ -54,7 +45,7 @@ internal sealed class AspireTemplateProvider(
                                      ?? project.Location / "Properties" / "launchSettings.json";
         if (launchSettingsFilePath == null) return [];
 
-        var profiles = _launchSettingsJsonProfileProvider.TryGetLaunchJsonSettingsProfiles(launchSettingsFilePath)
+        var profiles = launchSettingsJsonProfileProvider.TryGetLaunchJsonSettingsProfiles(launchSettingsFilePath)
             .Profiles;
         return profiles.SelectMany(profile => aspireTemplates
             .Where(templateDescriptor =>
