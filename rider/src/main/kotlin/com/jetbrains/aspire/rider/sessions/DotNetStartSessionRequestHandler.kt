@@ -383,6 +383,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             DotNetSessionProcessLauncherExtension.getApplicableLauncher(launchConfiguration.projectPath, project)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${launchConfiguration.projectPath}")
+            sessionProcessEventListener.processNotStarted()
             return
         }
 
@@ -408,6 +409,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             DotNetSessionProcessLauncherExtension.getApplicableLauncher(launchConfiguration.projectPath, project)
         if (processLauncher == null) {
             LOG.warn("Unable to find appropriate process launcher for the project ${launchConfiguration.projectPath}")
+            sessionProcessEventListener.processNotStarted()
             return
         }
 
