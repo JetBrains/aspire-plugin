@@ -18,6 +18,12 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
             state.forceBuildOfAppHostReferencedProjects = value
         }
 
+    var buildExternalNetProjects
+        get() = state.buildExternalNetProjects
+        set(value) {
+            state.buildExternalNetProjects = value
+        }
+
     var doNotLaunchBrowserForProjects
         get() = state.doNotLaunchBrowserForProjects
         set(value) {
