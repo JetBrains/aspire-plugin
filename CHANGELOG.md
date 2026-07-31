@@ -4,13 +4,21 @@
 
 ## [Unreleased]
 
-### Changed
+### Added
 
-- Update platform version to 2026.2-RC1-SNAPSHOT
+- Support file-based projects for the session launch
+- [#704](https://github.com/JetBrains/aspire-plugin/issues/704) Setting to disable building of external .NET projects
 
 ### Fixed
 
+- Run gutter marks behavior for apphost host configuration
 - Debug session was not started for tests executed with Microsoft.Testing.Platform (MSTest runner, xUnit v3, TUnit), so breakpoints in Aspire resource projects were not hit when debugging such tests
+
+## [2.7.5] - 2026-07-16
+
+### Changed
+
+- Update platform version to 2026.2-RC1-SNAPSHOT
 
 ## [2.7.4] - 2026-06-17
 
@@ -714,7 +722,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.4...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.7.5...HEAD
+[2.7.5]: https://github.com/JetBrains/aspire-plugin/compare/2.7.4...2.7.5
 [2.7.4]: https://github.com/JetBrains/aspire-plugin/compare/2.7.3...2.7.4
 [2.7.3]: https://github.com/JetBrains/aspire-plugin/compare/2.7.2...2.7.3
 [2.7.2]: https://github.com/JetBrains/aspire-plugin/compare/2.7.1...2.7.2

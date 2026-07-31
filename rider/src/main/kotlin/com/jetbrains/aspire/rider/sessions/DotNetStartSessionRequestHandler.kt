@@ -137,6 +137,13 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
 
     private suspend fun buildExternalProjects(projectPaths: List<Path>, project: Project) {
         if (projectPaths.isEmpty()) return
+
+        val settings = AspireSettings.getInstance()
+        if (!settings.buildExternalNetProjects) {
+            LOG.trace("Skip building external .NET projects")
+            return
+        }
+
         LOG.trace { "Building ${projectPaths.size} external project(s): ${projectPaths.map { it.fileName }}" }
         val buildService = DotNetBuildService.getInstance(project)
         buildService.buildProjects(projectPaths)

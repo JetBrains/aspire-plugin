@@ -19,6 +19,10 @@ internal class AspireConfigurable : BoundConfigurable(AspireCoreBundle.message("
                 .bindSelected(settings::forceBuildOfAppHostReferencedProjects)
         }
         row {
+            checkBox(AspireCoreBundle.message("configurable.Aspire.build.external.net.projects"))
+                .bindSelected(settings::buildExternalNetProjects)
+        }
+        row {
             checkBox(AspireCoreBundle.message("configurable.Aspire.do.not.launch.browser"))
                 .bindSelected(settings::doNotLaunchBrowserForProjects)
         }

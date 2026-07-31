@@ -4,6 +4,7 @@ import com.intellij.openapi.components.BaseState
 
 class AspireSettingsState : BaseState() {
     var forceBuildOfAppHostReferencedProjects by property(false)
+    var buildExternalNetProjects by property(true)
     var doNotLaunchBrowserForProjects by property(true)
     var connectToDcpViaHttps by property(true)
     var connectToDatabase by property(true)
