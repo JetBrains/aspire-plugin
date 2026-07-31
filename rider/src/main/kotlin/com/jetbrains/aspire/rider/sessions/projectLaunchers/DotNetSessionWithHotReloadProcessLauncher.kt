@@ -4,10 +4,6 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.aspire.rider.sessions.findBySessionProject
-import com.jetbrains.rider.model.runnableProjectsModel
-import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.runtime.DotNetExecutable
@@ -17,7 +13,7 @@ import java.nio.file.Path
  * An implementation of the `SessionProcessLauncherExtension` interface that modifies created [DotNetExecutable]
  * to apply a Hot Reload mechanism.
  */
-abstract class DotNetSessionWithHotReloadProcessLauncher: DotNetSessionProcessLauncher() {
+abstract class DotNetSessionWithHotReloadProcessLauncher : DotNetRunnableSessionProcessLauncher() {
     protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
 
     override suspend fun modifyDotNetExecutable(
@@ -27,9 +23,8 @@ abstract class DotNetSessionWithHotReloadProcessLauncher: DotNetSessionProcessLa
         lifetime: Lifetime,
         project: Project
     ): Pair<DotNetExecutable, ProgramRunner.Callback?> {
-        val runnableProject =
-            project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) { it.kind == RunnableProjectKinds.DotNetCore }
-                ?: return executable to null
+        val runnableProject = findSupportedRunnableProjectByPath(sessionProjectPath, project)
+            ?: return executable to null
 
         val hotReloadRunInfo = RuntimeHotReloadRunConfigurationInfo(
             DefaultRunExecutor.EXECUTOR_ID,

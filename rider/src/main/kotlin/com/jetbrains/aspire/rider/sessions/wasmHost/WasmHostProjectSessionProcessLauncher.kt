@@ -11,8 +11,10 @@ import com.jetbrains.aspire.rider.sessions.findRunnableProjectByPath
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.model.RunnableProjectKind
 import com.jetbrains.rider.nuget.PackageVersionResolution
 import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
+import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
@@ -32,6 +34,7 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
     override val priority = 3
 
     override val hotReloadExtension = WasmHostHotReloadConfigurationExtension()
+    override val supportedRunnableProjectKinds: List<RunnableProjectKind> = listOf(RunnableProjectKinds.DotNetCore)
 
     override suspend fun isApplicable(projectPath: Path, project: Project): Boolean {
         val runnableProject = findRunnableProjectByPath(projectPath, project)
@@ -93,7 +96,12 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
         val addBrowserAction = !isDebugSession
-        val executable = factory.createExecutable(launchConfiguration, aspireRunConfiguration, addBrowserAction)
+        val executable = factory.createExecutable(
+            launchConfiguration,
+            aspireRunConfiguration,
+            addBrowserAction,
+            supportedRunnableProjectKinds
+        )
         if (executable == null) {
             LOG.warn("Unable to create executable for project: ${launchConfiguration.projectPath}")
         }

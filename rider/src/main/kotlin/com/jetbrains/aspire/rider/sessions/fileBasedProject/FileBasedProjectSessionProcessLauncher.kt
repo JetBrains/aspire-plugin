@@ -12,6 +12,8 @@ import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.ijent.extensions.toRd
+import com.jetbrains.rider.model.RunnableProjectKind
+import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.dotNetFile.FileBasedProgramProjectManager
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -33,6 +35,7 @@ internal class FileBasedProjectSessionProcessLauncher : DotNetSessionWithHotRelo
     override val priority = 3
 
     override val hotReloadExtension = DotNetProjectHotReloadConfigurationExtension()
+    override val supportedRunnableProjectKinds: List<RunnableProjectKind> = listOf(RunnableProjectKinds.DotNetCore)
 
     override suspend fun isApplicable(projectPath: Path, project: Project): Boolean =
         projectPath.extension.equals("cs", ignoreCase = true)

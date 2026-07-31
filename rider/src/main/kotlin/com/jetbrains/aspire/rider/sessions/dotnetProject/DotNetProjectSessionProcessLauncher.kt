@@ -9,6 +9,8 @@ import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.model.RunnableProjectKind
+import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.nio.file.Path
@@ -24,6 +26,8 @@ internal class DotNetProjectSessionProcessLauncher : DotNetSessionWithHotReloadP
     override val priority = 10
 
     override val hotReloadExtension = DotNetProjectHotReloadConfigurationExtension()
+    override val supportedRunnableProjectKinds: List<RunnableProjectKind> =
+        listOf(RunnableProjectKinds.DotNetCore, RunnableProjectKinds.Wpf)
 
     override suspend fun isApplicable(projectPath: Path, project: Project) = true
 
@@ -72,7 +76,12 @@ internal class DotNetProjectSessionProcessLauncher : DotNetSessionWithHotReloadP
         sessionProcessLifetime: Lifetime
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
-        val executable = factory.createExecutable(launchConfiguration, aspireRunConfiguration, true)
+        val executable = factory.createExecutable(
+            launchConfiguration,
+            aspireRunConfiguration,
+            true,
+            supportedRunnableProjectKinds
+        )
         if (executable == null) {
             LOG.warn("Unable to create executable for project: ${launchConfiguration.projectPath}")
         }

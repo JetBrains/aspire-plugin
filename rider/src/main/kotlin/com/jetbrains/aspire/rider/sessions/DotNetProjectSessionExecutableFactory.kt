@@ -14,9 +14,9 @@ import com.jetbrains.aspire.rider.util.getStartBrowserAction
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rider.model.RunnableProject
+import com.jetbrains.rider.model.RunnableProjectKind
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
-import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.configurations.TerminalMode
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
@@ -40,11 +40,14 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
     suspend fun createExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
         aspireRunConfiguration: AspireRunConfiguration?,
-        addBrowserAction: Boolean
+        addBrowserAction: Boolean,
+        runnableProjectKinds: List<RunnableProjectKind>
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val sessionProjectPath = launchConfiguration.projectPath
         val runnableProject =
-            project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) { it.kind == RunnableProjectKinds.DotNetCore }
+            project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) {
+                runnableProjectKinds.contains(it.kind)
+            }
 
         return if (runnableProject != null) {
             getExecutableForRunnableProject(
