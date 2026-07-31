@@ -8,6 +8,7 @@
 
 - Support file-based projects for the session launch
 - [#704](https://github.com/JetBrains/aspire-plugin/issues/704) Setting to disable building of external .NET projects
+- [#703](https://github.com/JetBrains/aspire-plugin/issues/703) Support for WPF projects in Aspire sessions
 
 ### Fixed
 
