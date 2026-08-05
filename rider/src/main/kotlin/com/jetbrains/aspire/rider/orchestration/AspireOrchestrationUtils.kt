@@ -32,6 +32,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.nio.file.Path
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.path.absolutePathString
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.rider.orchestration.AspireOrchestrationUtils")
@@ -41,7 +42,8 @@ private val supportedProjectTypes = listOf(
     RdProjectType.Web,
     RdProjectType.XamlProject,
     RdProjectType.MAUI,
-    RdProjectType.AzureFunction
+    RdProjectType.AzureFunction,
+    RdProjectType.Wpf
 )
 
 internal fun getProjectType(entity: ProjectModelEntity): RdProjectType? {
@@ -118,7 +120,7 @@ private suspend fun waitForProjectModelIsReady(project: Project) {
             }
 
             PsiDocumentManager.getInstance(project).commitAllDocuments()
-            delay(10)
+            delay(10.milliseconds)
         }
         LOG.debug("Wait for Project model: all frontend documents are committed")
 

@@ -1,6 +1,5 @@
 package com.jetbrains.aspire.rider.orchestration
 
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.virtualFile
 import com.jetbrains.rider.model.RdProjectType
@@ -8,12 +7,13 @@ import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import kotlin.io.path.nameWithoutExtension
 
 internal class DefaultProjectOrchestrationHandler : BaseOrchestrationHandler() {
-    companion object {
-        private val LOG = logger<DefaultProjectOrchestrationHandler>()
-    }
-
     override val priority = 0
-    override val supportedProjectTypes = listOf(RdProjectType.Default, RdProjectType.Web, RdProjectType.XamlProject)
+    override val supportedProjectTypes = listOf(
+        RdProjectType.Default,
+        RdProjectType.Web,
+        RdProjectType.XamlProject,
+        RdProjectType.Wpf
+    )
 
     override suspend fun modifyAppHost(
         appHostEntity: ProjectModelEntity,
