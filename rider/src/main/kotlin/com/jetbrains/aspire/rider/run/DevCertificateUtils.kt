@@ -22,6 +22,8 @@ import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.io.createDirectories
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.certificates.DevCertificateAnalyzer
+import com.jetbrains.aspire.certificates.DevCertificateDiagnostics
 import com.jetbrains.aspire.extensions.DevCertificateCheckResult
 import com.jetbrains.rider.environment.initializeAndGetEnvironment
 import com.jetbrains.rider.run.configurations.runInRunToolWindow
@@ -32,9 +34,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import org.jetbrains.concurrency.await
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
@@ -42,38 +41,6 @@ import kotlin.io.path.pathString
 import kotlin.io.path.readText
 
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.util.DevCertificateUtils")
-
-private val json by lazy { Json { ignoreUnknownKeys = true } }
-
-private const val CURRENT_ASPNET_CORE_CERTIFICATE_VERSION = 6
-private const val MINIMUM_ASPNET_CORE_CERTIFICATE_VERSION = 4
-
-@Suppress("unused")
-private enum class DevCertificateTrustLevel {
-    None,
-    Partial,
-    Full,
-    Unknown;
-
-    val isTrusted: Boolean
-        get() = this == Partial || this == Full
-}
-
-@Serializable
-private data class DevCertificate(
-    @SerialName("Thumbprint") val thumbprint: String? = null,
-    @SerialName("Version") val version: Int = 0,
-    @SerialName("TrustLevel") val trustLevel: DevCertificateTrustLevel = DevCertificateTrustLevel.Unknown
-)
-
-private data class DevCertificateDiagnostics(
-    val certificates: List<DevCertificate>,
-    val result: DevCertificateCheckResult,
-    val oldTrustedVersions: List<Int> = emptyList()
-) {
-    val requiresAttention: Boolean
-        get() = !result.isTrusted || oldTrustedVersions.isNotEmpty()
-}
 
 @Suppress("UnstableApiUsage")
 internal suspend fun checkDevCertificate(
@@ -88,8 +55,8 @@ internal suspend fun checkDevCertificate(
     if (diagnostics.oldTrustedVersions.isNotEmpty()) {
         LOG.warn(
             "Old trusted dev certificate versions detected: ${diagnostics.oldTrustedVersions.joinToString()}. " +
-                    "Current version=$CURRENT_ASPNET_CORE_CERTIFICATE_VERSION, " +
-                    "minimum supported version=$MINIMUM_ASPNET_CORE_CERTIFICATE_VERSION"
+                    "Current version=${DevCertificateAnalyzer.CURRENT_ASPNET_CORE_CERTIFICATE_VERSION}, " +
+                    "minimum supported version=${DevCertificateAnalyzer.MINIMUM_ASPNET_CORE_CERTIFICATE_VERSION}"
         )
     }
 
@@ -137,8 +104,7 @@ private suspend fun collectDevCertificateDiagnostics(
             LOG.trace { "dotnet dev-certs check failed with exit code: ${processResult.exitCode}" }
             DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.CheckFailed)
         } else {
-            val certificates = parseDevCertificateCheckOutput(processResult.stdoutString)
-            analyzeCurrentCertificates(certificates)
+            DevCertificateAnalyzer.getInstance().analyze(processResult.stdoutString)
         }
     } catch (ce: CancellationException) {
         throw ce
@@ -147,44 +113,6 @@ private suspend fun collectDevCertificateDiagnostics(
         DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.CheckFailed)
     }
 }
-
-private fun parseDevCertificateCheckOutput(output: String): List<DevCertificate> {
-    val start = output.indexOf('[')
-    val end = output.lastIndexOf(']')
-    if (start !in 0..<end) return emptyList()
-    val jsonArray = output.substring(start, end + 1)
-    return json.decodeFromString(jsonArray)
-}
-
-private fun analyzeCurrentCertificates(certificates: List<DevCertificate>): DevCertificateDiagnostics {
-    if (certificates.isEmpty()) {
-        return DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.NoCertificate)
-    }
-
-    val trustedCount = certificates.count { it.trustLevel.isTrusted }
-    val fullyTrustedCount = certificates.count { it.trustLevel == DevCertificateTrustLevel.Full }
-    val partiallyTrustedCount = certificates.count { it.trustLevel == DevCertificateTrustLevel.Partial }
-
-    val result = when {
-        certificates.size > 1 -> when (trustedCount) {
-            certificates.size -> DevCertificateCheckResult.Trusted
-            else -> DevCertificateCheckResult.MultipleCertificatesIssue(certificates.size, trustedCount)
-        }
-
-        trustedCount == 0 -> DevCertificateCheckResult.NotTrusted
-        partiallyTrustedCount > 0 && fullyTrustedCount == 0 -> DevCertificateCheckResult.PartiallyTrusted
-        else -> DevCertificateCheckResult.Trusted
-    }
-
-    val oldTrustedVersions = certificates
-        .filter { it.trustLevel.isTrusted && it.version < CURRENT_ASPNET_CORE_CERTIFICATE_VERSION }
-        .map { it.version }
-        .distinct()
-        .sorted()
-
-    return DevCertificateDiagnostics(certificates, result, oldTrustedVersions)
-}
-
 
 private fun showNotification(useBundledRuntime: Boolean, project: Project, diagnostics: DevCertificateDiagnostics) {
     val notificationDescription = when (val result = diagnostics.result) {
@@ -207,8 +135,8 @@ private fun showNotification(useBundledRuntime: Boolean, project: Project, diagn
             AspireCoreBundle.message(
                 "notification.dev.certificate.old.version",
                 diagnostics.oldTrustedVersions.joinToString(),
-                CURRENT_ASPNET_CORE_CERTIFICATE_VERSION,
-                MINIMUM_ASPNET_CORE_CERTIFICATE_VERSION
+                DevCertificateAnalyzer.CURRENT_ASPNET_CORE_CERTIFICATE_VERSION,
+                DevCertificateAnalyzer.MINIMUM_ASPNET_CORE_CERTIFICATE_VERSION
             )
     }
 
