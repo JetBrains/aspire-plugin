@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace WpfApp1;
+namespace WpfAspireApp.WpfApp;
 
 public partial class App : Application
 {
