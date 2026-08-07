@@ -8,15 +8,25 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
+import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.sessions.*
+import com.jetbrains.aspire.worker.dcp.AspireSessionHost
+import com.jetbrains.aspire.worker.dcp.AspireSessionServer
+import com.jetbrains.aspire.worker.dcp.AspireSessionServerConfig
+import com.jetbrains.aspire.worker.dcp.AspireSessionServerTlsConfig
+import com.jetbrains.aspire.worker.dcp.AspireSessionServerEndpoint
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
@@ -37,18 +47,27 @@ class AspireAppHost(
     val mainFilePath: Path,
     private val project: Project,
     parentCs: CoroutineScope
-) : Disposable {
+) : Disposable, AspireSessionHost {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }
 
     private val cs = parentCs.childScope("Aspire AppHost")
 
-    private val sessionEvents = Channel<SessionEvent>(Channel.UNLIMITED)
+    override val sessionEvents: ReceiveChannel<SessionEvent>
+        field = Channel<SessionEvent>(Channel.UNLIMITED)
+
     private val sessionEventHandler = SessionEventHandler()
+
+    private val hostLifetime = AspireService.getInstance(project).lifetime.createNested()
+
+    private val sessionServerMutex = Mutex()
+
+    private var sessionServer: AspireSessionServer? = null
 
     val dcpInstancePrefix = generateDcpInstancePrefix()
     val browserToken = generateBrowserToken()
+    private val sessionServerToken: String = generateSessionServerToken()
 
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this)
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
@@ -117,13 +136,41 @@ class AspireAppHost(
         resourceTreeManager.observeAppHostState(appHostState)
     }
 
-    fun subscribeToAspireAppHostModel(appHostModel: AspireHostModel, dispatcher: RdDispatcher, appHostLifetime: Lifetime) {
+    fun subscribeToAspireAppHostModel(
+        appHostModel: AspireHostModel,
+        dispatcher: RdDispatcher,
+        appHostLifetime: Lifetime
+    ) {
         appHostLifetime.coroutineScope.launch {
             for (event in sessionEvents) {
                 sessionEventHandler.handleSessionEvent(event, appHostModel, dispatcher)
             }
         }
     }
+
+    /**
+     * Starts this host's embedded DCP session server (idempotent) and suspends until it is bound, so the
+     * AppHost process — which connects immediately on launch — can be started only after this returns.
+     * A second call while running returns the already-bound endpoint (the [tls] argument is ignored on reuse).
+     */
+    suspend fun startSessionServer(tls: AspireSessionServerTlsConfig?): AspireSessionServerEndpoint {
+        sessionServerMutex.withLock {
+            sessionServer?.let { return AspireSessionServerEndpoint(it.resolvedPort, it.token, it.isHttps) }
+
+            val server = AspireSessionServer(
+                this,
+                AspireSessionServerConfig(port = 0, token = sessionServerToken, tls = tls)
+            )
+            server.start()
+            sessionServer = server
+
+            LOG.trace { "Started embedded DCP server for $mainFilePath on port ${server.resolvedPort} (https=${server.isHttps})" }
+            return AspireSessionServerEndpoint(server.resolvedPort, server.token, server.isHttps)
+        }
+    }
+
+    override fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse =
+        createSession(createSessionRequest, hostLifetime)
 
     fun createSession(
         createSessionRequest: CreateSessionRequest,
@@ -177,7 +224,7 @@ class AspireAppHost(
             else -> null
         }
 
-    fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
+    override fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
         LOG.trace { "Deleting Aspire session with id: ${deleteSessionRequest.sessionId}" }
 
         val request = StopSessionRequest(deleteSessionRequest.sessionId)
@@ -189,6 +236,17 @@ class AspireAppHost(
 
     override fun dispose() {
         LOG.trace { "Disposing AspireAppHost for project: $mainFilePath" }
+
+        cs.launch(NonCancellable) {
+            val server = sessionServerMutex.withLock {
+                val currentServer = sessionServer
+                sessionServer = null
+                currentServer
+            }
+            server?.stop()
+        }
+
+        hostLifetime.terminate()
         cs.cancel()
     }
 
@@ -200,6 +258,10 @@ class AspireAppHost(
     }
 
     private fun generateBrowserToken(): String {
+        return UUID.randomUUID().toString()
+    }
+
+    private fun generateSessionServerToken(): String {
         return UUID.randomUUID().toString()
     }
 
