@@ -12,8 +12,8 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.cio.*
 import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -41,17 +41,27 @@ interface AspireSessionHost {
  * TLS material for terminating HTTPS with the ASP.NET dev certificate.
  *
  * @param keyStore a PKCS12 [KeyStore] holding the dev certificate and its private key
- * @param keyAlias the alias of the certificate entry inside [keyStore]
- * @param keyStorePassword password protecting the key store
- * @param privateKeyPassword password protecting the private key entry
+ * @param keyAlias the alias of the *key* entry inside [keyStore]; the engine reads both the
+ *   certificate chain and the private key from it, so a trusted-certificate entry will not do
+ * @param password the password protecting both the key store and the private key entry, which is
+ *   how `dotnet dev-certs` writes its PKCS12 exports
  */
 @ApiStatus.Internal
 class AspireSessionTlsConfig(
     val keyStore: KeyStore,
     val keyAlias: String,
-    val keyStorePassword: CharArray,
-    val privateKeyPassword: CharArray,
-)
+    private val password: CharArray,
+) {
+    /**
+     * Ktor zeroes out the array a password provider returns once it has consumed it (see
+     * `NettyChannelInitializer`), so every call hands out a fresh copy. Otherwise a second
+     * [AspireSessionServer.start] on the same config — the engine is rebuilt on each start — would
+     * be given an all-zeros password.
+     */
+    fun keyStorePassword(): CharArray = password.copyOf()
+
+    fun privateKeyPassword(): CharArray = password.copyOf()
+}
 
 /**
  * Configuration for a single embedded server instance.
@@ -68,7 +78,7 @@ data class AspireSessionServerConfig(
 )
 
 /**
- * An embedded Ktor (CIO) server implementing the Aspire DCP "IDE execution" protocol.
+ * An embedded Ktor (Netty) server implementing the Aspire DCP "IDE execution" protocol.
  *
  * @param sessionHost the engine session requests are forwarded to
  * @param config the bind port, Bearer token, and optional TLS material
@@ -95,7 +105,7 @@ class AspireSessionServer(
     }
 
     private val lifecycleMutex = Mutex()
-    private var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? = null
+    private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
 
     /** Guards the single-consumer [AspireSessionHost.sessionEvents] channel against double draining. */
     private val notifyMutex = Mutex()
@@ -141,21 +151,23 @@ class AspireSessionServer(
         }
     }
 
-    private fun buildServer(): EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration> {
+    private fun buildServer(): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
         val rootConfig = serverConfig {
             module {
                 configureModule()
             }
         }
 
-        return embeddedServer(CIO, rootConfig) {
+        return embeddedServer(Netty, rootConfig) {
+            enableHttp2 = false
+
             val tls = config.tls
             if (tls != null) {
                 sslConnector(
                     keyStore = tls.keyStore,
                     keyAlias = tls.keyAlias,
-                    keyStorePassword = { tls.keyStorePassword },
-                    privateKeyPassword = { tls.privateKeyPassword },
+                    keyStorePassword = { tls.keyStorePassword() },
+                    privateKeyPassword = { tls.privateKeyPassword() },
                 ) {
                     host = LOOPBACK_HOST
                     port = config.port

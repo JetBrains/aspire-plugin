@@ -11,7 +11,10 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.eel.EelApi
+import com.intellij.platform.eel.fs.createTemporaryFile
+import com.intellij.platform.eel.getOrNull
 import com.intellij.platform.eel.isMac
+import com.intellij.platform.eel.provider.asNioPath
 import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.provider.utils.awaitProcessResult
@@ -19,26 +22,25 @@ import com.intellij.platform.eel.provider.utils.stderrString
 import com.intellij.platform.eel.provider.utils.stdoutString
 import com.intellij.platform.eel.spawnProcess
 import com.intellij.platform.ide.progress.withBackgroundProgress
-import com.intellij.util.io.createDirectories
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.certificates.DevCertificateAnalyzer
 import com.jetbrains.aspire.certificates.DevCertificateDiagnostics
+import com.jetbrains.aspire.certificates.DevCertificateKeyMaterial
 import com.jetbrains.aspire.extensions.DevCertificateCheckResult
 import com.jetbrains.rider.environment.initializeAndGetEnvironment
 import com.jetbrains.rider.run.configurations.runInRunToolWindow
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
-import com.jetbrains.rider.web.DotNetSslCerts
 import com.jetbrains.rider.web.RiderWebBundle
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.concurrency.await
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.exists
-import kotlin.io.path.pathString
-import kotlin.io.path.readText
+import java.nio.file.Path
+import java.security.KeyStore
+import java.util.*
+import kotlin.io.path.*
 
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.util.DevCertificateUtils")
 
@@ -219,7 +221,12 @@ private fun cleanAndTrustDevCertificateAction(useBundledRuntime: Boolean, projec
 }
 
 @Suppress("UnstableApiUsage")
-private suspend fun runDevCertificateCommands(useBundledRuntime: Boolean, project: Project, progressTitle: String, commands: List<String>) {
+private suspend fun runDevCertificateCommands(
+    useBundledRuntime: Boolean,
+    project: Project,
+    progressTitle: String,
+    commands: List<String>
+) {
     val dotnetCliPath = if (useBundledRuntime) {
         project.initializeAndGetEnvironment().getRuntime().cliPath()
     } else {
@@ -366,26 +373,137 @@ private suspend fun notifyDevCertificateCommandSuccess(project: Project) =
     }
 
 
+private enum class DevCertificateExportFormat(val argument: String, val extension: String) {
+    Pem("PEM", "pem"),
+    Pfx("PFX", "pfx")
+}
+
+/**
+ * Exports the public development certificate as base64-encoded DER, the form DCP expects in
+ * `DEBUG_SESSION_SERVER_CERTIFICATE`.
+ */
 @Suppress("UnstableApiUsage")
-internal suspend fun exportDevCertificate(useBundledRuntime: Boolean, project: Project): String? {
+internal suspend fun exportDevCertificateAndReadFile(
+    useBundledRuntime: Boolean,
+    project: Project
+): Result<String> {
+    val eelApi = project.getEelDescriptor().toEelApi()
+    val certificateFile = eelApi.fs.createTemporaryFile()
+        .prefix("aspire-dev-cert")
+        .suffix(".${DevCertificateExportFormat.Pem.extension}")
+        .deleteOnExit(true)
+        .eelIt()
+        .getOrNull()
+        ?.asNioPath()
+    if (certificateFile == null) {
+        LOG.warn("Unable to create a temporary pem file for certificate exporting")
+        return Result.failure(Exception("Unable to create a temporary pem file for certificate exporting"))
+    }
+
+    val exportResult = exportDevCertificate(
+        useBundledRuntime,
+        project,
+        certificateFile,
+        DevCertificateExportFormat.Pem
+    )
+    if (!exportResult.isSuccess) {
+        return Result.failure(requireNotNull(exportResult.exceptionOrNull()))
+    }
+
+    // Remove PEM header and footer
+    val content = certificateFile
+        .readText()
+        .removePrefix("-----BEGIN CERTIFICATE-----")
+        .removeSuffix("-----END CERTIFICATE-----")
+        .lines()
+        .joinToString("")
+        .trim()
+    return Result.success(content)
+}
+
+/**
+ * Exports the development certificate together with its private key and loads it into an in-memory
+ * PKCS12 key store, so the IDE can terminate TLS with it.
+ */
+@Suppress("UnstableApiUsage")
+internal suspend fun exportDevCertificateAndLoadToKeyStore(
+    useBundledRuntime: Boolean,
+    project: Project
+): Result<DevCertificateKeyMaterial> {
+    val eelApi = project.getEelDescriptor().toEelApi()
+    val certificateFile = eelApi.fs.createTemporaryFile()
+        .prefix("aspire-dev-cert")
+        .suffix(".${DevCertificateExportFormat.Pfx.extension}")
+        .deleteOnExit(true)
+        .eelIt()
+        .getOrNull()
+        ?.asNioPath()
+    if (certificateFile == null) {
+        LOG.warn("Unable to create a temporary pfx file for certificate exporting")
+        return Result.failure(Exception("Unable to create a temporary pfx file for certificate exporting"))
+    }
+
+    val password = UUID.randomUUID().toString()
+    val exportResult = exportDevCertificate(
+        useBundledRuntime,
+        project,
+        certificateFile,
+        DevCertificateExportFormat.Pfx,
+        password
+    )
+    if (!exportResult.isSuccess) {
+        return Result.failure(requireNotNull(exportResult.exceptionOrNull()))
+    }
+
+    val keyStore = KeyStore.getInstance("PKCS12")
+    certificateFile.inputStream().use {
+        keyStore.load(it, password.toCharArray())
+    }
+
+    val alias = keyStore.aliases().asSequence().firstOrNull { keyStore.isKeyEntry(it) }
+    if (alias == null) {
+        LOG.warn("Exported PKCS12 key store has no private key entry")
+        return Result.failure(Exception("Exported PKCS12 key store has no private key entry"))
+    }
+
+    val material = DevCertificateKeyMaterial(keyStore, alias, password.toCharArray())
+    return Result.success(material)
+}
+
+@Suppress("UnstableApiUsage")
+private suspend fun exportDevCertificate(
+    useBundledRuntime: Boolean,
+    project: Project,
+    certificateFile: Path,
+    format: DevCertificateExportFormat,
+    password: String? = null
+): Result<Unit> {
     val dotnetCliPath = if (useBundledRuntime) {
         project.initializeAndGetEnvironment().getRuntime().cliPath()
     } else {
-        RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value?.cliExePath ?: return null
+        RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value?.cliExePath
     }
-
-    val certificateFolder = DotNetSslCerts.getAspNetCoreCertificateFolder()
-    if (!certificateFolder.exists()) {
-        certificateFolder.createDirectories()
+    if (dotnetCliPath == null) {
+        return Result.failure(Exception("Unable to find .NET CLI runtime"))
     }
-
-    val certificateFile = certificateFolder.resolve("aspire-worker.crt")
 
     val eelApi = project.getEelDescriptor().toEelApi()
     val exitCode =
         withBackgroundProgress(project, RiderWebBundle.message("DotNetSslCerts.progress.title.certificate.export")) {
+            val args = buildList {
+                add("dev-certs")
+                add("https")
+                add("--export-path")
+                add(certificateFile.absolutePathString())
+                add("--format")
+                add(format.argument)
+                if (password != null) {
+                    add("--password")
+                    add(password)
+                }
+            }
             val process = eelApi.exec.spawnProcess(dotnetCliPath.pathString)
-                .args("dev-certs", "https", "--export-path", certificateFile.absolutePathString(), "--format", "PEM")
+                .args(args)
                 .env(
                     mapOf(
                         "DOTNET_NOLOGO" to "true",
@@ -401,18 +519,8 @@ internal suspend fun exportDevCertificate(useBundledRuntime: Boolean, project: P
 
     if (exitCode != 0 || !certificateFile.exists()) {
         LOG.info("Failed to export certificate, exitCode=$exitCode")
-        return null
+        return Result.failure(Exception("Failed to export certificate"))
     }
 
-    val text = certificateFile.readText()
-
-    // Remove PEM header and footer
-    val cleaned = text
-        .removePrefix("-----BEGIN CERTIFICATE-----")
-        .removeSuffix("-----END CERTIFICATE-----")
-        .lines()
-        .joinToString("")
-        .trim()
-
-    return cleaned
+    return Result.success(Unit)
 }

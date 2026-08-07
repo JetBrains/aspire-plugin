@@ -12,6 +12,8 @@ javaxAnnotationApi = "1.3.2"
 serialization = "1.9.0"
 # Must match the Ktor version bundled in the target IDE.
 ktor = "3.4.1"
+# Must match the Netty bundled in the target IDE.
+netty = "4.2.16.Final"
 # Must match the kotlinx-coroutines-core bundled in the target IDE.
 coroutineTest = "1.10.2"
 
@@ -41,6 +43,13 @@ javaxAnnotationApi = { group = "javax.annotation", name = "javax.annotation-api"
 ktor-server-content-negotiation = { group = "io.ktor", name = "ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-server-websockets = { group = "io.ktor", name = "ktor-server-websockets", version.ref = "ktor" }
 ktor-server-auth = { group = "io.ktor", name = "ktor-server-auth", version.ref = "ktor" }
+ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty", version.ref = "ktor" }
+# Ktor's Netty engine references io.netty.channel.epoll.Epoll and io.netty.channel.kqueue.KQueue
+# unconditionally to pick an event loop, and the IDE does not expose those transports as bundled
+# modules. Only the pure-Java "classes" artifacts are shipped, without the native binaries, so
+# isAvailable() answers false and the engine falls back to NIO.
+netty-transport-classes-epoll = { group = "io.netty", name = "netty-transport-classes-epoll", version.ref = "netty" }
+netty-transport-classes-kqueue = { group = "io.netty", name = "netty-transport-classes-kqueue", version.ref = "netty" }
 
 [plugins]
 intelliJPlatform = { id = "org.jetbrains.intellij.platform" }
