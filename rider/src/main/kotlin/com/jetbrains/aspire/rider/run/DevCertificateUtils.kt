@@ -27,7 +27,7 @@ import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.certificates.DevCertificateAnalyzer
 import com.jetbrains.aspire.certificates.DevCertificateDiagnostics
 import com.jetbrains.aspire.certificates.DevCertificateKeyMaterial
-import com.jetbrains.aspire.extensions.DevCertificateCheckResult
+import com.jetbrains.aspire.certificates.DevCertificateCheckResult
 import com.jetbrains.rider.environment.initializeAndGetEnvironment
 import com.jetbrains.rider.run.configurations.runInRunToolWindow
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost

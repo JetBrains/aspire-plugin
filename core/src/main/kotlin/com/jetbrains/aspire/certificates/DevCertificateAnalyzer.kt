@@ -2,7 +2,6 @@ package com.jetbrains.aspire.certificates
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
-import com.jetbrains.aspire.extensions.DevCertificateCheckResult
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

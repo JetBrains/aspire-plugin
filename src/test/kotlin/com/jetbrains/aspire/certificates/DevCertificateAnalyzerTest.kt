@@ -1,6 +1,5 @@
 package com.jetbrains.aspire.certificates
 
-import com.jetbrains.aspire.extensions.DevCertificateCheckResult
 import org.testng.annotations.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
