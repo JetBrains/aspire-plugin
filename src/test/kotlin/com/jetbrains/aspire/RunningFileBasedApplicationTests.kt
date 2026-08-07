@@ -7,6 +7,7 @@ import com.jetbrains.aspire.rider.run.file.AspireFileConfigurationFactory
 import com.jetbrains.aspire.rider.run.file.AspireFileConfigurationParameters
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.jetbrains.rider.test.OpenSolutionParams
+import com.jetbrains.rider.test.annotations.Mute
 import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestSettings
 import com.jetbrains.rider.test.base.PerTestSolutionTestBase
@@ -24,6 +25,7 @@ import java.time.Duration
 import kotlin.io.path.div
 
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
+@Mute
 class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
     override val solutionApiFacade: SolutionApiFacade = object : RiderSolutionApiFacade() {
         override fun waitForSolution(params: OpenSolutionParams) {

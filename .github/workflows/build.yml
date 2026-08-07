@@ -207,7 +207,7 @@ jobs:
   releaseDraft:
     name: Release draft
     if: github.event_name != 'pull_request'
-    needs: [ build, aspireWorkerTest ]
+    needs: [ build, aspireWorkerTest, test, verify ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
