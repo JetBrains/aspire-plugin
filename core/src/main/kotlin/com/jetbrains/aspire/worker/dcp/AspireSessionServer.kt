@@ -37,30 +37,12 @@ interface AspireSessionHost {
     fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse
 }
 
-/**
- * TLS material for terminating HTTPS with the ASP.NET dev certificate.
- *
- * @param keyStore a PKCS12 [KeyStore] holding the dev certificate and its private key
- * @param keyAlias the alias of the *key* entry inside [keyStore]; the engine reads both the
- *   certificate chain and the private key from it, so a trusted-certificate entry will not do
- * @param password the password protecting both the key store and the private key entry, which is
- *   how `dotnet dev-certs` writes its PKCS12 exports
- */
 @ApiStatus.Internal
-class AspireSessionTlsConfig(
-    val keyStore: KeyStore,
-    val keyAlias: String,
-    private val password: CharArray,
-) {
-    /**
-     * Ktor zeroes out the array a password provider returns once it has consumed it (see
-     * `NettyChannelInitializer`), so every call hands out a fresh copy. Otherwise a second
-     * [AspireSessionServer.start] on the same config — the engine is rebuilt on each start — would
-     * be given an all-zeros password.
-     */
-    fun keyStorePassword(): CharArray = password.copyOf()
-
-    fun privateKeyPassword(): CharArray = password.copyOf()
+interface AspireSessionServerTlsConfig {
+    val keyStore: KeyStore
+    val keyAlias: String
+    fun keyStorePassword(): CharArray
+    fun privateKeyPassword(): CharArray
 }
 
 /**
@@ -74,7 +56,7 @@ class AspireSessionTlsConfig(
 data class AspireSessionServerConfig(
     val port: Int,
     val token: String,
-    val tls: AspireSessionTlsConfig? = null,
+    val tls: AspireSessionServerTlsConfig? = null,
 )
 
 /**

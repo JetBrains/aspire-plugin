@@ -1,5 +1,6 @@
 package com.jetbrains.aspire.certificates
 
+import com.jetbrains.aspire.worker.dcp.AspireSessionServerTlsConfig
 import org.jetbrains.annotations.ApiStatus
 import java.security.KeyStore
 import java.util.Base64
@@ -17,11 +18,12 @@ import java.util.Base64
  */
 @ApiStatus.Internal
 class DevCertificateKeyMaterial(
-    val keyStore: KeyStore,
-    val keyAlias: String,
+    override val keyStore: KeyStore,
+    override val keyAlias: String,
     private val password: CharArray,
-) {
-    fun password(): CharArray = password.copyOf()
+): AspireSessionServerTlsConfig {
+    override fun keyStorePassword(): CharArray = password.copyOf()
+    override fun privateKeyPassword(): CharArray = password.copyOf()
 
     fun encodePublicCertificate(): String =
         Base64.getEncoder().encodeToString(keyStore.getCertificate(keyAlias).encoded)
