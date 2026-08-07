@@ -2,6 +2,7 @@ package com.jetbrains.aspire.extensions
 
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.certificates.DevCertificateKeyMaterial
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
@@ -14,8 +15,21 @@ interface DevCertificateProvider {
 
     suspend fun checkDevCertificate(useBundledRuntime: Boolean, project: Project): DevCertificateCheckResult
 
-    suspend fun exportCertificate(useBundledRuntime: Boolean, project: Project): String?
+    /**
+     * The public development certificate as base64-encoded DER, for handing to a process that only has to trust it.
+     */
+    suspend fun exportCertificate(
+        useBundledRuntime: Boolean,
+        project: Project
+    ): Result<String>
 
+    /**
+     * The development certificate *and* its private key, for terminating TLS inside the IDE.
+     */
+    suspend fun exportCertificateWithPrivateKey(
+        useBundledRuntime: Boolean,
+        project: Project
+    ): Result<DevCertificateKeyMaterial>
 }
 
 @ApiStatus.Internal

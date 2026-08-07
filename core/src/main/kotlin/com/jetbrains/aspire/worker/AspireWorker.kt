@@ -236,7 +236,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         val certificateCheckResult = provider.checkDevCertificate(true, project)
         if (!certificateCheckResult.isTrusted) return null
 
-        return provider.exportCertificate(true, project)
+        return provider.exportCertificate(true, project).getOrNull()
     }
 
     suspend fun stop() {
