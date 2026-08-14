@@ -2,17 +2,18 @@
 package com.jetbrains.aspire.rider.generated
 
 import com.jetbrains.rd.framework.*
-import com.jetbrains.rd.framework.base.*
-import com.jetbrains.rd.framework.impl.*
-
-import com.jetbrains.rd.util.lifetime.*
-import com.jetbrains.rd.util.reactive.*
-import com.jetbrains.rd.util.string.*
-import com.jetbrains.rd.util.*
-import kotlin.time.Duration
+import com.jetbrains.rd.framework.base.ISerializersOwner
+import com.jetbrains.rd.framework.base.RdExtBase
+import com.jetbrains.rd.framework.base.deepClonePolymorphic
+import com.jetbrains.rd.framework.impl.RdCall
+import com.jetbrains.rd.framework.impl.RdMap
+import com.jetbrains.rd.framework.impl.RdSignal
+import com.jetbrains.rd.util.reactive.IAsyncSource
+import com.jetbrains.rd.util.reactive.IMutableViewableMap
+import com.jetbrains.rd.util.string.IPrintable
+import com.jetbrains.rd.util.string.PrettyPrinter
+import com.jetbrains.rd.util.string.print
 import kotlin.reflect.KClass
-import kotlin.jvm.JvmStatic
-
 
 
 /**
@@ -20,6 +21,7 @@ import kotlin.jvm.JvmStatic
  */
 class AspirePluginModel private constructor(
     private val _getProjectOutputType: RdCall<com.jetbrains.rd.ide.model.RdPath, String?>,
+    private val _getAppHostEntryPoint: RdCall<com.jetbrains.rd.ide.model.RdPath, GetAppHostEntryPointResponse?>,
     private val _referenceProjectsFromAppHost: RdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse?>,
     private val _referenceServiceDefaultsFromProjects: RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?>,
     private val _getReferencedProjectsFromAppHost: RdCall<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse?>,
@@ -41,6 +43,7 @@ class AspirePluginModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(-5007480931577060908), classLoader, "com.jetbrains.aspire.rider.generated.ReferenceServiceDefaultsFromProjectsResponse"))
             serializers.register(LazyCompanionMarshaller(RdId(-2857445708302516858), classLoader, "com.jetbrains.aspire.rider.generated.GetReferencedProjectsFromAppHostRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(3652903411222669354), classLoader, "com.jetbrains.aspire.rider.generated.GetReferencedProjectsFromAppHostResponse"))
+            serializers.register(LazyCompanionMarshaller(RdId(-4783964935817145115), classLoader, "com.jetbrains.aspire.rider.generated.GetAppHostEntryPointResponse"))
             serializers.register(LazyCompanionMarshaller(RdId(4011588048384607098), classLoader, "com.jetbrains.aspire.rider.generated.StartAspireHostRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(-7704547362275130218), classLoader, "com.jetbrains.aspire.rider.generated.AspireHostEnvironmentVariable"))
             serializers.register(LazyCompanionMarshaller(RdId(-4767979015991107402), classLoader, "com.jetbrains.aspire.rider.generated.StartAspireHostResponse"))
@@ -60,11 +63,12 @@ class AspirePluginModel private constructor(
         
         
         private val __StringNullableSerializer = FrameworkMarshallers.String.nullable()
+        private val __GetAppHostEntryPointResponseNullableSerializer = GetAppHostEntryPointResponse.nullable()
         private val __ReferenceProjectsFromAppHostResponseNullableSerializer = ReferenceProjectsFromAppHostResponse.nullable()
         private val __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer = ReferenceServiceDefaultsFromProjectsResponse.nullable()
         private val __GetReferencedProjectsFromAppHostResponseNullableSerializer = GetReferencedProjectsFromAppHostResponse.nullable()
         
-        const val serializationHash = 344688638181968712L
+        const val serializationHash = 1911970090805415800L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspirePluginModel
@@ -72,6 +76,7 @@ class AspirePluginModel private constructor(
     
     //fields
     val getProjectOutputType: IRdCall<com.jetbrains.rd.ide.model.RdPath, String?> get() = _getProjectOutputType
+    val getAppHostEntryPoint: IRdCall<com.jetbrains.rd.ide.model.RdPath, GetAppHostEntryPointResponse?> get() = _getAppHostEntryPoint
     val referenceProjectsFromAppHost: IRdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse?> get() = _referenceProjectsFromAppHost
     val referenceServiceDefaultsFromProjects: IRdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?> get() = _referenceServiceDefaultsFromProjects
     val getReferencedProjectsFromAppHost: IRdCall<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse?> get() = _getReferencedProjectsFromAppHost
@@ -95,6 +100,7 @@ class AspirePluginModel private constructor(
     
     init {
         bindableChildren.add("getProjectOutputType" to _getProjectOutputType)
+        bindableChildren.add("getAppHostEntryPoint" to _getAppHostEntryPoint)
         bindableChildren.add("referenceProjectsFromAppHost" to _referenceProjectsFromAppHost)
         bindableChildren.add("referenceServiceDefaultsFromProjects" to _referenceServiceDefaultsFromProjects)
         bindableChildren.add("getReferencedProjectsFromAppHost" to _getReferencedProjectsFromAppHost)
@@ -109,6 +115,7 @@ class AspirePluginModel private constructor(
     internal constructor(
     ) : this(
         RdCall<com.jetbrains.rd.ide.model.RdPath, String?>(com.jetbrains.rd.ide.model.RdPath, __StringNullableSerializer),
+        RdCall<com.jetbrains.rd.ide.model.RdPath, GetAppHostEntryPointResponse?>(com.jetbrains.rd.ide.model.RdPath, __GetAppHostEntryPointResponseNullableSerializer),
         RdCall<ReferenceProjectsFromAppHostRequest, ReferenceProjectsFromAppHostResponse?>(ReferenceProjectsFromAppHostRequest, __ReferenceProjectsFromAppHostResponseNullableSerializer),
         RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?>(ReferenceServiceDefaultsFromProjectsRequest, __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer),
         RdCall<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse?>(GetReferencedProjectsFromAppHostRequest, __GetReferencedProjectsFromAppHostResponseNullableSerializer),
@@ -126,6 +133,7 @@ class AspirePluginModel private constructor(
         printer.println("AspirePluginModel (")
         printer.indent {
             print("getProjectOutputType = "); _getProjectOutputType.print(printer); println()
+            print("getAppHostEntryPoint = "); _getAppHostEntryPoint.print(printer); println()
             print("referenceProjectsFromAppHost = "); _referenceProjectsFromAppHost.print(printer); println()
             print("referenceServiceDefaultsFromProjects = "); _referenceServiceDefaultsFromProjects.print(printer); println()
             print("getReferencedProjectsFromAppHost = "); _getReferencedProjectsFromAppHost.print(printer); println()
@@ -141,6 +149,7 @@ class AspirePluginModel private constructor(
     override fun deepClone(): AspirePluginModel   {
         return AspirePluginModel(
             _getProjectOutputType.deepClonePolymorphic(),
+            _getAppHostEntryPoint.deepClonePolymorphic(),
             _referenceProjectsFromAppHost.deepClonePolymorphic(),
             _referenceServiceDefaultsFromProjects.deepClonePolymorphic(),
             _getReferencedProjectsFromAppHost.deepClonePolymorphic(),
@@ -160,7 +169,7 @@ val com.jetbrains.rd.ide.model.Solution.aspirePluginModel get() = getOrCreateExt
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:45]
+ * #### Generated from [AspirePluginModel.kt:50]
  */
 data class AspireHostEnvironmentVariable (
     val key: String,
@@ -229,7 +238,7 @@ data class AspireHostEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:83]
+ * #### Generated from [AspirePluginModel.kt:88]
  */
 data class AspireRdResource (
     val name: String,
@@ -334,7 +343,7 @@ data class AspireRdResource (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:117]
+ * #### Generated from [AspirePluginModel.kt:122]
  */
 data class AspireRdResourceCommand (
     val name: String,
@@ -409,7 +418,7 @@ data class AspireRdResourceCommand (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:120]
+ * #### Generated from [AspirePluginModel.kt:125]
  */
 enum class AspireRdResourceCommandState {
     Enabled, 
@@ -435,7 +444,7 @@ enum class AspireRdResourceCommandState {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:108]
+ * #### Generated from [AspirePluginModel.kt:113]
  */
 enum class AspireRdResourceHealthStatus {
     Healthy, 
@@ -461,7 +470,7 @@ enum class AspireRdResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:87]
+ * #### Generated from [AspirePluginModel.kt:92]
  */
 enum class AspireRdResourceState {
     Building, 
@@ -496,7 +505,7 @@ enum class AspireRdResourceState {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:101]
+ * #### Generated from [AspirePluginModel.kt:106]
  */
 enum class AspireRdResourceStateStyle {
     Success, 
@@ -524,7 +533,7 @@ enum class AspireRdResourceStateStyle {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:63]
+ * #### Generated from [AspirePluginModel.kt:68]
  */
 enum class AspireRdResourceType {
     Project, 
@@ -558,7 +567,7 @@ enum class AspireRdResourceType {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:58]
+ * #### Generated from [AspirePluginModel.kt:63]
  */
 enum class AspireRdSessionLaunchMode {
     Run, 
@@ -583,7 +592,7 @@ enum class AspireRdSessionLaunchMode {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:77]
+ * #### Generated from [AspirePluginModel.kt:82]
  */
 data class ExecuteResourceCommandRequest (
     val resourceName: String,
@@ -648,6 +657,75 @@ data class ExecuteResourceCommandRequest (
             print("resourceName = "); resourceName.print(printer); println()
             print("commandName = "); commandName.print(printer); println()
             print("launchMode = "); launchMode.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspirePluginModel.kt:39]
+ */
+data class GetAppHostEntryPointResponse (
+    val filePath: com.jetbrains.rd.ide.model.RdPath,
+    val createBuilderLine: Int
+) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, filePath)
+        buffer.writeInt(createBuilderLine)
+    }
+    //companion
+    
+    companion object : IMarshaller<GetAppHostEntryPointResponse> {
+        override val _type: KClass<GetAppHostEntryPointResponse> = GetAppHostEntryPointResponse::class
+        override val id: RdId get() = RdId(-4783964935817145115)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): GetAppHostEntryPointResponse  {
+            val filePath = com.jetbrains.rd.ide.model.RdPath.read(ctx, buffer)
+            val createBuilderLine = buffer.readInt()
+            return GetAppHostEntryPointResponse(filePath, createBuilderLine)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: GetAppHostEntryPointResponse)  {
+            value.write(ctx, buffer)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as GetAppHostEntryPointResponse
+        
+        if (filePath != other.filePath) return false
+        if (createBuilderLine != other.createBuilderLine) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + filePath.hashCode()
+        __r = __r*31 + createBuilderLine.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("GetAppHostEntryPointResponse (")
+        printer.indent {
+            print("filePath = "); filePath.print(printer); println()
+            print("createBuilderLine = "); createBuilderLine.print(printer); println()
         }
         printer.print(")")
     }
@@ -1054,7 +1132,7 @@ data class ReferenceServiceDefaultsFromProjectsResponse (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:39]
+ * #### Generated from [AspirePluginModel.kt:44]
  */
 data class StartAspireHostRequest (
     val unitTestRunId: String,
@@ -1129,7 +1207,7 @@ data class StartAspireHostRequest (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:50]
+ * #### Generated from [AspirePluginModel.kt:55]
  */
 data class StartAspireHostResponse (
     val environmentVariables: Array<AspireHostEnvironmentVariable>
@@ -1192,7 +1270,7 @@ data class StartAspireHostResponse (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:54]
+ * #### Generated from [AspirePluginModel.kt:59]
  */
 data class StopAspireHostRequest (
     val unitTestRunId: String

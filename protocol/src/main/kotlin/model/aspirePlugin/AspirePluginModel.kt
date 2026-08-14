@@ -36,6 +36,11 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("referencedProjectFilePaths", immutableList(RdPath))
     }
 
+    private val GetAppHostEntryPointResponse = structdef {
+        field("filePath", RdPath)
+        field("createBuilderLine", int)
+    }
+
     private val StartAspireHostRequest = structdef {
         field("unitTestRunId", string)
         field("aspireHostProjectPath", RdPath)
@@ -129,6 +134,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Plugin.Generated")
 
         call("getProjectOutputType", RdPath, string.nullable)
+        call("getAppHostEntryPoint", RdPath, GetAppHostEntryPointResponse.nullable)
         call(
             "referenceProjectsFromAppHost",
             ReferenceProjectsFromAppHostRequest,

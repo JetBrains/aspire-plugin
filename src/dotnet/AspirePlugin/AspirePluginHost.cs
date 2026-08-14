@@ -18,14 +18,20 @@ public class AspirePluginHost
 {
     private readonly ISolution _solution;
     private readonly AspireProjectModelService _projectModelService;
+    private readonly AspireAppHostEntryPointService _entryPointService;
 
-    public AspirePluginHost(ISolution solution, AspireProjectModelService projectModelService)
+    public AspirePluginHost(
+        ISolution solution,
+        AspireProjectModelService projectModelService,
+        AspireAppHostEntryPointService entryPointService)
     {
         _solution = solution;
         _projectModelService = projectModelService;
+        _entryPointService = entryPointService;
 
         var model = solution.GetProtocolSolution().GetAspirePluginModel();
         model.GetProjectOutputType.SetSync(GetProjectOutputType);
+        model.GetAppHostEntryPoint.SetSync((_, path) => _entryPointService.GetAppHostEntryPoint(path.FromRd()));
         model.ReferenceProjectsFromAppHost.SetSync((lt, req) => ReferenceProjectsFromAppHost(req, lt));
         model.ReferenceServiceDefaultsFromProjects.SetSync((lt, req) => ReferenceServiceDefaultsFromProjects(req, lt));
         model.GetReferencedProjectsFromAppHost.SetSync((lt, req) => GetReferencedProjectsFromAppHost(req, lt));

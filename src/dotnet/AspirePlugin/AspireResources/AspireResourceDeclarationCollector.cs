@@ -7,7 +7,7 @@ namespace JetBrains.Rider.Aspire.Plugin.AspireResources;
 
 internal static class AspireResourceDeclarationCollector
 {
-    private static readonly HashSet<string> OurAppHostFileNames = new(StringComparer.Ordinal)
+    internal static readonly HashSet<string> OurAppHostFileNames = new(StringComparer.Ordinal)
     {
         "AppHost.cs",
         "Program.cs",

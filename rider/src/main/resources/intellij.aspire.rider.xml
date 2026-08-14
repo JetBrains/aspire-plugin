@@ -39,6 +39,8 @@
                                 listener="com.jetbrains.aspire.rider.unitTests.AspireUnitTestProtocolListener"/>
         <rd.solutionExtListener endpoint="IDE Frontend"
                                 listener="com.jetbrains.aspire.rider.resources.RiderResourceProtocolListener"/>
+        <rd.solutionExtListener endpoint="IDE Frontend"
+                                listener="com.jetbrains.aspire.rider.AspirePluginModelHost$ProtocolListener"/>
         <stepsBeforeRunProvider implementation="com.jetbrains.aspire.rider.run.file.BuildAspireFileBeforeRunTaskProvider"/>
         <uiDataRule implementation="com.jetbrains.aspire.rider.actions.dashboard.resource.AspireProjectResourceUiDataRule"/>
     </extensions>
@@ -50,6 +52,8 @@
                 implementation="com.jetbrains.aspire.rider.sessions.DotNetStartSessionRequestHandler"/>
 
         <appHostDebugger implementation="com.jetbrains.aspire.rider.debugger.DotNetAppHostDebugger"/>
+        <appHostEntryPointLocator
+                implementation="com.jetbrains.aspire.rider.debugger.DotNetAppHostEntryPointLocator"/>
 
         <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>

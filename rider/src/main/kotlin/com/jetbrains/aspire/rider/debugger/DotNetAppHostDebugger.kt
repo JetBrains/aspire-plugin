@@ -22,8 +22,10 @@ import kotlin.time.Duration.Companion.seconds
  * `AspireCliRunProfileState` sets `ASPIRE_WAIT_FOR_DEBUGGER=true`, so `DistributedApplication.CreateBuilder`
  * blocks at the very first line of the AppHost and spins until a debugger attaches. While the AppHost is
  * held there we find its process among the descendants of the `aspire run` CLI process and attach via
- * [AttachDebuggerService]. Because the AppHost blocks until attach, breakpoints anywhere in
- * `Program`/resource registration are hit.
+ * [AttachDebuggerService]. Because the AppHost blocks until attach, breakpoints in the resource registration
+ * that follows `CreateBuilder` are hit; breakpoints at or above the `CreateBuilder` line are not, because that
+ * code has already run by the time we attach. [DotNetAppHostEntryPointLocator] resolves that boundary so
+ * [com.jetbrains.aspire.run.cli.AspireCliUnreachableBreakpointService] can mark those breakpoints.
  *
  * The PID is discovered from the OS process tree ([ProcessListUtil], the same reliable source
  * [AttachDebuggerService] already uses — WMI on Windows, `ps` on macOS/Linux), not from process output.

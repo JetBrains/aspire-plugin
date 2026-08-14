@@ -21,6 +21,9 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.appHostDebugger"
                         interface="com.jetbrains.aspire.extensions.AppHostDebuggerExtension"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.appHostEntryPointLocator"
+                        interface="com.jetbrains.aspire.extensions.AppHostEntryPointLocator"
+                        dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
                         dynamic="true"/>
@@ -43,6 +46,8 @@
                   topic="com.jetbrains.aspire.worker.AppHostDetectionListener"/>
         <listener class="com.jetbrains.aspire.run.cli.AspireCliRunConfigurationListener"
                   topic="com.intellij.execution.RunManagerListener"/>
+        <listener class="com.jetbrains.aspire.run.cli.AspireCliBreakpointListener"
+                  topic="com.intellij.xdebugger.breakpoints.XBreakpointListener"/>
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
