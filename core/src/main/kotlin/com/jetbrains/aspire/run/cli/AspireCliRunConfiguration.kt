@@ -56,6 +56,30 @@ internal class AspireCliRunConfiguration(
             cliOptions.enableIdeDebugging = value
         }
 
+    var noBuild: Boolean
+        get() = cliOptions.noBuild
+        set(value) {
+            cliOptions.noBuild = value
+        }
+
+    var isolated: Boolean
+        get() = cliOptions.isolated
+        set(value) {
+            cliOptions.isolated = value
+        }
+
+    var logLevel: AspireCliLogLevel?
+        get() = cliOptions.logLevel
+        set(value) {
+            cliOptions.logLevel = value
+        }
+
+    var waitForDebugger: Boolean
+        get() = cliOptions.waitForDebugger
+        set(value) {
+            cliOptions.waitForDebugger = value
+        }
+
     override fun getConfigurationEditor(): SettingsEditor<AspireCliRunConfiguration> =
         AspireCliSettingsEditor(this)
 
