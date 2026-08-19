@@ -28,7 +28,6 @@ import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.spawnProcess
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.EnvironmentUtil
-import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.worker.AppHostListener
@@ -92,7 +91,14 @@ internal class AspireCliRunProfileState(
             envs.putAll(aspireWorker.getEnvironmentVariablesForDcpConnection())
         }
 
-        val arguments = buildArguments(appHostFilePathString, options.arguments)
+        val arguments = AspireCliArguments.buildRunArguments(
+            appHostFilePath = appHostFilePathString,
+            noBuild = options.noBuild,
+            isolated = options.isolated,
+            logLevel = options.logLevel,
+            waitForDebugger = options.waitForDebugger,
+            userArguments = options.arguments
+        )
         val workingDirectory = options.workingDirectory?.takeIf { it.isNotBlank() }
             ?: appHostFilePath.parent?.absolutePathString()
 
@@ -134,14 +140,6 @@ internal class AspireCliRunProfileState(
         }
         envs.putAll(options.envs)
         return envs
-    }
-
-    private fun buildArguments(appHostFilePath: String, userArguments: String?): List<String> = buildList {
-        add("run")
-        add("--nologo")
-        add("--apphost")
-        add(appHostFilePath)
-        userArguments?.takeIf { it.isNotBlank() }?.let { addAll(ParametersListUtil.parse(it)) }
     }
 
     private fun wireAppHostLifecycle(
