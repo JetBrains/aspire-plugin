@@ -38,11 +38,16 @@
     <projectListeners>
         <listener class="com.jetbrains.aspire.worker.AspireWorker$DetectionListener"
                   topic="com.jetbrains.aspire.worker.AppHostDetectionListener"/>
+        <listener class="com.jetbrains.aspire.run.cli.AspireCliRunConfigurationListener"
+                  topic="com.intellij.execution.RunManagerListener"/>
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceInterface="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory"
                             serviceImplementation="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactoryImpl"/>
+
+        <configurationType implementation="com.jetbrains.aspire.run.cli.AspireCliConfigurationType"/>
+        <programRunner implementation="com.jetbrains.aspire.run.cli.AspireCliProgramRunner"/>
 
         <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
 
@@ -64,6 +69,11 @@
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
         <resourceIconProvider implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
+
+        <!-- Registered last so a Rider-provided provider (order="first") keeps precedence when present;
+             DevCertificateProvider.getInstance() resolves to the first extension. -->
+        <devCertificateProvider implementation="com.jetbrains.aspire.run.cli.AspireCliDevCertificateProvider"
+                                order="last"/>
     </extensions>
 
     <actions>
