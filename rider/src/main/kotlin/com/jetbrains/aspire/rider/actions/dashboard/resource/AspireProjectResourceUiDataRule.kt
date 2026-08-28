@@ -45,10 +45,10 @@ internal class AspireProjectResourceUiDataRule : UiDataRule {
             return WorkspaceModel.getInstance(project).getProjectModelEntity(entityId)
         }
 
-        val fileEditor = dataMap[PlatformCoreDataKeys.FILE_EDITOR] ?: return null
+        val file = dataMap[PlatformCoreDataKeys.FILE_EDITOR]?.file ?: return null
         return WorkspaceModel
             .getInstance(project)
-            .getProjectModelEntities(fileEditor.file, project)
+            .getProjectModelEntities(file, project)
             .singleOrNull()
     }
 }
