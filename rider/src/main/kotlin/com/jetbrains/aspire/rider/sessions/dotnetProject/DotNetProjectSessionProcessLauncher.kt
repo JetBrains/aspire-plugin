@@ -10,6 +10,7 @@ import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHot
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.model.RunnableProjectKind
+import com.jetbrains.rider.run.aspire.DotNetProjectHotReloadConfigurationExtension
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -25,6 +26,7 @@ internal class DotNetProjectSessionProcessLauncher : DotNetSessionWithHotReloadP
 
     override val priority = 10
 
+    @Suppress("UnstableApiUsage")
     override val hotReloadExtension = DotNetProjectHotReloadConfigurationExtension()
     override val supportedRunnableProjectKinds: List<RunnableProjectKind> =
         listOf(RunnableProjectKinds.DotNetCore, RunnableProjectKinds.Wpf)

@@ -4,6 +4,7 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.project.Project
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.run.aspire.AspireProjectHotReloadConfigurationExtension
 import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
 import com.jetbrains.rider.runtime.DotNetExecutable
@@ -14,6 +15,7 @@ import java.nio.file.Path
  * to apply a Hot Reload mechanism.
  */
 abstract class DotNetSessionWithHotReloadProcessLauncher : DotNetRunnableSessionProcessLauncher() {
+    @Suppress("UnstableApiUsage")
     protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
 
     override suspend fun modifyDotNetExecutable(
@@ -41,10 +43,12 @@ abstract class DotNetSessionWithHotReloadProcessLauncher : DotNetRunnableSession
                 ?.let { it.profiles?.get(launchProfile) }
         } else null
 
+        @Suppress("UnstableApiUsage")
         if (!hotReloadExtension.canExecute(lifetime, hotReloadRunInfo, profile)) {
             return executable to null
         }
 
+        @Suppress("UnstableApiUsage")
         return hotReloadExtension.execute(executable, lifetime, project)
     }
 }

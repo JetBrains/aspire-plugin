@@ -14,6 +14,7 @@ import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.model.RunnableProjectKind
 import com.jetbrains.rider.nuget.PackageVersionResolution
 import com.jetbrains.rider.nuget.RiderNuGetInstalledPackageCheckerHost
+import com.jetbrains.rider.run.aspire.WasmHostHotReloadConfigurationExtension
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -33,6 +34,7 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
 
     override val priority = 3
 
+    @Suppress("UnstableApiUsage")
     override val hotReloadExtension = WasmHostHotReloadConfigurationExtension()
     override val supportedRunnableProjectKinds: List<RunnableProjectKind> = listOf(RunnableProjectKinds.DotNetCore)
 
