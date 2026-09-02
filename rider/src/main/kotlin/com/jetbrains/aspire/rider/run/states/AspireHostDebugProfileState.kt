@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package com.jetbrains.aspire.rider.run.states
 
 import com.intellij.execution.ExecutionResult
@@ -16,7 +14,6 @@ import com.jetbrains.rider.run.WorkerRunInfo
 import com.jetbrains.rider.run.dotNetCore.DotNetCoreDebugProfile
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.concurrent.atomic.AtomicInteger
 
 class AspireHostDebugProfileState(
