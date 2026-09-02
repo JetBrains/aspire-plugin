@@ -11,7 +11,6 @@ import com.jetbrains.aspire.util.*
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
-import com.jetbrains.rider.utils.RiderEnvironmentAccessor
 import java.net.URI
 import java.nio.file.Path
 import java.util.*
@@ -23,10 +22,11 @@ internal abstract class AspireExecutorFactory(
 ) : AsyncExecutorFactory {
     companion object {
         private const val DOTNET_ROOT = "DOTNET_ROOT"
+        private const val PATH = "PATH"
     }
 
     protected suspend fun configureEnvironmentVariables(
-        appHostMainFilePath : Path,
+        appHostMainFilePath: Path,
         envs: MutableMap<String, String>,
         activeRuntime: DotNetCoreRuntime
     ): EnvironmentVariableValues {
@@ -108,7 +108,7 @@ internal abstract class AspireExecutorFactory(
                 else "https://localhost:$otlpEndpointPort"
         }
 
-        val dotnetPath = RiderEnvironmentAccessor.getInstance(project).findFileInSystemPath("dotnet")
+        val dotnetPath = PathEnvironmentVariableUtil.findFirst("dotnet")
         if (dotnetPath == null) {
             setDotnetRootPathVariable(envs, activeRuntime)
         }
@@ -127,11 +127,11 @@ internal abstract class AspireExecutorFactory(
 
         val pathVariable = PathEnvironmentVariableUtil.getPathVariableValue()
         if (pathVariable != null) {
-            envs[RiderEnvironmentAccessor.PATH_VARIABLE] =
+            envs[PATH] =
                 if (SystemInfo.isUnix) "$pathVariable:$dotnetPaths"
                 else "$pathVariable;$dotnetPaths"
         } else {
-            envs[RiderEnvironmentAccessor.PATH_VARIABLE] = dotnetPaths
+            envs[PATH] = dotnetPaths
         }
 
         val dotnetRootEnvironmentVariable = EnvironmentUtil.getValue(DOTNET_ROOT)
