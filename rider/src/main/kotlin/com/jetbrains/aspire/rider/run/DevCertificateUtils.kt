@@ -1,6 +1,7 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.aspire.rider.run
 
-import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
@@ -10,49 +11,40 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.platform.eel.EelApi
 import com.intellij.platform.eel.fs.createTemporaryFile
 import com.intellij.platform.eel.getOrNull
-import com.intellij.platform.eel.isMac
 import com.intellij.platform.eel.provider.asNioPath
 import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
-import com.intellij.platform.eel.provider.utils.awaitProcessResult
-import com.intellij.platform.eel.provider.utils.stderrString
-import com.intellij.platform.eel.provider.utils.stdoutString
-import com.intellij.platform.eel.spawnProcess
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.certificates.DevCertificateAnalyzer
+import com.jetbrains.aspire.certificates.DevCertificateCheckResult
 import com.jetbrains.aspire.certificates.DevCertificateDiagnostics
 import com.jetbrains.aspire.certificates.DevCertificateKeyMaterial
-import com.jetbrains.aspire.certificates.DevCertificateCheckResult
 import com.jetbrains.rider.environment.initializeAndGetEnvironment
-import com.jetbrains.rider.run.configurations.runInRunToolWindow
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
+import com.jetbrains.rider.web.DevCertificateService
 import com.jetbrains.rider.web.RiderWebBundle
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.concurrency.await
 import java.nio.file.Path
 import java.security.KeyStore
 import java.util.*
-import kotlin.io.path.*
+import kotlin.io.path.exists
+import kotlin.io.path.inputStream
+import kotlin.io.path.readText
 
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.util.DevCertificateUtils")
 
-@Suppress("UnstableApiUsage")
 internal suspend fun checkDevCertificate(
     useBundledRuntime: Boolean,
     project: Project,
     showNotification: Boolean = false
-): DevCertificateCheckResult {
-    val eelApi = project.getEelDescriptor().toEelApi()
-
-    val diagnostics = collectDevCertificateDiagnostics(eelApi, useBundledRuntime, project)
+): DevCertificateCheckResult = withContext(Dispatchers.Default) {
+    val diagnostics = collectDevCertificateDiagnostics(useBundledRuntime, project)
 
     if (diagnostics.oldTrustedVersions.isNotEmpty()) {
         LOG.warn(
@@ -69,51 +61,26 @@ internal suspend fun checkDevCertificate(
         showNotification(useBundledRuntime, project, diagnostics)
     }
 
-    return result
+    return@withContext result
 }
 
 @Suppress("UnstableApiUsage")
 private suspend fun collectDevCertificateDiagnostics(
-    eelApi: EelApi,
     useBundledRuntime: Boolean,
     project: Project
 ): DevCertificateDiagnostics {
-    val dotnetCliPath = if (useBundledRuntime) {
-        project.initializeAndGetEnvironment().getRuntime().cliPath()
-    } else {
-        val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
-        if (runtime == null) {
-            LOG.debug("Unable to find any active dotnet runtime")
+    val dotnetCliPath = getDotnetCliPath(useBundledRuntime, project)
+        ?: return DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.CheckFailed)
+
+    val devCertificates = DevCertificateService
+        .getInstance(project)
+        .checkTrustedDevCertificatesWithOutput(dotnetCliPath)
+        .getOrElse {
+            LOG.debug("Unable to check trusted dev certificates")
             return DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.CheckFailed)
         }
-        runtime.cliExePath
-    }
 
-    return try {
-        val process = eelApi.exec.spawnProcess(dotnetCliPath.pathString)
-            .args("dev-certs", "https", "--check-trust-machine-readable")
-            .env(
-                mapOf(
-                    "DOTNET_NOLOGO" to "true",
-                    "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "true",
-                    "DOTNET_CLI_TELEMETRY_OPTOUT" to "true",
-                    "DOTNET_GENERATE_ASPNET_CERTIFICATE" to "false"
-                )
-            )
-            .eelIt()
-        val processResult = process.awaitProcessResult()
-        if (processResult.exitCode != 0) {
-            LOG.trace { "dotnet dev-certs check failed with exit code: ${processResult.exitCode}" }
-            DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.CheckFailed)
-        } else {
-            DevCertificateAnalyzer.getInstance().analyze(processResult.stdoutString)
-        }
-    } catch (ce: CancellationException) {
-        throw ce
-    } catch (e: Exception) {
-        LOG.warn("Failed to check dev certificate", e)
-        DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.CheckFailed)
-    }
+    return DevCertificateAnalyzer.getInstance().analyze(devCertificates)
 }
 
 private fun showNotification(useBundledRuntime: Boolean, project: Project, diagnostics: DevCertificateDiagnostics) {
@@ -192,12 +159,7 @@ private fun trustDevCertificateAction(useBundledRuntime: Boolean, project: Proje
         override fun actionPerformed(e: AnActionEvent, notification: Notification) {
             notification.expire()
             e.coroutineScope.launch(Dispatchers.Default) {
-                runDevCertificateCommands(
-                    useBundledRuntime,
-                    project,
-                    AspireCoreBundle.message("progress.trusting.dev.certificate"),
-                    listOf("--trust")
-                )
+                trustDevCertificate(false, useBundledRuntime, project)
             }
         }
     }
@@ -209,148 +171,38 @@ private fun cleanAndTrustDevCertificateAction(useBundledRuntime: Boolean, projec
         override fun actionPerformed(e: AnActionEvent, notification: Notification) {
             notification.expire()
             e.coroutineScope.launch(Dispatchers.Default) {
-                runDevCertificateCommands(
-                    useBundledRuntime,
-                    project,
-                    AspireCoreBundle.message("progress.cleaning.and.trusting.dev.certificate"),
-                    listOf("--clean", "--trust")
-                )
+                trustDevCertificate(true, useBundledRuntime, project)
             }
         }
     }
 }
 
-@Suppress("UnstableApiUsage")
-private suspend fun runDevCertificateCommands(
-    useBundledRuntime: Boolean,
-    project: Project,
-    progressTitle: String,
-    commands: List<String>
-) {
-    val dotnetCliPath = if (useBundledRuntime) {
-        project.initializeAndGetEnvironment().getRuntime().cliPath()
-    } else {
-        val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
-        if (runtime == null) {
-            notifyDevCertificateCommandFailure(
-                project,
-                AspireCoreBundle.message("notification.dev.certificate.runtime.not.available")
-            )
-            return
-        }
-        runtime.cliExePath
-    }
-
-
-    val eelApi = project.getEelDescriptor().toEelApi()
-    val environment = mapOf(
-        "DOTNET_NOLOGO" to "true",
-        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "true",
-        "DOTNET_CLI_TELEMETRY_OPTOUT" to "true"
-    )
-
-    val succeeded = try {
-        if (eelApi.platform.isMac) {
-            runDevCertificateCommandsInRunToolWindow(
-                project,
-                progressTitle,
-                dotnetCliPath.pathString,
-                commands,
-                environment
-            )
-        } else {
-            runDevCertificateCommandsWithEel(
-                project,
-                eelApi,
-                progressTitle,
-                dotnetCliPath.pathString,
-                commands,
-                environment
-            )
-        }
-    } catch (ce: CancellationException) {
-        throw ce
-    } catch (e: Exception) {
-        LOG.warn("Unable to update HTTPS development certificates", e)
-        false
-    }
-
-    if (succeeded) {
-        notifyDevCertificateCommandSuccess(project)
-    } else {
+private suspend fun trustDevCertificate(clean: Boolean, useBundledRuntime: Boolean, project: Project) {
+    val cliPath = getDotnetCliPath(useBundledRuntime, project)
+    if (cliPath == null) {
         notifyDevCertificateCommandFailure(
             project,
-            AspireCoreBundle.message("notification.dev.certificate.command.failed")
+            AspireCoreBundle.message("notification.dev.certificate.runtime.not.available")
         )
+        return
     }
-}
-
-@Suppress("UnstableApiUsage")
-private suspend fun runDevCertificateCommandsWithEel(
-    project: Project,
-    eelApi: EelApi,
-    progressTitle: String,
-    executablePath: String,
-    commands: List<String>,
-    environment: Map<String, String>
-): Boolean = withBackgroundProgress(project, progressTitle) {
-    for (command in commands) {
-        val allArgs = listOf("dev-certs", "https", command)
-        LOG.trace { "Running dev certificate command: $executablePath ${allArgs.joinToString(" ")}" }
-        val process = eelApi.exec.spawnProcess(executablePath)
-            .args(allArgs)
-            .env(environment)
-            .eelIt()
-        val executionResult = process.awaitProcessResult()
-
-        if (executionResult.exitCode != 0) {
-            val outString = executionResult.stdoutString
-            val errString = executionResult.stderrString
-            LOG.warn("Unable to update HTTPS development certificates; stdout: $outString; stderr: $errString")
-            return@withBackgroundProgress false
-        }
-    }
-
-    true
-}
-
-private suspend fun runDevCertificateCommandsInRunToolWindow(
-    project: Project,
-    progressTitle: String,
-    executablePath: String,
-    commands: List<String>,
-    environment: Map<String, String>
-): Boolean {
     val lifetimeDef = AspireService.getInstance(project).lifetime.createNested()
-
     try {
-        for (command in commands) {
-            val allArgs = listOf("dev-certs", "https", command)
-            val commandLine = createDevCertificateCommandLine(executablePath, allArgs, environment)
-            LOG.trace { "Running dev certificate command in Run tool window: $commandLine" }
-
-            val exitCode = commandLine.runInRunToolWindow(project, lifetimeDef.lifetime, progressTitle, LOG).await()
-            if (exitCode != 0) {
-                LOG.warn("Unable to update HTTPS development certificates; exitCode=$exitCode")
-                return false
-            }
+        val result = DevCertificateService
+            .getInstance(project)
+            .trustDevCertificate(cliPath, clean, lifetimeDef.lifetime)
+        if (result.isSuccess) {
+            notifyDevCertificateCommandSuccess(project)
+        } else {
+            notifyDevCertificateCommandFailure(
+                project,
+                AspireCoreBundle.message("notification.dev.certificate.command.failed")
+            )
         }
-
-        return true
     } finally {
         lifetimeDef.terminate()
     }
 }
-
-private fun createDevCertificateCommandLine(
-    executablePath: String,
-    arguments: List<String>,
-    environment: Map<String, String>
-): GeneralCommandLine =
-    GeneralCommandLine()
-        .withExePath(executablePath)
-        .withParameters(arguments)
-        .withEnvironment(environment)
 
 private suspend fun notifyDevCertificateCommandFailure(project: Project, details: String) =
     withContext(Dispatchers.EDT) {
@@ -386,7 +238,7 @@ private enum class DevCertificateExportFormat(val argument: String, val extensio
 internal suspend fun exportDevCertificateAndReadFile(
     useBundledRuntime: Boolean,
     project: Project
-): Result<String> {
+): Result<String> = withContext(Dispatchers.Default) {
     val eelApi = project.getEelDescriptor().toEelApi()
     val certificateFile = eelApi.fs.createTemporaryFile()
         .prefix("aspire-dev-cert")
@@ -397,17 +249,16 @@ internal suspend fun exportDevCertificateAndReadFile(
         ?.asNioPath()
     if (certificateFile == null) {
         LOG.warn("Unable to create a temporary pem file for certificate exporting")
-        return Result.failure(Exception("Unable to create a temporary pem file for certificate exporting"))
+        return@withContext Result.failure(Exception("Unable to create a temporary pem file for certificate exporting"))
     }
 
-    val exportResult = exportDevCertificate(
+    exportDevCertificate(
         useBundledRuntime,
         project,
         certificateFile,
         DevCertificateExportFormat.Pem
-    )
-    if (!exportResult.isSuccess) {
-        return Result.failure(requireNotNull(exportResult.exceptionOrNull()))
+    ).onFailure {
+        return@withContext Result.failure(it)
     }
 
     // Remove PEM header and footer
@@ -418,7 +269,7 @@ internal suspend fun exportDevCertificateAndReadFile(
         .lines()
         .joinToString("")
         .trim()
-    return Result.success(content)
+    return@withContext Result.success(content)
 }
 
 /**
@@ -429,7 +280,7 @@ internal suspend fun exportDevCertificateAndReadFile(
 internal suspend fun exportDevCertificateAndLoadToKeyStore(
     useBundledRuntime: Boolean,
     project: Project
-): Result<DevCertificateKeyMaterial> {
+): Result<DevCertificateKeyMaterial> = withContext(Dispatchers.Default) {
     val eelApi = project.getEelDescriptor().toEelApi()
     val certificateFile = eelApi.fs.createTemporaryFile()
         .prefix("aspire-dev-cert")
@@ -440,19 +291,18 @@ internal suspend fun exportDevCertificateAndLoadToKeyStore(
         ?.asNioPath()
     if (certificateFile == null) {
         LOG.warn("Unable to create a temporary pfx file for certificate exporting")
-        return Result.failure(Exception("Unable to create a temporary pfx file for certificate exporting"))
+        return@withContext Result.failure(Exception("Unable to create a temporary pfx file for certificate exporting"))
     }
 
     val password = UUID.randomUUID().toString()
-    val exportResult = exportDevCertificate(
+    exportDevCertificate(
         useBundledRuntime,
         project,
         certificateFile,
         DevCertificateExportFormat.Pfx,
         password
-    )
-    if (!exportResult.isSuccess) {
-        return Result.failure(requireNotNull(exportResult.exceptionOrNull()))
+    ).onFailure {
+        return@withContext Result.failure(it)
     }
 
     val keyStore = KeyStore.getInstance("PKCS12")
@@ -463,11 +313,11 @@ internal suspend fun exportDevCertificateAndLoadToKeyStore(
     val alias = keyStore.aliases().asSequence().firstOrNull { keyStore.isKeyEntry(it) }
     if (alias == null) {
         LOG.warn("Exported PKCS12 key store has no private key entry")
-        return Result.failure(Exception("Exported PKCS12 key store has no private key entry"))
+        return@withContext Result.failure(Exception("Exported PKCS12 key store has no private key entry"))
     }
 
     val material = DevCertificateKeyMaterial(keyStore, alias, password.toCharArray())
-    return Result.success(material)
+    return@withContext Result.success(material)
 }
 
 @Suppress("UnstableApiUsage")
@@ -478,49 +328,28 @@ private suspend fun exportDevCertificate(
     format: DevCertificateExportFormat,
     password: String? = null
 ): Result<Unit> {
-    val dotnetCliPath = if (useBundledRuntime) {
-        project.initializeAndGetEnvironment().getRuntime().cliPath()
-    } else {
-        RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value?.cliExePath
-    }
-    if (dotnetCliPath == null) {
-        return Result.failure(Exception("Unable to find .NET CLI runtime"))
-    }
+    val dotnetCliPath = getDotnetCliPath(useBundledRuntime, project)
+        ?: return Result.failure(Exception("Unable to find .NET CLI runtime"))
 
-    val eelApi = project.getEelDescriptor().toEelApi()
-    val exitCode =
+    val result =
         withBackgroundProgress(project, RiderWebBundle.message("DotNetSslCerts.progress.title.certificate.export")) {
-            val args = buildList {
-                add("dev-certs")
-                add("https")
-                add("--export-path")
-                add(certificateFile.absolutePathString())
-                add("--format")
-                add(format.argument)
-                if (password != null) {
-                    add("--password")
-                    add(password)
-                }
-            }
-            val process = eelApi.exec.spawnProcess(dotnetCliPath.pathString)
-                .args(args)
-                .env(
-                    mapOf(
-                        "DOTNET_NOLOGO" to "true",
-                        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE" to "true",
-                        "DOTNET_CLI_TELEMETRY_OPTOUT" to "true",
-                        "DOTNET_GENERATE_ASPNET_CERTIFICATE" to "false"
-                    )
-                )
-                .eelIt()
-            val processResult = process.awaitProcessResult()
-            processResult.exitCode
+            DevCertificateService
+                .getInstance(project)
+                .exportDevCertificate(dotnetCliPath, certificateFile, password, format.argument)
         }
 
-    if (exitCode != 0 || !certificateFile.exists()) {
-        LOG.info("Failed to export certificate, exitCode=$exitCode")
+    if (result.isFailure || !certificateFile.exists()) {
+        LOG.info("Failed to export certificate")
         return Result.failure(Exception("Failed to export certificate"))
     }
 
     return Result.success(Unit)
+}
+
+private suspend fun getDotnetCliPath(useBundledRuntime: Boolean, project: Project): Path? {
+    return if (useBundledRuntime) {
+        project.initializeAndGetEnvironment().getRuntime().cliPath()
+    } else {
+        RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value?.cliExePath
+    }
 }

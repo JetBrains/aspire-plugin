@@ -1,10 +1,11 @@
+@file:Suppress("UnstableApiUsage")
+
 package com.jetbrains.aspire.certificates
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import com.jetbrains.rider.web.DevCertificate
+import com.jetbrains.rider.web.DevCertificateTrustLevel
 import org.jetbrains.annotations.ApiStatus
 
 /**
@@ -20,24 +21,10 @@ class DevCertificateAnalyzer {
         fun getInstance(): DevCertificateAnalyzer = service()
     }
 
-    private val json by lazy { Json { ignoreUnknownKeys = true } }
-
     /**
-     * Parses the output of `dotnet dev-certs https --check-trust-machine-readable` and analyzes it.
-     *
-     * Throws if the output contains a malformed certificate array.
+     * Analyzes the output of `dotnet dev-certs https --check-trust-machine-readable`.
      */
-    fun analyze(output: String): DevCertificateDiagnostics = analyzeCertificates(parseCheckOutput(output))
-
-    private fun parseCheckOutput(output: String): List<DevCertificate> {
-        val start = output.indexOf('[')
-        val end = output.lastIndexOf(']')
-        if (start !in 0..<end) return emptyList()
-        val jsonArray = output.substring(start, end + 1)
-        return json.decodeFromString(jsonArray)
-    }
-
-    private fun analyzeCertificates(certificates: List<DevCertificate>): DevCertificateDiagnostics {
+    fun analyze(certificates: List<DevCertificate>): DevCertificateDiagnostics {
         if (certificates.isEmpty()) {
             return DevCertificateDiagnostics(emptyList(), DevCertificateCheckResult.NoCertificate)
         }
@@ -67,25 +54,6 @@ class DevCertificateAnalyzer {
     }
 }
 
-@Suppress("unused")
-@ApiStatus.Internal
-enum class DevCertificateTrustLevel {
-    None,
-    Partial,
-    Full,
-    Unknown;
-
-    val isTrusted: Boolean
-        get() = this == Partial || this == Full
-}
-
-@ApiStatus.Internal
-@Serializable
-data class DevCertificate(
-    @SerialName("Thumbprint") val thumbprint: String? = null,
-    @SerialName("Version") val version: Int = 0,
-    @SerialName("TrustLevel") val trustLevel: DevCertificateTrustLevel = DevCertificateTrustLevel.Unknown
-)
 
 @ApiStatus.Internal
 data class DevCertificateDiagnostics(
