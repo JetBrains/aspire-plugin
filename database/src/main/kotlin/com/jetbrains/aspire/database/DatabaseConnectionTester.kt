@@ -1,8 +1,9 @@
 package com.jetbrains.aspire.database
 
 import com.intellij.database.access.DatabaseCredentialsUi
+import com.intellij.database.dataSource.DataSourceConnectionTester.performTestConnection
 import com.intellij.database.dataSource.LocalDataSource
-import com.intellij.database.dataSource.ui.DataSourceTestConnectionManager
+import com.intellij.database.dataSource.TestConnectionResultProcessor.processTestConnectionResult
 import com.intellij.database.util.AsyncUtil
 import com.intellij.database.util.ErrorHandler
 import com.intellij.database.util.LoaderContext
@@ -57,7 +58,7 @@ internal class DatabaseConnectionTester(private val project: Project) {
         (1..<5).forEach { _ ->
             val errorHandler = ErrorHandler()
             val rawResult = runCatching {
-                DataSourceTestConnectionManager.performTestConnection(
+                performTestConnection(
                     project,
                     dataSource,
                     credentials,
@@ -76,7 +77,7 @@ internal class DatabaseConnectionTester(private val project: Project) {
                 AsyncUtil.addUnhandledError(errorHandler, error, dataSource, project)
             }
 
-            val processed = DataSourceTestConnectionManager.processTestConnectionResult(
+            val processed = processTestConnectionResult(
                 rawResult.getOrNull(),
                 dataSource,
                 errorHandler
