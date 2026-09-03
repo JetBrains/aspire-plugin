@@ -4,15 +4,12 @@ import com.intellij.execution.RunManagerEx
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.project.Project
 import com.intellij.util.EnvironmentUtil
-import com.intellij.xdebugger.XDebugSession
-import com.intellij.xdebugger.XDebuggerManager
 import com.jetbrains.aspire.rider.run.host.AspireHostConfiguration
 import com.jetbrains.rd.platform.util.TimeoutTracker
 import com.jetbrains.rd.util.reactive.hasValue
 import com.jetbrains.rd.util.reactive.valueOrThrow
 import com.jetbrains.rd.util.string.printToString
 import com.jetbrains.rdclient.util.idea.waitAndPump
-import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
 import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParameters
 import com.jetbrains.rider.test.framework.flushQueues
 import com.jetbrains.rider.test.framework.frameworkLogger
@@ -20,9 +17,7 @@ import com.jetbrains.rider.test.maskCustomDotnetPath
 import com.jetbrains.rider.test.scriptingApi.*
 import java.io.PrintStream
 import java.net.URL
-import java.nio.file.Path
 import java.time.Duration
-import kotlin.test.assertNotNull
 
 fun dumpAspireHostRunConfigurations(project: Project, printStream: PrintStream) {
     val runManagerEx = RunManagerEx.getInstanceEx(project)

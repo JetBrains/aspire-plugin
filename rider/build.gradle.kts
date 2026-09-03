@@ -18,6 +18,8 @@ dependencies {
         bundledModule("intellij.rd.client")
         bundledModule("intellij.rider.rdclient.dotnet")
         bundledModule("intellij.rider.languages")
+        bundledModule("intellij.platform.debugger")
+        bundledModule("intellij.platform.debugger.impl")
     }
 
     implementation(project(":core"))

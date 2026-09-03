@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Update platform version to 2026.3-SNAPSHOT
+
+## [2.8.1] - 2026-08-28
+
 ### Fixed
 
 - [RIDER-141696](https://youtrack.jetbrains.com/issue/RIDER-141696) Add Aspire Orchestration action isn't available for WPF projects
@@ -729,7 +735,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.8.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.8.1...HEAD
+[2.8.1]: https://github.com/JetBrains/aspire-plugin/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/JetBrains/aspire-plugin/compare/2.7.5...2.8.0
 [2.7.5]: https://github.com/JetBrains/aspire-plugin/compare/2.7.4...2.7.5
 [2.7.4]: https://github.com/JetBrains/aspire-plugin/compare/2.7.3...2.7.4

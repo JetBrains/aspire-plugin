@@ -1,19 +1,24 @@
 package com.jetbrains.aspire.certificates
 
+import com.jetbrains.rider.web.DevCertificate
+import com.jetbrains.rider.web.DevCertificateTrustLevel
 import org.testng.annotations.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@Suppress("UnstableApiUsage")
 class DevCertificateAnalyzerTest {
     private val analyzer = DevCertificateAnalyzer()
 
-    private fun certificate(thumbprint: String, version: Int, trustLevel: String) =
-        """{"Thumbprint":"$thumbprint","Version":$version,"TrustLevel":"$trustLevel"}"""
+    private fun certificate(thumbprint: String, version: Int, trustLevel: DevCertificateTrustLevel) =
+        DevCertificate(thumbprint, version, trustLevel)
 
     @Test
     fun `no certificates`() {
-        val diagnostics = analyzer.analyze("[]")
+        val certificates = emptyList<DevCertificate>()
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(DevCertificateCheckResult.NoCertificate, diagnostics.result)
         assertTrue(diagnostics.certificates.isEmpty())
@@ -22,7 +27,10 @@ class DevCertificateAnalyzerTest {
 
     @Test
     fun `single fully trusted certificate`() {
-        val diagnostics = analyzer.analyze("[${certificate("AAA", 6, "Full")}]")
+        val certificate = certificate("AAA", 6, DevCertificateTrustLevel.Full)
+        val certificates = listOf(certificate)
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(DevCertificateCheckResult.Trusted, diagnostics.result)
         assertEquals(1, diagnostics.certificates.size)
@@ -32,7 +40,10 @@ class DevCertificateAnalyzerTest {
 
     @Test
     fun `single partially trusted certificate`() {
-        val diagnostics = analyzer.analyze("[${certificate("AAA", 6, "Partial")}]")
+        val certificate = certificate("AAA", 6, DevCertificateTrustLevel.Partial)
+        val certificates = listOf(certificate)
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(DevCertificateCheckResult.PartiallyTrusted, diagnostics.result)
         assertTrue(diagnostics.requiresAttention)
@@ -40,7 +51,10 @@ class DevCertificateAnalyzerTest {
 
     @Test
     fun `single untrusted certificate`() {
-        val diagnostics = analyzer.analyze("[${certificate("AAA", 6, "None")}]")
+        val certificate = certificate("AAA", 6, DevCertificateTrustLevel.None)
+        val certificates = listOf(certificate)
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(DevCertificateCheckResult.NotTrusted, diagnostics.result)
         assertTrue(diagnostics.requiresAttention)
@@ -48,9 +62,11 @@ class DevCertificateAnalyzerTest {
 
     @Test
     fun `multiple certificates with only one trusted`() {
-        val diagnostics = analyzer.analyze(
-            "[${certificate("AAA", 6, "Full")},${certificate("BBB", 6, "None")}]"
-        )
+        val trustedCertificate = certificate("AAA", 6, DevCertificateTrustLevel.Full)
+        val untrustedCertificate = certificate("BBB", 6, DevCertificateTrustLevel.None)
+        val certificates = listOf(trustedCertificate, untrustedCertificate)
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(DevCertificateCheckResult.MultipleCertificatesIssue(2, 1), diagnostics.result)
         assertTrue(diagnostics.requiresAttention)
@@ -58,9 +74,11 @@ class DevCertificateAnalyzerTest {
 
     @Test
     fun `multiple certificates with all trusted`() {
-        val diagnostics = analyzer.analyze(
-            "[${certificate("AAA", 6, "Full")},${certificate("BBB", 6, "Partial")}]"
-        )
+        val fullyTrustedCertificate = certificate("AAA", 6, DevCertificateTrustLevel.Full)
+        val partiallyTrustedCertificate = certificate("BBB", 6, DevCertificateTrustLevel.Partial)
+        val certificates = listOf(fullyTrustedCertificate, partiallyTrustedCertificate)
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(DevCertificateCheckResult.Trusted, diagnostics.result)
         assertFalse(diagnostics.requiresAttention)
@@ -68,7 +86,10 @@ class DevCertificateAnalyzerTest {
 
     @Test
     fun `trusted certificate of an old version requires attention`() {
-        val diagnostics = analyzer.analyze("[${certificate("AAA", 4, "Full")}]")
+        val certificate = certificate("AAA", 4, DevCertificateTrustLevel.Full)
+        val certificates = listOf(certificate)
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(DevCertificateCheckResult.Trusted, diagnostics.result)
         assertEquals(listOf(4), diagnostics.oldTrustedVersions)
@@ -77,57 +98,35 @@ class DevCertificateAnalyzerTest {
 
     @Test
     fun `old versions are reported without duplicates and sorted`() {
-        val diagnostics = analyzer.analyze(
-            "[${certificate("AAA", 5, "Full")}," +
-                    "${certificate("BBB", 4, "Full")}," +
-                    "${certificate("CCC", 5, "Partial")}]"
-        )
+        val versionFiveCertificate = certificate("AAA", 5, DevCertificateTrustLevel.Full)
+        val versionFourCertificate = certificate("BBB", 4, DevCertificateTrustLevel.Full)
+        val anotherVersionFiveCertificate = certificate("CCC", 5, DevCertificateTrustLevel.Partial)
+        val certificates = listOf(versionFiveCertificate, versionFourCertificate, anotherVersionFiveCertificate)
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(listOf(4, 5), diagnostics.oldTrustedVersions)
     }
 
     @Test
     fun `untrusted certificate of an old version is not reported as outdated`() {
-        val diagnostics = analyzer.analyze("[${certificate("AAA", 4, "None")}]")
+        val certificate = certificate("AAA", 4, DevCertificateTrustLevel.None)
+        val certificates = listOf(certificate)
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(DevCertificateCheckResult.NotTrusted, diagnostics.result)
         assertTrue(diagnostics.oldTrustedVersions.isEmpty())
     }
 
     @Test
-    fun `certificate array surrounded by cli noise is parsed`() {
-        val output = """
-            Welcome to .NET!
-            [${certificate("AAA", 6, "Full")}]
-            Done.
-        """.trimIndent()
-
-        val diagnostics = analyzer.analyze(output)
-
-        assertEquals(DevCertificateCheckResult.Trusted, diagnostics.result)
-        assertEquals("AAA", diagnostics.certificates.single().thumbprint)
-    }
-
-    @Test
-    fun `output without a certificate array is treated as no certificates`() {
-        val diagnostics = analyzer.analyze("No valid certificate found.")
-
-        assertEquals(DevCertificateCheckResult.NoCertificate, diagnostics.result)
-    }
-
-    @Test
     fun `unknown trust level is not trusted`() {
-        val diagnostics = analyzer.analyze("""[{"Thumbprint":"AAA","Version":6}]""")
+        val certificate = certificate("AAA", 6, DevCertificateTrustLevel.Unknown)
+        val certificates = listOf(certificate)
+
+        val diagnostics = analyzer.analyze(certificates)
 
         assertEquals(DevCertificateCheckResult.NotTrusted, diagnostics.result)
         assertEquals(DevCertificateTrustLevel.Unknown, diagnostics.certificates.single().trustLevel)
-    }
-
-    @Test
-    fun `unknown fields are ignored`() {
-        val diagnostics =
-            analyzer.analyze("""[{"Thumbprint":"AAA","Version":6,"TrustLevel":"Full","NotExpired":true}]""")
-
-        assertEquals(DevCertificateCheckResult.Trusted, diagnostics.result)
     }
 }

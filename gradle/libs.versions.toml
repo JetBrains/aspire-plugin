@@ -38,7 +38,9 @@ protobuf-java = { group = "com.google.protobuf", name = "protobuf-java", version
 protobuf-kotlin = { group = "com.google.protobuf", name = "protobuf-kotlin", version.ref = "protobuf" }
 javaxAnnotationApi = { group = "javax.annotation", name = "javax.annotation-api", version.ref = "javaxAnnotationApi" }
 # Ktor server plugins not present in the platform's bundled Ktor modules.
-# Shipped non-transitively; all transitive Ktor pieces (server-core, http, io, utils,
+# The core content module class loader reads its own jar only, so these jars merge into
+# lib/modules/intellij.aspire.core.jar. They do not ship in lib/. See core/build.gradle.kts.
+# Merged non-transitively; all transitive Ktor pieces (server-core, http, io, utils,
 # serialization, websocket codec) are provided by the bundled intellij.libraries.ktor.* modules.
 ktor-server-content-negotiation = { group = "io.ktor", name = "ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-server-websockets = { group = "io.ktor", name = "ktor-server-websockets", version.ref = "ktor" }

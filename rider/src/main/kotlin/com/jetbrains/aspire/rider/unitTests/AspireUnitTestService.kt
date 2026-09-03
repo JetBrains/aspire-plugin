@@ -9,13 +9,17 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
-import com.jetbrains.aspire.generated.*
+import com.jetbrains.aspire.generated.AspireHostModelConfig
 import com.jetbrains.aspire.rider.generated.AspireHostEnvironmentVariable
 import com.jetbrains.aspire.rider.generated.StartAspireHostRequest
 import com.jetbrains.aspire.rider.generated.StartAspireHostResponse
 import com.jetbrains.aspire.rider.generated.StopAspireHostRequest
-import com.jetbrains.aspire.util.*
+import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
+import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.dcp.AspireDcpTls
+import com.jetbrains.aspire.worker.dcp.AspireEmbeddedSessionHost
+import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
@@ -25,7 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.toTypedArray
 import kotlin.io.path.absolutePathString
 
 /**
@@ -61,13 +64,22 @@ internal class AspireUnitTestService(private val project: Project, private val s
             lifetimedCoroutineScope(lifetime) {
                 LOG.trace("Starting an Aspire host for a unit test session")
                 val aspireWorker = AspireWorker.getInstance(project)
-
-                aspireWorker.start()
-
-                val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
+                val embedded = AspireEmbeddedSessionHost.isEnabled()
 
                 val appHostMainFilePath = request.aspireHostProjectPath.toNioPath()
-                val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+
+                val appHost: AspireAppHost
+                val dcpEnvironmentVariables: Map<String, String>
+                if (embedded) {
+                    appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+                    val tlsMaterial = AspireDcpTls.getInstance(project).getOrComputeTlsMaterial()
+                    val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
+                    dcpEnvironmentVariables = endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert)
+                } else {
+                    aspireWorker.start()
+                    dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
+                    appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+                }
 
                 val aspireHostConfig = AspireHostModelConfig(
                     appHost.dcpInstancePrefix,

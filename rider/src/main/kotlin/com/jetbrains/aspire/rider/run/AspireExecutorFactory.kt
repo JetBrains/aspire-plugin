@@ -9,9 +9,11 @@ import com.intellij.util.EnvironmentUtil
 import com.intellij.util.NetworkUtils
 import com.jetbrains.aspire.util.*
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.dcp.AspireDcpTls
+import com.jetbrains.aspire.worker.dcp.AspireEmbeddedSessionHost
+import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
-import com.jetbrains.rider.utils.RiderEnvironmentAccessor
 import java.net.URI
 import java.nio.file.Path
 import java.util.*
@@ -23,21 +25,28 @@ internal abstract class AspireExecutorFactory(
 ) : AsyncExecutorFactory {
     companion object {
         private const val DOTNET_ROOT = "DOTNET_ROOT"
+        private const val PATH = "PATH"
     }
 
     protected suspend fun configureEnvironmentVariables(
-        appHostMainFilePath : Path,
+        appHostMainFilePath: Path,
         envs: MutableMap<String, String>,
         activeRuntime: DotNetCoreRuntime
     ): EnvironmentVariableValues {
         val aspireWorker = AspireWorker.getInstance(project)
 
-        aspireWorker.start()
-
-        val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
-        envs.putAll(dcpEnvironmentVariables)
-
-        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+        val appHost = if (AspireEmbeddedSessionHost.isEnabled()) {
+            //Embedded mode: each AppHost runs its own in-process DCP server; no external worker process.
+            val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+            val tlsMaterial = AspireDcpTls.getInstance(project).getOrComputeTlsMaterial()
+            val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
+            envs.putAll(endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert))
+            appHost
+        } else {
+            aspireWorker.start()
+            envs.putAll(aspireWorker.getEnvironmentVariablesForDcpConnection())
+            requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+        }
 
         envs[DCP_INSTANCE_ID_PREFIX] = appHost.dcpInstancePrefix
 
@@ -108,7 +117,7 @@ internal abstract class AspireExecutorFactory(
                 else "https://localhost:$otlpEndpointPort"
         }
 
-        val dotnetPath = RiderEnvironmentAccessor.getInstance(project).findFileInSystemPath("dotnet")
+        val dotnetPath = PathEnvironmentVariableUtil.findFirst("dotnet")
         if (dotnetPath == null) {
             setDotnetRootPathVariable(envs, activeRuntime)
         }
@@ -127,11 +136,11 @@ internal abstract class AspireExecutorFactory(
 
         val pathVariable = PathEnvironmentVariableUtil.getPathVariableValue()
         if (pathVariable != null) {
-            envs[RiderEnvironmentAccessor.PATH_VARIABLE] =
+            envs[PATH] =
                 if (SystemInfo.isUnix) "$pathVariable:$dotnetPaths"
                 else "$pathVariable;$dotnetPaths"
         } else {
-            envs[RiderEnvironmentAccessor.PATH_VARIABLE] = dotnetPaths
+            envs[PATH] = dotnetPaths
         }
 
         val dotnetRootEnvironmentVariable = EnvironmentUtil.getValue(DOTNET_ROOT)
