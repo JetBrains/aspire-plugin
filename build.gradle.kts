@@ -60,6 +60,7 @@ dependencies {
 
     compileOnly(libs.serializationJson)
     testImplementation(libs.junit)
+    testRuntimeOnly(libs.opentest4j)
     testImplementation(libs.testng)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test) {
