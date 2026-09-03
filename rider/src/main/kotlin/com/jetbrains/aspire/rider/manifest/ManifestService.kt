@@ -72,8 +72,10 @@ class ManifestService(private val project: Project) {
                 LOG.info("Aspire manifest is generated")
 
                 val manifestPath = directoryPath.resolve(MANIFEST_FILE_NAME)
-                val file = LocalFileSystem.getInstance().refreshAndFindFileByPath(manifestPath.absolutePathString())
-                if (file != null && file.isValid) {
+                val file = LocalFileSystem.getInstance()
+                    .refreshAndFindFileByPath(manifestPath.absolutePathString())
+                    ?.takeIf { it.isValid }
+                if (file != null) {
                     withContext(Dispatchers.EDT) {
                         PsiNavigationSupport.getInstance().createNavigatable(project, file, -1).navigate(true)
                     }
