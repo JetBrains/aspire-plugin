@@ -1,6 +1,7 @@
 package com.jetbrains.aspire.worker.dcp
 
 import com.intellij.openapi.util.registry.Registry
+import org.jetbrains.annotations.ApiStatus
 
 /**
  * Feature flag selecting the DCP transport.
@@ -11,7 +12,8 @@ import com.intellij.openapi.util.registry.Registry
  *
  * The key is declared in `intellij.aspire.core.xml`.
  */
-internal object AspireEmbeddedSessionHost {
+@ApiStatus.Internal
+object AspireEmbeddedSessionHost {
     private const val REGISTRY_KEY = "aspire.embedded.session.host"
 
     fun isEnabled(): Boolean = Registry.`is`(REGISTRY_KEY, false)

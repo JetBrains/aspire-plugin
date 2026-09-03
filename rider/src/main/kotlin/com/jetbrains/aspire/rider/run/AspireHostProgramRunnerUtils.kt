@@ -15,6 +15,7 @@ import com.jetbrains.aspire.rider.run.states.*
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.dcp.AspireEmbeddedSessionHost
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import kotlinx.coroutines.Dispatchers
@@ -87,16 +88,21 @@ private suspend fun setUpAspireHostModel(
         .syncPublisher(AppHostListener.TOPIC)
         .appHostStarting(appHostFilePath, appHostEnvironment)
 
-    val aspireWorker = AspireWorker.getInstance(environment.project)
+    //In embedded mode the AppHost's own DCP server handles sessions directly, so the RD host model
+    //(which only feeds the external .NET worker) is not registered. This also keeps the AppHost's
+    //sessionEvents single-consumer: the embedded server's notify socket instead of subscribeToAspireAppHostModel.
+    if (!AspireEmbeddedSessionHost.isEnabled()) {
+        val aspireWorker = AspireWorker.getInstance(environment.project)
 
-    aspireHostProcessHandlerLifetime.onTermination {
-        application.invokeLater {
-            aspireWorker.stopAspireHostModel(aspireHostConfig.id)
+        aspireHostProcessHandlerLifetime.onTermination {
+            application.invokeLater {
+                aspireWorker.stopAspireHostModel(aspireHostConfig.id)
+            }
         }
-    }
 
-    withContext(Dispatchers.EDT) {
-        aspireWorker.startAspireHostModel(aspireHostConfig)
+        withContext(Dispatchers.EDT) {
+            aspireWorker.startAspireHostModel(aspireHostConfig)
+        }
     }
 
     return aspireHostConfig

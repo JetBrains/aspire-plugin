@@ -9,6 +9,9 @@ import com.intellij.util.EnvironmentUtil
 import com.intellij.util.NetworkUtils
 import com.jetbrains.aspire.util.*
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.dcp.AspireDcpTls
+import com.jetbrains.aspire.worker.dcp.AspireEmbeddedSessionHost
+import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.net.URI
@@ -32,12 +35,18 @@ internal abstract class AspireExecutorFactory(
     ): EnvironmentVariableValues {
         val aspireWorker = AspireWorker.getInstance(project)
 
-        aspireWorker.start()
-
-        val dcpEnvironmentVariables = aspireWorker.getEnvironmentVariablesForDcpConnection()
-        envs.putAll(dcpEnvironmentVariables)
-
-        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+        val appHost = if (AspireEmbeddedSessionHost.isEnabled()) {
+            //Embedded mode: each AppHost runs its own in-process DCP server; no external worker process.
+            val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+            val tlsMaterial = AspireDcpTls.getInstance(project).getOrComputeTlsMaterial()
+            val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
+            envs.putAll(endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert))
+            appHost
+        } else {
+            aspireWorker.start()
+            envs.putAll(aspireWorker.getEnvironmentVariablesForDcpConnection())
+            requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+        }
 
         envs[DCP_INSTANCE_ID_PREFIX] = appHost.dcpInstancePrefix
 
