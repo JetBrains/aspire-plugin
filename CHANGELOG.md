@@ -7,6 +7,7 @@
 ### Changed
 
 - Update platform version to 2026.3-SNAPSHOT
+- Update Aspire version to 13.5.3
 
 ## [2.8.1] - 2026-08-28
 
