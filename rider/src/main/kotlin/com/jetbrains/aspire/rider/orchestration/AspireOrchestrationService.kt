@@ -131,7 +131,10 @@ class AspireOrchestrationService(private val project: Project) {
             }
         }
 
-        val appHostProjectFile = LocalFileSystem.getInstance().findFileByNioFile(appHostPath) ?: return null
+        val appHostProjectFile = LocalFileSystem.getInstance()
+            .refreshAndFindFileByNioFile(appHostPath)
+            ?.takeIf { it.isValid }
+            ?: return null
         return WorkspaceModel.getInstance(project).findProjectsByPath(appHostProjectFile).singleOrNull()
     }
 
