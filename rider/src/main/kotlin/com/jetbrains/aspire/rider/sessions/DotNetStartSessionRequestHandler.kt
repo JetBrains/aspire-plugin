@@ -2,16 +2,12 @@
 
 package com.jetbrains.aspire.rider.sessions
 
-import com.intellij.execution.process.ProcessEvent
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessListener
-import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.intellij.util.application
@@ -29,20 +25,16 @@ import com.jetbrains.rd.util.lifetime.isNotAlive
 import com.jetbrains.rd.util.threading.coroutines.launch
 import com.jetbrains.rider.build.BuildParameters
 import com.jetbrains.rider.build.tasks.BuildTaskThrottler
-import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
 import com.jetbrains.rider.ijent.extensions.toNioPath
 import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.BuildTarget
 import com.jetbrains.rider.model.SilentMode
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.findProjects
-import com.jetbrains.rider.run.pid
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.io.path.absolutePathString
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  *  Starting point for handling all dotnet-related Aspire session requests.
@@ -211,117 +203,16 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         sessionEvents: Channel<SessionEvent>,
         processLifetimeDefinition: LifetimeDefinition
     ): ProcessListener {
-        val stdOutBuffer = SessionLogBuffer(sessionId, false, sessionEvents, processLifetimeDefinition.lifetime)
-        val stdErrBuffer = SessionLogBuffer(sessionId, true, sessionEvents, processLifetimeDefinition.lifetime)
-        return object : ProcessListener {
-            override fun startNotified(event: ProcessEvent) {
-                LOG.info("Session $sessionId process was started")
-                val pid = when (val processHandler = event.processHandler) {
-                    is DebuggerWorkerProcessHandler -> processHandler.debuggerWorkerRealHandler.pid()
-                    is ProcessHandler -> event.processHandler.pid()
-                    else -> null
+        return SessionProcessEventListener(
+            sessionId,
+            sessionEvents,
+            processLifetimeDefinition.lifetime
+        ) {
+            if (processLifetimeDefinition.isAlive) {
+                application.invokeLater {
+                    LOG.trace { "Terminating session $sessionId lifetime" }
+                    processLifetimeDefinition.terminate()
                 }
-                if (pid == null) {
-                    LOG.warn("Unable to determine process id for the session $sessionId")
-                    terminateSession(-1)
-                } else {
-                    LOG.trace { "Session $sessionId process id = $pid" }
-                    val eventSendingResult = sessionEvents.trySend(SessionProcessStarted(sessionId, pid))
-                    if (!eventSendingResult.isSuccess) {
-                        LOG.warn("Unable to send an event for session $sessionId start")
-                    }
-                }
-            }
-
-            override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                if (outputType == ProcessOutputType.STDERR) {
-                    stdErrBuffer.append(event.text)
-                } else {
-                    stdOutBuffer.append(event.text)
-                }
-            }
-
-            override fun processNotStarted() {
-                LOG.warn("Session $sessionId process is not started")
-                terminateSession(-1)
-            }
-
-            override fun processTerminated(event: ProcessEvent) {
-                LOG.info("Session $sessionId process was terminated (${event.exitCode}, ${event.text})")
-                stdOutBuffer.flush()
-                stdErrBuffer.flush()
-                terminateSession(event.exitCode)
-            }
-
-            private fun terminateSession(exitCode: Int) {
-                LOG.trace { "Terminating session $sessionId with exitCode $exitCode" }
-                val eventSendingResult = sessionEvents.trySend(SessionProcessTerminated(sessionId, exitCode))
-                if (!eventSendingResult.isSuccess) {
-                    LOG.warn("Unable to send an event for session $sessionId termination")
-                }
-                if (processLifetimeDefinition.isAlive) {
-                    application.invokeLater {
-                        LOG.trace { "Terminating session $sessionId lifetime" }
-                        processLifetimeDefinition.terminate()
-                    }
-                }
-            }
-        }
-    }
-
-    private class SessionLogBuffer(
-        private val sessionId: String,
-        private val isStdErr: Boolean,
-        private val sessionEvents: Channel<SessionEvent>,
-        private val lifetime: Lifetime
-    ) {
-        companion object {
-            private val FLUSH_INTERVAL_MS = 100L.milliseconds
-            private const val BUFFER_SIZE_LIMIT = 8192
-        }
-
-        init {
-            lifetime.launch {
-                while (lifetime.isAlive) {
-                    delay(FLUSH_INTERVAL_MS)
-                    if (isFlushedOnLimit.compareAndSet(true, false)) {
-                        continue // we've flushed the buffer, no need to do it again
-                    }
-                    flush()
-                }
-            }
-        }
-
-        private val buffer = StringBuilder()
-        private val lock = Any()
-        private val isFlushedOnLimit: AtomicBoolean = AtomicBoolean(false)
-
-        fun append(text: String) {
-            synchronized(lock) {
-                buffer.append(text)
-                if (buffer.length >= BUFFER_SIZE_LIMIT) {
-                    isFlushedOnLimit.set(true)
-                    LOG.trace { "Session $sessionId log buffer size limit reached, flushing" }
-                    flush()
-                }
-            }
-        }
-
-        fun flush() {
-            var toSend: String? = null
-            synchronized(lock) {
-                if (buffer.isNotEmpty()) {
-                    toSend = buffer.toString()
-                    buffer.setLength(0)
-                }
-            }
-            toSend?.let { send(it) }
-        }
-
-        private fun send(text: String) {
-            val result = sessionEvents.trySend(SessionLogReceived(sessionId, isStdErr, text))
-            if (!result.isSuccess) {
-                LOG.warn("Unable to send an event for session $sessionId log")
             }
         }
     }
