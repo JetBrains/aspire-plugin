@@ -30,6 +30,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="Aspire" displayType="BALLOON"/>
 
+        <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
+
         <dependencySupport kind="dotnet" coordinate="Aspire.Hosting" displayName="Aspire"/>
     </extensions>
 
