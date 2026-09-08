@@ -62,7 +62,7 @@
 
         <registryKey key="aspire.embedded.session.host"
                      description="Use embedded server to communicate with DCP"
-                     defaultValue="false"/>
+                     defaultValue="true"/>
 
         <iconMapper mappingFile="AspireCoreIconMappings.json"/>
     </extensions>
