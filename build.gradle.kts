@@ -59,10 +59,13 @@ dependencies {
     }
 
     compileOnly(libs.serializationJson)
-    testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.params)
     testRuntimeOnly(libs.opentest4j)
-    testImplementation(libs.testng)
-    testImplementation(libs.kotlin.test)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testRuntimeOnly(libs.junit)
+    testImplementation(libs.kotlin.test.junit5)
     testImplementation(libs.kotlinx.coroutines.test) {
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
         exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core-jvm")
@@ -184,7 +187,9 @@ tasks {
     }
 
     test {
-        useTestNG()
+        // Ignore IJ Platform JUnit5 framework set up and tear down
+        systemProperty("intellij.build.test.ignoreFirstAndLastTests", "true")
+        useJUnitPlatform()
         testLogging {
             showStandardStreams = true
             exceptionFormat = TestExceptionFormat.FULL

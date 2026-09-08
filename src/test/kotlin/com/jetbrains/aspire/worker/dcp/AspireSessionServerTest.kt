@@ -6,7 +6,7 @@ import com.jetbrains.aspire.generated.DeleteSessionResponse
 import com.jetbrains.aspire.generated.ErrorCode
 import com.jetbrains.aspire.sessions.SessionLogReceived
 import com.jetbrains.aspire.sessions.SessionProcessStarted
-import org.testng.annotations.Test
+import org.junit.jupiter.api.Test
 import java.net.http.WebSocket
 import java.net.http.WebSocketHandshakeException
 import java.util.concurrent.ExecutionException

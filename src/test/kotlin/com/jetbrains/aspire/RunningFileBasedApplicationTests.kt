@@ -10,21 +10,23 @@ import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Mute
 import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestSettings
-import com.jetbrains.rider.test.base.PerTestSolutionTestBase
 import com.jetbrains.rider.test.enums.BuildTool
 import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
-import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
+import com.jetbrains.rider.test.junit5.base.PerTestSolutionTestBase
 import com.jetbrains.rider.test.scriptingApi.buildSolutionWithReSharperBuild
 import com.jetbrains.rider.test.scriptingApi.executeBeforeRunTasksForSelectedConfiguration
-import org.testng.annotations.Test
+import com.jetbrains.rider.test.shared.constants.TeamCityTags
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 import java.net.URI
 import java.net.URL
 import java.time.Duration
 import kotlin.io.path.div
 
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
+@Tag(TeamCityTags.General.Season)
 @Mute
 class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
     override val solutionApiFacade: SolutionApiFacade = object : RiderSolutionApiFacade() {
@@ -41,9 +43,7 @@ class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
         params.waitForCaches = true
     }
 
-    override val testRunner: IntegrationTestRunner by lazy { IntegrationTestRunner(testProcessor,
-        aspireLoggedErrorProcessor
-    ) }
+    override val testLogManager by lazy { createAspireTestLogManager(traceScenarios, traceCategories) }
 
     @Test
     @Solution("AspireFileBasedDefaultAspireSolution")

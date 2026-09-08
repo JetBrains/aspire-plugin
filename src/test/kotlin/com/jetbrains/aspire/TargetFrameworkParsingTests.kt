@@ -2,31 +2,36 @@ package com.jetbrains.aspire
 
 import com.intellij.testFramework.TestApplicationManager
 import com.jetbrains.aspire.rider.util.parseTargetFrameworkId
-import org.testng.annotations.BeforeClass
-import org.testng.annotations.DataProvider
-import org.testng.annotations.Test
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TargetFrameworkParsingTests {
-    @BeforeClass
+    @BeforeAll
     fun setUpApplication() {
         TestApplicationManager.getInstance()
     }
 
-    @DataProvider(name = "supportedTargetFrameworks")
-    fun supportedTargetFrameworks(): Array<Array<Any>> = arrayOf(
-        arrayOf("net10.0", 10, 0, 0),
-        arrayOf("net10.0-windows", 10, 0, 0),
-        arrayOf("net8.0-windows10.0.19041.0", 8, 0, 0),
-        arrayOf("net9.0-android", 9, 0, 0),
-        arrayOf("net9.0-ios15.0", 9, 0, 0),
-        arrayOf("netcoreapp3.1", 3, 1, 0),
+    fun supportedTargetFrameworks(): Stream<Arguments> = Stream.of(
+        Arguments.of("net10.0", 10, 0, 0),
+        Arguments.of("net10.0-windows", 10, 0, 0),
+        Arguments.of("net8.0-windows10.0.19041.0", 8, 0, 0),
+        Arguments.of("net9.0-android", 9, 0, 0),
+        Arguments.of("net9.0-ios15.0", 9, 0, 0),
+        Arguments.of("netcoreapp3.1", 3, 1, 0),
     )
 
-    @Test(dataProvider = "supportedTargetFrameworks")
+    @ParameterizedTest
+    @MethodSource("supportedTargetFrameworks")
     fun `A target framework should be parsed`(
         targetFramework: String,
         major: Int,
@@ -53,17 +58,17 @@ class TargetFrameworkParsingTests {
         assertEquals(10, targetFrameworkId.version.major)
     }
 
-    @DataProvider(name = "unsupportedTargetFrameworks")
-    fun unsupportedTargetFrameworks(): Array<Array<Any>> = arrayOf(
-        arrayOf("netstandard2.1"),
-        arrayOf("wpa81"),
-        arrayOf("net10.0-windows-extra"),
-        arrayOf("garbage"),
-        arrayOf("net"),
-        arrayOf(""),
+    fun unsupportedTargetFrameworks(): Stream<Arguments> = Stream.of(
+        Arguments.of("netstandard2.1"),
+        Arguments.of("wpa81"),
+        Arguments.of("net10.0-windows-extra"),
+        Arguments.of("garbage"),
+        Arguments.of("net"),
+        Arguments.of(""),
     )
 
-    @Test(dataProvider = "unsupportedTargetFrameworks")
+    @ParameterizedTest
+    @MethodSource("unsupportedTargetFrameworks")
     fun `An unsupported target framework should not be parsed`(targetFramework: String) {
         assertNull(parseTargetFrameworkId(targetFramework), "Unexpectedly parsed $targetFramework")
     }

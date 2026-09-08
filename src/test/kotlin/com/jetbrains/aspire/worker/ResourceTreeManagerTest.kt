@@ -15,26 +15,28 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.testng.annotations.AfterMethod
-import org.testng.annotations.BeforeClass
-import org.testng.annotations.BeforeMethod
-import org.testng.annotations.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ResourceTreeManagerTest {
     private lateinit var testRootDisposable: Disposable
     private lateinit var mockFactory: MockAspireDashboardClientFactory
 
     private val project get() = ProjectManager.getInstance().defaultProject
 
-    @BeforeClass
+    @BeforeAll
     fun setUpApplication() {
         TestApplicationManager.getInstance()
     }
 
-    @BeforeMethod
+    @BeforeEach
     fun setUpService() {
         testRootDisposable = Disposer.newDisposable("ResourceTreeManagerTest")
         mockFactory = MockAspireDashboardClientFactory()
@@ -45,7 +47,7 @@ class ResourceTreeManagerTest {
         )
     }
 
-    @AfterMethod
+    @AfterEach
     fun tearDown() {
         Disposer.dispose(testRootDisposable)
     }

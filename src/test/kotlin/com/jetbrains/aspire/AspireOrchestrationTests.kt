@@ -10,14 +10,18 @@ import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestSettings
 import com.jetbrains.rider.test.asserts.shouldBe
 import com.jetbrains.rider.test.asserts.shouldBeTrue
-import com.jetbrains.rider.test.base.PerTestSolutionTestBase
 import com.jetbrains.rider.test.enums.BuildTool
 import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.framework.executeWithGold
 import com.jetbrains.rider.test.framework.persistAllFilesOnDisk
-import com.jetbrains.rider.test.framework.runner.IntegrationTestRunner
-import com.jetbrains.rider.test.scriptingApi.*
-import org.testng.annotations.Test
+import com.jetbrains.rider.test.junit5.base.PerTestSolutionTestBase
+import com.jetbrains.rider.test.scriptingApi.prepareProjectView
+import com.jetbrains.rider.test.scriptingApi.refreshFileSystem
+import com.jetbrains.rider.test.scriptingApi.runBlockingWithFlushing
+import com.jetbrains.rider.test.scriptingApi.waitAllCommandsFinished
+import com.jetbrains.rider.test.shared.constants.TeamCityTags
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 import java.io.PrintStream
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -26,6 +30,7 @@ import kotlin.io.path.readText
 import kotlin.time.Duration.Companion.minutes
 
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
+@Tag(TeamCityTags.General.Season)
 class AspireOrchestrationTests : PerTestSolutionTestBase() {
     override fun modifyOpenSolutionParams(params: OpenSolutionParams) {
         super.modifyOpenSolutionParams(params)
@@ -35,12 +40,7 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
         params.restoreNuGetPackages = true
     }
 
-    override val testRunner: IntegrationTestRunner by lazy {
-        IntegrationTestRunner(
-            testProcessor,
-            aspireLoggedErrorProcessor
-        )
-    }
+    override val testLogManager by lazy { createAspireTestLogManager(traceScenarios, traceCategories) }
 
     @Test
     @Solution("DefaultAspNetCoreSolution")
