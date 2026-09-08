@@ -2,7 +2,7 @@ package com.jetbrains.aspire.certificates
 
 import com.jetbrains.rider.web.DevCertificate
 import com.jetbrains.rider.web.DevCertificateTrustLevel
-import org.testng.annotations.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

@@ -6,19 +6,22 @@ import com.jetbrains.rider.test.OpenSolutionParams
 import com.jetbrains.rider.test.annotations.Solution
 import com.jetbrains.rider.test.annotations.TestSettings
 import com.jetbrains.rider.test.asserts.shouldBeTrue
-import com.jetbrains.rider.test.base.PerClassSolutionTestBase
 import com.jetbrains.rider.test.enums.BuildTool
 import com.jetbrains.rider.test.enums.sdk.SdkVersion
 import com.jetbrains.rider.test.facades.solution.RiderSolutionApiFacade
 import com.jetbrains.rider.test.facades.solution.SolutionApiFacade
 import com.jetbrains.rider.test.framework.executeWithGold
+import com.jetbrains.rider.test.junit5.base.PerClassSolutionTestBase
 import com.jetbrains.rider.test.scriptingApi.runBlockingWithFlushing
-import org.testng.annotations.Test
+import com.jetbrains.rider.test.shared.constants.TeamCityTags
+import org.junit.jupiter.api.Tag
+import org.junit.jupiter.api.Test
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.time.Duration.Companion.minutes
 
 @TestSettings(sdkVersion = SdkVersion.AUTODETECT, buildTool = BuildTool.AUTODETECT)
+@Tag(TeamCityTags.General.Season)
 @Solution("DefaultAspireSolution")
 class ManifestGenerationTests : PerClassSolutionTestBase() {
     override val solutionApiFacade: SolutionApiFacade = object : RiderSolutionApiFacade() {
