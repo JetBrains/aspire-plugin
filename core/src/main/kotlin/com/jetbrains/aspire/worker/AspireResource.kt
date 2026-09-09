@@ -121,7 +121,7 @@ class AspireResource(
             .build()
         val response = dashboardClient.executeResourceCommand(request)
         if (response.kind == ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_FAILED) {
-            LOG.warn("Command $commandName on $resourceName failed: ${response.errorMessage}")
+            LOG.warn("Command $commandName on $resourceName failed: ${response.message}")
         }
 
         return response
