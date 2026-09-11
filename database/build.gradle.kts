@@ -17,5 +17,6 @@ dependencies {
         bundledPlugins("com.intellij.database", "rider.intellij.plugin.appender")
     }
 
+    implementation(project(":shared"))
     implementation(project(":core"))
 }
