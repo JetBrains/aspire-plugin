@@ -22,5 +22,6 @@ dependencies {
         bundledModule("intellij.platform.debugger.impl")
     }
 
+    implementation(project(":shared"))
     implementation(project(":core"))
 }
