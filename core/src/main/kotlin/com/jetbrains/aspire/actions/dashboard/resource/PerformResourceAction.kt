@@ -14,7 +14,7 @@ import com.intellij.openapi.ui.popup.LightweightWindowEvent
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.jetbrains.aspire.AspireCoreBundle
-import com.jetbrains.aspire.dashboard.getNonDefaultCommands
+import com.jetbrains.aspire.worker.getNonDefaultCommands
 import com.jetbrains.aspire.worker.ResourceCommand
 import com.jetbrains.aspire.worker.ResourceCommandState
 import com.jetbrains.aspire.worker.AspireResource

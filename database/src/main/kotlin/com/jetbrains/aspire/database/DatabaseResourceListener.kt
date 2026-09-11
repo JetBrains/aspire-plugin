@@ -4,7 +4,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.worker.AspireResource
-import com.jetbrains.aspire.dashboard.ResourceListener
+import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.database.DatabaseResourceConnectionService.AddDatabaseResourceConnection
 import com.jetbrains.aspire.database.DatabaseResourceConnectionService.RemoveDatabaseResourceConnection
 import com.jetbrains.aspire.worker.ResourceState

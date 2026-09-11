@@ -3,27 +3,14 @@
 package com.jetbrains.aspire.util
 
 import com.intellij.icons.AllIcons
-import com.intellij.ui.BadgeIconSupplier
 import com.jetbrains.aspire.extensions.AspireResourceIconProvider
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireResource
-import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.aspire.worker.ResourceType
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import javax.swing.Icon
-
-internal fun getIcon(resourceData: AspireResourceData): Icon {
-    val baseIcon = getResourceIcon(resourceData.type, resourceData.containerImage?.value)
-
-    return when (getHealthStatusBadge(resourceData)) {
-        ResourceIconBadge.Error -> BadgeIconSupplier(baseIcon).errorIcon
-        ResourceIconBadge.Warning -> BadgeIconSupplier(baseIcon).warningIcon
-        ResourceIconBadge.Live -> BadgeIconSupplier(baseIcon).liveIndicatorIcon
-        ResourceIconBadge.None -> baseIcon
-    }
-}
 
 @ApiStatus.Internal
 fun getResourceIcon(type: ResourceType, containerImage: String?): Icon {

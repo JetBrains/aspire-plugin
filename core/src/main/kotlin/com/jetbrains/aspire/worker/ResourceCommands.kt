@@ -1,6 +1,6 @@
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.worker
 
-import com.jetbrains.aspire.worker.ResourceCommand
+import org.jetbrains.annotations.ApiStatus
 
 internal const val StartResourceCommand = "start"
 internal const val ObsoleteStartResourceCommand = "resource-start"
@@ -30,7 +30,8 @@ internal fun List<ResourceCommand>.findRebuildCommand() = firstOrNull {
     it.name.equals(ObsoleteRebuildResourceCommand, true)
 }
 
-internal fun List<ResourceCommand>.hasNonDefaultCommands() = any {
+@ApiStatus.Internal
+fun List<ResourceCommand>.hasNonDefaultCommands() = any {
     it.isNonDefault()
 }
 

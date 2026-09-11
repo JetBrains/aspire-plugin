@@ -30,9 +30,8 @@ import kotlin.coroutines.cancellation.CancellationException
  * - Managing child resources in a parent-child tree structure ([childrenResources])
  *
  * Log lines are kept in a [MutableSharedFlow] with a fixed replay capacity, so a lazily created
- * UI consumer (e.g. an [com.jetbrains.aspire.dashboard.AspireResourceViewModel]) receives the most
- * recent history immediately, then continues to receive live emissions. Older entries are dropped
- * once the replay capacity is exceeded to bound memory.
+ * UI consumer receives the most recent history immediately, then continues to receive live emissions.
+ * Older entries are dropped once the replay capacity is exceeded to bound memory.
  *
  * Instances are created and managed exclusively by [ResourceTreeManager]. The [update] method
  * is internal and should only be called by the owning resource manager to apply state changes

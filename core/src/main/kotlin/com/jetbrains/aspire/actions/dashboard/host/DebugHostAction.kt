@@ -3,8 +3,6 @@ package com.jetbrains.aspire.actions.dashboard.host
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.dashboard.AppHostUiState
-import com.jetbrains.aspire.dashboard.AspireAppHostViewModel
 import com.jetbrains.aspire.extensions.AspireAppHostLauncher
 import com.jetbrains.aspire.worker.AspireAppHost
 import kotlinx.coroutines.Dispatchers
@@ -17,8 +15,13 @@ class DebugHostAction : AspireHostBaseAction() {
         }
     }
 
-    override fun updateAction(event: AnActionEvent, appHostVm: AspireAppHostViewModel) {
+    override fun updateAction(event: AnActionEvent, appHost: AspireAppHost) {
         event.presentation.isVisible = true
-        event.presentation.isEnabled = appHostVm.uiState.value !is AppHostUiState.Active
+        event.presentation.isEnabled = when (appHost.appHostState.value) {
+            AspireAppHost.AspireAppHostState.Inactive,
+            AspireAppHost.AspireAppHostState.Stopped -> true
+            is AspireAppHost.AspireAppHostState.Starting,
+            is AspireAppHost.AspireAppHostState.Started -> false
+        }
     }
 }

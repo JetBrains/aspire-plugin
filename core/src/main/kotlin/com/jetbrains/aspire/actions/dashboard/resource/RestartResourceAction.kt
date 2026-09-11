@@ -1,6 +1,6 @@
 package com.jetbrains.aspire.actions.dashboard.resource
 
-import com.jetbrains.aspire.dashboard.findRestartCommand
+import com.jetbrains.aspire.worker.findRestartCommand
 import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.worker.AspireResourceData
 

@@ -1,6 +1,6 @@
 package com.jetbrains.aspire.actions.dashboard.resource
 
-import com.jetbrains.aspire.dashboard.findStartCommand
+import com.jetbrains.aspire.worker.findStartCommand
 import com.jetbrains.aspire.worker.AspireResourceData
 
 internal class StartResourceAction : ResourceCommandAction() {

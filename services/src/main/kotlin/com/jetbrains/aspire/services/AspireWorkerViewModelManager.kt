@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.services
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service

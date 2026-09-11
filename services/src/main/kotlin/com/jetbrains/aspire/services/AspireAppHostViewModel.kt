@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.services
 
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.services.ServiceEventListener
@@ -13,19 +13,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
-import com.intellij.util.application
 import com.jetbrains.aspire.worker.AspireAppHost
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
 class AspireAppHostViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
-    appHost: AspireAppHost
+    val appHost: AspireAppHost
 ) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireAppHostViewModel>, Disposable {
     companion object {
         private val LOG = logger<AspireAppHostViewModel>()
@@ -145,16 +142,16 @@ class AspireAppHostViewModel(
 
     override fun getServices(project: Project) = resourceViewModels.value
 
-    private fun selectAppHost() {
-        application.invokeLater {
+    private suspend fun selectAppHost() {
+        withContext(Dispatchers.Main) {
             ServiceViewManager
                 .getInstance(project)
                 .select(this, AspireMainServiceViewContributor::class.java, true, true)
         }
     }
 
-    private fun expand() {
-        application.invokeLater {
+    private suspend fun expand() {
+        withContext(Dispatchers.Main) {
             ServiceViewManager
                 .getInstance(project)
                 .expand(this, AspireMainServiceViewContributor::class.java)

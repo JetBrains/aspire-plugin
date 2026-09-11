@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.rider.resources
 
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.dashboard.ResourceListener
+import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.rider.generated.AspireRdResource
 import com.jetbrains.aspire.rider.generated.AspireRdResourceCommand
 import com.jetbrains.aspire.rider.generated.AspireRdResourceCommandState

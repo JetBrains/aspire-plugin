@@ -2,13 +2,15 @@ package com.jetbrains.aspire.worker.dashboard
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.Value
+import com.jetbrains.aspire.generated.dashboard.HealthReport
+import com.jetbrains.aspire.generated.dashboard.HealthStatus
 import com.jetbrains.aspire.generated.dashboard.Resource
-import com.jetbrains.aspire.util.calculateHealthStatus
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceProperty
 import com.jetbrains.aspire.worker.ResourceCommand
 import com.jetbrains.aspire.worker.ResourceCommandState
 import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
+import com.jetbrains.aspire.worker.ResourceHealthStatus
 import com.jetbrains.aspire.worker.ResourceRelationship
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceStateStyle
@@ -149,6 +151,23 @@ internal fun Resource.toAspireResourceData(): AspireResourceData {
         source = source,
         value = value
     )
+}
+
+private fun calculateHealthStatus(
+    state: ResourceState?,
+    healthReports: List<HealthReport?>?
+): ResourceHealthStatus? {
+    if (state != ResourceState.Running) return null
+    if (healthReports.isNullOrEmpty()) return ResourceHealthStatus.Healthy
+
+    val statuses = healthReports.map { it?.status }
+    if (statuses.any { it == null }) return ResourceHealthStatus.Unhealthy
+
+    return when {
+        statuses.any { it == HealthStatus.HEALTH_STATUS_UNHEALTHY } -> ResourceHealthStatus.Unhealthy
+        statuses.any { it == HealthStatus.HEALTH_STATUS_DEGRADED } -> ResourceHealthStatus.Degraded
+        else -> ResourceHealthStatus.Healthy
+    }
 }
 
 private fun mapResourceType(type: String): ResourceType = when (type) {

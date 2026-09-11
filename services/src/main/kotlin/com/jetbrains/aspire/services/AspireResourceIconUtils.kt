@@ -1,38 +1,27 @@
-package com.jetbrains.aspire.util
+@file:Suppress("UnstableApiUsage")
 
-import com.jetbrains.aspire.generated.dashboard.HealthReport
-import com.jetbrains.aspire.generated.dashboard.HealthStatus
+package com.jetbrains.aspire.services
+
+import com.intellij.ui.BadgeIconSupplier
+import com.jetbrains.aspire.util.getResourceIcon
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.ResourceHealthStatus
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceStateStyle
-import kotlin.collections.map
+import javax.swing.Icon
 
-internal enum class ResourceIconBadge {
-    None,
-    Live,
-    Warning,
-    Error
-}
+internal fun getIcon(resourceData: AspireResourceData): Icon {
+    val baseIcon = getResourceIcon(resourceData.type, resourceData.containerImage?.value)
 
-internal fun calculateHealthStatus(
-    state: ResourceState?,
-    healthReports: List<HealthReport?>?
-): ResourceHealthStatus? {
-    if (state != ResourceState.Running) return null
-    if (healthReports.isNullOrEmpty()) return ResourceHealthStatus.Healthy
-
-    val statuses = healthReports.map { it?.status }
-    if (statuses.any { it == null }) return ResourceHealthStatus.Unhealthy
-
-    return when {
-        statuses.any { it == HealthStatus.HEALTH_STATUS_UNHEALTHY } -> ResourceHealthStatus.Unhealthy
-        statuses.any { it == HealthStatus.HEALTH_STATUS_DEGRADED } -> ResourceHealthStatus.Degraded
-        else -> ResourceHealthStatus.Healthy
+    return when (getHealthStatusBadge(resourceData)) {
+        ResourceIconBadge.Error -> BadgeIconSupplier(baseIcon).errorIcon
+        ResourceIconBadge.Warning -> BadgeIconSupplier(baseIcon).warningIcon
+        ResourceIconBadge.Live -> BadgeIconSupplier(baseIcon).liveIndicatorIcon
+        ResourceIconBadge.None -> baseIcon
     }
 }
 
-internal fun getHealthStatusBadge(resourceData: AspireResourceData): ResourceIconBadge {
+private fun getHealthStatusBadge(resourceData: AspireResourceData): ResourceIconBadge {
     val state = resourceData.state ?: return ResourceIconBadge.None
 
     if (state.isStoppedState()) {
@@ -51,8 +40,9 @@ internal fun getHealthStatusBadge(resourceData: AspireResourceData): ResourceIco
         return ResourceIconBadge.Warning
     }
 
-    if (resourceData.stateStyle != null && resourceData.stateStyle != ResourceStateStyle.Unknown) {
-        return resourceData.stateStyle.toBadge()
+    val stateStyle = resourceData.stateStyle
+    if (stateStyle != null && stateStyle != ResourceStateStyle.Unknown) {
+        return stateStyle.toBadge()
     }
 
     if (resourceData.healthStatus == ResourceHealthStatus.Unhealthy || resourceData.healthStatus == ResourceHealthStatus.Degraded) {
@@ -78,4 +68,11 @@ private fun ResourceStateStyle.toBadge(): ResourceIconBadge = when (this) {
     ResourceStateStyle.Warning -> ResourceIconBadge.Warning
     ResourceStateStyle.Success -> ResourceIconBadge.Live
     ResourceStateStyle.Info, ResourceStateStyle.Unknown -> ResourceIconBadge.None
+}
+
+private enum class ResourceIconBadge {
+    None,
+    Live,
+    Warning,
+    Error
 }

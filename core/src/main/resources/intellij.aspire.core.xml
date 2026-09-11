@@ -49,8 +49,6 @@
         <applicationService serviceInterface="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory"
                             serviceImplementation="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactoryImpl"/>
 
-        <serviceViewContributor implementation="com.jetbrains.aspire.dashboard.AspireMainServiceViewContributor"/>
-
         <applicationConfigurable
                 parentId="tools"
                 instance="com.jetbrains.aspire.settings.AspireConfigurable"

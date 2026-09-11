@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.dashboard.components
+package com.jetbrains.aspire.services.components
 
 import com.intellij.ui.SeparatorComponent
 import com.intellij.ui.SeparatorOrientation

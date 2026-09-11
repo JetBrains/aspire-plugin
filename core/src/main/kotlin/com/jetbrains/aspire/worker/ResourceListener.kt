@@ -1,7 +1,6 @@
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.worker
 
 import com.intellij.util.messages.Topic
-import com.jetbrains.aspire.worker.AspireResource
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
