@@ -1,14 +1,17 @@
 package com.jetbrains.aspire.worker
 
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.Serializable
 import org.jetbrains.annotations.ApiStatus
-import java.nio.file.Path
 
 @ApiStatus.Internal
+@Serializable
 data class AspireResourceProperty<T>(val value: T, val isSensitive: Boolean)
 
 @ApiStatus.Internal
+@Serializable
 data class AspireResourceData(
+    val id: AspireResourceId,
     val uid: String,
     val name: String,
     val type: ResourceType,
@@ -29,9 +32,9 @@ data class AspireResourceData(
     val stoppedAt: LocalDateTime?,
     val exitCode: AspireResourceProperty<Int>?,
     val pid: AspireResourceProperty<Int>?,
-    val projectPath: AspireResourceProperty<Path>?,
-    val executablePath: AspireResourceProperty<Path>?,
-    val executableWorkDir: AspireResourceProperty<Path>?,
+    val projectPath: AspireResourceProperty<AspirePath>?,
+    val executablePath: AspireResourceProperty<AspirePath>?,
+    val executableWorkDir: AspireResourceProperty<AspirePath>?,
     val args: AspireResourceProperty<String>?,
     val containerImage: AspireResourceProperty<String>?,
     val containerId: AspireResourceProperty<String>?,

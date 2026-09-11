@@ -136,7 +136,7 @@ class ResourceTreeManager(
     }
 
     private suspend fun upsertGrpcResource(grpcResource: Resource) {
-        val data = grpcResource.toAspireResourceData()
+        val data = grpcResource.toAspireResourceData(mainFilePath.toAspireAppHostId())
         val existing = resources[data.name]
 
         if (data.isHidden || data.state == ResourceState.Hidden) {

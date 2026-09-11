@@ -16,5 +16,6 @@ dependencies {
         bundledPlugins("com.intellij.diagram")
     }
 
+    implementation(project(":shared"))
     implementation(project(":core"))
 }
