@@ -16,9 +16,8 @@ import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.worker.AspireResourceData
+import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
-import java.nio.file.Path
-import kotlin.io.path.absolutePathString
 
 class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPanel() {
     private var panel = setUpPanel(resourceData)
@@ -55,7 +54,7 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
 
         if (data.type == ResourceType.Project) {
             data.projectPath?.value?.let {
-                copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
+                copyableLabel(it.fileName, color = UIUtil.FontColor.BRIGHTER)
                     .gap(RightGap.SMALL)
             }
         }
@@ -69,7 +68,7 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
 
         if (data.type == ResourceType.Executable) {
             data.executablePath?.value?.let {
-                copyableLabel(it.fileName.toString(), color = UIUtil.FontColor.BRIGHTER)
+                copyableLabel(it.fileName, color = UIUtil.FontColor.BRIGHTER)
                     .gap(RightGap.SMALL)
             }
         }
@@ -233,8 +232,8 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
         propertyRow(label, property) { it.toString() }
     }
 
-    private fun Panel.pathPropertyRow(label: String, property: AspireResourceProperty<Path>?) {
-        propertyRow(label, property) { it.absolutePathString() }
+    private fun Panel.pathPropertyRow(label: String, property: AspireResourceProperty<AspirePath>?) {
+        propertyRow(label, property) { it.value }
     }
 
     private fun <T> Panel.propertyRow(

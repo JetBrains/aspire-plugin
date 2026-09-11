@@ -16,5 +16,6 @@ dependencies {
         bundledPlugins("intellij.execution.serviceView.plugin")
     }
 
+    implementation(project(":shared"))
     implementation(project(":core"))
 }

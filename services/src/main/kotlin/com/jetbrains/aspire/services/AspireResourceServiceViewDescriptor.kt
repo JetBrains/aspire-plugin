@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.UiDataProvider
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.actions.ASPIRE_RESOURCE_DATA
 import com.jetbrains.aspire.services.components.ResourceConsolePanel
 import com.jetbrains.aspire.services.components.ResourceDashboardPanel
 import com.jetbrains.aspire.settings.AspireSettings
@@ -57,6 +58,7 @@ class AspireResourceServiceViewDescriptor(
     override fun getPopupActions() = resourceActions
 
     override fun uiDataSnapshot(sink: DataSink) {
+        sink[ASPIRE_RESOURCE_DATA] = vm.resource.resourceState.value
         sink[ASPIRE_RESOURCE] = vm.resource
     }
 }
