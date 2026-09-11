@@ -34,4 +34,4 @@ plugins {
 
 rootProject.name = "intellij.aspire"
 
-include(":protocol", ":core", ":services", ":diagram", ":docker", ":database", ":rider")
+include(":protocol", ":shared", ":core", ":services", ":diagram", ":docker", ":database", ":rider")

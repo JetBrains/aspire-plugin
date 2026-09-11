@@ -42,6 +42,7 @@ dependencies {
             useCache = true
         }
 
+        pluginModule(implementation(project(":shared")))
         pluginModule(implementation(project(":core")))
         pluginModule(implementation(project(":services")))
         pluginModule(implementation(project(":diagram")))
