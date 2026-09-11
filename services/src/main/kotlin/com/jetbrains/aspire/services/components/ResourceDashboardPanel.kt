@@ -10,7 +10,7 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.aspire.AspireCoreBundle
-import com.jetbrains.aspire.dashboard.hasNonDefaultCommands
+import com.jetbrains.aspire.worker.hasNonDefaultCommands
 import com.jetbrains.aspire.services.getIcon
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType

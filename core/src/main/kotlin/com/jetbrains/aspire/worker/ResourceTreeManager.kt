@@ -9,7 +9,6 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
 import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientApi

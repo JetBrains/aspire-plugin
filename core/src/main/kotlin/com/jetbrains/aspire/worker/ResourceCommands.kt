@@ -1,6 +1,5 @@
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.worker
 
-import com.jetbrains.aspire.worker.ResourceCommand
 import org.jetbrains.annotations.ApiStatus
 
 internal const val StartResourceCommand = "start"

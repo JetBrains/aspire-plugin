@@ -28,7 +28,7 @@
         <listener class="com.jetbrains.aspire.rider.sessions.SessionProfileModeService$Listener"
                   topic="com.intellij.execution.ExecutionListener"/>
         <listener class="com.jetbrains.aspire.rider.resources.RiderResourceListener"
-                  topic="com.jetbrains.aspire.dashboard.ResourceListener"/>
+                  topic="com.jetbrains.aspire.worker.ResourceListener"/>
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">

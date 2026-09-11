@@ -1,6 +1,6 @@
 package com.jetbrains.aspire.actions.dashboard.resource
 
-import com.jetbrains.aspire.dashboard.findStopCommand
+import com.jetbrains.aspire.worker.findStopCommand
 import com.jetbrains.aspire.worker.AspireResourceData
 
 internal class StopResourceAction : ResourceCommandAction() {

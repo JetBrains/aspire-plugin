@@ -6,7 +6,6 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.TestApplicationManager
 import com.intellij.testFramework.replaceService
-import com.jetbrains.aspire.dashboard.ResourceListener
 import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate.newBuilder
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
