@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.actions.dashboard.host.AspireHostBaseAction
-import com.jetbrains.aspire.dashboard.AspireAppHostViewModel
 import com.jetbrains.aspire.rider.manifest.ManifestService
 import com.jetbrains.aspire.worker.AspireAppHost
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +17,7 @@ class AspireManifestAction : AspireHostBaseAction() {
         }
     }
 
-    override fun updateAction(event: AnActionEvent, appHostVm: AspireAppHostViewModel) {
+    override fun updateAction(event: AnActionEvent, appHost: AspireAppHost) {
         event.presentation.isEnabledAndVisible = true
     }
 }

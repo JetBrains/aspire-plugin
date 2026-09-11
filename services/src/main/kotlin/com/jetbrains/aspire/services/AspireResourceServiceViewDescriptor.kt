@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.services
 
 import com.intellij.execution.services.ServiceViewDescriptor
 import com.intellij.ide.projectView.PresentationData
@@ -9,11 +9,10 @@ import com.intellij.openapi.actionSystem.UiDataProvider
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
 import com.jetbrains.aspire.AspireCoreBundle
-import com.jetbrains.aspire.dashboard.components.ResourceConsolePanel
-import com.jetbrains.aspire.dashboard.components.ResourceDashboardPanel
+import com.jetbrains.aspire.services.components.ResourceConsolePanel
+import com.jetbrains.aspire.services.components.ResourceDashboardPanel
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.ASPIRE_RESOURCE
-import com.jetbrains.aspire.util.getIcon
 import java.awt.BorderLayout
 import javax.swing.JPanel
 

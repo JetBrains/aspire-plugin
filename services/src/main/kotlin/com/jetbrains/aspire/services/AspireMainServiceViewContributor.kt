@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.services
 
 import com.intellij.execution.services.ServiceViewContributor
 import com.intellij.execution.services.ServiceViewLazyContributor

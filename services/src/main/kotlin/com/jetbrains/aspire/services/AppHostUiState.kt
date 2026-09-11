@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.services
 
 import org.jetbrains.annotations.ApiStatus
 import javax.swing.JComponent

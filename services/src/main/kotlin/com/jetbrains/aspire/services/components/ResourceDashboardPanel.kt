@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.dashboard.components
+package com.jetbrains.aspire.services.components
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.ActionManager
@@ -11,10 +11,10 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.dashboard.hasNonDefaultCommands
+import com.jetbrains.aspire.services.getIcon
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.settings.AspireSettings
-import com.jetbrains.aspire.util.getIcon
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceProperty
 import java.nio.file.Path
@@ -132,9 +132,10 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
                 .sortedBy { it.sortOrder }
                 .forEach { url ->
                     if (!url.isInternal) {
+                        val endpointNameValue = url.endpointName
                         val endpointName =
                             if (url.displayName.isNotEmpty()) url.displayName
-                            else if (!url.endpointName.isNullOrEmpty()) url.endpointName
+                            else if (!endpointNameValue.isNullOrEmpty()) endpointNameValue
                             else "-"
                         row(endpointName) {
                             link(url.fullUrl) {

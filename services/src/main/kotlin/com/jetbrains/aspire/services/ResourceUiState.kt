@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.services
 
 import com.jetbrains.aspire.worker.AspireResourceData
 import org.jetbrains.annotations.ApiStatus

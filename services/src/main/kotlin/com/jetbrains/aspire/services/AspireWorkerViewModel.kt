@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.services
 
 import com.intellij.execution.services.ServiceEventListener
 import com.intellij.execution.services.ServiceViewProvidingContributor

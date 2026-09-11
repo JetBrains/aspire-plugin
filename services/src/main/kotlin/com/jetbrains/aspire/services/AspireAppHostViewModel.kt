@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.dashboard
+package com.jetbrains.aspire.services
 
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.services.ServiceEventListener
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.ApiStatus
 class AspireAppHostViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
-    appHost: AspireAppHost
+    val appHost: AspireAppHost
 ) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireAppHostViewModel>, Disposable {
     companion object {
         private val LOG = logger<AspireAppHostViewModel>()

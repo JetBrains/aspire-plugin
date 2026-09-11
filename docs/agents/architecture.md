@@ -5,7 +5,8 @@
 | Module     | Purpose                                                          | Depends on |
 |------------|------------------------------------------------------------------|------------|
 | `protocol` | RD model definitions (Kotlin → generates both Kotlin + C#)       | —          |
-| `core`     | Core plugin logic: sessions, dashboard, OTLP, worker comms       | Rider SDK  |
+| `core`     | Core plugin logic: sessions, actions, OTLP, worker comms         | Rider SDK  |
+| `services` | Aspire Services View UI and view models                          | `core` + Services View plugin |
 | `rider`    | Rider-specific: orchestration, debugging, manifests, launch cfg  | `core`     |
 | `diagram`  | Architecture visualization (bundled Diagram plugin dependency)   | `core`     |
 | `docker`   | Docker container integration                                     | `core`     |
