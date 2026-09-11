@@ -2,30 +2,38 @@ package com.jetbrains.aspire.worker
 
 import org.jetbrains.annotations.ApiStatus
 
-internal const val StartResourceCommand = "start"
-internal const val ObsoleteStartResourceCommand = "resource-start"
-internal fun List<ResourceCommand>.findStartCommand() = firstOrNull {
+private const val StartResourceCommand = "start"
+private const val ObsoleteStartResourceCommand = "resource-start"
+
+@ApiStatus.Internal
+fun List<ResourceCommand>.findStartCommand() = firstOrNull {
     it.name.equals(StartResourceCommand, true) ||
     it.name.equals(ObsoleteStartResourceCommand, true)
 }
 
-internal const val StopResourceCommand = "stop"
-internal const val ObsoleteStopResourceCommand = "resource-stop"
-internal fun List<ResourceCommand>.findStopCommand() = firstOrNull {
+private const val StopResourceCommand = "stop"
+private const val ObsoleteStopResourceCommand = "resource-stop"
+
+@ApiStatus.Internal
+fun List<ResourceCommand>.findStopCommand() = firstOrNull {
     it.name.equals(StopResourceCommand, true) ||
     it.name.equals(ObsoleteStopResourceCommand, true)
 }
 
-internal const val RestartResourceCommand = "restart"
-internal const val ObsoleteRestartResourceCommand = "resource-restart"
-internal fun List<ResourceCommand>.findRestartCommand() = firstOrNull {
+private const val RestartResourceCommand = "restart"
+private const val ObsoleteRestartResourceCommand = "resource-restart"
+
+@ApiStatus.Internal
+fun List<ResourceCommand>.findRestartCommand() = firstOrNull {
     it.name.equals(RestartResourceCommand, true) ||
     it.name.equals(ObsoleteRestartResourceCommand, true)
 }
 
-internal const val RebuildResourceCommand = "rebuild"
-internal const val ObsoleteRebuildResourceCommand = "resource-rebuild"
-internal fun List<ResourceCommand>.findRebuildCommand() = firstOrNull {
+private const val RebuildResourceCommand = "rebuild"
+private const val ObsoleteRebuildResourceCommand = "resource-rebuild"
+
+@ApiStatus.Internal
+fun List<ResourceCommand>.findRebuildCommand() = firstOrNull {
     it.name.equals(RebuildResourceCommand, true) ||
     it.name.equals(ObsoleteRebuildResourceCommand, true)
 }
@@ -35,7 +43,8 @@ fun List<ResourceCommand>.hasNonDefaultCommands() = any {
     it.isNonDefault()
 }
 
-internal fun List<ResourceCommand>.getNonDefaultCommands() = filter {
+@ApiStatus.Internal
+fun List<ResourceCommand>.getNonDefaultCommands() = filter {
     it.isNonDefault()
 }
 
