@@ -47,12 +47,14 @@ class AspireAppHost(
     val mainFilePath: Path,
     private val project: Project,
     parentCs: CoroutineScope
-) : Disposable, AspireSessionHost {
+) : Disposable, AspireSessionHost, AspireAppHostModel {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }
 
     private val cs = parentCs.childScope("Aspire AppHost")
+
+    override val appHostId: AspireAppHostId = mainFilePath.toAspireAppHostId()
 
     override val sessionEvents: ReceiveChannel<SessionEvent>
         field = Channel<SessionEvent>(Channel.UNLIMITED)
@@ -72,7 +74,7 @@ class AspireAppHost(
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this)
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
 
-    val rootResources: StateFlow<List<AspireResource>>
+    override val rootResources: StateFlow<List<AspireResource>>
         get() = resourceTreeManager.rootResources
 
     private val appHostLifecycleEvents: SharedFlow<AppHostLifecycleEvent> =
@@ -105,7 +107,7 @@ class AspireAppHost(
             }
         }.shareIn(cs, SharingStarted.Eagerly)
 
-    val currentLogFlow: StateFlow<SharedFlow<AppHostLogEntry>?> =
+    override val logFlow: StateFlow<SharedFlow<AppHostLogEntry>?> =
         appHostLifecycleEvents
             .map { (it as? AppHostLifecycleEvent.Started)?.logFlow }
             .stateIn(cs, SharingStarted.Eagerly, null)
@@ -130,6 +132,10 @@ class AspireAppHost(
                 AppHostLifecycleEvent.Stopped -> AspireAppHostState.Stopped
             }
         }.stateIn(cs, SharingStarted.Eagerly, AspireAppHostState.Inactive)
+
+    override val data: StateFlow<AspireAppHostData> = appHostState
+        .map { state -> toData(state) }
+        .stateIn(cs, SharingStarted.Eagerly, toData())
 
     init {
         otlpProxyManager.observeAppHostState(appHostState)

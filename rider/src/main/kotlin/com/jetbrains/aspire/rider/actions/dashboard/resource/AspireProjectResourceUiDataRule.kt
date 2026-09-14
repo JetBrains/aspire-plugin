@@ -12,7 +12,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.jetbrains.aspire.actions.ASPIRE_RESOURCE_DATA
-import com.jetbrains.aspire.util.ASPIRE_RESOURCE
 import com.jetbrains.aspire.util.findProjectResource
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rider.editors.getProjectModelId
@@ -22,7 +21,7 @@ import com.jetbrains.rider.projectView.workspace.getProjectModelEntities
 import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
 
 /**
- * Adds the matching [ASPIRE_RESOURCE_DATA] and [ASPIRE_RESOURCE] values to data contexts that contain a Rider project entity.
+ * Adds the matching [ASPIRE_RESOURCE_DATA] value to data contexts that contain a Rider project entity.
  */
 internal class AspireProjectResourceUiDataRule : UiDataRule {
     override fun uiDataSnapshot(sink: DataSink, snapshot: DataSnapshot) {
@@ -31,8 +30,7 @@ internal class AspireProjectResourceUiDataRule : UiDataRule {
         val projectPath = projectEntity.url?.toPath() ?: return
         val resource = AspireWorker.getInstance(project).findProjectResource(projectPath) ?: return
 
-        sink[ASPIRE_RESOURCE_DATA] = resource.resourceState.value
-        sink[ASPIRE_RESOURCE] = resource
+        sink[ASPIRE_RESOURCE_DATA] = resource.data.value
     }
 
     private fun getProjectModelEntities(dataMap: DataMap, project: Project): ProjectModelEntity? {
