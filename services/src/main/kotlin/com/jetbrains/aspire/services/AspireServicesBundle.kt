@@ -9,7 +9,7 @@ import java.util.function.Supplier
 @NonNls
 private const val BUNDLE = "messages.AspireServicesBundle"
 
-object AspireServicesBundle {
+internal object AspireServicesBundle {
     private val INSTANCE = DynamicBundle(AspireServicesBundle::class.java, BUNDLE)
 
     @JvmStatic

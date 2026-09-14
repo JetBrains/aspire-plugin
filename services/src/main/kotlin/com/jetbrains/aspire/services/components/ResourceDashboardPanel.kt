@@ -19,7 +19,7 @@ import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
 
-class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPanel() {
+internal class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPanel() {
     private var panel = setUpPanel(resourceData)
 
     init {

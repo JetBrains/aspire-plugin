@@ -11,7 +11,7 @@ import com.jetbrains.aspire.actions.ASPIRE_APP_HOST_DATA
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class AspireAppHostServiceViewDescriptor(
+internal class AspireAppHostServiceViewDescriptor(
     private val vm: AspireAppHostViewModel
 ) : ServiceViewDescriptor, UiDataProvider {
 

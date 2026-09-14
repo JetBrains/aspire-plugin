@@ -13,8 +13,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
-import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireAppHostData
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireAppHostModel
 import com.jetbrains.aspire.worker.AspireAppHostStatus
 import kotlinx.coroutines.*
@@ -22,8 +22,7 @@ import kotlinx.coroutines.flow.*
 import org.jetbrains.annotations.ApiStatus
 import javax.swing.JComponent
 
-@ApiStatus.Internal
-class AspireAppHostViewModel(
+internal class AspireAppHostViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
     val appHost: AspireAppHostModel

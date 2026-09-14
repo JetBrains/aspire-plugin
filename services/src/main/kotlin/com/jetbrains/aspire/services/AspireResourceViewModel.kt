@@ -17,10 +17,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.jetbrains.annotations.ApiStatus
 
-@ApiStatus.Internal
-class AspireResourceViewModel(
+internal class AspireResourceViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
     val resource: AspireResourceModel

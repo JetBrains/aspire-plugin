@@ -5,7 +5,7 @@ import com.intellij.execution.services.ServiceViewLazyContributor
 import com.intellij.execution.services.SimpleServiceViewDescriptor
 import com.intellij.openapi.project.Project
 
-class AspireMainServiceViewContributor : ServiceViewContributor<AspireWorkerViewModel>, ServiceViewLazyContributor {
+internal class AspireMainServiceViewContributor : ServiceViewContributor<AspireWorkerViewModel>, ServiceViewLazyContributor {
     override fun getViewDescriptor(project: Project) =
         SimpleServiceViewDescriptor("Aspire", AspireServicesIcons.Service)
 

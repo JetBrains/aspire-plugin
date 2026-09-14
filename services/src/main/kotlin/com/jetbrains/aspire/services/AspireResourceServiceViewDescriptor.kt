@@ -15,7 +15,7 @@ import com.jetbrains.aspire.settings.AspireSettings
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class AspireResourceServiceViewDescriptor(
+internal class AspireResourceServiceViewDescriptor(
     private val vm: AspireResourceViewModel
 ) : ServiceViewDescriptor, UiDataProvider {
 
