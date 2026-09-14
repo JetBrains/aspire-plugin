@@ -3,4 +3,14 @@
         <module name="intellij.libraries.kotlinx.datetime"/>
         <module name="intellij.libraries.kotlinx.serialization.json"/>
     </dependencies>
+
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.resourceIconProvider"
+                        interface="com.jetbrains.aspire.extensions.AspireResourceIconProvider"
+                        dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.jetbrains.aspire">
+        <resourceIconProvider implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
+    </extensions>
 </idea-plugin>

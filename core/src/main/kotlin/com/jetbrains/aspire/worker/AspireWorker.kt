@@ -89,9 +89,8 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         }
     }
 
-    fun getAppHostByPath(appHostFilePath: Path): AspireAppHost? {
-        return _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }
-    }
+    fun getAppHostById(appHostId: AspireAppHostId): AspireAppHost? =
+        _appHosts.value.firstOrNull { it.mainFilePath.toAspireAppHostId() == appHostId }
 
     fun getOrCreateAppHostByPath(appHostFilePath: Path): AspireAppHost? {
         _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }?.let { return it }

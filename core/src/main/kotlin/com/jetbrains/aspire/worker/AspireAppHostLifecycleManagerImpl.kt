@@ -21,7 +21,5 @@ internal class AspireAppHostLifecycleManagerImpl(private val project: Project) :
     }
 
     private fun findAppHost(appHostId: AspireAppHostId): AspireAppHost? =
-        AspireWorker.getInstance(project).appHosts.value.firstOrNull {
-            it.mainFilePath.toAspireAppHostId() == appHostId
-        }
+        AspireWorker.getInstance(project).getAppHostById(appHostId)
 }
