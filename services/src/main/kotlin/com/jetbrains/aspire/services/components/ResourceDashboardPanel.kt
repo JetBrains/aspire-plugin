@@ -9,7 +9,7 @@ import com.intellij.ui.dsl.builder.*
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
-import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.services.AspireServicesBundle
 import com.jetbrains.aspire.worker.hasNonDefaultCommands
 import com.jetbrains.aspire.services.getIcon
 import com.jetbrains.aspire.worker.ResourceState
@@ -19,7 +19,7 @@ import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
 
-class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPanel() {
+internal class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPanel() {
     private var panel = setUpPanel(resourceData)
 
     init {
@@ -125,7 +125,7 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
     private fun Panel.addEndpoints(data: AspireResourceData) {
         if (data.urls.isNotEmpty()) {
             row {
-                label(AspireCoreBundle.message("service.tab.dashboard.endpoints")).bold()
+                label(AspireServicesBundle.message("service.tab.dashboard.endpoints")).bold()
             }.bottomGap(BottomGap.SMALL)
             data.urls
                 .sortedBy { it.sortOrder }
@@ -149,38 +149,38 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
 
     private fun Panel.addProperties(data: AspireResourceData) {
         row {
-            label(AspireCoreBundle.message("service.tab.dashboard.properties")).bold()
+            label(AspireServicesBundle.message("service.tab.dashboard.properties")).bold()
         }.bottomGap(BottomGap.SMALL)
         with(data) {
             state?.let {
-                row(AspireCoreBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
+                row(AspireServicesBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
             }
             healthStatus?.let {
-                row(AspireCoreBundle.message("service.tab.dashboard.properties.health.status")) { copyableLabel(it.name) }
+                row(AspireServicesBundle.message("service.tab.dashboard.properties.health.status")) { copyableLabel(it.name) }
             }
             createdAt?.let {
-                row(AspireCoreBundle.message("service.tab.dashboard.properties.creation.time")) { copyableLabel(it.toString()) }
+                row(AspireServicesBundle.message("service.tab.dashboard.properties.creation.time")) { copyableLabel(it.toString()) }
             }
             startedAt?.let {
-                row(AspireCoreBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }
+                row(AspireServicesBundle.message("service.tab.dashboard.properties.start.time")) { copyableLabel(it.toString()) }
             }
             stoppedAt?.let {
-                row(AspireCoreBundle.message("service.tab.dashboard.properties.stop.time")) { copyableLabel(it.toString()) }
+                row(AspireServicesBundle.message("service.tab.dashboard.properties.stop.time")) { copyableLabel(it.toString()) }
             }
-            intPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.pid"), data.pid)
-            intPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.exit.code"), data.exitCode)
-            pathPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.project"), projectPath)
-            pathPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.executable"), executablePath)
-            pathPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.working.dir"), executableWorkDir)
-            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.args"), args)
-            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.image"), containerImage)
-            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.id"), containerId)
-            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.ports"), containerPorts)
-            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.command"), containerCommand)
-            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.container.args"), containerArgs)
-            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.connection.string"), connectionString)
-            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.source"), source)
-            stringPropertyRow(AspireCoreBundle.message("service.tab.dashboard.properties.value"), value)
+            intPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.pid"), data.pid)
+            intPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.exit.code"), data.exitCode)
+            pathPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.project"), projectPath)
+            pathPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.executable"), executablePath)
+            pathPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.working.dir"), executableWorkDir)
+            stringPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.args"), args)
+            stringPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.container.image"), containerImage)
+            stringPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.container.id"), containerId)
+            stringPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.container.ports"), containerPorts)
+            stringPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.container.command"), containerCommand)
+            stringPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.container.args"), containerArgs)
+            stringPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.connection.string"), connectionString)
+            stringPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.source"), source)
+            stringPropertyRow(AspireServicesBundle.message("service.tab.dashboard.properties.value"), value)
             separator()
         }
     }
@@ -188,7 +188,7 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
     private fun Panel.addVolumes(data: AspireResourceData) {
         if (data.volumes.isNotEmpty()) {
             row {
-                label(AspireCoreBundle.message("service.tab.dashboard.volumes")).bold()
+                label(AspireServicesBundle.message("service.tab.dashboard.volumes")).bold()
             }.bottomGap(BottomGap.SMALL)
             data.volumes
                 .sortedBy { it.source }
@@ -201,7 +201,7 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
                             .apply { if (volume.isReadOnly) gap(RightGap.SMALL) }
 
                         if (volume.isReadOnly) {
-                            copyableLabel("(${AspireCoreBundle.message("service.tab.dashboard.volumes.readonly")})")
+                            copyableLabel("(${AspireServicesBundle.message("service.tab.dashboard.volumes.readonly")})")
                         }
                     }
                 }
@@ -213,7 +213,7 @@ class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPan
         val showEnvironment = AspireSettings.getInstance().showEnvironmentVariables
         if (data.environment.isNotEmpty()) {
             row {
-                label(AspireCoreBundle.message("service.tab.dashboard.environment")).bold()
+                label(AspireServicesBundle.message("service.tab.dashboard.environment")).bold()
             }.bottomGap(BottomGap.SMALL)
             data.environment.forEach { variable ->
                 val valueText = if (showEnvironment) (variable.value ?: "-") else "*****"

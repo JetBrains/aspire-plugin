@@ -24,7 +24,7 @@ import kotlin.coroutines.cancellation.CancellationException
  * Represents a single resource running within an Aspire AppHost.
  *
  * Key responsibilities:
- * - Tracking the resource's current state via [resourceState] (type, status, properties, endpoints, etc.)
+ * - Tracking the resource's current state via [data] (type, status, properties, endpoints, etc.)
  * - Collecting resource console logs into a bounded in-memory buffer exposed as [logFlow]
  * - Executing resource commands (start, stop, restart) via the dashboard gRPC client
  * - Managing child resources in a parent-child tree structure ([childrenResources])
@@ -45,11 +45,11 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 @ApiStatus.Internal
 class AspireResource(
-    val resourceName: String,
+    override val resourceName: String,
     initialData: AspireResourceData,
     parentCs: CoroutineScope,
     private val dashboardClient: AspireDashboardClientApi,
-) : Disposable {
+) : Disposable, AspireResourceModel {
     companion object {
         private val LOG = logger<AspireResource>()
         private const val LOG_REPLAY_CAPACITY = 500
@@ -57,23 +57,23 @@ class AspireResource(
 
     private val cs = parentCs.childScope("Aspire Resource")
 
-    private val _resourceState = MutableStateFlow(initialData)
-    val resourceState: StateFlow<AspireResourceData> = _resourceState.asStateFlow()
+    private val _data = MutableStateFlow(initialData)
+    override val data: StateFlow<AspireResourceData> = _data.asStateFlow()
 
     val displayName: String
-        get() = _resourceState.value.displayName
+        get() = _data.value.displayName
 
     val parentDisplayName: String?
-        get() = _resourceState.value.parentDisplayName
+        get() = _data.value.parentDisplayName
 
     private val _childrenResources = MutableStateFlow<List<AspireResource>>(emptyList())
-    val childrenResources: StateFlow<List<AspireResource>> = _childrenResources.asStateFlow()
+    override val childrenResources: StateFlow<List<AspireResource>> = _childrenResources.asStateFlow()
 
     private val _logFlow = MutableSharedFlow<AspireResourceLogEntry>(
         replay = LOG_REPLAY_CAPACITY,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val logFlow: SharedFlow<AspireResourceLogEntry> = _logFlow.asSharedFlow()
+    override val logFlow: SharedFlow<AspireResourceLogEntry> = _logFlow.asSharedFlow()
 
     init {
         cs.launch {
@@ -98,7 +98,7 @@ class AspireResource(
      * when processing resource upsert events from the gRPC stream.
      */
     internal fun update(data: AspireResourceData) {
-        _resourceState.value = data
+        _data.value = data
     }
 
     fun addChildResource(resource: AspireResource) {
@@ -116,7 +116,7 @@ class AspireResource(
         val request = ResourceCommandRequest.newBuilder()
             .setCommandName(commandName)
             .setResourceName(resourceName)
-            .setResourceType(_resourceState.value.originType)
+            .setResourceType(_data.value.originType)
             .build()
         val response = dashboardClient.executeResourceCommand(request)
         if (response.kind == ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_FAILED) {

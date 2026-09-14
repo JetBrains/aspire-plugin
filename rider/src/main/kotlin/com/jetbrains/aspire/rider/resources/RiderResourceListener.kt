@@ -23,14 +23,14 @@ import com.jetbrains.rider.projectView.solution
 internal class RiderResourceListener(private val project: Project) : ResourceListener {
     override fun resourceCreated(resource: AspireResource) {
         if (!project.hasSolution) return
-        val state = resource.resourceState.value
+        val state = resource.data.value
         val rdResource = mapResource(state)
         project.solution.aspirePluginModel.resources[resource.resourceName] = rdResource
     }
 
     override fun resourceUpdated(resource: AspireResource) {
         if (!project.hasSolution) return
-        val state = resource.resourceState.value
+        val state = resource.data.value
         val rdResource = mapResource(state)
         project.solution.aspirePluginModel.resources[resource.resourceName] = rdResource
     }

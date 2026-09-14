@@ -11,8 +11,7 @@ fun AspirePath.toNioPath(): Path = Path(value)
 internal fun Path.toAspireAppHostId(): AspireAppHostId = AspireAppHostId(absolutePathString())
 
 @ApiStatus.Internal
-fun AspireAppHost.toData(): AspireAppHostData {
-    val state = appHostState.value
+fun AspireAppHost.toData(state: AspireAppHost.AspireAppHostState): AspireAppHostData {
     val status = when (state) {
         AspireAppHost.AspireAppHostState.Inactive -> AspireAppHostStatus.Inactive
         is AspireAppHost.AspireAppHostState.Starting -> AspireAppHostStatus.Starting
@@ -28,7 +27,7 @@ fun AspireAppHost.toData(): AspireAppHostData {
     }
 
     return AspireAppHostData(
-        id = mainFilePath.toAspireAppHostId(),
+        id = appHostId,
         name = name,
         status = status,
         dashboardUrl = dashboardUrl,

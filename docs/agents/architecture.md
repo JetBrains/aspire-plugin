@@ -8,7 +8,7 @@
 | `core`     | Core plugin logic: sessions, actions, OTLP, worker comms         | Rider SDK  |
 | `services` | Aspire Services View UI and view models                          | `core` + Services View plugin |
 | `rider`    | Rider-specific: orchestration, debugging, manifests, launch cfg  | `core`     |
-| `diagram`  | Architecture visualization (bundled Diagram plugin dependency)   | `core`     |
+| `diagram`  | Architecture visualization (bundled Diagram plugin dependency)   | `shared`   |
 | `docker`   | Docker container integration                                     | `core`     |
 | `database` | Database connection support                                      | `core`     |
 

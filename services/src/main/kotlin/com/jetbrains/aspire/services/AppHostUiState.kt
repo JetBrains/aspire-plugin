@@ -1,10 +1,8 @@
 package com.jetbrains.aspire.services
 
-import org.jetbrains.annotations.ApiStatus
 import javax.swing.JComponent
 
-@ApiStatus.Internal
-sealed interface AppHostUiState {
+internal sealed interface AppHostUiState {
     data object Initial : AppHostUiState
 
     data class Active(

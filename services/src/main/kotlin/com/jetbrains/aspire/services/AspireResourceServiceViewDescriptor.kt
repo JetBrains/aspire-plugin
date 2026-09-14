@@ -8,16 +8,14 @@ import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.actionSystem.UiDataProvider
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
-import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.actions.ASPIRE_RESOURCE_DATA
 import com.jetbrains.aspire.services.components.ResourceConsolePanel
 import com.jetbrains.aspire.services.components.ResourceDashboardPanel
 import com.jetbrains.aspire.settings.AspireSettings
-import com.jetbrains.aspire.util.ASPIRE_RESOURCE
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class AspireResourceServiceViewDescriptor(
+internal class AspireResourceServiceViewDescriptor(
     private val vm: AspireResourceViewModel
 ) : ServiceViewDescriptor, UiDataProvider {
 
@@ -25,11 +23,11 @@ class AspireResourceServiceViewDescriptor(
 
     private val tabs = JBTabbedPane().apply {
         addTab(
-            AspireCoreBundle.message("service.tab.dashboard"),
+            AspireServicesBundle.message("service.tab.dashboard"),
             ResourceDashboardPanel(vm.uiState.value.resourceData)
         )
         addTab(
-            AspireCoreBundle.message("service.tab.console"),
+            AspireServicesBundle.message("service.tab.console"),
             ResourceConsolePanel(vm.uiState.value.consoleComponent)
         )
 
@@ -58,7 +56,6 @@ class AspireResourceServiceViewDescriptor(
     override fun getPopupActions() = resourceActions
 
     override fun uiDataSnapshot(sink: DataSink) {
-        sink[ASPIRE_RESOURCE_DATA] = vm.resource.resourceState.value
-        sink[ASPIRE_RESOURCE] = vm.resource
+        sink[ASPIRE_RESOURCE_DATA] = vm.resource.data.value
     }
 }

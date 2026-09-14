@@ -23,7 +23,7 @@ fun AspireAppHost.findResource(predicate: (AspireResource) -> Boolean): AspireRe
 fun AspireWorker.findProjectResource(projectPath: Path): AspireResource? =
     appHosts.value.firstNotNullOfOrNull { host ->
         host.findResource {
-            val data = it.resourceState.value
+            val data = it.data.value
             data.type == ResourceType.Project && data.projectPath?.value?.toNioPath() == projectPath
         }
     }

@@ -53,6 +53,8 @@
                         serviceImplementation="com.jetbrains.aspire.worker.AspireResourceCommandExecutorImpl"/>
         <projectService serviceInterface="com.jetbrains.aspire.worker.AspireAppHostResourcesProvider"
                         serviceImplementation="com.jetbrains.aspire.worker.AspireAppHostResourcesProviderImpl"/>
+        <projectService serviceInterface="com.jetbrains.aspire.worker.AspireServicesModelProvider"
+                        serviceImplementation="com.jetbrains.aspire.worker.AspireServicesModelProviderImpl"/>
 
         <applicationConfigurable
                 parentId="tools"
@@ -86,17 +88,17 @@
         </group>
         <group id="Aspire.Host">
             <action id="Aspire.Host.Run"
-                    class="com.jetbrains.aspire.actions.dashboard.host.RunHostAction"
+                    class="com.jetbrains.aspire.actions.dashboard.host.RunAppHostAction"
                     icon="AllIcons.Actions.Execute">
                 <override-text place="GoToAction"/>
             </action>
             <action id="Aspire.Host.Debug"
-                    class="com.jetbrains.aspire.actions.dashboard.host.DebugHostAction"
+                    class="com.jetbrains.aspire.actions.dashboard.host.DebugAppHostAction"
                     icon="AllIcons.Actions.StartDebugger">
                 <override-text place="GoToAction"/>
             </action>
             <action id="Aspire.Host.Stop"
-                    class="com.jetbrains.aspire.actions.dashboard.host.StopHostAction"
+                    class="com.jetbrains.aspire.actions.dashboard.host.StopAppHostAction"
                     icon="AllIcons.Actions.Suspend">
                 <override-text place="GoToAction"/>
             </action>

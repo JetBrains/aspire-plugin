@@ -41,7 +41,7 @@ internal class RiderResourceProtocolListener : SolutionExtListener<AspirePluginM
                 }
 
                 val launchMode = request.launchMode
-                val projectPath = resource.resourceState.value.projectPath?.value
+                val projectPath = resource.data.value.projectPath?.value
                 if (launchMode != null && projectPath != null) {
                     val sessionLaunchMode = when (launchMode) {
                         AspireRdSessionLaunchMode.Run -> SessionLaunchMode.RUN
@@ -61,9 +61,9 @@ internal class RiderResourceProtocolListener : SolutionExtListener<AspirePluginM
 
     private fun findResource(project: Project, request: ExecuteResourceCommandRequest): AspireResource? {
         return findResource(project) { resource ->
-            resource.resourceState.value.name == request.resourceName
+            resource.data.value.name == request.resourceName
         } ?: findResource(project) { resource ->
-            resource.resourceState.value.displayName == request.resourceName
+            resource.data.value.displayName == request.resourceName
         }
     }
 

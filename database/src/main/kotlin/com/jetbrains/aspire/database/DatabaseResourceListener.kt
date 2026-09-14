@@ -35,7 +35,7 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
     private fun applyChanges(resource: AspireResource) {
         if (!AspireSettings.getInstance().connectToDatabase) return
 
-        val data = resource.resourceState.value
+        val data = resource.data.value
         if (data.type != ResourceType.Container || data.state != ResourceState.Running) return
         val connectionString = data.connectionString?.value ?: return
         val containerId = data.containerId?.value ?: return
@@ -84,7 +84,7 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
     override fun resourceDeleted(resource: AspireResource) {
         if (!AspireSettings.getInstance().connectToDatabase) return
 
-        val data = resource.resourceState.value
+        val data = resource.data.value
         if (data.type != ResourceType.Container) return
         val isPersistent = data.containerLifetime?.value.equals("persistent", true)
         if (isPersistent) return

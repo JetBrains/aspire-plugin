@@ -8,7 +8,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import java.awt.BorderLayout
 import javax.swing.JComponent
 
-class ResourceConsolePanel(consoleComponent: JComponent) : BorderLayoutPanel() {
+internal class ResourceConsolePanel(consoleComponent: JComponent) : BorderLayoutPanel() {
     init {
         border = JBUI.Borders.empty()
         add(consoleComponent)

@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.worker.AspireAppHostData
 
-class AspireOpenDashboardAction : AspireHostDataAction() {
+class AspireOpenDashboardAction : AspireAppHostBaseAction() {
     override fun performAction(event: AnActionEvent, appHostData: AspireAppHostData, project: Project) {
         val dashboardUrl = appHostData.dashboardUrl
         if (dashboardUrl.isNullOrEmpty()) return
