@@ -1,4 +1,4 @@
-package com.jetbrains.aspire
+package com.jetbrains.aspire.integration
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.refreshAndFindVirtualFile

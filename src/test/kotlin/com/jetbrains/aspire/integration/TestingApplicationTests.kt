@@ -1,4 +1,4 @@
-package com.jetbrains.aspire
+package com.jetbrains.aspire.integration
 
 import com.jetbrains.rd.platform.diagnostics.LogTraceScenario
 import com.jetbrains.rider.diagnostics.LogTraceScenarios

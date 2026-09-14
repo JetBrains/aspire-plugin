@@ -1,4 +1,4 @@
-package com.jetbrains.aspire
+package com.jetbrains.aspire.integration
 
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.platform.backend.workspace.WorkspaceModel

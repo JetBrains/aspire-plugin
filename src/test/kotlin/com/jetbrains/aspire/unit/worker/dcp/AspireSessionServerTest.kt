@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.worker.dcp
+package com.jetbrains.aspire.unit.worker.dcp
 
 import com.jetbrains.aspire.generated.CreateProjectSessionRequest
 import com.jetbrains.aspire.generated.CreateSessionResponse

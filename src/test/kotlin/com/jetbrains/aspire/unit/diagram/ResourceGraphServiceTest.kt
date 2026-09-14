@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.diagram
+package com.jetbrains.aspire.unit.diagram
 
 import com.intellij.icons.AllIcons
 import com.jetbrains.aspire.diagram.graph.ResourceGraphEdge

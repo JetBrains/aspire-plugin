@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.worker
+package com.jetbrains.aspire.unit.worker
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -9,6 +9,11 @@ import com.intellij.testFramework.replaceService
 import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate.newBuilder
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
+import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspireResource
+import com.jetbrains.aspire.worker.AspireResourceId
+import com.jetbrains.aspire.worker.ResourceListener
+import com.jetbrains.aspire.worker.ResourceTreeManager
 import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -107,7 +112,7 @@ class ResourceTreeManagerTest {
         client.resourceUpdates.emit(update)
         testScheduler.advanceUntilIdle()
 
-        val resourceData = manager.rootResources.value.single().resourceState.value
+        val resourceData = manager.rootResources.value.single().data.value
         assertEquals(expectedResourceId, resourceData.id)
 
         job.cancel()
@@ -138,7 +143,7 @@ class ResourceTreeManagerTest {
         assertEquals(1, roots.size)
         assertEquals(resourceName, roots[0].resourceName)
         assertEquals(resourceDisplayName, roots[0].displayName)
-        assertEquals("Running", roots[0].resourceState.value.state?.name)
+        assertEquals("Running", roots[0].data.value.state?.name)
 
         job.cancel()
     }

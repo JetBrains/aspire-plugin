@@ -1,4 +1,4 @@
-package com.jetbrains.aspire
+package com.jetbrains.aspire.unit
 
 import com.intellij.testFramework.TestApplicationManager
 import com.jetbrains.aspire.rider.util.parseTargetFrameworkId

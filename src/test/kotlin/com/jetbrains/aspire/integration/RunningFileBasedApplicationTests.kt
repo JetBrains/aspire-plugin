@@ -1,4 +1,4 @@
-package com.jetbrains.aspire
+package com.jetbrains.aspire.integration
 
 import com.intellij.execution.RunManager
 import com.jetbrains.aspire.rider.run.AspireConfigurationType

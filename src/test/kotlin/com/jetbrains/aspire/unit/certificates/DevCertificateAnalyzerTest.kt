@@ -1,5 +1,7 @@
-package com.jetbrains.aspire.certificates
+package com.jetbrains.aspire.unit.certificates
 
+import com.jetbrains.aspire.certificates.DevCertificateAnalyzer
+import com.jetbrains.aspire.certificates.DevCertificateCheckResult
 import com.jetbrains.rider.web.DevCertificate
 import com.jetbrains.rider.web.DevCertificateTrustLevel
 import org.junit.jupiter.api.Test

@@ -1,4 +1,4 @@
-﻿package com.jetbrains.aspire
+﻿package com.jetbrains.aspire.integration
 
 import com.intellij.execution.RunManagerEx
 import com.intellij.execution.process.ProcessOutputType

@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.worker
+package com.jetbrains.aspire.unit.worker
 
 import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientApi
