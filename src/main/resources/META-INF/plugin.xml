@@ -20,6 +20,7 @@
     </dependencies>
 
     <content namespace="jetbrains">
+        <module name="intellij.aspire.shared" loading="required"/>
         <module name="intellij.aspire.core" loading="required"/>
         <module name="intellij.aspire.rider" loading="required"/>
         <module name="intellij.aspire.services"/>

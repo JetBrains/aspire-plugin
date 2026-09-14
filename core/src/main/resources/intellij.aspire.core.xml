@@ -1,5 +1,6 @@
 <idea-plugin visibility="internal">
     <dependencies>
+        <module name="intellij.aspire.shared"/>
         <plugin id="com.intellij.modules.rider"/>
         <module name="intellij.rd.client.base"/>
         <module name="intellij.rider.rdclient.dotnet"/>
@@ -48,6 +49,11 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceInterface="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory"
                             serviceImplementation="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactoryImpl"/>
+
+        <projectService serviceInterface="com.jetbrains.aspire.worker.AspireAppHostLifecycleManager"
+                        serviceImplementation="com.jetbrains.aspire.worker.AspireAppHostLifecycleManagerImpl"/>
+        <projectService serviceInterface="com.jetbrains.aspire.worker.AspireResourceCommandExecutor"
+                        serviceImplementation="com.jetbrains.aspire.worker.AspireResourceCommandExecutorImpl"/>
 
         <applicationConfigurable
                 parentId="tools"

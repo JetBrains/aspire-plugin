@@ -6,7 +6,6 @@ import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.sessions.SessionLaunchMode
 import com.jetbrains.aspire.sessions.SessionLaunchPreferenceService
 import com.jetbrains.aspire.worker.AspireResourceData
-import kotlin.io.path.absolutePathString
 
 internal class RestartWithoutDebuggerResourceAction : ResourceCommandAction() {
     override fun beforeExecute(resourceData: AspireResourceData, project: Project) {
@@ -14,7 +13,7 @@ internal class RestartWithoutDebuggerResourceAction : ResourceCommandAction() {
 
         SessionLaunchPreferenceService
             .getInstance(project)
-            .setPreferredLaunchMode(projectPath.absolutePathString(), SessionLaunchMode.RUN)
+            .setPreferredLaunchMode(projectPath.value, SessionLaunchMode.RUN)
     }
 
     override fun checkResourceState(resourceData: AspireResourceData) =

@@ -8,6 +8,7 @@ import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.toNioPath
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import javax.swing.Icon
@@ -51,7 +52,7 @@ fun AspireWorker.findProjectResource(projectPath: Path): AspireResource? =
     appHosts.value.firstNotNullOfOrNull { host ->
         host.findResource {
             val data = it.resourceState.value
-            data.type == ResourceType.Project && data.projectPath?.value == projectPath
+            data.type == ResourceType.Project && data.projectPath?.value?.toNioPath() == projectPath
         }
     }
 

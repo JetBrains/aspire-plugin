@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.serialization)
     alias(libs.plugins.intelliJPlatformModule)
 }
 
@@ -8,14 +9,18 @@ kotlin {
 }
 
 dependencies {
+    compileOnly(libs.serializationJson)
+
     intellijPlatform {
         intellijIdea(providers.gradleProperty("ideaVersion")) {
             useCache = true
         }
 
-        bundledPlugins("intellij.execution.serviceView.plugin")
+        bundledModule("intellij.libraries.kotlinx.datetime")
+        bundledModule("intellij.libraries.kotlinx.serialization.json")
     }
+}
 
-    implementation(project(":shared"))
-    implementation(project(":core"))
+tasks.test {
+    useJUnitPlatform()
 }

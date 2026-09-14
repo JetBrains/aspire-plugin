@@ -94,6 +94,26 @@ class ResourceTreeManagerTest {
     }
 
     @Test
+    fun `resource data uses the AppHost path and resource name as a stable id`() = runTest {
+        val appHostPath = Path.of("test/path/AppHost.csproj")
+        val manager = createResourceTreeManager(appHostPath)
+        val (job, client) = startDashboardClient(manager)
+        val resource = buildResource("res-1", "Resource 1")
+        val resources = listOf(resource)
+        val update = buildUpsertUpdate(resources)
+        val appHostId = AspireAppHostId(appHostPath.toAbsolutePath().toString())
+        val expectedResourceId = AspireResourceId(appHostId, resource.name)
+
+        client.resourceUpdates.emit(update)
+        testScheduler.advanceUntilIdle()
+
+        val resourceData = manager.rootResources.value.single().resourceState.value
+        assertEquals(expectedResourceId, resourceData.id)
+
+        job.cancel()
+    }
+
+    @Test
     fun `upsert updates existing resource state`() = runTest {
         val manager = createResourceTreeManager()
         val (job, client) = startDashboardClient(manager)
@@ -494,8 +514,10 @@ class ResourceTreeManagerTest {
 
     // region Helpers
 
-    private fun TestScope.createResourceTreeManager(): ResourceTreeManager = ResourceTreeManager(
-        Path.of("test/path/AppHost.csproj"),
+    private fun TestScope.createResourceTreeManager(
+        appHostPath: Path = Path.of("test/path/AppHost.csproj"),
+    ): ResourceTreeManager = ResourceTreeManager(
+        appHostPath,
         project,
         this,
         testRootDisposable,

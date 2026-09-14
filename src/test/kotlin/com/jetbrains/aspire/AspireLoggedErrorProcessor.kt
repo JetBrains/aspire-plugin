@@ -13,6 +13,7 @@ private val aspireKnownLogErrors = RiderKnownLogErrors + KnownLogErrors(
     "DebuggerRaisedTargetHitBreakpointEvent" to { it.contains("Exception in debugger process: Debugger raised TargetHitBreakpoint event, but no corresponding breakpoint model found for breakpoint ClrTypeName: System.Diagnostics.Debugger") },
     "WriteLockModalProgress" to { it.contains("This thread holds write lock while trying to invoke a modal progress.Write actions should be fast so they do not stall the progress in the IDE") },
     "AWTInsideWriteActions" to { it.contains("AWT events are not allowed inside write action") },
+    "SandboxManagerNPE" to { it.contains("com.jetbrains.rider.debugger.shared.evaluation.immediate.window.SandboxManager") },
 )
 
 fun createAspireTestLogManager(

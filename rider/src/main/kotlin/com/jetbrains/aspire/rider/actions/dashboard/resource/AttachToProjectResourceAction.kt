@@ -1,29 +1,26 @@
 package com.jetbrains.aspire.rider.actions.dashboard.resource
 
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.actions.dashboard.resource.AspireResourceBaseAction
-import com.jetbrains.aspire.worker.AspireResource
+import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.rider.debugger.AttachDebuggerService
 import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
+import com.jetbrains.aspire.worker.toNioPath
 import kotlinx.coroutines.launch
 import kotlin.io.path.absolutePathString
 
 internal class AttachToProjectResourceAction : AspireResourceBaseAction() {
-    override fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project) {
-        val resourceData = aspireResource.resourceState.value
+    override fun performAction(event: AnActionEvent, resourceData: AspireResourceData, project: Project) {
         val pid = resourceData.pid?.value ?: return
-        currentThreadCoroutineScope().launch {
+        event.coroutineScope.launch {
             AttachDebuggerService.getInstance(project).attach(pid)
         }
     }
 
-    override fun updateAction(event: AnActionEvent, aspireResource: AspireResource, project: Project) {
-        val resourceData = aspireResource.resourceState.value
+    override fun updateAction(event: AnActionEvent, resourceData: AspireResourceData, project: Project) {
         val pid = resourceData.pid?.value
         val projectPath = resourceData.projectPath?.value
         if (resourceData.type != ResourceType.Project ||
@@ -37,7 +34,7 @@ internal class AttachToProjectResourceAction : AspireResourceBaseAction() {
 
         val isUnderDebugger = SessionProfileModeService
             .getInstance(project)
-            .isSessionProfileUnderDebugger(projectPath.absolutePathString())
+            .isSessionProfileUnderDebugger(projectPath.toNioPath().absolutePathString())
 
         if (isUnderDebugger != false) {
             event.presentation.isEnabledAndVisible = false

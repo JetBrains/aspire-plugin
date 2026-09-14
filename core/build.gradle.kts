@@ -15,6 +15,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":shared"))
+
     compileOnly(libs.serializationJson)
 
     compileOnly(libs.grpc.protobuf)

@@ -16,6 +16,7 @@ import com.jetbrains.aspire.sessions.SessionLaunchPreferenceService
 import com.jetbrains.aspire.util.findResource
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.toNioPath
 import com.jetbrains.rd.protocol.SolutionExtListener
 import com.jetbrains.rd.util.lifetime.Lifetime
 import kotlinx.coroutines.Dispatchers
@@ -46,10 +47,11 @@ internal class RiderResourceProtocolListener : SolutionExtListener<AspirePluginM
                         AspireRdSessionLaunchMode.Run -> SessionLaunchMode.RUN
                         AspireRdSessionLaunchMode.Debug -> SessionLaunchMode.DEBUG
                     }
-                    LOG.trace { "Applying preferred launch mode $sessionLaunchMode for '${projectPath.absolutePathString()}' before executing '${request.commandName}'" }
+                    val projectPathString = projectPath.toNioPath().absolutePathString()
+                    LOG.trace { "Applying preferred launch mode $sessionLaunchMode for '$projectPathString' before executing '${request.commandName}'" }
                     SessionLaunchPreferenceService
                         .getInstance(session.project)
-                        .setPreferredLaunchMode(projectPath.absolutePathString(), sessionLaunchMode)
+                        .setPreferredLaunchMode(projectPathString, sessionLaunchMode)
                 }
 
                 resource.executeCommand(request.commandName)

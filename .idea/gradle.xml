@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/protocol" />
             <option value="$PROJECT_DIR$/rider" />
             <option value="$PROJECT_DIR$/services" />
+            <option value="$PROJECT_DIR$/shared" />
           </set>
         </option>
       </GradleProjectSettings>

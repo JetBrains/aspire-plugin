@@ -3,33 +3,30 @@
 package com.jetbrains.aspire.actions.dashboard.resource
 
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.progress.currentThreadCoroutineScope
+import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.worker.AspireResourceCommandExecutor
 import com.jetbrains.aspire.worker.ResourceCommand
 import com.jetbrains.aspire.worker.ResourceCommandState
-import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
 import kotlinx.coroutines.launch
 
 internal abstract class ResourceCommandAction : AspireResourceBaseAction() {
-    override fun performAction(aspireResource: AspireResource, dataContext: DataContext, project: Project) {
-        val resourceData = aspireResource.resourceState.value
+    override fun performAction(event: AnActionEvent, resourceData: AspireResourceData, project: Project) {
         val command = findCommand(resourceData) ?: return
 
         if (command.state != ResourceCommandState.Enabled) return
 
-        currentThreadCoroutineScope().launch {
+        event.coroutineScope.launch {
             beforeExecute(resourceData, project)
-            aspireResource.executeCommand(command.name)
+            project.service<AspireResourceCommandExecutor>().executeCommand(resourceData.id, command.name)
         }
     }
 
     open fun beforeExecute(resourceData: AspireResourceData, project: Project) {
     }
 
-    override fun updateAction(event: AnActionEvent, aspireResource: AspireResource, project: Project) {
-        val resourceData = aspireResource.resourceState.value
+    override fun updateAction(event: AnActionEvent, resourceData: AspireResourceData, project: Project) {
         val command = findCommand(resourceData)
         if (command == null || command.state == ResourceCommandState.Hidden) {
             event.presentation.isEnabledAndVisible = false

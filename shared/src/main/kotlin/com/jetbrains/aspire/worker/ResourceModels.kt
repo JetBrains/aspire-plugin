@@ -1,8 +1,10 @@
 package com.jetbrains.aspire.worker
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
+@Serializable
 enum class ResourceType {
     Project,
     Container,
@@ -18,6 +20,7 @@ enum class ResourceType {
 }
 
 @ApiStatus.Internal
+@Serializable
 enum class ResourceState {
     Building,
     Starting,
@@ -34,6 +37,7 @@ enum class ResourceState {
 }
 
 @ApiStatus.Internal
+@Serializable
 enum class ResourceStateStyle {
     Success,
     Info,
@@ -43,6 +47,7 @@ enum class ResourceStateStyle {
 }
 
 @ApiStatus.Internal
+@Serializable
 enum class ResourceHealthStatus {
     Healthy,
     Unhealthy,
@@ -50,6 +55,7 @@ enum class ResourceHealthStatus {
 }
 
 @ApiStatus.Internal
+@Serializable
 enum class ResourceCommandState {
     Enabled,
     Disabled,
@@ -57,6 +63,7 @@ enum class ResourceCommandState {
 }
 
 @ApiStatus.Internal
+@Serializable
 data class ResourceUrl(
     val endpointName: String?,
     val fullUrl: String,
@@ -67,12 +74,14 @@ data class ResourceUrl(
 )
 
 @ApiStatus.Internal
+@Serializable
 data class ResourceEnvironmentVariable(
     val key: String,
     val value: String?
 )
 
 @ApiStatus.Internal
+@Serializable
 data class ResourceVolume(
     val source: String,
     val target: String,
@@ -81,12 +90,14 @@ data class ResourceVolume(
 )
 
 @ApiStatus.Internal
+@Serializable
 data class ResourceRelationship(
     val resourceName: String,
     val type: String
 )
 
 @ApiStatus.Internal
+@Serializable
 data class ResourceCommand(
     val name: String,
     val displayName: String,

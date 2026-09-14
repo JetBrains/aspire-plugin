@@ -6,7 +6,10 @@ import com.jetbrains.aspire.generated.dashboard.HealthReport
 import com.jetbrains.aspire.generated.dashboard.HealthStatus
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.worker.AspireResourceData
+import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
+import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.ResourceCommand
 import com.jetbrains.aspire.worker.ResourceCommandState
 import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
@@ -19,13 +22,11 @@ import com.jetbrains.aspire.worker.ResourceUrl
 import com.jetbrains.aspire.worker.ResourceVolume
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.math.roundToInt
 import kotlin.time.Instant
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandState as GrpcCommandState
 
-internal fun Resource.toAspireResourceData(): AspireResourceData {
+internal fun Resource.toAspireResourceData(appHostId: AspireAppHostId): AspireResourceData {
     val type = mapResourceType(resourceType)
 
     val timezone = TimeZone.currentSystemDefault()
@@ -40,9 +41,9 @@ internal fun Resource.toAspireResourceData(): AspireResourceData {
 
     var exitCode: AspireResourceProperty<Int>? = null
     var pid: AspireResourceProperty<Int>? = null
-    var projectPath: AspireResourceProperty<Path>? = null
-    var executablePath: AspireResourceProperty<Path>? = null
-    var executableWorkDir: AspireResourceProperty<Path>? = null
+    var projectPath: AspireResourceProperty<AspirePath>? = null
+    var executablePath: AspireResourceProperty<AspirePath>? = null
+    var executableWorkDir: AspireResourceProperty<AspirePath>? = null
     var args: AspireResourceProperty<String>? = null
     var containerImage: AspireResourceProperty<String>? = null
     var containerId: AspireResourceProperty<String>? = null
@@ -61,9 +62,9 @@ internal fun Resource.toAspireResourceData(): AspireResourceData {
         when (property.name) {
             "resource.exitCode" -> exitCode = AspireResourceProperty(propValue.toDouble().roundToInt(), isSensitive)
             "executable.pid" -> pid = AspireResourceProperty(propValue.toDouble().roundToInt(), isSensitive)
-            "project.path" -> projectPath = AspireResourceProperty(Path(propValue), isSensitive)
-            "executable.path" -> executablePath = AspireResourceProperty(Path(propValue), isSensitive)
-            "executable.workDir" -> executableWorkDir = AspireResourceProperty(Path(propValue), isSensitive)
+            "project.path" -> projectPath = AspireResourceProperty(AspirePath(propValue), isSensitive)
+            "executable.path" -> executablePath = AspireResourceProperty(AspirePath(propValue), isSensitive)
+            "executable.workDir" -> executableWorkDir = AspireResourceProperty(AspirePath(propValue), isSensitive)
             "executable.args" -> args = AspireResourceProperty(propValue, isSensitive)
             "container.image" -> containerImage = AspireResourceProperty(propValue, isSensitive)
             "container.id" -> containerId = AspireResourceProperty(propValue, isSensitive)
@@ -117,6 +118,7 @@ internal fun Resource.toAspireResourceData(): AspireResourceData {
     }
 
     return AspireResourceData(
+        id = AspireResourceId(appHostId, name),
         uid = uid,
         name = name,
         type = type,
