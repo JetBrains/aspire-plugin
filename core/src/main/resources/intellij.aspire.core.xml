@@ -51,6 +51,8 @@
                         serviceImplementation="com.jetbrains.aspire.worker.AspireAppHostLifecycleManagerImpl"/>
         <projectService serviceInterface="com.jetbrains.aspire.worker.AspireResourceCommandExecutor"
                         serviceImplementation="com.jetbrains.aspire.worker.AspireResourceCommandExecutorImpl"/>
+        <projectService serviceInterface="com.jetbrains.aspire.worker.AspireAppHostResourcesProvider"
+                        serviceImplementation="com.jetbrains.aspire.worker.AspireAppHostResourcesProviderImpl"/>
 
         <applicationConfigurable
                 parentId="tools"

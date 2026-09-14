@@ -9,13 +9,9 @@ internal class AspireResourceCommandExecutorImpl(private val project: Project) :
         resource.executeCommand(commandName)
     }
 
-    private fun findAppHost(appHostId: AspireAppHostId): AspireAppHost? =
-        AspireWorker.getInstance(project).appHosts.value.firstOrNull {
-            it.mainFilePath.toAspireAppHostId() == appHostId
-        }
-
     private fun findResource(resourceId: AspireResourceId): AspireResource? =
-        findAppHost(resourceId.appHostId)?.findResource {
-            it.resourceName == resourceId.resourceName
-        }
+        AspireWorker
+            .getInstance(project)
+            .getAppHostById(resourceId.appHostId)
+            ?.findResource { it.resourceName == resourceId.resourceName }
 }
