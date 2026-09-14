@@ -8,7 +8,7 @@ import com.jetbrains.aspire.worker.AspireAppHostLifecycleManager
 import com.jetbrains.aspire.worker.AspireAppHostStatus
 import kotlinx.coroutines.launch
 
-class DebugHostAction : AspireHostDataAction() {
+class DebugAppHostAction : AspireAppHostBaseAction() {
     override fun performAction(event: AnActionEvent, appHostData: AspireAppHostData, project: Project) {
         event.coroutineScope.launch {
             project.service<AspireAppHostLifecycleManager>().launchAppHost(appHostData.id, true)

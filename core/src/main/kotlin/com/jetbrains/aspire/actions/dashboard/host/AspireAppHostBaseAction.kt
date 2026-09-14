@@ -9,7 +9,7 @@ import com.jetbrains.aspire.worker.AspireAppHostData
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
-abstract class AspireHostDataAction : AnAction() {
+abstract class AspireAppHostBaseAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
         val appHostData = event.getData(ASPIRE_APP_HOST_DATA) ?: return

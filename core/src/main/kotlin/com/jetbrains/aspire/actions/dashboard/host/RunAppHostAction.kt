@@ -8,10 +8,10 @@ import com.jetbrains.aspire.worker.AspireAppHostLifecycleManager
 import com.jetbrains.aspire.worker.AspireAppHostStatus
 import kotlinx.coroutines.launch
 
-class StopHostAction : AspireHostDataAction() {
+class RunAppHostAction : AspireAppHostBaseAction() {
     override fun performAction(event: AnActionEvent, appHostData: AspireAppHostData, project: Project) {
         event.coroutineScope.launch {
-            project.service<AspireAppHostLifecycleManager>().stopAppHost(appHostData.id)
+            project.service<AspireAppHostLifecycleManager>().launchAppHost(appHostData.id, false)
         }
     }
 
@@ -19,10 +19,10 @@ class StopHostAction : AspireHostDataAction() {
         event.presentation.isVisible = true
         event.presentation.isEnabled = when (appHostData.status) {
             AspireAppHostStatus.Inactive,
-            AspireAppHostStatus.Stopped -> false
+            AspireAppHostStatus.Stopped -> true
 
             AspireAppHostStatus.Starting,
-            AspireAppHostStatus.Started -> true
+            AspireAppHostStatus.Started -> false
         }
     }
 }
