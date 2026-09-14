@@ -1,22 +1,39 @@
 package com.jetbrains.aspire.diagram.actions
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.actions.dashboard.host.AspireHostBaseAction
+import com.jetbrains.aspire.actions.ASPIRE_APP_HOST_DATA
 import com.jetbrains.aspire.diagram.graph.ResourceGraphService
-import com.jetbrains.aspire.worker.AspireAppHost
+import com.jetbrains.aspire.worker.AspireAppHostStatus
+import kotlinx.coroutines.launch
 
-class ShowResourceGraphAction : AspireHostBaseAction() {
-    override fun performAction(appHost: AspireAppHost, project: Project) {
-        ResourceGraphService.getInstance(project).showResourceGraph(appHost)
-    }
+class ShowResourceGraphAction : AnAction() {
+    override fun actionPerformed(event: AnActionEvent) {
+        val project = event.project ?: return
+        val appHostData = event.getData(ASPIRE_APP_HOST_DATA) ?: return
 
-    override fun updateAction(event: AnActionEvent, appHost: AspireAppHost) {
-        event.presentation.isEnabledAndVisible = when (appHost.appHostState.value) {
-            AspireAppHost.AspireAppHostState.Inactive,
-            AspireAppHost.AspireAppHostState.Stopped -> false
-            is AspireAppHost.AspireAppHostState.Starting,
-            is AspireAppHost.AspireAppHostState.Started -> true
+        event.coroutineScope.launch {
+            ResourceGraphService.getInstance(project).showResourceGraph(appHostData.id)
         }
     }
+
+    override fun update(event: AnActionEvent) {
+        val project = event.project
+        val appHostData = event.getData(ASPIRE_APP_HOST_DATA)
+        if (project == null || appHostData == null) {
+            event.presentation.isEnabledAndVisible = false
+            return
+        }
+
+        event.presentation.isEnabledAndVisible = when (appHostData.status) {
+            AspireAppHostStatus.Inactive,
+            AspireAppHostStatus.Stopped -> false
+
+            AspireAppHostStatus.Starting,
+            AspireAppHostStatus.Started -> true
+        }
+    }
+
+    override fun getActionUpdateThread() = ActionUpdateThread.BGT
 }
