@@ -8,7 +8,6 @@ import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.actionSystem.UiDataProvider
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBTabbedPane
-import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.actions.ASPIRE_RESOURCE_DATA
 import com.jetbrains.aspire.services.components.ResourceConsolePanel
 import com.jetbrains.aspire.services.components.ResourceDashboardPanel
@@ -25,11 +24,11 @@ class AspireResourceServiceViewDescriptor(
 
     private val tabs = JBTabbedPane().apply {
         addTab(
-            AspireCoreBundle.message("service.tab.dashboard"),
+            AspireServicesBundle.message("service.tab.dashboard"),
             ResourceDashboardPanel(vm.uiState.value.resourceData)
         )
         addTab(
-            AspireCoreBundle.message("service.tab.console"),
+            AspireServicesBundle.message("service.tab.console"),
             ResourceConsolePanel(vm.uiState.value.consoleComponent)
         )
 

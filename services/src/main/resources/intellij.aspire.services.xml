@@ -5,6 +5,8 @@
         <plugin id="intellij.execution.serviceView.plugin"/>
     </dependencies>
 
+    <resource-bundle>messages.AspireServicesBundle</resource-bundle>
+
     <extensions defaultExtensionNs="com.intellij">
         <serviceViewContributor implementation="com.jetbrains.aspire.services.AspireMainServiceViewContributor"/>
     </extensions>
