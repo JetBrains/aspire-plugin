@@ -12,7 +12,6 @@ import com.jetbrains.aspire.actions.ASPIRE_RESOURCE_DATA
 import com.jetbrains.aspire.services.components.ResourceConsolePanel
 import com.jetbrains.aspire.services.components.ResourceDashboardPanel
 import com.jetbrains.aspire.settings.AspireSettings
-import com.jetbrains.aspire.util.ASPIRE_RESOURCE
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
@@ -57,7 +56,6 @@ class AspireResourceServiceViewDescriptor(
     override fun getPopupActions() = resourceActions
 
     override fun uiDataSnapshot(sink: DataSink) {
-        sink[ASPIRE_RESOURCE_DATA] = vm.resource.resourceState.value
-        sink[ASPIRE_RESOURCE] = vm.resource
+        sink[ASPIRE_RESOURCE_DATA] = vm.resource.data.value
     }
 }

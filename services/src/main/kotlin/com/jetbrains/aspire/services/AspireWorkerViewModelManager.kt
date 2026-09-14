@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.service
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
-import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.AspireServicesModelProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.plus
@@ -26,7 +26,7 @@ internal class AspireWorkerViewModelManager(private val project: Project, privat
         val workerVm = AspireWorkerViewModel(
             project,
             vmCs + Dispatchers.Default,
-            AspireWorker.getInstance(project)
+            project.service<AspireServicesModelProvider>()
         )
         Disposer.register(this, workerVm)
         workerVm

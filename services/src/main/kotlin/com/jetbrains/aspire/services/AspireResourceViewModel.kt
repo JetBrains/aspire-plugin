@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
-import com.jetbrains.aspire.worker.AspireResource
+import com.jetbrains.aspire.worker.AspireResourceModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.ApiStatus
 class AspireResourceViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
-    val resource: AspireResource
+    val resource: AspireResourceModel
 ) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireResourceViewModel>, Disposable {
     companion object {
         private val LOG = logger<AspireResourceViewModel>()
@@ -42,12 +42,12 @@ class AspireResourceViewModel(
         .also { Disposer.register(this, it) }
 
     val uiState: StateFlow<ResourceUiState> =
-        resource.resourceState
+        resource.data
             .map { ResourceUiState(it, logConsole.component) }
             .stateIn(
                 cs,
                 SharingStarted.Lazily,
-                ResourceUiState(resource.resourceState.value, logConsole.component)
+                ResourceUiState(resource.data.value, logConsole.component)
             )
 
     private val childViewModels: StateFlow<List<AspireResourceViewModel>> =
@@ -77,8 +77,8 @@ class AspireResourceViewModel(
                     }
                 }.sortedWith(
                     compareBy(
-                        { it.resource.resourceState.value.type },
-                        { it.resource.resourceState.value.name })
+                        { it.resource.data.value.type },
+                        { it.resource.data.value.name })
                 )
             }
             .stateIn(cs, SharingStarted.Eagerly, emptyList())

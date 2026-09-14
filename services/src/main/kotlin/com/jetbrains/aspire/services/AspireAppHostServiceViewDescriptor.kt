@@ -9,8 +9,6 @@ import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.JBUI
 import com.jetbrains.aspire.AspireIcons
 import com.jetbrains.aspire.actions.ASPIRE_APP_HOST_DATA
-import com.jetbrains.aspire.util.ASPIRE_APP_HOST
-import com.jetbrains.aspire.worker.toData
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
@@ -54,7 +52,6 @@ class AspireAppHostServiceViewDescriptor(
     override fun getToolbarActions() = appHostActions
 
     override fun uiDataSnapshot(sink: DataSink) {
-        sink[ASPIRE_APP_HOST_DATA] = vm.appHost.toData()
-        sink[ASPIRE_APP_HOST] = vm.appHost
+        sink[ASPIRE_APP_HOST_DATA] = vm.appHost.data.value
     }
 }

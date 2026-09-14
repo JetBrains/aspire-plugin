@@ -135,7 +135,7 @@ class AspireAppHost(
 
     override val data: StateFlow<AspireAppHostData> = appHostState
         .map { state -> toData(state) }
-        .stateIn(cs, SharingStarted.Eagerly, toData())
+        .stateIn(cs, SharingStarted.Eagerly, toData(appHostState.value))
 
     init {
         otlpProxyManager.observeAppHostState(appHostState)
