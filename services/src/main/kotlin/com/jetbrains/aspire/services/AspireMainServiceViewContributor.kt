@@ -4,11 +4,10 @@ import com.intellij.execution.services.ServiceViewContributor
 import com.intellij.execution.services.ServiceViewLazyContributor
 import com.intellij.execution.services.SimpleServiceViewDescriptor
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.AspireIcons
 
 class AspireMainServiceViewContributor : ServiceViewContributor<AspireWorkerViewModel>, ServiceViewLazyContributor {
     override fun getViewDescriptor(project: Project) =
-        SimpleServiceViewDescriptor("Aspire", AspireIcons.Service)
+        SimpleServiceViewDescriptor("Aspire", AspireServicesIcons.Service)
 
     override fun getServices(project: Project): List<AspireWorkerViewModel> {
         val vm = AspireWorkerViewModelManager.getInstance(project).getOrCreate()

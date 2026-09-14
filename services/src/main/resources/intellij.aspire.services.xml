@@ -9,5 +9,6 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <serviceViewContributor implementation="com.jetbrains.aspire.services.AspireMainServiceViewContributor"/>
+        <iconMapper mappingFile="AspireServicesIconMappings.json"/>
     </extensions>
 </idea-plugin>

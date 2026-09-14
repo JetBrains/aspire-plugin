@@ -7,7 +7,6 @@ import com.intellij.ui.BadgeIconSupplier
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.JBUI
-import com.jetbrains.aspire.AspireIcons
 import com.jetbrains.aspire.actions.ASPIRE_APP_HOST_DATA
 import java.awt.BorderLayout
 import javax.swing.JPanel
@@ -19,7 +18,7 @@ class AspireAppHostServiceViewDescriptor(
     private val appHostActions = ActionManager.getInstance().getAction("Aspire.Host.Tollbar") as ActionGroup
 
     override fun getPresentation() = PresentationData().apply {
-        var icon = AspireIcons.Service
+        var icon = AspireServicesIcons.Service
         if (vm.uiState.value is AppHostUiState.Active) {
             icon = BadgeIconSupplier(icon).liveIndicatorIcon
         }
