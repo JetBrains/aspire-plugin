@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Slow operation during the `TerminalProcessHandler` construction
+
 ### Changed
 
 - Update platform version to 2026.3-EAP3-SNAPSHOT
