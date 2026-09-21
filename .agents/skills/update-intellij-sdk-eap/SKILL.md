@@ -35,6 +35,8 @@ Before making a network request, editing a file, or starting a build, ask the us
 
 7. If the cause or fix is not immediately clear, stop instead of guessing. Report the requested release line, selected Rider EAP and IDEA build, property changes, build result, exact error location/output, and any fixes already attempted.
 
+8. After **Build Plugin** succeeds, update `CHANGELOG.md` under `[Unreleased]` → `Changed`. Add the line `- Update platform version to <selected Rider EAP version>`, using the selected upstream Rider release version (for example, `2026.3-EAP3`), not the `-SNAPSHOT` property value. Create the `Changed` subsection if it is absent.
+
 ## Completion
 
-On success, report the previous and new values of all three properties, the selected upstream releases, the **Build Plugin** result, and the files changed. Run `git diff --check` before reporting completion.
+On success, report the previous and new values of all three properties, the selected upstream releases, the **Build Plugin** result, the changelog entry, and the files changed. Run `git diff --check` before reporting completion.
