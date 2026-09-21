@@ -16,6 +16,7 @@ dependencies {
         }
         bundledModule("intellij.rd.client.base")
         bundledModule("intellij.rd.client")
+        bundledModule("intellij.execution.multilaunch.core")
         bundledModule("intellij.rider.rdclient.dotnet")
         bundledModule("intellij.rider.languages")
         bundledModule("intellij.platform.debugger")
