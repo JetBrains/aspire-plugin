@@ -14,9 +14,11 @@ import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.TerminalProcessHandler
 import com.jetbrains.rider.run.configurations.RiderAsyncRunProfileState
 import com.jetbrains.rider.run.createConsole
-import com.jetbrains.rider.run.createRunCommandLineBlocking
+import com.jetbrains.rider.run.createRunCommandLine
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.Path
 
@@ -50,17 +52,19 @@ class AspireHostRunProfileState(
         return executionResult
     }
 
-    private fun execute(): ExecutionResult {
+    private suspend fun execute(): ExecutionResult {
         dotnetExecutable.validate()
 
-        val commandLine = dotnetExecutable.createRunCommandLineBlocking(dotnetRuntime)
+        val commandLine = dotnetExecutable.createRunCommandLine(dotnetRuntime)
         val originalExecutable = Path(commandLine.exePath)
-        val processHandler = TerminalProcessHandler(
-            environment.project,
-            commandLine,
-            commandLine.commandLineString,
-            originalExecutable = originalExecutable
-        )
+        val processHandler = withContext(Dispatchers.IO) {
+            TerminalProcessHandler(
+                environment.project,
+                commandLine,
+                commandLine.commandLineString,
+                originalExecutable = originalExecutable
+            )
+        }
         processHandler.addStoppedContainerRuntimeProcessListener(
             containerRuntimeNotificationCount,
             environment.project
