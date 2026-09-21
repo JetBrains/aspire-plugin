@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Update platform version to 2026.3-EAP3-SNAPSHOT
+
+## [2.9.1] - 2026-09-09
+
 ### Fixed
 
 - [RIDER-137293](https://youtrack.jetbrains.com/issue/RIDER-137293) Aspire Run and Debug has different outcomes in ExitCode
@@ -742,7 +748,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.0...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.1...HEAD
+[2.9.1]: https://github.com/JetBrains/aspire-plugin/compare/2.9.0...2.9.1
 [2.9.0]: https://github.com/JetBrains/aspire-plugin/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/JetBrains/aspire-plugin/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/JetBrains/aspire-plugin/compare/2.7.5...2.8.0
