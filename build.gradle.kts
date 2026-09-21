@@ -190,6 +190,8 @@ tasks {
     test {
         // Ignore IJ Platform JUnit5 framework set up and tear down
         systemProperty("intellij.build.test.ignoreFirstAndLastTests", "true")
+        // Avoid a Rider test framework teardown race between the lightweight backend and the IntelliJ application
+        systemProperty("lightweight.backend.enabled", "false")
         useJUnitPlatform()
         testLogging {
             showStandardStreams = true
