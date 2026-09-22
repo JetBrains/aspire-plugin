@@ -7,6 +7,7 @@
 ### Fixed
 
 - Exception caused by registering service view models while their parent is being disposed
+- Ensure the dashboard gRPC channel is forcibly closed when graceful shutdown times out
 
 ## [2.9.2] - 2026-09-21
 

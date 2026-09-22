@@ -113,6 +113,14 @@ class AspireDashboardClient(
 
     override fun shutdown() {
         LOG.trace("Shutting down gRPC dashboard client")
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
+        channel.shutdown()
+        try {
+            if (!channel.awaitTermination(5, TimeUnit.SECONDS)) {
+                channel.shutdownNow()
+            }
+        } catch (_: InterruptedException) {
+            channel.shutdownNow()
+            Thread.currentThread().interrupt()
+        }
     }
 }
