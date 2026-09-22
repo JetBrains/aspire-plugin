@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [2.9.2] - 2026-09-21
+
 ### Fixed
 
 - Slow operation during the `TerminalProcessHandler` construction
@@ -752,7 +754,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.1...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.2...HEAD
+[2.9.2]: https://github.com/JetBrains/aspire-plugin/compare/2.9.1...2.9.2
 [2.9.1]: https://github.com/JetBrains/aspire-plugin/compare/2.9.0...2.9.1
 [2.9.0]: https://github.com/JetBrains/aspire-plugin/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/JetBrains/aspire-plugin/compare/2.8.0...2.8.1
