@@ -74,7 +74,7 @@ internal class AspireCliRunProfileState(
             ?: throw ExecutionException(AspireCoreBundle.message("run.configuration.cli.error.app.host.not.found", appHostFilePathString))
 
         val envs = buildBaseEnvironment(options)
-        val environmentResult = AspireCliEnvironment.configure(appHost, options.browserUrl, envs)
+        val environmentResult = AspireCliEnvironment.configure(appHost, options.browserUrl, options.usePodmanRuntime, envs)
 
         if (!environmentResult.useHttp) {
             trustDevCertificatesWithAspireCli(project, aspireCliPath)
@@ -96,7 +96,6 @@ internal class AspireCliRunProfileState(
             noBuild = options.noBuild,
             isolated = options.isolated,
             logLevel = options.logLevel,
-            waitForDebugger = options.waitForDebugger,
             userArguments = options.arguments
         )
         val workingDirectory = options.workingDirectory?.takeIf { it.isNotBlank() }

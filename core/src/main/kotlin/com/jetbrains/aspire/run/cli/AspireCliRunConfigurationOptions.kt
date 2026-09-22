@@ -12,9 +12,8 @@ internal class AspireCliRunConfigurationOptions : RunConfigurationOptions() {
     var enableIdeDebugging by property(false)
     var noBuild by property(false)
     var isolated by property(false)
-    // null means the --log-level option is not passed to the CLI at all
     var logLevel by enum<AspireCliLogLevel>()
-    var waitForDebugger by property(false)
+    var usePodmanRuntime by property(false)
     var passParentEnvs by property(true)
     val envs by linkedMap<String, String>()
 }

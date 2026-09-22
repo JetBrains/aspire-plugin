@@ -17,7 +17,6 @@ object AspireCliArguments {
         noBuild: Boolean = false,
         isolated: Boolean = false,
         logLevel: AspireCliLogLevel? = null,
-        waitForDebugger: Boolean = false,
         userArguments: String? = null
     ): List<String> = buildList {
         add("run")
@@ -31,7 +30,6 @@ object AspireCliArguments {
             add("--log-level")
             add(it.name)
         }
-        if (waitForDebugger) add("--wait-for-debugger")
         userArguments?.takeIf { it.isNotBlank() }?.let { addAll(ParametersListUtil.parse(it)) }
     }
 }

@@ -38,9 +38,9 @@ internal class AspireCliSettingsEditor(
         fragments.add(logLevelFragment())
         fragments.add(startBrowserTag())
         fragments.add(debugTag())
+        fragments.add(podmanRuntimeTag())
         fragments.add(noBuildTag())
         fragments.add(isolatedTag())
-        fragments.add(waitForDebuggerTag())
 
         return fragments
     }
@@ -126,6 +126,15 @@ internal class AspireCliSettingsEditor(
             { config: AspireCliRunConfiguration, value: Boolean -> config.startBrowserAfterLaunch = value }
         )
 
+    private fun podmanRuntimeTag(): SettingsEditorFragment<AspireCliRunConfiguration, *> =
+        SettingsEditorFragment.createTag(
+            "aspire.cli.podman.runtime",
+            AspireCoreBundle.message("run.editor.podman.runtime"),
+            null,
+            { config: AspireCliRunConfiguration -> config.usePodmanRuntime },
+            { config: AspireCliRunConfiguration, value: Boolean -> config.usePodmanRuntime = value }
+        )
+
     private fun debugTag(): SettingsEditorFragment<AspireCliRunConfiguration, *> =
         SettingsEditorFragment.createTag(
             "aspire.cli.enable.debugging",
@@ -175,14 +184,6 @@ internal class AspireCliSettingsEditor(
         AspireCoreBundle.message("run.editor.cli.isolated.hint"),
         { config -> config.isolated },
         { config, value -> config.isolated = value }
-    )
-
-    private fun waitForDebuggerTag() = cliFlagTag(
-        "aspire.cli.wait.for.debugger",
-        AspireCoreBundle.message("run.editor.cli.wait.for.debugger"),
-        AspireCoreBundle.message("run.editor.cli.wait.for.debugger.hint"),
-        { config -> config.waitForDebugger },
-        { config, value -> config.waitForDebugger = value }
     )
 
     private fun cliFlagTag(

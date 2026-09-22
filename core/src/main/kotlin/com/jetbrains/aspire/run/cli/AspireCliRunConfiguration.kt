@@ -74,10 +74,10 @@ internal class AspireCliRunConfiguration(
             cliOptions.logLevel = value
         }
 
-    var waitForDebugger: Boolean
-        get() = cliOptions.waitForDebugger
+    var usePodmanRuntime: Boolean
+        get() = cliOptions.usePodmanRuntime
         set(value) {
-            cliOptions.waitForDebugger = value
+            cliOptions.usePodmanRuntime = value
         }
 
     override fun getConfigurationEditor(): SettingsEditor<AspireCliRunConfiguration> =
