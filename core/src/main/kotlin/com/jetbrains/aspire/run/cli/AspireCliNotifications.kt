@@ -10,7 +10,7 @@ import com.jetbrains.aspire.AspireCoreBundle
 
 internal object AspireCliNotifications {
     private const val NOTIFICATION_GROUP = "Aspire"
-    private const val INSTALL_URL = "https://learn.microsoft.com/en-us/dotnet/aspire/cli/install"
+    private const val INSTALL_URL = "https://aspire.dev/get-started/install-cli/"
 
     fun notifyCliNotInstalled(project: Project) {
         Notification(

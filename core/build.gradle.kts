@@ -57,6 +57,8 @@ dependencies {
         bundledModule("intellij.libraries.kotlinx.serialization.json")
         bundledModule("intellij.libraries.netty.codec.http")
         bundledModule("intellij.libraries.netty.buffer")
+        bundledModule("intellij.platform.debugger")
+        bundledModule("intellij.platform.debugger.impl")
 
         // The merge side of the six compileOnly libraries above.
         pluginComposedModule(project.dependencies.create(libs.ktor.server.content.negotiation.get()))

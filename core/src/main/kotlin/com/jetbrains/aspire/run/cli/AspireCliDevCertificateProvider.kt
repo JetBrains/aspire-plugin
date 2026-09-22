@@ -13,7 +13,8 @@ import com.intellij.platform.eel.provider.utils.awaitProcessResult
 import com.intellij.platform.eel.provider.utils.stderrString
 import com.intellij.platform.eel.provider.utils.stdoutString
 import com.intellij.platform.eel.spawnProcess
-import com.jetbrains.aspire.extensions.DevCertificateCheckResult
+import com.jetbrains.aspire.certificates.DevCertificateCheckResult
+import com.jetbrains.aspire.certificates.DevCertificateKeyMaterial
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import kotlinx.coroutines.CancellationException
 import java.nio.file.Path
@@ -30,8 +31,20 @@ internal class AspireCliDevCertificateProvider : DevCertificateProvider {
         }
     }
 
-    // The embedded DCP server runs plain HTTP over loopback, so no certificate export is required.
-    override suspend fun exportCertificate(useBundledRuntime: Boolean, project: Project): String? = null
+    override suspend fun exportCertificate(
+        useBundledRuntime: Boolean,
+        project: Project
+    ): Result<String> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun exportCertificateWithPrivateKey(
+        useBundledRuntime: Boolean,
+        project: Project
+    ): Result<DevCertificateKeyMaterial> {
+        TODO("Not yet implemented")
+    }
+
 }
 
 /**

@@ -18,15 +18,10 @@ import kotlinx.coroutines.CancellationException
 /**
  * Locates the `aspire` CLI executable and checks that it is operable.
  */
-@Service
-internal class AspireCliLocator {
-    companion object {
-        fun getInstance(): AspireCliLocator = service<AspireCliLocator>()
+internal object AspireCliLocator {
+    private val LOG = logger<AspireCliLocator>()
 
-        private val LOG = logger<AspireCliLocator>()
-
-        private const val ASPIRE_EXECUTABLE = "aspire"
-    }
+    private const val ASPIRE_EXECUTABLE = "aspire"
 
     /**
      * Return the first `aspire` executable found on the `PATH`

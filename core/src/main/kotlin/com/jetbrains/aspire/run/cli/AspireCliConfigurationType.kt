@@ -5,8 +5,7 @@ import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireIcons
 import org.jetbrains.annotations.ApiStatus
 
-@ApiStatus.Internal
-class AspireCliConfigurationType : ConfigurationTypeBase(
+internal class AspireCliConfigurationType : ConfigurationTypeBase(
     ID,
     AspireCoreBundle.message("run.configuration.cli.name"),
     AspireCoreBundle.message("run.configuration.cli.description"),
