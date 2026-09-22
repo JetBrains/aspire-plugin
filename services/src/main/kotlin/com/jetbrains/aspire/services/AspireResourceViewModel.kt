@@ -69,8 +69,9 @@ internal class AspireResourceViewModel(
                         if (newResource.resourceName !in currentViewModelsByName) {
                             LOG.trace { "Creating new Resource ViewModel for ${newResource.resourceName}" }
                             val resourceVM = AspireResourceViewModel(project, cs, newResource)
-                            Disposer.register(this@AspireResourceViewModel, resourceVM)
-                            add(resourceVM)
+                            if (Disposer.tryRegister(this@AspireResourceViewModel, resourceVM)) {
+                                add(resourceVM)
+                            }
                         }
                     }
                 }.sortedWith(

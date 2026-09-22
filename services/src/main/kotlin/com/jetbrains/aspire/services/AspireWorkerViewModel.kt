@@ -45,8 +45,9 @@ internal class AspireWorkerViewModel(
                         if (newAppHost.appHostId !in currentIds) {
                             LOG.trace { "Creating new AppHost ViewModel for ${newAppHost.appHostId.value}" }
                             val appHostVM = AspireAppHostViewModel(project, cs, newAppHost)
-                            Disposer.register(this@AspireWorkerViewModel, appHostVM)
-                            add(appHostVM)
+                            if (Disposer.tryRegister(this@AspireWorkerViewModel, appHostVM)) {
+                                add(appHostVM)
+                            }
                         }
                     }
                 }.sortedBy { it.displayName }

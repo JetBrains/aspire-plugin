@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Exception caused by registering service view models while their parent is being disposed
+
 ## [2.9.2] - 2026-09-21
 
 ### Fixed
