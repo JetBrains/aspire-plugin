@@ -30,6 +30,7 @@ import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.EnvironmentUtil
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireWorker
@@ -77,7 +78,7 @@ internal class AspireCliRunProfileState(
         val environmentResult = AspireCliEnvironment.configure(appHost, options.browserUrl, options.usePodmanRuntime, envs)
 
         if (!environmentResult.useHttp) {
-            trustDevCertificatesWithAspireCli(project, aspireCliPath)
+            DevCertificateProvider.getInstance()?.checkDevCertificate(true, project)
         }
 
         project.messageBus

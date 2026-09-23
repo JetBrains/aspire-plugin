@@ -79,13 +79,6 @@
         <iconMapper mappingFile="AspireCoreIconMappings.json"/>
     </extensions>
 
-    <extensions defaultExtensionNs="com.jetbrains.aspire">
-        <!-- Registered last so a Rider-provided provider (order="first") keeps precedence when present;
-             DevCertificateProvider.getInstance() resolves to the first extension. -->
-        <devCertificateProvider implementation="com.jetbrains.aspire.run.cli.AspireCliDevCertificateProvider"
-                                order="last"/>
-    </extensions>
-
     <actions>
         <action id="Aspire.Settings"
                 class="com.jetbrains.aspire.actions.AspireSettingsAction"

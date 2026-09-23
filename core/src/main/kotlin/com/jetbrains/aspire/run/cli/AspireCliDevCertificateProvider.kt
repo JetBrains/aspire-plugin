@@ -45,32 +45,31 @@ internal class AspireCliDevCertificateProvider : DevCertificateProvider {
         TODO("Not yet implemented")
     }
 
-}
-
-/**
- * Runs `aspire certs trust --non-interactive --nologo` via eel and returns whether it succeeded.
- */
-internal suspend fun trustDevCertificatesWithAspireCli(project: Project, aspireCliPath: Path): Boolean {
-    val eelApi = project.getEelDescriptor().toEelApi()
-    return try {
-        LOG.trace { "Trusting Aspire dev certificates via $aspireCliPath" }
-        val process = eelApi.exec.spawnProcess(aspireCliPath.asEelPath())
-            .args("certs", "trust", "--non-interactive", "--nologo")
-            .eelIt()
-        val result = process.awaitProcessResult()
-        if (result.exitCode != 0) {
-            LOG.info(
-                "aspire certs trust failed with exit code ${result.exitCode}; " +
-                        "stdout: ${result.stdoutString}; stderr: ${result.stderrString}"
-            )
+    /**
+     * Runs `aspire certs trust --non-interactive --nologo` via eel and returns whether it succeeded.
+     */
+    suspend fun trustDevCertificatesWithAspireCli(project: Project, aspireCliPath: Path): Boolean {
+        val eelApi = project.getEelDescriptor().toEelApi()
+        return try {
+            LOG.trace { "Trusting Aspire dev certificates via $aspireCliPath" }
+            val process = eelApi.exec.spawnProcess(aspireCliPath.asEelPath())
+                .args("certs", "trust", "--non-interactive", "--nologo")
+                .eelIt()
+            val result = process.awaitProcessResult()
+            if (result.exitCode != 0) {
+                LOG.warn(
+                    "aspire certs trust failed with exit code ${result.exitCode}; " +
+                            "stdout: ${result.stdoutString}; stderr: ${result.stderrString}"
+                )
+                false
+            } else {
+                true
+            }
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (e: Exception) {
+            LOG.warn("Unable to trust Aspire dev certificates", e)
             false
-        } else {
-            true
         }
-    } catch (ce: CancellationException) {
-        throw ce
-    } catch (e: Exception) {
-        LOG.warn("Unable to trust Aspire dev certificates", e)
-        false
     }
 }
