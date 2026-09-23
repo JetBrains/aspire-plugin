@@ -3,7 +3,6 @@ package com.jetbrains.aspire.run.cli
 import com.intellij.execution.configurations.ConfigurationTypeBase
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireIcons
-import org.jetbrains.annotations.ApiStatus
 
 internal class AspireCliConfigurationType : ConfigurationTypeBase(
     ID,

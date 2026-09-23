@@ -28,6 +28,7 @@ import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.spawnProcess
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.EnvironmentUtil
+import com.intellij.util.applyIf
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.DevCertificateProvider
@@ -104,13 +105,12 @@ internal class AspireCliRunProfileState(
 
         val eelApi = project.getEelDescriptor().toEelApi()
         val eelProcess = try {
-            var builder = eelApi.exec.spawnProcess(aspireCliPath.asEelPath())
+            eelApi.exec.spawnProcess(aspireCliPath.asEelPath())
                 .args(arguments)
                 .env(envs)
-            if (workingDirectory != null) {
-                builder = builder.workingDirectory(EelPath.parse(workingDirectory, project.getEelDescriptor()))
-            }
-            builder.eelIt()
+                .applyIf(workingDirectory != null) {
+                    workingDirectory(EelPath.parse(workingDirectory!!, project.getEelDescriptor()))
+                }.eelIt()
         } catch (e: ExecutionException) {
             throw e
         } catch (e: Exception) {

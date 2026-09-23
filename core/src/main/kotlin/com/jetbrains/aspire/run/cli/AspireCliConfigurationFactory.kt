@@ -7,7 +7,6 @@ import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.components.BaseState
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.AspireCoreBundle
-import org.jetbrains.annotations.ApiStatus
 
 internal class AspireCliConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
     companion object {
