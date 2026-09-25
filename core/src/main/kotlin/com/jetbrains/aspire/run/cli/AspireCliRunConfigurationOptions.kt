@@ -1,19 +1,37 @@
 package com.jetbrains.aspire.run.cli
 
 import com.intellij.execution.configurations.RunConfigurationOptions
+import com.intellij.util.xmlb.annotations.OptionTag
+import com.intellij.util.xmlb.annotations.XMap
 
 internal class AspireCliRunConfigurationOptions : RunConfigurationOptions() {
-    var appHostFilePath by string()
-    var arguments by string()
-    var workingDirectory by string()
-    var aspireCliPath by string()
-    var browserUrl by string()
-    var startBrowserAfterLaunch by property(false)
-    var enableIdeDebugging by property(false)
-    var noBuild by property(false)
-    var isolated by property(false)
-    var logLevel by enum<AspireCliLogLevel>()
-    var usePodmanRuntime by property(false)
-    var passParentEnvs by property(true)
-    val envs by linkedMap<String, String>()
+    @get:OptionTag("appHostFilePath")
+    var appHostFilePath: String? by string()
+
+    @get:OptionTag("workingDirectory")
+    var workingDirectory: String? by string()
+
+    @get:OptionTag("browserUrl")
+    var browserUrl: String? by string()
+
+    @get:OptionTag("startBrowserAfterLaunch")
+    var startBrowserAfterLaunch: Boolean by property(false)
+
+    @get:OptionTag("noBuild")
+    var noBuild: Boolean by property(false)
+
+    @get:OptionTag("isolated")
+    var isolated: Boolean by property(false)
+
+    @get:OptionTag("logLevel")
+    var logLevel: AspireCliLogLevel? by enum<AspireCliLogLevel>()
+
+    @get:OptionTag("usePodmanRuntime")
+    var usePodmanRuntime: Boolean by property(false)
+
+    @get:OptionTag("passSystemEnvironment")
+    var passSystemEnvironment: Boolean by property(true)
+
+    @get:XMap(propertyElementName = "envs", entryTagName = "env", keyAttributeName = "name")
+    var environmentVariables: MutableMap<String, String> by map()
 }
