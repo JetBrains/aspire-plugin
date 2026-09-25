@@ -3,6 +3,7 @@ package com.jetbrains.aspire.run.cli
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.RunConfigurationBase
+import com.intellij.execution.configurations.RunConfigurationWithSuppressedDefaultDebugAction
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -13,7 +14,8 @@ import kotlin.io.path.Path
 import kotlin.io.path.exists
 
 internal class AspireCliRunConfiguration(project: Project, factory: ConfigurationFactory, name: String) :
-    RunConfigurationBase<AspireCliRunConfigurationOptions>(project, factory, name) {
+    RunConfigurationBase<AspireCliRunConfigurationOptions>(project, factory, name),
+    RunConfigurationWithSuppressedDefaultDebugAction {
 
     internal val cliOptions: AspireCliRunConfigurationOptions
         get() = options as AspireCliRunConfigurationOptions
