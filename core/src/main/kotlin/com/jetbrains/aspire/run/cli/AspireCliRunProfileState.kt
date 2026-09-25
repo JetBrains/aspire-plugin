@@ -31,6 +31,7 @@ import com.intellij.util.EnvironmentUtil
 import com.intellij.util.applyIf
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.common.AsyncRunProfileState
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
