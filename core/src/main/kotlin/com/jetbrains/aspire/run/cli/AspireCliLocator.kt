@@ -2,6 +2,7 @@
 
 package com.jetbrains.aspire.run.cli
 
+import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -13,7 +14,6 @@ import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.provider.utils.awaitProcessResult
 import com.intellij.platform.eel.spawnProcess
-import kotlinx.coroutines.CancellationException
 
 /**
  * Locates the `aspire` CLI executable and checks that it is operable.
@@ -43,9 +43,8 @@ internal class AspireCliLocator(private val project: Project) {
     private suspend fun resolveCandidate(eelApi: EelApi): EelPath? {
         return try {
             eelApi.exec.findExeFilesInPath(ASPIRE_EXECUTABLE).firstOrNull()
-        } catch (ce: CancellationException) {
-            throw ce
         } catch (e: Exception) {
+            rethrowControlFlowException(e)
             LOG.warn("Failed to look up aspire CLI on PATH: ${e.message}")
             null
         }
@@ -61,13 +60,15 @@ internal class AspireCliLocator(private val project: Project) {
      */
     suspend fun verifyCliPath(aspireCliPath: EelPath): Boolean {
         return try {
-            val process = aspireCliPath.descriptor.toEelApi().exec.spawnProcess(aspireCliPath)
+            val eelApi = project.getEelDescriptor().toEelApi()
+            val process = eelApi
+                .exec
+                .spawnProcess(aspireCliPath)
                 .args("--version")
                 .eelIt()
             process.awaitProcessResult().exitCode == 0
-        } catch (ce: CancellationException) {
-            throw ce
         } catch (e: Exception) {
+            rethrowControlFlowException(e)
             LOG.trace { "Failed to verify aspire CLI ($aspireCliPath): ${e.message}" }
             false
         }
