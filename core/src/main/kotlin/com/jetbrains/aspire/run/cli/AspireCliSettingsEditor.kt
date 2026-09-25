@@ -10,6 +10,7 @@ import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.util.Computable
+import com.intellij.ui.RawCommandLineEditor
 import com.intellij.ui.components.JBTextField
 import com.jetbrains.aspire.AspireCoreBundle
 import org.jetbrains.annotations.Nls
@@ -27,11 +28,9 @@ internal class AspireCliSettingsEditor(
         fragments.add(CommonParameterFragments.createRunHeader())
 
         fragments.add(appHostFileFragment(project))
-
-        val parameterFragments = CommonParameterFragments<AspireCliRunConfiguration>(project) { null }
-        fragments.add(parameterFragments.programArguments())
+        fragments.add(programArgumentsFragment())
         fragments.add(CommonParameterFragments.createWorkingDirectory(project, Computable { null }))
-        fragments.add(CommonParameterFragments.createEnvParameters())
+        fragments.add(CommonParameterFragments.createEnvParameters(project))
 
         fragments.add(aspireCliPathFragment(project))
         fragments.add(browserUrlFragment())
@@ -59,7 +58,7 @@ internal class AspireCliSettingsEditor(
             AspireCoreBundle.message("run.editor.cli.app.host.file.name"),
             null,
             component,
-            SettingsEditorFragmentType.COMMAND_LINE,
+            SettingsEditorFragmentType.EDITOR,
             { config: AspireCliRunConfiguration, c: LabeledComponent<TextFieldWithBrowseButton> ->
                 c.component.text = config.appHostFilePath.orEmpty()
             },
@@ -68,7 +67,31 @@ internal class AspireCliSettingsEditor(
             },
             { true }
         )
-        fragment.setRemovable(false)
+        fragment.isRemovable = false
+        return fragment
+    }
+
+    // The platform program arguments fragment is a command line one, and all command line fragments share
+    // a single row, which is placed above the editor fragments, so the arguments get their own editor fragment.
+    private fun programArgumentsFragment(): SettingsEditorFragment<AspireCliRunConfiguration, LabeledComponent<RawCommandLineEditor>> {
+        val editor = RawCommandLineEditor()
+        val component = labeled(editor, AspireCoreBundle.message("run.editor.cli.program.arguments"))
+
+        val fragment = SettingsEditorFragment(
+            "aspire.cli.program.arguments",
+            AspireCoreBundle.message("run.editor.cli.program.arguments.name"),
+            null,
+            component,
+            SettingsEditorFragmentType.EDITOR,
+            { config: AspireCliRunConfiguration, c: LabeledComponent<RawCommandLineEditor> ->
+                c.component.text = config.programParameters.orEmpty()
+            },
+            { config: AspireCliRunConfiguration, c: LabeledComponent<RawCommandLineEditor> ->
+                config.programParameters = c.component.text.takeIf { it.isNotBlank() }
+            },
+            { true }
+        )
+        fragment.isRemovable = false
         return fragment
     }
 
