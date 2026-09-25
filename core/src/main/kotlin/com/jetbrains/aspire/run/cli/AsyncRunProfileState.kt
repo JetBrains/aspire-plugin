@@ -5,7 +5,7 @@ import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ProgramRunner
 
-internal interface AsyncRunProfileState: RunProfileState {
+internal interface AsyncRunProfileState : RunProfileState {
     override fun execute(executor: Executor, programRunner: ProgramRunner<*>): ExecutionResult? {
         throw UnsupportedOperationException("Use executeSuspending instead")
     }
