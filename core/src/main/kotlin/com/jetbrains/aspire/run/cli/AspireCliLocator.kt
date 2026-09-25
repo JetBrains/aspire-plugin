@@ -2,6 +2,8 @@
 
 package com.jetbrains.aspire.run.cli
 
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
@@ -16,10 +18,14 @@ import kotlinx.coroutines.CancellationException
 /**
  * Locates the `aspire` CLI executable and checks that it is operable.
  */
-internal object AspireCliLocator {
-    private val LOG = logger<AspireCliLocator>()
+@Service
+internal class AspireCliLocator {
+    companion object {
+        fun getInstance(): AspireCliLocator = service()
+        private val LOG = logger<AspireCliLocator>()
 
-    private const val ASPIRE_EXECUTABLE = "aspire"
+        private const val ASPIRE_EXECUTABLE = "aspire"
+    }
 
     /**
      * Return the first `aspire` executable found on the `PATH`
