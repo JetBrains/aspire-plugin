@@ -14,7 +14,7 @@ internal class AspireCliRunConfigurationListener(private val project: Project) :
         val configuration = settings.configuration
         if (configuration !is AspireCliRunConfiguration) return
 
-        val appHostFilePath = configuration.appHostFilePath?.takeIf { it.isNotBlank() } ?: return
+        val appHostFilePath = configuration.cliOptions.appHostFilePath?.takeIf { it.isNotBlank() } ?: return
         val path = Path(appHostFilePath)
 
         project.messageBus
@@ -26,7 +26,7 @@ internal class AspireCliRunConfigurationListener(private val project: Project) :
         val configuration = settings.configuration
         if (configuration !is AspireCliRunConfiguration) return
 
-        val appHostFilePath = configuration.appHostFilePath?.takeIf { it.isNotBlank() } ?: return
+        val appHostFilePath = configuration.cliOptions.appHostFilePath?.takeIf { it.isNotBlank() } ?: return
 
         if (getConfigurationsByAppHostFilePath(appHostFilePath).isNotEmpty()) return
 
@@ -40,6 +40,6 @@ internal class AspireCliRunConfigurationListener(private val project: Project) :
         return RunManager.getInstance(project)
             .getConfigurationsList(configurationType)
             .filterIsInstance<AspireCliRunConfiguration>()
-            .filter { it.appHostFilePath == appHostFilePath }
+            .filter { it.cliOptions.appHostFilePath == appHostFilePath }
     }
 }
