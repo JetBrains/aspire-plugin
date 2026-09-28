@@ -24,6 +24,7 @@ import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.psi.search.ExecutionSearchScopes
 import com.intellij.util.applyIf
 import com.intellij.util.execution.ParametersListUtil
+import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.extensions.DevCertificateProvider
@@ -131,7 +132,11 @@ internal class AspireCliRunProfileState(
                 .applyIf(workingDirectory != null) { workingDirectory(workingDirectory.asEelPath()) }
                 .eelIt()
             val commandLineRepresentation = "aspire $parameterList"
-            val processHandler = KillableColoredProcessHandler(process.convertToJVMProcess(), commandLineRepresentation)
+            val processHandler =
+                object : KillableColoredProcessHandler(process.convertToJVMProcess(), commandLineRepresentation) {
+                    override fun readerOptions(): BaseOutputReader.Options =
+                        BaseOutputReader.Options.forMostlySilentProcess()
+                }
             processHandler.setShouldKillProcessSoftly(true)
             ProcessTerminatedListener.attach(processHandler, environment.project)
             StoppedContainerRuntimeProcessListener.attach(
