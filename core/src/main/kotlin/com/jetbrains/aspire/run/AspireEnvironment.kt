@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.run.cli
+package com.jetbrains.aspire.run
 
 import com.intellij.util.NetworkUtils
 import com.jetbrains.aspire.util.*
@@ -12,7 +12,7 @@ import java.util.*
  * the dashboard and the OTLP endpoint, and returns the resulting [AppHostEnvironment]
  */
 @ApiStatus.Internal
-object AspireCliEnvironment {
+object AspireEnvironment {
     private const val RESOURCE_SERVICE_BASE_PORT = 47200
     private const val OTLP_BASE_PORT = 47300
 

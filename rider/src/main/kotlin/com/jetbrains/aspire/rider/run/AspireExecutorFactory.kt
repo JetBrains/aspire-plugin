@@ -6,7 +6,7 @@ import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.EnvironmentUtil
-import com.jetbrains.aspire.run.cli.AspireCliEnvironment
+import com.jetbrains.aspire.run.AspireEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.aspire.worker.dcp.AspireDcpTls
 import com.jetbrains.aspire.worker.dcp.AspireEmbeddedSessionHost
@@ -48,7 +48,7 @@ internal abstract class AspireExecutorFactory(
 
         // the browser url is not known yet at this point - the callers resolve it from the launch profile
         // after this call and rewrite it with `configureUrl`, so the returned `aspireHostProjectUrl` is unused
-        val result = AspireCliEnvironment.configure(
+        val result = AspireEnvironment.configure(
             appHost = appHost,
             browserUrl = null,
             usePodmanRuntime = parameters.usePodmanRuntime,

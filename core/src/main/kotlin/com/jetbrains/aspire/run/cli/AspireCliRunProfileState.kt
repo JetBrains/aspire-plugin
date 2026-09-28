@@ -28,6 +28,7 @@ import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.extensions.DevCertificateProvider
+import com.jetbrains.aspire.run.AspireEnvironment
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireWorker
@@ -68,8 +69,7 @@ internal class AspireCliRunProfileState(
         val eelApi = project.getEelDescriptor().toEelApi()
 
         val envs = buildBaseEnvironment(options, eelApi).toMutableMap()
-        val aspireEnvironment =
-            AspireCliEnvironment.configure(appHost, options.browserUrl, options.usePodmanRuntime, envs)
+        val aspireEnvironment = AspireEnvironment.configure(appHost, options.browserUrl, options.usePodmanRuntime, envs)
 
         checkAndNotifyDevCertificate(aspireEnvironment, project)
 
@@ -104,7 +104,7 @@ internal class AspireCliRunProfileState(
         putAll(options.environmentVariables)
     }
 
-    private suspend fun checkAndNotifyDevCertificate(aspireEnvironment: AspireCliEnvironment.Result, project: Project) {
+    private suspend fun checkAndNotifyDevCertificate(aspireEnvironment: AspireEnvironment.Result, project: Project) {
         if (!aspireEnvironment.useHttp) {
             DevCertificateProvider.getInstance()?.checkDevCertificate(true, project)
             //TODO: Show a notification
