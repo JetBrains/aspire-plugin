@@ -8,12 +8,7 @@ import com.intellij.execution.ExecutionException
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.Executor
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.process.KillableColoredProcessHandler
-import com.intellij.execution.process.ProcessEvent
-import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.process.ProcessListener
-import com.intellij.execution.process.ProcessOutputType
-import com.intellij.execution.process.ProcessTerminatedListener
+import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.ConsoleView
@@ -22,25 +17,18 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.platform.eel.EelApi
-import com.intellij.platform.eel.EelExecApi
-import com.intellij.platform.eel.convertToJVMProcess
-import com.intellij.platform.eel.environmentVariables
-import com.intellij.platform.eel.path.EelPath
+import com.intellij.platform.eel.*
 import com.intellij.platform.eel.provider.asEelPath
 import com.intellij.platform.eel.provider.asNioPath
 import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
-import com.intellij.platform.eel.spawnProcess
-import com.intellij.platform.util.coroutines.childScope
 import com.intellij.psi.search.ExecutionSearchScopes
 import com.intellij.util.applyIf
 import com.intellij.util.execution.ParametersListUtil
-import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.aspire.AspireCoreBundle
-import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.common.AsyncRunProfileState
 import com.jetbrains.aspire.extensions.DevCertificateProvider
+import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireWorker
@@ -50,6 +38,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString
 
 internal class AspireCliRunProfileState(
@@ -59,6 +48,8 @@ internal class AspireCliRunProfileState(
     companion object {
         private val LOG = logger<AspireCliRunProfileState>()
     }
+
+    private val containerRuntimeNotificationCount = AtomicInteger()
 
     override suspend fun executeSuspending(executor: Executor, programRunner: ProgramRunner<*>): ExecutionResult {
         val project = environment.project
@@ -150,6 +141,11 @@ internal class AspireCliRunProfileState(
             val processHandler = KillableColoredProcessHandler(process.convertToJVMProcess(), commandLineRepresentation)
             processHandler.setShouldKillProcessSoftly(true)
             ProcessTerminatedListener.attach(processHandler, environment.project)
+            StoppedContainerRuntimeProcessListener.attach(
+                processHandler,
+                containerRuntimeNotificationCount,
+                environment.project
+            )
             processHandler
         } catch (e: Exception) {
             rethrowControlFlowException(e)

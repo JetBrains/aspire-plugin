@@ -7,6 +7,7 @@ import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.rider.run.checkAndNotifyDevCertificate
 import com.jetbrains.aspire.rider.run.connectExecutionHandlerAndLifetime
 import com.jetbrains.aspire.rider.run.setUpAspireHostModelAndSaveRunConfig
@@ -65,7 +66,8 @@ class AspireHostRunProfileState(
                 originalExecutable = originalExecutable
             )
         }
-        processHandler.addStoppedContainerRuntimeProcessListener(
+        StoppedContainerRuntimeProcessListener.attach(
+            processHandler,
             containerRuntimeNotificationCount,
             environment.project
         )
