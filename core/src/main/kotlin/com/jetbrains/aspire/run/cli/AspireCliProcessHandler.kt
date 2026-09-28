@@ -2,6 +2,7 @@
 
 package com.jetbrains.aspire.run.cli
 
+import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.openapi.diagnostic.logger
@@ -10,7 +11,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.platform.eel.EelProcess
 import com.intellij.platform.eel.channels.EelReceiveChannel
 import com.intellij.platform.eel.provider.utils.lines
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -35,9 +35,8 @@ internal class AspireCliProcessHandler(
         cs.launch {
             val exitCode = try {
                 eelProcess.exitCode.await()
-            } catch (ce: CancellationException) {
-                throw ce
             } catch (e: Exception) {
+                rethrowControlFlowException(e)
                 LOG.trace { "Failed to await exit code of '$commandLineText': ${e.message}" }
                 -1
             }
@@ -50,14 +49,14 @@ internal class AspireCliProcessHandler(
         }
     }
 
+    @Suppress("JetBrainsInternalApiUsage")
     private suspend fun pump(channel: EelReceiveChannel, outputType: Key<*>) {
         try {
             channel.lines(StandardCharsets.UTF_8).collect { line ->
                 notifyTextAvailable(line + "\n", outputType)
             }
-        } catch (ce: CancellationException) {
-            throw ce
         } catch (e: Exception) {
+            rethrowControlFlowException(e)
             LOG.trace { "Output pump ended for '$commandLineText': ${e.message}" }
         }
     }
@@ -66,9 +65,8 @@ internal class AspireCliProcessHandler(
         cs.launch {
             try {
                 eelProcess.kill()
-            } catch (ce: CancellationException) {
-                throw ce
             } catch (e: Exception) {
+                rethrowControlFlowException(e)
                 LOG.trace { "Failed to kill '$commandLineText': ${e.message}" }
             }
         }
