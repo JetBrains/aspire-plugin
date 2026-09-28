@@ -38,6 +38,9 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.devCertificateProvider"
                         interface="com.jetbrains.aspire.extensions.DevCertificateProvider"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.appHostDetectionExtension"
+                        interface="com.jetbrains.aspire.extensions.AppHostDetectionExtension"
+                        dynamic="true"/>
     </extensionPoints>
 
     <projectListeners>
