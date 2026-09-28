@@ -26,7 +26,7 @@ import com.intellij.psi.search.ExecutionSearchScopes
 import com.intellij.util.applyIf
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.aspire.AspireCoreBundle
-import com.jetbrains.aspire.common.AsyncRunProfileState
+import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.worker.AppHostListener

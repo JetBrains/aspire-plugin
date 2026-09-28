@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.common
+package com.jetbrains.aspire.run
 
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.Executor

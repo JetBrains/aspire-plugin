@@ -9,7 +9,7 @@ import com.intellij.execution.runners.showRunContent
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.application.EDT
 import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.common.AsyncRunProfileState
+import com.jetbrains.aspire.run.AsyncRunProfileState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
