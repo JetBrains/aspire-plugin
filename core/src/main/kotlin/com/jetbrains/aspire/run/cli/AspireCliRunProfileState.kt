@@ -16,7 +16,6 @@ import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import com.intellij.platform.eel.*
 import com.intellij.platform.eel.provider.asEelPath
 import com.intellij.platform.eel.provider.asNioPath
@@ -30,13 +29,7 @@ import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.worker.AppHostListener
-import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireWorker
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString
@@ -179,36 +172,6 @@ internal class AspireCliRunProfileState(
             add("--log-level")
             add(it.name)
         }
-    }
-
-    private fun wireAppHostLifecycle(
-        project: Project,
-        appHostFilePath: Path,
-        runConfigName: String,
-        processHandler: AspireCliProcessHandler,
-        processScope: CoroutineScope
-    ) {
-        val logFlow = MutableSharedFlow<AppHostLogEntry>(
-            replay = 100,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST
-        )
-        processHandler.addProcessListener(object : ProcessListener {
-            override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-                logFlow.tryEmit(AppHostLogEntry(event.text, outputType == ProcessOutputType.STDERR))
-            }
-
-            override fun processTerminated(event: ProcessEvent) {
-                project.messageBus
-                    .syncPublisher(AppHostListener.TOPIC)
-                    .appHostStopped(appHostFilePath)
-
-                processScope.cancel()
-            }
-        })
-
-        project.messageBus
-            .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(appHostFilePath, runConfigName, logFlow.asSharedFlow())
     }
 
     private fun maybeOpenBrowser(startBrowser: Boolean, url: String?, processHandler: AspireCliProcessHandler) {

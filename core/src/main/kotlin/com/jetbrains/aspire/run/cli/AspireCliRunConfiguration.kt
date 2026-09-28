@@ -10,15 +10,20 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.run.AspireRunConfiguration
+import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
 internal class AspireCliRunConfiguration(project: Project, factory: ConfigurationFactory, name: String) :
     RunConfigurationBase<AspireCliRunConfigurationOptions>(project, factory, name),
-    RunConfigurationWithSuppressedDefaultDebugAction {
+    RunConfigurationWithSuppressedDefaultDebugAction, AspireRunConfiguration {
 
     internal val cliOptions: AspireCliRunConfigurationOptions
         get() = options as AspireCliRunConfigurationOptions
+
+    override val appHostFilePath: Path
+        get() = Path(checkNotNull(cliOptions.appHostFilePath?.takeIf { it.isNotBlank() }))
 
     override fun getConfigurationEditor(): SettingsEditor<AspireCliRunConfiguration> =
         AspireCliSettingsEditor(this)
