@@ -8,7 +8,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.io.systemIndependentPath
 import com.jetbrains.aspire.rider.launchProfiles.getWorkingDirectory
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.util.MSBuildPropertyService
 import com.jetbrains.aspire.rider.util.getStartBrowserAction
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
@@ -39,7 +39,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
 
     suspend fun createExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
-        aspireRunConfiguration: AspireRunConfiguration?,
+        aspireRunConfiguration: AspireRiderRunConfiguration?,
         addBrowserAction: Boolean,
         runnableProjectKinds: List<RunnableProjectKind>
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
@@ -71,7 +71,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
         sessionProjectPath: Path,
         runnableProject: RunnableProject,
         launchConfiguration: DotNetSessionLaunchConfiguration,
-        aspireRunConfiguration: AspireRunConfiguration?,
+        aspireRunConfiguration: AspireRiderRunConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val output = runnableProject.projectOutputs.firstOrNull() ?: return null
@@ -124,7 +124,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
         launchConfiguration: DotNetSessionLaunchConfiguration,
-        aspireRunConfiguration: AspireRunConfiguration?,
+        aspireRunConfiguration: AspireRiderRunConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val propertyService = MSBuildPropertyService.getInstance(project)

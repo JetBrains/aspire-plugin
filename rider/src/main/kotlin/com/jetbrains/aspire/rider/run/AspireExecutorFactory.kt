@@ -19,7 +19,7 @@ import kotlin.io.path.absolutePathString
 
 internal abstract class AspireExecutorFactory(
     private val project: Project,
-    private val parameters: AspireRunConfigurationParameters
+    private val parameters: AspireRiderRunConfigurationParameters
 ) : AsyncExecutorFactory {
     companion object {
         private const val DOTNET_ROOT = "DOTNET_ROOT"

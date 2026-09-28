@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.aspire.rider.launchProfiles.*
 import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
-import com.jetbrains.aspire.rider.run.AspireRunConfigurationParameters
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfigurationParameters
 import com.jetbrains.rd.util.reactive.hasTrueValue
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
@@ -39,7 +39,7 @@ class AspireHostConfigurationParameters(
     var trackUrl: Boolean,
     var trackBrowserLaunch: Boolean,
     override var startBrowserParameters: DotNetStartBrowserParameters
-) : AspireRunConfigurationParameters {
+) : AspireRiderRunConfigurationParameters {
     companion object {
         private const val PROJECT_FILE_PATH = "PROJECT_FILE_PATH"
         private const val PROJECT_TFM = "PROJECT_TFM"

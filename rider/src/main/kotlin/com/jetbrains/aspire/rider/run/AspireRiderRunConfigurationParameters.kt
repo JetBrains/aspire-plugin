@@ -4,7 +4,7 @@ import com.jetbrains.rider.run.configurations.project.DotNetStartBrowserParamete
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
-interface AspireRunConfigurationParameters {
+interface AspireRiderRunConfigurationParameters {
     val appHostFilePath: String
     val usePodmanRuntime: Boolean
     val startBrowserParameters: DotNetStartBrowserParameters

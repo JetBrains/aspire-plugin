@@ -27,7 +27,7 @@ internal class AspireExecutionListener(private val project: Project) : Execution
         handler: ProcessHandler
     ) {
         val profile = env.runProfile
-        if (profile !is AspireRunConfiguration) return
+        if (profile !is AspireRiderRunConfiguration) return
 
         val appHostFilePath = Path(profile.parameters.appHostFilePath)
         val runConfigName = profile.name
@@ -57,7 +57,7 @@ internal class AspireExecutionListener(private val project: Project) : Execution
         exitCode: Int
     ) {
         val profile = env.runProfile
-        if (profile !is AspireRunConfiguration) return
+        if (profile !is AspireRiderRunConfiguration) return
 
         val appHostFilePath = Path(profile.parameters.appHostFilePath)
 

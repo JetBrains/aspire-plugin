@@ -3,7 +3,7 @@ package com.jetbrains.aspire.rider.run.file
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
 import com.jetbrains.rd.ide.model.RunConfigurationEntry
 import com.jetbrains.rd.ide.model.RunConfigurationEntryKey
@@ -28,7 +28,7 @@ class AspireFileConfiguration(
     factory,
     { AspireFileConfigurationSettingsEditor(it) },
     AspireFileExecutorFactory(project, parameters)
-), IAutoSelectableRunConfiguration, AspireRunConfiguration, IAsyncRunFromBackendConfigurationProvider {
+), IAutoSelectableRunConfiguration, AspireRiderRunConfiguration, IAsyncRunFromBackendConfigurationProvider {
     override fun checkConfiguration() {
         parameters.validate()
     }
