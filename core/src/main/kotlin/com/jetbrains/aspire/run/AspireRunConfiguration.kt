@@ -6,5 +6,5 @@ import java.nio.file.Path
 
 @ApiStatus.Internal
 interface AspireRunConfiguration : RunProfile {
-    val appHostFilePath: Path
+    val appHostFilePath: Path?
 }

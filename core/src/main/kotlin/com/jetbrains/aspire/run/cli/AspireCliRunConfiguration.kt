@@ -22,8 +22,8 @@ internal class AspireCliRunConfiguration(project: Project, factory: Configuratio
     internal val cliOptions: AspireCliRunConfigurationOptions
         get() = options as AspireCliRunConfigurationOptions
 
-    override val appHostFilePath: Path
-        get() = Path(checkNotNull(cliOptions.appHostFilePath?.takeIf { it.isNotBlank() }))
+    override val appHostFilePath: Path?
+        get() = cliOptions.appHostFilePath?.takeIf { it.isNotBlank() }?.let { Path(it) }
 
     override fun getConfigurationEditor(): SettingsEditor<AspireCliRunConfiguration> =
         AspireCliSettingsEditor(this)

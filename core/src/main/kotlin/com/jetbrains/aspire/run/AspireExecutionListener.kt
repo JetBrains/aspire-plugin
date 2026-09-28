@@ -7,6 +7,7 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.jetbrains.aspire.worker.AppHostListener
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.ApiStatus
 @ApiStatus.Internal
 abstract class AspireExecutionListener(private val project: Project) : ExecutionListener {
     companion object {
+        private val LOG = logger<AspireExecutionListener>()
         private const val LOG_REPLAY_CAPACITY = 100
     }
 
@@ -36,6 +38,10 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
         if (!isValid(profile)) return
 
         val appHostFilePath = profile.appHostFilePath
+        if (appHostFilePath == null) {
+            LOG.warn("Aspire run configuration '${profile.name}' started without an AppHost file path")
+            return
+        }
         val processHandler = getProcessHandler(handler)
         val logFlow = MutableSharedFlow<AppHostLogEntry>(
             replay = LOG_REPLAY_CAPACITY,
@@ -62,6 +68,10 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
         if (!isValid(profile)) return
 
         val appHostFilePath = (profile as AspireRunConfiguration).appHostFilePath
+        if (appHostFilePath == null) {
+            LOG.warn("Aspire run configuration '${profile.name}' terminated without an AppHost file path")
+            return
+        }
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)

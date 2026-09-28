@@ -43,7 +43,7 @@
     <projectListeners>
         <listener class="com.jetbrains.aspire.worker.AspireWorker$DetectionListener"
                   topic="com.jetbrains.aspire.worker.AppHostDetectionListener"/>
-        <listener class="com.jetbrains.aspire.run.cli.AspireCliRunConfigurationListener"
+        <listener class="com.jetbrains.aspire.run.AspireRunConfigurationListener"
                   topic="com.intellij.execution.RunManagerListener"/>
         <listener class="com.jetbrains.aspire.run.cli.AspireCliExecutionListener"
                   topic="com.intellij.execution.ExecutionListener"/>

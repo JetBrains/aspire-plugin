@@ -23,8 +23,6 @@
     </extensionPoints>
 
     <projectListeners>
-        <listener class="com.jetbrains.aspire.rider.run.AspireRunConfigurationListener"
-                  topic="com.intellij.execution.RunManagerListener"/>
         <listener class="com.jetbrains.aspire.rider.run.AspireExecutionListener"
                   topic="com.intellij.execution.ExecutionListener"/>
         <listener class="com.jetbrains.aspire.rider.sessions.SessionProfileModeService$Listener"
