@@ -15,7 +15,6 @@ import com.intellij.execution.ui.ConsoleView
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
-import com.intellij.openapi.project.Project
 import com.intellij.platform.eel.*
 import com.intellij.platform.eel.provider.asEelPath
 import com.intellij.platform.eel.provider.asNioPath
@@ -26,12 +25,15 @@ import com.intellij.util.applyIf
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.aspire.AspireCoreBundle
-import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.run.AspireEnvironment
+import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.dcp.AspireDcpTls
+import com.jetbrains.aspire.worker.dcp.AspireEmbeddedSessionHost
+import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString
@@ -47,8 +49,8 @@ internal class AspireCliRunProfileState(
     private val containerRuntimeNotificationCount = AtomicInteger()
 
     override suspend fun executeSuspending(executor: Executor, programRunner: ProgramRunner<*>): ExecutionResult {
-        val project = environment.project
         val options = configuration.cliOptions
+        val project = environment.project
 
         val appHostFilePath = options.appHostFilePath?.takeIf { it.isNotBlank() }?.let { Path.of(it) }
         if (appHostFilePath == null) {
@@ -61,25 +63,16 @@ internal class AspireCliRunProfileState(
             throw ExecutionException(AspireCoreBundle.message("run.configuration.cli.error.cli.not.found"))
         }
 
-        val appHost = AspireWorker.getInstance(project).getOrCreateAppHostByPath(appHostFilePath)
-        if (appHost == null) {
-            throw ExecutionException(AspireCoreBundle.message("run.configuration.cli.error.unable.to.run"))
-        }
-
         val eelApi = project.getEelDescriptor().toEelApi()
 
         val envs = buildBaseEnvironment(options, eelApi).toMutableMap()
-        val aspireEnvironment = AspireEnvironment.configure(appHost, options.browserUrl, options.usePodmanRuntime, envs)
+        val aspireEnvironment = configureEnvironmentVariables(appHostFilePath, envs)
 
-        checkAndNotifyDevCertificate(aspireEnvironment, project)
+        checkAndNotifyDevCertificate(aspireEnvironment)
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
             .appHostStarting(appHostFilePath, aspireEnvironment.appHostEnvironment)
-
-        val aspireWorker = AspireWorker.getInstance(project)
-        aspireWorker.start()
-        envs.putAll(aspireWorker.getEnvironmentVariablesForDcpConnection())
 
         val processHandler = startProcess(aspireCliPath, appHostFilePath, options, envs, eelApi)
         val console = createConsole().apply {
@@ -104,9 +97,36 @@ internal class AspireCliRunProfileState(
         putAll(options.environmentVariables)
     }
 
-    private suspend fun checkAndNotifyDevCertificate(aspireEnvironment: AspireEnvironment.Result, project: Project) {
+    private suspend fun configureEnvironmentVariables(
+        appHostFilePath: Path,
+        envs: MutableMap<String, String>,
+    ): AspireEnvironment.Result {
+        val aspireWorker = AspireWorker.getInstance(environment.project)
+        val appHost = if (AspireEmbeddedSessionHost.isEnabled()) {
+            //Embedded mode: each AppHost runs its own in-process DCP server; no external worker process.
+            val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFilePath))
+            val tlsMaterial = AspireDcpTls.getInstance(environment.project).getOrComputeTlsMaterial()
+            val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
+            envs.putAll(endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert))
+            appHost
+        } else {
+            aspireWorker.start()
+            envs.putAll(aspireWorker.getEnvironmentVariablesForDcpConnection())
+            requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFilePath))
+        }
+
+        val result = AspireEnvironment.configure(
+            appHost = appHost,
+            browserUrl = null,
+            usePodmanRuntime = configuration.cliOptions.usePodmanRuntime,
+            envs = envs
+        )
+        return result
+    }
+
+    private suspend fun checkAndNotifyDevCertificate(aspireEnvironment: AspireEnvironment.Result) {
         if (!aspireEnvironment.useHttp) {
-            DevCertificateProvider.getInstance()?.checkDevCertificate(true, project)
+            DevCertificateProvider.getInstance()?.checkDevCertificate(true, environment.project)
             //TODO: Show a notification
         }
     }
