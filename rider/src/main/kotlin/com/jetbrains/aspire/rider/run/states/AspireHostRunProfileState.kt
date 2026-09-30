@@ -9,7 +9,7 @@ import com.intellij.execution.runners.ProgramRunner
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.rider.run.connectExecutionHandlerAndLifetime
-import com.jetbrains.aspire.rider.run.setUpAspireHostModelAndSaveRunConfig
+import com.jetbrains.aspire.rider.run.setUpAspireHostEnvironmentAndSaveRunConfig
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.TerminalProcessHandler
@@ -48,7 +48,7 @@ class AspireHostRunProfileState(
                 ?.checkDevCertificate(false, environment.project, showNotification = true)
         }
 
-        setUpAspireHostModelAndSaveRunConfig(environment, this, aspireHostProcessHandlerLifetime)
+        setUpAspireHostEnvironmentAndSaveRunConfig(environment, this, aspireHostProcessHandlerLifetime)
 
         val executionResult = execute()
 
