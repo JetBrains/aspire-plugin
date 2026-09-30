@@ -1,9 +1,9 @@
 package com.jetbrains.aspire.unit.worker.dcp
 
-import com.jetbrains.aspire.generated.CreateProjectSessionRequest
-import com.jetbrains.aspire.generated.CreateSessionResponse
-import com.jetbrains.aspire.generated.DeleteSessionResponse
-import com.jetbrains.aspire.generated.ErrorCode
+import com.jetbrains.aspire.sessions.CreateProjectSessionRequest
+import com.jetbrains.aspire.sessions.CreateSessionResponse
+import com.jetbrains.aspire.sessions.DeleteSessionResponse
+import com.jetbrains.aspire.sessions.ErrorCode
 import com.jetbrains.aspire.sessions.SessionLogReceived
 import com.jetbrains.aspire.sessions.SessionProcessStarted
 import org.junit.jupiter.api.Test
@@ -12,9 +12,11 @@ import java.net.http.WebSocketHandshakeException
 import java.util.concurrent.ExecutionException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class AspireSessionServerTest {
+internal class AspireSessionServerTest {
     @Test
     fun `info returns 200`() {
         withServer(MockAspireSessionHost()) { baseUrl, _ ->
@@ -79,6 +81,21 @@ class AspireSessionServerTest {
     }
 
     @Test
+    fun `create session client error returns 400`() {
+        val host = MockAspireSessionHost().apply {
+            onCreate = { CreateSessionResponse(null, ErrorCode.UnsupportedLaunchConfigurationType) }
+        }
+
+        withServer(host) { baseUrl, _ ->
+            val response = httpPut("$baseUrl/run_session", VALID_SESSION_BODY)
+
+            response.assertStatus(400)
+            response.assertBodyContains("UnsupportedLaunchConfigurationType")
+            assertNull(response.location())
+        }
+    }
+
+    @Test
     fun `create session returns 201`() {
         val host = MockAspireSessionHost().apply {
             onCreate = { CreateSessionResponse("session-1", null) }
@@ -103,10 +120,33 @@ class AspireSessionServerTest {
             assertTrue(request.disableLaunchProfile)
             assertTrue(request.debug)
             assertEquals(DEFAULT_HOST_ID, request.dcpInstancePrefix)
-            assertTrue(request.args.contentEquals(arrayOf("--x")))
+            assertEquals(listOf("--x"), request.args)
             assertEquals(1, request.envs?.size)
             assertEquals("A", request.envs?.get(0)?.key)
             assertEquals("1", request.envs?.get(0)?.value)
+        }
+    }
+
+    @Test
+    fun `create session preserves defaults and filters null environment values`() {
+        val host = MockAspireSessionHost()
+        val body = """
+            {"launch_configurations":[{"type":"project","project_path":"/p/App.csproj"}],
+            "env":[{"name":"unset"},{"name":"empty","value":""}]}
+        """.trimIndent()
+
+        withServer(host) { baseUrl, _ ->
+            val response = httpPut("$baseUrl/run_session", body)
+
+            response.assertStatus(201)
+            val request = host.lastCreateRequest as CreateProjectSessionRequest
+            assertFalse(request.debug)
+            assertFalse(request.disableLaunchProfile)
+            assertNull(request.launchProfile)
+            assertNull(request.args)
+            assertEquals(1, request.envs?.size)
+            assertEquals("empty", request.envs?.single()?.key)
+            assertEquals("", request.envs?.single()?.value)
         }
     }
 
@@ -132,6 +172,20 @@ class AspireSessionServerTest {
 
         withServer(host) { baseUrl, _ ->
             httpDelete("$baseUrl/run_session/s1").assertStatus(204)
+        }
+    }
+
+    @Test
+    fun `delete session server error returns 500`() {
+        val host = MockAspireSessionHost().apply {
+            onDelete = { DeleteSessionResponse(null, ErrorCode.Unexpected) }
+        }
+
+        withServer(host) { baseUrl, _ ->
+            val response = httpDelete("$baseUrl/run_session/s1")
+
+            response.assertStatus(500)
+            response.assertBodyContains("UnexpectedError")
         }
     }
 

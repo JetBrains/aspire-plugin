@@ -37,7 +37,8 @@ internal fun withServer(
     token: String = TEST_TOKEN,
     block: suspend (baseUrl: String, server: AspireSessionServer) -> Unit,
 ) = timeoutRunBlocking {
-    val server = AspireSessionServer(host, AspireSessionServerConfig(port = 0, token = token))
+    val config = AspireSessionServerConfig(port = 0, token = token)
+    val server = AspireSessionServer(host, config)
     server.start()
     try {
         block("http://127.0.0.1:${server.resolvedPort}", server)
