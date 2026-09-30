@@ -17,7 +17,6 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.rider.run.AspireConfigurationType
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
@@ -37,7 +36,7 @@ import kotlin.io.path.Path
 
 /**
  * An implementation of the [DotNetSessionProcessLauncherExtension] interface that creates a [DotNetExecutable]
- * from the [CreateSessionRequest] and uses it to create Run/Debug profiles.
+ * from a [DotNetSessionLaunchConfiguration] and uses it to create Run/Debug profiles.
  */
 abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtension {
     companion object {

@@ -2,10 +2,10 @@
 
 package com.jetbrains.aspire.worker.dcp
 
+import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
-import com.jetbrains.aspire.generated.*
-import com.jetbrains.aspire.sessions.SessionEvent
+import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer.Companion.BEARER_AUTH
 import com.jetbrains.aspire.worker.dcp.DcpErrors.AspireSessionNotFound
 import io.ktor.http.*
@@ -207,6 +207,7 @@ class AspireSessionServer(
         val session = try {
             call.receive<Session>()
         } catch (e: Exception) {
+            rethrowControlFlowException(e)
             LOG.trace { "Failed to parse run session request: ${e.message}" }
             call.respond(HttpStatusCode.BadRequest)
             return
@@ -233,7 +234,7 @@ class AspireSessionServer(
             projectConfig.disableLaunchProfile == true,
             aspireHostId,
             projectConfig.mode == Mode.Debug,
-            session.args?.toTypedArray(),
+            session.args,
             mapEnvironmentVariables(session),
         )
         val response = sessionHost.createSession(request)
@@ -241,11 +242,10 @@ class AspireSessionServer(
         return response.sessionId to response.error
     }
 
-    private fun mapEnvironmentVariables(session: Session): Array<SessionEnvironmentVariable>? =
+    private fun mapEnvironmentVariables(session: Session): List<SessionEnvironmentVariable>? =
         session.env
             ?.filter { it.value != null }
             ?.map { SessionEnvironmentVariable(it.name, it.value!!) }
-            ?.toTypedArray()
 
     private suspend fun handleDeleteSession(call: ApplicationCall) {
         val aspireHostId = aspireHostId(call) ?: return

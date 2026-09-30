@@ -1,7 +1,6 @@
 package com.jetbrains.aspire.worker.dcp
 
-import com.jetbrains.aspire.generated.ErrorCode
-
+import com.jetbrains.aspire.sessions.ErrorCode
 
 internal enum class DcpErrorKind {
     CLIENT,

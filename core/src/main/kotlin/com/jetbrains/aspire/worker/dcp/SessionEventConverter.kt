@@ -1,6 +1,6 @@
 package com.jetbrains.aspire.worker.dcp
 
-import com.jetbrains.aspire.generated.MessageLevel
+import com.jetbrains.aspire.sessions.MessageLevel
 import com.jetbrains.aspire.sessions.SessionEvent
 import com.jetbrains.aspire.sessions.SessionLogReceived
 import com.jetbrains.aspire.sessions.SessionMessageReceived
