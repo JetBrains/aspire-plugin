@@ -7,7 +7,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.toNioPathOrNull
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.sessions.getLaunchProfile
 import com.jetbrains.aspire.rider.sessions.getStartBrowserSettings
 import com.jetbrains.aspire.rider.sessions.mergeArguments
@@ -45,7 +45,7 @@ internal class FileBasedProjectSessionExecutableFactory(private val project: Pro
     suspend fun createExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
         fileBasedProjectPath: Path,
-        aspireRunConfiguration: AspireRunConfiguration?,
+        aspireRunConfiguration: AspireRiderRunConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>?  {
         val sessionProjectPath = launchConfiguration.projectPath

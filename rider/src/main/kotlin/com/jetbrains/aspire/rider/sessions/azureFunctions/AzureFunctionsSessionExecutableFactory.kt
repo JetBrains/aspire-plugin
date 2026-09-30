@@ -12,7 +12,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.rider.launchProfiles.getWorkingDirectory
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.sessions.findBySessionProject
 import com.jetbrains.aspire.rider.sessions.getLaunchProfile
 import com.jetbrains.aspire.rider.sessions.mergeArguments
@@ -52,7 +52,7 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
 
     suspend fun createExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
-        aspireRunConfiguration: AspireRunConfiguration?
+        aspireRunConfiguration: AspireRiderRunConfiguration?
     ): DotNetExecutable? {
         val sessionProjectPath = launchConfiguration.projectPath
         val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) {
@@ -78,7 +78,7 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
         sessionProjectPath: Path,
         runnableProject: RunnableProject,
         launchConfiguration: DotNetSessionLaunchConfiguration,
-        aspireRunConfiguration: AspireRunConfiguration?
+        aspireRunConfiguration: AspireRiderRunConfiguration?
     ): DotNetExecutable? {
         val output = runnableProject.projectOutputs.firstOrNull()
         if (output == null) {
@@ -140,7 +140,7 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
         launchConfiguration: DotNetSessionLaunchConfiguration,
-        aspireRunConfiguration: AspireRunConfiguration?
+        aspireRunConfiguration: AspireRiderRunConfiguration?
     ): DotNetExecutable? {
         val propertyService = MSBuildPropertyService.getInstance(project)
         val properties = propertyService.getProjectRunProperties(sessionProjectPath)
@@ -228,7 +228,7 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
         launchProfile: LaunchSettingsJson.Profile?,
         arguments: String,
         coreToolsExecutable: AzureFunctionsCoreToolsExecutableService.AzureFunctionsCoreToolsExecutable,
-        aspireRunConfiguration: AspireRunConfiguration?
+        aspireRunConfiguration: AspireRiderRunConfiguration?
     ): Pair<StartBrowserSettings, (ExecutionEnvironment, RunProfile, ProcessHandler) -> Unit> {
         val browserSettings =
             getStartBrowserSettings(launchProfile, arguments, coreToolsExecutable.localSettings, aspireRunConfiguration)
@@ -247,7 +247,7 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
         launchProfile: LaunchSettingsJson.Profile?,
         arguments: String,
         localSettings: AzureFunctionsLocalSettings?,
-        aspireRunConfiguration: AspireRunConfiguration?
+        aspireRunConfiguration: AspireRiderRunConfiguration?
     ): StartBrowserSettings {
         val applicationUrl = getApplicationUrl(launchProfile, arguments, localSettings)
         val webBrowser = aspireRunConfiguration?.parameters?.startBrowserParameters?.browser

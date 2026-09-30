@@ -3,7 +3,7 @@ package com.jetbrains.aspire.rider.run.host
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.rd.ide.model.RunConfigurationEntry
 import com.jetbrains.rd.ide.model.RunConfigurationEntryKey
 import com.jetbrains.rider.run.ICanRunFromBackendEx
@@ -23,7 +23,7 @@ class AspireHostConfiguration(
     factory,
     { AspireHostConfigurationSettingsEditor(it) },
     AspireHostExecutorFactory(project, parameters)
-), IProjectBasedRunConfiguration, IAutoSelectableRunConfiguration, AspireRunConfiguration, ICanRunFromBackendEx {
+), IProjectBasedRunConfiguration, IAutoSelectableRunConfiguration, AspireRiderRunConfiguration, ICanRunFromBackendEx {
     override fun checkConfiguration() {
         parameters.validate()
     }

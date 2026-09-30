@@ -20,11 +20,10 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.generated.CreateSessionRequest
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.rider.run.AspireConfigurationType
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rider.model.RunnableProjectKind
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.environment.withDetectedExecutableType
 import com.jetbrains.rider.runtime.DotNetExecutable
@@ -146,18 +145,18 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         executeProfile(profile, true, null, sessionProcessEventListener, project)
     }
 
-    private suspend fun getAspireRunConfiguration(name: String?, project: Project): AspireRunConfiguration? {
+    private suspend fun getAspireRunConfiguration(name: String?, project: Project): AspireRiderRunConfiguration? {
         if (name == null) return null
 
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireConfigurationType::class.java)
         val runConfiguration = RunManager.getInstanceAsync(project)
             .getConfigurationsList(configurationType)
-            .singleOrNull { it is AspireRunConfiguration && it.name == name }
+            .singleOrNull { it is AspireRiderRunConfiguration && it.name == name }
         if (runConfiguration == null) {
             LOG.warn("Unable to find Aspire run configuration type: $name")
         }
 
-        return runConfiguration as? AspireRunConfiguration
+        return runConfiguration as? AspireRiderRunConfiguration
     }
 
     private fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
@@ -179,7 +178,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
     protected abstract suspend fun getDotNetExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
-        aspireRunConfiguration: AspireRunConfiguration?,
+        aspireRunConfiguration: AspireRiderRunConfiguration?,
         project: Project,
         sessionProcessLifetime: Lifetime,
     ): Pair<DotNetExecutable, StartBrowserSettings?>?

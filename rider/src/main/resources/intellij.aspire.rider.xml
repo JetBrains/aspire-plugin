@@ -23,8 +23,6 @@
     </extensionPoints>
 
     <projectListeners>
-        <listener class="com.jetbrains.aspire.rider.run.AspireRunConfigurationListener"
-                  topic="com.intellij.execution.RunManagerListener"/>
         <listener class="com.jetbrains.aspire.rider.run.AspireExecutionListener"
                   topic="com.intellij.execution.ExecutionListener"/>
         <listener class="com.jetbrains.aspire.rider.sessions.SessionProfileModeService$Listener"
@@ -49,6 +47,7 @@
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
         <appHostLauncher implementation="com.jetbrains.aspire.rider.run.RunConfigurationBasedAppHostLauncher"/>
+        <appHostDetectionExtension implementation="com.jetbrains.aspire.rider.run.RiderAppHostDetectionExtension"/>
 
         <startSessionRequestHandler
                 implementation="com.jetbrains.aspire.rider.sessions.DotNetStartSessionRequestHandler"/>
@@ -70,7 +69,7 @@
 
         <resourceIconProvider implementation="com.jetbrains.aspire.rider.resources.DotNetAspireResourceIconProvider"/>
 
-        <devCertificateProvider implementation="com.jetbrains.aspire.rider.run.DotNetDevCertificateProvider"/>
+        <devCertificateProvider implementation="com.jetbrains.aspire.rider.devCertificate.DotNetDevCertificateProvider"/>
     </extensions>
 
     <actions>

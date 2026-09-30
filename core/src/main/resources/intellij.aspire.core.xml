@@ -16,6 +16,8 @@
         <module name="intellij.libraries.kotlinx.serialization.json"/>
         <module name="intellij.libraries.netty.buffer"/>
         <module name="intellij.libraries.netty.codec.http"/>
+        <module name="intellij.platform.debugger"/>
+        <module name="intellij.platform.debugger.impl"/>
     </dependencies>
 
     <resource-bundle>messages.AspireCoreBundle</resource-bundle>
@@ -36,11 +38,18 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.devCertificateProvider"
                         interface="com.jetbrains.aspire.extensions.DevCertificateProvider"
                         dynamic="true"/>
+        <extensionPoint qualifiedName="com.jetbrains.aspire.appHostDetectionExtension"
+                        interface="com.jetbrains.aspire.extensions.AppHostDetectionExtension"
+                        dynamic="true"/>
     </extensionPoints>
 
     <projectListeners>
         <listener class="com.jetbrains.aspire.worker.AspireWorker$DetectionListener"
                   topic="com.jetbrains.aspire.worker.AppHostDetectionListener"/>
+        <listener class="com.jetbrains.aspire.run.AspireRunConfigurationListener"
+                  topic="com.intellij.execution.RunManagerListener"/>
+        <listener class="com.jetbrains.aspire.run.cli.AspireCliExecutionListener"
+                  topic="com.intellij.execution.ExecutionListener"/>
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -55,6 +64,9 @@
                         serviceImplementation="com.jetbrains.aspire.worker.AspireAppHostResourcesProviderImpl"/>
         <projectService serviceInterface="com.jetbrains.aspire.worker.AspireServicesModelProvider"
                         serviceImplementation="com.jetbrains.aspire.worker.AspireServicesModelProviderImpl"/>
+
+        <configurationType implementation="com.jetbrains.aspire.run.cli.AspireCliConfigurationType"/>
+        <programRunner implementation="com.jetbrains.aspire.run.cli.AspireCliProgramRunner"/>
 
         <applicationConfigurable
                 parentId="tools"

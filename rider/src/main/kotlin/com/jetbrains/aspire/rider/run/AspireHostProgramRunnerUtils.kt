@@ -51,7 +51,7 @@ private suspend fun setUpAspireHostModel(
     aspireHostProcessHandlerLifetime: Lifetime,
 ): AspireHostModelConfig {
     val configuration = environment.runnerAndConfigurationSettings?.configuration
-    val aspireRunConfiguration = (configuration as? AspireRunConfiguration)
+    val aspireRunConfiguration = (configuration as? AspireRiderRunConfiguration)
         ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
 
     val dcpInstancePrefix = requireNotNull(state.getDcpInstancePrefix())
@@ -141,9 +141,4 @@ fun connectExecutionHandlerAndLifetime(
             }
         }
     })
-}
-
-internal suspend fun checkAndNotifyDevCertificate(state: AspireHostProfileState, project: Project) {
-    if (state.getAllowUnsecuredTransport()) return
-    checkDevCertificate(false, project, true)
 }

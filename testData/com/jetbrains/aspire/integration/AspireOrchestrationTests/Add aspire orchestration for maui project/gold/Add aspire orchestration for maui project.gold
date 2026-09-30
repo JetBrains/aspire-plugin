@@ -58,7 +58,7 @@ AppHost.AppHost.cs:
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddMauiProject("defaultmauisolution", @"..\DefaultMauiSolution\DefaultMauiSolution.csproj");
+builder.AddMauiProject("defaultmauisolution", @"../DefaultMauiSolution/DefaultMauiSolution.csproj");
 
 builder.Build().Run();
 
