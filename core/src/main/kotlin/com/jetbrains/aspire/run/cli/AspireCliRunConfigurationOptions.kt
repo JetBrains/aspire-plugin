@@ -3,6 +3,7 @@ package com.jetbrains.aspire.run.cli
 import com.intellij.execution.configurations.RunConfigurationOptions
 import com.intellij.util.xmlb.annotations.OptionTag
 import com.intellij.util.xmlb.annotations.XMap
+import com.jetbrains.aspire.cli.AspireCliLogLevel
 
 internal class AspireCliRunConfigurationOptions : RunConfigurationOptions() {
     @get:OptionTag("appHostFilePath")

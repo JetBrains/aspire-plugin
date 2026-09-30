@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.run.cli
+package com.jetbrains.aspire.cli
 
 import org.jetbrains.annotations.ApiStatus
 

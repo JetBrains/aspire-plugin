@@ -31,6 +31,8 @@ import com.intellij.util.applyIf
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.cli.AspireCliLocator
+import com.jetbrains.aspire.cli.AspireCliLogLevel
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.run.AspireEnvironment
 import com.jetbrains.aspire.run.AsyncRunProfileState

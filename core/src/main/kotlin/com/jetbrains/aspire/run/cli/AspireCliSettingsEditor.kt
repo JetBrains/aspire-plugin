@@ -13,6 +13,7 @@ import com.intellij.openapi.ui.TextComponentAccessor
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.util.Predicates
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.cli.AspireCliLogLevel
 import org.jetbrains.annotations.Nls
 import java.awt.BorderLayout
 import javax.swing.JComponent

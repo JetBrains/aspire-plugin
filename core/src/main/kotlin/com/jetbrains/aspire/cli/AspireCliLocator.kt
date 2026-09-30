@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.run.cli
+package com.jetbrains.aspire.cli
 
 import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.openapi.components.Service
