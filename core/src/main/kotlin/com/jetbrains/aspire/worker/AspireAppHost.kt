@@ -12,8 +12,6 @@ import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.worker.dcp.AspireSessionHost
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer
-import com.jetbrains.aspire.worker.dcp.AspireSessionServerConfig
-import com.jetbrains.aspire.worker.dcp.AspireSessionServerTlsConfig
 import com.jetbrains.aspire.worker.dcp.AspireSessionServerEndpoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
@@ -64,7 +62,6 @@ class AspireAppHost(
 
     val dcpInstancePrefix = generateDcpInstancePrefix()
     val browserToken = generateBrowserToken()
-    private val sessionServerToken: String = generateSessionServerToken()
 
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this)
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
@@ -140,19 +137,19 @@ class AspireAppHost(
     /**
      * Starts this host's embedded DCP session server (idempotent) and suspends until it is bound, so the
      * AppHost process — which connects immediately on launch — can be started only after this returns.
-     * A second call while running returns the already-bound endpoint (the [tls] argument is ignored on reuse).
+     * A second call while running returns the already-bound endpoint.
      */
-    suspend fun startSessionServer(tls: AspireSessionServerTlsConfig?): AspireSessionServerEndpoint {
+    suspend fun startSessionServer(): AspireSessionServerEndpoint {
         sessionServerMutex.withLock {
-            sessionServer?.let { return AspireSessionServerEndpoint(it.resolvedPort, it.token, it.isHttps) }
+            sessionServer?.let { return checkNotNull(it.endpoint) }
 
-            val config = AspireSessionServerConfig(port = 0, token = sessionServerToken, tls = tls)
-            val server = AspireSessionServer(this, config)
+            val server = AspireSessionServer(this, project)
             server.start()
             sessionServer = server
 
-            LOG.trace { "Started embedded DCP server for $mainFilePath on port ${server.resolvedPort} (https=${server.isHttps})" }
-            return AspireSessionServerEndpoint(server.resolvedPort, server.token, server.isHttps)
+            val endpoint = checkNotNull(server.endpoint)
+            LOG.trace { "Started embedded DCP server for $mainFilePath on port ${endpoint.port} (https=${endpoint.isHttps})" }
+            return endpoint
         }
     }
 
@@ -243,10 +240,6 @@ class AspireAppHost(
     }
 
     private fun generateBrowserToken(): String {
-        return UUID.randomUUID().toString()
-    }
-
-    private fun generateSessionServerToken(): String {
         return UUID.randomUUID().toString()
     }
 

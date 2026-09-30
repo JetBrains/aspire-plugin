@@ -1,9 +1,9 @@
 package com.jetbrains.aspire.unit.worker.dcp
 
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.testFramework.common.timeoutRunBlocking
 import com.jetbrains.aspire.worker.dcp.AspireSessionHost
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer
-import com.jetbrains.aspire.worker.dcp.AspireSessionServerConfig
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-const val TEST_TOKEN: String = "test-token"
 const val DEFAULT_API_VERSION: String = "2024-04-23"
 const val DEFAULT_INSTANCE_ID: String = "abcdefGHIJK"
 const val DEFAULT_HOST_ID: String = "abcde"
@@ -34,14 +33,14 @@ private val httpClient: HttpClient = HttpClient.newHttpClient()
  */
 internal fun withServer(
     host: AspireSessionHost,
-    token: String = TEST_TOKEN,
     block: suspend (baseUrl: String, server: AspireSessionServer) -> Unit,
 ) = timeoutRunBlocking {
-    val config = AspireSessionServerConfig(port = 0, token = token)
-    val server = AspireSessionServer(host, config)
+    val project = ProjectManager.getInstance().defaultProject
+    val server = AspireSessionServer(host, project)
     server.start()
     try {
-        block("http://127.0.0.1:${server.resolvedPort}", server)
+        val endpoint = checkNotNull(server.endpoint)
+        block("http://127.0.0.1:${endpoint.port}", server)
     } finally {
         server.stop()
     }
@@ -55,7 +54,7 @@ internal fun httpGet(url: String): HttpResponse<String> {
 internal fun httpPut(
     url: String,
     body: String,
-    token: String? = TEST_TOKEN,
+    token: String?,
     apiVersion: String? = DEFAULT_API_VERSION,
     instanceId: String? = DEFAULT_INSTANCE_ID,
 ): HttpResponse<String> {
@@ -70,7 +69,7 @@ internal fun httpPut(
 
 internal fun httpDelete(
     url: String,
-    token: String? = TEST_TOKEN,
+    token: String?,
     apiVersion: String? = DEFAULT_API_VERSION,
     instanceId: String? = DEFAULT_INSTANCE_ID,
 ): HttpResponse<String> {
@@ -102,7 +101,7 @@ internal fun HttpResponse<String>.location(): String? = headers().firstValue("Lo
 internal fun connectNotify(
     baseUrl: String,
     listener: WebSocket.Listener,
-    token: String? = TEST_TOKEN,
+    token: String?,
     apiVersion: String = DEFAULT_API_VERSION,
 ): WebSocket {
     val wsUrl = baseUrl.replaceFirst("http", "ws") + "/run_session/notify?api-version=$apiVersion"

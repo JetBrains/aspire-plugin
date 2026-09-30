@@ -39,8 +39,6 @@ import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.dcp.AspireDcpTls
-import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString
@@ -111,10 +109,10 @@ internal class AspireCliRunProfileState(
         envs: MutableMap<String, String>,
     ): AspireEnvironment.Result {
         val aspireWorker = AspireWorker.getInstance(environment.project)
+        val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostFilePath)
+        envs.putAll(dcpEnvironmentVariables)
+
         val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFilePath))
-        val tlsMaterial = AspireDcpTls.getInstance(environment.project).getOrComputeTlsMaterial()
-        val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
-        envs.putAll(endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert))
 
         val result = AspireEnvironment.configure(
             appHost = appHost,

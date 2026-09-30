@@ -8,8 +8,6 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.EnvironmentUtil
 import com.jetbrains.aspire.run.AspireEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.dcp.AspireDcpTls
-import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.net.URI
@@ -31,11 +29,10 @@ internal abstract class AspireExecutorFactory(
         activeRuntime: DotNetCoreRuntime
     ): EnvironmentVariableValues {
         val aspireWorker = AspireWorker.getInstance(project)
+        val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
+        envs.putAll(dcpEnvironmentVariables)
 
         val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
-        val tlsMaterial = AspireDcpTls.getInstance(project).getOrComputeTlsMaterial()
-        val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
-        envs.putAll(endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert))
 
         // the browser url is not known yet at this point - the callers resolve it from the launch profile
         // after this call and rewrite it with `configureUrl`, so the returned `aspireHostProjectUrl` is unused

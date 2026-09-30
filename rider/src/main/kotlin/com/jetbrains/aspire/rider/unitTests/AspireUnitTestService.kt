@@ -13,8 +13,6 @@ import com.jetbrains.aspire.rider.generated.StartAspireHostResponse
 import com.jetbrains.aspire.rider.generated.StopAspireHostRequest
 import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.dcp.AspireDcpTls
-import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
@@ -56,26 +54,19 @@ internal class AspireUnitTestService(private val project: Project, private val s
         scope.launch(Dispatchers.Default) {
             lifetimedCoroutineScope(lifetime) {
                 LOG.trace("Starting an Aspire host for a unit test session")
-                val aspireWorker = AspireWorker.getInstance(project)
-
                 val appHostMainFilePath = request.aspireHostProjectPath.toNioPath()
-
-                val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
-                val tlsMaterial = AspireDcpTls.getInstance(project).getOrComputeTlsMaterial()
-                val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
-                val dcpEnvironmentVariables = endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert)
+                val aspireWorker = AspireWorker.getInstance(project)
+                val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
 
                 val environmentVariables = buildList {
                     dcpEnvironmentVariables.forEach { envVar ->
                         val environmentVariable = AspireHostEnvironmentVariable(envVar.key, envVar.value)
                         add(environmentVariable)
                     }
-                    val instancePrefixVariable = AspireHostEnvironmentVariable(DCP_INSTANCE_ID_PREFIX, appHost.dcpInstancePrefix)
-                    add(instancePrefixVariable)
                 }
 
                 val aspireUnitTestServiceHost = AspireHostForUnitTestRun(
-                    appHost.dcpInstancePrefix,
+                    dcpEnvironmentVariables.getValue(DCP_INSTANCE_ID_PREFIX),
                     environmentVariables
                 )
 

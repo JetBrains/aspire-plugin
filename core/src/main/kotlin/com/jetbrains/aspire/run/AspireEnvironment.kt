@@ -23,7 +23,7 @@ object AspireEnvironment {
     )
 
     /**
-     * Mutates [envs] in place with the Aspire/DCP environment variables and returns the derived
+     * Mutates [envs] in place with the Aspire environment variables and returns the derived
      * [AppHostEnvironment].
      */
     fun configure(
@@ -32,8 +32,6 @@ object AspireEnvironment {
         usePodmanRuntime: Boolean = false,
         envs: MutableMap<String, String>
     ): Result {
-        envs[DCP_INSTANCE_ID_PREFIX] = appHost.dcpInstancePrefix
-
         val urls = envs[ASPNETCORE_URLS]
         val isHttpUrl = when {
             !urls.isNullOrEmpty() -> !urls.contains("https")
