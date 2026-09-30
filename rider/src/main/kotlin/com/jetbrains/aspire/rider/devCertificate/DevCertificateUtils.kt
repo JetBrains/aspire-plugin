@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.rider.run
+package com.jetbrains.aspire.rider.devCertificate
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
@@ -19,9 +19,7 @@ import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.certificates.DevCertificateAnalyzer
 import com.jetbrains.aspire.certificates.DevCertificateCheckResult
-import com.jetbrains.aspire.certificates.DevCertificateDiagnostics
 import com.jetbrains.aspire.certificates.DevCertificateKeyMaterial
 import com.jetbrains.rider.environment.initializeAndGetEnvironment
 import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
@@ -64,7 +62,7 @@ internal suspend fun checkDevCertificate(
     return@withContext result
 }
 
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage", "JetBrainsInternalApiUsage")
 private suspend fun collectDevCertificateDiagnostics(
     useBundledRuntime: Boolean,
     project: Project
@@ -177,6 +175,7 @@ private fun cleanAndTrustDevCertificateAction(useBundledRuntime: Boolean, projec
     }
 }
 
+@Suppress("JetBrainsInternalApiUsage")
 private suspend fun trustDevCertificate(clean: Boolean, useBundledRuntime: Boolean, project: Project) {
     val cliPath = getDotnetCliPath(useBundledRuntime, project)
     if (cliPath == null) {
@@ -234,7 +233,7 @@ private enum class DevCertificateExportFormat(val argument: String, val extensio
  * Exports the public development certificate as base64-encoded DER, the form DCP expects in
  * `DEBUG_SESSION_SERVER_CERTIFICATE`.
  */
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage", "JetBrainsInternalApiUsage")
 internal suspend fun exportDevCertificateAndReadFile(
     useBundledRuntime: Boolean,
     project: Project
@@ -276,7 +275,7 @@ internal suspend fun exportDevCertificateAndReadFile(
  * Exports the development certificate together with its private key and loads it into an in-memory
  * PKCS12 key store, so the IDE can terminate TLS with it.
  */
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage", "JetBrainsInternalApiUsage")
 internal suspend fun exportDevCertificateAndLoadToKeyStore(
     useBundledRuntime: Boolean,
     project: Project
@@ -320,7 +319,7 @@ internal suspend fun exportDevCertificateAndLoadToKeyStore(
     return@withContext Result.success(material)
 }
 
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage", "JetBrainsInternalApiUsage")
 private suspend fun exportDevCertificate(
     useBundledRuntime: Boolean,
     project: Project,

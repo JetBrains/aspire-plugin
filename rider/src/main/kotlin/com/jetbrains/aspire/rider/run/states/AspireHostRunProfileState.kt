@@ -7,10 +7,10 @@ import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
-import com.jetbrains.aspire.rider.run.checkAndNotifyDevCertificate
+import com.jetbrains.aspire.rider.devCertificate.checkDevCertificate
 import com.jetbrains.aspire.rider.run.connectExecutionHandlerAndLifetime
 import com.jetbrains.aspire.rider.run.setUpAspireHostModelAndSaveRunConfig
+import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.TerminalProcessHandler
 import com.jetbrains.rider.run.configurations.RiderAsyncRunProfileState
@@ -42,7 +42,9 @@ class AspireHostRunProfileState(
             .lifetime
             .createNested()
 
-        checkAndNotifyDevCertificate(this, environment.project)
+        if (!this.getAllowUnsecuredTransport()) {
+            checkDevCertificate(false, environment.project, true)
+        }
 
         setUpAspireHostModelAndSaveRunConfig(environment, this, aspireHostProcessHandlerLifetime)
 

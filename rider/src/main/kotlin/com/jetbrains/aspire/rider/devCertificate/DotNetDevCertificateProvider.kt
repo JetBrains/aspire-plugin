@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.rider.run
+package com.jetbrains.aspire.rider.devCertificate
 
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.certificates.DevCertificateKeyMaterial
@@ -7,7 +7,11 @@ import com.jetbrains.aspire.certificates.DevCertificateCheckResult
 
 internal class DotNetDevCertificateProvider : DevCertificateProvider {
     override suspend fun checkDevCertificate(useBundledRuntime: Boolean, project: Project): DevCertificateCheckResult =
-        checkDevCertificate(useBundledRuntime, project, showNotification = false)
+        checkDevCertificate(
+            useBundledRuntime,
+            project,
+            showNotification = false
+        )
 
     override suspend fun exportCertificate(
         useBundledRuntime: Boolean,
