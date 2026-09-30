@@ -136,8 +136,9 @@ internal class AspireCliRunProfileState(
 
     private suspend fun checkAndNotifyDevCertificate(aspireEnvironment: AspireEnvironment.Result) {
         if (!aspireEnvironment.useHttp) {
-            DevCertificateProvider.getInstance()?.checkDevCertificate(true, environment.project)
-            //TODO: Show a notification
+            DevCertificateProvider
+                .getInstance()
+                ?.checkDevCertificate(false, environment.project, showNotification = true)
         }
     }
 

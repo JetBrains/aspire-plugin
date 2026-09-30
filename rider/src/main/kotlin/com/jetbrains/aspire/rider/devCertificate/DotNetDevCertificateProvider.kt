@@ -6,12 +6,11 @@ import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.certificates.DevCertificateCheckResult
 
 internal class DotNetDevCertificateProvider : DevCertificateProvider {
-    override suspend fun checkDevCertificate(useBundledRuntime: Boolean, project: Project): DevCertificateCheckResult =
-        checkDevCertificate(
-            useBundledRuntime,
-            project,
-            showNotification = false
-        )
+    override suspend fun checkDevCertificate(
+        useBundledRuntime: Boolean,
+        project: Project,
+        showNotification: Boolean
+    ): DevCertificateCheckResult = checkDevCertificateAndShowNotification(useBundledRuntime, project, showNotification)
 
     override suspend fun exportCertificate(
         useBundledRuntime: Boolean,

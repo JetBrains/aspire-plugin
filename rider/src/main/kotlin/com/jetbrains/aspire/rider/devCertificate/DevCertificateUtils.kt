@@ -37,7 +37,7 @@ import kotlin.io.path.readText
 
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.util.DevCertificateUtils")
 
-internal suspend fun checkDevCertificate(
+internal suspend fun checkDevCertificateAndShowNotification(
     useBundledRuntime: Boolean,
     project: Project,
     showNotification: Boolean = false

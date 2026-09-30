@@ -11,7 +11,6 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.aspire.generated.AspireHostModelConfig
-import com.jetbrains.aspire.rider.devCertificate.checkDevCertificate
 import com.jetbrains.aspire.rider.run.states.*
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
