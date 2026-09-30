@@ -1,14 +1,13 @@
 package com.jetbrains.aspire.unit.worker.dcp
 
-import com.jetbrains.aspire.generated.*
-import com.jetbrains.aspire.sessions.SessionEvent
+import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.worker.dcp.AspireSessionHost
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 
 internal class MockAspireSessionHost : AspireSessionHost {
-    private val events = Channel<SessionEvent>(Channel.UNLIMITED)
-    override val sessionEvents: ReceiveChannel<SessionEvent> get() = events
+    override val sessionEvents: ReceiveChannel<SessionEvent>
+        field = Channel<SessionEvent>(Channel.UNLIMITED)
 
     var lastCreateRequest: CreateSessionRequest? = null
         private set
@@ -34,5 +33,5 @@ internal class MockAspireSessionHost : AspireSessionHost {
         return onDelete(deleteSessionRequest)
     }
 
-    suspend fun emit(event: SessionEvent) = events.send(event)
+    suspend fun emit(event: SessionEvent) = sessionEvents.send(event)
 }

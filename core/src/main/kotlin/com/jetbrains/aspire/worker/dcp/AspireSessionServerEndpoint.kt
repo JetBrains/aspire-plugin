@@ -11,23 +11,24 @@ import org.jetbrains.annotations.ApiStatus
  * @param port the loopback port the server is listening on
  * @param token the Bearer token DCP must present on the `/run_session` endpoints
  * @param isHttps whether the server terminates TLS (`https`) or serves plain `http`
+ * @param base64Cert the base64-encoded server certificate DCP should trust for HTTPS
  */
 @ApiStatus.Internal
 data class AspireSessionServerEndpoint(
     val port: Int,
     val token: String,
     val isHttps: Boolean,
+    val base64Cert: String?,
 )
 
 /**
  * Builds the DCP "IDE-execution" connection environment variables the AppHost process must receive to
  * connect back to this endpoint.
  *
- * @param base64Cert the base64-encoded server certificate DCP should trust; only emitted for an HTTPS endpoint
  * @see <a href="https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#enabling-ide-execution">Enabling IDE execution</a>
  */
 @ApiStatus.Internal
-fun AspireSessionServerEndpoint.toDcpEnvironmentVariables(base64Cert: String?): Map<String, String> = buildMap {
+fun AspireSessionServerEndpoint.toDcpEnvironmentVariables(): Map<String, String> = buildMap {
     put(DEBUG_SESSION_TOKEN, token)
     put(DEBUG_SESSION_PORT, "localhost:$port")
     if (isHttps) base64Cert?.let { put(DEBUG_SESSION_SERVER_CERTIFICATE, it) }

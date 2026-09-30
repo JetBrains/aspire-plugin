@@ -2,10 +2,11 @@
 
 package com.jetbrains.aspire.worker.dcp
 
+import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
-import com.jetbrains.aspire.generated.*
-import com.jetbrains.aspire.sessions.SessionEvent
+import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer.Companion.BEARER_AUTH
 import com.jetbrains.aspire.worker.dcp.DcpErrors.AspireSessionNotFound
 import io.ktor.http.*
@@ -27,6 +28,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.annotations.ApiStatus
 import java.security.KeyStore
+import java.util.UUID
 
 @ApiStatus.Internal
 interface AspireSessionHost {
@@ -46,30 +48,15 @@ interface AspireSessionServerTlsConfig {
 }
 
 /**
- * Configuration for a single embedded server instance.
- *
- * @param port the loopback port to bind (use `0` for an ephemeral port; read [AspireSessionServer.resolvedPort] after start)
- * @param token the Bearer token DCP must present on the `/run_session` endpoints
- * @param tls when non-null, the server terminates TLS instead of serving plain HTTP
- */
-@ApiStatus.Internal
-data class AspireSessionServerConfig(
-    val port: Int,
-    val token: String,
-    val tls: AspireSessionServerTlsConfig? = null,
-)
-
-/**
  * An embedded Ktor (Netty) server implementing the Aspire DCP "IDE execution" protocol.
  *
  * @param sessionHost the engine session requests are forwarded to
- * @param config the bind port, Bearer token, and optional TLS material
  * @see <a href="https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md">IDE execution</a>
  */
 @ApiStatus.Internal
 class AspireSessionServer(
     private val sessionHost: AspireSessionHost,
-    private val config: AspireSessionServerConfig,
+    private val project: Project,
 ) {
     companion object {
         private val LOG = logger<AspireSessionServer>()
@@ -87,20 +74,16 @@ class AspireSessionServer(
     }
 
     private val lifecycleMutex = Mutex()
+    private val token = UUID.randomUUID().toString()
     private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
+    private var tlsMaterial: AspireDcpTls.DcpTlsMaterial? = null
 
     /** Guards the single-consumer [AspireSessionHost.sessionEvents] channel against double draining. */
     private val notifyMutex = Mutex()
     private var notifyJob: Job? = null
 
-    /** The Bearer token clients must present. Exposed so callers can build the DCP env vars. */
-    val token: String get() = config.token
-
-    /** Whether the server terminates TLS (`https`) or serves plain `http`. */
-    val isHttps: Boolean get() = config.tls != null
-
-    /** The actually bound port, valid only after [start] has completed. */
-    var resolvedPort: Int = config.port
+    /** Connection details for DCP clients, available after [start] completes and cleared by [stop]. */
+    var endpoint: AspireSessionServerEndpoint? = null
         private set
 
     /**
@@ -112,14 +95,23 @@ class AspireSessionServer(
         lifecycleMutex.withLock {
             if (server != null) return
 
-            LOG.trace { "Starting embedded DCP server on $LOOPBACK_HOST:${config.port} (https=$isHttps)" }
+            tlsMaterial = AspireDcpTls.getInstance(project).getOrComputeTlsMaterial()
+            val isHttps = tlsMaterial?.tls != null
+
+            LOG.trace { "Starting embedded DCP server on $LOOPBACK_HOST:0 (https=$isHttps)" }
 
             val embedded = buildServer()
             embedded.startSuspend(wait = false)
-            resolvedPort = embedded.engine.resolvedConnectors().first().port
+            val boundEndpoint = AspireSessionServerEndpoint(
+                port = embedded.engine.resolvedConnectors().first().port,
+                token = token,
+                isHttps = isHttps,
+                base64Cert = tlsMaterial?.base64Cert?.takeIf { isHttps },
+            )
             server = embedded
+            endpoint = boundEndpoint
 
-            LOG.trace { "Embedded DCP server bound on $LOOPBACK_HOST:$resolvedPort" }
+            LOG.trace { "Embedded DCP server bound on $LOOPBACK_HOST:${boundEndpoint.port}" }
         }
     }
 
@@ -127,9 +119,15 @@ class AspireSessionServer(
     suspend fun stop() {
         lifecycleMutex.withLock {
             val embedded = server ?: return
+            val port = endpoint?.port
+
+            LOG.trace { "Stopping embedded DCP server on $LOOPBACK_HOST:$port" }
+
             server = null
-            LOG.trace { "Stopping embedded DCP server on $LOOPBACK_HOST:$resolvedPort" }
+            endpoint = null
             embedded.stopSuspend(gracePeriodMillis = 500, timeoutMillis = 1000)
+
+            LOG.trace { "Embedded DCP server stopped on $LOOPBACK_HOST:$port" }
         }
     }
 
@@ -143,7 +141,7 @@ class AspireSessionServer(
         return embeddedServer(Netty, rootConfig) {
             enableHttp2 = false
 
-            val tls = config.tls
+            val tls = tlsMaterial?.tls
             if (tls != null) {
                 sslConnector(
                     keyStore = tls.keyStore,
@@ -152,12 +150,12 @@ class AspireSessionServer(
                     privateKeyPassword = { tls.privateKeyPassword() },
                 ) {
                     host = LOOPBACK_HOST
-                    port = config.port
+                    port = 0
                 }
             } else {
                 connector {
                     host = LOOPBACK_HOST
-                    port = config.port
+                    port = 0
                 }
             }
         }
@@ -168,7 +166,7 @@ class AspireSessionServer(
             bearer(BEARER_AUTH) {
                 realm = BEARER_REALM
                 authenticate { credential ->
-                    if (credential.token == config.token) UserIdPrincipal("dcp") else null
+                    if (credential.token == token) UserIdPrincipal("dcp") else null
                 }
             }
         }
@@ -207,6 +205,7 @@ class AspireSessionServer(
         val session = try {
             call.receive<Session>()
         } catch (e: Exception) {
+            rethrowControlFlowException(e)
             LOG.trace { "Failed to parse run session request: ${e.message}" }
             call.respond(HttpStatusCode.BadRequest)
             return
@@ -233,7 +232,7 @@ class AspireSessionServer(
             projectConfig.disableLaunchProfile == true,
             aspireHostId,
             projectConfig.mode == Mode.Debug,
-            session.args?.toTypedArray(),
+            session.args,
             mapEnvironmentVariables(session),
         )
         val response = sessionHost.createSession(request)
@@ -241,11 +240,10 @@ class AspireSessionServer(
         return response.sessionId to response.error
     }
 
-    private fun mapEnvironmentVariables(session: Session): Array<SessionEnvironmentVariable>? =
+    private fun mapEnvironmentVariables(session: Session): List<SessionEnvironmentVariable>? =
         session.env
             ?.filter { it.value != null }
             ?.map { SessionEnvironmentVariable(it.name, it.value!!) }
-            ?.toTypedArray()
 
     private suspend fun handleDeleteSession(call: ApplicationCall) {
         val aspireHostId = aspireHostId(call) ?: return

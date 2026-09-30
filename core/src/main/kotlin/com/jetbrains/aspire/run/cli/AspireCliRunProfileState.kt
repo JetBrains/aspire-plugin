@@ -39,9 +39,6 @@ import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.dcp.AspireDcpTls
-import com.jetbrains.aspire.worker.dcp.AspireEmbeddedSessionHost
-import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString
@@ -112,18 +109,10 @@ internal class AspireCliRunProfileState(
         envs: MutableMap<String, String>,
     ): AspireEnvironment.Result {
         val aspireWorker = AspireWorker.getInstance(environment.project)
-        val appHost = if (AspireEmbeddedSessionHost.isEnabled()) {
-            //Embedded mode: each AppHost runs its own in-process DCP server; no external worker process.
-            val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFilePath))
-            val tlsMaterial = AspireDcpTls.getInstance(environment.project).getOrComputeTlsMaterial()
-            val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
-            envs.putAll(endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert))
-            appHost
-        } else {
-            aspireWorker.start()
-            envs.putAll(aspireWorker.getEnvironmentVariablesForDcpConnection())
-            requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFilePath))
-        }
+        val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostFilePath)
+        envs.putAll(dcpEnvironmentVariables)
+
+        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFilePath))
 
         val result = AspireEnvironment.configure(
             appHost = appHost,

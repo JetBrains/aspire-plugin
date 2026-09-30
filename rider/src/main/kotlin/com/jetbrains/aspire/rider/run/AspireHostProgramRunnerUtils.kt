@@ -5,56 +5,45 @@ import com.intellij.execution.ExecutionResult
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.openapi.application.EDT
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.application
-import com.jetbrains.aspire.generated.AspireHostModelConfig
 import com.jetbrains.aspire.rider.run.states.*
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
-import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.dcp.AspireEmbeddedSessionHost
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.run.runners.AspireHostProgramRunnerUtils")
 
-suspend fun setUpAspireHostModelAndSaveRunConfig(
+internal fun setUpAspireHostEnvironmentAndSaveRunConfig(
     environment: ExecutionEnvironment,
     state: AspireHostProfileState,
     aspireHostProcessHandlerLifetimeDef: LifetimeDefinition,
 ) {
-    val aspireHostConfig = setUpAspireHostModel(environment, state, aspireHostProcessHandlerLifetimeDef.lifetime)
-    LOG.trace { "Aspire session host config: $aspireHostConfig" }
+    val appHostFilePath = setUpAspireHostEnvironment(environment, state)
 
     val runConfigName = environment.runProfile.name
     LOG.trace { "Saving Aspire Host run configuration $runConfigName" }
 
     saveRunConfiguration(
         environment.project,
-        Path(aspireHostConfig.aspireHostProjectPath),
+        appHostFilePath,
         runConfigName,
         aspireHostProcessHandlerLifetimeDef
     )
 }
 
-private suspend fun setUpAspireHostModel(
+private fun setUpAspireHostEnvironment(
     environment: ExecutionEnvironment,
     state: AspireHostProfileState,
-    aspireHostProcessHandlerLifetime: Lifetime,
-): AspireHostModelConfig {
+): Path {
     val configuration = environment.runnerAndConfigurationSettings?.configuration
     val aspireRunConfiguration = (configuration as? AspireRiderRunConfiguration)
         ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
 
-    val dcpInstancePrefix = requireNotNull(state.getDcpInstancePrefix())
     val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
     val resourceServiceApiKey = state.getResourceServiceApiKey()
     val otlpEndpointUrl = state.getOtlpEndpointUrl()
@@ -69,43 +58,18 @@ private suspend fun setUpAspireHostModel(
         parameters.startBrowserParameters.url
     }
 
-    val aspireHostConfig = AspireHostModelConfig(
-        dcpInstancePrefix,
-        appHostFilePath.absolutePathString(),
+    val appHostEnvironment = AppHostEnvironment(
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
         otlpEndpointUrl,
         aspireHostProjectUrl
     )
 
-    val appHostEnvironment = AppHostEnvironment(
-        aspireHostConfig.resourceServiceEndpointUrl,
-        aspireHostConfig.resourceServiceApiKey,
-        aspireHostConfig.otlpEndpointUrl,
-        aspireHostConfig.aspireHostProjectUrl
-    )
     environment.project.messageBus
         .syncPublisher(AppHostListener.TOPIC)
         .appHostStarting(appHostFilePath, appHostEnvironment)
 
-    //In embedded mode the AppHost's own DCP server handles sessions directly, so the RD host model
-    //(which only feeds the external .NET worker) is not registered. This also keeps the AppHost's
-    //sessionEvents single-consumer: the embedded server's notify socket instead of subscribeToAspireAppHostModel.
-    if (!AspireEmbeddedSessionHost.isEnabled()) {
-        val aspireWorker = AspireWorker.getInstance(environment.project)
-
-        aspireHostProcessHandlerLifetime.onTermination {
-            application.invokeLater {
-                aspireWorker.stopAspireHostModel(aspireHostConfig.id)
-            }
-        }
-
-        withContext(Dispatchers.EDT) {
-            aspireWorker.startAspireHostModel(aspireHostConfig)
-        }
-    }
-
-    return aspireHostConfig
+    return appHostFilePath
 }
 
 private fun saveRunConfiguration(
