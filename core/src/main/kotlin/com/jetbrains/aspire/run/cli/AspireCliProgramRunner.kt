@@ -3,6 +3,7 @@ package com.jetbrains.aspire.run.cli
 import com.intellij.execution.configurations.RunProfile
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.configurations.RunnerSettings
+import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.AsyncProgramRunner
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.showRunContent
@@ -19,7 +20,8 @@ import org.jetbrains.concurrency.toPromiseWithoutLogError
 internal class AspireCliProgramRunner : AsyncProgramRunner<RunnerSettings>() {
     override fun getRunnerId(): String = "AspireCliProgramRunner"
 
-    override fun canRun(executorId: String, profile: RunProfile): Boolean = profile is AspireCliRunConfiguration
+    override fun canRun(executorId: String, profile: RunProfile): Boolean =
+        executorId == DefaultRunExecutor.EXECUTOR_ID && profile is AspireCliRunConfiguration
 
     override fun execute(environment: ExecutionEnvironment, state: RunProfileState): Promise<RunContentDescriptor?> {
         // async(Dispatchers.EDT) ensures the Deferred completes on EDT, so that
