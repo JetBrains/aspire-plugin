@@ -3,6 +3,7 @@ package com.jetbrains.aspire.settings
 import com.intellij.openapi.components.BaseState
 
 class AspireSettingsState : BaseState() {
+    var aspireCliPath by string()
     var forceBuildOfAppHostReferencedProjects by property(false)
     var buildExternalNetProjects by property(true)
     var doNotLaunchBrowserForProjects by property(true)

@@ -12,6 +12,12 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         fun getInstance() = service<AspireSettings>()
     }
 
+    var aspireCliPath: String
+        get() = state.aspireCliPath.orEmpty()
+        set(value) {
+            state.aspireCliPath = value
+        }
+
     var forceBuildOfAppHostReferencedProjects
         get() = state.forceBuildOfAppHostReferencedProjects
         set(value) {

@@ -14,6 +14,7 @@ import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.provider.utils.awaitProcessResult
 import com.intellij.platform.eel.spawnProcess
+import com.jetbrains.aspire.settings.AspireSettings
 
 /**
  * Locates the `aspire` CLI executable and checks that it is operable.
@@ -28,10 +29,15 @@ internal class AspireCliLocator(private val project: Project) {
     }
 
     /**
-     * Return the first `aspire` executable found on the `PATH`
+     * Returns the configured CLI path, or the first `aspire` executable found on the `PATH`.
      */
     suspend fun locate(): EelPath? {
         val eelApi = project.getEelDescriptor().toEelApi()
+
+        val configuredPath = AspireSettings.getInstance().aspireCliPath.takeIf { it.isNotBlank() }
+        if (configuredPath != null) {
+            return EelPath.parse(configuredPath, eelApi.descriptor)
+        }
 
         val candidate = resolveCandidate(eelApi)
         if (candidate == null) {
@@ -45,7 +51,7 @@ internal class AspireCliLocator(private val project: Project) {
             eelApi.exec.findExeFilesInPath(ASPIRE_EXECUTABLE).firstOrNull()
         } catch (e: Exception) {
             rethrowControlFlowException(e)
-            LOG.warn("Failed to look up aspire CLI on PATH: ${e.message}")
+            LOG.warn("Failed to resolve aspire CLI executable: ${e.message}")
             null
         }
     }
