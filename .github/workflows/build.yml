@@ -114,6 +114,11 @@ jobs:
         working-directory: /usr/share/dotnet
         run: dotnet workload install maui-android
 
+      # Pin the MAUI template used by the orchestration gold test
+      - name: Install MAUI templates
+        working-directory: /usr/share/dotnet
+        run: dotnet new install Microsoft.Maui.Templates.net10@10.0.20 --force
+
       # Run tests
       - name: Run Tests
         run: ./gradlew check

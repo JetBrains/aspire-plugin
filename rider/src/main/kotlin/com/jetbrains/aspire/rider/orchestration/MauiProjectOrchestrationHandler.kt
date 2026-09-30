@@ -17,6 +17,7 @@ import com.jetbrains.rider.projectView.workspace.getId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.relativeTo
 
@@ -54,7 +55,7 @@ internal class MauiProjectOrchestrationHandler : BaseOrchestrationHandler() {
                     append("builder.AddMauiProject(\"")
                     append(projectResourceName)
                     append("\", @\"")
-                    append(relativeProjectPath)
+                    append(relativeProjectPath.invariantSeparatorsPathString)
                     append("\");")
                 }
                 add(line)
