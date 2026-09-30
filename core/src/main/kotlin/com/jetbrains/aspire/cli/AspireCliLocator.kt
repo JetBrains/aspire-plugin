@@ -12,8 +12,6 @@ import com.intellij.platform.eel.EelApi
 import com.intellij.platform.eel.path.EelPath
 import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
-import com.intellij.platform.eel.provider.utils.awaitProcessResult
-import com.intellij.platform.eel.spawnProcess
 import com.jetbrains.aspire.settings.AspireSettings
 
 /**
@@ -53,30 +51,6 @@ internal class AspireCliLocator(private val project: Project) {
             rethrowControlFlowException(e)
             LOG.warn("Failed to resolve aspire CLI executable: ${e.message}")
             null
-        }
-    }
-
-    /**
-     * Checks that [aspireCliPath] is a working `aspire` CLI
-     * by running it with the `--version` argument.
-     *
-     * @param aspireCliPath the path to the `aspire` CLI executable to verify
-     * @return `true` if the process was spawned and exited with the `0` exit code,
-     * `false` if it failed to start or reported a non-zero exit code
-     */
-    suspend fun verifyCliPath(aspireCliPath: EelPath): Boolean {
-        return try {
-            val eelApi = project.getEelDescriptor().toEelApi()
-            val process = eelApi
-                .exec
-                .spawnProcess(aspireCliPath)
-                .args("--version")
-                .eelIt()
-            process.awaitProcessResult().exitCode == 0
-        } catch (e: Exception) {
-            rethrowControlFlowException(e)
-            LOG.trace { "Failed to verify aspire CLI ($aspireCliPath): ${e.message}" }
-            false
         }
     }
 }
