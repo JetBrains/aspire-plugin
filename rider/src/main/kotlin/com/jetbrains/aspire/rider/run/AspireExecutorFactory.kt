@@ -9,7 +9,6 @@ import com.intellij.util.EnvironmentUtil
 import com.jetbrains.aspire.run.AspireEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.aspire.worker.dcp.AspireDcpTls
-import com.jetbrains.aspire.worker.dcp.AspireEmbeddedSessionHost
 import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -33,18 +32,10 @@ internal abstract class AspireExecutorFactory(
     ): EnvironmentVariableValues {
         val aspireWorker = AspireWorker.getInstance(project)
 
-        val appHost = if (AspireEmbeddedSessionHost.isEnabled()) {
-            //Embedded mode: each AppHost runs its own in-process DCP server; no external worker process.
-            val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
-            val tlsMaterial = AspireDcpTls.getInstance(project).getOrComputeTlsMaterial()
-            val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
-            envs.putAll(endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert))
-            appHost
-        } else {
-            aspireWorker.start()
-            envs.putAll(aspireWorker.getEnvironmentVariablesForDcpConnection())
-            requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
-        }
+        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
+        val tlsMaterial = AspireDcpTls.getInstance(project).getOrComputeTlsMaterial()
+        val endpoint = appHost.startSessionServer(tlsMaterial?.tls)
+        envs.putAll(endpoint.toDcpEnvironmentVariables(tlsMaterial?.base64Cert))
 
         // the browser url is not known yet at this point - the callers resolve it from the launch profile
         // after this call and rewrite it with `configureUrl`, so the returned `aspireHostProjectUrl` is unused
