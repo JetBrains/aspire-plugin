@@ -10,15 +10,21 @@ internal class DotNetDevCertificateProvider : DevCertificateProvider {
         useBundledRuntime: Boolean,
         project: Project,
         showNotification: Boolean
-    ): DevCertificateCheckResult = checkDevCertificateAndShowNotification(useBundledRuntime, project, showNotification)
+    ): DevCertificateCheckResult = DotNetDevCertificateManager
+        .getInstance(project)
+        .checkDevCertificate(useBundledRuntime, showNotification)
 
     override suspend fun exportCertificate(
         useBundledRuntime: Boolean,
         project: Project
-    ): Result<String> = exportDevCertificateAndReadFile(useBundledRuntime, project)
+    ): Result<String> = DotNetDevCertificateManager
+        .getInstance(project)
+        .exportDevCertificateAndReadFile(useBundledRuntime)
 
     override suspend fun exportCertificateWithPrivateKey(
         useBundledRuntime: Boolean,
         project: Project
-    ): Result<DevCertificateKeyMaterial> = exportDevCertificateAndLoadToKeyStore(useBundledRuntime, project)
+    ): Result<DevCertificateKeyMaterial> = DotNetDevCertificateManager
+        .getInstance(project)
+        .exportDevCertificateAndLoadToKeyStore(useBundledRuntime)
 }
