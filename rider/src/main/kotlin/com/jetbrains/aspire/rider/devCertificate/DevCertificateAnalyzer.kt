@@ -1,9 +1,10 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.certificates
+package com.jetbrains.aspire.rider.devCertificate
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.jetbrains.aspire.certificates.DevCertificateCheckResult
 import com.jetbrains.rider.web.DevCertificate
 import com.jetbrains.rider.web.DevCertificateTrustLevel
 import org.jetbrains.annotations.ApiStatus
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.ApiStatus
 /**
  * Analyzes the state of the ASP.NET Core HTTPS development certificates.
  */
+@Suppress("JetBrainsInternalApiUsage")
 @ApiStatus.Internal
 @Service
 class DevCertificateAnalyzer {
@@ -55,6 +57,7 @@ class DevCertificateAnalyzer {
 }
 
 
+@Suppress("JetBrainsInternalApiUsage")
 @ApiStatus.Internal
 data class DevCertificateDiagnostics(
     val certificates: List<DevCertificate>,

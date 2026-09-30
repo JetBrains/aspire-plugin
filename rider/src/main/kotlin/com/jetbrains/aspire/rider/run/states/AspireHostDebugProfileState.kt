@@ -4,9 +4,10 @@ import com.intellij.execution.ExecutionResult
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
 import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.rider.run.checkAndNotifyDevCertificate
+import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.rider.run.connectExecutionHandlerAndLifetime
 import com.jetbrains.aspire.rider.run.setUpAspireHostModelAndSaveRunConfig
+import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -38,7 +39,7 @@ class AspireHostDebugProfileState(
     ): WorkerRunInfo {
         return super.createWorkerRunInfo(lifetime, helper, port).apply {
             addProcessListener(
-                createStoppedContainerRuntimeProcessListener(
+                StoppedContainerRuntimeProcessListener(
                     containerRuntimeNotificationCount,
                     executionEnvironment.project
                 )
@@ -56,7 +57,11 @@ class AspireHostDebugProfileState(
             .lifetime
             .createNested()
 
-        checkAndNotifyDevCertificate(this, executionEnvironment.project)
+        if (!this.getAllowUnsecuredTransport()) {
+            DevCertificateProvider
+                .getInstance()
+                ?.checkDevCertificate(false, project, showNotification = true)
+        }
 
         setUpAspireHostModelAndSaveRunConfig(executionEnvironment, this, aspireHostProcessHandlerLifetime)
 

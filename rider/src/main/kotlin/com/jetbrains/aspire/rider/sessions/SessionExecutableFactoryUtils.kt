@@ -5,7 +5,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
@@ -141,7 +141,7 @@ internal suspend fun getStartBrowserSettings(
     launchProfile: LaunchSettingsJson.Profile,
     envs: Map<String, String>,
     tfm: RdTargetFrameworkId?,
-    aspireRunConfiguration: AspireRunConfiguration?
+    aspireRunConfiguration: AspireRiderRunConfiguration?
 ): StartBrowserSettings {
     val applicationUrlKey = "ApplicationUrl"
     val applicationRawUrl = launchProfile.applicationUrl

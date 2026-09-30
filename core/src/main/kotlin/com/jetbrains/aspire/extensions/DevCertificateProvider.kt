@@ -14,7 +14,11 @@ interface DevCertificateProvider {
         fun getInstance(): DevCertificateProvider? = EP_NAME.extensionList.firstOrNull()
     }
 
-    suspend fun checkDevCertificate(useBundledRuntime: Boolean, project: Project): DevCertificateCheckResult
+    suspend fun checkDevCertificate(
+        useBundledRuntime: Boolean,
+        project: Project,
+        showNotification: Boolean = false
+    ): DevCertificateCheckResult
 
     /**
      * The public development certificate as base64-encoded DER, for handing to a process that only has to trust it.

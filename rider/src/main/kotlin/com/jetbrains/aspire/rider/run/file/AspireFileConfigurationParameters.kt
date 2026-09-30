@@ -5,7 +5,7 @@ import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizerUtil
 import com.jetbrains.rd.util.reactive.hasTrueValue
-import com.jetbrains.aspire.rider.run.AspireRunConfigurationParameters
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfigurationParameters
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.run.RiderRunBundle
 import com.jetbrains.rider.run.configurations.project.DotNetProjectConfigurationParameters
@@ -33,7 +33,7 @@ class AspireFileConfigurationParameters(
     var trackUrl: Boolean,
     var trackBrowserLaunch: Boolean,
     override var startBrowserParameters: DotNetStartBrowserParameters
-) : AspireRunConfigurationParameters {
+) : AspireRiderRunConfigurationParameters {
     companion object {
         private const val FILE_PATH = "FILE_PATH"
         private const val LAUNCH_PROFILE_NAME = "LAUNCH_PROFILE_NAME"

@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.aspire.rider.util.isAspireHostProject
-import com.jetbrains.aspire.worker.AppHostDetectionListener
+import com.jetbrains.aspire.worker.AppHostDetectionService
 import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.WorkspaceModelEvents
@@ -18,8 +18,7 @@ import kotlinx.coroutines.withContext
 import java.nio.file.Path
 
 /**
- * Detects Aspire app host projects directly from the Workspace Model and republishes them as
- * [AppHostDetectionListener] events.
+ * Detects Aspire app host projects directly from the Workspace Model.
  */
 @Service(Service.Level.PROJECT)
 internal class AspireHostWorkspaceDetector(private val project: Project) : LifetimedService() {
@@ -54,6 +53,8 @@ internal class AspireHostWorkspaceDetector(private val project: Project) : Lifet
         }
     }
 
+    fun hasAppHost(appHostFilePath: Path): Boolean = appHostFilePath in knownHosts
+
     /**
      * Reports app hosts that are already present when the solution is loaded.
      * [knownHosts] deduplicates against the initial [WorkspaceModelEvents.addSignal] events.
@@ -68,16 +69,16 @@ internal class AspireHostWorkspaceDetector(private val project: Project) : Lifet
     private fun add(entity: ProjectModelEntity) {
         val path = entity.url?.toPath() ?: return
         if (!knownHosts.add(path)) return
-        project.messageBus
-            .syncPublisher(AppHostDetectionListener.TOPIC)
-            .appHostDetected(entity.name, path)
+        AppHostDetectionService
+            .getInstance(project)
+            .addAppHost(entity.name, path)
     }
 
     private fun remove(entity: ProjectModelEntity) {
         val path = entity.url?.toPath() ?: return
         if (!knownHosts.remove(path)) return
-        project.messageBus
-            .syncPublisher(AppHostDetectionListener.TOPIC)
-            .appHostRemoved(path)
+        AppHostDetectionService
+            .getInstance(project)
+            .removeAppHost(path)
     }
 }

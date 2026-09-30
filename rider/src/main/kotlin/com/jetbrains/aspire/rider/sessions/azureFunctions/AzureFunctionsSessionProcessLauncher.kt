@@ -4,7 +4,7 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetRunnableSessionProcessLauncher
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -28,7 +28,7 @@ internal class AzureFunctionsSessionProcessLauncher : DotNetRunnableSessionProce
     override suspend fun getDotNetExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
-        aspireRunConfiguration: AspireRunConfiguration?,
+        aspireRunConfiguration: AspireRiderRunConfiguration?,
         project: Project,
         sessionProcessLifetime: Lifetime
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {

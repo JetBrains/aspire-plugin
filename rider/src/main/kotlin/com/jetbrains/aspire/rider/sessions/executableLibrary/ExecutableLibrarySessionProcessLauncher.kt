@@ -9,7 +9,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
-import com.jetbrains.aspire.rider.run.AspireRunConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProcessLauncher
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -61,7 +61,7 @@ internal class ExecutableLibrarySessionProcessLauncher : DotNetSessionProcessLau
     override suspend fun getDotNetExecutable(
         launchConfiguration: DotNetSessionLaunchConfiguration,
         isDebugSession: Boolean,
-        aspireRunConfiguration: AspireRunConfiguration?,
+        aspireRunConfiguration: AspireRiderRunConfiguration?,
         project: Project,
         sessionProcessLifetime: Lifetime
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {

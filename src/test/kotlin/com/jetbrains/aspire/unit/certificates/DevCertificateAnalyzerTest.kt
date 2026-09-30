@@ -1,6 +1,6 @@
 package com.jetbrains.aspire.unit.certificates
 
-import com.jetbrains.aspire.certificates.DevCertificateAnalyzer
+import com.jetbrains.aspire.rider.devCertificate.DevCertificateAnalyzer
 import com.jetbrains.aspire.certificates.DevCertificateCheckResult
 import com.jetbrains.rider.web.DevCertificate
 import com.jetbrains.rider.web.DevCertificateTrustLevel
@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@Suppress("UnstableApiUsage")
+@Suppress("JetBrainsInternalApiUsage")
 class DevCertificateAnalyzerTest {
     private val analyzer = DevCertificateAnalyzer()
 
