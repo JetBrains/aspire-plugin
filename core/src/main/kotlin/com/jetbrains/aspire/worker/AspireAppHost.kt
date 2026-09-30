@@ -9,15 +9,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.generated.*
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.worker.dcp.AspireSessionHost
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer
 import com.jetbrains.aspire.worker.dcp.AspireSessionServerConfig
 import com.jetbrains.aspire.worker.dcp.AspireSessionServerTlsConfig
 import com.jetbrains.aspire.worker.dcp.AspireSessionServerEndpoint
-import com.jetbrains.rd.util.lifetime.Lifetime
-import com.jetbrains.rdclient.protocol.RdDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
@@ -58,8 +55,6 @@ class AspireAppHost(
 
     override val sessionEvents: ReceiveChannel<SessionEvent>
         field = Channel<SessionEvent>(Channel.UNLIMITED)
-
-    private val sessionEventHandler = SessionEventHandler()
 
     private val hostLifetime = AspireService.getInstance(project).lifetime.createNested()
 
@@ -142,18 +137,6 @@ class AspireAppHost(
         resourceTreeManager.observeAppHostState(appHostState)
     }
 
-    fun subscribeToAspireAppHostModel(
-        appHostModel: AspireHostModel,
-        dispatcher: RdDispatcher,
-        appHostLifetime: Lifetime
-    ) {
-        appHostLifetime.coroutineScope.launch {
-            for (event in sessionEvents) {
-                sessionEventHandler.handleSessionEvent(event, appHostModel, dispatcher)
-            }
-        }
-    }
-
     /**
      * Starts this host's embedded DCP session server (idempotent) and suspends until it is bound, so the
      * AppHost process — which connects immediately on launch — can be started only after this returns.
@@ -163,10 +146,8 @@ class AspireAppHost(
         sessionServerMutex.withLock {
             sessionServer?.let { return AspireSessionServerEndpoint(it.resolvedPort, it.token, it.isHttps) }
 
-            val server = AspireSessionServer(
-                this,
-                AspireSessionServerConfig(port = 0, token = sessionServerToken, tls = tls)
-            )
+            val config = AspireSessionServerConfig(port = 0, token = sessionServerToken, tls = tls)
+            val server = AspireSessionServer(this, config)
             server.start()
             sessionServer = server
 
@@ -175,13 +156,7 @@ class AspireAppHost(
         }
     }
 
-    override fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse =
-        createSession(createSessionRequest, hostLifetime)
-
-    fun createSession(
-        createSessionRequest: CreateSessionRequest,
-        lifetime: Lifetime
-    ): CreateSessionResponse {
+    override fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse {
         val appHostStartedState = appHostState.value as? AspireAppHostState.Started
 
         val configuration = createSessionLaunchConfiguration(createSessionRequest)
@@ -199,7 +174,7 @@ class AspireAppHost(
             configuration,
             sessionEvents,
             appHostStartedState?.runConfigName,
-            lifetime.createNested()
+            hostLifetime.createNested()
         )
 
         SessionManager.getInstance(project).submitRequest(request)
@@ -214,7 +189,7 @@ class AspireAppHost(
                 createSessionRequest.debug,
                 createSessionRequest.launchProfile,
                 createSessionRequest.disableLaunchProfile,
-                createSessionRequest.args?.toList(),
+                createSessionRequest.args,
                 createSessionRequest.envs?.map { it.key to it.value }
             )
 
@@ -223,7 +198,7 @@ class AspireAppHost(
                 createSessionRequest.debug,
                 createSessionRequest.interpreterPath,
                 createSessionRequest.module,
-                createSessionRequest.args?.toList(),
+                createSessionRequest.args,
                 createSessionRequest.envs?.map { it.key to it.value }
             )
 
@@ -257,7 +232,11 @@ class AspireAppHost(
     }
 
     private fun generateDcpInstancePrefix(): String {
-        val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+        val allowedChars = buildList {
+            addAll('A'..'Z')
+            addAll('a'..'z')
+            addAll('0'..'9')
+        }
         return (1..5)
             .map { allowedChars.random() }
             .joinToString("")
