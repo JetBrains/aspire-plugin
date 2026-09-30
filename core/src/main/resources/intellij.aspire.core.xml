@@ -90,14 +90,6 @@
                 icon="AllIcons.General.Settings"/>
         <action id="Aspire.Help"
                 class="com.jetbrains.aspire.actions.AspireHelpAction"/>
-        <group id="Aspire.Worker">
-            <action id="Aspire.Worker.Start"
-                    class="com.jetbrains.aspire.actions.StartAspireWorkerAction"
-                    icon="AllIcons.Actions.Execute"/>
-            <action id="Aspire.Worker.Stop"
-                    class="com.jetbrains.aspire.actions.StopAspireWorkerAction"
-                    icon="AllIcons.Actions.Suspend"/>
-        </group>
         <group id="Aspire.Host">
             <action id="Aspire.Host.Run"
                     class="com.jetbrains.aspire.actions.dashboard.host.RunAppHostAction"
