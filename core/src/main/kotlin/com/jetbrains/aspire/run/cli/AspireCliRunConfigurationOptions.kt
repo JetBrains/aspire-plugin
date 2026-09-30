@@ -11,12 +11,6 @@ internal class AspireCliRunConfigurationOptions : RunConfigurationOptions() {
     @get:OptionTag("workingDirectory")
     var workingDirectory: String? by string()
 
-    @get:OptionTag("browserUrl")
-    var browserUrl: String? by string()
-
-    @get:OptionTag("startBrowserAfterLaunch")
-    var startBrowserAfterLaunch: Boolean by property(false)
-
     @get:OptionTag("noBuild")
     var noBuild: Boolean by property(false)
 

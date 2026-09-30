@@ -8,11 +8,12 @@ import com.intellij.execution.ExecutionException
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.Executor
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.process.*
+import com.intellij.execution.process.KillableColoredProcessHandler
+import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.process.ProcessTerminatedListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.ConsoleView
-import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.platform.eel.*
@@ -197,15 +198,5 @@ internal class AspireCliRunProfileState(
             add("--log-level")
             add(it.name)
         }
-    }
-
-    private fun maybeOpenBrowser(startBrowser: Boolean, url: String?, processHandler: AspireCliProcessHandler) {
-        if (!startBrowser || url.isNullOrBlank()) return
-
-        processHandler.addProcessListener(object : ProcessListener {
-            override fun startNotified(event: ProcessEvent) {
-                BrowserUtil.browse(url)
-            }
-        })
     }
 }

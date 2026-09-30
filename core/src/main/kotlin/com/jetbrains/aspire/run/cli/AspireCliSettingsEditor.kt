@@ -12,7 +12,6 @@ import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.openapi.ui.TextComponentAccessor
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.util.Predicates
-import com.intellij.ui.components.JBTextField
 import com.jetbrains.aspire.AspireCoreBundle
 import org.jetbrains.annotations.Nls
 import java.awt.BorderLayout
@@ -29,8 +28,6 @@ internal class AspireCliSettingsEditor(private val configuration: AspireCliRunCo
             add(workingDirectoryFragment())
             add(createEnvironmentVariablesFragment())
 
-            add(startBrowserTag())
-            add(browserUrlFragment())
             add(logLevelFragment())
             add(podmanRuntimeTag())
             add(noBuildTag())
@@ -123,37 +120,6 @@ internal class AspireCliSettingsEditor(private val configuration: AspireCliRunCo
             setHint(AspireCoreBundle.message("run.editor.cli.environment.variables.hint"))
             actionHint = AspireCoreBundle.message("run.editor.cli.environment.variables.action.hint")
         }
-    }
-
-    private fun startBrowserTag(): SettingsEditorFragment<AspireCliRunConfiguration, *> =
-        SettingsEditorFragment.createTag(
-            "aspire.cli.start.browser",
-            AspireCoreBundle.message("run.editor.cli.start.browser"),
-            null,
-            { config: AspireCliRunConfiguration -> config.cliOptions.startBrowserAfterLaunch },
-            { config: AspireCliRunConfiguration, value: Boolean -> config.cliOptions.startBrowserAfterLaunch = value }
-        )
-
-    private fun browserUrlFragment(): SettingsEditorFragment<AspireCliRunConfiguration, LabeledComponent<JBTextField>> {
-        val field = JBTextField()
-        val component = labeled(field, AspireCoreBundle.message("run.editor.cli.browser.url"))
-
-        return SettingsEditorFragment<AspireCliRunConfiguration, LabeledComponent<JBTextField>>(
-            "aspire.cli.browser.url",
-            AspireCoreBundle.message("run.editor.cli.browser.url.name"),
-            null,
-            component,
-            SettingsEditorFragmentType.EDITOR,
-            { config, field ->
-                field.component.text = config.cliOptions.browserUrl.orEmpty()
-            },
-            { config, field ->
-                config.cliOptions.browserUrl = field.component.text.takeIf { it.isNotBlank() }
-            },
-            { config ->
-                !config.cliOptions.browserUrl.isNullOrBlank()
-            }
-        )
     }
 
     private fun podmanRuntimeTag(): SettingsEditorFragment<AspireCliRunConfiguration, *> =
