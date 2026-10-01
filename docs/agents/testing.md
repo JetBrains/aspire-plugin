@@ -6,7 +6,6 @@
 | JVM integration    | `src/test/kotlin/com/jetbrains/aspire/integration/`         | JUnit 5   |
 | Gold files         | `testData/com/jetbrains/aspire/`                           | —         |
 | Solution fixtures  | `testData/solutions/`                                       | —         |
-| .NET integration   | `src/dotnet/AspireWorkerIntegrationTests/`                 | —         |
 
 JVM integration tests use:
 
