@@ -34,10 +34,15 @@ import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.cli.AspireCliLocator
 import com.jetbrains.aspire.cli.AspireCliLogLevel
 import com.jetbrains.aspire.extensions.DevCertificateProvider
-import com.jetbrains.aspire.run.AspireEnvironment
+import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
 import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
+import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
+import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
+import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
+import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
 import com.jetbrains.aspire.worker.AppHostListener
+import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
@@ -73,13 +78,22 @@ internal class AspireCliRunProfileState(
         val eelApi = project.getEelDescriptor().toEelApi()
 
         val envs = buildBaseEnvironment(options, eelApi).toMutableMap()
-        val aspireEnvironment = configureEnvironmentVariables(appHostFile, envs)
+        putAdditionalEnvironmentVariables(envs, appHostFile)
 
-        checkAndNotifyDevCertificate(aspireEnvironment)
+        checkAndNotifyDevCertificate(envs)
 
+        val resourceServiceEndpointUrl = envs.getAspireResourceServiceEndpointUrl()
+        val resourceServiceApiKey = envs.getAspireDashboardResourceServiceApiKey()
+        val otlpEndpointUrl = envs.getAspireDashboardOtlpEndpointUrl()
+        val appHostEnvironment = AppHostEnvironment(
+            resourceServiceEndpointUrl,
+            resourceServiceApiKey,
+            otlpEndpointUrl,
+            null
+        )
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarting(appHostFile, aspireEnvironment.appHostEnvironment)
+            .appHostStarting(appHostFile, appHostEnvironment)
 
         val processHandler = startProcess(aspireCli, appHostFile, options, envs, eelApi)
         val console = createConsole().apply {
@@ -104,27 +118,22 @@ internal class AspireCliRunProfileState(
         putAll(options.environmentVariables)
     }
 
-    private suspend fun configureEnvironmentVariables(
-        appHostFile: Path,
-        envs: MutableMap<String, String>,
-    ): AspireEnvironment.Result {
+    private suspend fun putAdditionalEnvironmentVariables(envs: MutableMap<String, String>, appHostFile: Path) {
         val aspireWorker = AspireWorker.getInstance(environment.project)
         val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostFile)
         envs.putAll(dcpEnvironmentVariables)
 
         val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFile))
-
-        val result = AspireEnvironment.configure(
-            appHost = appHost,
-            browserUrl = null,
-            usePodmanRuntime = configuration.cliOptions.usePodmanRuntime,
-            envs = envs
+        val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
+            envs,
+            appHost.browserToken,
+            configuration.cliOptions.usePodmanRuntime
         )
-        return result
+        envs.putAll(aspireEnvironmentVariables)
     }
 
-    private suspend fun checkAndNotifyDevCertificate(aspireEnvironment: AspireEnvironment.Result) {
-        if (!aspireEnvironment.useHttp) {
+    private suspend fun checkAndNotifyDevCertificate(environmentVariables: Map<String, String>) {
+        if (!environmentVariables.getAspireAllowUnsecuredTransport()) {
             DevCertificateProvider
                 .getInstance()
                 ?.checkDevCertificate(false, environment.project, showNotification = true)

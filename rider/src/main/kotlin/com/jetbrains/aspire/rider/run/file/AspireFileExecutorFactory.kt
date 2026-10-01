@@ -23,6 +23,7 @@ import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
 import com.jetbrains.aspire.rider.run.states.AspireHostDebugProfileState
 import com.jetbrains.aspire.rider.run.states.AspireHostRunProfileState
 import com.jetbrains.aspire.rider.util.getStartBrowserAction
+import com.jetbrains.aspire.util.getAspireDashboardFrontendBrowserToken
 import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.ijent.extensions.toRdPath
@@ -102,14 +103,14 @@ internal class AspireFileExecutorFactory(
         val effectiveEnvs =
             if (parameters.trackEnvs) getEnvironmentVariables(launchProfile.name, launchProfile.content).toMutableMap()
             else parameters.envs.toMutableMap() // TODO: Apply TerminalMode
-
-        val environmentVariableValues = configureEnvironmentVariables(Path(parameters.filePath), effectiveEnvs, activeRuntime)
+        putAdditionalEnvironmentVariables(effectiveEnvs, Path(parameters.filePath), activeRuntime)
 
         var effectiveUrl =
             if (parameters.trackUrl) getApplicationUrl(launchProfile.content)
             else parameters.startBrowserParameters.url
-        if (parameters.trackUrl && environmentVariableValues.browserToken != null) {
-            effectiveUrl = configureUrl(effectiveUrl, environmentVariableValues.browserToken)
+        val browserToken = effectiveEnvs.getAspireDashboardFrontendBrowserToken()
+        if (parameters.trackUrl && browserToken != null) {
+            effectiveUrl = configureUrl(effectiveUrl, browserToken)
         }
 
         val effectiveLaunchBrowser =
@@ -149,7 +150,7 @@ internal class AspireFileExecutorFactory(
         )
     }
 
-    @Suppress("UnstableApiUsage")
+    @Suppress("JetBrainsInternalApiUsage")
     private fun getLifetime(project: Project, sourceFile: String, environment: ExecutionEnvironment): Lifetime {
         val ld = AspireService.getInstance(project).lifetime.createNested()
         val oldCallback = environment.callback

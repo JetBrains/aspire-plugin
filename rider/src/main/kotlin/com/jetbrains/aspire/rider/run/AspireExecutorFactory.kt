@@ -6,8 +6,7 @@ import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.EnvironmentUtil
-import com.jetbrains.aspire.run.AspireEnvironment.getAspireSpecificEnvironmentVariables
-import com.jetbrains.aspire.util.getAspireDashboardFrontendBrowserToken
+import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -24,17 +23,16 @@ internal abstract class AspireExecutorFactory(
         private const val PATH = "PATH"
     }
 
-    protected suspend fun configureEnvironmentVariables(
-        appHostMainFilePath: Path,
+    protected suspend fun putAdditionalEnvironmentVariables(
         envs: MutableMap<String, String>,
+        appHostMainFilePath: Path,
         activeRuntime: DotNetCoreRuntime
-    ): EnvironmentVariableValues {
+    ) {
         val aspireWorker = AspireWorker.getInstance(project)
         val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
         envs.putAll(dcpEnvironmentVariables)
 
         val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
-
         val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
             envs,
             appHost.browserToken,
@@ -44,14 +42,11 @@ internal abstract class AspireExecutorFactory(
 
         val dotnetPath = PathEnvironmentVariableUtil.findFirst("dotnet")
         if (dotnetPath == null) {
-            setDotnetRootPathVariable(envs, activeRuntime)
+            putDotnetRootPathVariable(envs, activeRuntime)
         }
-
-        val browserToken = envs.getAspireDashboardFrontendBrowserToken()
-        return EnvironmentVariableValues(browserToken)
     }
 
-    private fun setDotnetRootPathVariable(envs: MutableMap<String, String>, activeRuntime: DotNetCoreRuntime) {
+    private fun putDotnetRootPathVariable(envs: MutableMap<String, String>, activeRuntime: DotNetCoreRuntime) {
         val dotnetRootPath = activeRuntime.cliExePath.parent
 
         val dotnetRootPathString = dotnetRootPath.absolutePathString()
@@ -88,8 +83,4 @@ internal abstract class AspireExecutorFactory(
         )
         return updatedUrl.toString()
     }
-
-    protected data class EnvironmentVariableValues(
-        val browserToken: String?
-    )
 }
