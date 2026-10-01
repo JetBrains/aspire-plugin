@@ -7,10 +7,9 @@ import com.intellij.execution.DefaultExecutionResult
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.Executor
+import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.process.KillableColoredProcessHandler
-import com.intellij.execution.process.ProcessHandler
-import com.intellij.execution.process.ProcessTerminatedListener
+import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.ConsoleView
@@ -21,32 +20,40 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
+import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.options.ex.ConfigurableVisitor
 import com.intellij.platform.eel.*
-import com.intellij.platform.eel.provider.asEelPath
-import com.intellij.platform.eel.provider.asNioPath
-import com.intellij.platform.eel.provider.getEelDescriptor
-import com.intellij.platform.eel.provider.toEelApi
+import com.intellij.platform.eel.provider.*
+import com.intellij.platform.util.coroutines.childScope
 import com.intellij.psi.search.ExecutionSearchScopes
 import com.intellij.util.applyIf
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.cli.AspireCliLocator
 import com.jetbrains.aspire.cli.AspireCliLogLevel
 import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
+import com.jetbrains.aspire.extensions.AppHostDebuggerExtension
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.run.AspireExecutionListener.Companion.APP_HOST_ENVIRONMENT_KEY
 import com.jetbrains.aspire.run.AspireExecutionListener.Companion.APP_HOST_ID_KEY
 import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
-import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
-import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
-import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
+import com.jetbrains.aspire.settings.AspireSettings
+import com.jetbrains.aspire.util.*
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.function.Predicate
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.name
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 internal class AspireCliRunProfileState(
     private val configuration: AspireCliRunConfiguration,
@@ -80,13 +87,36 @@ internal class AspireCliRunProfileState(
         val envs = buildBaseEnvironment(options, eelApi).toMutableMap()
         putAdditionalEnvironmentVariables(envs, appHostFile)
 
+        val debugServices = executor.id == DefaultDebugExecutor.EXECUTOR_ID
+        val appHostDebugger = if (debugServices) resolveAppHostDebugger(appHostFile) else null
+        val appHostAttachTimeout = AspireSettings.getInstance().appHostAttachTimeoutSeconds.seconds
+        configureDebuggingEnvironmentVariables(debugServices, appHostDebugger != null, appHostAttachTimeout, envs)
+
         checkAndNotifyDevCertificate(envs)
 
         environment.putUserData(APP_HOST_ENVIRONMENT_KEY, AppHostEnvironment.EMPTY)
 
-        val processHandler = startProcess(aspireCli, appHostFile, options, envs, eelApi)
+        val (processHandler, cliProcessPid) = startProcess(aspireCli, appHostFile, options, envs, eelApi)
         val console = createConsole().apply {
             attachToProcess(processHandler)
+        }
+
+        if (appHostDebugger != null) {
+            val attachScope = AspireService.getInstance(project).scope.childScope("Aspire AppHost debugger attach")
+            processHandler.addProcessListener(object : ProcessListener {
+                override fun processTerminated(event: ProcessEvent) {
+                    attachScope.cancel()
+                }
+
+                override fun processNotStarted() {
+                    attachScope.cancel()
+                }
+            })
+            attachScope.launch {
+                attachDebuggerToAppHost(appHostDebugger, appHostFile, cliProcessPid, appHostAttachTimeout)
+            }
+        } else if (debugServices) {
+            notifyAppHostNotDebugged(appHostFile)
         }
 
         return DefaultExecutionResult(console, processHandler)
@@ -121,6 +151,56 @@ internal class AspireCliRunProfileState(
         envs.putAll(aspireEnvironmentVariables)
     }
 
+    private fun configureDebuggingEnvironmentVariables(
+        debugServices: Boolean,
+        debugAppHost: Boolean,
+        appHostAttachTimeout: Duration,
+        envs: MutableMap<String, String>
+    ) {
+        envs[DEBUG_SESSION_RUN_MODE] = if (debugServices) DEBUG_SESSION_RUN_MODE_DEBUG else DEBUG_SESSION_RUN_MODE_NO_DEBUG
+        if (debugAppHost) {
+            envs[ASPIRE_WAIT_FOR_DEBUGGER] = "true"
+            envs[ASPIRE_DEBUGGER_TIMEOUT] = appHostAttachTimeout.inWholeSeconds.toString()
+        }
+    }
+
+    private fun resolveAppHostDebugger(appHostFilePath: Path): AppHostDebuggerExtension? {
+        if (environment.project.getEelDescriptor() != LocalEelDescriptor) {
+            LOG.info("Aspire CLI run is not local; the AppHost process will not be debugged")
+            return null
+        }
+
+        val debuggerExtension = AppHostDebuggerExtension.findApplicable(appHostFilePath)
+        if (debuggerExtension == null) {
+            LOG.info("No AppHost debugger extension applies to $appHostFilePath; the AppHost process will not be debugged")
+            return null
+        }
+
+        return debuggerExtension
+    }
+
+    private suspend fun attachDebuggerToAppHost(
+        debuggerExtension: AppHostDebuggerExtension,
+        appHostFilePath: Path,
+        cliProcessPid: Long,
+        attachTimeout: Duration,
+    ) {
+        val project = environment.project
+        val attached = try {
+            withTimeoutOrNull(attachTimeout) {
+                debuggerExtension.attachToAppHost(appHostFilePath, cliProcessPid, project)
+            }
+        } catch (e: Exception) {
+            rethrowControlFlowException(e)
+            Result.failure(e)
+        }
+
+        if (attached == null || attached.isFailure) {
+            LOG.warn("Failed to attach the debugger to the AppHost $appHostFilePath", attached?.exceptionOrNull())
+            notifyAppHostAttachFailed(appHostFilePath)
+        }
+    }
+
     private suspend fun checkAndNotifyDevCertificate(environmentVariables: Map<String, String>) {
         if (!environmentVariables.getAspireAllowUnsecuredTransport()) {
             DevCertificateProvider
@@ -135,7 +215,7 @@ internal class AspireCliRunProfileState(
         options: AspireCliRunConfigurationOptions,
         envs: MutableMap<String, String>,
         eelApi: EelApi,
-    ): ProcessHandler {
+    ): Pair<ProcessHandler, Long> {
         val arguments = buildRunArguments(appHostFile, options.noBuild, options.isolated, options.logLevel)
         val workingDirectory = options.workingDirectory?.takeIf { it.isNotBlank() }?.let { Path.of(it) }
             ?: appHostFile.parent
@@ -149,6 +229,7 @@ internal class AspireCliRunProfileState(
                 .env(envs)
                 .applyIf(workingDirectory != null) { workingDirectory(workingDirectory.asEelPath()) }
                 .eelIt()
+            val pid = process.pid.value
             val commandLineRepresentation = "aspire $parameterList"
             val processHandler =
                 object : KillableColoredProcessHandler(process.convertToJVMProcess(), commandLineRepresentation) {
@@ -162,7 +243,7 @@ internal class AspireCliRunProfileState(
                 containerRuntimeNotificationCount,
                 environment.project
             )
-            processHandler
+            processHandler to pid
         } catch (e: Exception) {
             rethrowControlFlowException(e)
             LOG.warn("Failed to execute aspire commandline", e)
@@ -211,5 +292,43 @@ internal class AspireCliRunProfileState(
                 }
             })
             .notify(environment.project)
+    }
+
+    private fun notifyAppHostNotDebugged(appHostFile: Path) {
+        val settings = AspireSettings.getInstance()
+        if (!settings.showAppHostNotDebuggedNotification) return
+
+        Notification(
+            NOTIFICATION_GROUP,
+            AspireCoreBundle.message("notification.app.host.not.debugged.title"),
+            AspireCoreBundle.message("notification.app.host.not.debugged.content", appHostFile.name),
+            NotificationType.INFORMATION
+        )
+            .addAction(NotificationAction.createSimpleExpiring(
+                AspireCoreBundle.message("notification.action.never.show.again")
+            ) {
+                settings.showAppHostNotDebuggedNotification = false
+            })
+            .notify(environment.project)
+    }
+
+    private fun notifyAppHostAttachFailed(appHostFile: Path) {
+        val project = environment.project
+        Notification(
+            NOTIFICATION_GROUP,
+            AspireCoreBundle.message("notification.app.host.attach.failed.title"),
+            AspireCoreBundle.message("notification.app.host.attach.failed.content", appHostFile.name),
+            NotificationType.WARNING
+        )
+            .addAction(NotificationAction.createSimpleExpiring(
+                AspireCoreBundle.message("notification.action.aspire.settings")
+            ) {
+                ShowSettingsUtil.getInstance().showSettingsDialog(
+                    project,
+                    Predicate { ConfigurableVisitor.getId(it) == AspireSettings.CONFIGURABLE_ID },
+                    null
+                )
+            })
+            .notify(project)
     }
 }

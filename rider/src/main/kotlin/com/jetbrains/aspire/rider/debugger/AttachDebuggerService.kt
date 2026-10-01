@@ -25,8 +25,11 @@ internal class AttachDebuggerService(private val project: Project) {
     }
 
     @Suppress("UnstableApiUsage")
-    suspend fun attach(pid: Int) = withContext(Dispatchers.Default) {
-        withBackgroundProgress(project, AspireRiderBundle.message("progress.attach.debugger.to.resource")) {
+    suspend fun attach(
+        pid: Int,
+        progressTitle: String = AspireRiderBundle.message("progress.attach.debugger.to.resource")
+    ) = withContext(Dispatchers.Default) {
+        withBackgroundProgress(project, progressTitle) {
             val eelProcessInfo = localEel.exec.processManagement.processInfo(pid.toLong())
                 ?: return@withBackgroundProgress
             val arguments = eelProcessInfo.arguments.await()

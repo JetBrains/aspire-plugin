@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.rider.sessions.projectLaunchers
 
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.rider.sessions.findBySessionProject
+import com.jetbrains.aspire.rider.sessions.findByProjectPath
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectKind
 import com.jetbrains.rider.model.runnableProjectsModel
@@ -17,7 +17,7 @@ abstract class DotNetRunnableSessionProcessLauncher : DotNetSessionProcessLaunch
     }
 
     protected fun findSupportedRunnableProjectByPath(sessionProjectPath: Path, project: Project): RunnableProject? {
-        return project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) {
+        return project.solution.runnableProjectsModel.findByProjectPath(sessionProjectPath) {
             supportedRunnableProjectKinds.contains(it.kind)
         }
     }
