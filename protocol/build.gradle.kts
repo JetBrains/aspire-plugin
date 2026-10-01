@@ -31,20 +31,12 @@ rdgen {
     packages = "model.aspireWorker,model.aspirePlugin"
 
     val ktWorkerOutput = coreModulePath.resolve("generated")
-    val csWorkerOutput = pluginSourcePath.resolve("dotnet/AspireWorker/Generated")
 
     generator {
         language = "kotlin"
         transform = "asis"
         root = "model.aspireWorker.AspireWorkerRoot"
         directory = ktWorkerOutput.canonicalPath
-    }
-
-    generator {
-        language = "csharp"
-        transform = "reversed"
-        root = "model.aspireWorker.AspireWorkerRoot"
-        directory = csWorkerOutput.canonicalPath
     }
 
     val ktPluginOutput = riderModulePath.resolve("generated")

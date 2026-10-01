@@ -16,7 +16,7 @@ import kotlin.jvm.JvmStatic
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:15]
+ * #### Generated from [AspireWorkerModel.kt:13]
  */
 class AspireWorkerModel private constructor(
     private val _aspireHosts: RdMap<String, AspireHostModel>,
@@ -127,7 +127,7 @@ val IProtocol.aspireWorkerModel get() = getOrCreateExtension(AspireWorkerModel::
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:110]
+ * #### Generated from [AspireWorkerModel.kt:108]
  */
 class AspireHostModel private constructor(
     val config: AspireHostModelConfig,
@@ -245,7 +245,7 @@ class AspireHostModel private constructor(
  * @property resourceServiceApiKey `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable
  * @property otlpEndpointUrl `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL` environment variable
  * @property aspireHostProjectUrl URL of the Aspire Host dashboard
- * #### Generated from [AspireWorkerModel.kt:94]
+ * #### Generated from [AspireWorkerModel.kt:92]
  */
 data class AspireHostModelConfig (
     val id: String,
@@ -338,7 +338,7 @@ data class AspireHostModelConfig (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:66]
+ * #### Generated from [AspireWorkerModel.kt:64]
  */
 class CreateProjectSessionRequest (
     val projectPath: String,
@@ -444,7 +444,7 @@ class CreateProjectSessionRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:72]
+ * #### Generated from [AspireWorkerModel.kt:70]
  */
 class CreatePythonSessionRequest (
     val programPath: String,
@@ -550,7 +550,7 @@ class CreatePythonSessionRequest (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:59]
+ * #### Generated from [AspireWorkerModel.kt:57]
  */
 abstract class CreateSessionRequest (
     val dcpInstancePrefix: String,
@@ -672,7 +672,7 @@ class CreateSessionRequest_Unknown (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:78]
+ * #### Generated from [AspireWorkerModel.kt:76]
  */
 data class CreateSessionResponse (
     val sessionId: String?,
@@ -741,7 +741,7 @@ data class CreateSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:83]
+ * #### Generated from [AspireWorkerModel.kt:81]
  */
 data class DeleteSessionRequest (
     val dcpInstancePrefix: String,
@@ -811,7 +811,7 @@ data class DeleteSessionRequest (
 
 /**
  * @property sessionId The field will be null if the session cannot be found
- * #### Generated from [AspireWorkerModel.kt:88]
+ * #### Generated from [AspireWorkerModel.kt:86]
  */
 data class DeleteSessionResponse (
     val sessionId: String?,
@@ -880,7 +880,7 @@ data class DeleteSessionResponse (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:124]
+ * #### Generated from [AspireWorkerModel.kt:122]
  */
 enum class ErrorCode {
     AspireAppHostNotFound, 
@@ -912,7 +912,7 @@ enum class ErrorCode {
  * @property id The ID of the run session that the notification is related to
  * @property isStdErr True if the output comes from standard error stream, otherwise false (implying standard output stream)
  * @property message The text written by the service program
- * #### Generated from [AspireWorkerModel.kt:31]
+ * #### Generated from [AspireWorkerModel.kt:29]
  */
 data class LogReceived (
     val id: String,
@@ -987,7 +987,7 @@ data class LogReceived (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:43]
+ * #### Generated from [AspireWorkerModel.kt:41]
  */
 enum class MessageLevel {
     Error, 
@@ -1016,7 +1016,7 @@ enum class MessageLevel {
  * @property id The ID of the run session that the notification is related to
  * @property message The content of the message
  * @property error The error code. Only valid and required for error messages
- * #### Generated from [AspireWorkerModel.kt:40]
+ * #### Generated from [AspireWorkerModel.kt:38]
  */
 data class MessageReceived (
     val id: String,
@@ -1099,7 +1099,7 @@ data class MessageReceived (
 /**
  * @property id The ID of the run session that the notification is related to
  * @property pid The process ID of the service process associated with the run session
- * #### Generated from [AspireWorkerModel.kt:17]
+ * #### Generated from [AspireWorkerModel.kt:15]
  */
 data class ProcessStarted (
     val id: String,
@@ -1170,7 +1170,7 @@ data class ProcessStarted (
 /**
  * @property id The ID of the run session that the notification is related to
  * @property exitCode The exit code of the process associated with the run session
- * #### Generated from [AspireWorkerModel.kt:24]
+ * #### Generated from [AspireWorkerModel.kt:22]
  */
 data class ProcessTerminated (
     val id: String,
@@ -1239,7 +1239,7 @@ data class ProcessTerminated (
 
 
 /**
- * #### Generated from [AspireWorkerModel.kt:54]
+ * #### Generated from [AspireWorkerModel.kt:52]
  */
 data class SessionEnvironmentVariable (
     val key: String,

@@ -2,13 +2,11 @@ package model.aspireWorker
 
 import com.jetbrains.rd.generator.nova.*
 import com.jetbrains.rd.generator.nova.PredefinedType.*
-import com.jetbrains.rd.generator.nova.csharp.CSharp50Generator
 import com.jetbrains.rd.generator.nova.kotlin.Kotlin11Generator
 
 object AspireWorkerRoot : Root() {
     init {
         setting(Kotlin11Generator.Namespace, "com.jetbrains.aspire.generated")
-        setting(CSharp50Generator.Namespace, "JetBrains.Rider.Aspire.Worker.Generated")
     }
 }
 
