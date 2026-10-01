@@ -2,7 +2,7 @@
 
 Models live in `protocol/src/main/kotlin/model/`. The `rdgen` Gradle task generates code into:
 
-- Kotlin → `core/src/main/kotlin/com/jetbrains/aspire/generated/`
+- Kotlin → `rider/src/main/kotlin/com/jetbrains/aspire/rider/generated/`
 - C# → `src/dotnet/AspirePlugin/Generated/`
 
 **Never edit generated files directly.** Modify the model in `protocol/` and regenerate

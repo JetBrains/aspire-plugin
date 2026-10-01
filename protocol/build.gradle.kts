@@ -23,21 +23,11 @@ dependencies {
 }
 
 rdgen {
-    val coreModulePath = projectDir.resolve("../core/src/main/kotlin/com/jetbrains/aspire")
     val riderModulePath = projectDir.resolve("../rider/src/main/kotlin/com/jetbrains/aspire/rider")
     val pluginSourcePath = projectDir.resolve("../src")
 
     verbose = true
-    packages = "model.aspireWorker,model.aspirePlugin"
-
-    val ktWorkerOutput = coreModulePath.resolve("generated")
-
-    generator {
-        language = "kotlin"
-        transform = "asis"
-        root = "model.aspireWorker.AspireWorkerRoot"
-        directory = ktWorkerOutput.canonicalPath
-    }
+    packages = "model.aspirePlugin"
 
     val ktPluginOutput = riderModulePath.resolve("generated")
     val csPluginOutput = pluginSourcePath.resolve("dotnet/AspirePlugin/Generated")
