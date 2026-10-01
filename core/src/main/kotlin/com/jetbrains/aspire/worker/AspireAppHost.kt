@@ -72,26 +72,26 @@ class AspireAppHost(
     private val appHostLifecycleEvents: SharedFlow<AppHostLifecycleEvent> =
         project.messageBus.subscribeAsFlow(AppHostListener.TOPIC) {
             object : AppHostListener {
-                override fun appHostStarting(appHostFilePath: Path, environment: AppHostEnvironment) {
-                    if (mainFilePath != appHostFilePath) return
+                override fun appHostStarting(appHostFile: Path, environment: AppHostEnvironment) {
+                    if (mainFilePath != appHostFile) return
 
                     LOG.trace { "Aspire AppHost $mainFilePath is starting" }
                     trySend(AppHostLifecycleEvent.Starting(environment))
                 }
 
                 override fun appHostStarted(
-                    appHostFilePath: Path,
+                    appHostFile: Path,
                     runConfigName: String?,
                     logFlow: SharedFlow<AppHostLogEntry>
                 ) {
-                    if (mainFilePath != appHostFilePath) return
+                    if (mainFilePath != appHostFile) return
 
                     LOG.trace { "Aspire AppHost $mainFilePath was started" }
                     trySend(AppHostLifecycleEvent.Started(runConfigName, logFlow))
                 }
 
-                override fun appHostStopped(appHostFilePath: Path) {
-                    if (mainFilePath != appHostFilePath) return
+                override fun appHostStopped(appHostFile: Path) {
+                    if (mainFilePath != appHostFile) return
                     LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
 
                     trySend(AppHostLifecycleEvent.Stopped)
