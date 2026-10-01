@@ -33,6 +33,7 @@ import java.nio.file.Path
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.path.absolutePathString
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.rider.orchestration.AspireOrchestrationUtils")
@@ -106,7 +107,7 @@ internal suspend fun addProjectToSolution(
 }
 
 private suspend fun waitForProjectModelIsReady(project: Project) {
-    val timeoutTracker = TimeoutTracker(60.seconds)
+    val timeoutTracker = TimeoutTracker(2.minutes)
     withContext(Dispatchers.EDT) {
         val riderSolutionLifecycle = project.solution.riderSolutionLifecycle
         val isProjectModelReady = riderSolutionLifecycle.isProjectModelReady

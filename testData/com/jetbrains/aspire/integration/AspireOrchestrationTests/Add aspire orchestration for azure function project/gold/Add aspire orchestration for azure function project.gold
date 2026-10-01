@@ -32,7 +32,7 @@ EndGlobal
 
 AppHost:
 
-<Project Sdk="Aspire.AppHost.Sdk/13.5.3">
+<Project Sdk="Aspire.AppHost.Sdk/13.6.0">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -48,7 +48,7 @@ AppHost:
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="13.5.3" />
+      <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="13.6.0" />
     </ItemGroup>
 
 </Project>
@@ -78,13 +78,13 @@ ServiceDefaults:
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
 
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.8.0"/>
-        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.8.0"/>
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3"/>
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3"/>
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2"/>
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1"/>
-        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1"/>
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0"/>
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.10.0"/>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.17.0"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.17.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.17.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.17.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.17.0"/>
     </ItemGroup>
 
 </Project>

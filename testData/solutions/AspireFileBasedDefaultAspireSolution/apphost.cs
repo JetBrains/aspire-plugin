@@ -1,4 +1,4 @@
-#:sdk Aspire.AppHost.Sdk@13.5.3
+#:sdk Aspire.AppHost.Sdk@13.6.0
 #:project .\DefaultAspireSolution.ApiService\DefaultAspireSolution.ApiService.csproj
 #:project .\DefaultAspireSolution.Web\DefaultAspireSolution.Web.csproj
 #:property UserSecretsId=0169f63d-5f25-4676-8ffe-ebee3ecb224b

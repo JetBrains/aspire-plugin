@@ -32,7 +32,7 @@ EndGlobal
 
 AppHost:
 
-<Project Sdk="Aspire.AppHost.Sdk/13.5.3">
+<Project Sdk="Aspire.AppHost.Sdk/13.6.0">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -48,7 +48,7 @@ AppHost:
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Aspire.Hosting.Maui" Version="13.5.3-preview.1.26425.3" />
+      <PackageReference Include="Aspire.Hosting.Maui" Version="13.6.0-preview.1.26479.8" />
     </ItemGroup>
 
 </Project>
