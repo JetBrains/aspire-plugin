@@ -6,7 +6,8 @@ import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.EnvironmentUtil
-import com.jetbrains.aspire.run.AspireEnvironment
+import com.jetbrains.aspire.run.AspireEnvironment.getAspireSpecificEnvironmentVariables
+import com.jetbrains.aspire.util.getAspireDashboardFrontendBrowserToken
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
@@ -34,21 +35,20 @@ internal abstract class AspireExecutorFactory(
 
         val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
 
-        // the browser url is not known yet at this point - the callers resolve it from the launch profile
-        // after this call and rewrite it with `configureUrl`, so the returned `aspireHostProjectUrl` is unused
-        val result = AspireEnvironment.configure(
-            appHost = appHost,
-            browserUrl = null,
-            usePodmanRuntime = parameters.usePodmanRuntime,
-            envs = envs
+        val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
+            envs,
+            appHost.browserToken,
+            parameters.usePodmanRuntime
         )
+        envs.putAll(aspireEnvironmentVariables)
 
         val dotnetPath = PathEnvironmentVariableUtil.findFirst("dotnet")
         if (dotnetPath == null) {
             setDotnetRootPathVariable(envs, activeRuntime)
         }
 
-        return EnvironmentVariableValues(result.browserToken)
+        val browserToken = envs.getAspireDashboardFrontendBrowserToken()
+        return EnvironmentVariableValues(browserToken)
     }
 
     private fun setDotnetRootPathVariable(envs: MutableMap<String, String>, activeRuntime: DotNetCoreRuntime) {
