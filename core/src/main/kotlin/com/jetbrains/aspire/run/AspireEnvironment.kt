@@ -52,16 +52,9 @@ object AspireEnvironment {
         // Set the `DOTNET_RESOURCE_SERVICE_ENDPOINT_URL` environment variable if not specified to connect to the resource service
         // see: https://learn.microsoft.com/en-us/dotnet/aspire/app-host/configuration#resource-service
         // see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration?tabs=bash#common-configuration
-        // note: we have to replace `ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL` with `DOTNET_RESOURCE_SERVICE_ENDPOINT_URL`
-        // otherwise the url won't be passed to the resource service
-        if (!envs.containsKey(DOTNET_RESOURCE_SERVICE_ENDPOINT_URL)) {
-            val aspireResourceServiceEndpoint = envs[ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL]
-            if (!aspireResourceServiceEndpoint.isNullOrEmpty()) {
-                envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] = aspireResourceServiceEndpoint
-            } else {
-                val resourceEndpointPort = NetworkUtils.findFreePort(RESOURCE_SERVICE_BASE_PORT)
-                envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL] = localhostUrl(useHttp, resourceEndpointPort)
-            }
+        if (envs.getAspireResourceServiceEndpointUrl().isNullOrEmpty()) {
+            val resourceEndpointPort = NetworkUtils.findFreePort(RESOURCE_SERVICE_BASE_PORT)
+            envs[ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL] = localhostUrl(useHttp, resourceEndpointPort)
         }
 
         val allowAnonymousDashboard = envs.getAspireDashboardUnsecuredAllowAnonymous()
@@ -101,7 +94,7 @@ object AspireEnvironment {
             envs[ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL] = localhostUrl(useHttp, otlpEndpointPort)
         }
 
-        val resourceServiceEndpointUrl = envs[DOTNET_RESOURCE_SERVICE_ENDPOINT_URL]
+        val resourceServiceEndpointUrl = envs.getAspireResourceServiceEndpointUrl()
         val otlpEndpointUrl = envs.getAspireDashboardOtlpEndpointUrl()
         val aspireHostProjectUrl = browserUrl?.takeIf { it.isNotBlank() }?.let { url ->
             if (browserToken != null) "$url/login?t=$browserToken" else url
