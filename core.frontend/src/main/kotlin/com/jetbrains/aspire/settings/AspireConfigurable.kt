@@ -3,13 +3,7 @@ package com.jetbrains.aspire.settings
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.dsl.builder.AlignX
-import com.intellij.ui.dsl.builder.BottomGap
-import com.intellij.ui.dsl.builder.Cell
-import com.intellij.ui.dsl.builder.bindSelected
-import com.intellij.ui.dsl.builder.bindText
-import com.intellij.ui.dsl.builder.panel
-import com.intellij.ui.dsl.builder.selected
+import com.intellij.ui.dsl.builder.*
 import com.jetbrains.aspire.AspireCoreFrontendBundle
 
 internal class AspireConfigurable : BoundConfigurable(AspireCoreFrontendBundle.message("configurable.Aspire")) {
@@ -30,6 +24,16 @@ internal class AspireConfigurable : BoundConfigurable(AspireCoreFrontendBundle.m
         row {
             checkBox(AspireCoreFrontendBundle.message("configurable.Aspire.connect.to.dcp.via.https"))
                 .bindSelected(settings::connectToDcpViaHttps)
+        }
+        row {
+            checkBox(AspireCoreFrontendBundle.message("configurable.Aspire.show.app.host.not.debugged.notification"))
+                .bindSelected(settings::showAppHostNotDebuggedNotification)
+        }
+        row(AspireCoreFrontendBundle.message("configurable.Aspire.app.host.attach.timeout")) {
+            intTextField(1..3600, 10)
+                .bindIntText(settings::appHostAttachTimeoutSeconds)
+                .columns(COLUMNS_TINY)
+                .comment(AspireCoreFrontendBundle.message("configurable.Aspire.app.host.attach.timeout.comment"))
         }
         group(AspireCoreFrontendBundle.message("configurable.Aspire.dotnet")) {
             row {

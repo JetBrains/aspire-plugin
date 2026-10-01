@@ -14,4 +14,6 @@ class AspireSettingsState : BaseState() {
     var showEnvironmentVariables by property(true)
     var openConsoleView by property(false)
     var showHiddenResources by property(false)
+    var showAppHostNotDebuggedNotification by property(true)
+    var appHostAttachTimeoutSeconds by property(120)
 }
