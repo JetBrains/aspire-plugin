@@ -2,31 +2,51 @@ package com.jetbrains.aspire.rider.run
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.jetbrains.aspire.rider.run.states.*
+import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.util.getAspireDashboardFrontendBrowserToken
+import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
+import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
+import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
+import java.nio.file.Path
 import kotlin.io.path.Path
 
 internal fun setUpAspireHostEnvironment(
     environment: ExecutionEnvironment,
-    state: AspireHostProfileState,
+    environmentVariables: Map<String, String>,
 ) {
     val configuration = environment.runnerAndConfigurationSettings?.configuration
     val aspireRunConfiguration = (configuration as? AspireRiderRunConfiguration)
         ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
 
-    val resourceServiceEndpointUrl = state.getResourceServiceEndpointUrl()
-    val resourceServiceApiKey = state.getResourceServiceApiKey()
-    val otlpEndpointUrl = state.getOtlpEndpointUrl()
-
     val parameters = aspireRunConfiguration.parameters
     val appHostFile = Path(parameters.appHostFile)
+    val startBrowserUrl = parameters.startBrowserParameters.url
 
-    val browserToken = state.getDashboardBrowserToken()
+    setUpAspireHostEnvironment(
+        appHostFile,
+        startBrowserUrl,
+        environmentVariables,
+        environment.project
+    )
+}
+
+internal fun setUpAspireHostEnvironment(
+    appHostFile: Path,
+    startBrowserUrl: String,
+    environmentVariables: Map<String, String>,
+    project: Project
+) {
+    val resourceServiceEndpointUrl = environmentVariables.getAspireResourceServiceEndpointUrl()
+    val resourceServiceApiKey = environmentVariables.getAspireDashboardResourceServiceApiKey()
+    val otlpEndpointUrl = environmentVariables.getAspireDashboardOtlpEndpointUrl()
+
+    val browserToken = environmentVariables.getAspireDashboardFrontendBrowserToken()
     val aspireHostProjectUrl = if (browserToken != null) {
-        "${parameters.startBrowserParameters.url}/login?t=$browserToken"
+        "${startBrowserUrl}/login?t=$browserToken"
     } else {
-        parameters.startBrowserParameters.url
+        startBrowserUrl
     }
 
     val appHostEnvironment = AppHostEnvironment(
@@ -36,7 +56,7 @@ internal fun setUpAspireHostEnvironment(
         aspireHostProjectUrl
     )
 
-    environment.project.messageBus
+    project.messageBus
         .syncPublisher(AppHostListener.TOPIC)
         .appHostStarting(appHostFile, appHostEnvironment)
 }

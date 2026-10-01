@@ -9,6 +9,7 @@ import com.intellij.execution.runners.ProgramRunner
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.rider.run.setUpAspireHostEnvironment
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
+import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
 import com.jetbrains.rider.run.ConsoleKind
 import com.jetbrains.rider.run.TerminalProcessHandler
 import com.jetbrains.rider.run.configurations.RiderAsyncRunProfileState
@@ -25,9 +26,9 @@ class AspireHostRunProfileState(
     private val dotnetExecutable: DotNetExecutable,
     private val dotnetRuntime: DotNetCoreRuntime,
     private val environment: ExecutionEnvironment
-) : RiderAsyncRunProfileState, RunProfileState, AspireHostProfileState {
+) : RiderAsyncRunProfileState, RunProfileState {
 
-    override val environmentVariables: Map<String, String> = dotnetExecutable.environmentVariables
+    private val environmentVariables: Map<String, String> = dotnetExecutable.environmentVariables
 
     private val containerRuntimeNotificationCount = AtomicInteger()
 
@@ -35,13 +36,13 @@ class AspireHostRunProfileState(
         executor: Executor,
         runner: ProgramRunner<*>
     ): ExecutionResult {
-        if (!this.getAllowUnsecuredTransport()) {
+        if (!environmentVariables.getAspireAllowUnsecuredTransport()) {
             DevCertificateProvider
                 .getInstance()
                 ?.checkDevCertificate(false, environment.project, showNotification = true)
         }
 
-        setUpAspireHostEnvironment(environment, this)
+        setUpAspireHostEnvironment(environment, environmentVariables)
 
         return execute()
     }

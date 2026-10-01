@@ -6,6 +6,7 @@ import com.intellij.execution.ui.ConsoleView
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.rider.run.setUpAspireHostEnvironment
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
+import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerHelperHost
 import com.jetbrains.rider.debugger.DebuggerWorkerProcessHandler
@@ -24,9 +25,9 @@ class AspireHostDebugProfileState(
     dotnetExecutable,
     environment,
     dotnetRuntime.cliExePath
-), AspireHostProfileState {
+) {
 
-    override val environmentVariables: Map<String, String> = dotnetExecutable.environmentVariables
+    private val environmentVariables: Map<String, String> = dotnetExecutable.environmentVariables
 
     private val containerRuntimeNotificationCount = AtomicInteger()
 
@@ -50,13 +51,13 @@ class AspireHostDebugProfileState(
         workerProcessHandler: DebuggerWorkerProcessHandler,
         lifetime: Lifetime
     ): ExecutionResult {
-        if (!this.getAllowUnsecuredTransport()) {
+        if (!environmentVariables.getAspireAllowUnsecuredTransport()) {
             DevCertificateProvider
                 .getInstance()
                 ?.checkDevCertificate(false, project, showNotification = true)
         }
 
-        setUpAspireHostEnvironment(executionEnvironment, this)
+        setUpAspireHostEnvironment(executionEnvironment, environmentVariables)
 
         return super.execute(workerConsole, workerProcessHandler, lifetime)
     }
