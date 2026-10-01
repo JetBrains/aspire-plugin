@@ -6,8 +6,10 @@ import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.EnvironmentUtil
-import com.jetbrains.aspire.run.AspireEnvironment
+import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
+import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.net.URI
@@ -23,35 +25,30 @@ internal abstract class AspireExecutorFactory(
         private const val PATH = "PATH"
     }
 
-    protected suspend fun configureEnvironmentVariables(
-        appHostMainFilePath: Path,
+    protected suspend fun putAdditionalEnvironmentVariables(
         envs: MutableMap<String, String>,
+        appHostMainFilePath: Path,
         activeRuntime: DotNetCoreRuntime
-    ): EnvironmentVariableValues {
+    ) {
         val aspireWorker = AspireWorker.getInstance(project)
-        val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
-        envs.putAll(dcpEnvironmentVariables)
+        val (appHost, endpoint) = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
+        envs[DCP_INSTANCE_ID_PREFIX] = appHost.dcpInstancePrefix
+        envs.putAll(endpoint.toDcpEnvironmentVariables())
 
-        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
-
-        // the browser url is not known yet at this point - the callers resolve it from the launch profile
-        // after this call and rewrite it with `configureUrl`, so the returned `aspireHostProjectUrl` is unused
-        val result = AspireEnvironment.configure(
-            appHost = appHost,
-            browserUrl = null,
-            usePodmanRuntime = parameters.usePodmanRuntime,
-            envs = envs
+        val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
+            envs,
+            appHost.browserToken,
+            parameters.usePodmanRuntime
         )
+        envs.putAll(aspireEnvironmentVariables)
 
         val dotnetPath = PathEnvironmentVariableUtil.findFirst("dotnet")
         if (dotnetPath == null) {
-            setDotnetRootPathVariable(envs, activeRuntime)
+            putDotnetRootPathVariable(envs, activeRuntime)
         }
-
-        return EnvironmentVariableValues(result.browserToken)
     }
 
-    private fun setDotnetRootPathVariable(envs: MutableMap<String, String>, activeRuntime: DotNetCoreRuntime) {
+    private fun putDotnetRootPathVariable(envs: MutableMap<String, String>, activeRuntime: DotNetCoreRuntime) {
         val dotnetRootPath = activeRuntime.cliExePath.parent
 
         val dotnetRootPathString = dotnetRootPath.absolutePathString()
@@ -88,8 +85,4 @@ internal abstract class AspireExecutorFactory(
         )
         return updatedUrl.toString()
     }
-
-    protected data class EnvironmentVariableValues(
-        val browserToken: String?
-    )
 }

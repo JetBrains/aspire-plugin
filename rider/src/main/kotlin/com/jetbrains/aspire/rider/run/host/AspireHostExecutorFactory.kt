@@ -14,6 +14,7 @@ import com.jetbrains.aspire.rider.run.AspireRunnableProjectKinds
 import com.jetbrains.aspire.rider.run.states.AspireHostDebugProfileState
 import com.jetbrains.aspire.rider.run.states.AspireHostRunProfileState
 import com.jetbrains.aspire.rider.util.getStartBrowserAction
+import com.jetbrains.aspire.util.getAspireDashboardFrontendBrowserToken
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.model.RunnableProject
@@ -93,13 +94,14 @@ internal class AspireHostExecutorFactory(
         val effectiveEnvs =
             if (parameters.trackEnvs) getEnvironmentVariables(launchProfile.name, launchProfile.content).toMutableMap()
             else parameters.envs.toMutableMap()
-        val environmentVariableValues = configureEnvironmentVariables(projectFilePath, effectiveEnvs, activeRuntime)
+        putAdditionalEnvironmentVariables(effectiveEnvs, projectFilePath, activeRuntime)
 
         var effectiveUrl =
             if (parameters.trackUrl) getApplicationUrl(launchProfile.content)
             else parameters.startBrowserParameters.url
-        if (parameters.trackUrl && environmentVariableValues.browserToken != null) {
-            effectiveUrl = configureUrl(effectiveUrl, environmentVariableValues.browserToken)
+        val browserToken = effectiveEnvs.getAspireDashboardFrontendBrowserToken()
+        if (parameters.trackUrl && browserToken != null) {
+            effectiveUrl = configureUrl(effectiveUrl, browserToken)
         }
 
         val effectiveLaunchBrowser =

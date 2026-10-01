@@ -7,9 +7,9 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.TestApplicationManager
 import com.intellij.testFramework.common.timeoutRunBlocking
 import com.intellij.testFramework.replaceService
-import com.jetbrains.aspire.sessions.CreateProjectSessionRequest
 import com.jetbrains.aspire.sessions.CreateSessionResponse
 import com.jetbrains.aspire.sessions.DeleteSessionResponse
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.sessions.ErrorCode
 import com.jetbrains.aspire.sessions.SessionLogReceived
 import com.jetbrains.aspire.sessions.SessionProcessStarted
@@ -23,9 +23,11 @@ import org.junit.jupiter.api.TestInstance
 import java.net.http.WebSocket
 import java.net.http.WebSocketHandshakeException
 import java.util.concurrent.ExecutionException
+import kotlin.io.path.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -216,30 +218,29 @@ internal class AspireSessionServerTest {
         val host = MockAspireSessionHost().apply {
             onCreate = { CreateSessionResponse("session-1", null) }
         }
+        val expectedProjectPath = Path("/p/App.csproj")
+        val body = """
+            {"launch_configurations":[{"type":"project","project_path":"/p/App.csproj","mode":"Debug",
+            "launch_profile":"https","disable_launch_profile":true}],
+            "env":[{"name":"A","value":"1"}],"args":["--x"]}
+        """.trimIndent()
 
         withServer(host) { baseUrl, server ->
-            val body = """
-                {"launch_configurations":[{"type":"project","project_path":"/p/App.csproj","mode":"Debug",
-                "launch_profile":"https","disable_launch_profile":true}],
-                "env":[{"name":"A","value":"1"}],"args":["--x"]}
-            """.trimIndent()
-
             val response = httpPut("$baseUrl/run_session", body, checkNotNull(server.endpoint).token, instanceId = DEFAULT_INSTANCE_ID)
 
             response.assertStatus(201)
             assertEquals("/run_session/session-1", response.location())
             response.assertBodyContains("project_path")
 
-            val request = host.lastCreateRequest as CreateProjectSessionRequest
-            assertEquals("/p/App.csproj", request.projectPath)
-            assertEquals("https", request.launchProfile)
-            assertTrue(request.disableLaunchProfile)
-            assertTrue(request.debug)
+            val request = checkNotNull(host.lastCreateRequest)
+            val launchConfiguration = assertIs<DotNetSessionLaunchConfiguration>(request.launchConfiguration)
+            assertEquals(expectedProjectPath, launchConfiguration.projectPath)
+            assertEquals("https", launchConfiguration.launchProfile)
+            assertTrue(launchConfiguration.disableLaunchProfile)
+            assertTrue(launchConfiguration.debug)
             assertEquals(DEFAULT_HOST_ID, request.dcpInstancePrefix)
-            assertEquals(listOf("--x"), request.args)
-            assertEquals(1, request.envs?.size)
-            assertEquals("A", request.envs?.get(0)?.key)
-            assertEquals("1", request.envs?.get(0)?.value)
+            assertEquals(listOf("--x"), launchConfiguration.args)
+            assertEquals(listOf("A" to "1"), launchConfiguration.envs)
         }
     }
 
@@ -255,14 +256,28 @@ internal class AspireSessionServerTest {
             val response = httpPut("$baseUrl/run_session", body, checkNotNull(server.endpoint).token)
 
             response.assertStatus(201)
-            val request = host.lastCreateRequest as CreateProjectSessionRequest
-            assertFalse(request.debug)
-            assertFalse(request.disableLaunchProfile)
-            assertNull(request.launchProfile)
-            assertNull(request.args)
-            assertEquals(1, request.envs?.size)
-            assertEquals("empty", request.envs?.single()?.key)
-            assertEquals("", request.envs?.single()?.value)
+            val request = checkNotNull(host.lastCreateRequest)
+            val launchConfiguration = assertIs<DotNetSessionLaunchConfiguration>(request.launchConfiguration)
+            assertFalse(launchConfiguration.debug)
+            assertFalse(launchConfiguration.disableLaunchProfile)
+            assertNull(launchConfiguration.launchProfile)
+            assertNull(launchConfiguration.args)
+            assertEquals(listOf("empty" to ""), launchConfiguration.envs)
+        }
+    }
+
+    @Test
+    fun `create session preserves absent arguments and environment`() {
+        val host = MockAspireSessionHost()
+
+        withServer(host) { baseUrl, server ->
+            val response = httpPut("$baseUrl/run_session", VALID_SESSION_BODY, checkNotNull(server.endpoint).token)
+
+            response.assertStatus(201)
+            val request = checkNotNull(host.lastCreateRequest)
+            val launchConfiguration = assertIs<DotNetSessionLaunchConfiguration>(request.launchConfiguration)
+            assertNull(launchConfiguration.args)
+            assertNull(launchConfiguration.envs)
         }
     }
 

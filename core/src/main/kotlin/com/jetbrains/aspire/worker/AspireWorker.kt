@@ -9,8 +9,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
-import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
+import com.jetbrains.aspire.worker.dcp.AspireSessionServerEndpoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,14 +66,11 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     }
 
     /** Starts or reuses the AppHost's session server and returns the DCP connection environment variables. */
-    suspend fun startAppHostSessionServer(appHostFilePath: Path): Map<String, String> {
+    suspend fun startAppHostSessionServer(appHostFilePath: Path): Pair<AspireAppHost, AspireSessionServerEndpoint> {
         val appHost = requireNotNull(getOrCreateAppHostByPath(appHostFilePath))
         val endpoint = appHost.startSessionServer()
 
-        return buildMap {
-            putAll(endpoint.toDcpEnvironmentVariables())
-            put(DCP_INSTANCE_ID_PREFIX, appHost.dcpInstancePrefix)
-        }
+        return appHost to endpoint
     }
 
     override fun dispose() {

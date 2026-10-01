@@ -41,7 +41,6 @@ internal fun setUpAspireHostEnvironment(
     val resourceServiceEndpointUrl = environmentVariables.getAspireResourceServiceEndpointUrl()
     val resourceServiceApiKey = environmentVariables.getAspireDashboardResourceServiceApiKey()
     val otlpEndpointUrl = environmentVariables.getAspireDashboardOtlpEndpointUrl()
-
     val browserToken = environmentVariables.getAspireDashboardFrontendBrowserToken()
     val aspireHostProjectUrl = if (browserToken != null) {
         "${startBrowserUrl}/login?t=$browserToken"

@@ -13,6 +13,7 @@ import com.jetbrains.aspire.rider.generated.StartAspireHostResponse
 import com.jetbrains.aspire.rider.generated.StopAspireHostRequest
 import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
@@ -56,19 +57,18 @@ internal class AspireUnitTestService(private val project: Project, private val s
                 LOG.trace("Starting an Aspire host for a unit test session")
                 val appHostMainFilePath = request.aspireHostProjectPath.toNioPath()
                 val aspireWorker = AspireWorker.getInstance(project)
-                val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
+                val (appHost, endpoint) = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
 
                 val environmentVariables = buildList {
-                    dcpEnvironmentVariables.forEach { envVar ->
+                    add(AspireHostEnvironmentVariable(DCP_INSTANCE_ID_PREFIX, appHost.dcpInstancePrefix))
+                    endpoint.toDcpEnvironmentVariables().forEach { envVar ->
                         val environmentVariable = AspireHostEnvironmentVariable(envVar.key, envVar.value)
                         add(environmentVariable)
                     }
                 }
 
-                val aspireUnitTestServiceHost = AspireHostForUnitTestRun(
-                    dcpEnvironmentVariables.getValue(DCP_INSTANCE_ID_PREFIX),
-                    environmentVariables
-                )
+                val aspireUnitTestServiceHost =
+                    AspireHostForUnitTestRun(appHost.dcpInstancePrefix, environmentVariables)
 
                 val currentAspireHost =
                     aspireUnitTestHosts.putIfAbsent(request.unitTestRunId, aspireUnitTestServiceHost)
