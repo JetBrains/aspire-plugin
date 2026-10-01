@@ -37,6 +37,7 @@ import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
 import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
+import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
 import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
 import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
@@ -44,6 +45,7 @@ import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString
@@ -120,10 +122,10 @@ internal class AspireCliRunProfileState(
 
     private suspend fun putAdditionalEnvironmentVariables(envs: MutableMap<String, String>, appHostFile: Path) {
         val aspireWorker = AspireWorker.getInstance(environment.project)
-        val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostFile)
-        envs.putAll(dcpEnvironmentVariables)
+        val (appHost, endpoint) = aspireWorker.startAppHostSessionServer(appHostFile)
+        envs[DCP_INSTANCE_ID_PREFIX] = appHost.dcpInstancePrefix
+        envs.putAll(endpoint.toDcpEnvironmentVariables())
 
-        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFile))
         val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
             envs,
             appHost.browserToken,

@@ -6,8 +6,10 @@ import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.EnvironmentUtil
+import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
 import com.jetbrains.aspire.worker.AspireWorker
+import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.net.URI
@@ -29,10 +31,10 @@ internal abstract class AspireExecutorFactory(
         activeRuntime: DotNetCoreRuntime
     ) {
         val aspireWorker = AspireWorker.getInstance(project)
-        val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
-        envs.putAll(dcpEnvironmentVariables)
+        val (appHost, endpoint) = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
+        envs[DCP_INSTANCE_ID_PREFIX] = appHost.dcpInstancePrefix
+        envs.putAll(endpoint.toDcpEnvironmentVariables())
 
-        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostMainFilePath))
         val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
             envs,
             appHost.browserToken,
