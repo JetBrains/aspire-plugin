@@ -51,6 +51,8 @@
         <startSessionRequestHandler
                 implementation="com.jetbrains.aspire.rider.sessions.DotNetStartSessionRequestHandler"/>
 
+        <appHostDebugger implementation="com.jetbrains.aspire.rider.debugger.DotNetAppHostDebuggerExtension"/>
+
         <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
         <dotnetSessionProcessLauncherExtension

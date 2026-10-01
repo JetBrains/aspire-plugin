@@ -3,13 +3,7 @@ package com.jetbrains.aspire.settings
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.dsl.builder.AlignX
-import com.intellij.ui.dsl.builder.BottomGap
-import com.intellij.ui.dsl.builder.Cell
-import com.intellij.ui.dsl.builder.bindSelected
-import com.intellij.ui.dsl.builder.bindText
-import com.intellij.ui.dsl.builder.panel
-import com.intellij.ui.dsl.builder.selected
+import com.intellij.ui.dsl.builder.*
 import com.jetbrains.aspire.AspireCoreBundle
 
 internal class AspireConfigurable : BoundConfigurable(AspireCoreBundle.message("configurable.Aspire")) {
@@ -30,6 +24,10 @@ internal class AspireConfigurable : BoundConfigurable(AspireCoreBundle.message("
         row {
             checkBox(AspireCoreBundle.message("configurable.Aspire.connect.to.dcp.via.https"))
                 .bindSelected(settings::connectToDcpViaHttps)
+        }
+        row {
+            checkBox(AspireCoreBundle.message("configurable.Aspire.show.app.host.not.debugged.notification"))
+                .bindSelected(settings::showAppHostNotDebuggedNotification)
         }
         group(AspireCoreBundle.message("configurable.Aspire.dotnet")) {
             row {

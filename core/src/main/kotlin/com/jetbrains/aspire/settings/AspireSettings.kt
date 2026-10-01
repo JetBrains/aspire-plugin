@@ -88,4 +88,10 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
             state.showHiddenResources = value
             _showHiddenResources.value = value
         }
+
+    var showAppHostNotDebuggedNotification
+        get() = state.showAppHostNotDebuggedNotification
+        set(value) {
+            state.showAppHostNotDebuggedNotification = value
+        }
 }

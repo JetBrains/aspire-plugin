@@ -7,6 +7,7 @@
 ### Added
 
 - Resource watching for the Aspire CLI run configuration
+- Debugging of the AppHost launched by the Aspire CLI run configuration
 
 ### Changed
 
