@@ -5,7 +5,7 @@ import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
 interface AspireRiderRunConfigurationParameters {
-    val appHostFilePath: String
+    val appHostFile: String
     val usePodmanRuntime: Boolean
     val startBrowserParameters: DotNetStartBrowserParameters
 }

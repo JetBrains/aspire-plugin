@@ -37,8 +37,8 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
         if (profile !is AspireRunConfiguration) return
         if (!isValid(profile)) return
 
-        val appHostFilePath = profile.appHostFilePath
-        if (appHostFilePath == null) {
+        val appHostFile = profile.appHostFile
+        if (appHostFile == null) {
             LOG.warn("Aspire run configuration '${profile.name}' started without an AppHost file path")
             return
         }
@@ -55,7 +55,7 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(appHostFilePath, profile.name, logFlow.asSharedFlow())
+            .appHostStarted(appHostFile, profile.name, logFlow.asSharedFlow())
     }
 
     override fun processTerminated(
@@ -67,14 +67,14 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
         val profile = env.runProfile
         if (!isValid(profile)) return
 
-        val appHostFilePath = (profile as AspireRunConfiguration).appHostFilePath
-        if (appHostFilePath == null) {
+        val appHostFile = (profile as AspireRunConfiguration).appHostFile
+        if (appHostFile == null) {
             LOG.warn("Aspire run configuration '${profile.name}' terminated without an AppHost file path")
             return
         }
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStopped(appHostFilePath)
+            .appHostStopped(appHostFile)
     }
 }

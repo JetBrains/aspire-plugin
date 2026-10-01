@@ -49,7 +49,7 @@ private fun setUpAspireHostEnvironment(
     val otlpEndpointUrl = state.getOtlpEndpointUrl()
 
     val parameters = aspireRunConfiguration.parameters
-    val appHostFilePath = Path(parameters.appHostFilePath)
+    val appHostFile = Path(parameters.appHostFile)
 
     val browserToken = state.getDashboardBrowserToken()
     val aspireHostProjectUrl = if (browserToken != null) {
@@ -67,9 +67,9 @@ private fun setUpAspireHostEnvironment(
 
     environment.project.messageBus
         .syncPublisher(AppHostListener.TOPIC)
-        .appHostStarting(appHostFilePath, appHostEnvironment)
+        .appHostStarting(appHostFile, appHostEnvironment)
 
-    return appHostFilePath
+    return appHostFile
 }
 
 private fun saveRunConfiguration(

@@ -11,6 +11,6 @@ import java.nio.file.Path
 interface AspireRiderRunConfiguration : IRiderRunnable, IRiderDebuggable, RunConfiguration, AspireRunConfiguration {
     val parameters: AspireRiderRunConfigurationParameters
 
-    override val appHostFilePath: Path
-        get() = Path.of(parameters.appHostFilePath)
+    override val appHostFile: Path
+        get() = Path.of(parameters.appHostFile)
 }

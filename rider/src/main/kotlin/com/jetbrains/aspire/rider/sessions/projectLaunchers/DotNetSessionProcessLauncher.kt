@@ -86,7 +86,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         }
 
         val projectPath = launchConfiguration.projectPath
-        val appHostFilePath = aspireRunConfig?.let { Path(it.parameters.appHostFilePath) }
+        val appHostFile = aspireRunConfig?.let { Path(it.parameters.appHostFile) }
         val profile = getRunProfile(
             sessionId,
             projectPath,
@@ -94,7 +94,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
             runtime,
             sessionProcessEventListener,
             sessionProcessLifetime,
-            appHostFilePath
+            appHostFile
         )
 
         executeProfile(profile, false, callback, sessionProcessEventListener, project)
@@ -129,7 +129,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         }
 
         val projectPath = launchConfiguration.projectPath
-        val appHostFilePath = aspireRunConfig?.let { Path(it.parameters.appHostFilePath) }
+        val appHostFile = aspireRunConfig?.let { Path(it.parameters.appHostFile) }
         val profile = getDebugProfile(
             sessionId,
             projectPath,
@@ -138,7 +138,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
             browserSettings,
             sessionProcessEventListener,
             sessionProcessLifetime,
-            appHostFilePath
+            appHostFile
         )
 
         executeProfile(profile, true, null, sessionProcessEventListener, project)
@@ -255,6 +255,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         }
     }
 
+    @Suppress("JetBrainsInternalApiUsage")
     private fun ExecutionEnvironment.setProgramCallbacks(programRunnerCallback: ProgramRunner.Callback? = null) {
         callback = object : ProgramRunner.Callback {
             override fun processStarted(runContentDescriptor: RunContentDescriptor?) {

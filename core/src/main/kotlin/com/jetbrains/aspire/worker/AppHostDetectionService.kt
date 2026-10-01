@@ -22,19 +22,19 @@ class AppHostDetectionService(private val project: Project) {
             .appHostDetected(appHostName, appHostFilePath)
     }
 
-    fun removeAppHost(appHostFilePath: Path) {
-        if (hasAppHost(appHostFilePath)) return
+    fun removeAppHost(appHostFile: Path) {
+        if (hasAppHost(appHostFile)) return
 
         project.messageBus
             .syncPublisher(AppHostDetectionListener.TOPIC)
-            .appHostRemoved(appHostFilePath)
+            .appHostRemoved(appHostFile)
     }
 
-    private fun hasAppHost(appHostFilePath: Path): Boolean =
-        hasConfigurationFor(appHostFilePath) || AppHostDetectionExtension.hasAppHost(project, appHostFilePath)
+    private fun hasAppHost(appHostFile: Path): Boolean =
+        hasConfigurationFor(appHostFile) || AppHostDetectionExtension.hasAppHost(project, appHostFile)
 
-    private fun hasConfigurationFor(appHostFilePath: Path): Boolean =
+    private fun hasConfigurationFor(appHostFile: Path): Boolean =
         RunManager.getInstance(project)
             .allConfigurationsList
-            .any { it is AspireRunConfiguration && it.appHostFilePath == appHostFilePath }
+            .any { it is AspireRunConfiguration && it.appHostFile == appHostFile }
 }
