@@ -22,22 +22,13 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.annotations.ApiStatus
 import java.security.KeyStore
 import java.util.UUID
-
-@ApiStatus.Internal
-interface AspireSessionHost {
-    val sessionEvents: ReceiveChannel<SessionEvent>
-
-    fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse
-
-    fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse
-}
+import kotlin.io.path.Path
 
 @ApiStatus.Internal
 interface AspireSessionServerTlsConfig {
@@ -223,27 +214,29 @@ class AspireSessionServer(
     }
 
     private fun createSession(aspireHostId: String, session: Session): Pair<String?, ErrorCode?> {
-        val projectConfig = session.launchConfigurations.filterIsInstance<ProjectLaunchConfiguration>().singleOrNull()
+        val projectLaunchConfiguration = session.launchConfigurations
+            .filterIsInstance<ProjectLaunchConfiguration>()
+            .singleOrNull()
             ?: return null to ErrorCode.UnableToFindSupportedLaunchConfiguration
 
-        val request = CreateProjectSessionRequest(
-            projectConfig.projectPath,
-            projectConfig.launchProfile,
-            projectConfig.disableLaunchProfile == true,
-            aspireHostId,
-            projectConfig.mode == Mode.Debug,
+        val launchConfiguration = DotNetSessionLaunchConfiguration(
+            Path(projectLaunchConfiguration.projectPath),
+            projectLaunchConfiguration.mode == Mode.Debug,
+            projectLaunchConfiguration.launchProfile,
+            projectLaunchConfiguration.disableLaunchProfile == true,
             session.args,
             mapEnvironmentVariables(session),
         )
+        val request = CreateSessionRequest(aspireHostId, launchConfiguration)
         val response = sessionHost.createSession(request)
 
         return response.sessionId to response.error
     }
 
-    private fun mapEnvironmentVariables(session: Session): List<SessionEnvironmentVariable>? =
+    private fun mapEnvironmentVariables(session: Session): List<Pair<String, String>>? =
         session.env
             ?.filter { it.value != null }
-            ?.map { SessionEnvironmentVariable(it.name, it.value!!) }
+            ?.map { it.name to it.value!! }
 
     private suspend fun handleDeleteSession(call: ApplicationCall) {
         val aspireHostId = aspireHostId(call) ?: return

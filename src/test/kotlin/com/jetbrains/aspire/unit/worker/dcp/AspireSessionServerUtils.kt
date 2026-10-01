@@ -2,7 +2,7 @@ package com.jetbrains.aspire.unit.worker.dcp
 
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.testFramework.common.timeoutRunBlocking
-import com.jetbrains.aspire.worker.dcp.AspireSessionHost
+import com.jetbrains.aspire.sessions.AspireSessionHost
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer
 import java.net.URI
 import java.net.http.HttpClient

@@ -10,7 +10,7 @@ import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.sessions.*
-import com.jetbrains.aspire.worker.dcp.AspireSessionHost
+import com.jetbrains.aspire.sessions.AspireSessionHost
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer
 import com.jetbrains.aspire.worker.dcp.AspireSessionServerEndpoint
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +25,6 @@ import kotlinx.coroutines.sync.withLock
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.Path
 
 /**
  * Domain object representing an Aspire AppHost project.
@@ -156,19 +155,13 @@ class AspireAppHost(
     override fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse {
         val appHostStartedState = appHostState.value as? AspireAppHostState.Started
 
-        val configuration = createSessionLaunchConfiguration(createSessionRequest)
-        if (configuration == null) {
-            LOG.warn("Unsupported session request type: ${createSessionRequest::class}")
-            return CreateSessionResponse(null, ErrorCode.UnsupportedLaunchConfigurationType)
-        }
-
         val sessionId = UUID.randomUUID().toString()
 
         LOG.trace { "Creating Aspire session with id: $sessionId" }
 
         val request = StartSessionRequest(
             sessionId,
-            configuration,
+            createSessionRequest.launchConfiguration,
             sessionEvents,
             appHostStartedState?.runConfigName,
             hostLifetime.createNested()
@@ -178,20 +171,6 @@ class AspireAppHost(
 
         return CreateSessionResponse(sessionId, null)
     }
-
-    private fun createSessionLaunchConfiguration(createSessionRequest: CreateSessionRequest) =
-        when (createSessionRequest) {
-            is CreateProjectSessionRequest -> DotNetSessionLaunchConfiguration(
-                Path(createSessionRequest.projectPath),
-                createSessionRequest.debug,
-                createSessionRequest.launchProfile,
-                createSessionRequest.disableLaunchProfile,
-                createSessionRequest.args,
-                createSessionRequest.envs?.map { it.key to it.value }
-            )
-
-            else -> null
-        }
 
     override fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
         LOG.trace { "Deleting Aspire session with id: ${deleteSessionRequest.sessionId}" }

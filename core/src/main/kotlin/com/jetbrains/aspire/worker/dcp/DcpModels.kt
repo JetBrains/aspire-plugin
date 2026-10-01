@@ -13,6 +13,8 @@ import kotlinx.serialization.json.JsonNamingStrategy
  * - omit nulls and defaults
  * - `"type"` discriminator for the polymorphic [LaunchConfiguration] hierarchy
  * - tolerate unknown keys so newer DCP revisions don't break parsing
+ *
+ * @see <a href="https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md">IDE execution</a>
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal val DcpJson: Json = Json {

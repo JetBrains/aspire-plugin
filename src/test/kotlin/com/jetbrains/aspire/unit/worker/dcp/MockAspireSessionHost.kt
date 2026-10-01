@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.unit.worker.dcp
 
 import com.jetbrains.aspire.sessions.*
-import com.jetbrains.aspire.worker.dcp.AspireSessionHost
+import com.jetbrains.aspire.sessions.AspireSessionHost
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 
