@@ -4,7 +4,6 @@
     <File Path="README.md" />
     <File Path="src\dotnet\Directory.Build.props" />
     <File Path="dotnet.cmd" />
-    <File Path="global.json" />
   </Folder>
   <Project Path="src\dotnet\AspirePlugin\AspirePlugin.csproj" Type="C#" />
 </Solution>
