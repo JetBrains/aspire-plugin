@@ -6,7 +6,7 @@ import com.intellij.execution.ui.ConsoleView
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.rider.run.connectExecutionHandlerAndLifetime
-import com.jetbrains.aspire.rider.run.setUpAspireHostEnvironmentAndSaveRunConfig
+import com.jetbrains.aspire.rider.run.setUpAspireHostEnvironment
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.debugger.DebuggerHelperHost
@@ -63,7 +63,7 @@ class AspireHostDebugProfileState(
                 ?.checkDevCertificate(false, project, showNotification = true)
         }
 
-        setUpAspireHostEnvironmentAndSaveRunConfig(executionEnvironment, this, aspireHostProcessHandlerLifetime)
+        setUpAspireHostEnvironment(executionEnvironment, this)
 
         val executionResult = super.execute(workerConsole, workerProcessHandler, lifetime)
 

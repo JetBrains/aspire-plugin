@@ -46,7 +46,6 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
-        <appHostLauncher implementation="com.jetbrains.aspire.rider.run.RunConfigurationBasedAppHostLauncher"/>
         <appHostDetectionExtension implementation="com.jetbrains.aspire.rider.run.RiderAppHostDetectionExtension"/>
 
         <startSessionRequestHandler

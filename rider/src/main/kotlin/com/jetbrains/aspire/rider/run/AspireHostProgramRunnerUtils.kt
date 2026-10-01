@@ -6,40 +6,19 @@ import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.diagnostic.trace
-import com.intellij.openapi.project.Project
 import com.intellij.util.application
 import com.jetbrains.aspire.rider.run.states.*
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import java.nio.file.Path
 import kotlin.io.path.Path
 
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.run.runners.AspireHostProgramRunnerUtils")
 
-internal fun setUpAspireHostEnvironmentAndSaveRunConfig(
+internal fun setUpAspireHostEnvironment(
     environment: ExecutionEnvironment,
     state: AspireHostProfileState,
-    aspireHostProcessHandlerLifetimeDef: LifetimeDefinition,
 ) {
-    val appHostFilePath = setUpAspireHostEnvironment(environment, state)
-
-    val runConfigName = environment.runProfile.name
-    LOG.trace { "Saving Aspire Host run configuration $runConfigName" }
-
-    saveRunConfiguration(
-        environment.project,
-        appHostFilePath,
-        runConfigName,
-        aspireHostProcessHandlerLifetimeDef
-    )
-}
-
-private fun setUpAspireHostEnvironment(
-    environment: ExecutionEnvironment,
-    state: AspireHostProfileState,
-): Path {
     val configuration = environment.runnerAndConfigurationSettings?.configuration
     val aspireRunConfiguration = (configuration as? AspireRiderRunConfiguration)
         ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
@@ -68,19 +47,6 @@ private fun setUpAspireHostEnvironment(
     environment.project.messageBus
         .syncPublisher(AppHostListener.TOPIC)
         .appHostStarting(appHostFile, appHostEnvironment)
-
-    return appHostFile
-}
-
-private fun saveRunConfiguration(
-    project: Project,
-    aspireHostProjectPath: Path,
-    runConfigurationName: String,
-    aspireHostLifetimeDefinition: LifetimeDefinition
-) {
-    AspireRunConfigurationManager
-        .getInstance(project)
-        .saveRunConfiguration(aspireHostProjectPath, aspireHostLifetimeDefinition, runConfigurationName)
 }
 
 fun connectExecutionHandlerAndLifetime(
