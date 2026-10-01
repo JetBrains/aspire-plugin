@@ -145,25 +145,13 @@ tasks {
         dependsOn(rdGen)
     }
 
-    val publishAspireWorker by registering(Exec::class) {
-        dependsOn(compileDotNet)
-        inputs.property("dotnetBuildConfiguration", dotnetBuildConfiguration)
-
-        executable("./dotnet.cmd")
-        args(
-            "publish",
-            "src/dotnet/AspireWorker/AspireWorker.csproj",
-            "--configuration", dotnetBuildConfiguration
-        )
-    }
-
     buildPlugin {
-        dependsOn(publishAspireWorker)
+        dependsOn(compileDotNet)
         archiveBaseName.set("aspire-plugin")
     }
 
     withType<PrepareSandboxTask> {
-        dependsOn(publishAspireWorker)
+        dependsOn(compileDotNet)
 
         val outputFolder = file("$projectDir/src/dotnet/AspirePlugin/bin/$dotnetBuildConfiguration")
         val pluginFiles = listOf(
@@ -180,10 +168,6 @@ tasks {
                 val file = file(f)
                 if (!file.exists()) throw RuntimeException("File \"$file\" does not exist")
             }
-        }
-
-        from("$projectDir/src/dotnet/AspireWorker/bin/$dotnetBuildConfiguration/publish") {
-            into("${rootProject.name}/AspireWorker")
         }
     }
 

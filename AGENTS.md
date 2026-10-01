@@ -1,6 +1,6 @@
 # AGENTS.md
 
-JetBrains Rider plugin for .NET Aspire — dual-architecture (Kotlin JVM + C# .NET worker) communicating over the RD protocol.
+JetBrains Rider plugin for .NET Aspire — Kotlin JVM frontend with embedded session servers and a C# Rider backend plugin communicating over the RD protocol.
 
 ## Must-know rules
 
