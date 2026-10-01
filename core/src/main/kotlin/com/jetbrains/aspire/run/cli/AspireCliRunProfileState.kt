@@ -59,13 +59,13 @@ internal class AspireCliRunProfileState(
         val options = configuration.cliOptions
         val project = environment.project
 
-        val appHostFilePath = options.appHostFilePath?.takeIf { it.isNotBlank() }?.let { Path.of(it) }
-        if (appHostFilePath == null) {
+        val appHostFile = options.appHostFilePath?.takeIf { it.isNotBlank() }?.let { Path.of(it) }
+        if (appHostFile == null) {
             throw ExecutionException(AspireCoreBundle.message("run.configuration.cli.error.no.app.host"))
         }
 
-        val aspireCliPath = AspireCliLocator.getInstance(project).locate()?.asNioPath()
-        if (aspireCliPath == null) {
+        val aspireCli = AspireCliLocator.getInstance(project).locate()?.asNioPath()
+        if (aspireCli == null) {
             notifyCliNotInstalled()
             throw ExecutionException(AspireCoreBundle.message("run.configuration.cli.error.cli.not.found"))
         }
@@ -73,15 +73,15 @@ internal class AspireCliRunProfileState(
         val eelApi = project.getEelDescriptor().toEelApi()
 
         val envs = buildBaseEnvironment(options, eelApi).toMutableMap()
-        val aspireEnvironment = configureEnvironmentVariables(appHostFilePath, envs)
+        val aspireEnvironment = configureEnvironmentVariables(appHostFile, envs)
 
         checkAndNotifyDevCertificate(aspireEnvironment)
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarting(appHostFilePath, aspireEnvironment.appHostEnvironment)
+            .appHostStarting(appHostFile, aspireEnvironment.appHostEnvironment)
 
-        val processHandler = startProcess(aspireCliPath, appHostFilePath, options, envs, eelApi)
+        val processHandler = startProcess(aspireCli, appHostFile, options, envs, eelApi)
         val console = createConsole().apply {
             attachToProcess(processHandler)
         }
@@ -105,14 +105,14 @@ internal class AspireCliRunProfileState(
     }
 
     private suspend fun configureEnvironmentVariables(
-        appHostFilePath: Path,
+        appHostFile: Path,
         envs: MutableMap<String, String>,
     ): AspireEnvironment.Result {
         val aspireWorker = AspireWorker.getInstance(environment.project)
-        val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostFilePath)
+        val dcpEnvironmentVariables = aspireWorker.startAppHostSessionServer(appHostFile)
         envs.putAll(dcpEnvironmentVariables)
 
-        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFilePath))
+        val appHost = requireNotNull(aspireWorker.getOrCreateAppHostByPath(appHostFile))
 
         val result = AspireEnvironment.configure(
             appHost = appHost,
@@ -132,21 +132,21 @@ internal class AspireCliRunProfileState(
     }
 
     private suspend fun startProcess(
-        aspireCliPath: Path,
-        appHostFilePath: Path,
+        aspireCli: Path,
+        appHostFile: Path,
         options: AspireCliRunConfigurationOptions,
         envs: MutableMap<String, String>,
         eelApi: EelApi,
     ): ProcessHandler {
-        val arguments = buildRunArguments(appHostFilePath, options.noBuild, options.isolated, options.logLevel)
+        val arguments = buildRunArguments(appHostFile, options.noBuild, options.isolated, options.logLevel)
         val workingDirectory = options.workingDirectory?.takeIf { it.isNotBlank() }?.let { Path.of(it) }
-            ?: appHostFilePath.parent
+            ?: appHostFile.parent
 
         return try {
             val parameterList = ParametersListUtil.join(arguments)
-            LOG.trace { "Launching aspire CLI ${aspireCliPath.absolutePathString()} with args: $parameterList" }
+            LOG.trace { "Launching aspire CLI ${aspireCli.absolutePathString()} with args: $parameterList" }
 
-            val process = eelApi.exec.spawnProcess(aspireCliPath.asEelPath())
+            val process = eelApi.exec.spawnProcess(aspireCli.asEelPath())
                 .args(arguments)
                 .env(envs)
                 .applyIf(workingDirectory != null) { workingDirectory(workingDirectory.asEelPath()) }
@@ -181,7 +181,7 @@ internal class AspireCliRunProfileState(
     }
 
     private fun buildRunArguments(
-        appHostFilePath: Path,
+        appHostFile: Path,
         noBuild: Boolean = false,
         isolated: Boolean = false,
         logLevel: AspireCliLogLevel? = null,
@@ -190,7 +190,7 @@ internal class AspireCliRunProfileState(
         add("--nologo")
         add("--non-interactive")
         add("--apphost")
-        add(appHostFilePath.absolutePathString())
+        add(appHostFile.absolutePathString())
         if (noBuild) add("--no-build")
         if (isolated) add("--isolated")
         logLevel?.let {
