@@ -82,13 +82,6 @@ internal class AspireRunConfigurationManagerImpl(private val project: Project) :
                 ExecutionManagerImpl.stopProcess(descriptor)
             }
         }
-
-        Notification(
-            "Aspire",
-            AspireCoreBundle.message("notification.aspire.run.configurations.stopped.title"),
-            AspireCoreBundle.message("notification.aspire.run.configurations.stopped.content", appHostFile.toString()),
-            NotificationType.INFORMATION
-        ).notify(project)
     }
 
     private class Listener(private val project: Project) : ExecutionListener {
