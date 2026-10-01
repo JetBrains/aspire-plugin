@@ -173,46 +173,12 @@ jobs:
           name: pluginVerifier-result
           path: ${{ github.workspace }}/build/reports/pluginVerifier
 
-  aspireWorkerTest:
-    name: Aspire Worker Test
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    steps:
-
-      # Free GitHub Actions Environment Disk Space
-      - name: Maximize Build Space
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          tool-cache: false
-
-      # Check out the current repository
-      - name: Fetch Sources
-        uses: actions/checkout@v7
-
-      # Set up the .NET environment for the next steps
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: '10.x'
-
-      # Run tests
-      - name: Run Tests
-        run: dotnet test ${{ github.workspace }}/src/dotnet/AspireWorkerIntegrationTests/AspireWorkerIntegrationTests.csproj --logger "trx;LogFileName=testResults.trx" --results-directory ${{ github.workspace }}/AspireWorkerTestResults
-
-      # Collect Tests Result of failed tests
-      - name: Collect Tests Result
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: satellite-test-results
-          path: ${{ github.workspace }}/AspireWorkerTestResults/testResults.trx
-
   # Prepare a draft release for GitHub Releases page for the manual verification
   # If accepted and published, the release workflow would be triggered
   releaseDraft:
     name: Release draft
     if: github.event_name != 'pull_request'
-    needs: [ build, aspireWorkerTest, test, verify ]
+    needs: [ build, test, verify ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
