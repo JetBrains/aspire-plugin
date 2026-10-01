@@ -3,9 +3,7 @@ package com.jetbrains.aspire.rider.run.states
 import com.intellij.execution.ExecutionResult
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
-import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.DevCertificateProvider
-import com.jetbrains.aspire.rider.run.connectExecutionHandlerAndLifetime
 import com.jetbrains.aspire.rider.run.setUpAspireHostEnvironment
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -52,11 +50,6 @@ class AspireHostDebugProfileState(
         workerProcessHandler: DebuggerWorkerProcessHandler,
         lifetime: Lifetime
     ): ExecutionResult {
-        val aspireHostProcessHandlerLifetime = AspireService
-            .getInstance(executionEnvironment.project)
-            .lifetime
-            .createNested()
-
         if (!this.getAllowUnsecuredTransport()) {
             DevCertificateProvider
                 .getInstance()
@@ -65,10 +58,6 @@ class AspireHostDebugProfileState(
 
         setUpAspireHostEnvironment(executionEnvironment, this)
 
-        val executionResult = super.execute(workerConsole, workerProcessHandler, lifetime)
-
-        connectExecutionHandlerAndLifetime(executionResult, aspireHostProcessHandlerLifetime)
-
-        return executionResult
+        return super.execute(workerConsole, workerProcessHandler, lifetime)
     }
 }

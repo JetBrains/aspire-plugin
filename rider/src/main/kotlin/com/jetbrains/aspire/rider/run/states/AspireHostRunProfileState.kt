@@ -6,9 +6,7 @@ import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
-import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.DevCertificateProvider
-import com.jetbrains.aspire.rider.run.connectExecutionHandlerAndLifetime
 import com.jetbrains.aspire.rider.run.setUpAspireHostEnvironment
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.rider.run.ConsoleKind
@@ -37,11 +35,6 @@ class AspireHostRunProfileState(
         executor: Executor,
         runner: ProgramRunner<*>
     ): ExecutionResult {
-        val aspireHostProcessHandlerLifetime = AspireService
-            .getInstance(environment.project)
-            .lifetime
-            .createNested()
-
         if (!this.getAllowUnsecuredTransport()) {
             DevCertificateProvider
                 .getInstance()
@@ -50,11 +43,7 @@ class AspireHostRunProfileState(
 
         setUpAspireHostEnvironment(environment, this)
 
-        val executionResult = execute()
-
-        connectExecutionHandlerAndLifetime(executionResult, aspireHostProcessHandlerLifetime)
-
-        return executionResult
+        return execute()
     }
 
     private suspend fun execute(): ExecutionResult {
