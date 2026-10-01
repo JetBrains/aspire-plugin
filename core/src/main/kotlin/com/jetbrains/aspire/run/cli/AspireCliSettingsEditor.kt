@@ -5,7 +5,6 @@ import com.intellij.execution.ui.CommonParameterFragments
 import com.intellij.execution.ui.RunConfigurationFragmentedEditor
 import com.intellij.execution.ui.SettingsEditorFragment
 import com.intellij.execution.ui.SettingsEditorFragmentType
-import com.intellij.openapi.externalSystem.service.execution.configuration.fragments.SettingsEditorFragmentContainer
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.LabeledComponent
@@ -22,7 +21,7 @@ internal class AspireCliSettingsEditor(private val configuration: AspireCliRunCo
     RunConfigurationFragmentedEditor<AspireCliRunConfiguration>(configuration) {
 
     override fun createRunFragments(): List<SettingsEditorFragment<AspireCliRunConfiguration, *>> =
-        SettingsEditorFragmentContainer.fragments {
+        buildList {
             add(CommonParameterFragments.createHeader(AspireCoreBundle.message("run.configuration.cli.run.aspire.host")))
 
             add(appHostFragment())

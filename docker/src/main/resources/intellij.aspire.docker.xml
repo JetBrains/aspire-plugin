@@ -4,6 +4,7 @@
         <plugin id="Docker"/>
         <module name="intellij.clouds.docker"/>
         <module name="intellij.clouds.docker.shared"/>
+        <module name="intellij.platform.remoteServers"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">

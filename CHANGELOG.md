@@ -4,10 +4,19 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Update platform version to 2026.3-EAP4
+
+### Fixed
+
+- Ensure the dashboard gRPC channel is forcibly closed when graceful shutdown times out
+
+## [2.9.3] - 2026-09-23
+
 ### Fixed
 
 - Exception caused by registering service view models while their parent is being disposed
-- Ensure the dashboard gRPC channel is forcibly closed when graceful shutdown times out
 
 ## [2.9.2] - 2026-09-21
 
@@ -131,14 +140,14 @@
 
 ### Added
 
-- [#584] Launch profile and build support for Aspire file configurations
+- [#584](https://github.com/JetBrains/aspire-plugin/issues/584) Launch profile and build support for Aspire file configurations
 - Support for Aspire 13.2
 
 ## [2.4.3] - 2026-03-20
 
 ### Fixed
 
-- [#607] Do not recreate the database connections every time the ports are different
+- [#607](https://github.com/JetBrains/aspire-plugin/issues/607) Do not recreate the database connections every time the ports are different
 
 ## [2.4.1] - 2026-03-13
 
@@ -148,7 +157,7 @@
 
 ### Fixed
 
-- [#613] Aspire plugin takes too much time to start.
+- [#613](https://github.com/JetBrains/aspire-plugin/issues/613) Aspire plugin takes too much time to start.
 
 ## [2.4.1] - 2026-02-13
 
@@ -759,7 +768,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.2...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.3...HEAD
+[2.9.3]: https://github.com/JetBrains/aspire-plugin/compare/2.9.2...2.9.3
 [2.9.2]: https://github.com/JetBrains/aspire-plugin/compare/2.9.1...2.9.2
 [2.9.1]: https://github.com/JetBrains/aspire-plugin/compare/2.9.0...2.9.1
 [2.9.0]: https://github.com/JetBrains/aspire-plugin/compare/2.8.1...2.9.0
