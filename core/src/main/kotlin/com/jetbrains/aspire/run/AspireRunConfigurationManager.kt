@@ -69,9 +69,9 @@ internal class AspireRunConfigurationManager(private val project: Project) {
             return
         }
 
-
-        val firstConfiguration = configurations.first()
-        ProgramRunnerUtil.executeConfiguration(firstConfiguration, executor)
+        val savedConfigurationName = runConfigurationNames[appHostFile]
+        val configurationToRun = configurations.firstOrNull { it.name == savedConfigurationName } ?: configurations.first()
+        ProgramRunnerUtil.executeConfiguration(configurationToRun, executor)
     }
 
     /** Stops all running configurations for the given AppHost. */
