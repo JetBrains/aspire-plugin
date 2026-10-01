@@ -40,17 +40,6 @@ data class CreateProjectSessionRequest(
 ) : CreateSessionRequest()
 
 @ApiStatus.Internal
-internal data class CreatePythonSessionRequest(
-    val programPath: String,
-    val interpreterPath: String?,
-    val module: String?,
-    override val dcpInstancePrefix: String,
-    override val debug: Boolean,
-    override val args: List<String>?,
-    override val envs: List<SessionEnvironmentVariable>?,
-) : CreateSessionRequest()
-
-@ApiStatus.Internal
 data class SessionEnvironmentVariable(val key: String, val value: String)
 
 @ApiStatus.Internal
