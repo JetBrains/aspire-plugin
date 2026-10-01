@@ -3,16 +3,15 @@ package com.jetbrains.aspire.actions.dashboard.host
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.run.AspireRunConfigurationManager
 import com.jetbrains.aspire.worker.AspireAppHostData
-import com.jetbrains.aspire.worker.AspireAppHostLifecycleManager
 import com.jetbrains.aspire.worker.AspireAppHostStatus
-import kotlinx.coroutines.launch
+import com.jetbrains.aspire.worker.toNioPath
 
-class DebugAppHostAction : AspireAppHostBaseAction() {
+internal class DebugAppHostAction : AspireAppHostBaseAction() {
     override fun performAction(event: AnActionEvent, appHostData: AspireAppHostData, project: Project) {
-        event.coroutineScope.launch {
-            project.service<AspireAppHostLifecycleManager>().launchAppHost(appHostData.id, true)
-        }
+        project.service<AspireRunConfigurationManager>()
+            .executeConfigurationForAppHost(appHostData.id.toNioPath(), underDebug = true)
     }
 
     override fun updateAction(event: AnActionEvent, appHostData: AspireAppHostData) {

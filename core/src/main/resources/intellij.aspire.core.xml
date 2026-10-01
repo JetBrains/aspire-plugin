@@ -29,9 +29,6 @@
         <extensionPoint qualifiedName="com.jetbrains.aspire.openTelemetryProtocolServerExtension"
                         interface="com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension"
                         dynamic="true"/>
-        <extensionPoint qualifiedName="com.jetbrains.aspire.appHostLauncher"
-                        interface="com.jetbrains.aspire.extensions.AspireAppHostLauncher"
-                        dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.connectionStringModifier"
                         interface="com.jetbrains.aspire.extensions.ConnectionStringModifier"
                         dynamic="true"/>
@@ -50,7 +47,7 @@
                   topic="com.intellij.execution.RunManagerListener"/>
         <listener class="com.jetbrains.aspire.run.cli.AspireCliExecutionListener"
                   topic="com.intellij.execution.ExecutionListener"/>
-        <listener class="com.jetbrains.aspire.run.AspireRunConfigurationManager$Listener"
+        <listener class="com.jetbrains.aspire.run.AspireRunConfigurationManagerImpl$Listener"
                   topic="com.intellij.execution.ExecutionListener"/>
     </projectListeners>
 
@@ -58,8 +55,8 @@
         <applicationService serviceInterface="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory"
                             serviceImplementation="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactoryImpl"/>
 
-        <projectService serviceInterface="com.jetbrains.aspire.worker.AspireAppHostLifecycleManager"
-                        serviceImplementation="com.jetbrains.aspire.worker.AspireAppHostLifecycleManagerImpl"/>
+        <projectService serviceInterface="com.jetbrains.aspire.run.AspireRunConfigurationManager"
+                        serviceImplementation="com.jetbrains.aspire.run.AspireRunConfigurationManagerImpl"/>
         <projectService serviceInterface="com.jetbrains.aspire.worker.AspireResourceCommandExecutor"
                         serviceImplementation="com.jetbrains.aspire.worker.AspireResourceCommandExecutorImpl"/>
         <projectService serviceInterface="com.jetbrains.aspire.worker.AspireAppHostResourcesProvider"

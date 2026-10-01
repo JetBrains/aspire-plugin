@@ -10,7 +10,6 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
@@ -23,21 +22,18 @@ import java.util.concurrent.ConcurrentHashMap
  * Remembers the names of run configurations launched for each AppHost and manages running and stopping their configurations.
  */
 @ApiStatus.Internal
-@Service(Service.Level.PROJECT)
-internal class AspireRunConfigurationManager(private val project: Project) {
+internal class AspireRunConfigurationManagerImpl(private val project: Project) : AspireRunConfigurationManager {
     companion object {
-        fun getInstance(project: Project): AspireRunConfigurationManager = project.service()
-        private val LOG = logger<AspireRunConfigurationManager>()
+        private val LOG = logger<AspireRunConfigurationManagerImpl>()
     }
 
     private val runConfigurationNames = ConcurrentHashMap<Path, String>()
 
-    private fun saveRunConfigurationForAppHost(appHostFile: Path, runConfigurationName: String) {
+    override fun saveRunConfigurationForAppHost(appHostFile: Path, runConfigurationName: String) {
         runConfigurationNames[appHostFile] = runConfigurationName
     }
 
-    /** Runs a configuration for the given AppHost using the Run or Debug executor, depending on [underDebug]. */
-    fun executeConfigurationForAppHost(appHostFile: Path, underDebug: Boolean) {
+    override fun executeConfigurationForAppHost(appHostFile: Path, underDebug: Boolean) {
         val executor =
             if (underDebug) DefaultDebugExecutor.getDebugExecutorInstance()
             else DefaultRunExecutor.getRunExecutorInstance()
@@ -74,8 +70,7 @@ internal class AspireRunConfigurationManager(private val project: Project) {
         ProgramRunnerUtil.executeConfiguration(configurationToRun, executor)
     }
 
-    /** Stops all running configurations for the given AppHost. */
-    fun stopConfigurationForAppHost(appHostFile: Path) {
+    override fun stopConfigurationForAppHost(appHostFile: Path) {
         val executionManager = ExecutionManagerImpl.getInstance(project)
         val descriptors = executionManager.getDescriptors { settings ->
             val configuration = settings.configuration
@@ -105,7 +100,8 @@ internal class AspireRunConfigurationManager(private val project: Project) {
             val profile = env.runProfile as? AspireRunConfiguration ?: return
             val appHostFile = profile.appHostFile ?: return
 
-            getInstance(project).saveRunConfigurationForAppHost(appHostFile, profile.name)
+            project.service<AspireRunConfigurationManager>()
+                .saveRunConfigurationForAppHost(appHostFile, profile.name)
         }
     }
 }
