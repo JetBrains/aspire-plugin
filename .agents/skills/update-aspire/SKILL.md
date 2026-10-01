@@ -53,9 +53,19 @@ The user must provide the target Aspire version in full semver form (e.g. `13.3.
 
    CLI wording for no-AppHost projects varies by version, so do not depend on one exact message string when classifying a skipped result.
 
-6. **Report results.**
+6. **Verify the Aspire update with integration tests.**
+   This skill permits agents to run JVM integration tests relevant to the Aspire update without a separate user request.
+   Install `Aspire.ProjectTemplates` at the target version in the .NET environment Rider uses (`./dotnet.cmd new install Aspire.ProjectTemplates@{VERSION}`). See `docs/agents/testing.md` for the MAUI template prerequisite.
+   Start with the orchestration tests, which depend on the installed Aspire templates and package versions:
+   ```
+   ./gradlew :test --tests "com.jetbrains.aspire.integration.AspireOrchestrationTests"
+   ```
+   Run other affected integration test classes with explicit `--tests` filters when needed. Fix regressions and review generated output before updating gold files; rerun the affected tests after changes. Report test results and any environment blockers. This permission is limited to relevant integration tests; running the full suite or `check` still requires an explicit user request.
+
+7. **Report results.**
    Show the user a summary table listing:
    - CI template version: old → new
    - Each NuGet package: old version → new version
    - Proto file: updated or not
    - Each project directory: aspire update succeeded, skipped (no AppHost), or failed
+   - Integration tests: passed, failed, or blocked, with the affected test classes

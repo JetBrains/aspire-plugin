@@ -13,7 +13,7 @@ JVM integration tests use:
 - the `@Solution` annotation for fixture binding
 - JUnit 5 Rider test bases such as `PerTestSolutionTestBase`
 
-JVM integration tests launch a full Rider test environment and are slow. Run them manually or on CI by default. Agents may run integration tests or the full JVM suite only when the user explicitly requests the corresponding run; keep the run scoped to the requested tests.
+JVM integration tests launch a full Rider test environment and are slow. Run them manually or on CI by default. Agents may run integration tests or the full JVM suite only when the user explicitly requests the corresponding run; keep the run scoped to the requested tests. The `update-aspire` skill also permits relevant integration tests as part of an Aspire update, using explicit test filters.
 
 - Unit tests: `./gradlew test --tests "com.jetbrains.aspire.unit.*"`
 - Integration tests: `./gradlew :test --tests "com.jetbrains.aspire.integration.*"`
