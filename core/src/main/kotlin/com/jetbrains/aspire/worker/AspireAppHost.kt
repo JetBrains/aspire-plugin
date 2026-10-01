@@ -190,15 +190,6 @@ class AspireAppHost(
                 createSessionRequest.envs?.map { it.key to it.value }
             )
 
-            is CreatePythonSessionRequest -> PythonSessionLaunchConfiguration(
-                Path(createSessionRequest.programPath),
-                createSessionRequest.debug,
-                createSessionRequest.interpreterPath,
-                createSessionRequest.module,
-                createSessionRequest.args,
-                createSessionRequest.envs?.map { it.key to it.value }
-            )
-
             else -> null
         }
 

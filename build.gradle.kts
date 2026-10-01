@@ -116,8 +116,8 @@ tasks {
         doLast {
             nuGetConfigFile.writeTextIfChanged("""
             <?xml version="1.0" encoding="utf-8"?>
-            <!-- Auto-generated from 'generateNuGetConfig' task of old.build_gradle.kts -->
-            <!-- Run `gradlew :prepare` to regenerate -->
+            <!-- Auto-generated from 'generateNuGetConfig' task of build.gradle.kts -->
+            <!-- Run `gradlew prepareDotNetPart` to regenerate -->
             <configuration>
                 <packageSources>
                     <add key="rider-sdk" value="$riderSdkPath" />
