@@ -67,7 +67,7 @@ class AspireAppHost(
         get() = resourceTreeManager.rootResources
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val aspireDashboardUrl: StateFlow<String?> = rootResources
+    override val aspireDashboardUrl: StateFlow<String?> = rootResources
         .map { resources -> resources.firstOrNull { it.resourceName == "aspire-dashboard" } }
         .flatMapLatest { resource ->
             resource?.data?.map { selectDashboardUrl(it.urls) } ?: flowOf(null)
