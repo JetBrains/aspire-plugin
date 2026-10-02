@@ -8,7 +8,7 @@ communicating over the RD protocol.
 - Use `./dotnet.cmd` (not raw `dotnet`) so the SDK pinned in the script is used.
 - Run `./gradlew prepareDotNetPart` before opening `AspirePlugin.slnx` for the first time (or after protocol changes).
 - **Never edit files under `**/generated/` or `**/Generated/`** — change the model in `protocol/` and regenerate.
-- When making repository changes, update `CHANGELOG.md` with the corresponding changes.
+- Update `CHANGELOG.md` for user-visible changes. Internal refactorings and other changes not visible to users do not require a changelog entry.
 
 ## Detailed guidance
 
