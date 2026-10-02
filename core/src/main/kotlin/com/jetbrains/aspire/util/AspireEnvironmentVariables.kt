@@ -49,7 +49,6 @@ fun Map<String, String>.getAspireDashboardOtlpEndpointUrl() =
 @ApiStatus.Internal
 fun getAspireSpecificEnvironmentVariables(
     originalVariables: Map<String, String>,
-    defaultBrowserToken: String,
     usePodmanRuntime: Boolean = false,
     baseResourceServicePort: Int = 47200,
     baseOtlpPort: Int = 47300
@@ -84,10 +83,8 @@ fun getAspireSpecificEnvironmentVariables(
     // (skipped when the dashboard is configured to allow anonymous access)
     // see: https://learn.microsoft.com/en-us/dotnet/aspire/app-host/configuration#dashboard
     // see: https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/configuration#frontend-authentication
-    var browserToken: String? = null
     if (!allowAnonymousDashboard) {
-        browserToken = defaultBrowserToken
-        put(ASPIRE_DASHBOARD_FRONTEND_BROWSERTOKEN, browserToken)
+        put(ASPIRE_DASHBOARD_FRONTEND_BROWSERTOKEN, UUID.randomUUID().toString())
     }
 
     // Set the `ASPIRE_DASHBOARD_RESOURCESERVICE_APIKEY` environment variable to configure the resource service

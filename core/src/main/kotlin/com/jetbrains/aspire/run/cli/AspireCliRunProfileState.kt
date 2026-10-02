@@ -127,7 +127,6 @@ internal class AspireCliRunProfileState(
 
         val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
             envs,
-            appHost.browserToken,
             configuration.cliOptions.usePodmanRuntime
         )
         envs.putAll(aspireEnvironmentVariables)

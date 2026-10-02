@@ -58,7 +58,6 @@ class AspireAppHost(
     private val disposed = AtomicBoolean(false)
 
     val dcpInstancePrefix = generateDcpInstancePrefix()
-    val browserToken = generateBrowserToken()
 
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this)
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
@@ -225,10 +224,6 @@ class AspireAppHost(
         return (1..5)
             .map { allowedChars.random() }
             .joinToString("")
-    }
-
-    private fun generateBrowserToken(): String {
-        return UUID.randomUUID().toString()
     }
 
     private fun selectDashboardUrl(urls: List<ResourceUrl>): String? {

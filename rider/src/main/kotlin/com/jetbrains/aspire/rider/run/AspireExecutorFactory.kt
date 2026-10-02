@@ -37,7 +37,6 @@ internal abstract class AspireExecutorFactory(
 
         val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
             envs,
-            appHost.browserToken,
             parameters.usePodmanRuntime
         )
         envs.putAll(aspireEnvironmentVariables)
