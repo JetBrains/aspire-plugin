@@ -139,13 +139,6 @@ class ResourceTreeManager(
         val data = grpcResource.toAspireResourceData(mainFilePath.toAspireAppHostId())
         val existing = resources[data.name]
 
-        if (data.isHidden || data.state == ResourceState.Hidden) {
-            if (existing != null) {
-                removeResource(existing)
-            }
-            return
-        }
-
         if (existing == null) {
             val client = dashboardClient ?: return
             val resource = AspireResource(

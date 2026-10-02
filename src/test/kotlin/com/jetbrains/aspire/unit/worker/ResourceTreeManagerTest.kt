@@ -13,6 +13,7 @@ import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.ResourceListener
+import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceTreeManager
 import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory
 import kotlinx.coroutines.Job
@@ -195,7 +196,7 @@ class ResourceTreeManagerTest {
     // region Hidden Resources
 
     @Test
-    fun `hidden resource is not created`() = runTest {
+    fun `hidden resource is retained with its hidden flag`() = runTest {
         val manager = createResourceTreeManager()
         val (job, client) = startDashboardClient(manager)
         val resourceListener = connectListener()
@@ -205,14 +206,16 @@ class ResourceTreeManagerTest {
         client.resourceUpdates.emit(update1)
         testScheduler.advanceUntilIdle()
 
-        assertEquals(0, manager.rootResources.value.size)
-        assertEquals(0, resourceListener.created.size)
+        val storedResource = manager.rootResources.value.single()
+        assertEquals(resource.name, storedResource.resourceName)
+        assertTrue(storedResource.data.value.isHidden)
+        assertEquals(listOf(resource.name), resourceListener.created)
 
         job.cancel()
     }
 
     @Test
-    fun `resource with Hidden state is not created`() = runTest {
+    fun `resource with Hidden state is retained`() = runTest {
         val manager = createResourceTreeManager()
         val (job, client) = startDashboardClient(manager)
         val resourceListener = connectListener()
@@ -222,14 +225,15 @@ class ResourceTreeManagerTest {
         client.resourceUpdates.emit(update1)
         testScheduler.advanceUntilIdle()
 
-        assertEquals(0, manager.rootResources.value.size)
-        assertEquals(0, resourceListener.created.size)
+        val storedResource = manager.rootResources.value.single()
+        assertEquals(ResourceState.Hidden, storedResource.data.value.state)
+        assertEquals(listOf(resource.name), resourceListener.created)
 
         job.cancel()
     }
 
     @Test
-    fun `existing resource becoming hidden is removed`() = runTest {
+    fun `existing resource becoming hidden is updated in place`() = runTest {
         val manager = createResourceTreeManager()
         val (job, client) = startDashboardClient(manager)
         val resourceListener = connectListener()
@@ -242,14 +246,18 @@ class ResourceTreeManagerTest {
         client.resourceUpdates.emit(update1)
         testScheduler.advanceUntilIdle()
         assertEquals(1, manager.rootResources.value.size)
+        val storedResource = manager.rootResources.value.single()
 
         val hiddenResource = buildResource(resourceName, resourceDisplayName, isHidden = true)
         val update2 = buildUpsertUpdate(listOf(hiddenResource))
         client.resourceUpdates.emit(update2)
         testScheduler.advanceUntilIdle()
 
-        assertEquals(0, manager.rootResources.value.size)
-        assertEquals(1, resourceListener.deleted.size)
+        assertEquals(1, manager.rootResources.value.size)
+        assertEquals(storedResource, manager.rootResources.value.single())
+        assertTrue(storedResource.data.value.isHidden)
+        assertEquals(listOf(resourceName), resourceListener.updated)
+        assertTrue(resourceListener.deleted.isEmpty())
 
         job.cancel()
     }
