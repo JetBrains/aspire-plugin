@@ -7,6 +7,12 @@
 | Gold files        | `testData/com/jetbrains/aspire/`                    | —         |
 | Solution fixtures | `testData/solutions/`                               | —         |
 
+Structure tests using the Arrange–Act–Assert (AAA) pattern without section comments such as `// Arrange`,
+`// Act`, or `// Assert`. Where possible, check only one behavior per test.
+
+Prefer creating test objects in separate variables instead of constructing them inside method calls.
+Separate variables make test data easier to inspect when debugging.
+
 JVM integration tests use:
 
 - the `@Solution` annotation for fixture binding
