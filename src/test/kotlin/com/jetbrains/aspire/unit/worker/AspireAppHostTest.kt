@@ -10,6 +10,7 @@ import com.intellij.testFramework.replaceService
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
 import com.jetbrains.aspire.generated.dashboard.Url
+import com.jetbrains.aspire.generated.dashboard.UrlDisplayProperties
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesChange
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesChanges
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
@@ -101,6 +102,38 @@ class AspireAppHostTest {
         client.resourceUpdates.emit(update)
 
         host.awaitDashboardUrl("https://dashboard.example/secure")
+    }
+
+    @Test
+    fun `dashboard resource is selected by display name rather than identifier`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val client = startDashboardClient(host)
+        val other = resource("aspire-dashboard", "https://other.example", displayName = "other")
+        val otherUpdate = upsert(other)
+        client.resourceUpdates.emit(otherUpdate)
+        withTimeout(10.seconds) {
+            host.rootResources.first { resources -> resources.any { it.resourceName == "aspire-dashboard" } }
+        }
+
+        val dashboard = resource("dashboard-instance", "https://dashboard.example", displayName = "aspire-dashboard")
+        val update = upsert(dashboard)
+        client.resourceUpdates.emit(update)
+
+        host.awaitDashboardUrl("https://dashboard.example")
+    }
+
+    @Test
+    fun `dashboard URL is cleared when no URL name contains dashboard`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val client = startDashboardClient(host)
+        val dashboard = resource("aspire-dashboard", "https://dashboard.example/selected")
+        client.resourceUpdates.emit(upsert(dashboard))
+        host.awaitDashboardUrl("https://dashboard.example/selected")
+
+        val otherUrl = resource("aspire-dashboard", "https://dashboard.example/other", urlNames = listOf("Metrics"))
+        client.resourceUpdates.emit(upsert(otherUrl))
+
+        host.awaitDashboardUrl(null)
     }
 
     @Test
@@ -233,12 +266,22 @@ class AspireAppHostTest {
         assertEquals(expected, aspireDashboardUrl.value)
     }
 
-    private fun resource(name: String, vararg urls: String): Resource {
-        val resourceUrls = urls.map { url -> Url.newBuilder().setFullUrl(url).build() }
+    private fun resource(
+        name: String,
+        vararg urls: String,
+        displayName: String = name,
+        urlNames: List<String> = List(urls.size) { "Dashboard" }
+    ): Resource {
+        val resourceUrls = urls.mapIndexed { index, url ->
+            Url.newBuilder()
+                .setFullUrl(url)
+                .setDisplayProperties(UrlDisplayProperties.newBuilder().setDisplayName(urlNames[index]))
+                .build()
+        }
         return Resource.newBuilder()
             .setName(name)
             .setResourceType("Project")
-            .setDisplayName(name)
+            .setDisplayName(displayName)
             .setUid("uid-$name")
             .setState("Running")
             .addAllUrls(resourceUrls)

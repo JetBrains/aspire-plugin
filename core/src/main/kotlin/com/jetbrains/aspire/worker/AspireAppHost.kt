@@ -68,7 +68,7 @@ class AspireAppHost(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val aspireDashboardUrl: StateFlow<String?> = rootResources
-        .map { resources -> resources.firstOrNull { it.resourceName == "aspire-dashboard" } }
+        .map { resources -> resources.firstOrNull { it.displayName == "aspire-dashboard" } }
         .flatMapLatest { resource ->
             resource?.data?.map { selectDashboardUrl(it.urls) } ?: flowOf(null)
         }
@@ -231,9 +231,11 @@ class AspireAppHost(
         return UUID.randomUUID().toString()
     }
 
-    private fun selectDashboardUrl(urls: List<ResourceUrl>): String? =
-        urls.firstOrNull { it.fullUrl.startsWith("https://", ignoreCase = true) }?.fullUrl
-            ?: urls.firstOrNull { it.fullUrl.startsWith("http://", ignoreCase = true) }?.fullUrl
+    private fun selectDashboardUrl(urls: List<ResourceUrl>): String? {
+        val dashboardUrls = urls.filter { it.displayName.contains("dashboard", ignoreCase = true) }
+        return dashboardUrls.firstOrNull { it.fullUrl.startsWith("https://", ignoreCase = true) }?.fullUrl
+            ?: dashboardUrls.firstOrNull { it.fullUrl.startsWith("http://", ignoreCase = true) }?.fullUrl
+    }
 
     data class AppHostEnvironment(
         val resourceServiceEndpointUrl: String?,
