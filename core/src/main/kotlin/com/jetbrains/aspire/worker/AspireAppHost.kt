@@ -66,6 +66,14 @@ class AspireAppHost(
     override val rootResources: StateFlow<List<AspireResource>>
         get() = resourceTreeManager.rootResources
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val aspireDashboardUrl: StateFlow<String?> = rootResources
+        .map { resources -> resources.firstOrNull { it.resourceName == "aspire-dashboard" } }
+        .flatMapLatest { resource ->
+            resource?.data?.map { selectDashboardUrl(it.urls) } ?: flowOf(null)
+        }
+        .stateIn(cs, SharingStarted.Eagerly, null)
+
     private val appHostLifecycleEvents: SharedFlow<AppHostLifecycleEvent> =
         project.messageBus.subscribeAsFlow(AppHostListener.TOPIC) {
             object : AppHostListener {
@@ -222,6 +230,10 @@ class AspireAppHost(
     private fun generateBrowserToken(): String {
         return UUID.randomUUID().toString()
     }
+
+    private fun selectDashboardUrl(urls: List<ResourceUrl>): String? =
+        urls.firstOrNull { it.fullUrl.startsWith("https://", ignoreCase = true) }?.fullUrl
+            ?: urls.firstOrNull { it.fullUrl.startsWith("http://", ignoreCase = true) }?.fullUrl
 
     data class AppHostEnvironment(
         val resourceServiceEndpointUrl: String?,

@@ -57,20 +57,20 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     fun getAppHostById(appHostId: AspireAppHostId): AspireAppHost? =
         _appHosts.value.firstOrNull { it.mainFilePath.toAspireAppHostId() == appHostId }
 
-    fun getOrCreateAppHostByPath(appHostFilePath: Path): AspireAppHost? {
-        _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }?.let { return it }
-
-        addAppHost(appHostFilePath.nameWithoutExtension, appHostFilePath)
-
-        return _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }
-    }
-
     /** Starts or reuses the AppHost's session server and returns the DCP connection environment variables. */
     suspend fun startAppHostSessionServer(appHostFilePath: Path): Pair<AspireAppHost, AspireSessionServerEndpoint> {
         val appHost = requireNotNull(getOrCreateAppHostByPath(appHostFilePath))
         val endpoint = appHost.startSessionServer()
 
         return appHost to endpoint
+    }
+
+    private fun getOrCreateAppHostByPath(appHostFilePath: Path): AspireAppHost? {
+        _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }?.let { return it }
+
+        addAppHost(appHostFilePath.nameWithoutExtension, appHostFilePath)
+
+        return _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }
     }
 
     override fun dispose() {

@@ -4,13 +4,16 @@ import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class MockAspireDashboardClientApi : AspireDashboardClientApi {
     val resourceUpdates = MutableSharedFlow<WatchResourcesUpdate>(extraBufferCapacity = 64)
     private val consoleLogFlows = mutableMapOf<String, MutableSharedFlow<WatchResourceConsoleLogsUpdate>>()
 
-    var isShutdown = false
-        private set
+    private val shutdownState = MutableStateFlow(false)
+    val isShutdown: StateFlow<Boolean> = shutdownState.asStateFlow()
 
     override fun watchResources(): Flow<WatchResourcesUpdate> = resourceUpdates
 
@@ -27,6 +30,6 @@ class MockAspireDashboardClientApi : AspireDashboardClientApi {
     }
 
     override fun shutdown() {
-        isShutdown = true
+        shutdownState.value = true
     }
 }
