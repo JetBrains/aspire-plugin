@@ -61,7 +61,7 @@ class ResourceViewModelsTest {
 
         runCurrent()
         val viewModel = viewModels.value.single()
-        assertSame(resource, viewModel.resource)
+        assertSame(resource.data, viewModel.resourceData)
     }
 
     @Test

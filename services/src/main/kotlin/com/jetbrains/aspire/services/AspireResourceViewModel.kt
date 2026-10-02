@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
+import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.ApiStatus
 class AspireResourceViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
-    val resource: AspireResourceModel
+    private val resource: AspireResourceModel
 ) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireResourceViewModel>, Disposable {
     companion object {
         private val LOG = logger<AspireResourceViewModel>()
@@ -35,6 +36,7 @@ class AspireResourceViewModel(
     private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
 
     val resourceName: String = resource.resourceName
+    val resourceData: StateFlow<AspireResourceData> = resource.data
 
     private val logProcessHandler = LogProcessHandler()
     private val logConsole = TerminalExecutionConsoleBuilder(project)
@@ -43,12 +45,12 @@ class AspireResourceViewModel(
         .also { Disposer.register(this, it) }
 
     internal val uiState: StateFlow<ResourceUiState> =
-        resource.data
+        resourceData
             .map { ResourceUiState(it, logConsole.component) }
             .stateIn(
                 cs,
                 SharingStarted.Lazily,
-                ResourceUiState(resource.data.value, logConsole.component)
+                ResourceUiState(resourceData.value, logConsole.component)
             )
 
     private val childViewModels: StateFlow<List<AspireResourceViewModel>> =

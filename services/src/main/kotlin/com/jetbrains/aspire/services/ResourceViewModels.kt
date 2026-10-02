@@ -32,7 +32,7 @@ fun Flow<List<AspireResourceModel>>.toResourceViewModels(
 ): StateFlow<List<AspireResourceViewModel>> =
     visibleResources(AspireSettings.getInstance().showHiddenResourcesFlow)
         .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
-            val currentViewModelsByName = currentViewModels.associateBy { it.resource.resourceName }
+            val currentViewModelsByName = currentViewModels.associateBy { it.resourceName }
             val newIds = newResources.map { it.resourceName }.toSet()
 
             buildList {
@@ -56,7 +56,7 @@ fun Flow<List<AspireResourceModel>>.toResourceViewModels(
                     }
                 }
             }.sortedWith(
-                compareBy({ it.resource.data.value.type }, { it.resource.data.value.name })
+                compareBy({ it.resourceData.value.type }, { it.resourceData.value.name })
             )
         }
         .stateIn(cs, SharingStarted.Eagerly, emptyList())
