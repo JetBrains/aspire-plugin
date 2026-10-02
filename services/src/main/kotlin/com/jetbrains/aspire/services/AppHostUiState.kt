@@ -6,7 +6,6 @@ internal sealed interface AppHostUiState {
     data object Initial : AppHostUiState
 
     data class Active(
-        val dashboardUrl: String?,
         val consoleComponent: JComponent
     ) : AppHostUiState
 

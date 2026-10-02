@@ -11,7 +11,7 @@ import com.jetbrains.aspire.worker.toNioPath
 internal class RunAppHostAction : AspireAppHostBaseAction() {
     override fun performAction(event: AnActionEvent, appHostData: AspireAppHostData, project: Project) {
         project.service<AspireRunConfigurationManager>()
-            .executeConfigurationForAppHost(appHostData.id.toNioPath(), underDebug = false)
+            .executeConfigurationForAppHost(appHostData.path.toNioPath(), underDebug = false)
     }
 
     override fun updateAction(event: AnActionEvent, appHostData: AspireAppHostData) {

@@ -136,15 +136,8 @@ class ResourceTreeManager(
     }
 
     private suspend fun upsertGrpcResource(grpcResource: Resource) {
-        val data = grpcResource.toAspireResourceData(mainFilePath.toAspireAppHostId())
+        val data = grpcResource.toAspireResourceData(mainFilePath.toAspireAppHostPath())
         val existing = resources[data.name]
-
-        if (data.isHidden || data.state == ResourceState.Hidden) {
-            if (existing != null) {
-                removeResource(existing)
-            }
-            return
-        }
 
         if (existing == null) {
             val client = dashboardClient ?: return

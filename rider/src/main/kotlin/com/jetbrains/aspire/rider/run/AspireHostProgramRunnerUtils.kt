@@ -3,7 +3,6 @@ package com.jetbrains.aspire.rider.run
 import com.intellij.execution.CantRunException
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.util.getAspireDashboardFrontendBrowserToken
 import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
 import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
 import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
@@ -22,11 +21,9 @@ internal fun setUpAspireHostEnvironment(
 
     val parameters = aspireRunConfiguration.parameters
     val appHostFile = Path(parameters.appHostFile)
-    val startBrowserUrl = parameters.startBrowserParameters.url
 
     setUpAspireHostEnvironment(
         appHostFile,
-        startBrowserUrl,
         environmentVariables,
         environment.project
     )
@@ -34,25 +31,17 @@ internal fun setUpAspireHostEnvironment(
 
 internal fun setUpAspireHostEnvironment(
     appHostFile: Path,
-    startBrowserUrl: String,
     environmentVariables: Map<String, String>,
     project: Project
 ) {
     val resourceServiceEndpointUrl = environmentVariables.getAspireResourceServiceEndpointUrl()
     val resourceServiceApiKey = environmentVariables.getAspireDashboardResourceServiceApiKey()
     val otlpEndpointUrl = environmentVariables.getAspireDashboardOtlpEndpointUrl()
-    val browserToken = environmentVariables.getAspireDashboardFrontendBrowserToken()
-    val aspireHostProjectUrl = if (browserToken != null) {
-        "${startBrowserUrl}/login?t=$browserToken"
-    } else {
-        startBrowserUrl
-    }
 
     val appHostEnvironment = AppHostEnvironment(
         resourceServiceEndpointUrl,
         resourceServiceApiKey,
-        otlpEndpointUrl,
-        aspireHostProjectUrl
+        otlpEndpointUrl
     )
 
     project.messageBus

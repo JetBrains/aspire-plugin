@@ -29,6 +29,18 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     companion object {
         fun getInstance(project: Project): AspireWorker = project.service()
         private val LOG = logger<AspireWorker>()
+
+        private fun generateAppHostId(): AspireAppHostId {
+            val allowedChars = buildList {
+                addAll('A'..'Z')
+                addAll('a'..'z')
+                addAll('0'..'9')
+            }
+            val id = (1..5)
+                .map { allowedChars.random() }
+                .joinToString("")
+            return AspireAppHostId(id)
+        }
     }
 
     private val _appHosts: MutableStateFlow<List<AspireAppHost>> = MutableStateFlow(emptyList())
@@ -40,7 +52,8 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         _appHosts.update { currentList ->
             if (currentList.any { it.mainFilePath == appHostFilePath }) return@update currentList
 
-            val appHost = AspireAppHost(name, appHostFilePath, project, cs)
+            val id = generateAppHostId()
+            val appHost = AspireAppHost(id, name, appHostFilePath, project, cs)
             Disposer.register(this@AspireWorker, appHost)
             currentList + appHost
         }
@@ -54,16 +67,8 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         }
     }
 
-    fun getAppHostById(appHostId: AspireAppHostId): AspireAppHost? =
-        _appHosts.value.firstOrNull { it.mainFilePath.toAspireAppHostId() == appHostId }
-
-    fun getOrCreateAppHostByPath(appHostFilePath: Path): AspireAppHost? {
-        _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }?.let { return it }
-
-        addAppHost(appHostFilePath.nameWithoutExtension, appHostFilePath)
-
-        return _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }
-    }
+    fun getAppHostById(appHostPath: AspireAppHostPath): AspireAppHost? =
+        _appHosts.value.firstOrNull { it.mainFilePath.toAspireAppHostPath() == appHostPath }
 
     /** Starts or reuses the AppHost's session server and returns the DCP connection environment variables. */
     suspend fun startAppHostSessionServer(appHostFilePath: Path): Pair<AspireAppHost, AspireSessionServerEndpoint> {
@@ -71,6 +76,14 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         val endpoint = appHost.startSessionServer()
 
         return appHost to endpoint
+    }
+
+    private fun getOrCreateAppHostByPath(appHostFilePath: Path): AspireAppHost? {
+        _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }?.let { return it }
+
+        addAppHost(appHostFilePath.nameWithoutExtension, appHostFilePath)
+
+        return _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }
     }
 
     override fun dispose() {

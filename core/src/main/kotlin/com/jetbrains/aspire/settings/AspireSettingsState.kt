@@ -13,4 +13,5 @@ class AspireSettingsState : BaseState() {
     var showSensitiveProperties by property(true)
     var showEnvironmentVariables by property(true)
     var openConsoleView by property(false)
+    var showHiddenResources by property(false)
 }

@@ -47,6 +47,10 @@ internal class AspireConfigurable : BoundConfigurable(AspireCoreBundle.message("
         }
         group(AspireCoreBundle.message("configurable.Aspire.dashboard")) {
             row {
+                checkBox(AspireCoreBundle.message("configurable.Aspire.show.hidden.resources"))
+                    .bindSelected(settings::showHiddenResources)
+            }
+            row {
                 checkBox(AspireCoreBundle.message("configurable.Aspire.show.sensitive.properties"))
                     .bindSelected(settings::showSensitiveProperties)
             }

@@ -4,5 +4,5 @@ import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
 interface AspireAppHostResourcesProvider {
-    suspend fun getResources(appHostId: AspireAppHostId): List<AspireResourceData>
+    suspend fun getResources(appHostPath: AspireAppHostPath): List<AspireResourceData>
 }

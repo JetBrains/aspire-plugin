@@ -30,20 +30,20 @@ internal class AspireWorkerViewModel(
     private val appHostViewModels: StateFlow<List<AspireAppHostViewModel>> =
         servicesModelProvider.appHosts
             .runningFold(emptyList<AspireAppHostViewModel>()) { currentViewModels, newAppHosts ->
-                val currentIds = currentViewModels.associateBy { it.appHostId }
-                val newIds = newAppHosts.map { it.appHostId }.toSet()
+                val currentIds = currentViewModels.associateBy { it.appHostPath }
+                val newIds = newAppHosts.map { it.appHostPath }.toSet()
 
                 buildList {
                     for (viewModel in currentViewModels) {
-                        if (viewModel.appHostId in newIds) {
-                            LOG.trace { "AppHost ViewModel for ${viewModel.appHostId.value} already exists" }
+                        if (viewModel.appHostPath in newIds) {
+                            LOG.trace { "AppHost ViewModel for ${viewModel.appHostPath.value} already exists" }
                             add(viewModel)
                         }
                     }
 
                     for (newAppHost in newAppHosts) {
-                        if (newAppHost.appHostId !in currentIds) {
-                            LOG.trace { "Creating new AppHost ViewModel for ${newAppHost.appHostId.value}" }
+                        if (newAppHost.appHostPath !in currentIds) {
+                            LOG.trace { "Creating new AppHost ViewModel for ${newAppHost.appHostPath.value}" }
                             val appHostVM = AspireAppHostViewModel(project, cs, newAppHost)
                             if (Disposer.tryRegister(this@AspireWorkerViewModel, appHostVM)) {
                                 add(appHostVM)
@@ -64,28 +64,28 @@ internal class AspireWorkerViewModel(
                         sendResetEvent()
                     }
 
-                    val previousIds = previousList.map { it.appHostId }.toSet()
-                    val currentIds = currentList.map { it.appHostId }.toSet()
+                    val previousIds = previousList.map { it.appHostPath }.toSet()
+                    val currentIds = currentList.map { it.appHostPath }.toSet()
 
-                    val added = currentList.filter { it.appHostId !in previousIds }
-                    val removed = previousList.filter { it.appHostId !in currentIds }
+                    val added = currentList.filter { it.appHostPath !in previousIds }
+                    val removed = previousList.filter { it.appHostPath !in currentIds }
 
                     LOG.trace { "ViewModel collection was changed:" }
-                    LOG.trace { "Added ${added.map { it.appHostId.value }.joinToString()}" }
-                    LOG.trace { "Removed ${removed.map { it.appHostId.value }.joinToString()}" }
+                    LOG.trace { "Added ${added.map { it.appHostPath.value }.joinToString()}" }
+                    LOG.trace { "Removed ${removed.map { it.appHostPath.value }.joinToString()}" }
 
                     currentList to (added + removed)
                 }
                 .drop(1)
                 .collect { (currentList, changedViewModels) ->
-                    val currentIds = currentList.map { it.appHostId }.toSet()
+                    val currentIds = currentList.map { it.appHostPath }.toSet()
 
                     changedViewModels.forEach { viewModel ->
-                        if (viewModel.appHostId in currentIds) {
+                        if (viewModel.appHostPath in currentIds) {
                             sendServiceAddedEvent(viewModel)
                         } else {
                             sendServiceRemovedEvent(viewModel)
-                            LOG.trace { "Disposing AppHost ViewModel for ${viewModel.appHostId.value}" }
+                            LOG.trace { "Disposing AppHost ViewModel for ${viewModel.appHostPath.value}" }
                             Disposer.dispose(viewModel)
                         }
                     }

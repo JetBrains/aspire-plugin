@@ -1,6 +1,8 @@
 package com.jetbrains.aspire.settings
 
 import com.intellij.openapi.components.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 @State(
     name = "com.jetbrains.rider.aspire.settings.AspireSettings",
@@ -10,6 +12,14 @@ import com.intellij.openapi.components.*
 class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(AspireSettingsState()) {
     companion object {
         fun getInstance() = service<AspireSettings>()
+    }
+
+    private val _showHiddenResources = MutableStateFlow(state.showHiddenResources)
+    val showHiddenResourcesFlow = _showHiddenResources.asStateFlow()
+
+    override fun loadState(state: AspireSettingsState) {
+        super.loadState(state)
+        _showHiddenResources.value = state.showHiddenResources
     }
 
     var aspireCliPath: String
@@ -70,5 +80,12 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         get() = state.openConsoleView
         set(value) {
             state.openConsoleView = value
+        }
+
+    var showHiddenResources
+        get() = state.showHiddenResources
+        set(value) {
+            state.showHiddenResources = value
+            _showHiddenResources.value = value
         }
 }

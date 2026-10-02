@@ -7,6 +7,7 @@ import com.intellij.ui.BadgeIconSupplier
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.JBUI
+import com.jetbrains.aspire.actions.ASPIRE_APP_HOST_DASHBOARD_URL
 import com.jetbrains.aspire.actions.ASPIRE_APP_HOST_DATA
 import java.awt.BorderLayout
 import javax.swing.JPanel
@@ -51,6 +52,7 @@ internal class AspireAppHostServiceViewDescriptor(
     override fun getToolbarActions() = appHostActions
 
     override fun uiDataSnapshot(sink: DataSink) {
-        sink[ASPIRE_APP_HOST_DATA] = vm.appHost.data.value
+        sink[ASPIRE_APP_HOST_DATA] = vm.appHostData.value
+        sink[ASPIRE_APP_HOST_DASHBOARD_URL] = vm.aspireDashboardUrl.value
     }
 }

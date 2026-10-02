@@ -4,7 +4,7 @@ import com.intellij.icons.AllIcons
 import com.jetbrains.aspire.diagram.graph.ResourceGraphEdge
 import com.jetbrains.aspire.diagram.graph.ResourceGraphNode
 import com.jetbrains.aspire.diagram.graph.calculateResourceNodeEdges
-import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.ResourceRelationship
@@ -69,7 +69,7 @@ class ResourceGraphServiceTest {
         displayName: String,
         relationships: List<ResourceRelationship>,
     ): AspireResourceData {
-        val appHostId = AspireAppHostId("app-host")
+        val appHostId = AspireAppHostPath("app-host")
         val resourceId = AspireResourceId(appHostId, displayName)
 
         return AspireResourceData(

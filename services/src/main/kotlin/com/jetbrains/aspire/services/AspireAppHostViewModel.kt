@@ -14,7 +14,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
 import com.jetbrains.aspire.worker.AspireAppHostData
-import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireAppHostModel
 import com.jetbrains.aspire.worker.AspireAppHostStatus
 import kotlinx.coroutines.*
@@ -25,18 +25,18 @@ import javax.swing.JComponent
 internal class AspireAppHostViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
-    val appHost: AspireAppHostModel
+    private val appHost: AspireAppHostModel
 ) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireAppHostViewModel>, Disposable {
     companion object {
         private val LOG = logger<AspireAppHostViewModel>()
 
         @ApiStatus.Internal
-        fun createUiState(data: AspireAppHostData, consoleComponent: JComponent): AppHostUiState =
-            when (data.status) {
+        fun createUiState(status: AspireAppHostStatus, consoleComponent: JComponent): AppHostUiState =
+            when (status) {
                 AspireAppHostStatus.Inactive -> AppHostUiState.Initial
 
                 AspireAppHostStatus.Starting,
-                AspireAppHostStatus.Started -> AppHostUiState.Active(data.dashboardUrl, consoleComponent)
+                AspireAppHostStatus.Started -> AppHostUiState.Active(consoleComponent)
 
                 AspireAppHostStatus.Stopped -> AppHostUiState.Inactive(consoleComponent)
             }
@@ -46,8 +46,10 @@ internal class AspireAppHostViewModel(
 
     private val descriptor by lazy { AspireAppHostServiceViewDescriptor(this) }
 
-    val appHostId: AspireAppHostId = appHost.appHostId
+    val appHostPath: AspireAppHostPath = appHost.appHostPath
     val displayName: String = appHost.data.value.name
+    val appHostData: StateFlow<AspireAppHostData> = appHost.data
+    val aspireDashboardUrl: StateFlow<String?> = appHost.aspireDashboardUrl
 
     private val logProcessHandler = LogProcessHandler()
     private val logConsole = TerminalExecutionConsoleBuilder(project)
@@ -57,42 +59,12 @@ internal class AspireAppHostViewModel(
         .also { Disposer.register(this, it) }
 
     val uiState: StateFlow<AppHostUiState> = appHost.data
-        .map { data -> createUiState(data, logConsole.component) }
+        .map { data -> createUiState(data.status, logConsole.component) }
         .stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Initial)
 
     private val resourceViewModels: StateFlow<List<AspireResourceViewModel>> =
         appHost.rootResources
-            .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
-                val currentViewModelsByName = currentViewModels.associateBy { it.resource.resourceName }
-                val newIds = newResources.map { it.resourceName }.toSet()
-
-                buildList {
-                    for (viewModel in currentViewModels) {
-                        if (viewModel.resourceName in newIds) {
-                            LOG.trace { "Resource ViewModel for ${viewModel.resourceName} already exists" }
-                            add(viewModel)
-                        } else {
-                            LOG.trace { "Disposing Resource ViewModel for ${viewModel.resourceName}" }
-                            Disposer.dispose(viewModel)
-                        }
-                    }
-
-                    for (newResource in newResources) {
-                        if (newResource.resourceName !in currentViewModelsByName) {
-                            LOG.trace { "Creating new Resource ViewModel for ${newResource.resourceName}" }
-                            val resourceVM = AspireResourceViewModel(project, cs, newResource)
-                            if (Disposer.tryRegister(this@AspireAppHostViewModel, resourceVM)) {
-                                add(resourceVM)
-                            }
-                        }
-                    }
-                }.sortedWith(
-                    compareBy(
-                        { it.resource.data.value.type },
-                        { it.resource.data.value.name })
-                )
-            }
-            .stateIn(cs, SharingStarted.Eagerly, emptyList())
+            .toResourceViewModels(project, cs, this)
 
     init {
         logProcessHandler.startNotify()
@@ -175,7 +147,7 @@ internal class AspireAppHostViewModel(
     }
 
     override fun dispose() {
-        LOG.trace { "Disposing AspireAppHost VM for project: ${appHostId.value}" }
+        LOG.trace { "Disposing AspireAppHost VM for project: ${appHostPath.value}" }
         cs.cancel()
     }
 }

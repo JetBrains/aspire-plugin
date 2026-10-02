@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class AspireManifestAction : AspireAppHostBaseAction() {
     override fun performAction(event: AnActionEvent, appHostData: AspireAppHostData, project: Project) {
-        val mainFilePath = appHostData.id.toNioPath()
+        val mainFilePath = appHostData.path.toNioPath()
         event.coroutineScope.launch(Dispatchers.Default) {
             ManifestService.getInstance(project).generateManifest(mainFilePath)
         }

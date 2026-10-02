@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 @ApiStatus.Internal
 class AspireAppHost(
+    override val id: AspireAppHostId,
     val name: String,
     val mainFilePath: Path,
     private val project: Project,
@@ -45,7 +46,7 @@ class AspireAppHost(
 
     private val cs = parentCs.childScope("Aspire AppHost")
 
-    override val appHostId: AspireAppHostId = mainFilePath.toAspireAppHostId()
+    override val appHostPath: AspireAppHostPath = mainFilePath.toAspireAppHostPath()
 
     override val sessionEvents: ReceiveChannel<SessionEvent>
         field = Channel<SessionEvent>(Channel.UNLIMITED)
@@ -57,14 +58,19 @@ class AspireAppHost(
 
     private val disposed = AtomicBoolean(false)
 
-    val dcpInstancePrefix = generateDcpInstancePrefix()
-    val browserToken = generateBrowserToken()
-
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this)
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
 
     override val rootResources: StateFlow<List<AspireResource>>
         get() = resourceTreeManager.rootResources
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val aspireDashboardUrl: StateFlow<String?> = rootResources
+        .map { resources -> resources.firstOrNull { it.displayName == "aspire-dashboard" } }
+        .flatMapLatest { resource ->
+            resource?.data?.map { selectDashboardUrl(it.urls) } ?: flowOf(null)
+        }
+        .stateIn(cs, SharingStarted.Eagerly, null)
 
     private val appHostLifecycleEvents: SharedFlow<AppHostLifecycleEvent> =
         project.messageBus.subscribeAsFlow(AppHostListener.TOPIC) {
@@ -208,29 +214,19 @@ class AspireAppHost(
         cs.cancel()
     }
 
-    private fun generateDcpInstancePrefix(): String {
-        val allowedChars = buildList {
-            addAll('A'..'Z')
-            addAll('a'..'z')
-            addAll('0'..'9')
-        }
-        return (1..5)
-            .map { allowedChars.random() }
-            .joinToString("")
-    }
-
-    private fun generateBrowserToken(): String {
-        return UUID.randomUUID().toString()
+    private fun selectDashboardUrl(urls: List<ResourceUrl>): String? {
+        val dashboardUrls = urls.filter { it.displayName.contains("dashboard", ignoreCase = true) }
+        return dashboardUrls.firstOrNull { it.fullUrl.startsWith("https://", ignoreCase = true) }?.fullUrl
+            ?: dashboardUrls.firstOrNull { it.fullUrl.startsWith("http://", ignoreCase = true) }?.fullUrl
     }
 
     data class AppHostEnvironment(
         val resourceServiceEndpointUrl: String?,
         val resourceServiceApiKey: String?,
-        val otlpEndpointUrl: String?,
-        val aspireHostProjectUrl: String?
+        val otlpEndpointUrl: String?
     ) {
         companion object {
-            val EMPTY = AppHostEnvironment(null, null, null, null)
+            val EMPTY = AppHostEnvironment(null, null, null)
         }
     }
 

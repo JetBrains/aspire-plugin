@@ -60,7 +60,7 @@ internal class AspireUnitTestService(private val project: Project, private val s
                 val (appHost, endpoint) = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
 
                 val environmentVariables = buildList {
-                    add(AspireHostEnvironmentVariable(DCP_INSTANCE_ID_PREFIX, appHost.dcpInstancePrefix))
+                    add(AspireHostEnvironmentVariable(DCP_INSTANCE_ID_PREFIX, appHost.id.value))
                     endpoint.toDcpEnvironmentVariables().forEach { envVar ->
                         val environmentVariable = AspireHostEnvironmentVariable(envVar.key, envVar.value)
                         add(environmentVariable)
@@ -68,7 +68,7 @@ internal class AspireUnitTestService(private val project: Project, private val s
                 }
 
                 val aspireUnitTestServiceHost =
-                    AspireHostForUnitTestRun(appHost.dcpInstancePrefix, environmentVariables)
+                    AspireHostForUnitTestRun(appHost.id.value, environmentVariables)
 
                 val currentAspireHost =
                     aspireUnitTestHosts.putIfAbsent(request.unitTestRunId, aspireUnitTestServiceHost)
