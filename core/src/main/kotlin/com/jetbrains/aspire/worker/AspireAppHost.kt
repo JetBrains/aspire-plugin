@@ -45,7 +45,7 @@ class AspireAppHost(
 
     private val cs = parentCs.childScope("Aspire AppHost")
 
-    override val appHostId: AspireAppHostId = mainFilePath.toAspireAppHostId()
+    override val appHostPath: AspireAppHostPath = mainFilePath.toAspireAppHostPath()
 
     override val sessionEvents: ReceiveChannel<SessionEvent>
         field = Channel<SessionEvent>(Channel.UNLIMITED)

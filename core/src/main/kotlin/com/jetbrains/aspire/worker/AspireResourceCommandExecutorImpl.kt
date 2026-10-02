@@ -12,6 +12,6 @@ internal class AspireResourceCommandExecutorImpl(private val project: Project) :
     private fun findResource(resourceId: AspireResourceId): AspireResource? =
         AspireWorker
             .getInstance(project)
-            .getAppHostById(resourceId.appHostId)
+            .getAppHostById(resourceId.appHostPath)
             ?.findResource { it.resourceName == resourceId.resourceName }
 }

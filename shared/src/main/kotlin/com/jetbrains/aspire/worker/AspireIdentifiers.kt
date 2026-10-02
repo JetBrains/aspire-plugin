@@ -16,11 +16,11 @@ value class AspirePath(val value: String) {
 @ApiStatus.Internal
 @Serializable
 @JvmInline
-value class AspireAppHostId(val value: String)
+value class AspireAppHostPath(val value: String)
 
 @ApiStatus.Internal
-fun AspireAppHostId.toNioPath(): Path = Path(value)
+fun AspireAppHostPath.toNioPath(): Path = Path(value)
 
 @ApiStatus.Internal
 @Serializable
-data class AspireResourceId(val appHostId: AspireAppHostId, val resourceName: String)
+data class AspireResourceId(val appHostPath: AspireAppHostPath, val resourceName: String)

@@ -6,7 +6,7 @@ import com.jetbrains.aspire.generated.dashboard.HealthReport
 import com.jetbrains.aspire.generated.dashboard.HealthStatus
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.worker.AspireResourceData
-import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
 import com.jetbrains.aspire.worker.AspireResourceId
@@ -26,7 +26,7 @@ import kotlin.math.roundToInt
 import kotlin.time.Instant
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandState as GrpcCommandState
 
-internal fun Resource.toAspireResourceData(appHostId: AspireAppHostId): AspireResourceData {
+internal fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourceData {
     val type = mapResourceType(resourceType)
 
     val timezone = TimeZone.currentSystemDefault()
@@ -118,7 +118,7 @@ internal fun Resource.toAspireResourceData(appHostId: AspireAppHostId): AspireRe
     }
 
     return AspireResourceData(
-        id = AspireResourceId(appHostId, name),
+        id = AspireResourceId(appHostPath, name),
         uid = uid,
         name = name,
         type = type,

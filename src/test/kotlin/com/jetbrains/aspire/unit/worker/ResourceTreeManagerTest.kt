@@ -9,7 +9,7 @@ import com.intellij.testFramework.replaceService
 import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate.newBuilder
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
-import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.ResourceListener
@@ -107,7 +107,7 @@ class ResourceTreeManagerTest {
         val resource = buildResource("res-1", "Resource 1")
         val resources = listOf(resource)
         val update = buildUpsertUpdate(resources)
-        val appHostId = AspireAppHostId(appHostPath.toAbsolutePath().toString())
+        val appHostId = AspireAppHostPath(appHostPath.toAbsolutePath().toString())
         val expectedResourceId = AspireResourceId(appHostId, resource.name)
 
         client.resourceUpdates.emit(update)

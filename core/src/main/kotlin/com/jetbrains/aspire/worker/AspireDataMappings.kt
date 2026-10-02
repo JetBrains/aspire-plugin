@@ -8,7 +8,7 @@ import kotlin.io.path.absolutePathString
 @ApiStatus.Internal
 fun AspirePath.toNioPath(): Path = Path(value)
 
-internal fun Path.toAspireAppHostId(): AspireAppHostId = AspireAppHostId(absolutePathString())
+internal fun Path.toAspireAppHostPath(): AspireAppHostPath = AspireAppHostPath(absolutePathString())
 
 @ApiStatus.Internal
 fun AspireAppHost.toData(state: AspireAppHost.AspireAppHostState): AspireAppHostData {
@@ -19,5 +19,5 @@ fun AspireAppHost.toData(state: AspireAppHost.AspireAppHostState): AspireAppHost
         AspireAppHost.AspireAppHostState.Stopped -> AspireAppHostStatus.Stopped
     }
 
-    return AspireAppHostData(appHostId, name, status)
+    return AspireAppHostData(appHostPath, name, status)
 }

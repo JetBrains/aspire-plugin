@@ -8,7 +8,7 @@ import com.intellij.testFramework.TestApplicationManager
 import com.intellij.testFramework.replaceService
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.services.toResourceViewModels
-import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
@@ -113,7 +113,7 @@ class ResourceViewModelsTest {
     ) : AspireResourceModel {
         override val data = MutableStateFlow(
             AspireResourceData(
-                id = AspireResourceId(AspireAppHostId("app-host"), resourceName),
+                id = AspireResourceId(AspireAppHostPath("app-host"), resourceName),
                 uid = "uid-$resourceName",
                 name = resourceName,
                 type = type,

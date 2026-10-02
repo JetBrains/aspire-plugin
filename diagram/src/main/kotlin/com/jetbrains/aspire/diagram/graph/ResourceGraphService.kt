@@ -16,7 +16,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.graph.GraphFactory
 import com.jetbrains.aspire.diagram.AspireDiagramBundle
 import com.jetbrains.aspire.util.getResourceIcon
-import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireAppHostResourcesProvider
 import com.jetbrains.aspire.worker.AspireResourceData
 import kotlinx.coroutines.Dispatchers
@@ -35,8 +35,8 @@ internal class ResourceGraphService(private val project: Project) {
         fun getInstance(project: Project): ResourceGraphService = project.service()
     }
 
-    suspend fun showResourceGraph(appHostId: AspireAppHostId) {
-        val resources = project.service<AspireAppHostResourcesProvider>().getResources(appHostId)
+    suspend fun showResourceGraph(appHostPath: AspireAppHostPath) {
+        val resources = project.service<AspireAppHostResourcesProvider>().getResources(appHostPath)
 
         withContext(Dispatchers.EDT) {
             showResourceGraph(resources)

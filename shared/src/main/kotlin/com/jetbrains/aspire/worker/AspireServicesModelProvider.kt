@@ -11,7 +11,7 @@ interface AspireServicesModelProvider {
 
 @ApiStatus.Internal
 interface AspireAppHostModel {
-    val appHostId: AspireAppHostId
+    val appHostPath: AspireAppHostPath
     val data: StateFlow<AspireAppHostData>
     val rootResources: StateFlow<List<AspireResourceModel>>
     val aspireDashboardUrl: StateFlow<String?>
