@@ -13,7 +13,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
-import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.worker.AspireAppHostData
 import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireAppHostModel
@@ -63,38 +62,7 @@ internal class AspireAppHostViewModel(
 
     private val resourceViewModels: StateFlow<List<AspireResourceViewModel>> =
         appHost.rootResources
-            .visibleResources(AspireSettings.getInstance().showHiddenResourcesFlow)
-            .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
-                val currentViewModelsByName = currentViewModels.associateBy { it.resource.resourceName }
-                val newIds = newResources.map { it.resourceName }.toSet()
-
-                buildList {
-                    for (viewModel in currentViewModels) {
-                        if (viewModel.resourceName in newIds) {
-                            LOG.trace { "Resource ViewModel for ${viewModel.resourceName} already exists" }
-                            add(viewModel)
-                        } else {
-                            LOG.trace { "Disposing Resource ViewModel for ${viewModel.resourceName}" }
-                            Disposer.dispose(viewModel)
-                        }
-                    }
-
-                    for (newResource in newResources) {
-                        if (newResource.resourceName !in currentViewModelsByName) {
-                            LOG.trace { "Creating new Resource ViewModel for ${newResource.resourceName}" }
-                            val resourceVM = AspireResourceViewModel(project, cs, newResource)
-                            if (Disposer.tryRegister(this@AspireAppHostViewModel, resourceVM)) {
-                                add(resourceVM)
-                            }
-                        }
-                    }
-                }.sortedWith(
-                    compareBy(
-                        { it.resource.data.value.type },
-                        { it.resource.data.value.name })
-                )
-            }
-            .stateIn(cs, SharingStarted.Eagerly, emptyList())
+            .toResourceViewModels(project, cs, this)
 
     init {
         logProcessHandler.startNotify()
