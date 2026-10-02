@@ -245,7 +245,7 @@ class AspireAppHostTest {
     }
 
     private suspend fun startDashboardClient(host: AspireAppHost): MockAspireDashboardClientApi {
-        val environment = AspireAppHost.AppHostEnvironment("http://localhost:18888", "test-key", null, null)
+        val environment = AspireAppHost.AppHostEnvironment("http://localhost:18888", "test-key", null)
         withTimeout(10.seconds) {
             while (host.appHostState.value !is AspireAppHost.AspireAppHostState.Starting) {
                 project.messageBus.syncPublisher(AppHostListener.TOPIC).appHostStarting(appHostPath, environment)

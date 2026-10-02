@@ -541,7 +541,6 @@ class ResourceTreeManagerTest {
         val environment = AppHostEnvironment(
             "http://localhost:18888",
             "test-key",
-            null,
             null
         )
         val job = with(treeManager) { startDashboardClient(environment) }

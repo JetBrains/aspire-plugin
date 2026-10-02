@@ -240,11 +240,10 @@ class AspireAppHost(
     data class AppHostEnvironment(
         val resourceServiceEndpointUrl: String?,
         val resourceServiceApiKey: String?,
-        val otlpEndpointUrl: String?,
-        val aspireHostProjectUrl: String?
+        val otlpEndpointUrl: String?
     ) {
         companion object {
-            val EMPTY = AppHostEnvironment(null, null, null, null)
+            val EMPTY = AppHostEnvironment(null, null, null)
         }
     }
 

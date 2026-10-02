@@ -90,8 +90,7 @@ internal class AspireCliRunProfileState(
         val appHostEnvironment = AppHostEnvironment(
             resourceServiceEndpointUrl,
             resourceServiceApiKey,
-            otlpEndpointUrl,
-            null
+            otlpEndpointUrl
         )
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
