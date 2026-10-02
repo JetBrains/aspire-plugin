@@ -2,15 +2,15 @@
 
 | Suite             | Location                                            | Framework |
 |-------------------|-----------------------------------------------------|-----------|
-| JVM unit          | `src/test/kotlin/com/jetbrains/aspire/unit/`        | JUnit 5   |
-| JVM integration   | `src/test/kotlin/com/jetbrains/aspire/integration/` | JUnit 5   |
+| JVM unit          | `src/test/kotlin/com/jetbrains/aspire/unit/`        | JUnit 6   |
+| JVM integration   | `src/test/kotlin/com/jetbrains/aspire/integration/` | JUnit 6   |
 | Gold files        | `testData/com/jetbrains/aspire/`                    | —         |
 | Solution fixtures | `testData/solutions/`                               | —         |
 
 JVM integration tests use:
 
 - the `@Solution` annotation for fixture binding
-- JUnit 5 Rider test bases such as `PerTestSolutionTestBase`
+- JUnit Jupiter Rider test bases such as `PerTestSolutionTestBase`
 
 JVM integration tests launch a full Rider test environment and are slow. Run them manually or on CI by default.
 Agents may run integration tests or the full JVM suite only when the user explicitly requests the corresponding run;

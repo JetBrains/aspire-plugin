@@ -10,21 +10,18 @@ import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.sessions.*
-import com.jetbrains.aspire.sessions.AspireSessionHost
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer
 import com.jetbrains.aspire.worker.dcp.AspireSessionServerEndpoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Domain object representing an Aspire AppHost project.
@@ -56,8 +53,9 @@ class AspireAppHost(
     private val hostLifetime = AspireService.getInstance(project).lifetime.createNested()
 
     private val sessionServerMutex = Mutex()
-
     private var sessionServer: AspireSessionServer? = null
+
+    private val disposed = AtomicBoolean(false)
 
     val dcpInstancePrefix = generateDcpInstancePrefix()
     val browserToken = generateBrowserToken()
@@ -140,12 +138,19 @@ class AspireAppHost(
      */
     suspend fun startSessionServer(): AspireSessionServerEndpoint {
         sessionServerMutex.withLock {
+            check(!disposed.get()) { "AspireAppHost is disposed" }
+
             sessionServer?.let { return checkNotNull(it.endpoint) }
 
             val server = AspireSessionServer(this, project)
             server.start()
-            sessionServer = server
 
+            if (disposed.get()) {
+                withContext(NonCancellable) { server.stop() }
+                error("AspireAppHost is disposed")
+            }
+
+            sessionServer = server
             val endpoint = checkNotNull(server.endpoint)
             LOG.trace { "Started embedded DCP server for $mainFilePath on port ${endpoint.port} (https=${endpoint.isHttps})" }
             return endpoint
@@ -183,15 +188,20 @@ class AspireAppHost(
     }
 
     override fun dispose() {
+        if (!disposed.compareAndSet(false, true)) return
+
         LOG.trace { "Disposing AspireAppHost for project: $mainFilePath" }
 
-        cs.launch(NonCancellable) {
-            val server = sessionServerMutex.withLock {
-                val currentServer = sessionServer
-                sessionServer = null
-                currentServer
+        cs.launch(start = CoroutineStart.ATOMIC) {
+            withContext(NonCancellable) {
+                sessionServerMutex.withLock {
+                    try {
+                        sessionServer?.stop()
+                    } finally {
+                        sessionServer = null
+                    }
+                }
             }
-            server?.stop()
         }
 
         hostLifetime.terminate()
