@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
+import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.worker.AspireAppHostData
 import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireAppHostModel
@@ -62,6 +63,7 @@ internal class AspireAppHostViewModel(
 
     private val resourceViewModels: StateFlow<List<AspireResourceViewModel>> =
         appHost.rootResources
+            .visibleResources(AspireSettings.getInstance().showHiddenResourcesFlow)
             .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
                 val currentViewModelsByName = currentViewModels.associateBy { it.resource.resourceName }
                 val newIds = newResources.map { it.resourceName }.toSet()

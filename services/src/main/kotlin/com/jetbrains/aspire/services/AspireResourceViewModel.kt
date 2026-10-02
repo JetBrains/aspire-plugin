@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
+import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.worker.AspireResourceModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -50,6 +51,7 @@ internal class AspireResourceViewModel(
 
     private val childViewModels: StateFlow<List<AspireResourceViewModel>> =
         resource.childrenResources
+            .visibleResources(AspireSettings.getInstance().showHiddenResourcesFlow)
             .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
                 val currentViewModelsByName = currentViewModels.associateBy { it.resource.resourceName }
                 val newIds = newResources.map { it.resourceName }.toSet()
