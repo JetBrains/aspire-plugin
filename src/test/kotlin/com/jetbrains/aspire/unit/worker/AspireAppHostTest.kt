@@ -17,6 +17,7 @@ import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -236,6 +237,7 @@ class AspireAppHostTest {
     }
 
     private fun createAppHost(): AspireAppHost = AspireAppHost(
+        AspireAppHostId("AppHost"),
         "AppHost",
         appHostPath,
         project,

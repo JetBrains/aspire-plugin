@@ -29,6 +29,18 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
     companion object {
         fun getInstance(project: Project): AspireWorker = project.service()
         private val LOG = logger<AspireWorker>()
+
+        private fun generateAppHostId(): AspireAppHostId {
+            val allowedChars = buildList {
+                addAll('A'..'Z')
+                addAll('a'..'z')
+                addAll('0'..'9')
+            }
+            val id = (1..5)
+                .map { allowedChars.random() }
+                .joinToString("")
+            return AspireAppHostId(id)
+        }
     }
 
     private val _appHosts: MutableStateFlow<List<AspireAppHost>> = MutableStateFlow(emptyList())
@@ -40,7 +52,8 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         _appHosts.update { currentList ->
             if (currentList.any { it.mainFilePath == appHostFilePath }) return@update currentList
 
-            val appHost = AspireAppHost(name, appHostFilePath, project, cs)
+            val id = generateAppHostId()
+            val appHost = AspireAppHost(id, name, appHostFilePath, project, cs)
             Disposer.register(this@AspireWorker, appHost)
             currentList + appHost
         }

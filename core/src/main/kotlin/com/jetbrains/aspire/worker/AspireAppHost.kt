@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 @ApiStatus.Internal
 class AspireAppHost(
+    override val id: AspireAppHostId,
     val name: String,
     val mainFilePath: Path,
     private val project: Project,
@@ -56,8 +57,6 @@ class AspireAppHost(
     private var sessionServer: AspireSessionServer? = null
 
     private val disposed = AtomicBoolean(false)
-
-    val dcpInstancePrefix = generateDcpInstancePrefix()
 
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this)
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
@@ -213,17 +212,6 @@ class AspireAppHost(
 
         hostLifetime.terminate()
         cs.cancel()
-    }
-
-    private fun generateDcpInstancePrefix(): String {
-        val allowedChars = buildList {
-            addAll('A'..'Z')
-            addAll('a'..'z')
-            addAll('0'..'9')
-        }
-        return (1..5)
-            .map { allowedChars.random() }
-            .joinToString("")
     }
 
     private fun selectDashboardUrl(urls: List<ResourceUrl>): String? {

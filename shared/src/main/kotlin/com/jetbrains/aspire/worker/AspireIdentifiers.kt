@@ -16,6 +16,11 @@ value class AspirePath(val value: String) {
 @ApiStatus.Internal
 @Serializable
 @JvmInline
+value class AspireAppHostId(val value: String)
+
+@ApiStatus.Internal
+@Serializable
+@JvmInline
 value class AspireAppHostPath(val value: String)
 
 @ApiStatus.Internal

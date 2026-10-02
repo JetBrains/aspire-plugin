@@ -122,7 +122,7 @@ internal class AspireCliRunProfileState(
     private suspend fun putAdditionalEnvironmentVariables(envs: MutableMap<String, String>, appHostFile: Path) {
         val aspireWorker = AspireWorker.getInstance(environment.project)
         val (appHost, endpoint) = aspireWorker.startAppHostSessionServer(appHostFile)
-        envs[DCP_INSTANCE_ID_PREFIX] = appHost.dcpInstancePrefix
+        envs[DCP_INSTANCE_ID_PREFIX] = appHost.id.value
         envs.putAll(endpoint.toDcpEnvironmentVariables())
 
         val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
