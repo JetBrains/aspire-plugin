@@ -8,6 +8,7 @@
 
 - Update platform version to 2026.3-EAP5
 - Update Aspire version to 13.6.0
+- Update JUnit library versions
 
 ### Fixed
 
