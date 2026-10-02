@@ -9,7 +9,6 @@ data class AspireAppHostData(
     val id: AspireAppHostId,
     val name: String,
     val status: AspireAppHostStatus,
-    val dashboardUrl: String?,
 )
 
 @ApiStatus.Internal

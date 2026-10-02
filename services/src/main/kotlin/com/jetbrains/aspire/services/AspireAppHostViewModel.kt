@@ -25,18 +25,18 @@ import javax.swing.JComponent
 internal class AspireAppHostViewModel(
     private val project: Project,
     parentCs: CoroutineScope,
-    val appHost: AspireAppHostModel
+    private val appHost: AspireAppHostModel
 ) : ServiceViewProvidingContributor<AspireResourceViewModel, AspireAppHostViewModel>, Disposable {
     companion object {
         private val LOG = logger<AspireAppHostViewModel>()
 
         @ApiStatus.Internal
-        fun createUiState(data: AspireAppHostData, consoleComponent: JComponent): AppHostUiState =
-            when (data.status) {
+        fun createUiState(status: AspireAppHostStatus, consoleComponent: JComponent): AppHostUiState =
+            when (status) {
                 AspireAppHostStatus.Inactive -> AppHostUiState.Initial
 
                 AspireAppHostStatus.Starting,
-                AspireAppHostStatus.Started -> AppHostUiState.Active(data.dashboardUrl, consoleComponent)
+                AspireAppHostStatus.Started -> AppHostUiState.Active(consoleComponent)
 
                 AspireAppHostStatus.Stopped -> AppHostUiState.Inactive(consoleComponent)
             }
@@ -48,6 +48,8 @@ internal class AspireAppHostViewModel(
 
     val appHostId: AspireAppHostId = appHost.appHostId
     val displayName: String = appHost.data.value.name
+    val appHostData: StateFlow<AspireAppHostData> = appHost.data
+    val aspireDashboardUrl: StateFlow<String?> = appHost.aspireDashboardUrl
 
     private val logProcessHandler = LogProcessHandler()
     private val logConsole = TerminalExecutionConsoleBuilder(project)
@@ -57,7 +59,7 @@ internal class AspireAppHostViewModel(
         .also { Disposer.register(this, it) }
 
     val uiState: StateFlow<AppHostUiState> = appHost.data
-        .map { data -> createUiState(data, logConsole.component) }
+        .map { data -> createUiState(data.status, logConsole.component) }
         .stateIn(cs, SharingStarted.Eagerly, AppHostUiState.Initial)
 
     private val resourceViewModels: StateFlow<List<AspireResourceViewModel>> =
