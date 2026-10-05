@@ -14,6 +14,7 @@ import com.jetbrains.rd.util.put
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.milliseconds
@@ -28,7 +29,7 @@ import kotlin.time.Duration.Companion.milliseconds
 internal class SessionManagerImpl(
     private val project: Project,
     scope: CoroutineScope,
-    private val runConfigName: () -> String?,
+    private val appHostFile: Path,
 ) : SessionManager, Disposable {
     companion object {
         private val LOG = logger<SessionManagerImpl>()
@@ -90,7 +91,7 @@ internal class SessionManagerImpl(
             sessionId,
             createSessionRequest.launchConfiguration,
             sessionEvents,
-            runConfigName(),
+            appHostFile,
             lifetime.createNested()
         )
 

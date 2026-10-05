@@ -30,7 +30,7 @@ interface AppHostListener {
      *
      * @param logFlow buffered stream of the AppHost process output (text + stderr flag)
      */
-    fun appHostStarted(appHostFile: Path, runConfigName: String?, logFlow: SharedFlow<AppHostLogEntry>)
+    fun appHostStarted(appHostFile: Path, logFlow: SharedFlow<AppHostLogEntry>)
 
     /**
      * Notifies that an Aspire AppHost process has stopped.

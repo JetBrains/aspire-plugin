@@ -256,7 +256,7 @@ class AspireAppHostTest {
         }
         val messages = MutableSharedFlow<AppHostLogEntry>()
         project.messageBus.syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(appHostPath, null, messages)
+            .appHostStarted(appHostPath, messages)
         return withTimeout(10.seconds) {
             while (mockFactory.lastClient?.resourceUpdates?.subscriptionCount?.value != 1) delay(10.milliseconds)
             requireNotNull(mockFactory.lastClient)

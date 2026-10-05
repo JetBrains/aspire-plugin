@@ -48,13 +48,12 @@ class AspireAppHost(
     private val sessionServerMutex = Mutex()
     private var sessionServer: AspireSessionServer? = null
 
-    private val disposed = AtomicBoolean(false)
-
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this)
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
-    private val sessionManager = SessionManagerImpl(project, cs) {
-        (appHostState.value as? AspireAppHostState.Started)?.runConfigName
-    }.also { Disposer.register(this, it) }
+    private val sessionManager = SessionManagerImpl(project, cs, mainFilePath)
+        .also { Disposer.register(this, it) }
+
+    private val disposed = AtomicBoolean(false)
 
     override val rootResources: StateFlow<List<AspireResource>>
         get() = resourceTreeManager.rootResources
@@ -79,13 +78,12 @@ class AspireAppHost(
 
                 override fun appHostStarted(
                     appHostFile: Path,
-                    runConfigName: String?,
                     logFlow: SharedFlow<AppHostLogEntry>
                 ) {
                     if (mainFilePath != appHostFile) return
 
                     LOG.trace { "Aspire AppHost $mainFilePath was started" }
-                    trySend(AppHostLifecycleEvent.Started(runConfigName, logFlow))
+                    trySend(AppHostLifecycleEvent.Started(logFlow))
                 }
 
                 override fun appHostStopped(appHostFile: Path) {
@@ -113,10 +111,7 @@ class AspireAppHost(
                         LOG.warn("Aspire AppHost $mainFilePath started without a preceding Starting state")
                     }
 
-                    AspireAppHostState.Started(
-                        event.runConfigName,
-                        environment ?: AppHostEnvironment.EMPTY
-                    )
+                    AspireAppHostState.Started(environment ?: AppHostEnvironment.EMPTY)
                 }
 
                 AppHostLifecycleEvent.Stopped -> AspireAppHostState.Stopped
@@ -200,7 +195,6 @@ class AspireAppHost(
         ) : AppHostLifecycleEvent
 
         data class Started(
-            val runConfigName: String?,
             val logFlow: SharedFlow<AppHostLogEntry>,
         ) : AppHostLifecycleEvent
 
@@ -215,7 +209,6 @@ class AspireAppHost(
         ) : AspireAppHostState
 
         data class Started(
-            val runConfigName: String?,
             val environment: AppHostEnvironment,
         ) : AspireAppHostState
 

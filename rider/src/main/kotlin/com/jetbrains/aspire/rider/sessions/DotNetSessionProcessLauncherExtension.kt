@@ -30,7 +30,7 @@ interface DotNetSessionProcessLauncherExtension {
         launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        aspireHostRunConfigName: String?,
+        appHostFile: Path,
         project: Project
     )
 
@@ -39,7 +39,7 @@ interface DotNetSessionProcessLauncherExtension {
         launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        aspireHostRunConfigName: String?,
+        appHostFile: Path,
         project: Project
     )
 }

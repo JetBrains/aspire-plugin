@@ -55,7 +55,7 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(appHostFile, profile.name, logFlow.asSharedFlow())
+            .appHostStarted(appHostFile, logFlow.asSharedFlow())
     }
 
     override fun processTerminated(
