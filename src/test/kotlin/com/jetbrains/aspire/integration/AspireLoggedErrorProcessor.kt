@@ -14,6 +14,8 @@ private val aspireKnownLogErrors = RiderKnownLogErrors + KnownLogErrors(
     "WriteLockModalProgress" to { it.contains("This thread holds write lock while trying to invoke a modal progress.Write actions should be fast so they do not stall the progress in the IDE") },
     "AWTInsideWriteActions" to { it.contains("AWT events are not allowed inside write action") },
     "SandboxManagerNPE" to { it.contains("com.jetbrains.rider.debugger.shared.evaluation.immediate.window.SandboxManager") },
+    "FileBasedAppTypeTracker" to { it.contains("JetBrains.RdBackend.Common.Features.FileBasedPrograms.FileBasedAppTypeTracker") && it.contains("Sequence contains no matching element") },
+    "ConfigFileCacheNRE" to { it.contains("ConfigFileCache.cs::AddItems{Add mount points from config files (0)}") },
 )
 
 fun createAspireTestLogManager(
