@@ -69,6 +69,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         }
     }
 
+    @Suppress("JetBrainsInternalApiUsage")
     private suspend fun buildProjects(projectPaths: List<Path>, project: Project) {
         if (projectPaths.isEmpty()) return
 
@@ -141,6 +142,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         buildService.buildProjects(projectPaths)
     }
 
+    @Suppress("JetBrainsInternalApiUsage")
     private suspend fun findProjectsReferencedByAppHost(projectPaths: List<Path>, project: Project): List<Path> {
         val appHostProjectPath = findExistingAppHost(project)
             ?.url
@@ -183,7 +185,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
                 launchConfiguration,
                 sessionProcessListener,
                 sessionLifetime,
-                request.aspireHostRunConfigName,
+                request.appHostFile,
                 project
             )
         }
@@ -222,7 +224,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        aspireHostRunConfigName: String?,
+        appHostFile: Path,
         project: Project,
     ) {
         LOG.info("Starting a session process for the project ${launchConfiguration.projectPath}")
@@ -247,7 +249,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
                 launchConfiguration,
                 sessionProcessEventListener,
                 sessionProcessLifetime,
-                aspireHostRunConfigName,
+                appHostFile,
                 project,
             )
         } else {
@@ -256,7 +258,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
                 launchConfiguration,
                 sessionProcessEventListener,
                 sessionProcessLifetime,
-                aspireHostRunConfigName,
+                appHostFile,
                 project,
             )
         }
@@ -267,7 +269,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        aspireHostRunConfigName: String?,
+        appHostFile: Path,
         project: Project
     ) {
         val processLauncher =
@@ -283,7 +285,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             launchConfiguration,
             sessionProcessEventListener,
             sessionProcessLifetime,
-            aspireHostRunConfigName,
+            appHostFile,
             project,
         )
     }
@@ -293,7 +295,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         launchConfiguration: DotNetSessionLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
-        aspireHostRunConfigName: String?,
+        appHostFile: Path,
         project: Project
     ) {
         val processLauncher =
@@ -309,7 +311,7 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             launchConfiguration,
             sessionProcessEventListener,
             sessionProcessLifetime,
-            aspireHostRunConfigName,
+            appHostFile,
             project,
         )
     }

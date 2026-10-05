@@ -13,7 +13,7 @@ data class StartSessionRequest(
     val sessionId: String,
     val launchConfiguration: SessionLaunchConfiguration,
     val sessionEvents: Channel<SessionEvent>,
-    val aspireHostRunConfigName: String?,
+    val appHostFile: Path,
     val sessionLifetime: LifetimeDefinition
 ) : SessionRequest
 

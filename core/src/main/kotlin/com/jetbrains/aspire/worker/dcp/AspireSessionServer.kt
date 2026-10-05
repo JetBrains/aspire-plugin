@@ -41,12 +41,12 @@ interface AspireSessionServerTlsConfig {
 /**
  * An embedded Ktor (Netty) server implementing the Aspire DCP "IDE execution" protocol.
  *
- * @param sessionHost the engine session requests are forwarded to
+ * @param sessionManager the manager session requests are forwarded to
  * @see <a href="https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md">IDE execution</a>
  */
 @ApiStatus.Internal
 class AspireSessionServer(
-    private val sessionHost: AspireSessionHost,
+    private val sessionManager: SessionManager,
     private val project: Project,
 ) {
     companion object {
@@ -69,7 +69,7 @@ class AspireSessionServer(
     private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
     private var tlsMaterial: AspireDcpTls.DcpTlsMaterial? = null
 
-    /** Guards the single-consumer [AspireSessionHost.sessionEvents] channel against double draining. */
+    /** Guards the single-consumer [SessionManager.sessionEvents] channel against double draining. */
     private val notifyMutex = Mutex()
     private var notifyJob: Job? = null
 
@@ -228,7 +228,7 @@ class AspireSessionServer(
             mapEnvironmentVariables(session),
         )
         val request = CreateSessionRequest(aspireHostId, launchConfiguration)
-        val response = sessionHost.createSession(request)
+        val response = sessionManager.createSession(request)
 
         return response.sessionId to response.error
     }
@@ -248,7 +248,7 @@ class AspireSessionServer(
             return
         }
 
-        val (deletedSessionId, errorCode) = sessionHost.deleteSession(DeleteSessionRequest(aspireHostId, sessionId))
+        val (deletedSessionId, errorCode) = sessionManager.deleteSession(DeleteSessionRequest(aspireHostId, sessionId))
         if (deletedSessionId != null) {
             call.respond(HttpStatusCode.OK)
             return
@@ -266,7 +266,7 @@ class AspireSessionServer(
      * and one with an unsupported protocol version with a 400, so neither reaches this handler. DCP
      * always connects with a supported protocol version, so the latter only affects error paths.
      *
-     * Delivery is best-effort (at-most-once): [AspireSessionHost.sessionEvents] is the only buffer,
+     * Delivery is best-effort (at-most-once): [SessionManager.sessionEvents] is the only buffer,
      * so an event already taken from the channel but still in flight inside [send] when the transport
      * dies (or when a reconnecting client displaces this connection) is lost. DCP recovers authoritative
      * state on reconnect, so this is acceptable.
@@ -285,7 +285,7 @@ class AspireSessionServer(
         try {
             val sender = launch {
                 try {
-                    for (event in sessionHost.sessionEvents) {
+                    for (event in sessionManager.sessionEvents) {
                         val frame = try {
                             SessionEventConverter.convertToFrame(DcpJson, event)
                         } catch (e: Exception) {

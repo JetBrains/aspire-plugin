@@ -33,6 +33,8 @@ internal class AspireRunConfigurationManagerImpl(private val project: Project) :
         runConfigurationNames[appHostFile] = runConfigurationName
     }
 
+    override fun getRunConfigurationNameForAppHost(appHostFile: Path): String? = runConfigurationNames[appHostFile]
+
     override fun executeConfigurationForAppHost(appHostFile: Path, underDebug: Boolean) {
         val executor =
             if (underDebug) DefaultDebugExecutor.getDebugExecutorInstance()

@@ -1,0 +1,178 @@
+package com.jetbrains.aspire.sessions
+
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.diagnostic.debug
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.trace
+import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.AspireService
+import com.jetbrains.aspire.extensions.StartSessionRequestHandler
+import com.jetbrains.rd.util.lifetime.LifetimeDefinition
+import com.jetbrains.rd.util.lifetime.isAlive
+import com.jetbrains.rd.util.put
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import java.nio.file.Path
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.milliseconds
+
+/**
+ * Manages the lifecycle and orchestration of Aspire sessions for one AppHost.
+ *
+ * This class is responsible for handling requests to create and delete sessions, as well as
+ * managing their associated lifetimes and processes. It processes commands submitted to it
+ * asynchronously via a command channel.
+ */
+internal class SessionManagerImpl(
+    private val project: Project,
+    scope: CoroutineScope,
+    private val appHostFile: Path,
+) : SessionManager, Disposable {
+    companion object {
+        private val LOG = logger<SessionManagerImpl>()
+
+        /**
+         * Time window in milliseconds to batch commands together.
+         * Commands received within this window will be grouped and their projects built together.
+         */
+        private const val BATCH_WINDOW_MS = 1000L
+    }
+
+    override val sessionEvents: ReceiveChannel<SessionEvent>
+        field = Channel<SessionEvent>(Channel.UNLIMITED)
+
+    private val lifetime = AspireService.getInstance(project).lifetime.createNested()
+
+    private val sessionLifetimes = ConcurrentHashMap<String, LifetimeDefinition>()
+
+    private val requests = Channel<SessionRequest>(Channel.UNLIMITED)
+
+    init {
+        scope.launch {
+            while (true) {
+                val batch = mutableListOf<SessionRequest>()
+
+                // Wait for the first command
+                val firstCommand = requests.receive()
+                batch.add(firstCommand)
+
+                // Collect commands within the batch window
+                val batchDeadline = System.currentTimeMillis() + BATCH_WINDOW_MS
+                while (true) {
+                    val remainingTime = batchDeadline - System.currentTimeMillis()
+                    if (remainingTime <= 0) break
+
+                    val command = withTimeoutOrNull(remainingTime.milliseconds) {
+                        requests.receive()
+                    }
+
+                    if (command != null) {
+                        batch.add(command)
+                    } else {
+                        break
+                    }
+                }
+
+                LOG.trace { "Processing batch of ${batch.size} command(s)" }
+                handleBatchRequests(batch)
+            }
+        }
+    }
+
+    override fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse {
+        val sessionId = UUID.randomUUID().toString()
+
+        LOG.trace { "Creating Aspire session with id: $sessionId" }
+
+        val request = StartSessionRequest(
+            sessionId,
+            createSessionRequest.launchConfiguration,
+            sessionEvents,
+            appHostFile,
+            lifetime.createNested()
+        )
+
+        submitRequest(request)
+
+        return CreateSessionResponse(sessionId, null)
+    }
+
+    override fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
+        LOG.trace { "Deleting Aspire session with id: ${deleteSessionRequest.sessionId}" }
+
+        val request = StopSessionRequest(deleteSessionRequest.sessionId)
+        submitRequest(request)
+
+        return DeleteSessionResponse(deleteSessionRequest.sessionId, null)
+    }
+
+    override fun dispose() {
+        lifetime.terminate()
+    }
+
+    private fun submitRequest(request: SessionRequest) {
+        requests.trySend(request)
+    }
+
+    private suspend fun handleBatchRequests(batch: List<SessionRequest>) {
+        val startRequests = batch.filterIsInstance<StartSessionRequest>()
+        val stopRequests = batch.filterIsInstance<StopSessionRequest>()
+
+        if (startRequests.isNotEmpty()) {
+            handleStartRequests(startRequests)
+        }
+
+        if (stopRequests.isNotEmpty()) {
+            handleStopRequests(stopRequests)
+        }
+    }
+
+    private suspend fun handleStartRequests(requests: List<StartSessionRequest>) {
+        LOG.trace { "Received ${requests.size} start request(s)" }
+
+        requests.forEach {
+            sessionLifetimes.put(it.sessionLifetime.lifetime, it.sessionId, it.sessionLifetime)
+        }
+
+        val requestsByLaunchConfigurationType = requests.groupBy { it.launchConfiguration::class }
+        requestsByLaunchConfigurationType.forEach { (launchConfigType, groupedRequests) ->
+            LOG.trace { "Processing ${groupedRequests.size} request(s) of type ${launchConfigType.simpleName}" }
+
+            val handler = StartSessionRequestHandler.findApplicableHandler(groupedRequests)
+            if (handler == null) {
+                LOG.warn("No applicable handler found for ${launchConfigType.simpleName} request type")
+                return
+            }
+
+            handler.handleRequests(groupedRequests, project)
+        }
+    }
+
+    private suspend fun handleStopRequests(requests: List<StopSessionRequest>) {
+        LOG.trace { "Received ${requests.size} stop request(s)" }
+
+        requests.forEach {
+            handleStopRequest(it)
+        }
+    }
+
+    private suspend fun handleStopRequest(request: StopSessionRequest) {
+        LOG.info("Stopping session ${request.sessionId}")
+
+        val sessionLifetimeDefinition = sessionLifetimes.remove(request.sessionId)
+        if (sessionLifetimeDefinition == null) {
+            LOG.debug { "Unable to find session ${request.sessionId} lifetime" }
+            return
+        }
+
+        if (sessionLifetimeDefinition.isAlive) {
+            withContext(Dispatchers.EDT) {
+                LOG.trace { "Terminating session ${request.sessionId} lifetime" }
+                sessionLifetimeDefinition.terminate()
+            }
+        }
+    }
+}

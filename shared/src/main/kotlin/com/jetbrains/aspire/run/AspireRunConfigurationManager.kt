@@ -9,6 +9,9 @@ interface AspireRunConfigurationManager {
     /** Remembers the configuration launched for the given AppHost. */
     fun saveRunConfigurationForAppHost(appHostFile: Path, runConfigurationName: String)
 
+    /** Returns the name of the last configuration launched for the given AppHost. */
+    fun getRunConfigurationNameForAppHost(appHostFile: Path): String?
+
     /** Runs a configuration for the given AppHost using the Run or Debug executor, depending on [underDebug]. */
     fun executeConfigurationForAppHost(appHostFile: Path, underDebug: Boolean)
 
