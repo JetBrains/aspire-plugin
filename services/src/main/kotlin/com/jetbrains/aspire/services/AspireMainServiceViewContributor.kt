@@ -1,6 +1,7 @@
 package com.jetbrains.aspire.services
 
 import com.intellij.execution.services.ServiceViewContributor
+import com.intellij.execution.services.ServiceViewEmptyTreeSuggestion
 import com.intellij.execution.services.ServiceViewLazyContributor
 import com.intellij.openapi.project.Project
 
@@ -16,4 +17,7 @@ internal class AspireMainServiceViewContributor : ServiceViewContributor<AspireW
 
     override fun getServiceDescriptor(project: Project, service: AspireWorkerViewModel) =
         service.getViewDescriptor(project)
+
+    @Suppress("JetBrainsInternalApiUsage")
+    override fun getEmptyTreeSuggestion(): ServiceViewEmptyTreeSuggestion = AspireEmptyTreeSuggestion
 }
