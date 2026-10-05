@@ -6,21 +6,18 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
-import com.jetbrains.aspire.AspireService
-import com.jetbrains.aspire.sessions.*
+import com.jetbrains.aspire.sessions.SessionManagerImpl
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer
 import com.jetbrains.aspire.worker.dcp.AspireSessionServerEndpoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
-import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -39,7 +36,7 @@ class AspireAppHost(
     val mainFilePath: Path,
     private val project: Project,
     parentCs: CoroutineScope
-) : Disposable, AspireSessionHost, AspireAppHostModel {
+) : Disposable, AspireAppHostModel {
     companion object {
         private val LOG = logger<AspireAppHost>()
     }
@@ -48,11 +45,6 @@ class AspireAppHost(
 
     override val appHostPath: AspireAppHostPath = mainFilePath.toAspireAppHostPath()
 
-    override val sessionEvents: ReceiveChannel<SessionEvent>
-        field = Channel<SessionEvent>(Channel.UNLIMITED)
-
-    private val hostLifetime = AspireService.getInstance(project).lifetime.createNested()
-
     private val sessionServerMutex = Mutex()
     private var sessionServer: AspireSessionServer? = null
 
@@ -60,6 +52,9 @@ class AspireAppHost(
 
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this)
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
+    private val sessionManager = SessionManagerImpl(project, cs) {
+        (appHostState.value as? AspireAppHostState.Started)?.runConfigName
+    }.also { Disposer.register(this, it) }
 
     override val rootResources: StateFlow<List<AspireResource>>
         get() = resourceTreeManager.rootResources
@@ -148,7 +143,7 @@ class AspireAppHost(
 
             sessionServer?.let { return checkNotNull(it.endpoint) }
 
-            val server = AspireSessionServer(this, project)
+            val server = AspireSessionServer(sessionManager, project)
             server.start()
 
             if (disposed.get()) {
@@ -161,36 +156,6 @@ class AspireAppHost(
             LOG.trace { "Started embedded DCP server for $mainFilePath on port ${endpoint.port} (https=${endpoint.isHttps})" }
             return endpoint
         }
-    }
-
-    override fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse {
-        val appHostStartedState = appHostState.value as? AspireAppHostState.Started
-
-        val sessionId = UUID.randomUUID().toString()
-
-        LOG.trace { "Creating Aspire session with id: $sessionId" }
-
-        val request = StartSessionRequest(
-            sessionId,
-            createSessionRequest.launchConfiguration,
-            sessionEvents,
-            appHostStartedState?.runConfigName,
-            hostLifetime.createNested()
-        )
-
-        SessionManager.getInstance(project).submitRequest(request)
-
-        return CreateSessionResponse(sessionId, null)
-    }
-
-    override fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse {
-        LOG.trace { "Deleting Aspire session with id: ${deleteSessionRequest.sessionId}" }
-
-        val request = StopSessionRequest(deleteSessionRequest.sessionId)
-
-        SessionManager.getInstance(project).submitRequest(request)
-
-        return DeleteSessionResponse(deleteSessionRequest.sessionId, null)
     }
 
     override fun dispose() {
@@ -210,7 +175,6 @@ class AspireAppHost(
             }
         }
 
-        hostLifetime.terminate()
         cs.cancel()
     }
 

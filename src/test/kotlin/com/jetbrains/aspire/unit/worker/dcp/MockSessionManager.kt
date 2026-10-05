@@ -1,11 +1,10 @@
 package com.jetbrains.aspire.unit.worker.dcp
 
 import com.jetbrains.aspire.sessions.*
-import com.jetbrains.aspire.sessions.AspireSessionHost
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 
-internal class MockAspireSessionHost : AspireSessionHost {
+internal class MockSessionManager : SessionManager {
     override val sessionEvents: ReceiveChannel<SessionEvent>
         field = Channel<SessionEvent>(Channel.UNLIMITED)
 

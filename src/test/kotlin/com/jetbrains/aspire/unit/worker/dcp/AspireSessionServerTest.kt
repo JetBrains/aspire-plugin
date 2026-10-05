@@ -56,11 +56,11 @@ internal class AspireSessionServerTest {
     @Test
     fun `each server generates its own token`() = timeoutRunBlocking {
         val project = ProjectManager.getInstance().defaultProject
-        val firstHost = MockAspireSessionHost()
-        val secondHost = MockAspireSessionHost()
+        val firstSessionManager = MockSessionManager()
+        val secondSessionManager = MockSessionManager()
 
-        val firstServer = AspireSessionServer(firstHost, project)
-        val secondServer = AspireSessionServer(secondHost, project)
+        val firstServer = AspireSessionServer(firstSessionManager, project)
+        val secondServer = AspireSessionServer(secondSessionManager, project)
 
         try {
             firstServer.start()
@@ -80,8 +80,8 @@ internal class AspireSessionServerTest {
     @Test
     fun `endpoint is null before start`() {
         val project = ProjectManager.getInstance().defaultProject
-        val host = MockAspireSessionHost()
-        val server = AspireSessionServer(host, project)
+        val sessionManager = MockSessionManager()
+        val server = AspireSessionServer(sessionManager, project)
 
         val endpoint = server.endpoint
 
@@ -90,8 +90,8 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `stop clears its endpoint`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { _, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { _, server ->
             server.stop()
 
             assertNull(server.endpoint)
@@ -100,8 +100,8 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `server can restart after stop`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { _, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { _, server ->
             val firstEndpoint = checkNotNull(server.endpoint)
 
             server.stop()
@@ -115,8 +115,8 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `start reuses its endpoint`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { _, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { _, server ->
             val endpoint = checkNotNull(server.endpoint)
 
             server.start()
@@ -130,7 +130,7 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `info returns 200`() {
-        withServer(MockAspireSessionHost()) { baseUrl, _ ->
+        withServer(MockSessionManager()) { baseUrl, _ ->
             val response = httpGet("$baseUrl/info")
             response.assertStatus(200)
             response.assertBodyContains("protocols_supported")
@@ -143,22 +143,22 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `run_session without bearer is 401`() {
-        withServer(MockAspireSessionHost()) { baseUrl, _ ->
+        withServer(MockSessionManager()) { baseUrl, _ ->
             httpPut("$baseUrl/run_session", VALID_SESSION_BODY, token = null).assertStatus(401)
         }
     }
 
     @Test
     fun `run_session with wrong bearer is 401`() {
-        withServer(MockAspireSessionHost()) { baseUrl, _ ->
+        withServer(MockSessionManager()) { baseUrl, _ ->
             httpPut("$baseUrl/run_session", VALID_SESSION_BODY, token = "wrong-token").assertStatus(401)
         }
     }
 
     @Test
     fun `missing api-version is 400`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { baseUrl, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpPut("$baseUrl/run_session", VALID_SESSION_BODY, checkNotNull(server.endpoint).token, apiVersion = null)
 
             response.assertStatus(400)
@@ -168,8 +168,8 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `missing instance-id header is 400 InvalidAspireHostId`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { baseUrl, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpPut("$baseUrl/run_session", VALID_SESSION_BODY, checkNotNull(server.endpoint).token, instanceId = null)
 
             response.assertStatus(400)
@@ -179,8 +179,8 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `malformed JSON body is 400`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { baseUrl, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpPut("$baseUrl/run_session", "{ not json", checkNotNull(server.endpoint).token)
 
             response.assertStatus(400)
@@ -189,8 +189,8 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `no project launch configuration is 400`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { baseUrl, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpPut("$baseUrl/run_session", """{"launch_configurations":[]}""", checkNotNull(server.endpoint).token)
 
             response.assertStatus(400)
@@ -200,11 +200,11 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `create session client error returns 400`() {
-        val host = MockAspireSessionHost().apply {
+        val sessionManager = MockSessionManager().apply {
             onCreate = { CreateSessionResponse(null, ErrorCode.UnsupportedLaunchConfigurationType) }
         }
 
-        withServer(host) { baseUrl, server ->
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpPut("$baseUrl/run_session", VALID_SESSION_BODY, checkNotNull(server.endpoint).token)
 
             response.assertStatus(400)
@@ -215,7 +215,7 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `create session returns 201`() {
-        val host = MockAspireSessionHost().apply {
+        val sessionManager = MockSessionManager().apply {
             onCreate = { CreateSessionResponse("session-1", null) }
         }
         val expectedProjectPath = Path("/p/App.csproj")
@@ -225,14 +225,14 @@ internal class AspireSessionServerTest {
             "env":[{"name":"A","value":"1"}],"args":["--x"]}
         """.trimIndent()
 
-        withServer(host) { baseUrl, server ->
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpPut("$baseUrl/run_session", body, checkNotNull(server.endpoint).token, instanceId = DEFAULT_INSTANCE_ID)
 
             response.assertStatus(201)
             assertEquals("/run_session/session-1", response.location())
             response.assertBodyContains("project_path")
 
-            val request = checkNotNull(host.lastCreateRequest)
+            val request = checkNotNull(sessionManager.lastCreateRequest)
             val launchConfiguration = assertIs<DotNetSessionLaunchConfiguration>(request.launchConfiguration)
             assertEquals(expectedProjectPath, launchConfiguration.projectPath)
             assertEquals("https", launchConfiguration.launchProfile)
@@ -246,17 +246,17 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `create session preserves defaults and filters null environment values`() {
-        val host = MockAspireSessionHost()
+        val sessionManager = MockSessionManager()
         val body = """
             {"launch_configurations":[{"type":"project","project_path":"/p/App.csproj"}],
             "env":[{"name":"unset"},{"name":"empty","value":""}]}
         """.trimIndent()
 
-        withServer(host) { baseUrl, server ->
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpPut("$baseUrl/run_session", body, checkNotNull(server.endpoint).token)
 
             response.assertStatus(201)
-            val request = checkNotNull(host.lastCreateRequest)
+            val request = checkNotNull(sessionManager.lastCreateRequest)
             val launchConfiguration = assertIs<DotNetSessionLaunchConfiguration>(request.launchConfiguration)
             assertFalse(launchConfiguration.debug)
             assertFalse(launchConfiguration.disableLaunchProfile)
@@ -268,13 +268,13 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `create session preserves absent arguments and environment`() {
-        val host = MockAspireSessionHost()
+        val sessionManager = MockSessionManager()
 
-        withServer(host) { baseUrl, server ->
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpPut("$baseUrl/run_session", VALID_SESSION_BODY, checkNotNull(server.endpoint).token)
 
             response.assertStatus(201)
-            val request = checkNotNull(host.lastCreateRequest)
+            val request = checkNotNull(sessionManager.lastCreateRequest)
             val launchConfiguration = assertIs<DotNetSessionLaunchConfiguration>(request.launchConfiguration)
             assertNull(launchConfiguration.args)
             assertNull(launchConfiguration.envs)
@@ -283,13 +283,13 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `delete returns 200`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { baseUrl, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpDelete("$baseUrl/run_session/s1", checkNotNull(server.endpoint).token)
 
             response.assertStatus(200)
 
-            val request = host.lastDeleteRequest
+            val request = sessionManager.lastDeleteRequest
             assertEquals("s1", request?.sessionId)
             assertEquals(DEFAULT_HOST_ID, request?.dcpInstancePrefix)
         }
@@ -297,11 +297,11 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `delete unknown session is 204`() {
-        val host = MockAspireSessionHost().apply {
+        val sessionManager = MockSessionManager().apply {
             onDelete = { DeleteSessionResponse(null, ErrorCode.AspireSessionNotFound) }
         }
 
-        withServer(host) { baseUrl, server ->
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpDelete("$baseUrl/run_session/s1", checkNotNull(server.endpoint).token)
 
             response.assertStatus(204)
@@ -310,11 +310,11 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `delete session server error returns 500`() {
-        val host = MockAspireSessionHost().apply {
+        val sessionManager = MockSessionManager().apply {
             onDelete = { DeleteSessionResponse(null, ErrorCode.Unexpected) }
         }
 
-        withServer(host) { baseUrl, server ->
+        withServer(sessionManager) { baseUrl, server ->
             val response = httpDelete("$baseUrl/run_session/s1", checkNotNull(server.endpoint).token)
 
             response.assertStatus(500)
@@ -324,7 +324,7 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `notify upgrade without bearer is rejected`() {
-        withServer(MockAspireSessionHost()) { baseUrl, _ ->
+        withServer(MockSessionManager()) { baseUrl, _ ->
             val failure = assertFailsWith<ExecutionException> {
                 connectNotify(baseUrl, TestWsListener(), token = null)
             }
@@ -334,12 +334,12 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `notify emits processRestarted for SessionProcessStarted`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { baseUrl, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { baseUrl, server ->
             val listener = TestWsListener()
             val webSocket = connectNotify(baseUrl, listener, checkNotNull(server.endpoint).token)
             try {
-                host.emit(SessionProcessStarted("s1", 4242L))
+                sessionManager.emit(SessionProcessStarted("s1", 4242L))
 
                 val frame = listener.nextFrame()
 
@@ -354,12 +354,12 @@ internal class AspireSessionServerTest {
 
     @Test
     fun `notify emits serviceLogs and trims trailing newline`() {
-        val host = MockAspireSessionHost()
-        withServer(host) { baseUrl, server ->
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { baseUrl, server ->
             val listener = TestWsListener()
             val webSocket = connectNotify(baseUrl, listener, checkNotNull(server.endpoint).token)
             try {
-                host.emit(SessionLogReceived("s1", true, "hello\n"))
+                sessionManager.emit(SessionLogReceived("s1", true, "hello\n"))
 
                 val frame = listener.nextFrame()
 

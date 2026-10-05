@@ -2,7 +2,7 @@ package com.jetbrains.aspire.unit.worker.dcp
 
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.testFramework.common.timeoutRunBlocking
-import com.jetbrains.aspire.sessions.AspireSessionHost
+import com.jetbrains.aspire.sessions.SessionManager
 import com.jetbrains.aspire.worker.dcp.AspireSessionServer
 import java.net.URI
 import java.net.http.HttpClient
@@ -32,11 +32,11 @@ private val httpClient: HttpClient = HttpClient.newHttpClient()
  * hanging the build.
  */
 internal fun withServer(
-    host: AspireSessionHost,
+    sessionManager: SessionManager,
     block: suspend (baseUrl: String, server: AspireSessionServer) -> Unit,
 ) = timeoutRunBlocking {
     val project = ProjectManager.getInstance().defaultProject
-    val server = AspireSessionServer(host, project)
+    val server = AspireSessionServer(sessionManager, project)
     server.start()
     try {
         val endpoint = checkNotNull(server.endpoint)

@@ -1,138 +1,98 @@
 package com.jetbrains.aspire.sessions
 
-import com.intellij.openapi.application.EDT
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.service
-import com.intellij.openapi.diagnostic.debug
-import com.intellij.openapi.diagnostic.logger
-import com.intellij.openapi.diagnostic.trace
-import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.extensions.StartSessionRequestHandler
-import com.jetbrains.rd.util.lifetime.LifetimeDefinition
-import com.jetbrains.rd.util.lifetime.isAlive
-import com.jetbrains.rd.util.put
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.channels.ReceiveChannel
+import org.jetbrains.annotations.ApiStatus
+import java.nio.file.Path
 
-/**
- * Service for managing the lifecycle and orchestration of Aspire sessions.
- *
- * This class is responsible for handling requests to create and delete sessions, as well as
- * managing their associated lifetimes and processes. It processes commands submitted to it
- * asynchronously via a command channel.
- */
-@Service(Service.Level.PROJECT)
-internal class SessionManager(private val project: Project, scope: CoroutineScope) {
-    companion object {
-        fun getInstance(project: Project) = project.service<SessionManager>()
+@ApiStatus.Internal
+interface SessionManager {
+    val sessionEvents: ReceiveChannel<SessionEvent>
 
-        private val LOG = logger<SessionManager>()
+    fun createSession(createSessionRequest: CreateSessionRequest): CreateSessionResponse
 
-        /**
-         * Time window in milliseconds to batch commands together.
-         * Commands received within this window will be grouped and their projects built together.
-         */
-        private const val BATCH_WINDOW_MS = 1000L
-    }
-
-    private val sessionLifetimes = ConcurrentHashMap<String, LifetimeDefinition>()
-
-    private val requests = Channel<SessionRequest>(Channel.UNLIMITED)
-
-    init {
-        scope.launch {
-            while (true) {
-                val batch = mutableListOf<SessionRequest>()
-
-                // Wait for the first command
-                val firstCommand = requests.receive()
-                batch.add(firstCommand)
-
-                // Collect commands within the batch window
-                val batchDeadline = System.currentTimeMillis() + BATCH_WINDOW_MS
-                while (true) {
-                    val remainingTime = batchDeadline - System.currentTimeMillis()
-                    if (remainingTime <= 0) break
-
-                    val command = withTimeoutOrNull(remainingTime.milliseconds) {
-                        requests.receive()
-                    }
-
-                    if (command != null) {
-                        batch.add(command)
-                    } else {
-                        break
-                    }
-                }
-
-                LOG.trace { "Processing batch of ${batch.size} command(s)" }
-                handleBatchRequests(batch)
-            }
-        }
-    }
-
-    fun submitRequest(request: SessionRequest) {
-        requests.trySend(request)
-    }
-
-    private suspend fun handleBatchRequests(batch: List<SessionRequest>) {
-        val startRequests = batch.filterIsInstance<StartSessionRequest>()
-        val stopRequests = batch.filterIsInstance<StopSessionRequest>()
-
-        if (startRequests.isNotEmpty()) {
-            handleStartRequests(startRequests)
-        }
-
-        if (stopRequests.isNotEmpty()) {
-            handleStopRequests(stopRequests)
-        }
-    }
-
-    private suspend fun handleStartRequests(requests: List<StartSessionRequest>) {
-        LOG.trace { "Received ${requests.size} start request(s)" }
-
-        requests.forEach {
-            sessionLifetimes.put(it.sessionLifetime.lifetime, it.sessionId, it.sessionLifetime)
-        }
-
-        val requestsByLaunchConfigurationType = requests.groupBy { it.launchConfiguration::class }
-        requestsByLaunchConfigurationType.forEach { (launchConfigType, groupedRequests) ->
-            LOG.trace { "Processing ${groupedRequests.size} request(s) of type ${launchConfigType.simpleName}" }
-
-            val handler = StartSessionRequestHandler.findApplicableHandler(groupedRequests)
-            if (handler == null) {
-                LOG.warn("No applicable handler found for ${launchConfigType.simpleName} request type")
-                return
-            }
-
-            handler.handleRequests(groupedRequests, project)
-        }
-    }
-
-    private suspend fun handleStopRequests(requests: List<StopSessionRequest>) {
-        LOG.trace { "Received ${requests.size} stop request(s)" }
-
-        requests.forEach {
-            handleStopRequest(it)
-        }
-    }
-
-    private suspend fun handleStopRequest(request: StopSessionRequest) {
-        LOG.info("Stopping session ${request.sessionId}")
-
-        val sessionLifetimeDefinition = sessionLifetimes.remove(request.sessionId)
-        if (sessionLifetimeDefinition == null) {
-            LOG.debug { "Unable to find session ${request.sessionId} lifetime" }
-            return
-        }
-
-        if (sessionLifetimeDefinition.isAlive) {
-            withContext(Dispatchers.EDT) {
-                LOG.trace { "Terminating session ${request.sessionId} lifetime" }
-                sessionLifetimeDefinition.terminate()
-            }
-        }
-    }
+    fun deleteSession(deleteSessionRequest: DeleteSessionRequest): DeleteSessionResponse
 }
+
+@ApiStatus.Internal
+enum class MessageLevel {
+    Error,
+    Info,
+    Debug,
+}
+
+@ApiStatus.Internal
+enum class ErrorCode {
+    AspireAppHostNotFound,
+    UnsupportedLaunchConfigurationType,
+    AspireSessionNotFound,
+    DotNetProjectNotFound,
+    UnableToFindSupportedLaunchConfiguration,
+    Unexpected,
+}
+
+@ApiStatus.Internal
+sealed interface SessionEvent
+
+@ApiStatus.Internal
+data class SessionProcessStarted(
+    val id: String,
+    val pid: Long
+) : SessionEvent
+
+@ApiStatus.Internal
+data class SessionProcessTerminated(
+    val id: String,
+    val exitCode: Int
+) : SessionEvent
+
+@ApiStatus.Internal
+data class SessionLogReceived(
+    val id: String,
+    val isStdErr: Boolean,
+    val message: String
+) : SessionEvent
+
+@ApiStatus.Internal
+data class SessionMessageReceived(
+    val id: String,
+    val level: MessageLevel,
+    val message: String,
+    val errorCode: ErrorCode?,
+) : SessionEvent
+
+@ApiStatus.Internal
+data class CreateSessionRequest(
+    val dcpInstancePrefix: String,
+    val launchConfiguration: SessionLaunchConfiguration,
+)
+
+@ApiStatus.Internal
+data class CreateSessionResponse(
+    val sessionId: String?,
+    val error: ErrorCode?
+)
+
+@ApiStatus.Internal
+data class DeleteSessionRequest(
+    val dcpInstancePrefix: String,
+    val sessionId: String
+)
+
+@ApiStatus.Internal
+data class DeleteSessionResponse(
+    val sessionId: String?,
+    val error: ErrorCode?
+)
+
+@ApiStatus.Internal
+sealed interface SessionLaunchConfiguration
+
+@ApiStatus.Internal
+data class DotNetSessionLaunchConfiguration(
+    val projectPath: Path,
+    val debug: Boolean,
+    val launchProfile: String?,
+    val disableLaunchProfile: Boolean,
+    val args: List<String>?,
+    val envs: List<Pair<String, String>>?
+) : SessionLaunchConfiguration
