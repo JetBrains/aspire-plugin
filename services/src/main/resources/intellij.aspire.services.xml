@@ -11,4 +11,13 @@
         <serviceViewContributor implementation="com.jetbrains.aspire.services.AspireMainServiceViewContributor"/>
         <iconMapper mappingFile="AspireServicesIconMappings.json"/>
     </extensions>
+
+    <actions>
+        <action id="Aspire.AddCliRunConfiguration"
+                class="com.jetbrains.aspire.services.actions.AspireAddCliRunConfigurationAction"
+                icon="com.jetbrains.aspire.AspireIcons.RunConfig">
+            <add-to-group group-id="ServiceView.AddService"/>
+            <add-to-group group-id="ToolsMenu.Services"/>
+        </action>
+    </actions>
 </idea-plugin>

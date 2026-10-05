@@ -9,8 +9,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NotNullLazyValue
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireIcons
+import org.jetbrains.annotations.ApiStatus
 
-internal class AspireCliConfigurationType : SimpleConfigurationType(
+@ApiStatus.Internal
+class AspireCliConfigurationType : SimpleConfigurationType(
     ID,
     AspireCoreBundle.message("run.configuration.cli.name"),
     AspireCoreBundle.message("run.configuration.cli.description"),
