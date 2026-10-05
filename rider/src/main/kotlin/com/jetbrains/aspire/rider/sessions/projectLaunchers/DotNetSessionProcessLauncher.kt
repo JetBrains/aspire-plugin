@@ -158,7 +158,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         return runConfiguration as? AspireRiderRunConfiguration
     }
 
-    private fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
+    private suspend fun getDotNetRuntime(executable: DotNetExecutable, project: Project): DotNetCoreRuntime? {
         val runtime = DotNetRuntime.detectRuntimeForProject(
             project,
             RunnableProjectKinds.DotNetCore,

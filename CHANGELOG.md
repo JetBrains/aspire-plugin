@@ -6,6 +6,12 @@
 
 ### Changed
 
+- Update platform version to 2026.3-SNAPSHOT
+
+## [2.9.4] - 2026-10-02
+
+### Changed
+
 - Update platform version to 2026.3-EAP5
 - Update Aspire version to 13.6.0
 - Update JUnit library versions
@@ -770,7 +776,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.3...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.4...HEAD
+[2.9.4]: https://github.com/JetBrains/aspire-plugin/compare/2.9.3...2.9.4
 [2.9.3]: https://github.com/JetBrains/aspire-plugin/compare/2.9.2...2.9.3
 [2.9.2]: https://github.com/JetBrains/aspire-plugin/compare/2.9.1...2.9.2
 [2.9.1]: https://github.com/JetBrains/aspire-plugin/compare/2.9.0...2.9.1
