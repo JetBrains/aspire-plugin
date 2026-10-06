@@ -13,6 +13,7 @@ import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.AspireResourceModel
+import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -117,6 +118,7 @@ class ResourceViewModelsTest {
                 uid = "uid-$resourceName",
                 name = resourceName,
                 type = type,
+                launchConfigurationType = ResourceLaunchConfigurationType.Unknown,
                 originType = "Project",
                 displayName = resourceName,
                 state = null,

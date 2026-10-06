@@ -2,12 +2,17 @@ package com.jetbrains.aspire.database
 
 import com.intellij.icons.AllIcons
 import com.jetbrains.aspire.extensions.AspireResourceIconProvider
+import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceType
 
 internal class DatabaseAspireResourceIconProvider : AspireResourceIconProvider {
     override val priority = 3
 
-    override fun getIcon(type: ResourceType, containerImage: String?) = when (type) {
+    override fun getIcon(
+        type: ResourceType,
+        configurationType: ResourceLaunchConfigurationType,
+        containerImage: String?
+    ) = when (type) {
         ResourceType.Postgres -> AllIcons.Providers.Postgresql
         ResourceType.SqlServer -> AllIcons.Providers.SqlServer
         ResourceType.MySql -> AllIcons.Providers.Mysql

@@ -2,14 +2,19 @@ package com.jetbrains.aspire.util
 
 import com.intellij.icons.AllIcons
 import com.jetbrains.aspire.extensions.AspireResourceIconProvider
+import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceType
 import org.jetbrains.annotations.ApiStatus
 import javax.swing.Icon
 
 @ApiStatus.Internal
-fun getResourceIcon(type: ResourceType, containerImage: String?): Icon {
+fun getResourceIcon(
+    type: ResourceType,
+    configurationType: ResourceLaunchConfigurationType,
+    containerImage: String?
+): Icon {
     AspireResourceIconProvider.getAvailableProviders().forEach {
-        val icon = it.getIcon(type, containerImage)
+        val icon = it.getIcon(type, configurationType, containerImage)
         if (icon != null) return icon
     }
 
@@ -19,7 +24,11 @@ fun getResourceIcon(type: ResourceType, containerImage: String?): Icon {
 internal class BaseAspireResourceIconProvider : AspireResourceIconProvider {
     override val priority = 0
 
-    override fun getIcon(type: ResourceType, containerImage: String?) = when (type) {
+    override fun getIcon(
+        type: ResourceType,
+        configurationType: ResourceLaunchConfigurationType,
+        containerImage: String?
+    ) = when (type) {
         ResourceType.Executable -> AllIcons.Nodes.Console
         ResourceType.Parameter -> AllIcons.Nodes.Parameter
         ResourceType.ExternalService -> AllIcons.General.Web

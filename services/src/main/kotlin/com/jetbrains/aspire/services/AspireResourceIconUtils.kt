@@ -11,7 +11,8 @@ import com.jetbrains.aspire.worker.ResourceStateStyle
 import javax.swing.Icon
 
 internal fun getIcon(resourceData: AspireResourceData): Icon {
-    val baseIcon = getResourceIcon(resourceData.type, resourceData.containerImage?.value)
+    val baseIcon =
+        getResourceIcon(resourceData.type, resourceData.launchConfigurationType, resourceData.containerImage?.value)
 
     return when (getHealthStatusBadge(resourceData)) {
         ResourceIconBadge.Error -> BadgeIconSupplier(baseIcon).errorIcon

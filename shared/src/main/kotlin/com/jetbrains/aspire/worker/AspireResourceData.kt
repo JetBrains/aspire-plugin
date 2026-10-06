@@ -15,6 +15,7 @@ data class AspireResourceData(
     val uid: String,
     val name: String,
     val type: ResourceType,
+    val launchConfigurationType: ResourceLaunchConfigurationType,
     val originType: String,
     val displayName: String,
     val state: ResourceState?,

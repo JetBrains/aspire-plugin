@@ -21,6 +21,14 @@ enum class ResourceType {
 
 @ApiStatus.Internal
 @Serializable
+enum class ResourceLaunchConfigurationType {
+    Project,
+    AzureFunctions,
+    Unknown
+}
+
+@ApiStatus.Internal
+@Serializable
 enum class ResourceState {
     Building,
     Starting,

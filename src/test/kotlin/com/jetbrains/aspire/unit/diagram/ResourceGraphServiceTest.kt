@@ -7,6 +7,7 @@ import com.jetbrains.aspire.diagram.graph.calculateResourceNodeEdges
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
+import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceRelationship
 import com.jetbrains.aspire.worker.ResourceType
 import org.junit.jupiter.api.Test
@@ -77,6 +78,7 @@ class ResourceGraphServiceTest {
             uid = "$displayName-uid",
             name = displayName,
             type = ResourceType.Unknown,
+            launchConfigurationType = ResourceLaunchConfigurationType.Unknown,
             originType = "Unknown",
             displayName = displayName,
             state = null,

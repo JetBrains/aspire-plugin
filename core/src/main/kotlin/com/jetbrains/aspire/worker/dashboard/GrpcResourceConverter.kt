@@ -14,6 +14,7 @@ import com.jetbrains.aspire.worker.ResourceCommand
 import com.jetbrains.aspire.worker.ResourceCommandState
 import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
 import com.jetbrains.aspire.worker.ResourceHealthStatus
+import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceRelationship
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceStateStyle
@@ -39,6 +40,7 @@ internal fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): Aspi
     val stateStyle = if (hasStateStyle()) mapResourceStateStyle(stateStyle) else null
     val healthStatus = calculateHealthStatus(state, healthReportsList)
 
+    var launchConfigurationType = ResourceLaunchConfigurationType.Unknown
     var exitCode: AspireResourceProperty<Int>? = null
     var pid: AspireResourceProperty<Int>? = null
     var projectPath: AspireResourceProperty<AspirePath>? = null
@@ -60,6 +62,7 @@ internal fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): Aspi
         val isSensitive = if (property.hasIsSensitive()) property.isSensitive else false
 
         when (property.name) {
+            "resource.launchConfigurationType" -> launchConfigurationType = mapLaunchConfigurationType(propValue)
             "resource.exitCode" -> exitCode = AspireResourceProperty(propValue.toDouble().roundToInt(), isSensitive)
             "executable.pid" -> pid = AspireResourceProperty(propValue.toDouble().roundToInt(), isSensitive)
             "project.path" -> projectPath = AspireResourceProperty(AspirePath(propValue), isSensitive)
@@ -123,6 +126,7 @@ internal fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): Aspi
         name = name,
         type = type,
         originType = resourceType,
+        launchConfigurationType = launchConfigurationType,
         displayName = displayName,
         state = state,
         stateStyle = stateStyle,
@@ -184,6 +188,12 @@ private fun mapResourceType(type: String): ResourceType = when (type) {
     "SqlServerDatabaseResource" -> ResourceType.SqlServer
     "AzureStorageResource" -> ResourceType.AzureStorageResource
     else -> ResourceType.Unknown
+}
+
+private fun mapLaunchConfigurationType(type: String): ResourceLaunchConfigurationType = when (type) {
+    "project" -> ResourceLaunchConfigurationType.Project
+    "azure-functions" -> ResourceLaunchConfigurationType.AzureFunctions
+    else -> ResourceLaunchConfigurationType.Unknown
 }
 
 private fun mapResourceState(state: String): ResourceState = when (state) {

@@ -6,6 +6,7 @@ import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.AspireResourceModel
+import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -139,6 +140,7 @@ class VisibleResourcesTest {
                 uid = "uid-$resourceName",
                 name = resourceName,
                 type = ResourceType.Unknown,
+                launchConfigurationType = ResourceLaunchConfigurationType.Unknown,
                 originType = "Project",
                 displayName = resourceName,
                 state = if (state == "Hidden") ResourceState.Hidden else null,
