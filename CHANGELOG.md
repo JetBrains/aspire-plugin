@@ -8,6 +8,10 @@
 
 - Update platform version to 2026.3-SNAPSHOT
 
+### Fixed
+
+- [RIDER-143704](https://youtrack.jetbrains.com/issue/RIDER-143704) Freeze in AspireProjectResourceUiDataRule.uiDataSnapshot
+
 ## [2.9.4] - 2026-10-02
 
 ### Changed

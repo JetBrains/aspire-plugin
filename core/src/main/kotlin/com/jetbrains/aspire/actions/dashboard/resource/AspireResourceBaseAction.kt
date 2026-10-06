@@ -34,5 +34,5 @@ abstract class AspireResourceBaseAction : AnAction() {
 
     protected abstract fun updateAction(event: AnActionEvent, resourceData: AspireResourceData, project: Project)
 
-    override fun getActionUpdateThread() = ActionUpdateThread.EDT
+    override fun getActionUpdateThread() = ActionUpdateThread.BGT
 }
