@@ -8,11 +8,20 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      junit:
+        patterns:
+          - "junit:junit"
+          - "org.junit*"
+          - "org.opentest4j*"
     ignore:
-      # These must match the versions bundled in the target IDE (see gradle/libs.versions.toml).
+      # Update IDE-provided runtimes and their companion modules/generators with the target SDK.
+      # This avoids compiling or generating calls to APIs unavailable at runtime (see gradle/libs.versions.toml).
       - dependency-name: "io.grpc*"
-      - dependency-name: "com.google.protobuf*"
+      - dependency-name: "com.google.protobuf:protobuf-*"
+      - dependency-name: "com.google.protobuf:protoc"
       - dependency-name: "io.ktor*"
+      - dependency-name: "io.netty*"
       - dependency-name: "org.jetbrains.kotlinx*"
       - dependency-name: "com.jetbrains.rd*"
   # Maintain dependencies for GitHub Actions

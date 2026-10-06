@@ -1,22 +1,30 @@
 [versions]
 # libraries
 # https://search.maven.org/artifact/com.jetbrains.rd/rd-gen
+# Must stay compatible with the RD runtime and Rider model bundled in the target IDE.
 rdGen = "2026.2.5"
+# Test runtime dependency; verify updates against the bundled IDE test framework.
 junit = "4.13.2"
+# Assertion API used by JUnit and the bundled IDE test framework; verify compatibility when updating.
 opentest4j = "1.3.0"
+# Keep Jupiter API, params and engine on the same release; verify bundled IDE test framework compatibility.
 junitJupiter = "6.0.3"
+# Keep on the same release as junitJupiter; verify bundled IDE test framework compatibility.
 junitPlatform = "6.0.3"
+# The IDE supplies the runtime; compile APIs and generated Java stubs must remain compatible with it.
 grpc = "1.73.0"
+# The IDE supplies the runtime; compile APIs and generated Kotlin stubs must remain compatible with it.
 grpcKotlin = "1.4.3"
+# The IDE supplies the runtime; compile APIs and protoc output must remain compatible with it.
 protobuf = "3.25.5"
 javaxAnnotationApi = "1.3.2"
-# Must match the kotlinx-serialization bundled in the target IDE.
+# The IDE supplies the runtime; compile against serialization APIs available in the target IDE.
 serialization = "1.9.0"
-# Must match the Ktor version bundled in the target IDE.
+# Shipped server modules use the IDE's Ktor runtime; keep versions aligned to avoid ABI mismatches.
 ktor = "3.4.1"
-# Must match the Netty bundled in the target IDE.
+# Shipped transport classes use the IDE's Netty runtime; keep versions aligned to avoid ABI mismatches.
 netty = "4.2.16.Final"
-# Must match the kotlinx-coroutines-core bundled in the target IDE.
+# Keep aligned with the IDE's coroutines-core; the test library's own core dependency is excluded.
 coroutineTest = "1.10.2"
 
 # plugins
@@ -28,8 +36,8 @@ protobufPlugin = "0.9.6"
 rdGen = { group = "com.jetbrains.rd", name = "rd-gen", version.ref = "rdGen" }
 kotlinStdLib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 serializationJson = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
 opentest4j = { group = "org.opentest4j", name = "opentest4j", version.ref = "opentest4j" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junitJupiter" }
 junit-jupiter-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junitJupiter" }
 junit-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitJupiter" }
