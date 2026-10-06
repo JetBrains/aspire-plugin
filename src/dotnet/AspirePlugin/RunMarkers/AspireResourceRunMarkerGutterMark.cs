@@ -8,12 +8,11 @@ using JetBrains.Rider.Backend.Features.RunMarkers;
 using JetBrains.TextControl.DocumentMarkup;
 using JetBrains.UI.Icons;
 using JetBrains.UI.RichText;
-using JetBrains.UI.ThemedIcons;
 
 namespace JetBrains.Rider.Aspire.Plugin.RunMarkers;
 
 public class AspireResourceRunMarkerGutterMark()
-    : RunMarkerGutterMarkBase<AspireResourceRunMarkerHighlighting>(RunMarkersThemedIcons.RunActions.Id)
+    : RunMarkerGutterMarkBase<AspireResourceRunMarkerHighlighting>(AspireIconIds.StatusRunningIconId)
 {
     protected override IEnumerable<BulbMenuItem> GetBulbMenuItems(
         ISolution solution,
