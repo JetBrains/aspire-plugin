@@ -112,20 +112,16 @@ internal class AspireAppHostViewModel(
 
     override fun getServices(project: Project) = resourceViewModels.value
 
-    private suspend fun selectAppHost() {
-        withContext(Dispatchers.Main) {
-            ServiceViewManager
-                .getInstance(project)
-                .select(this, AspireMainServiceViewContributor::class.java, true, true)
-        }
+    private fun selectAppHost() {
+        ServiceViewManager
+            .getInstance(project)
+            .select(this, AspireMainServiceViewContributor::class.java, true, true)
     }
 
-    private suspend fun expand() {
-        withContext(Dispatchers.Main) {
-            ServiceViewManager
-                .getInstance(project)
-                .expand(this, AspireMainServiceViewContributor::class.java)
-        }
+    private fun expand() {
+        ServiceViewManager
+            .getInstance(project)
+            .expand(this, AspireMainServiceViewContributor::class.java)
     }
 
     private fun sendServiceChangedEvent() {
