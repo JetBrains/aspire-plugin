@@ -39,12 +39,10 @@ dependencies {
     compileOnly(libs.netty.transport.classes.kqueue) { isTransitive = false }
 
     intellijPlatform {
-        rider(providers.gradleProperty("riderVersion")) {
-            useInstaller = false
+        intellijIdea(providers.gradleProperty("ideaVersion")) {
             useCache = true
         }
-        bundledModule("intellij.rd.client.base")
-        bundledModule("intellij.rider.rdclient.dotnet")
+        bundledModule("intellij.libraries.rd.core")
         bundledModule("intellij.libraries.grpc")
         bundledModule("intellij.libraries.grpc.netty.shaded")
         bundledModule("intellij.libraries.protobuf")
