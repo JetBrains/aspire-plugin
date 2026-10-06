@@ -24,13 +24,15 @@ import com.jetbrains.rider.projectView.workspace.getProjectModelEntity
  * Adds the matching [ASPIRE_RESOURCE_DATA] value to data contexts that contain a Rider project entity.
  */
 internal class AspireProjectResourceUiDataRule : UiDataRule {
+    @Suppress("JetBrainsInternalApiUsage")
     override fun uiDataSnapshot(sink: DataSink, snapshot: DataSnapshot) {
         val project = snapshot[CommonDataKeys.PROJECT] ?: return
-        val projectEntity = getProjectModelEntities(snapshot, project) ?: return
-        val projectPath = projectEntity.url?.toPath() ?: return
-        val resource = AspireWorker.getInstance(project).findProjectResource(projectPath) ?: return
-
-        sink[ASPIRE_RESOURCE_DATA] = resource.data.value
+        sink.lazyValue(ASPIRE_RESOURCE_DATA) { dataMap ->
+            val projectEntity = getProjectModelEntities(dataMap, project) ?: return@lazyValue null
+            val projectPath = projectEntity.url?.toPath() ?: return@lazyValue null
+            val resource = AspireWorker.getInstance(project).findProjectResource(projectPath) ?: return@lazyValue null
+            resource.data.value
+        }
     }
 
     private fun getProjectModelEntities(dataMap: DataMap, project: Project): ProjectModelEntity? {
