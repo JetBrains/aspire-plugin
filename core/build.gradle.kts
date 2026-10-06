@@ -1,5 +1,4 @@
 import com.google.protobuf.gradle.id
-import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.ComposedJarTask
 
 plugins {
@@ -65,8 +64,6 @@ dependencies {
         pluginComposedModule(project.dependencies.create(libs.ktor.server.netty.get()))
         pluginComposedModule(project.dependencies.create(libs.netty.transport.classes.epoll.get()))
         pluginComposedModule(project.dependencies.create(libs.netty.transport.classes.kqueue.get()))
-
-        testFramework(TestFrameworkType.Bundled)
     }
 }
 
