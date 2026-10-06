@@ -9,7 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\WpfAspireApp.WpfApp\WpfAspireApp.WpfApp.csproj" />
+        <ProjectReference Include="..\WpfAspireApp.ApiService\WpfAspireApp.ApiService.csproj" />
+        <ProjectReference Include="..\WpfAspireApp.WpfApp\WpfAspireApp.WpfApp.csproj" />
     </ItemGroup>
 
 </Project>
