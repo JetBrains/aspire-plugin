@@ -1,0 +1,35 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsAspireApp.AppHost", "WinFormsAspireApp.AppHost\WinFormsAspireApp.AppHost.csproj", "{7B569AAE-0E96-4849-A1D2-54087CBF910E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsAspireApp.WinFormsApp", "WinFormsAspireApp.WinFormsApp\WinFormsAspireApp.WinFormsApp.csproj", "{2A81C6F2-4FAF-4EDC-AAA2-7AE9480503AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsAspireApp.ApiService", "WinFormsAspireApp.ApiService\WinFormsAspireApp.ApiService.csproj", "{D185B0DB-7307-4713-94B2-26CB3C14667C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B569AAE-0E96-4849-A1D2-54087CBF910E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B569AAE-0E96-4849-A1D2-54087CBF910E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B569AAE-0E96-4849-A1D2-54087CBF910E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B569AAE-0E96-4849-A1D2-54087CBF910E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A81C6F2-4FAF-4EDC-AAA2-7AE9480503AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A81C6F2-4FAF-4EDC-AAA2-7AE9480503AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A81C6F2-4FAF-4EDC-AAA2-7AE9480503AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A81C6F2-4FAF-4EDC-AAA2-7AE9480503AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D185B0DB-7307-4713-94B2-26CB3C14667C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D185B0DB-7307-4713-94B2-26CB3C14667C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D185B0DB-7307-4713-94B2-26CB3C14667C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D185B0DB-7307-4713-94B2-26CB3C14667C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(RiderSharedRunConfigurations) = postSolution
+		File = ..\..\.run\Build Plugin.run.xml
+		File = ..\..\.run\Generate Protocol.run.xml
+		File = ..\..\.run\Run Plugin.run.xml
+		File = ..\..\.run\Run Tests.run.xml
+		File = ..\..\.run\Run Verifications.run.xml
+	EndGlobalSection
+EndGlobal
