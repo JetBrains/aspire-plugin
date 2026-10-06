@@ -8,6 +8,7 @@ import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.rider.debugger.AttachDebuggerService
 import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
+import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.toNioPath
 import kotlinx.coroutines.launch
 import kotlin.io.path.absolutePathString
@@ -24,6 +25,7 @@ internal class AttachToProjectResourceAction : AspireResourceBaseAction() {
         val pid = resourceData.pid?.value
         val projectPath = resourceData.projectPath?.value
         if (resourceData.type != ResourceType.Project ||
+            resourceData.launchConfigurationType != ResourceLaunchConfigurationType.Project ||
             resourceData.state != ResourceState.Running ||
             pid == null ||
             projectPath == null
