@@ -1,7 +1,9 @@
 package com.jetbrains.aspire.services.components
 
 import com.intellij.ide.BrowserUtil
+import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SideBorder
@@ -10,7 +12,6 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.aspire.services.AspireServicesBundle
-import com.jetbrains.aspire.worker.hasNonDefaultCommands
 import com.jetbrains.aspire.services.getIcon
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType
@@ -39,7 +40,7 @@ internal class ResourceDashboardPanel(resourceData: AspireResourceData) : Border
         row {
             addIconAndTitle(data)
             addStateAndHealth(data)
-            addActionButtons(data)
+            addActionToolbar()
         }
         separator()
     }
@@ -89,37 +90,16 @@ internal class ResourceDashboardPanel(resourceData: AspireResourceData) : Border
                 state.name
             }
             copyableLabel(text, color = UIUtil.FontColor.BRIGHTER)
-                .gap(RightGap.COLUMNS)
+                .gap(RightGap.SMALL)
         }
     }
 
-    private fun Row.addActionButtons(data: AspireResourceData) {
-        val startAction = ActionManager.getInstance().getAction("Aspire.Resource.Start")
-        actionButton(startAction)
-        val stopAction = ActionManager.getInstance().getAction("Aspire.Resource.Stop")
-        actionButton(stopAction)
-        if (data.type == ResourceType.Project &&
-            data.projectPath?.value != null
-        ) {
-            val restartWithoutDebuggerAction =
-                ActionManager.getInstance().getAction("Aspire.Resource.RestartWithoutDebugger")
-            actionButton(restartWithoutDebuggerAction)
-
-            val restartWithDebuggerAction =
-                ActionManager.getInstance().getAction("Aspire.Resource.RestartWithDebugger")
-            actionButton(restartWithDebuggerAction)
-        } else {
-            val restartAction = ActionManager.getInstance().getAction("Aspire.Resource.Restart")
-            actionButton(restartAction)
-        }
-        if (data.type == ResourceType.Project) {
-            val rebuildAction = ActionManager.getInstance().getAction("Aspire.Resource.Rebuild")
-            actionButton(rebuildAction)
-        }
-        if (data.commands.hasNonDefaultCommands()) {
-            val executeCommandAction = ActionManager.getInstance().getAction("Aspire.Resource.Execute.Command")
-            actionButton(executeCommandAction)
-        }
+    private fun Row.addActionToolbar() {
+        val actionManager = ActionManager.getInstance()
+        val toolbarActions = actionManager.getAction("Aspire.Resource") as ActionGroup
+        val toolbar = actionManager.createActionToolbar(ActionPlaces.TOOLBAR, toolbarActions, true)
+        toolbar.targetComponent = this@ResourceDashboardPanel
+        cell(toolbar.component)
     }
 
     private fun Panel.addEndpoints(data: AspireResourceData) {
