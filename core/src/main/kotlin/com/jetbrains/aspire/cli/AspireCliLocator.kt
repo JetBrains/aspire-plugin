@@ -9,10 +9,13 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.platform.eel.EelApi
+import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.isWindows
 import com.intellij.platform.eel.path.EelPath
 import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
 import com.jetbrains.aspire.settings.AspireSettings
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Locates the `aspire` CLI executable and checks that it is operable.
@@ -26,8 +29,10 @@ internal class AspireCliLocator(private val project: Project) {
         private const val ASPIRE_EXECUTABLE = "aspire"
     }
 
+    private val cachedPaths = ConcurrentHashMap<EelDescriptor, EelPath>()
+
     /**
-     * Returns the configured CLI path, or the first `aspire` executable found on the `PATH`.
+     * Returns the configured CLI path, or a cached executable found on the `PATH` or in the default installation directories.
      */
     suspend fun locate(): EelPath? {
         val eelApi = project.getEelDescriptor().toEelApi()
@@ -37,19 +42,41 @@ internal class AspireCliLocator(private val project: Project) {
             return EelPath.parse(configuredPath, eelApi.descriptor)
         }
 
-        val candidate = resolveCandidate(eelApi)
+        cachedPaths[eelApi.descriptor]?.let { return it }
+
+        val candidate = resolveFromPath(eelApi) ?: resolveFromDefaultPaths(eelApi)
         if (candidate == null) {
             LOG.trace { "Unable to resolve the aspire CLI executable" }
+        } else {
+            cachedPaths.putIfAbsent(eelApi.descriptor, candidate)
         }
         return candidate
     }
 
-    private suspend fun resolveCandidate(eelApi: EelApi): EelPath? {
+    private suspend fun resolveFromPath(eelApi: EelApi): EelPath? {
         return try {
             eelApi.exec.findExeFilesInPath(ASPIRE_EXECUTABLE).firstOrNull()
         } catch (e: Exception) {
             rethrowControlFlowException(e)
             LOG.warn("Failed to resolve aspire CLI executable: ${e.message}")
+            null
+        }
+    }
+
+    private suspend fun resolveFromDefaultPaths(eelApi: EelApi): EelPath? {
+        return try {
+            val executableName = if (eelApi.platform.isWindows) "$ASPIRE_EXECUTABLE.exe" else ASPIRE_EXECUTABLE
+            val home = eelApi.userInfo.home
+            val defaultPaths = listOf(
+                home.resolve(".aspire/bin/$executableName"),
+                home.resolve(".dotnet/tools/$executableName")
+            )
+            defaultPaths.firstNotNullOfOrNull { path ->
+                eelApi.exec.findExeFilesInPath(path.toString()).firstOrNull()
+            }
+        } catch (e: Exception) {
+            rethrowControlFlowException(e)
+            LOG.warn("Failed to resolve aspire CLI executable from default paths: ${e.message}")
             null
         }
     }
