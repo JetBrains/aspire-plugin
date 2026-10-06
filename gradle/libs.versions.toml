@@ -28,7 +28,7 @@ netty = "4.2.16.Final"
 coroutineTest = "1.10.2"
 
 # plugins
-kotlin = "2.4.10"
+kotlin = "2.4.20"
 changelog = "2.5.0"
 protobufPlugin = "0.9.6"
 
