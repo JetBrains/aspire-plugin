@@ -24,16 +24,13 @@ internal class AppHostOtlpProxyManagerTest {
     private lateinit var extension: RecordingOtlpExtension
     private lateinit var appHostState: MutableStateFlow<AspireAppHostState>
 
-    @Volatile
-    private var environment: AppHostEnvironment? = null
-
     @BeforeEach
     fun setUp() {
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         extension = RecordingOtlpExtension()
         appHostState = MutableStateFlow(AspireAppHostState.Inactive)
         val manager = AppHostOtlpProxyManager(scope) { extension }
-        manager.observeAppHostState(appHostState) { environment }
+        manager.observeAppHostState(appHostState)
     }
 
     @AfterEach
@@ -43,17 +40,17 @@ internal class AppHostOtlpProxyManagerTest {
 
     @Test
     fun `endpoint of the current environment is registered when the host is started`() = timeoutRunBlocking {
-        environment = AppHostEnvironment(null, null, "http://localhost:4317")
+        val environment = AppHostEnvironment(null, null, "http://localhost:4317")
 
-        appHostState.value = AspireAppHostState.Started
+        appHostState.value = AspireAppHostState.Started(environment)
 
         extension.awaitEvents(listOf("set http://localhost:4317"))
     }
 
     @Test
     fun `endpoint is unregistered when the host is stopped after start`() = timeoutRunBlocking {
-        environment = AppHostEnvironment(null, null, "http://localhost:4317")
-        appHostState.value = AspireAppHostState.Started
+        val environment = AppHostEnvironment(null, null, "http://localhost:4317")
+        appHostState.value = AspireAppHostState.Started(environment)
         extension.awaitEvents(listOf("set http://localhost:4317"))
 
         appHostState.value = AspireAppHostState.Stopped
@@ -63,12 +60,12 @@ internal class AppHostOtlpProxyManagerTest {
 
     @Test
     fun `starting again replaces the previously registered endpoint`() = timeoutRunBlocking {
-        environment = AppHostEnvironment(null, null, "http://localhost:4317")
-        appHostState.value = AspireAppHostState.Started
+        val firstEnvironment = AppHostEnvironment(null, null, "http://localhost:4317")
+        appHostState.value = AspireAppHostState.Started(firstEnvironment)
         extension.awaitEvents(listOf("set http://localhost:4317"))
-        environment = AppHostEnvironment(null, null, "http://localhost:4318")
+        val environment = AppHostEnvironment(null, null, "http://localhost:4318")
 
-        appHostState.value = AspireAppHostState.Started
+        appHostState.value = AspireAppHostState.Started(environment)
 
         val expected = listOf(
             "set http://localhost:4317",

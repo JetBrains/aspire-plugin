@@ -2,38 +2,21 @@ package com.jetbrains.aspire.rider.run
 
 import com.intellij.execution.CantRunException
 import com.intellij.execution.runners.ExecutionEnvironment
-import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.run.AspireExecutionListener.Companion.APP_HOST_ENVIRONMENT_KEY
 import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
 import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
 import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
-import com.jetbrains.aspire.worker.AppHostEnvironmentListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
-import java.nio.file.Path
-import kotlin.io.path.Path
 
 internal fun setUpAspireHostEnvironment(
     environment: ExecutionEnvironment,
     environmentVariables: Map<String, String>,
 ) {
     val configuration = environment.runnerAndConfigurationSettings?.configuration
-    val aspireRunConfiguration = (configuration as? AspireRiderRunConfiguration)
-        ?: throw CantRunException("Requested configuration is not an AspireRunConfiguration")
+    if (configuration !is AspireRiderRunConfiguration) {
+        throw CantRunException("Requested configuration is not an AspireRunConfiguration")
+    }
 
-    val parameters = aspireRunConfiguration.parameters
-    val appHostFile = Path(parameters.appHostFile)
-
-    setUpAspireHostEnvironment(
-        appHostFile,
-        environmentVariables,
-        environment.project
-    )
-}
-
-internal fun setUpAspireHostEnvironment(
-    appHostFile: Path,
-    environmentVariables: Map<String, String>,
-    project: Project
-) {
     val resourceServiceEndpointUrl = environmentVariables.getAspireResourceServiceEndpointUrl()
     val resourceServiceApiKey = environmentVariables.getAspireDashboardResourceServiceApiKey()
     val otlpEndpointUrl = environmentVariables.getAspireDashboardOtlpEndpointUrl()
@@ -44,7 +27,5 @@ internal fun setUpAspireHostEnvironment(
         otlpEndpointUrl
     )
 
-    project.messageBus
-        .syncPublisher(AppHostEnvironmentListener.TOPIC)
-        .appHostEnvironmentPublished(appHostFile, appHostEnvironment)
+    environment.putUserData(APP_HOST_ENVIRONMENT_KEY, appHostEnvironment)
 }

@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
+import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -20,6 +21,8 @@ import org.jetbrains.annotations.ApiStatus
 @ApiStatus.Internal
 abstract class AspireExecutionListener(private val project: Project) : ExecutionListener {
     companion object {
+        val APP_HOST_ENVIRONMENT_KEY = Key.create<AppHostEnvironment>("aspire.appHostEnvironment")
+
         private val LOG = logger<AspireExecutionListener>()
         private const val LOG_REPLAY_CAPACITY = 100
     }
@@ -42,6 +45,10 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
             LOG.warn("Aspire run configuration '${profile.name}' started without an AppHost file path")
             return
         }
+        val appHostEnvironment = env.getUserData(APP_HOST_ENVIRONMENT_KEY) ?: run {
+            LOG.warn("Aspire run configuration '${profile.name}' started without an AppHost environment")
+            AppHostEnvironment.EMPTY
+        }
         val processHandler = getProcessHandler(handler)
         val logFlow = MutableSharedFlow<AppHostLogEntry>(
             replay = LOG_REPLAY_CAPACITY,
@@ -55,7 +62,7 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(appHostFile, logFlow.asSharedFlow())
+            .appHostStarted(appHostFile, appHostEnvironment, logFlow.asSharedFlow())
     }
 
     override fun processTerminated(

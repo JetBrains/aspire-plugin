@@ -3,7 +3,6 @@
 package com.jetbrains.aspire.worker
 
 import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
-import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireAppHost.AspireAppHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
@@ -25,15 +24,14 @@ class AppHostOtlpProxyManager(
 ) {
     fun observeAppHostState(
         appHostState: StateFlow<AspireAppHostState>,
-        environmentProvider: () -> AppHostEnvironment?,
     ) {
         var registeredEndpoint: String? = null
 
         cs.launchOnAppHostTransitions(
             appHostState,
-            onStarted = {
+            onStarted = { state ->
                 registeredEndpoint?.let { unregister(it) }
-                val endpoint = environmentProvider()?.otlpEndpointUrl
+                val endpoint = state.environment.otlpEndpointUrl
                 val extension = extensionProvider()
                 registeredEndpoint = if (endpoint != null && extension != null) {
                     extension.setOTLPServerEndpointForProxying(endpoint)

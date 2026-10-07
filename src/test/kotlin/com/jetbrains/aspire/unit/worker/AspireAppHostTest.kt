@@ -13,7 +13,6 @@ import com.jetbrains.aspire.generated.dashboard.UrlDisplayProperties
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.resources.grpc.toAspireResourceData
-import com.jetbrains.aspire.worker.AppHostEnvironmentListener
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
@@ -35,6 +34,7 @@ import org.junit.jupiter.api.TestInstance
 import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -257,6 +257,40 @@ internal class AspireAppHostTest {
     }
 
     @Test
+    fun `start event supplies both the environment and the log stream`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val environment = createDefaultEnvironment()
+        val messages = MutableSharedFlow<AppHostLogEntry>()
+
+        project.messageBus.syncPublisher(AppHostListener.TOPIC)
+            .appHostStarted(appHostPath, environment, messages)
+
+        withTimeout(10.seconds) {
+            mockFactory.clientsFlow.first { it.isNotEmpty() }
+        }
+        assertSame(messages, host.logFlow.value)
+        val state = assertIs<AspireAppHost.AspireAppHostState.Started>(host.appHostState.value)
+        assertSame(environment, state.environment)
+        assertEquals(listOf(environment.resourceServiceEndpointUrl), mockFactory.endpointUrls)
+        assertEquals(listOf(environment.resourceServiceApiKey), mockFactory.apiKeys)
+    }
+
+    @Test
+    fun `start event for a different host is ignored`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val environment = createDefaultEnvironment()
+        val messages = MutableSharedFlow<AppHostLogEntry>()
+        val otherAppHostPath = Path.of("test/path/OtherAppHost.csproj")
+
+        project.messageBus.syncPublisher(AppHostListener.TOPIC)
+            .appHostStarted(otherAppHostPath, environment, messages)
+
+        assertEquals(AspireAppHost.AspireAppHostState.Inactive, host.appHostState.value)
+        assertEquals(null, host.logFlow.value)
+        assertTrue(mockFactory.clientsFlow.value.isEmpty())
+    }
+
+    @Test
     fun `starting without a resource endpoint does not create a client`() = timeoutRunBlocking {
         val host = createAppHost()
         val emptyEnvironment = AspireAppHost.AppHostEnvironment.EMPTY
@@ -324,6 +358,22 @@ internal class AspireAppHostTest {
         }
 
     @Test
+    fun `starting again with the same environment creates a new client`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val environment = createDefaultEnvironment()
+        val firstClient = startAppHostAndWaitForResourceClient(host, environment)
+
+        val secondClient = startAppHostAndWaitForResourceClient(host, environment)
+
+        assertNotSame(firstClient, secondClient)
+        assertEquals(1, firstClient.shutdownCount)
+        assertEquals(listOf(firstClient, secondClient), mockFactory.clientsFlow.value)
+        assertEquals(List(2) { environment.resourceServiceEndpointUrl }, mockFactory.endpointUrls)
+        assertEquals(List(2) { environment.resourceServiceApiKey }, mockFactory.apiKeys)
+        assertFalse(secondClient.isShutdown.value)
+    }
+
+    @Test
     fun `cancelling the parent scope cancels subscriptions before closing the resource client`() = timeoutRunBlocking {
         val host = createAppHost()
         val environment = createDefaultEnvironment()
@@ -386,12 +436,9 @@ internal class AspireAppHostTest {
     }
 
     private suspend fun startAppHost(host: AspireAppHost, environment: AspireAppHost.AppHostEnvironment) {
-        project.messageBus.syncPublisher(AppHostEnvironmentListener.TOPIC)
-            .appHostEnvironmentPublished(appHostPath, environment)
-
         val messages = MutableSharedFlow<AppHostLogEntry>()
         project.messageBus.syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(appHostPath, messages)
+            .appHostStarted(appHostPath, environment, messages)
 
         withTimeout(10.seconds) {
             host.appHostState.first { it is AspireAppHost.AspireAppHostState.Started }
