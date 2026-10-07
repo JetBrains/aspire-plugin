@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.unit.worker
 
-import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientApi
-import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory
+import com.jetbrains.aspire.resources.grpc.AspireDashboardClientApi
+import com.jetbrains.aspire.resources.grpc.AspireDashboardClientFactory
 
 class MockAspireDashboardClientFactory : AspireDashboardClientFactory {
     val clients = mutableListOf<MockAspireDashboardClientApi>()

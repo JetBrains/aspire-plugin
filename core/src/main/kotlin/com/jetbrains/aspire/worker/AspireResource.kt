@@ -11,7 +11,7 @@ import com.jetbrains.aspire.generated.dashboard.ResourceCommandRequest
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponseKind
 import com.jetbrains.aspire.util.parseLogEntry
-import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientApi
+import com.jetbrains.aspire.resources.grpc.AspireDashboardClientApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow

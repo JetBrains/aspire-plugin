@@ -18,7 +18,7 @@ import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireAppHostId
-import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory
+import com.jetbrains.aspire.resources.grpc.AspireDashboardClientFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

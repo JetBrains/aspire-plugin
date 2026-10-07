@@ -15,7 +15,7 @@ import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceTreeManager
-import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory
+import com.jetbrains.aspire.resources.grpc.AspireDashboardClientFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope

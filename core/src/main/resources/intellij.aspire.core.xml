@@ -50,8 +50,8 @@
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceInterface="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactory"
-                            serviceImplementation="com.jetbrains.aspire.worker.dashboard.AspireDashboardClientFactoryImpl"/>
+        <applicationService serviceInterface="com.jetbrains.aspire.resources.grpc.AspireDashboardClientFactory"
+                            serviceImplementation="com.jetbrains.aspire.resources.grpc.AspireDashboardClientFactoryImpl"/>
 
         <projectService serviceInterface="com.jetbrains.aspire.run.AspireRunConfigurationManager"
                         serviceImplementation="com.jetbrains.aspire.run.AspireRunConfigurationManagerImpl"/>

@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.worker.dashboard
+package com.jetbrains.aspire.resources.grpc
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.Value
@@ -21,6 +21,7 @@ import com.jetbrains.aspire.worker.ResourceStateStyle
 import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.worker.ResourceUrl
 import com.jetbrains.aspire.worker.ResourceVolume
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.math.roundToInt
@@ -235,5 +236,5 @@ private fun getStringValue(value: Value): String? = when {
     else -> value.toString()
 }
 
-private fun Timestamp.toLocalDateTime(timezone: TimeZone): kotlinx.datetime.LocalDateTime =
+private fun Timestamp.toLocalDateTime(timezone: TimeZone): LocalDateTime =
     Instant.fromEpochSeconds(seconds, nanos).toLocalDateTime(timezone)
