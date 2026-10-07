@@ -3,7 +3,7 @@ package com.jetbrains.aspire.unit.worker.dcp
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.testFramework.common.timeoutRunBlocking
 import com.jetbrains.aspire.sessions.SessionManager
-import com.jetbrains.aspire.worker.dcp.AspireSessionServer
+import com.jetbrains.aspire.dcp.AspireSessionServer
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest

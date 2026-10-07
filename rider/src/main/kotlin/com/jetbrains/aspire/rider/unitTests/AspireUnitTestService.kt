@@ -13,7 +13,7 @@ import com.jetbrains.aspire.rider.generated.StartAspireHostResponse
 import com.jetbrains.aspire.rider.generated.StopAspireHostRequest
 import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
+import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope

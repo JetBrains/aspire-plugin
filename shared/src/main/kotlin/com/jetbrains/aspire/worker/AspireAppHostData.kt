@@ -15,7 +15,6 @@ data class AspireAppHostData(
 @Serializable
 enum class AspireAppHostStatus {
     Inactive,
-    Starting,
     Started,
     Stopped,
 }

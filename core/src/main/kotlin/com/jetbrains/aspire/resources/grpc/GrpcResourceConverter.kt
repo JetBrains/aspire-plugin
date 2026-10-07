@@ -1,15 +1,28 @@
-package com.jetbrains.aspire.worker.dashboard
+package com.jetbrains.aspire.resources.grpc
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.Value
+import com.jetbrains.aspire.generated.dashboard.CommandResultFormat
 import com.jetbrains.aspire.generated.dashboard.HealthReport
 import com.jetbrains.aspire.generated.dashboard.HealthStatus
 import com.jetbrains.aspire.generated.dashboard.Resource
+import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
+import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponseKind
+import com.jetbrains.aspire.generated.dashboard.WatchResourceConsoleLogsUpdate
+import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
+import com.jetbrains.aspire.resources.AspireResourceChange
+import com.jetbrains.aspire.resources.AspireResourceCommandResponse
+import com.jetbrains.aspire.resources.AspireResourceCommandResponseKind
+import com.jetbrains.aspire.resources.AspireResourceCommandResult
+import com.jetbrains.aspire.resources.AspireResourceCommandResultFormat
+import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.util.parseLogEntry
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
 import com.jetbrains.aspire.worker.AspireResourceId
+import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.ResourceCommand
 import com.jetbrains.aspire.worker.ResourceCommandState
 import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
@@ -21,13 +34,29 @@ import com.jetbrains.aspire.worker.ResourceStateStyle
 import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.worker.ResourceUrl
 import com.jetbrains.aspire.worker.ResourceVolume
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.annotations.ApiStatus
 import kotlin.math.roundToInt
 import kotlin.time.Instant
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandState as GrpcCommandState
 
-internal fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourceData {
+@ApiStatus.Internal
+fun WatchResourcesUpdate.toAspireResourceUpdate(appHostPath: AspireAppHostPath): AspireResourceUpdate? = when {
+    hasInitialData() -> AspireResourceUpdate.InitialData(initialData.resourcesList.map { it.toAspireResourceData(appHostPath) })
+    hasChanges() -> AspireResourceUpdate.Changes(changes.valueList.mapNotNull { change ->
+        when {
+            change.hasUpsert() -> AspireResourceChange.Upsert(change.upsert.toAspireResourceData(appHostPath))
+            change.hasDelete() -> AspireResourceChange.Delete(change.delete.resourceName)
+            else -> null
+        }
+    })
+    else -> null
+}
+
+@ApiStatus.Internal
+fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourceData {
     val type = mapResourceType(resourceType)
 
     val timezone = TimeZone.currentSystemDefault()
@@ -159,6 +188,51 @@ internal fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): Aspi
     )
 }
 
+@ApiStatus.Internal
+fun WatchResourceConsoleLogsUpdate.toAspireResourceLogEntries(): List<AspireResourceLogEntry> =
+    logLinesList.mapNotNull { logLine ->
+        if (logLine.text.isEmpty()) return@mapNotNull null
+
+        // In some situations (when receiving a huge multiline string in one go),
+        // Aspire will send us all strings NOT prefixed by timestamp, but with line endings preserved.
+        // Keep those strings as they are.
+        val logContent = parseLogEntry(logLine.text)?.second ?: logLine.text
+        AspireResourceLogEntry(logContent, logLine.isStdErr)
+    }
+
+@ApiStatus.Internal
+fun ResourceCommandResponse.toAspireResourceCommandResponse(): AspireResourceCommandResponse {
+    val responseKind = when (kind) {
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_SUCCEEDED ->
+            AspireResourceCommandResponseKind.Succeeded
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_FAILED ->
+            AspireResourceCommandResponseKind.Failed
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_CANCELLED ->
+            AspireResourceCommandResponseKind.Cancelled
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_INVALID_ARGUMENTS ->
+            AspireResourceCommandResponseKind.InvalidArguments
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_UNDEFINED,
+        ResourceCommandResponseKind.UNRECOGNIZED ->
+            AspireResourceCommandResponseKind.Undefined
+    }
+    val commandResult = if (hasResult()) {
+        val format = when (result.format) {
+            CommandResultFormat.COMMAND_RESULT_FORMAT_TEXT ->
+                AspireResourceCommandResultFormat.Text
+            CommandResultFormat.COMMAND_RESULT_FORMAT_JSON ->
+                AspireResourceCommandResultFormat.Json
+            CommandResultFormat.COMMAND_RESULT_FORMAT_MARKDOWN ->
+                AspireResourceCommandResultFormat.Markdown
+            CommandResultFormat.COMMAND_RESULT_FORMAT_NONE,
+            CommandResultFormat.UNRECOGNIZED ->
+                AspireResourceCommandResultFormat.None
+        }
+        AspireResourceCommandResult(result.value, format, result.displayImmediately)
+    } else null
+
+    return AspireResourceCommandResponse(responseKind, if (hasMessage()) message else null, commandResult)
+}
+
 private fun calculateHealthStatus(
     state: ResourceState?,
     healthReports: List<HealthReport?>?
@@ -235,5 +309,5 @@ private fun getStringValue(value: Value): String? = when {
     else -> value.toString()
 }
 
-private fun Timestamp.toLocalDateTime(timezone: TimeZone): kotlinx.datetime.LocalDateTime =
+private fun Timestamp.toLocalDateTime(timezone: TimeZone): LocalDateTime =
     Instant.fromEpochSeconds(seconds, nanos).toLocalDateTime(timezone)

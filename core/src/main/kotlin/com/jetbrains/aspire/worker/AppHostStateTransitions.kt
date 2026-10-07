@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
  * transition, launched in this [CoroutineScope]. Runs until the scope is cancelled.
  *
  * The callbacks receive the launched [CoroutineScope] as their receiver so they may launch
- * scope-bound work (for example the dashboard gRPC client) directly.
+ * scope-bound work directly.
  *
  * Only one collector coroutine is started, so callbacks are invoked sequentially and never
  * concurrently — state captured between them (such as a pending job reference) needs no
@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
  */
 internal fun CoroutineScope.launchOnAppHostTransitions(
     appHostState: StateFlow<AspireAppHostState>,
-    onStarting: suspend CoroutineScope.(AspireAppHostState.Starting) -> Unit = {},
     onStarted: suspend CoroutineScope.(AspireAppHostState.Started) -> Unit = {},
     onStoppedAfterStart: suspend CoroutineScope.(previous: AspireAppHostState.Started) -> Unit = {},
 ): Job = launch {
@@ -31,8 +30,6 @@ internal fun CoroutineScope.launchOnAppHostTransitions(
         .zipWithNext()
         .collect { (previous, current) ->
             when {
-                current is AspireAppHostState.Starting ->
-                    scope.onStarting(current)
                 current is AspireAppHostState.Started ->
                     scope.onStarted(current)
                 previous is AspireAppHostState.Started && current is AspireAppHostState.Stopped ->

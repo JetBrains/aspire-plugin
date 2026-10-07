@@ -35,6 +35,7 @@ import com.jetbrains.aspire.cli.AspireCliLocator
 import com.jetbrains.aspire.cli.AspireCliLogLevel
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
+import com.jetbrains.aspire.run.AspireExecutionListener.Companion.APP_HOST_ENVIRONMENT_KEY
 import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
@@ -42,10 +43,9 @@ import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
 import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
 import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
 import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
-import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
+import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString
@@ -92,9 +92,7 @@ internal class AspireCliRunProfileState(
             resourceServiceApiKey,
             otlpEndpointUrl
         )
-        project.messageBus
-            .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarting(appHostFile, appHostEnvironment)
+        environment.putUserData(APP_HOST_ENVIRONMENT_KEY, appHostEnvironment)
 
         val processHandler = startProcess(aspireCli, appHostFile, options, envs, eelApi)
         val console = createConsole().apply {

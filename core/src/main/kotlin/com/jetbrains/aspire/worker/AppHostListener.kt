@@ -9,8 +9,7 @@ import java.nio.file.Path
 /**
  * Project-level listener for Aspire AppHost lifecycle transitions.
  *
- * Events are published as the host is prepared for launch, when the process has started,
- * and when the process has terminated.
+ * Events are published when the process has started and when the process has terminated.
  */
 @ApiStatus.Internal
 interface AppHostListener {
@@ -20,17 +19,12 @@ interface AppHostListener {
     }
 
     /**
-     * Notifies that an Aspire AppHost is about to start and publishes the connection metadata
-     * needed later by the started state.
-     */
-    fun appHostStarting(appHostFile: Path, environment: AppHostEnvironment)
-
-    /**
      * Notifies that an Aspire AppHost process has started.
      *
+     * @param environment connection metadata prepared for this process launch
      * @param logFlow buffered stream of the AppHost process output (text + stderr flag)
      */
-    fun appHostStarted(appHostFile: Path, logFlow: SharedFlow<AppHostLogEntry>)
+    fun appHostStarted(appHostFile: Path, environment: AppHostEnvironment, logFlow: SharedFlow<AppHostLogEntry>)
 
     /**
      * Notifies that an Aspire AppHost process has stopped.

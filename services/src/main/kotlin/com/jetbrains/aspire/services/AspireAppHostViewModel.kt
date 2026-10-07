@@ -34,10 +34,7 @@ internal class AspireAppHostViewModel(
         fun createUiState(status: AspireAppHostStatus, consoleComponent: JComponent): AppHostUiState =
             when (status) {
                 AspireAppHostStatus.Inactive -> AppHostUiState.Initial
-
-                AspireAppHostStatus.Starting,
                 AspireAppHostStatus.Started -> AppHostUiState.Active(consoleComponent)
-
                 AspireAppHostStatus.Stopped -> AppHostUiState.Inactive(consoleComponent)
             }
     }

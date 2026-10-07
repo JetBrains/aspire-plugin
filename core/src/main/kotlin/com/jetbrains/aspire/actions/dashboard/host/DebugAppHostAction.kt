@@ -20,7 +20,6 @@ internal class DebugAppHostAction : AspireAppHostBaseAction() {
             AspireAppHostStatus.Inactive,
             AspireAppHostStatus.Stopped -> true
 
-            AspireAppHostStatus.Starting,
             AspireAppHostStatus.Started -> false
         }
     }

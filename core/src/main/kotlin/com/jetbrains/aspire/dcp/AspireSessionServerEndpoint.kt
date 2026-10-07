@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.worker.dcp
+package com.jetbrains.aspire.dcp
 
 import com.jetbrains.aspire.util.DEBUG_SESSION_PORT
 import com.jetbrains.aspire.util.DEBUG_SESSION_SERVER_CERTIFICATE

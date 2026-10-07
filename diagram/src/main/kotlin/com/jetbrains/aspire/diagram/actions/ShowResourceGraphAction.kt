@@ -30,7 +30,6 @@ class ShowResourceGraphAction : AnAction() {
             AspireAppHostStatus.Inactive,
             AspireAppHostStatus.Stopped -> false
 
-            AspireAppHostStatus.Starting,
             AspireAppHostStatus.Started -> true
         }
     }

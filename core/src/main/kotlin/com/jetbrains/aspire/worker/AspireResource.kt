@@ -6,12 +6,11 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.platform.util.coroutines.childScope
-import com.jetbrains.aspire.generated.dashboard.ConsoleLogLine
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandRequest
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponseKind
-import com.jetbrains.aspire.util.parseLogEntry
-import com.jetbrains.aspire.worker.dashboard.AspireDashboardClientApi
+import com.jetbrains.aspire.resources.AspireResourceCommandExecutor
+import com.jetbrains.aspire.resources.AspireResourceCommandRequest
+import com.jetbrains.aspire.resources.AspireResourceCommandResponse
+import com.jetbrains.aspire.resources.AspireResourceCommandResponseKind
+import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -48,7 +47,8 @@ class AspireResource(
     override val resourceName: String,
     initialData: AspireResourceData,
     parentCs: CoroutineScope,
-    private val dashboardClient: AspireDashboardClientApi,
+    private val resourceLogWatcher: AspireResourceLogWatcher,
+    private val resourceCommandExecutor: AspireResourceCommandExecutor,
 ) : Disposable, AspireResourceModel {
     companion object {
         private val LOG = logger<AspireResource>()
@@ -77,15 +77,15 @@ class AspireResource(
 
     init {
         cs.launch {
-            dashboardClient.watchResourceConsoleLogs(resourceName)
+            resourceLogWatcher.watchResourceConsoleLogs(resourceName)
                 .catch { cause ->
                     if (cause is CancellationException) throw cause
                     LOG.trace { "Console log stream for $resourceName ended: ${cause.message}" }
                 }
-                .collect { update ->
-                    for (logLine in update.logLinesList) {
-                        if (logLine.text.isEmpty()) continue
-                        processResourceLog(logLine)
+                .collect { logEntries ->
+                    for (entry in logEntries) {
+                        LOG.trace { "Received log: $entry for the resource $resourceName" }
+                        _logFlow.tryEmit(entry)
                     }
                 }
         }
@@ -112,31 +112,14 @@ class AspireResource(
         _childrenResources.update { it - resource }
     }
 
-    suspend fun executeCommand(commandName: String): ResourceCommandResponse {
-        val request = ResourceCommandRequest.newBuilder()
-            .setCommandName(commandName)
-            .setResourceName(resourceName)
-            .setResourceType(_data.value.originType)
-            .build()
-        val response = dashboardClient.executeResourceCommand(request)
-        if (response.kind == ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_FAILED) {
-            LOG.warn("Command $commandName on $resourceName failed: ${response.message}")
+    suspend fun executeCommand(commandName: String): AspireResourceCommandResponse {
+        val request = AspireResourceCommandRequest(resourceName, _data.value.originType, commandName)
+        val response = resourceCommandExecutor.executeResourceCommand(request)
+        if (response.kind == AspireResourceCommandResponseKind.Failed) {
+            LOG.warn("Command $commandName on $resourceName failed: ${response.message.orEmpty()}")
         }
 
         return response
-    }
-
-    private fun processResourceLog(log: ConsoleLogLine) {
-        LOG.trace { "Received log: $log for the resource $resourceName" }
-
-        val (_, logContent) = parseLogEntry(log.text) ?: run {
-            // In some situations (when receiving a huge multiline string in one go),
-            // Aspire will send us all strings NOT prefixed by timestamp, but with line endings preserved.
-            // Let's just trim those.
-            null to log.text
-        }
-
-        _logFlow.tryEmit(AspireResourceLogEntry(logContent, log.isStdErr))
     }
 
     override fun dispose() {

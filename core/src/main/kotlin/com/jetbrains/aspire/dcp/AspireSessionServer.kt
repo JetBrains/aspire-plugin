@@ -1,14 +1,14 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.worker.dcp
+package com.jetbrains.aspire.dcp
 
 import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.sessions.*
-import com.jetbrains.aspire.worker.dcp.AspireSessionServer.Companion.BEARER_AUTH
-import com.jetbrains.aspire.worker.dcp.DcpErrors.AspireSessionNotFound
+import com.jetbrains.aspire.dcp.AspireSessionServer.Companion.BEARER_AUTH
+import com.jetbrains.aspire.dcp.DcpErrors.AspireSessionNotFound
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*

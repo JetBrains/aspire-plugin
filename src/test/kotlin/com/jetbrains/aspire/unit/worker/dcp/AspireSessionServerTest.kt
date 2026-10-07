@@ -14,7 +14,7 @@ import com.jetbrains.aspire.sessions.ErrorCode
 import com.jetbrains.aspire.sessions.SessionLogReceived
 import com.jetbrains.aspire.sessions.SessionProcessStarted
 import com.jetbrains.aspire.settings.AspireSettings
-import com.jetbrains.aspire.worker.dcp.AspireSessionServer
+import com.jetbrains.aspire.dcp.AspireSessionServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach

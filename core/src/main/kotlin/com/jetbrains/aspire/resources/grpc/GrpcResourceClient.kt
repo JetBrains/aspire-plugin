@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.worker.dashboard
+package com.jetbrains.aspire.resources.grpc
 
 import com.intellij.libraries.grpc.netty.shaded.NettyChannelProviderRegistrationService
 import com.intellij.openapi.diagnostic.logger
@@ -8,6 +8,12 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.util.net.ssl.CertificateManager
 import com.intellij.util.net.ssl.ConfirmingTrustManager
 import com.jetbrains.aspire.generated.dashboard.*
+import com.jetbrains.aspire.resources.AspireResourceClient
+import com.jetbrains.aspire.resources.AspireResourceCommandRequest
+import com.jetbrains.aspire.resources.AspireResourceCommandResponse
+import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import io.grpc.ManagedChannel
 import io.grpc.Metadata
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts
@@ -16,35 +22,29 @@ import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslProvider
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.annotations.ApiStatus
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
-interface AspireDashboardClientFactory {
-    fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireDashboardClientApi
+@ApiStatus.Internal
+interface GrpcResourceClientFactory {
+    fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireResourceClient
 }
 
-class AspireDashboardClientFactoryImpl : AspireDashboardClientFactory {
-    override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireDashboardClientApi {
-        return AspireDashboardClient(resourceServiceEndpointUrl, resourceServiceApiKey)
+internal class GrpcResourceClientFactoryImpl : GrpcResourceClientFactory {
+    override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireResourceClient {
+        return GrpcResourceClient(resourceServiceEndpointUrl, resourceServiceApiKey)
     }
 }
 
-interface AspireDashboardClientApi {
-    fun watchResources(): Flow<WatchResourcesUpdate>
-    fun watchResourceConsoleLogs(resourceName: String): Flow<WatchResourceConsoleLogsUpdate>
-    suspend fun executeResourceCommand(request: ResourceCommandRequest): ResourceCommandResponse
-    suspend fun getApplicationInformation(): ApplicationInformationResponse
-    fun shutdown()
-}
-
-@ApiStatus.Internal
-class AspireDashboardClient(
+internal class GrpcResourceClient(
     resourceServiceEndpointUrl: String,
     resourceServiceApiKey: String?
-) : AspireDashboardClientApi {
+) : AspireResourceClient {
     companion object {
-        private val LOG = logger<AspireDashboardClient>()
+        private val LOG = logger<GrpcResourceClient>()
         private const val API_KEY_HEADER = "x-resource-service-api-key"
 
         private fun createChannel(uri: URI): ManagedChannel {
@@ -90,25 +90,29 @@ class AspireDashboardClient(
         LOG.trace { "Created gRPC dashboard client for $resourceServiceEndpointUrl" }
     }
 
-    override fun watchResources(): Flow<WatchResourcesUpdate> {
+    override fun watchResources(appHostPath: AspireAppHostPath): Flow<AspireResourceUpdate> {
         val request = WatchResourcesRequest.getDefaultInstance()
-        return stub.watchResources(request, metadata)
+        return stub
+            .watchResources(request, metadata)
+            .mapNotNull { it.toAspireResourceUpdate(appHostPath) }
     }
 
-    override fun watchResourceConsoleLogs(resourceName: String): Flow<WatchResourceConsoleLogsUpdate> {
+    override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
         val request = WatchResourceConsoleLogsRequest.newBuilder()
             .setResourceName(resourceName)
             .build()
-        return stub.watchResourceConsoleLogs(request, metadata)
+        return stub
+            .watchResourceConsoleLogs(request, metadata)
+            .map { it.toAspireResourceLogEntries() }
     }
 
-    override suspend fun executeResourceCommand(request: ResourceCommandRequest): ResourceCommandResponse {
-        return stub.executeResourceCommand(request, metadata)
-    }
-
-    override suspend fun getApplicationInformation(): ApplicationInformationResponse {
-        val request = ApplicationInformationRequest.getDefaultInstance()
-        return stub.getApplicationInformation(request, metadata)
+    override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+        val grpcRequest = ResourceCommandRequest.newBuilder()
+            .setResourceName(request.resourceName)
+            .setResourceType(request.resourceType)
+            .setCommandName(request.commandName)
+            .build()
+        return stub.executeResourceCommand(grpcRequest, metadata).toAspireResourceCommandResponse()
     }
 
     override fun shutdown() {
