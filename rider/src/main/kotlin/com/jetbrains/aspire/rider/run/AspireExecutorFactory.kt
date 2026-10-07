@@ -9,7 +9,7 @@ import com.intellij.util.EnvironmentUtil
 import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
+import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.net.URI

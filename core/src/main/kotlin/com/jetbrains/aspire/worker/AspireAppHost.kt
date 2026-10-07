@@ -10,8 +10,8 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.util.messages.impl.subscribeAsFlow
 import com.jetbrains.aspire.sessions.SessionManagerImpl
-import com.jetbrains.aspire.worker.dcp.AspireSessionServer
-import com.jetbrains.aspire.worker.dcp.AspireSessionServerEndpoint
+import com.jetbrains.aspire.dcp.AspireSessionServer
+import com.jetbrains.aspire.dcp.AspireSessionServerEndpoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex

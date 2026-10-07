@@ -9,7 +9,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.jetbrains.aspire.worker.dcp.AspireSessionServerEndpoint
+import com.jetbrains.aspire.dcp.AspireSessionServerEndpoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

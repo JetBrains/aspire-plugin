@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.worker.dcp
+package com.jetbrains.aspire.dcp
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service

@@ -1,6 +1,6 @@
 package com.jetbrains.aspire.certificates
 
-import com.jetbrains.aspire.worker.dcp.AspireSessionServerTlsConfig
+import com.jetbrains.aspire.dcp.AspireSessionServerTlsConfig
 import org.jetbrains.annotations.ApiStatus
 import java.security.KeyStore
 import java.util.Base64

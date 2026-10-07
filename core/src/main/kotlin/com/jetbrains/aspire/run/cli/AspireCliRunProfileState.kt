@@ -45,7 +45,7 @@ import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.dcp.toDcpEnvironmentVariables
+import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString

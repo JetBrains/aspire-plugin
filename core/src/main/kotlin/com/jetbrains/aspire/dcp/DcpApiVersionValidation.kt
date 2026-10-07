@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.worker.dcp
+package com.jetbrains.aspire.dcp
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -18,7 +18,7 @@ internal class DcpApiVersionValidationConfig {
  * unsupported, before the route handler runs.
  *
  * Installed under an [authenticate] block, it uses the [AuthenticationChecked] hook so the Bearer
- * token is validated first (a failed auth answers 401 and this hook then bails via [ApplicationCall.isHandled]).
+ * token is validated first (a failed auth answers 401 and this hook then bails via [isHandled]).
  * On an unsupported version it answers 400; because the routing handler is skipped once the call is
  * handled, the underlying `put`/`delete`/`webSocket` handler never runs.
  */
