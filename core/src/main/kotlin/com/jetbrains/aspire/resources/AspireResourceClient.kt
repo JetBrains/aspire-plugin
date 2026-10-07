@@ -2,8 +2,8 @@ package com.jetbrains.aspire.resources
 
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandRequest
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
-import com.jetbrains.aspire.generated.dashboard.WatchResourceConsoleLogsUpdate
 import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.annotations.ApiStatus
 
@@ -19,7 +19,7 @@ interface AspireResourceWatcher {
 
 @ApiStatus.Internal
 interface AspireResourceLogWatcher {
-    fun watchResourceConsoleLogs(resourceName: String): Flow<WatchResourceConsoleLogsUpdate>
+    fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>>
 }
 
 @ApiStatus.Internal

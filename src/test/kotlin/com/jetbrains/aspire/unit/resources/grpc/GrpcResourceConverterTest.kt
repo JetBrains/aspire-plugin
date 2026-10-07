@@ -1,16 +1,20 @@
 package com.jetbrains.aspire.unit.resources.grpc
 
+import com.jetbrains.aspire.generated.dashboard.ConsoleLogLine
 import com.jetbrains.aspire.generated.dashboard.InitialResourceData
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
+import com.jetbrains.aspire.generated.dashboard.WatchResourceConsoleLogsUpdate
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesChange
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesChanges
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.resources.grpc.toAspireResourceLogEntries
 import com.jetbrains.aspire.resources.grpc.toAspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResourceId
+import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType
 import org.junit.jupiter.api.Test
@@ -94,6 +98,61 @@ internal class GrpcResourceConverterTest {
         val converted = update.toAspireResourceUpdate(appHostPath)
 
         assertNull(converted)
+    }
+
+    @Test
+    fun `console logs are converted in order without timestamps and with stderr flags`() {
+        val stdoutLine = ConsoleLogLine.newBuilder()
+            .setText("2026-10-07T12:34:56.123Z Resource output")
+            .build()
+        val stderrLine = ConsoleLogLine.newBuilder()
+            .setText("2026-10-07T12:34:57+02:00 Resource error")
+            .setIsStdErr(true)
+            .build()
+        val update = WatchResourceConsoleLogsUpdate.newBuilder()
+            .addLogLines(stdoutLine)
+            .addLogLines(stderrLine)
+            .build()
+        val expectedStdout = AspireResourceLogEntry("Resource output", false)
+        val expectedStderr = AspireResourceLogEntry("Resource error", true)
+
+        val converted = update.toAspireResourceLogEntries()
+
+        assertEquals(listOf(expectedStdout, expectedStderr), converted)
+    }
+
+    @Test
+    fun `empty console log lines are ignored while whitespace is preserved`() {
+        val emptyLine = ConsoleLogLine.getDefaultInstance()
+        val whitespaceLine = ConsoleLogLine.newBuilder()
+            .setText(" \r\n")
+            .build()
+        val update = WatchResourceConsoleLogsUpdate.newBuilder()
+            .addLogLines(emptyLine)
+            .addLogLines(whitespaceLine)
+            .build()
+        val expectedEntry = AspireResourceLogEntry(" \r\n", false)
+
+        val converted = update.toAspireResourceLogEntries()
+
+        assertEquals(listOf(expectedEntry), converted)
+    }
+
+    @Test
+    fun `console logs without timestamps preserve multiline text`() {
+        val text = "First line\r\nSecond line\n"
+        val logLine = ConsoleLogLine.newBuilder()
+            .setText(text)
+            .setIsStdErr(true)
+            .build()
+        val update = WatchResourceConsoleLogsUpdate.newBuilder()
+            .addLogLines(logLine)
+            .build()
+        val expectedEntry = AspireResourceLogEntry(text, true)
+
+        val converted = update.toAspireResourceLogEntries()
+
+        assertEquals(listOf(expectedEntry), converted)
     }
 
     private fun resource(name: String, state: String): Resource = Resource.newBuilder()

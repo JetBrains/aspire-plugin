@@ -1,11 +1,9 @@
 package com.jetbrains.aspire.unit.worker
 
 import com.intellij.testFramework.TestApplicationManager
-import com.jetbrains.aspire.generated.dashboard.ConsoleLogLine
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandRequest
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
-import com.jetbrains.aspire.generated.dashboard.WatchResourceConsoleLogsUpdate
 import com.jetbrains.aspire.resources.AspireResourceCommandExecutor
 import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import com.jetbrains.aspire.resources.grpc.toAspireResourceData
@@ -36,21 +34,16 @@ internal class AspireResourceTest {
         val watcher = TestResourceLogWatcher()
         val commandExecutor = TestResourceCommandExecutor()
         val resource = AspireResource(data.name, data, this, watcher, commandExecutor)
-        val logLine = ConsoleLogLine.newBuilder()
-            .setText("Resource log")
-            .setIsStdErr(true)
-            .build()
-        val update = WatchResourceConsoleLogsUpdate.newBuilder()
-            .addLogLines(logLine)
-            .build()
-        val expectedLog = AspireResourceLogEntry("Resource log", true)
+        val stdoutEntry = AspireResourceLogEntry("Resource output", false)
+        val stderrEntry = AspireResourceLogEntry("Resource error", true)
+        val logEntries = listOf(stdoutEntry, stderrEntry)
         testScheduler.runCurrent()
 
-        watcher.consoleLogUpdates.emit(update)
+        watcher.consoleLogUpdates.emit(logEntries)
         testScheduler.runCurrent()
 
         assertEquals(listOf(data.name), watcher.watchedResourceNames)
-        assertEquals(listOf(expectedLog), resource.logFlow.replayCache)
+        assertEquals(logEntries, resource.logFlow.replayCache)
 
         resource.dispose()
     }
@@ -102,10 +95,10 @@ internal class AspireResourceTest {
     }
 
     private class TestResourceLogWatcher : AspireResourceLogWatcher {
-        val consoleLogUpdates = MutableSharedFlow<WatchResourceConsoleLogsUpdate>(extraBufferCapacity = 64)
+        val consoleLogUpdates = MutableSharedFlow<List<AspireResourceLogEntry>>(extraBufferCapacity = 64)
         val watchedResourceNames = mutableListOf<String>()
 
-        override fun watchResourceConsoleLogs(resourceName: String): Flow<WatchResourceConsoleLogsUpdate> {
+        override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
             watchedResourceNames.add(resourceName)
             return consoleLogUpdates
         }

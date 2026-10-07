@@ -11,6 +11,7 @@ import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import io.grpc.ManagedChannel
 import io.grpc.Metadata
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts
@@ -19,6 +20,7 @@ import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslProvider
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.annotations.ApiStatus
 import java.net.URI
@@ -93,11 +95,13 @@ internal class GrpcResourceClient(
             .mapNotNull { it.toAspireResourceUpdate(appHostPath) }
     }
 
-    override fun watchResourceConsoleLogs(resourceName: String): Flow<WatchResourceConsoleLogsUpdate> {
+    override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
         val request = WatchResourceConsoleLogsRequest.newBuilder()
             .setResourceName(resourceName)
             .build()
-        return stub.watchResourceConsoleLogs(request, metadata)
+        return stub
+            .watchResourceConsoleLogs(request, metadata)
+            .map { it.toAspireResourceLogEntries() }
     }
 
     override suspend fun executeResourceCommand(request: ResourceCommandRequest): ResourceCommandResponse {

@@ -5,14 +5,17 @@ import com.google.protobuf.Value
 import com.jetbrains.aspire.generated.dashboard.HealthReport
 import com.jetbrains.aspire.generated.dashboard.HealthStatus
 import com.jetbrains.aspire.generated.dashboard.Resource
+import com.jetbrains.aspire.generated.dashboard.WatchResourceConsoleLogsUpdate
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.util.parseLogEntry
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
 import com.jetbrains.aspire.worker.AspireResourceId
+import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.ResourceCommand
 import com.jetbrains.aspire.worker.ResourceCommandState
 import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
@@ -177,6 +180,18 @@ fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourc
         value = value
     )
 }
+
+@ApiStatus.Internal
+fun WatchResourceConsoleLogsUpdate.toAspireResourceLogEntries(): List<AspireResourceLogEntry> =
+    logLinesList.mapNotNull { logLine ->
+        if (logLine.text.isEmpty()) return@mapNotNull null
+
+        // In some situations (when receiving a huge multiline string in one go),
+        // Aspire will send us all strings NOT prefixed by timestamp, but with line endings preserved.
+        // Keep those strings as they are.
+        val logContent = parseLogEntry(logLine.text)?.second ?: logLine.text
+        AspireResourceLogEntry(logContent, logLine.isStdErr)
+    }
 
 private fun calculateHealthStatus(
     state: ResourceState?,
