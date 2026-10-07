@@ -1,10 +1,8 @@
-package com.jetbrains.aspire.worker
+package com.jetbrains.aspire.resources
 
-import kotlinx.serialization.Serializable
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
-@Serializable
 data class AspireResourceCommandRequest(
     val resourceName: String,
     val resourceType: String,
@@ -12,7 +10,6 @@ data class AspireResourceCommandRequest(
 )
 
 @ApiStatus.Internal
-@Serializable
 data class AspireResourceCommandResponse(
     val kind: AspireResourceCommandResponseKind = AspireResourceCommandResponseKind.Undefined,
     val message: String? = null,
@@ -20,7 +17,6 @@ data class AspireResourceCommandResponse(
 )
 
 @ApiStatus.Internal
-@Serializable
 enum class AspireResourceCommandResponseKind {
     Undefined,
     Succeeded,
@@ -30,7 +26,6 @@ enum class AspireResourceCommandResponseKind {
 }
 
 @ApiStatus.Internal
-@Serializable
 data class AspireResourceCommandResult(
     val value: String,
     val format: AspireResourceCommandResultFormat,
@@ -38,7 +33,6 @@ data class AspireResourceCommandResult(
 )
 
 @ApiStatus.Internal
-@Serializable
 enum class AspireResourceCommandResultFormat {
     None,
     Text,

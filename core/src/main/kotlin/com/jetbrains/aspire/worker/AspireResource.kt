@@ -7,6 +7,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.platform.util.coroutines.childScope
 import com.jetbrains.aspire.resources.AspireResourceCommandExecutor
+import com.jetbrains.aspire.resources.AspireResourceCommandRequest
+import com.jetbrains.aspire.resources.AspireResourceCommandResponse
+import com.jetbrains.aspire.resources.AspireResourceCommandResponseKind
 import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel

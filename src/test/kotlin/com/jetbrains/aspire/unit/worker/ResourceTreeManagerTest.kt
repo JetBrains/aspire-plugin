@@ -7,10 +7,10 @@ import com.intellij.testFramework.TestApplicationManager
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceClient
+import com.jetbrains.aspire.resources.AspireResourceCommandRequest
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResource
-import com.jetbrains.aspire.worker.AspireResourceCommandRequest
 import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceTreeManager

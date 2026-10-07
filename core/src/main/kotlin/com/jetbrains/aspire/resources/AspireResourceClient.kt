@@ -1,8 +1,6 @@
 package com.jetbrains.aspire.resources
 
 import com.jetbrains.aspire.worker.AspireAppHostPath
-import com.jetbrains.aspire.worker.AspireResourceCommandRequest
-import com.jetbrains.aspire.worker.AspireResourceCommandResponse
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.annotations.ApiStatus

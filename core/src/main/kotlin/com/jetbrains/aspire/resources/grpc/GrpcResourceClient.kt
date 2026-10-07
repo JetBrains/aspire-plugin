@@ -9,10 +9,10 @@ import com.intellij.util.net.ssl.CertificateManager
 import com.intellij.util.net.ssl.ConfirmingTrustManager
 import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.resources.AspireResourceClient
+import com.jetbrains.aspire.resources.AspireResourceCommandRequest
+import com.jetbrains.aspire.resources.AspireResourceCommandResponse
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireAppHostPath
-import com.jetbrains.aspire.worker.AspireResourceCommandRequest
-import com.jetbrains.aspire.worker.AspireResourceCommandResponse
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import io.grpc.ManagedChannel
 import io.grpc.Metadata
