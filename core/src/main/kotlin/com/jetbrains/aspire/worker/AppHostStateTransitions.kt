@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
  * transition, launched in this [CoroutineScope]. Runs until the scope is cancelled.
  *
  * The callbacks receive the launched [CoroutineScope] as their receiver so they may launch
- * scope-bound work (for example the dashboard gRPC client) directly.
+ * scope-bound work directly.
  *
  * Only one collector coroutine is started, so callbacks are invoked sequentially and never
  * concurrently — state captured between them (such as a pending job reference) needs no

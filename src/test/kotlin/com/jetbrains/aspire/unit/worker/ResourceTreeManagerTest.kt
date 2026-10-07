@@ -1,23 +1,25 @@
 package com.jetbrains.aspire.unit.worker
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.TestApplicationManager
-import com.intellij.testFramework.replaceService
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.resources.AspireResourceChange
+import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResource
+import com.jetbrains.aspire.worker.AspireResourceCommandRequest
 import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceTreeManager
-import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
 import com.jetbrains.aspire.resources.grpc.toAspireResourceData
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -28,13 +30,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.nio.file.Path
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ResourceTreeManagerTest {
+internal class ResourceTreeManagerTest {
     private lateinit var testRootDisposable: Disposable
-    private lateinit var mockFactory: MockGrpcResourceClientFactory
 
     private val project get() = ProjectManager.getInstance().defaultProject
 
@@ -44,14 +47,8 @@ class ResourceTreeManagerTest {
     }
 
     @BeforeEach
-    fun setUpService() {
+    fun setUp() {
         testRootDisposable = Disposer.newDisposable("ResourceTreeManagerTest")
-        mockFactory = MockGrpcResourceClientFactory()
-        ApplicationManager.getApplication().replaceService(
-            GrpcResourceClientFactory::class.java,
-            mockFactory,
-            testRootDisposable
-        )
     }
 
     @AfterEach
@@ -63,61 +60,63 @@ class ResourceTreeManagerTest {
 
     @Test
     fun `initial data creates root resources`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resource1 = buildResource("res-1", "Resource 1")
         val resource2 = buildResource("res-2", "Resource 2")
         val initialData = buildInitialData(listOf(resource1, resource2))
         client.resourceUpdates.emit(initialData)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val roots = manager.rootResources.value
         assertEquals(2, roots.size)
         assertEquals(resource1.name, roots[0].resourceName)
         assertEquals(resource2.name, roots[1].resourceName)
         assertEquals(2, resourceListener.created.size)
-
-        job.cancel()
     }
 
     @Test
     fun `upsert creates new resource`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resource1 = buildResource("res-1", "Resource 1")
         val update = buildUpsertUpdate(listOf(resource1))
         client.resourceUpdates.emit(update)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val roots = manager.rootResources.value
         assertEquals(1, roots.size)
         assertEquals(resource1.name, roots[0].resourceName)
         assertEquals(1, resourceListener.created.size)
-
-        job.cancel()
     }
 
     @Test
     fun `resource watcher receives the AppHost path`() = runTest {
         val appHostPath = Path.of("test/path/AppHost.csproj")
-        val manager = createResourceTreeManager(appHostPath)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient, appHostPath)
         val expectedAppHostPath = AspireAppHostPath(appHostPath.toAbsolutePath().toString())
 
-        val (job, client) = startDashboardClient(manager)
+        testScheduler.runCurrent()
 
         assertEquals(listOf(expectedAppHostPath), client.watchedAppHostPaths)
-
-        job.cancel()
     }
 
     @Test
     fun `upsert retains the resource data supplied by the watcher`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resource = buildResource("api", "API")
         val appHostPath = AspireAppHostPath("another/path/AppHost.csproj")
         val data = resource.toAspireResourceData(appHostPath)
@@ -126,17 +125,17 @@ class ResourceTreeManagerTest {
         val update = AspireResourceUpdate.Changes(changes)
 
         client.resourceUpdates.emit(update)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertSame(data, manager.rootResources.value.single().data.value)
-
-        job.cancel()
     }
 
     @Test
     fun `upsert updates existing resource state`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resourceName = "res-1"
@@ -145,13 +144,13 @@ class ResourceTreeManagerTest {
         val resource1 = buildResource(resourceName, resourceDisplayName, state = "Starting")
         val update1 = buildUpsertUpdate(listOf(resource1))
         client.resourceUpdates.emit(update1)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
         assertEquals(1, resourceListener.created.size)
 
         val updatedResource1 = buildResource(resourceName, resourceDisplayName, state = "Running")
         val update2 = buildUpsertUpdate(listOf(updatedResource1))
         client.resourceUpdates.emit(update2)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
         assertEquals(1, resourceListener.updated.size)
 
         val roots = manager.rootResources.value
@@ -159,14 +158,14 @@ class ResourceTreeManagerTest {
         assertEquals(resourceName, roots[0].resourceName)
         assertEquals(resourceDisplayName, roots[0].displayName)
         assertEquals("Running", roots[0].data.value.state?.name)
-
-        job.cancel()
     }
 
     @Test
     fun `delete removes resource from tree`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resourceName = "res-1"
@@ -175,34 +174,32 @@ class ResourceTreeManagerTest {
         val resource = buildResource(resourceName, resourceDisplayName)
         val update1 = buildUpsertUpdate(listOf(resource))
         client.resourceUpdates.emit(update1)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
         assertEquals(1, manager.rootResources.value.size)
 
         val deleteUpdate = buildDeleteUpdate(listOf(resource))
         client.resourceUpdates.emit(deleteUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(0, manager.rootResources.value.size)
         assertEquals(1, resourceListener.deleted.size)
-
-        job.cancel()
     }
 
     @Test
     fun `delete of unknown resource is no-op`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resource = buildResource("nonexistent", "Resource 1")
         val deleteUpdate = buildDeleteUpdate(listOf(resource))
         client.resourceUpdates.emit(deleteUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(0, manager.rootResources.value.size)
         assertEquals(0, resourceListener.deleted.size)
-
-        job.cancel()
     }
 
     // endregion
@@ -211,45 +208,47 @@ class ResourceTreeManagerTest {
 
     @Test
     fun `hidden resource is retained with its hidden flag`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resource = buildResource("res-1", "Resource 1", isHidden = true)
         val update1 = buildUpsertUpdate(listOf(resource))
         client.resourceUpdates.emit(update1)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val storedResource = manager.rootResources.value.single()
         assertEquals(resource.name, storedResource.resourceName)
         assertTrue(storedResource.data.value.isHidden)
         assertEquals(listOf(resource.name), resourceListener.created)
-
-        job.cancel()
     }
 
     @Test
     fun `resource with Hidden state is retained`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resource = buildResource("res-1", "Resource 1", state = "Hidden")
         val update1 = buildUpsertUpdate(listOf(resource))
         client.resourceUpdates.emit(update1)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val storedResource = manager.rootResources.value.single()
         assertEquals(ResourceState.Hidden, storedResource.data.value.state)
         assertEquals(listOf(resource.name), resourceListener.created)
-
-        job.cancel()
     }
 
     @Test
     fun `existing resource becoming hidden is updated in place`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resourceName = "res-1"
@@ -258,22 +257,20 @@ class ResourceTreeManagerTest {
         val resource = buildResource(resourceName, resourceDisplayName)
         val update1 = buildUpsertUpdate(listOf(resource))
         client.resourceUpdates.emit(update1)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
         assertEquals(1, manager.rootResources.value.size)
         val storedResource = manager.rootResources.value.single()
 
         val hiddenResource = buildResource(resourceName, resourceDisplayName, isHidden = true)
         val update2 = buildUpsertUpdate(listOf(hiddenResource))
         client.resourceUpdates.emit(update2)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(1, manager.rootResources.value.size)
         assertEquals(storedResource, manager.rootResources.value.single())
         assertTrue(storedResource.data.value.isHidden)
         assertEquals(listOf(resourceName), resourceListener.updated)
         assertTrue(resourceListener.deleted.isEmpty())
-
-        job.cancel()
     }
 
     // endregion
@@ -282,21 +279,23 @@ class ResourceTreeManagerTest {
 
     @Test
     fun `child arriving after parent attaches correctly`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
 
         val parentResourceName = "parent"
         val parentDisplayName = "Parent"
         val parentResource = buildResource(parentResourceName, parentDisplayName)
         val parentUpdate = buildUpsertUpdate(listOf(parentResource))
         client.resourceUpdates.emit(parentUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val childResourceName = "child"
         val childResource = buildResource(childResourceName, "Child", parentDisplayName = parentDisplayName)
         val childUpdate = buildUpsertUpdate(listOf(childResource))
         client.resourceUpdates.emit(childUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val roots = manager.rootResources.value
         assertEquals(1, roots.size)
@@ -305,21 +304,21 @@ class ResourceTreeManagerTest {
         val children = roots[0].childrenResources.value
         assertEquals(1, children.size)
         assertEquals(childResourceName, children[0].resourceName)
-
-        job.cancel()
     }
 
     @Test
     fun `child arriving before parent is temporarily root then re-attached`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
 
         val parentDisplayName = "Parent"
         val childResourceName = "child"
         val childResource = buildResource(childResourceName, "Child", parentDisplayName = parentDisplayName)
         val childUpdate = buildUpsertUpdate(listOf(childResource))
         client.resourceUpdates.emit(childUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         // Child should be temporarily a root
         assertEquals(1, manager.rootResources.value.size)
@@ -330,7 +329,7 @@ class ResourceTreeManagerTest {
         val parentResource = buildResource(parentResourceName, parentDisplayName)
         val parentUpdate = buildUpsertUpdate(listOf(parentResource))
         client.resourceUpdates.emit(parentUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val roots = manager.rootResources.value
         assertEquals(1, roots.size)
@@ -339,47 +338,47 @@ class ResourceTreeManagerTest {
         val children = roots[0].childrenResources.value
         assertEquals(1, children.size)
         assertEquals(childResourceName, children[0].resourceName)
-
-        job.cancel()
     }
 
     @Test
     fun `removing parent re-promotes children to root`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
 
         val parentResourceName = "parent"
         val parentDisplayName = "Parent"
         val parentResource = buildResource(parentResourceName, parentDisplayName)
         val parentUpdate = buildUpsertUpdate(listOf(parentResource))
         client.resourceUpdates.emit(parentUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val childResourceName = "child"
         val childResource = buildResource(childResourceName, "Child", parentDisplayName = parentDisplayName)
         val childUpdate = buildUpsertUpdate(listOf(childResource))
         client.resourceUpdates.emit(childUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(1, manager.rootResources.value.size)
 
         // Remove parent
         val deleteParentUpdate = buildDeleteUpdate(listOf(parentResource))
         client.resourceUpdates.emit(deleteParentUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         // Child should be promoted to root
         val roots = manager.rootResources.value
         assertEquals(1, roots.size)
         assertEquals(childResourceName, roots[0].resourceName)
-
-        job.cancel()
     }
 
     @Test
     fun `multiple pending children attach when parent arrives`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
 
         val parentResourceName = "parent"
         val parentDisplayName = "Parent"
@@ -388,13 +387,13 @@ class ResourceTreeManagerTest {
         val childResource1 = buildResource(childResourceName1, "Child 1", parentDisplayName = parentDisplayName)
         val childUpdate1 = buildUpsertUpdate(listOf(childResource1))
         client.resourceUpdates.emit(childUpdate1)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val childResourceName2 = "child-2"
         val childResource2 = buildResource(childResourceName2, "Child 2", parentDisplayName = parentDisplayName)
         val childUpdate2 = buildUpsertUpdate(listOf(childResource2))
         client.resourceUpdates.emit(childUpdate2)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         // Both children should be temporary roots
         assertEquals(2, manager.rootResources.value.size)
@@ -403,7 +402,7 @@ class ResourceTreeManagerTest {
         val parentResource = buildResource(parentResourceName, parentDisplayName)
         val parentUpdate = buildUpsertUpdate(listOf(parentResource))
         client.resourceUpdates.emit(parentUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val roots = manager.rootResources.value
         assertEquals(1, roots.size)
@@ -413,8 +412,6 @@ class ResourceTreeManagerTest {
         assertEquals(2, children.size)
         assertTrue(children.any { it.resourceName == childResourceName1 })
         assertTrue(children.any { it.resourceName == childResourceName2 })
-
-        job.cancel()
     }
 
     // endregion
@@ -422,37 +419,40 @@ class ResourceTreeManagerTest {
     // region Clear All Resources
 
     @Test
-    fun `clearAllResources removes everything`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+    fun `removing the client removes all resources`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resource1 = buildResource("res-1", "Resource 1")
         val resource2 = buildResource("res-2", "Resource 2")
         val initialData = buildInitialData(listOf(resource1, resource2))
         client.resourceUpdates.emit(initialData)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(2, manager.rootResources.value.size)
 
-        manager.clearAllResources()
+        resourceClient.value = null
+        testScheduler.runCurrent()
 
         assertEquals(0, manager.rootResources.value.size)
         assertEquals(2, resourceListener.deleted.size)
-
-        job.cancel()
     }
 
     @Test
     fun `second initial data replaces first`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
 
         val resourceName1 = "child-1"
         val resource1 = buildResource(resourceName1, "Resource 1")
         val initialData1 = buildInitialData(listOf(resource1))
         client.resourceUpdates.emit(initialData1)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(1, manager.rootResources.value.size)
         assertEquals(resourceName1, manager.rootResources.value[0].resourceName)
@@ -461,12 +461,10 @@ class ResourceTreeManagerTest {
         val resource2 = buildResource(resourceName2, "Resource 2")
         val initialData2 = buildInitialData(listOf(resource2))
         client.resourceUpdates.emit(initialData2)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(1, manager.rootResources.value.size)
         assertEquals(resourceName2, manager.rootResources.value[0].resourceName)
-
-        job.cancel()
     }
 
     // endregion
@@ -475,26 +473,28 @@ class ResourceTreeManagerTest {
 
     @Test
     fun `resourceCreated event is published`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resourceName = "res-1"
         val resource = buildResource(resourceName, "Resource 1")
         val update = buildUpsertUpdate(listOf(resource))
         client.resourceUpdates.emit(update)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(1, resourceListener.created.size)
         assertEquals(resourceName, resourceListener.created[0])
-
-        job.cancel()
     }
 
     @Test
     fun `resourceUpdated event is published`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resourceName = "res-1"
@@ -502,39 +502,200 @@ class ResourceTreeManagerTest {
         val resource = buildResource(resourceName, resourceDisplayName, state = "Starting")
         val update1 = buildUpsertUpdate(listOf(resource))
         client.resourceUpdates.emit(update1)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val updatedResource = buildResource(resourceName, resourceDisplayName, state = "Running")
         val update2 = buildUpsertUpdate(listOf(updatedResource))
         client.resourceUpdates.emit(update2)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(1, resourceListener.updated.size)
         assertEquals(resourceName, resourceListener.updated[0])
-
-        job.cancel()
     }
 
     @Test
     fun `resourceDeleted event is published`() = runTest {
-        val manager = createResourceTreeManager()
-        val (job, client) = startDashboardClient(manager)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
         val resourceListener = connectListener()
 
         val resourceName = "res-1"
         val resource = buildResource(resourceName, "Resource 1")
         val update = buildUpsertUpdate(listOf(resource))
         client.resourceUpdates.emit(update)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         val deleteUpdate = buildDeleteUpdate(listOf(resource))
         client.resourceUpdates.emit(deleteUpdate)
-        testScheduler.advanceUntilIdle()
+        testScheduler.runCurrent()
 
         assertEquals(1, resourceListener.deleted.size)
         assertEquals(resourceName, resourceListener.deleted[0])
+    }
 
-        job.cancel()
+    // endregion
+
+    // region Client Observation
+
+    @Test
+    fun `replacing the client clears old resources and watches the new client`() = runTest {
+        val firstClient = MockAspireResourceClient()
+        val secondClient = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(firstClient)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resourceListener = connectListener()
+        val resource = buildResource("api", "API")
+        val update = buildUpsertUpdate(listOf(resource))
+        firstClient.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+        val oldResource = manager.rootResources.value.single()
+        val oldResourceDisposable = Disposer.newCheckedDisposable(oldResource)
+
+        resourceClient.value = secondClient
+        testScheduler.runCurrent()
+
+        assertTrue(manager.rootResources.value.isEmpty())
+        assertTrue(oldResourceDisposable.isDisposed())
+        assertEquals(listOf(resource.name), resourceListener.deleted)
+        assertEquals(0, firstClient.resourceUpdates.subscriptionCount.value)
+        assertEquals(1, secondClient.resourceUpdates.subscriptionCount.value)
+        assertFalse(firstClient.isShutdown.value)
+    }
+
+    @Test
+    fun `updates from a replaced client are ignored`() = runTest {
+        val firstClient = MockAspireResourceClient()
+        val secondClient = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(firstClient)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resource = buildResource("api", "API")
+        val update = buildUpsertUpdate(listOf(resource))
+        resourceClient.value = secondClient
+        testScheduler.runCurrent()
+
+        firstClient.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+
+        assertTrue(manager.rootResources.value.isEmpty())
+    }
+
+    @Test
+    fun `updates from the new client create new resources`() = runTest {
+        val firstClient = MockAspireResourceClient()
+        val secondClient = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(firstClient)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resource = buildResource("api", "API")
+        val update = buildUpsertUpdate(listOf(resource))
+        firstClient.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+        val oldResource = manager.rootResources.value.single()
+        resourceClient.value = secondClient
+        testScheduler.runCurrent()
+
+        secondClient.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+
+        val newResource = manager.rootResources.value.single()
+        assertNotSame(oldResource, newResource)
+        assertEquals(resource.name, newResource.resourceName)
+    }
+
+    @Test
+    fun `resources use the supplied client for console logs and commands`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resource = buildResource("api", "API")
+        val update = buildUpsertUpdate(listOf(resource))
+        client.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+        val storedResource = manager.rootResources.value.single()
+        val expectedRequest = AspireResourceCommandRequest(resource.name, storedResource.data.value.originType, "restart")
+
+        storedResource.executeCommand("restart")
+
+        assertEquals(listOf(resource.name), client.watchedResourceNames)
+        assertEquals(listOf(expectedRequest), client.commandRequests)
+    }
+
+    @Test
+    fun `removing the client clears resources without shutting down the client`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resourceListener = connectListener()
+        val resource = buildResource("api", "API")
+        val update = buildUpsertUpdate(listOf(resource))
+        client.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+        val storedResource = manager.rootResources.value.single()
+        val storedResourceDisposable = Disposer.newCheckedDisposable(storedResource)
+
+        resourceClient.value = null
+        testScheduler.runCurrent()
+
+        assertTrue(manager.rootResources.value.isEmpty())
+        assertTrue(storedResourceDisposable.isDisposed())
+        assertEquals(listOf(resource.name), resourceListener.deleted)
+        assertEquals(0, client.resourceUpdates.subscriptionCount.value)
+        assertFalse(client.isShutdown.value)
+    }
+
+    @Test
+    fun `awaiting observation shutdown waits for resource and console log subscriptions to end`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resourceListener = connectListener()
+        val resource = buildResource("api", "API")
+        val update = buildUpsertUpdate(listOf(resource))
+        client.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+        assertEquals(1, client.consoleLogSubscriptionCount)
+
+        resourceClient.value = null
+        manager.awaitResourceObservationStopped()
+
+        assertTrue(manager.rootResources.value.isEmpty())
+        assertEquals(listOf(resource.name), resourceListener.deleted)
+        assertEquals(0, client.resourceUpdates.subscriptionCount.value)
+        assertEquals(0, client.consoleLogSubscriptionCount)
+        assertFalse(client.isShutdown.value)
+    }
+
+    @Test
+    fun `cancelling the parent scope cancels resource watching and clears resources`() = runTest {
+        val parentJob = Job(backgroundScope.coroutineContext[Job])
+        val parentCs = CoroutineScope(backgroundScope.coroutineContext + parentJob)
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient, parentCs = parentCs)
+        testScheduler.runCurrent()
+        val resourceListener = connectListener()
+        val resource = buildResource("api", "API")
+        val update = buildUpsertUpdate(listOf(resource))
+        client.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+        val storedResource = manager.rootResources.value.single()
+        val storedResourceDisposable = Disposer.newCheckedDisposable(storedResource)
+
+        parentCs.cancel()
+        testScheduler.runCurrent()
+
+        assertTrue(manager.rootResources.value.isEmpty())
+        assertTrue(storedResourceDisposable.isDisposed())
+        assertEquals(listOf(resource.name), resourceListener.deleted)
+        assertEquals(0, client.resourceUpdates.subscriptionCount.value)
+        assertFalse(client.isShutdown.value)
     }
 
     // endregion
@@ -542,30 +703,17 @@ class ResourceTreeManagerTest {
     // region Helpers
 
     private fun TestScope.createResourceTreeManager(
+        resourceClient: StateFlow<AspireResourceClient?>,
         appHostPath: Path = Path.of("test/path/AppHost.csproj"),
+        parentCs: CoroutineScope = backgroundScope,
     ): ResourceTreeManager = ResourceTreeManager(
         appHostPath,
         project,
-        this,
+        parentCs,
         testRootDisposable,
+        resourceClient,
         uiDispatcher = StandardTestDispatcher(testScheduler),
     )
-
-    private fun TestScope.startDashboardClient(treeManager: ResourceTreeManager): Pair<Job, MockAspireResourceClient> {
-        val environment = AppHostEnvironment(
-            "http://localhost:18888",
-            "test-key",
-            null
-        )
-        val job = with(treeManager) { startDashboardClient(environment) }
-
-        // Advance scheduler to start the collector coroutine so it's ready to receive emissions
-        testScheduler.advanceUntilIdle()
-
-        val client = requireNotNull(mockFactory.lastClient)
-
-        return requireNotNull(job) to client
-    }
 
     private fun connectListener(): TestResourceListener {
         val resourceListener = TestResourceListener()

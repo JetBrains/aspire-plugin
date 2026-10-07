@@ -23,7 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
@@ -34,13 +33,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.nio.file.Path
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class AspireAppHostTest {
+internal class AspireAppHostTest {
     private lateinit var testRootDisposable: Disposable
     private lateinit var mockFactory: MockGrpcResourceClientFactory
     private lateinit var hostScope: CoroutineScope
@@ -81,7 +81,8 @@ class AspireAppHostTest {
     @Test
     fun `unrelated resources do not set the dashboard URL`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val other = resource("other", "https://other.example")
         val update = upsert(other)
 
@@ -96,7 +97,8 @@ class AspireAppHostTest {
     @Test
     fun `dashboard URL prefers HTTPS over HTTP`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val dashboard = resource("aspire-dashboard", "http://dashboard.example/one", "https://dashboard.example/secure")
         val update = upsert(dashboard)
 
@@ -108,7 +110,8 @@ class AspireAppHostTest {
     @Test
     fun `dashboard resource is selected by display name rather than identifier`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val other = resource("aspire-dashboard", "https://other.example", displayName = "other")
         val otherUpdate = upsert(other)
         client.resourceUpdates.emit(otherUpdate)
@@ -126,7 +129,8 @@ class AspireAppHostTest {
     @Test
     fun `dashboard URL is cleared when no URL name contains dashboard`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val dashboard = resource("aspire-dashboard", "https://dashboard.example/selected")
         client.resourceUpdates.emit(upsert(dashboard))
         host.awaitDashboardUrl("https://dashboard.example/selected")
@@ -140,7 +144,8 @@ class AspireAppHostTest {
     @Test
     fun `dashboard URL follows resource updates`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val initialDashboard = resource("aspire-dashboard", "https://dashboard.example/secure")
         val initialUpdate = upsert(initialDashboard)
         client.resourceUpdates.emit(initialUpdate)
@@ -156,7 +161,8 @@ class AspireAppHostTest {
     @Test
     fun `dashboard resource retains its instance on update`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val initialDashboard = resource("aspire-dashboard", "https://dashboard.example/secure")
         val initialUpdate = upsert(initialDashboard)
         client.resourceUpdates.emit(initialUpdate)
@@ -174,7 +180,8 @@ class AspireAppHostTest {
     @Test
     fun `dashboard URL falls back to HTTP when HTTPS is removed`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val secureDashboard = resource("aspire-dashboard", "https://dashboard.example/secure")
         val secureUpdate = upsert(secureDashboard)
         client.resourceUpdates.emit(secureUpdate)
@@ -190,7 +197,8 @@ class AspireAppHostTest {
     @Test
     fun `dashboard URL ignores unsupported schemes`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val secureDashboard = resource("aspire-dashboard", "https://dashboard.example/secure")
         val secureUpdate = upsert(secureDashboard)
         client.resourceUpdates.emit(secureUpdate)
@@ -206,7 +214,8 @@ class AspireAppHostTest {
     @Test
     fun `deleting the dashboard resource clears its URL`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val dashboard = resource("aspire-dashboard", "https://dashboard.example/secure")
         val update = upsert(dashboard)
         client.resourceUpdates.emit(update)
@@ -221,45 +230,204 @@ class AspireAppHostTest {
     @Test
     fun `stopping the host clears the dashboard URL`() = timeoutRunBlocking {
         val host = createAppHost()
-        val client = startDashboardClient(host)
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
         val dashboard = resource("aspire-dashboard", "https://dashboard.example")
         val update = upsert(dashboard)
         client.resourceUpdates.emit(update)
         host.awaitDashboardUrl("https://dashboard.example")
 
-        project.messageBus.syncPublisher(AppHostListener.TOPIC).appHostStopped(appHostPath)
+        stopAppHost(host)
+
+        host.awaitDashboardUrl(null)
+    }
+
+    @Test
+    fun `resource client is created with the started host environment`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val environment = AspireAppHost.AppHostEnvironment("http://localhost:18889", "resource-api-key", null)
+
+        val client = startAppHostAndWaitForResourceClient(host, environment)
+
+        assertEquals(listOf(environment.resourceServiceEndpointUrl), mockFactory.endpointUrls)
+        assertEquals(listOf(environment.resourceServiceApiKey), mockFactory.apiKeys)
+        assertEquals(listOf(client), mockFactory.clientsFlow.value)
+        assertFalse(client.isShutdown.value)
+    }
+
+    @Test
+    fun `starting without a resource endpoint does not create a client`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val emptyEnvironment = AspireAppHost.AppHostEnvironment.EMPTY
+        val environment = AspireAppHost.AppHostEnvironment("http://localhost:18888", null, null)
+
+        startAppHost(host, emptyEnvironment)
+        stopAppHost(host)
+        val client = startAppHostAndWaitForResourceClient(host, environment)
+
+        assertEquals(listOf(client), mockFactory.clientsFlow.value)
+        assertEquals(listOf(environment.resourceServiceEndpointUrl), mockFactory.endpointUrls)
+        assertEquals(listOf<String?>(null), mockFactory.apiKeys)
+    }
+
+    @Test
+    fun `disposing the host closes the resource client and clears resources`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
+        val dashboard = resource("aspire-dashboard", "https://dashboard.example")
+        val update = upsert(dashboard)
+        client.resourceUpdates.emit(update)
+        host.awaitDashboardUrl("https://dashboard.example")
+        var resourcesClearedAtShutdown: Boolean? = null
+        client.onShutdown = { resourcesClearedAtShutdown = host.rootResources.value.isEmpty() }
+        client.awaitConsoleLogSubscriptions(1)
+
+        Disposer.dispose(host)
         withTimeout(10.seconds) {
             client.isShutdown.first { it }
+            client.resourceUpdates.subscriptionCount.first { it == 0 }
             host.rootResources.first { it.isEmpty() }
         }
-        host.awaitDashboardUrl(null)
+
+        assertEquals(1, client.shutdownCount)
         assertTrue(host.rootResources.value.isEmpty())
+        assertEquals(0, client.resourceSubscriptionsAtShutdown)
+        assertEquals(0, client.consoleLogSubscriptionsAtShutdown)
+        assertEquals(true, resourcesClearedAtShutdown)
     }
 
-    private fun createAppHost(): AspireAppHost = AspireAppHost(
-        AspireAppHostId("AppHost"),
-        "AppHost",
-        appHostPath,
-        project,
-        hostScope
-    ).also {
-        Disposer.register(testRootDisposable, it)
-    }
+    @Test
+    fun `starting again cancels subscriptions and clears resources before closing the old client`() =
+        timeoutRunBlocking {
+            val host = createAppHost()
+            val defaultEnvironment = createDefaultEnvironment()
+            val firstClient = startAppHostAndWaitForResourceClient(host, defaultEnvironment)
+            val dashboard = resource("aspire-dashboard", "https://dashboard.example")
+            val update = upsert(dashboard)
+            firstClient.resourceUpdates.emit(update)
+            host.awaitDashboardUrl("https://dashboard.example")
+            firstClient.awaitConsoleLogSubscriptions(1)
+            var resourcesClearedAtShutdown: Boolean? = null
+            firstClient.onShutdown = { resourcesClearedAtShutdown = host.rootResources.value.isEmpty() }
+            val environment = AspireAppHost.AppHostEnvironment("http://localhost:18889", null, null)
 
-    private suspend fun startDashboardClient(host: AspireAppHost): MockAspireResourceClient {
-        val environment = AspireAppHost.AppHostEnvironment("http://localhost:18888", "test-key", null)
-        withTimeout(10.seconds) {
-            while (host.appHostState.value !is AspireAppHost.AspireAppHostState.Starting) {
-                project.messageBus.syncPublisher(AppHostListener.TOPIC).appHostStarting(appHostPath, environment)
-                delay(10.milliseconds)
-            }
+            val secondClient = startAppHostAndWaitForResourceClient(host, environment)
+
+            assertNotSame(firstClient, secondClient)
+            assertEquals(1, firstClient.shutdownCount)
+            assertEquals(0, firstClient.resourceSubscriptionsAtShutdown)
+            assertEquals(0, firstClient.consoleLogSubscriptionsAtShutdown)
+            assertEquals(true, resourcesClearedAtShutdown)
+            assertTrue(host.rootResources.value.isEmpty())
         }
+
+    @Test
+    fun `cancelling the parent scope cancels subscriptions before closing the resource client`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val environment = createDefaultEnvironment()
+        val client = startAppHostAndWaitForResourceClient(host, environment)
+        val dashboard = resource("aspire-dashboard", "https://dashboard.example")
+        val update = upsert(dashboard)
+        client.resourceUpdates.emit(update)
+        host.awaitDashboardUrl("https://dashboard.example")
+        client.awaitConsoleLogSubscriptions(1)
+        var resourcesClearedAtShutdown: Boolean? = null
+        client.onShutdown = { resourcesClearedAtShutdown = host.rootResources.value.isEmpty() }
+
+        hostScope.cancel()
+        withTimeout(10.seconds) {
+            client.isShutdown.first { it }
+        }
+
+        assertEquals(1, client.shutdownCount)
+        assertEquals(0, client.resourceSubscriptionsAtShutdown)
+        assertEquals(0, client.consoleLogSubscriptionsAtShutdown)
+        assertEquals(true, resourcesClearedAtShutdown)
+    }
+
+    @Test
+    fun `restarting the host creates a new client and observes its resources`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val defaultEnvironment = createDefaultEnvironment()
+        val firstClient = startAppHostAndWaitForResourceClient(host, defaultEnvironment)
+        val firstDashboard = resource("aspire-dashboard", "https://dashboard.example/first")
+        val firstUpdate = upsert(firstDashboard)
+        firstClient.resourceUpdates.emit(firstUpdate)
+        host.awaitDashboardUrl("https://dashboard.example/first")
+        stopAppHost(host)
+        withTimeout(10.seconds) {
+            firstClient.isShutdown.first { it }
+            host.rootResources.first { it.isEmpty() }
+        }
+        val environment = AspireAppHost.AppHostEnvironment("http://localhost:18889", null, null)
+        val secondDashboard = resource("aspire-dashboard", "https://dashboard.example/second")
+        val secondUpdate = upsert(secondDashboard)
+
+        val secondClient = startAppHostAndWaitForResourceClient(host, environment)
+        secondClient.resourceUpdates.emit(secondUpdate)
+        host.awaitDashboardUrl("https://dashboard.example/second")
+
+        assertNotSame(firstClient, secondClient)
+        assertEquals(listOf(firstClient, secondClient), mockFactory.clientsFlow.value)
+        assertEquals(listOf("http://localhost:18888", "http://localhost:18889"), mockFactory.endpointUrls)
+        assertEquals(listOf("test-key", null), mockFactory.apiKeys)
+        assertEquals(1, firstClient.shutdownCount)
+        assertEquals(0, firstClient.resourceUpdates.subscriptionCount.value)
+        assertFalse(secondClient.isShutdown.value)
+    }
+
+    private fun createAppHost(): AspireAppHost {
+        val id = AspireAppHostId("AppHost")
+        return AspireAppHost(id, "AppHost", appHostPath, project, hostScope).also {
+            Disposer.register(testRootDisposable, it)
+        }
+    }
+
+    private suspend fun startAppHost(host: AspireAppHost, environment: AspireAppHost.AppHostEnvironment) {
+        project.messageBus.syncPublisher(AppHostListener.TOPIC)
+            .appHostStarting(appHostPath, environment)
+
         val messages = MutableSharedFlow<AppHostLogEntry>()
         project.messageBus.syncPublisher(AppHostListener.TOPIC)
             .appHostStarted(appHostPath, messages)
+
+        withTimeout(10.seconds) {
+            host.appHostState.first { it is AspireAppHost.AspireAppHostState.Started }
+        }
+    }
+
+    private suspend fun stopAppHost(host: AspireAppHost) {
+        project.messageBus.syncPublisher(AppHostListener.TOPIC)
+            .appHostStopped(appHostPath)
+
+        withTimeout(10.seconds) {
+            host.appHostState.first { it is AspireAppHost.AspireAppHostState.Stopped }
+        }
+    }
+
+    private fun createDefaultEnvironment(): AspireAppHost.AppHostEnvironment = AspireAppHost.AppHostEnvironment(
+        "http://localhost:18888",
+        "test-key",
+        null
+    )
+
+    private suspend fun startAppHostAndWaitForResourceClient(
+        host: AspireAppHost,
+        environment: AspireAppHost.AppHostEnvironment,
+    ): MockAspireResourceClient {
+        val previousClientCount = mockFactory.clientsFlow.value.size
+        startAppHost(host, environment)
         return withTimeout(10.seconds) {
-            while (mockFactory.lastClient?.resourceUpdates?.subscriptionCount?.value != 1) delay(10.milliseconds)
-            requireNotNull(mockFactory.lastClient)
+            val client = mockFactory.clientsFlow.first { it.size > previousClientCount }.last()
+            client.resourceUpdates.subscriptionCount.first { it == 1 }
+            client
+        }
+    }
+
+    private suspend fun MockAspireResourceClient.awaitConsoleLogSubscriptions(expected: Int) {
+        withTimeout(10.seconds) {
+            consoleLogSubscriptionCountFlow.first { it == expected }
         }
     }
 
