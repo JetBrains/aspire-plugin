@@ -11,6 +11,8 @@ import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireResourceCommandRequest
+import com.jetbrains.aspire.worker.AspireResourceCommandResponse
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import io.grpc.ManagedChannel
 import io.grpc.Metadata
@@ -104,8 +106,13 @@ internal class GrpcResourceClient(
             .map { it.toAspireResourceLogEntries() }
     }
 
-    override suspend fun executeResourceCommand(request: ResourceCommandRequest): ResourceCommandResponse {
-        return stub.executeResourceCommand(request, metadata)
+    override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+        val grpcRequest = ResourceCommandRequest.newBuilder()
+            .setResourceName(request.resourceName)
+            .setResourceType(request.resourceType)
+            .setCommandName(request.commandName)
+            .build()
+        return stub.executeResourceCommand(grpcRequest, metadata).toAspireResourceCommandResponse()
     }
 
     override fun shutdown() {

@@ -2,13 +2,14 @@ package com.jetbrains.aspire.unit.worker
 
 import com.intellij.testFramework.TestApplicationManager
 import com.jetbrains.aspire.generated.dashboard.Resource
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandRequest
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
 import com.jetbrains.aspire.resources.AspireResourceCommandExecutor
 import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import com.jetbrains.aspire.resources.grpc.toAspireResourceData
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResource
+import com.jetbrains.aspire.worker.AspireResourceCommandRequest
+import com.jetbrains.aspire.worker.AspireResourceCommandResponse
+import com.jetbrains.aspire.worker.AspireResourceCommandResponseKind
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import kotlinx.coroutines.flow.Flow
@@ -52,16 +53,10 @@ internal class AspireResourceTest {
     fun `commands are delegated to the separate resource command executor`() = runTest {
         val data = createResourceData()
         val watcher = TestResourceLogWatcher()
-        val expectedResponse = ResourceCommandResponse.newBuilder()
-            .setMessage("Command completed")
-            .build()
+        val expectedResponse = AspireResourceCommandResponse(AspireResourceCommandResponseKind.Succeeded, "Command completed")
         val commandExecutor = TestResourceCommandExecutor(expectedResponse)
         val resource = AspireResource(data.name, data, this, watcher, commandExecutor)
-        val expectedRequest = ResourceCommandRequest.newBuilder()
-            .setCommandName("restart")
-            .setResourceName(data.name)
-            .setResourceType(data.originType)
-            .build()
+        val expectedRequest = AspireResourceCommandRequest(data.name, data.originType, "restart")
 
         val response = resource.executeCommand("restart")
 
@@ -105,11 +100,11 @@ internal class AspireResourceTest {
     }
 
     private class TestResourceCommandExecutor(
-        private val response: ResourceCommandResponse = ResourceCommandResponse.getDefaultInstance(),
+        private val response: AspireResourceCommandResponse = AspireResourceCommandResponse(),
     ) : AspireResourceCommandExecutor {
-        val requests = mutableListOf<ResourceCommandRequest>()
+        val requests = mutableListOf<AspireResourceCommandRequest>()
 
-        override suspend fun executeResourceCommand(request: ResourceCommandRequest): ResourceCommandResponse {
+        override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
             requests.add(request)
             return response
         }

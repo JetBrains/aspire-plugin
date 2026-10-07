@@ -3,6 +3,8 @@ package com.jetbrains.aspire.unit.resources.grpc
 import com.jetbrains.aspire.generated.dashboard.ConsoleLogLine
 import com.jetbrains.aspire.generated.dashboard.InitialResourceData
 import com.jetbrains.aspire.generated.dashboard.Resource
+import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
+import com.jetbrains.aspire.generated.dashboard.ResourceCommandResult
 import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
 import com.jetbrains.aspire.generated.dashboard.WatchResourceConsoleLogsUpdate
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesChange
@@ -10,14 +12,20 @@ import com.jetbrains.aspire.generated.dashboard.WatchResourcesChanges
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.resources.grpc.toAspireResourceCommandResponse
 import com.jetbrains.aspire.resources.grpc.toAspireResourceLogEntries
 import com.jetbrains.aspire.resources.grpc.toAspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireResourceCommandResponseKind
+import com.jetbrains.aspire.worker.AspireResourceCommandResult
+import com.jetbrains.aspire.worker.AspireResourceCommandResultFormat
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
@@ -153,6 +161,61 @@ internal class GrpcResourceConverterTest {
         val converted = update.toAspireResourceLogEntries()
 
         assertEquals(listOf(expectedEntry), converted)
+    }
+
+    @ParameterizedTest
+    @CsvSource("0, Undefined", "1, Succeeded", "2, Failed", "3, Cancelled", "4, InvalidArguments", "99, Undefined")
+    fun `command response kinds are converted including unknown values`(
+        kindValue: Int,
+        expectedKind: AspireResourceCommandResponseKind,
+    ) {
+        val response = ResourceCommandResponse.newBuilder().setKindValue(kindValue).build()
+
+        val converted = response.toAspireResourceCommandResponse()
+
+        assertEquals(expectedKind, converted.kind)
+    }
+
+    @Test
+    fun `absent command response message and result remain absent`() {
+        val response = ResourceCommandResponse.getDefaultInstance()
+
+        val converted = response.toAspireResourceCommandResponse()
+
+        assertNull(converted.message)
+        assertNull(converted.result)
+    }
+
+    @Test
+    fun `explicitly empty command response message is preserved`() {
+        val response = ResourceCommandResponse.newBuilder().setMessage("").build()
+
+        val converted = response.toAspireResourceCommandResponse()
+
+        assertEquals("", converted.message)
+    }
+
+    @ParameterizedTest
+    @CsvSource("0, None", "1, Text", "2, Json", "3, Markdown", "99, None")
+    fun `command results preserve value display flag and format including unknown values`(
+        formatValue: Int,
+        expectedFormat: AspireResourceCommandResultFormat,
+    ) {
+        val result = ResourceCommandResult.newBuilder()
+            .setValue("Command output")
+            .setFormatValue(formatValue)
+            .setDisplayImmediately(true)
+            .build()
+        val response = ResourceCommandResponse.newBuilder()
+            .setMessage("Command completed")
+            .setResult(result)
+            .build()
+        val expectedResult = AspireResourceCommandResult("Command output", expectedFormat, true)
+
+        val converted = response.toAspireResourceCommandResponse()
+
+        assertEquals("Command completed", converted.message)
+        assertEquals(expectedResult, converted.result)
     }
 
     private fun resource(name: String, state: String): Resource = Resource.newBuilder()

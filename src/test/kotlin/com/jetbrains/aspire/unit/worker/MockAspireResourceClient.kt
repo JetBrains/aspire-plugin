@@ -1,10 +1,10 @@
 package com.jetbrains.aspire.unit.worker
 
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandRequest
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
 import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireResourceCommandRequest
+import com.jetbrains.aspire.worker.AspireResourceCommandResponse
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,8 +29,8 @@ internal class MockAspireResourceClient : AspireResourceClient {
         return consoleLogFlows.getOrPut(resourceName) { MutableSharedFlow() }
     }
 
-    override suspend fun executeResourceCommand(request: ResourceCommandRequest): ResourceCommandResponse {
-        return ResourceCommandResponse.getDefaultInstance()
+    override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+        return AspireResourceCommandResponse()
     }
 
     override fun shutdown() {

@@ -2,9 +2,12 @@ package com.jetbrains.aspire.resources.grpc
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.Value
+import com.jetbrains.aspire.generated.dashboard.CommandResultFormat
 import com.jetbrains.aspire.generated.dashboard.HealthReport
 import com.jetbrains.aspire.generated.dashboard.HealthStatus
 import com.jetbrains.aspire.generated.dashboard.Resource
+import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
+import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponseKind
 import com.jetbrains.aspire.generated.dashboard.WatchResourceConsoleLogsUpdate
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
 import com.jetbrains.aspire.resources.AspireResourceChange
@@ -12,6 +15,10 @@ import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.util.parseLogEntry
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireResourceCommandResponse
+import com.jetbrains.aspire.worker.AspireResourceCommandResponseKind
+import com.jetbrains.aspire.worker.AspireResourceCommandResult
+import com.jetbrains.aspire.worker.AspireResourceCommandResultFormat
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
 import com.jetbrains.aspire.worker.AspireResourceId
@@ -192,6 +199,39 @@ fun WatchResourceConsoleLogsUpdate.toAspireResourceLogEntries(): List<AspireReso
         val logContent = parseLogEntry(logLine.text)?.second ?: logLine.text
         AspireResourceLogEntry(logContent, logLine.isStdErr)
     }
+
+@ApiStatus.Internal
+fun ResourceCommandResponse.toAspireResourceCommandResponse(): AspireResourceCommandResponse {
+    val responseKind = when (kind) {
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_SUCCEEDED ->
+            AspireResourceCommandResponseKind.Succeeded
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_FAILED ->
+            AspireResourceCommandResponseKind.Failed
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_CANCELLED ->
+            AspireResourceCommandResponseKind.Cancelled
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_INVALID_ARGUMENTS ->
+            AspireResourceCommandResponseKind.InvalidArguments
+        ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_UNDEFINED,
+        ResourceCommandResponseKind.UNRECOGNIZED ->
+            AspireResourceCommandResponseKind.Undefined
+    }
+    val commandResult = if (hasResult()) {
+        val format = when (result.format) {
+            CommandResultFormat.COMMAND_RESULT_FORMAT_TEXT ->
+                AspireResourceCommandResultFormat.Text
+            CommandResultFormat.COMMAND_RESULT_FORMAT_JSON ->
+                AspireResourceCommandResultFormat.Json
+            CommandResultFormat.COMMAND_RESULT_FORMAT_MARKDOWN ->
+                AspireResourceCommandResultFormat.Markdown
+            CommandResultFormat.COMMAND_RESULT_FORMAT_NONE,
+            CommandResultFormat.UNRECOGNIZED ->
+                AspireResourceCommandResultFormat.None
+        }
+        AspireResourceCommandResult(result.value, format, result.displayImmediately)
+    } else null
+
+    return AspireResourceCommandResponse(responseKind, if (hasMessage()) message else null, commandResult)
+}
 
 private fun calculateHealthStatus(
     state: ResourceState?,

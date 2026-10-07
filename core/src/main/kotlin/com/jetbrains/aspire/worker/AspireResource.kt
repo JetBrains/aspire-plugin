@@ -6,9 +6,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.platform.util.coroutines.childScope
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandRequest
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponseKind
 import com.jetbrains.aspire.resources.AspireResourceCommandExecutor
 import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import kotlinx.coroutines.CoroutineScope
@@ -112,15 +109,11 @@ class AspireResource(
         _childrenResources.update { it - resource }
     }
 
-    suspend fun executeCommand(commandName: String): ResourceCommandResponse {
-        val request = ResourceCommandRequest.newBuilder()
-            .setCommandName(commandName)
-            .setResourceName(resourceName)
-            .setResourceType(_data.value.originType)
-            .build()
+    suspend fun executeCommand(commandName: String): AspireResourceCommandResponse {
+        val request = AspireResourceCommandRequest(resourceName, _data.value.originType, commandName)
         val response = resourceCommandExecutor.executeResourceCommand(request)
-        if (response.kind == ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_FAILED) {
-            LOG.warn("Command $commandName on $resourceName failed: ${response.message}")
+        if (response.kind == AspireResourceCommandResponseKind.Failed) {
+            LOG.warn("Command $commandName on $resourceName failed: ${response.message.orEmpty()}")
         }
 
         return response
