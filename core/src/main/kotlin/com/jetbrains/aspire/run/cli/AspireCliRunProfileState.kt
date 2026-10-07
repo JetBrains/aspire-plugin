@@ -42,7 +42,7 @@ import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
 import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
 import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
 import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
-import com.jetbrains.aspire.worker.AppHostListener
+import com.jetbrains.aspire.worker.AppHostEnvironmentListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
@@ -93,8 +93,8 @@ internal class AspireCliRunProfileState(
             otlpEndpointUrl
         )
         project.messageBus
-            .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarting(appHostFile, appHostEnvironment)
+            .syncPublisher(AppHostEnvironmentListener.TOPIC)
+            .appHostEnvironmentPublished(appHostFile, appHostEnvironment)
 
         val processHandler = startProcess(aspireCli, appHostFile, options, envs, eelApi)
         val console = createConsole().apply {

@@ -14,7 +14,6 @@ internal fun Path.toAspireAppHostPath(): AspireAppHostPath = AspireAppHostPath(a
 fun AspireAppHost.toData(state: AspireAppHost.AspireAppHostState): AspireAppHostData {
     val status = when (state) {
         AspireAppHost.AspireAppHostState.Inactive -> AspireAppHostStatus.Inactive
-        is AspireAppHost.AspireAppHostState.Starting -> AspireAppHostStatus.Starting
         is AspireAppHost.AspireAppHostState.Started -> AspireAppHostStatus.Started
         AspireAppHost.AspireAppHostState.Stopped -> AspireAppHostStatus.Stopped
     }

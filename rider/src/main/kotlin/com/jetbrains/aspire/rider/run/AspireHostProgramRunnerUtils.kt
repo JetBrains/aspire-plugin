@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
 import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
 import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
-import com.jetbrains.aspire.worker.AppHostListener
+import com.jetbrains.aspire.worker.AppHostEnvironmentListener
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -45,6 +45,6 @@ internal fun setUpAspireHostEnvironment(
     )
 
     project.messageBus
-        .syncPublisher(AppHostListener.TOPIC)
-        .appHostStarting(appHostFile, appHostEnvironment)
+        .syncPublisher(AppHostEnvironmentListener.TOPIC)
+        .appHostEnvironmentPublished(appHostFile, appHostEnvironment)
 }

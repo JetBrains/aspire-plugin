@@ -13,6 +13,7 @@ import com.jetbrains.aspire.generated.dashboard.UrlDisplayProperties
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.resources.grpc.toAspireResourceData
+import com.jetbrains.aspire.worker.AppHostEnvironmentListener
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
@@ -385,8 +386,8 @@ internal class AspireAppHostTest {
     }
 
     private suspend fun startAppHost(host: AspireAppHost, environment: AspireAppHost.AppHostEnvironment) {
-        project.messageBus.syncPublisher(AppHostListener.TOPIC)
-            .appHostStarting(appHostPath, environment)
+        project.messageBus.syncPublisher(AppHostEnvironmentListener.TOPIC)
+            .appHostEnvironmentPublished(appHostPath, environment)
 
         val messages = MutableSharedFlow<AppHostLogEntry>()
         project.messageBus.syncPublisher(AppHostListener.TOPIC)

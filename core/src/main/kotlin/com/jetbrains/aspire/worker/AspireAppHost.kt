@@ -27,8 +27,8 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * This class does not start or stop the AppHost process directly, as this is handled
  * separately through run configurations. Instead, it subscribes to [AppHostListener] events
- * to track the AppHost lifecycle state ([appHostState]) and owns the resource client
- * supplied to [ResourceTreeManager].
+ * to track the AppHost lifecycle state ([appHostState]), to [AppHostEnvironmentListener] events
+ * to remember the current AppHost environment, and owns the resource client supplied to [ResourceTreeManager].
  *
  * @param mainFilePath path to the main project file (.csproj or .cs) of the AppHost
  */
@@ -63,6 +63,9 @@ class AspireAppHost(
     private val mutableAppHostState = MutableStateFlow<AspireAppHostState>(AspireAppHostState.Inactive)
     val appHostState: StateFlow<AspireAppHostState> = mutableAppHostState.asStateFlow()
 
+    @Volatile
+    private var appHostEnvironment: AppHostEnvironment? = null
+
     private val resourceClient = MutableStateFlow<AspireResourceClient?>(null)
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this, resourceClient)
     override val rootResources: StateFlow<List<AspireResource>>
@@ -81,17 +84,24 @@ class AspireAppHost(
         .stateIn(cs, SharingStarted.Eagerly, toData(appHostState.value))
 
     init {
-        project.messageBus
-            .connect(cs)
-            .subscribe(AppHostListener.TOPIC, AppHostLifecycleListener())
-        otlpProxyManager.observeAppHostState(appHostState)
+        val connection = project.messageBus.connect(cs)
+        connection.subscribe(AppHostEnvironmentListener.TOPIC, AppHostEnvironmentPublishedListener())
+        connection.subscribe(AppHostListener.TOPIC, AppHostLifecycleListener())
+        otlpProxyManager.observeAppHostState(appHostState) { appHostEnvironment }
         launchResourceClientLifecycle()
     }
 
     private fun launchResourceClientLifecycle() {
         cs.launch {
             appHostState.collectLatest { state ->
-                val environment = (state as? AspireAppHostState.Started)?.environment ?: return@collectLatest
+                if (state !is AspireAppHostState.Started) return@collectLatest
+
+                val environment = appHostEnvironment
+                if (environment == null) {
+                    LOG.warn("Aspire AppHost $mainFilePath started without a published environment")
+                    return@collectLatest
+                }
+
                 val endpointUrl = environment.resourceServiceEndpointUrl
                 if (endpointUrl == null) {
                     LOG.trace { "Aspire AppHost $mainFilePath started without a resource service endpoint" }
@@ -170,28 +180,22 @@ class AspireAppHost(
             ?: dashboardUrls.firstOrNull { it.fullUrl.startsWith("http://", ignoreCase = true) }?.fullUrl
     }
 
-    private inner class AppHostLifecycleListener : AppHostListener {
-        override fun appHostStarting(appHostFile: Path, environment: AppHostEnvironment) {
+    private inner class AppHostEnvironmentPublishedListener : AppHostEnvironmentListener {
+        override fun appHostEnvironmentPublished(appHostFile: Path, environment: AppHostEnvironment) {
             if (mainFilePath != appHostFile) return
 
-            LOG.trace { "Aspire AppHost $mainFilePath is starting" }
-            mutableLogFlow.value = null
-            mutableAppHostState.value = AspireAppHostState.Starting(environment)
+            LOG.trace { "Aspire AppHost $mainFilePath environment was published" }
+            appHostEnvironment = environment
         }
+    }
 
+    private inner class AppHostLifecycleListener : AppHostListener {
         override fun appHostStarted(appHostFile: Path, logFlow: SharedFlow<AppHostLogEntry>) {
             if (mainFilePath != appHostFile) return
 
             LOG.trace { "Aspire AppHost $mainFilePath was started" }
             mutableLogFlow.value = logFlow
-            mutableAppHostState.update { previousState ->
-                val environment = (previousState as? AspireAppHostState.Starting)?.environment
-                if (environment == null) {
-                    LOG.warn("Aspire AppHost $mainFilePath started without a preceding Starting state")
-                }
-
-                AspireAppHostState.Started(environment ?: AppHostEnvironment.EMPTY)
-            }
+            mutableAppHostState.value = AspireAppHostState.Started
         }
 
         override fun appHostStopped(appHostFile: Path) {
@@ -215,15 +219,7 @@ class AspireAppHost(
 
     sealed interface AspireAppHostState {
         data object Inactive : AspireAppHostState
-
-        data class Starting(
-            val environment: AppHostEnvironment
-        ) : AspireAppHostState
-
-        data class Started(
-            val environment: AppHostEnvironment,
-        ) : AspireAppHostState
-
+        data object Started : AspireAppHostState
         data object Stopped : AspireAppHostState
     }
 }

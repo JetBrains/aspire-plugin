@@ -20,7 +20,6 @@ internal class StopAppHostAction : AspireAppHostBaseAction() {
             AspireAppHostStatus.Inactive,
             AspireAppHostStatus.Stopped -> false
 
-            AspireAppHostStatus.Starting,
             AspireAppHostStatus.Started -> true
         }
     }

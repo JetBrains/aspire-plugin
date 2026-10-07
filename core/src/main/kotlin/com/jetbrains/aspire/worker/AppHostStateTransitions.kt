@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
  */
 internal fun CoroutineScope.launchOnAppHostTransitions(
     appHostState: StateFlow<AspireAppHostState>,
-    onStarting: suspend CoroutineScope.(AspireAppHostState.Starting) -> Unit = {},
     onStarted: suspend CoroutineScope.(AspireAppHostState.Started) -> Unit = {},
     onStoppedAfterStart: suspend CoroutineScope.(previous: AspireAppHostState.Started) -> Unit = {},
 ): Job = launch {
@@ -31,8 +30,6 @@ internal fun CoroutineScope.launchOnAppHostTransitions(
         .zipWithNext()
         .collect { (previous, current) ->
             when {
-                current is AspireAppHostState.Starting ->
-                    scope.onStarting(current)
                 current is AspireAppHostState.Started ->
                     scope.onStarted(current)
                 previous is AspireAppHostState.Started && current is AspireAppHostState.Stopped ->
