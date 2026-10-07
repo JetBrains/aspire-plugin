@@ -15,7 +15,7 @@ import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceTreeManager
-import com.jetbrains.aspire.resources.grpc.AspireDashboardClientFactory
+import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -32,7 +32,7 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ResourceTreeManagerTest {
     private lateinit var testRootDisposable: Disposable
-    private lateinit var mockFactory: MockAspireDashboardClientFactory
+    private lateinit var mockFactory: MockGrpcResourceClientFactory
 
     private val project get() = ProjectManager.getInstance().defaultProject
 
@@ -44,9 +44,9 @@ class ResourceTreeManagerTest {
     @BeforeEach
     fun setUpService() {
         testRootDisposable = Disposer.newDisposable("ResourceTreeManagerTest")
-        mockFactory = MockAspireDashboardClientFactory()
+        mockFactory = MockGrpcResourceClientFactory()
         ApplicationManager.getApplication().replaceService(
-            AspireDashboardClientFactory::class.java,
+            GrpcResourceClientFactory::class.java,
             mockFactory,
             testRootDisposable
         )

@@ -18,7 +18,7 @@ import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireAppHostId
-import com.jetbrains.aspire.resources.grpc.AspireDashboardClientFactory
+import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -42,7 +42,7 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AspireAppHostTest {
     private lateinit var testRootDisposable: Disposable
-    private lateinit var mockFactory: MockAspireDashboardClientFactory
+    private lateinit var mockFactory: MockGrpcResourceClientFactory
     private lateinit var hostScope: CoroutineScope
 
     private val project get() = ProjectManager.getInstance().defaultProject
@@ -56,10 +56,10 @@ class AspireAppHostTest {
     @BeforeEach
     fun setUpService() {
         testRootDisposable = Disposer.newDisposable("AspireAppHostTest")
-        mockFactory = MockAspireDashboardClientFactory()
+        mockFactory = MockGrpcResourceClientFactory()
         hostScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         ApplicationManager.getApplication().replaceService(
-            AspireDashboardClientFactory::class.java,
+            GrpcResourceClientFactory::class.java,
             mockFactory,
             testRootDisposable
         )

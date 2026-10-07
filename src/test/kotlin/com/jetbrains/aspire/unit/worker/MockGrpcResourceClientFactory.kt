@@ -1,9 +1,9 @@
 package com.jetbrains.aspire.unit.worker
 
 import com.jetbrains.aspire.resources.grpc.AspireDashboardClientApi
-import com.jetbrains.aspire.resources.grpc.AspireDashboardClientFactory
+import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
 
-class MockAspireDashboardClientFactory : AspireDashboardClientFactory {
+class MockGrpcResourceClientFactory : GrpcResourceClientFactory {
     val clients = mutableListOf<MockAspireDashboardClientApi>()
 
     override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireDashboardClientApi {

@@ -12,7 +12,7 @@ import com.intellij.openapi.util.Disposer
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
 import com.jetbrains.aspire.resources.grpc.AspireDashboardClientApi
-import com.jetbrains.aspire.resources.grpc.AspireDashboardClientFactory
+import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
 import com.jetbrains.aspire.resources.grpc.toAspireResourceData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -86,7 +86,7 @@ class ResourceTreeManager(
 
         LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
 
-        val clientFactory = service<AspireDashboardClientFactory>()
+        val clientFactory = service<GrpcResourceClientFactory>()
         val client = clientFactory.create(endpointUrl, environment.resourceServiceApiKey)
         dashboardClient = client
         return launch {

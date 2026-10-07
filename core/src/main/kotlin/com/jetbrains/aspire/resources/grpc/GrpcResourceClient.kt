@@ -20,13 +20,13 @@ import org.jetbrains.annotations.ApiStatus
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
-interface AspireDashboardClientFactory {
+interface GrpcResourceClientFactory {
     fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireDashboardClientApi
 }
 
-class AspireDashboardClientFactoryImpl : AspireDashboardClientFactory {
+class GrpcResourceClientFactoryImpl : GrpcResourceClientFactory {
     override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireDashboardClientApi {
-        return AspireDashboardClient(resourceServiceEndpointUrl, resourceServiceApiKey)
+        return GrpcResourceClient(resourceServiceEndpointUrl, resourceServiceApiKey)
     }
 }
 
@@ -39,12 +39,12 @@ interface AspireDashboardClientApi {
 }
 
 @ApiStatus.Internal
-class AspireDashboardClient(
+class GrpcResourceClient(
     resourceServiceEndpointUrl: String,
     resourceServiceApiKey: String?
 ) : AspireDashboardClientApi {
     companion object {
-        private val LOG = logger<AspireDashboardClient>()
+        private val LOG = logger<GrpcResourceClient>()
         private const val API_KEY_HEADER = "x-resource-service-api-key"
 
         private fun createChannel(uri: URI): ManagedChannel {
