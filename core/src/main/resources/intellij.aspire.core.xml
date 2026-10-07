@@ -1,9 +1,7 @@
 <idea-plugin visibility="internal">
     <dependencies>
         <module name="intellij.aspire.shared"/>
-        <plugin id="com.intellij.modules.rider"/>
-        <module name="intellij.rd.client.base"/>
-        <module name="intellij.rider.rdclient.dotnet"/>
+        <module name="intellij.libraries.rd.core"/>
         <module name="intellij.libraries.grpc"/>
         <module name="intellij.libraries.grpc.netty.shaded"/>
         <module name="intellij.libraries.protobuf"/>

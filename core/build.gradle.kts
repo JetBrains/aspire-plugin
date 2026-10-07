@@ -1,5 +1,4 @@
 import com.google.protobuf.gradle.id
-import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.ComposedJarTask
 
 plugins {
@@ -39,12 +38,10 @@ dependencies {
     compileOnly(libs.netty.transport.classes.kqueue) { isTransitive = false }
 
     intellijPlatform {
-        rider(providers.gradleProperty("riderVersion")) {
-            useInstaller = false
+        intellijIdea(providers.gradleProperty("ideaVersion")) {
             useCache = true
         }
-        bundledModule("intellij.rd.client.base")
-        bundledModule("intellij.rider.rdclient.dotnet")
+        bundledModule("intellij.libraries.rd.core")
         bundledModule("intellij.libraries.grpc")
         bundledModule("intellij.libraries.grpc.netty.shaded")
         bundledModule("intellij.libraries.protobuf")
@@ -67,8 +64,6 @@ dependencies {
         pluginComposedModule(project.dependencies.create(libs.ktor.server.netty.get()))
         pluginComposedModule(project.dependencies.create(libs.netty.transport.classes.epoll.get()))
         pluginComposedModule(project.dependencies.create(libs.netty.transport.classes.kqueue.get()))
-
-        testFramework(TestFrameworkType.Bundled)
     }
 }
 
