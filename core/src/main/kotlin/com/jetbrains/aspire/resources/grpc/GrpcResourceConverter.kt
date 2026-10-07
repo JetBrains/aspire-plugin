@@ -24,11 +24,13 @@ import com.jetbrains.aspire.worker.ResourceVolume
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.annotations.ApiStatus
 import kotlin.math.roundToInt
 import kotlin.time.Instant
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandState as GrpcCommandState
 
-internal fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourceData {
+@ApiStatus.Internal
+fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourceData {
     val type = mapResourceType(resourceType)
 
     val timezone = TimeZone.currentSystemDefault()

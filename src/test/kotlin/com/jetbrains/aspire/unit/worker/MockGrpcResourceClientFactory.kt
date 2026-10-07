@@ -1,17 +1,17 @@
 package com.jetbrains.aspire.unit.worker
 
-import com.jetbrains.aspire.resources.grpc.AspireDashboardClientApi
+import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
 
-class MockGrpcResourceClientFactory : GrpcResourceClientFactory {
-    val clients = mutableListOf<MockAspireDashboardClientApi>()
+internal class MockGrpcResourceClientFactory : GrpcResourceClientFactory {
+    val clients = mutableListOf<MockAspireResourceClient>()
 
-    override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireDashboardClientApi {
-        val client = MockAspireDashboardClientApi()
+    override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireResourceClient {
+        val client = MockAspireResourceClient()
         clients.add(client)
         return client
     }
 
-    val lastClient: MockAspireDashboardClientApi?
+    val lastClient: MockAspireResourceClient?
         get() = clients.lastOrNull()
 }

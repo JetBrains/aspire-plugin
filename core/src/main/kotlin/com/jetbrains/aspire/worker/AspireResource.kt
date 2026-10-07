@@ -10,8 +10,9 @@ import com.jetbrains.aspire.generated.dashboard.ConsoleLogLine
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandRequest
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponseKind
+import com.jetbrains.aspire.resources.AspireResourceCommandExecutor
+import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import com.jetbrains.aspire.util.parseLogEntry
-import com.jetbrains.aspire.resources.grpc.AspireDashboardClientApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -48,7 +49,8 @@ class AspireResource(
     override val resourceName: String,
     initialData: AspireResourceData,
     parentCs: CoroutineScope,
-    private val dashboardClient: AspireDashboardClientApi,
+    private val resourceLogWatcher: AspireResourceLogWatcher,
+    private val resourceCommandExecutor: AspireResourceCommandExecutor,
 ) : Disposable, AspireResourceModel {
     companion object {
         private val LOG = logger<AspireResource>()
@@ -77,7 +79,7 @@ class AspireResource(
 
     init {
         cs.launch {
-            dashboardClient.watchResourceConsoleLogs(resourceName)
+            resourceLogWatcher.watchResourceConsoleLogs(resourceName)
                 .catch { cause ->
                     if (cause is CancellationException) throw cause
                     LOG.trace { "Console log stream for $resourceName ended: ${cause.message}" }
@@ -118,7 +120,7 @@ class AspireResource(
             .setResourceName(resourceName)
             .setResourceType(_data.value.originType)
             .build()
-        val response = dashboardClient.executeResourceCommand(request)
+        val response = resourceCommandExecutor.executeResourceCommand(request)
         if (response.kind == ResourceCommandResponseKind.RESOURCE_COMMAND_RESPONSE_KIND_FAILED) {
             LOG.warn("Command $commandName on $resourceName failed: ${response.message}")
         }

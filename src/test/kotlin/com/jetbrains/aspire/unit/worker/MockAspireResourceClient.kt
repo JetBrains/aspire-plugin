@@ -1,14 +1,14 @@
 package com.jetbrains.aspire.unit.worker
 
 import com.jetbrains.aspire.generated.dashboard.*
-import com.jetbrains.aspire.resources.grpc.AspireDashboardClientApi
+import com.jetbrains.aspire.resources.AspireResourceClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class MockAspireDashboardClientApi : AspireDashboardClientApi {
+internal class MockAspireResourceClient : AspireResourceClient {
     val resourceUpdates = MutableSharedFlow<WatchResourcesUpdate>(extraBufferCapacity = 64)
     private val consoleLogFlows = mutableMapOf<String, MutableSharedFlow<WatchResourceConsoleLogsUpdate>>()
 
@@ -23,10 +23,6 @@ class MockAspireDashboardClientApi : AspireDashboardClientApi {
 
     override suspend fun executeResourceCommand(request: ResourceCommandRequest): ResourceCommandResponse {
         return ResourceCommandResponse.getDefaultInstance()
-    }
-
-    override suspend fun getApplicationInformation(): ApplicationInformationResponse {
-        return ApplicationInformationResponse.getDefaultInstance()
     }
 
     override fun shutdown() {

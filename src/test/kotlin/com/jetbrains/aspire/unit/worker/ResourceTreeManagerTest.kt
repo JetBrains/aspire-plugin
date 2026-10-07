@@ -537,7 +537,7 @@ class ResourceTreeManagerTest {
         uiDispatcher = StandardTestDispatcher(testScheduler),
     )
 
-    private fun TestScope.startDashboardClient(treeManager: ResourceTreeManager): Pair<Job, MockAspireDashboardClientApi> {
+    private fun TestScope.startDashboardClient(treeManager: ResourceTreeManager): Pair<Job, MockAspireResourceClient> {
         val environment = AppHostEnvironment(
             "http://localhost:18888",
             "test-key",

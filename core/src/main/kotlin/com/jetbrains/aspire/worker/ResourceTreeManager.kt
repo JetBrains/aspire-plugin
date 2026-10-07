@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
-import com.jetbrains.aspire.resources.grpc.AspireDashboardClientApi
+import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
 import com.jetbrains.aspire.resources.grpc.toAspireResourceData
 import kotlinx.coroutines.CoroutineScope
@@ -57,8 +57,7 @@ class ResourceTreeManager(
         private val LOG = logger<ResourceTreeManager>()
     }
 
-    var dashboardClient: AspireDashboardClientApi? = null
-        private set
+    private var dashboardClient: AspireResourceClient? = null
 
     private val resources = HashMap<String, AspireResource>()
     private val resourcesByDisplayName = HashMap<String, AspireResource>()
@@ -145,7 +144,8 @@ class ResourceTreeManager(
                 data.name,
                 data,
                 parentCs,
-                client
+                resourceLogWatcher = client,
+                resourceCommandExecutor = client,
             )
             createResource(resource)
         } else {

@@ -8,6 +8,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.util.net.ssl.CertificateManager
 import com.intellij.util.net.ssl.ConfirmingTrustManager
 import com.jetbrains.aspire.generated.dashboard.*
+import com.jetbrains.aspire.resources.AspireResourceClient
 import io.grpc.ManagedChannel
 import io.grpc.Metadata
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts
@@ -20,29 +21,21 @@ import org.jetbrains.annotations.ApiStatus
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
+@ApiStatus.Internal
 interface GrpcResourceClientFactory {
-    fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireDashboardClientApi
+    fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireResourceClient
 }
 
-class GrpcResourceClientFactoryImpl : GrpcResourceClientFactory {
-    override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireDashboardClientApi {
+internal class GrpcResourceClientFactoryImpl : GrpcResourceClientFactory {
+    override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireResourceClient {
         return GrpcResourceClient(resourceServiceEndpointUrl, resourceServiceApiKey)
     }
 }
 
-interface AspireDashboardClientApi {
-    fun watchResources(): Flow<WatchResourcesUpdate>
-    fun watchResourceConsoleLogs(resourceName: String): Flow<WatchResourceConsoleLogsUpdate>
-    suspend fun executeResourceCommand(request: ResourceCommandRequest): ResourceCommandResponse
-    suspend fun getApplicationInformation(): ApplicationInformationResponse
-    fun shutdown()
-}
-
-@ApiStatus.Internal
-class GrpcResourceClient(
+internal class GrpcResourceClient(
     resourceServiceEndpointUrl: String,
     resourceServiceApiKey: String?
-) : AspireDashboardClientApi {
+) : AspireResourceClient {
     companion object {
         private val LOG = logger<GrpcResourceClient>()
         private const val API_KEY_HEADER = "x-resource-service-api-key"
@@ -104,11 +97,6 @@ class GrpcResourceClient(
 
     override suspend fun executeResourceCommand(request: ResourceCommandRequest): ResourceCommandResponse {
         return stub.executeResourceCommand(request, metadata)
-    }
-
-    override suspend fun getApplicationInformation(): ApplicationInformationResponse {
-        val request = ApplicationInformationRequest.getDefaultInstance()
-        return stub.getApplicationInformation(request, metadata)
     }
 
     override fun shutdown() {
