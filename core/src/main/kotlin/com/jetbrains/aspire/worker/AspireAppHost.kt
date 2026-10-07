@@ -63,31 +63,6 @@ class AspireAppHost(
     private val mutableAppHostState = MutableStateFlow<AspireAppHostState>(AspireAppHostState.Inactive)
     val appHostState: StateFlow<AspireAppHostState> = mutableAppHostState.asStateFlow()
 
-    init {
-        project.messageBus.connect(cs).subscribe(AppHostListener.TOPIC, object : AppHostListener {
-            override fun appHostStarting(appHostFile: Path, environment: AppHostEnvironment) {
-                if (mainFilePath != appHostFile) return
-
-                LOG.trace { "Aspire AppHost $mainFilePath is starting" }
-                handleLifecycleEvent(AppHostLifecycleEvent.Starting(environment))
-            }
-
-            override fun appHostStarted(appHostFile: Path, logFlow: SharedFlow<AppHostLogEntry>) {
-                if (mainFilePath != appHostFile) return
-
-                LOG.trace { "Aspire AppHost $mainFilePath was started" }
-                handleLifecycleEvent(AppHostLifecycleEvent.Started(logFlow))
-            }
-
-            override fun appHostStopped(appHostFile: Path) {
-                if (mainFilePath != appHostFile) return
-                LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
-
-                handleLifecycleEvent(AppHostLifecycleEvent.Stopped)
-            }
-        })
-    }
-
     private val resourceClient = MutableStateFlow<AspireResourceClient?>(null)
     private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this, resourceClient)
     override val rootResources: StateFlow<List<AspireResource>>
@@ -106,7 +81,14 @@ class AspireAppHost(
         .stateIn(cs, SharingStarted.Eagerly, toData(appHostState.value))
 
     init {
+        project.messageBus
+            .connect(cs)
+            .subscribe(AppHostListener.TOPIC, AppHostLifecycleListener())
         otlpProxyManager.observeAppHostState(appHostState)
+        launchResourceClientLifecycle()
+    }
+
+    private fun launchResourceClientLifecycle() {
         cs.launch {
             appHostState.collectLatest { state ->
                 val environment = (state as? AspireAppHostState.Started)?.environment ?: return@collectLatest
@@ -117,7 +99,8 @@ class AspireAppHost(
                 }
 
                 LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
-                val client = service<GrpcResourceClientFactory>().create(endpointUrl, environment.resourceServiceApiKey)
+                val client = service<GrpcResourceClientFactory>()
+                    .create(endpointUrl, environment.resourceServiceApiKey)
                 try {
                     resourceClient.value = client
                     awaitCancellation()
@@ -181,30 +164,43 @@ class AspireAppHost(
         cs.cancel()
     }
 
-    private fun handleLifecycleEvent(event: AppHostLifecycleEvent) {
-        mutableLogFlow.value = (event as? AppHostLifecycleEvent.Started)?.logFlow
-        mutableAppHostState.update { previousState ->
-            when (event) {
-                is AppHostLifecycleEvent.Starting -> AspireAppHostState.Starting(event.environment)
-
-                is AppHostLifecycleEvent.Started -> {
-                    val environment = (previousState as? AspireAppHostState.Starting)?.environment
-                    if (environment == null) {
-                        LOG.warn("Aspire AppHost $mainFilePath started without a preceding Starting state")
-                    }
-
-                    AspireAppHostState.Started(environment ?: AppHostEnvironment.EMPTY)
-                }
-
-                AppHostLifecycleEvent.Stopped -> AspireAppHostState.Stopped
-            }
-        }
-    }
-
     private fun selectDashboardUrl(urls: List<ResourceUrl>): String? {
         val dashboardUrls = urls.filter { it.displayName.contains("dashboard", ignoreCase = true) }
         return dashboardUrls.firstOrNull { it.fullUrl.startsWith("https://", ignoreCase = true) }?.fullUrl
             ?: dashboardUrls.firstOrNull { it.fullUrl.startsWith("http://", ignoreCase = true) }?.fullUrl
+    }
+
+    private inner class AppHostLifecycleListener : AppHostListener {
+        override fun appHostStarting(appHostFile: Path, environment: AppHostEnvironment) {
+            if (mainFilePath != appHostFile) return
+
+            LOG.trace { "Aspire AppHost $mainFilePath is starting" }
+            mutableLogFlow.value = null
+            mutableAppHostState.value = AspireAppHostState.Starting(environment)
+        }
+
+        override fun appHostStarted(appHostFile: Path, logFlow: SharedFlow<AppHostLogEntry>) {
+            if (mainFilePath != appHostFile) return
+
+            LOG.trace { "Aspire AppHost $mainFilePath was started" }
+            mutableLogFlow.value = logFlow
+            mutableAppHostState.update { previousState ->
+                val environment = (previousState as? AspireAppHostState.Starting)?.environment
+                if (environment == null) {
+                    LOG.warn("Aspire AppHost $mainFilePath started without a preceding Starting state")
+                }
+
+                AspireAppHostState.Started(environment ?: AppHostEnvironment.EMPTY)
+            }
+        }
+
+        override fun appHostStopped(appHostFile: Path) {
+            if (mainFilePath != appHostFile) return
+
+            LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
+            mutableLogFlow.value = null
+            mutableAppHostState.value = AspireAppHostState.Stopped
+        }
     }
 
     data class AppHostEnvironment(
@@ -215,18 +211,6 @@ class AspireAppHost(
         companion object {
             val EMPTY = AppHostEnvironment(null, null, null)
         }
-    }
-
-    private sealed interface AppHostLifecycleEvent {
-        data class Starting(
-            val environment: AppHostEnvironment
-        ) : AppHostLifecycleEvent
-
-        data class Started(
-            val logFlow: SharedFlow<AppHostLogEntry>,
-        ) : AppHostLifecycleEvent
-
-        data object Stopped : AppHostLifecycleEvent
     }
 
     sealed interface AspireAppHostState {
