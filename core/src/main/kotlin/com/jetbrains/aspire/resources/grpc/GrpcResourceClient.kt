@@ -9,6 +9,8 @@ import com.intellij.util.net.ssl.CertificateManager
 import com.intellij.util.net.ssl.ConfirmingTrustManager
 import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.resources.AspireResourceClient
+import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.worker.AspireAppHostPath
 import io.grpc.ManagedChannel
 import io.grpc.Metadata
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts
@@ -17,6 +19,7 @@ import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslProvider
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.annotations.ApiStatus
 import java.net.URI
 import java.util.concurrent.TimeUnit
@@ -83,9 +86,11 @@ internal class GrpcResourceClient(
         LOG.trace { "Created gRPC dashboard client for $resourceServiceEndpointUrl" }
     }
 
-    override fun watchResources(): Flow<WatchResourcesUpdate> {
+    override fun watchResources(appHostPath: AspireAppHostPath): Flow<AspireResourceUpdate> {
         val request = WatchResourcesRequest.getDefaultInstance()
-        return stub.watchResources(request, metadata)
+        return stub
+            .watchResources(request, metadata)
+            .mapNotNull { it.toAspireResourceUpdate(appHostPath) }
     }
 
     override fun watchResourceConsoleLogs(resourceName: String): Flow<WatchResourceConsoleLogsUpdate> {

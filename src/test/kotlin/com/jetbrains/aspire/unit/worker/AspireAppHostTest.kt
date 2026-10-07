@@ -8,16 +8,16 @@ import com.intellij.testFramework.TestApplicationManager
 import com.intellij.testFramework.common.timeoutRunBlocking
 import com.intellij.testFramework.replaceService
 import com.jetbrains.aspire.generated.dashboard.Resource
-import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
 import com.jetbrains.aspire.generated.dashboard.Url
 import com.jetbrains.aspire.generated.dashboard.UrlDisplayProperties
-import com.jetbrains.aspire.generated.dashboard.WatchResourcesChange
-import com.jetbrains.aspire.generated.dashboard.WatchResourcesChanges
-import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
+import com.jetbrains.aspire.resources.AspireResourceChange
+import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.resources.grpc.toAspireResourceData
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -212,7 +212,7 @@ class AspireAppHostTest {
         client.resourceUpdates.emit(update)
         host.awaitDashboardUrl("https://dashboard.example/secure")
 
-        val deletion = deleteDashboard()
+        val deletion = delete("aspire-dashboard")
         client.resourceUpdates.emit(deletion)
 
         host.awaitDashboardUrl(null)
@@ -275,9 +275,12 @@ class AspireAppHostTest {
         urlNames: List<String> = List(urls.size) { "Dashboard" }
     ): Resource {
         val resourceUrls = urls.mapIndexed { index, url ->
+            val displayProperties = UrlDisplayProperties.newBuilder()
+                .setDisplayName(urlNames[index])
+                .build()
             Url.newBuilder()
                 .setFullUrl(url)
-                .setDisplayProperties(UrlDisplayProperties.newBuilder().setDisplayName(urlNames[index]))
+                .setDisplayProperties(displayProperties)
                 .build()
         }
         return Resource.newBuilder()
@@ -290,18 +293,18 @@ class AspireAppHostTest {
             .build()
     }
 
-    private fun upsert(resource: Resource): WatchResourcesUpdate {
-        val change = WatchResourcesChange.newBuilder().setUpsert(resource)
-        val changes = WatchResourcesChanges.newBuilder().addValue(change)
-        return WatchResourcesUpdate.newBuilder().setChanges(changes).build()
+    private fun upsert(resource: Resource): AspireResourceUpdate {
+        val hostPath = AspireAppHostPath(appHostPath.toAbsolutePath().toString())
+        val data = resource.toAspireResourceData(hostPath)
+        val change = AspireResourceChange.Upsert(data)
+        val changes = listOf(change)
+        return AspireResourceUpdate.Changes(changes)
     }
 
-    private fun deleteDashboard(): WatchResourcesUpdate {
-        val deletion = ResourceDeletion.newBuilder()
-            .setResourceName("aspire-dashboard")
-            .setResourceType("Project")
-        val change = WatchResourcesChange.newBuilder().setDelete(deletion)
-        val changes = WatchResourcesChanges.newBuilder().addValue(change)
-        return WatchResourcesUpdate.newBuilder().setChanges(changes).build()
+    @Suppress("SameParameterValue")
+    private fun delete(resourceName: String): AspireResourceUpdate {
+        val change = AspireResourceChange.Delete(resourceName)
+        val changes = listOf(change)
+        return AspireResourceUpdate.Changes(changes)
     }
 }

@@ -6,16 +6,17 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.TestApplicationManager
 import com.intellij.testFramework.replaceService
-import com.jetbrains.aspire.generated.dashboard.*
-import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate.newBuilder
+import com.jetbrains.aspire.generated.dashboard.Resource
+import com.jetbrains.aspire.resources.AspireResourceChange
+import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResource
-import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceTreeManager
 import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
+import com.jetbrains.aspire.resources.grpc.toAspireResourceData
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.nio.file.Path
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -100,21 +102,33 @@ class ResourceTreeManagerTest {
     }
 
     @Test
-    fun `resource data uses the AppHost path and resource name as a stable id`() = runTest {
+    fun `resource watcher receives the AppHost path`() = runTest {
         val appHostPath = Path.of("test/path/AppHost.csproj")
         val manager = createResourceTreeManager(appHostPath)
+        val expectedAppHostPath = AspireAppHostPath(appHostPath.toAbsolutePath().toString())
+
         val (job, client) = startDashboardClient(manager)
-        val resource = buildResource("res-1", "Resource 1")
-        val resources = listOf(resource)
-        val update = buildUpsertUpdate(resources)
-        val appHostId = AspireAppHostPath(appHostPath.toAbsolutePath().toString())
-        val expectedResourceId = AspireResourceId(appHostId, resource.name)
+
+        assertEquals(listOf(expectedAppHostPath), client.watchedAppHostPaths)
+
+        job.cancel()
+    }
+
+    @Test
+    fun `upsert retains the resource data supplied by the watcher`() = runTest {
+        val manager = createResourceTreeManager()
+        val (job, client) = startDashboardClient(manager)
+        val resource = buildResource("api", "API")
+        val appHostPath = AspireAppHostPath("another/path/AppHost.csproj")
+        val data = resource.toAspireResourceData(appHostPath)
+        val change = AspireResourceChange.Upsert(data)
+        val changes = listOf(change)
+        val update = AspireResourceUpdate.Changes(changes)
 
         client.resourceUpdates.emit(update)
         testScheduler.advanceUntilIdle()
 
-        val resourceData = manager.rootResources.value.single().data.value
-        assertEquals(expectedResourceId, resourceData.id)
+        assertSame(data, manager.rootResources.value.single().data.value)
 
         job.cancel()
     }
@@ -576,54 +590,34 @@ class ResourceTreeManagerTest {
             .setIsHidden(isHidden)
 
         if (parentDisplayName != null) {
-            builder.addRelationships(
-                com.jetbrains.aspire.generated.dashboard.ResourceRelationship.newBuilder()
-                    .setResourceName(parentDisplayName)
-                    .setType("parent")
-            )
+            val relationship = com.jetbrains.aspire.generated.dashboard.ResourceRelationship.newBuilder()
+                .setResourceName(parentDisplayName)
+                .setType("parent")
+                .build()
+            builder.addRelationships(relationship)
         }
 
         return builder.build()
     }
 
-    private fun buildInitialData(resources: List<Resource>): WatchResourcesUpdate {
-        val initialResourceDataBuilder = InitialResourceData.newBuilder()
-        resources.forEach { initialResourceDataBuilder.addResources(it) }
-
-        return newBuilder()
-            .setInitialData(initialResourceDataBuilder)
-            .build()
+    private fun buildInitialData(resources: List<Resource>): AspireResourceUpdate {
+        val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
+        val data = resources.map { it.toAspireResourceData(appHostPath) }
+        return AspireResourceUpdate.InitialData(data)
     }
 
-    private fun buildUpsertUpdate(resources: List<Resource>): WatchResourcesUpdate {
-        val watchResourcesChangesBuilder = WatchResourcesChanges.newBuilder()
-
-        resources.forEach {
-            val watchResourcesChangeBuilder = WatchResourcesChange.newBuilder()
-                .setUpsert(it)
-            watchResourcesChangesBuilder.addValue(watchResourcesChangeBuilder)
+    private fun buildUpsertUpdate(resources: List<Resource>): AspireResourceUpdate {
+        val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
+        val changes = resources.map {
+            val data = it.toAspireResourceData(appHostPath)
+            AspireResourceChange.Upsert(data)
         }
-
-        return newBuilder()
-            .setChanges(watchResourcesChangesBuilder)
-            .build()
+        return AspireResourceUpdate.Changes(changes)
     }
 
-    private fun buildDeleteUpdate(resources: List<Resource>): WatchResourcesUpdate {
-        val watchResourcesChangesBuilder = WatchResourcesChanges.newBuilder()
-
-        resources.forEach {
-            val resourceDeletion = ResourceDeletion.newBuilder()
-                .setResourceName(it.name)
-                .setResourceType(it.resourceType)
-            val watchResourcesChangeBuilder = WatchResourcesChange.newBuilder()
-                .setDelete(resourceDeletion)
-            watchResourcesChangesBuilder.addValue(watchResourcesChangeBuilder)
-        }
-
-        return newBuilder()
-            .setChanges(watchResourcesChangesBuilder)
-            .build()
+    private fun buildDeleteUpdate(resources: List<Resource>): AspireResourceUpdate {
+        val changes = resources.map { AspireResourceChange.Delete(it.name) }
+        return AspireResourceUpdate.Changes(changes)
     }
 
     // endregion

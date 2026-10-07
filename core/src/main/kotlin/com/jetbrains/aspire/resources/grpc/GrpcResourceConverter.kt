@@ -5,6 +5,9 @@ import com.google.protobuf.Value
 import com.jetbrains.aspire.generated.dashboard.HealthReport
 import com.jetbrains.aspire.generated.dashboard.HealthStatus
 import com.jetbrains.aspire.generated.dashboard.Resource
+import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
+import com.jetbrains.aspire.resources.AspireResourceChange
+import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspirePath
@@ -28,6 +31,19 @@ import org.jetbrains.annotations.ApiStatus
 import kotlin.math.roundToInt
 import kotlin.time.Instant
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandState as GrpcCommandState
+
+@ApiStatus.Internal
+fun WatchResourcesUpdate.toAspireResourceUpdate(appHostPath: AspireAppHostPath): AspireResourceUpdate? = when {
+    hasInitialData() -> AspireResourceUpdate.InitialData(initialData.resourcesList.map { it.toAspireResourceData(appHostPath) })
+    hasChanges() -> AspireResourceUpdate.Changes(changes.valueList.mapNotNull { change ->
+        when {
+            change.hasUpsert() -> AspireResourceChange.Upsert(change.upsert.toAspireResourceData(appHostPath))
+            change.hasDelete() -> AspireResourceChange.Delete(change.delete.resourceName)
+            else -> null
+        }
+    })
+    else -> null
+}
 
 @ApiStatus.Internal
 fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourceData {

@@ -2,6 +2,8 @@ package com.jetbrains.aspire.unit.worker
 
 import com.jetbrains.aspire.generated.dashboard.*
 import com.jetbrains.aspire.resources.AspireResourceClient
+import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.worker.AspireAppHostPath
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,13 +11,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 internal class MockAspireResourceClient : AspireResourceClient {
-    val resourceUpdates = MutableSharedFlow<WatchResourcesUpdate>(extraBufferCapacity = 64)
+    val resourceUpdates = MutableSharedFlow<AspireResourceUpdate>(extraBufferCapacity = 64)
+    val watchedAppHostPaths = mutableListOf<AspireAppHostPath>()
     private val consoleLogFlows = mutableMapOf<String, MutableSharedFlow<WatchResourceConsoleLogsUpdate>>()
 
     private val shutdownState = MutableStateFlow(false)
     val isShutdown: StateFlow<Boolean> = shutdownState.asStateFlow()
 
-    override fun watchResources(): Flow<WatchResourcesUpdate> = resourceUpdates
+    override fun watchResources(appHostPath: AspireAppHostPath): Flow<AspireResourceUpdate> {
+        watchedAppHostPaths.add(appHostPath)
+        return resourceUpdates
+    }
 
     override fun watchResourceConsoleLogs(resourceName: String): Flow<WatchResourceConsoleLogsUpdate> {
         return consoleLogFlows.getOrPut(resourceName) { MutableSharedFlow() }

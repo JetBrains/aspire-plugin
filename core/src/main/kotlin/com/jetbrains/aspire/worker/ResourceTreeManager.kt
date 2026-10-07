@@ -9,11 +9,10 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.jetbrains.aspire.generated.dashboard.Resource
-import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
+import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceClient
+import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
-import com.jetbrains.aspire.resources.grpc.toAspireResourceData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -47,7 +46,7 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 @ApiStatus.Internal
 class ResourceTreeManager(
-    private val mainFilePath: Path,
+    private val appHostFile: Path,
     private val project: Project,
     private val parentCs: CoroutineScope,
     private val parentDisposable: Disposable,
@@ -83,28 +82,28 @@ class ResourceTreeManager(
     fun CoroutineScope.startDashboardClient(environment: AspireAppHost.AppHostEnvironment): Job? {
         val endpointUrl = environment.resourceServiceEndpointUrl ?: return null
 
-        LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
+        LOG.trace { "Initializing gRPC dashboard client for $appHostFile" }
 
         val clientFactory = service<GrpcResourceClientFactory>()
         val client = clientFactory.create(endpointUrl, environment.resourceServiceApiKey)
         dashboardClient = client
         return launch {
             try {
-                client.watchResources()
+                client.watchResources(appHostFile.toAspireAppHostPath())
                     .retryWhen { cause, attempt ->
                         if (cause is CancellationException) {
                             false
                         } else {
                             val retryDelay = (500L * (1 shl attempt.coerceAtMost(6).toInt())).coerceAtMost(30_000L)
-                            LOG.trace { "gRPC dashboard connection failed for $mainFilePath, retrying in ${retryDelay}ms (attempt ${attempt + 1}): ${cause.message}" }
+                            LOG.trace { "gRPC dashboard connection failed for $appHostFile, retrying in ${retryDelay}ms (attempt ${attempt + 1}): ${cause.message}" }
                             delay(retryDelay.milliseconds)
                             true
                         }
                     }
                     .collect { update ->
-                        when {
-                            update.hasInitialData() -> handleInitialData(update.initialData)
-                            update.hasChanges() -> handleChanges(update.changes)
+                        when (update) {
+                            is AspireResourceUpdate.InitialData -> handleInitialData(update.resources)
+                            is AspireResourceUpdate.Changes -> handleChanges(update.changes)
                         }
                     }
             } finally {
@@ -117,25 +116,24 @@ class ResourceTreeManager(
         }
     }
 
-    private suspend fun handleInitialData(data: com.jetbrains.aspire.generated.dashboard.InitialResourceData) {
+    private suspend fun handleInitialData(data: List<AspireResourceData>) {
         clearAllResources()
 
-        for (resource in data.resourcesList) {
-            upsertGrpcResource(resource)
+        for (resource in data) {
+            upsertResource(resource)
         }
     }
 
-    private suspend fun handleChanges(changes: com.jetbrains.aspire.generated.dashboard.WatchResourcesChanges) {
-        for (change in changes.valueList) {
-            when {
-                change.hasUpsert() -> upsertGrpcResource(change.upsert)
-                change.hasDelete() -> deleteGrpcResource(change.delete)
+    private suspend fun handleChanges(changes: List<AspireResourceChange>) {
+        for (change in changes) {
+            when (change) {
+                is AspireResourceChange.Upsert -> upsertResource(change.data)
+                is AspireResourceChange.Delete -> deleteResource(change.resourceName)
             }
         }
     }
 
-    private suspend fun upsertGrpcResource(grpcResource: Resource) {
-        val data = grpcResource.toAspireResourceData(mainFilePath.toAspireAppHostPath())
+    private suspend fun upsertResource(data: AspireResourceData) {
         val existing = resources[data.name]
 
         if (existing == null) {
@@ -153,8 +151,8 @@ class ResourceTreeManager(
         }
     }
 
-    private suspend fun deleteGrpcResource(resourceDeletion: ResourceDeletion) {
-        val resourceToRemove = resources[resourceDeletion.resourceName] ?: return
+    private suspend fun deleteResource(resourceName: String) {
+        val resourceToRemove = resources[resourceName] ?: return
         removeResource(resourceToRemove)
     }
 
