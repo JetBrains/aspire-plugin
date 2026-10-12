@@ -6,8 +6,6 @@ syntax = "proto3";
 package aspire.v1;
 
 option csharp_namespace = "Aspire.DashboardService.Proto.V1";
-option java_multiple_files = true;
-option java_package = "com.jetbrains.aspire.generated.dashboard";
 
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
