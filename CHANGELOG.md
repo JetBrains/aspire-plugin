@@ -7,6 +7,7 @@
 ### Changed
 
 - Update platform version to 2026.3-SNAPSHOT
+- Update Aspire version to 13.6.1
 - Use a new icon for Aspire resource gutter marks
 
 ### Fixed
