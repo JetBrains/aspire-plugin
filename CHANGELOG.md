@@ -6,7 +6,7 @@
 
 ### Changed
 
-- Update platform version to 2026.3-SNAPSHOT
+- Update platform version to 2026.3-EAP6
 - Use a new icon for Aspire resource gutter marks
 
 ### Fixed
