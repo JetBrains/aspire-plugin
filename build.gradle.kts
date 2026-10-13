@@ -83,6 +83,7 @@ intellijPlatform {
     pluginVerification {
         failureLevel = listOf(
             VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
+            VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES,
         )
         ides {
             create(
