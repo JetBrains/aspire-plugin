@@ -3,7 +3,6 @@
 package com.jetbrains.aspire.rider.manifest
 
 import com.intellij.execution.util.ExecUtil
-import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.EDT
@@ -11,6 +10,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.ide.progress.withBackgroundProgress
@@ -77,7 +77,7 @@ class ManifestService(private val project: Project) {
                     ?.takeIf { it.isValid }
                 if (file != null) {
                     withContext(Dispatchers.EDT) {
-                        PsiNavigationSupport.getInstance().createNavigatable(project, file, -1).navigate(true)
+                        FileEditorManager.getInstance(project).openFile(file, true)
                     }
                 }
             } else {
