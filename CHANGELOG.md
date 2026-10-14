@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [2.9.6] - 2026-10-14
+
 ### Fixed
 
 - PsiNavigationSupport verification error
@@ -787,7 +789,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.5...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.6...HEAD
+[2.9.6]: https://github.com/JetBrains/aspire-plugin/compare/2.9.5...2.9.6
 [2.9.5]: https://github.com/JetBrains/aspire-plugin/compare/2.9.4...2.9.5
 [2.9.4]: https://github.com/JetBrains/aspire-plugin/compare/2.9.3...2.9.4
 [2.9.3]: https://github.com/JetBrains/aspire-plugin/compare/2.9.2...2.9.3
