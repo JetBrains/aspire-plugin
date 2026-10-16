@@ -44,6 +44,7 @@ internal class AspireResourceTest {
         testScheduler.runCurrent()
 
         assertEquals(listOf(data.name), watcher.watchedResourceNames)
+        assertEquals(listOf(data.id.appHostPath), watcher.watchedAppHostPaths)
         assertEquals(logEntries, resource.logFlow.replayCache)
 
         resource.dispose()
@@ -92,9 +93,11 @@ internal class AspireResourceTest {
     private class TestResourceLogWatcher : AspireResourceLogWatcher {
         val consoleLogUpdates = MutableSharedFlow<List<AspireResourceLogEntry>>(extraBufferCapacity = 64)
         val watchedResourceNames = mutableListOf<String>()
+        val watchedAppHostPaths = mutableListOf<AspireAppHostPath>()
 
-        override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
+        override fun watchResourceConsoleLogs(appHostPath: AspireAppHostPath, resourceName: String): Flow<List<AspireResourceLogEntry>> {
             watchedResourceNames.add(resourceName)
+            watchedAppHostPaths.add(appHostPath)
             return consoleLogUpdates
         }
     }

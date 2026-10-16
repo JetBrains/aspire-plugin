@@ -15,6 +15,7 @@ import com.intellij.testFramework.common.timeoutRunBlocking
 import com.intellij.util.ExceptionUtil
 import com.jetbrains.aspire.cli.AspireCliResourceCommandInputType
 import com.jetbrains.aspire.cli.AspireCliResourceWatcher
+import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
@@ -185,6 +186,126 @@ internal class AspireCliResourceWatcherTest {
 
         assertEquals(failure.message, exception.message)
         assertSame(failure, ExceptionUtil.getRootCause(exception))
+    }
+
+    @Test
+    fun `log process starts only on collection and each collector gets a new process`() = timeoutRunBlocking {
+        var starts = 0
+        val watcher = AspireCliResourceWatcher {
+            starts++
+            TestProcess()
+        }
+        val logs = watcher.watchResourceConsoleLogs()
+
+        assertEquals(0, starts)
+        assertTrue(logs.toList().isEmpty())
+        assertTrue(logs.toList().isEmpty())
+        assertEquals(2, starts)
+    }
+
+    @Test
+    fun `logs preserve content and error flags across split UTF-8 CRLF and final unterminated line`() = timeoutRunBlocking {
+        val output = """
+            {"resourceName":"API","timestamp":"2026-10-16T12:00:00Z","content":"  Приложение запущено","isError":false}
+            {"resourceName":"api","content":"Error\n  at Program.Main()","isError":true}
+        """.trimIndent().replace("\n", "\r\n")
+        val stdout = TestReceiveChannel(output, chunkSize = 1)
+        val process = TestProcess(stdout = stdout)
+        val watcher = AspireCliResourceWatcher { process }
+        val expected = listOf(
+            listOf(AspireResourceLogEntry("  Приложение запущено", false)),
+            listOf(AspireResourceLogEntry("Error\n  at Program.Main()", true)),
+        )
+
+        val logs = watcher.watchResourceConsoleLogs().toList()
+
+        assertEquals(expected, logs)
+        assertFalse(process.killed)
+    }
+
+    @Test
+    fun `blank malformed unrelated and empty log records do not interrupt logs`() = timeoutRunBlocking {
+        val output = """
+
+            Aspire CLI
+            {invalid json}
+            {}
+            {"resourceName":"api","resourceType":"Project"}
+            {"resourceName":"api","content":"missing error flag"}
+            {"name":"other","content":"unrelated","isError":false}
+            {"resourceName":"api","content":"","isError":false}
+            {"resourceName":"api","content":"output","isError":false,"futureField":true}
+        """.trimIndent()
+        val stdout = TestReceiveChannel(output)
+        val process = TestProcess(stdout = stdout)
+        val watcher = AspireCliResourceWatcher { process }
+        val expected = listOf(listOf(AspireResourceLogEntry("output", false)))
+
+        val logs = watcher.watchResourceConsoleLogs().toList()
+
+        assertEquals(expected, logs)
+    }
+
+    @Test
+    fun `CLI stderr is drained without becoming resource log entries`() = timeoutRunBlocking {
+        val stderrDrained = CompletableDeferred<Unit>()
+        val stderr = TestReceiveChannel("warning\n".repeat(2000), atEnd = { stderrDrained.complete(Unit) })
+        val output = """{"resourceName":"api","content":"output","isError":true}"""
+        val stdout = TestReceiveChannel(output, beforeRead = { stderrDrained.await() })
+        val process = TestProcess(stdout, stderr)
+        val watcher = AspireCliResourceWatcher { process }
+        val expected = listOf(listOf(AspireResourceLogEntry("output", true)))
+
+        val logs = watcher.watchResourceConsoleLogs().toList()
+
+        assertEquals(expected, logs)
+    }
+
+    @Test
+    fun `nonzero log process exit reports command exit code and bounded stderr tail`() = timeoutRunBlocking {
+        val stderr = TestReceiveChannel("x".repeat(5000) + "\nCLI failed\n")
+        val process = TestProcess(stderr = stderr, completion = CompletableDeferred(7))
+        val watcher = AspireCliResourceWatcher { process }
+
+        val exception = assertFailsWith<ExecutionException> { watcher.watchResourceConsoleLogs().toList() }
+
+        val message = exception.message.orEmpty()
+        assertTrue(message.contains("aspire logs --follow"))
+        assertTrue(message.contains("code 7"))
+        assertTrue(message.endsWith("CLI failed"))
+        assertTrue(message.length < 4100)
+    }
+
+    @Test
+    fun `cancelling collection before the first log kills the process`() = timeoutRunBlocking {
+        val reading = CompletableDeferred<Unit>()
+        val stdout = TestReceiveChannel("", atEnd = {
+            reading.complete(Unit)
+            awaitCancellation()
+        })
+        val process = TestProcess(stdout = stdout, completion = CompletableDeferred())
+        val watcher = AspireCliResourceWatcher { process }
+        val collection = launch { watcher.watchResourceConsoleLogs().collect() }
+        reading.await()
+
+        collection.cancelAndJoin()
+
+        assertTrue(process.killed)
+        assertEquals(137, process.exitCode.await())
+    }
+
+    @Test
+    fun `taking the first log stops the still running process`() = timeoutRunBlocking {
+        val output = """{"resourceName":"api","content":"output","isError":false}""" + "\n"
+        val stdout = TestReceiveChannel(output, atEnd = { awaitCancellation() })
+        val process = TestProcess(stdout = stdout, completion = CompletableDeferred())
+        val watcher = AspireCliResourceWatcher { process }
+        val expected = listOf(AspireResourceLogEntry("output", false))
+
+        val logs = watcher.watchResourceConsoleLogs().first()
+
+        assertEquals(expected, logs)
+        assertTrue(process.killed)
     }
 
     private class TestProcess(

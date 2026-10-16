@@ -97,7 +97,7 @@ internal class GrpcResourceClient(
             .mapNotNull { it.toAspireResourceUpdate(appHostPath) }
     }
 
-    override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
+    override fun watchResourceConsoleLogs(appHostPath: AspireAppHostPath, resourceName: String): Flow<List<AspireResourceLogEntry>> {
         val request = WatchResourceConsoleLogsRequest.newBuilder()
             .setResourceName(resourceName)
             .build()

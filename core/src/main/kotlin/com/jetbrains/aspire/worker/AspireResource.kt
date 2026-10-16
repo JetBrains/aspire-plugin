@@ -77,7 +77,7 @@ class AspireResource(
 
     init {
         cs.launch {
-            resourceLogWatcher.watchResourceConsoleLogs(resourceName)
+            resourceLogWatcher.watchResourceConsoleLogs(initialData.id.appHostPath, resourceName)
                 .catch { cause ->
                     if (cause is CancellationException) throw cause
                     LOG.trace { "Console log stream for $resourceName ended: ${cause.message}" }

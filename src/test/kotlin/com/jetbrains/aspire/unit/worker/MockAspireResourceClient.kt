@@ -56,7 +56,7 @@ internal class MockAspireResourceClient : AspireResourceClient {
         return resourceUpdates
     }
 
-    override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
+    override fun watchResourceConsoleLogs(appHostPath: AspireAppHostPath, resourceName: String): Flow<List<AspireResourceLogEntry>> {
         watchedResourceNames.add(resourceName)
         return consoleLogFlows.updateAndGet { flows ->
             if (resourceName in flows) flows else flows + (resourceName to MutableSharedFlow())

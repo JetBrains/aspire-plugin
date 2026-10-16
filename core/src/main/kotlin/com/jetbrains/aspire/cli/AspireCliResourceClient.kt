@@ -11,9 +11,11 @@ import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.spawnProcess
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.resources.AspireResourceWatcher
 import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.toNioPath
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -21,7 +23,7 @@ import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-class AspireCliResourceClient(private val project: Project) : AspireResourceWatcher {
+class AspireCliResourceClient(private val project: Project) : AspireResourceWatcher, AspireResourceLogWatcher {
     companion object {
         fun getInstance(project: Project): AspireCliResourceClient = project.service()
     }
@@ -43,5 +45,20 @@ class AspireCliResourceClient(private val project: Project) : AspireResourceWatc
                 .scope(this)
                 .eelIt()
         }.watchResources().map { it.toAspireResourceUpdate(appHostPath) }
+    }
+
+    override fun watchResourceConsoleLogs(appHostPath: AspireAppHostPath, resourceName: String): Flow<List<AspireResourceLogEntry>> {
+        return AspireCliResourceWatcher {
+            val cliPath = AspireCliLocator.getInstance(project).locate()
+                ?: throw ExecutionException(AspireCoreBundle.message("run.configuration.cli.error.cli.not.found"))
+            val eelApi = project.getEelDescriptor().toEelApi()
+            val appHost = appHostPath.toNioPath().asEelPath()
+
+            eelApi.exec.spawnProcess(cliPath)
+                .args("logs", resourceName, "--follow", "--format", "json", "--nologo", "--non-interactive", "--apphost", appHost.toString())
+                .workingDirectory(appHost.parent)
+                .scope(this)
+                .eelIt()
+        }.watchResourceConsoleLogs()
     }
 }

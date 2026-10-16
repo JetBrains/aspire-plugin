@@ -17,7 +17,7 @@ interface AspireResourceWatcher {
 
 @ApiStatus.Internal
 interface AspireResourceLogWatcher {
-    fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>>
+    fun watchResourceConsoleLogs(appHostPath: AspireAppHostPath, resourceName: String): Flow<List<AspireResourceLogEntry>>
 }
 
 @ApiStatus.Internal

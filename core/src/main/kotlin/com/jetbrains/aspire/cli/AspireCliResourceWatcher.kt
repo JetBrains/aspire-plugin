@@ -9,6 +9,7 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.platform.eel.EelProcess
 import com.intellij.platform.eel.SafeDeferred
 import com.intellij.platform.eel.provider.utils.lines
+import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -27,8 +28,16 @@ class AspireCliResourceWatcher(private val startProcess: suspend CoroutineScope.
         private const val STDERR_LIMIT = 4000
     }
 
+    fun watchResources(): Flow<AspireCliResource> = watch("describe", ::parseResource)
+
+    fun watchResourceConsoleLogs(): Flow<List<AspireResourceLogEntry>> = watch("logs") { line ->
+        parseLine<AspireCliLogLine>(line, "logs")
+            ?.takeIf { it.content.isNotEmpty() }
+            ?.let { listOf(AspireResourceLogEntry(it.content, it.isError)) }
+    }
+
     @Suppress("JetBrainsInternalApiUsage")
-    fun watchResources(): Flow<AspireCliResource> = channelFlow {
+    private fun <T> watch(command: String, parse: (String) -> T?): Flow<T> = channelFlow {
         val process = startProcess()
         try {
             process.stdin.close(null)
@@ -39,17 +48,17 @@ class AspireCliResourceWatcher(private val startProcess: suspend CoroutineScope.
                     if (stderr.length > STDERR_LIMIT) {
                         stderr.delete(0, stderr.length - STDERR_LIMIT)
                     }
-                    LOG.trace { "aspire describe stderr: $line" }
+                    LOG.trace { "aspire $command stderr: $line" }
                 }
             }
 
             process.stdout.lines(Charsets.UTF_8).collect { line ->
-                parseResource(line)?.let { send(it) }
+                parse(line)?.let { send(it) }
             }
             val exitCode = process.exitCode.await()
             stderrJob.join()
             if (exitCode != 0) {
-                throw ExecutionException("aspire describe --follow exited with code $exitCode: ${stderr.toString().trim()}")
+                throw ExecutionException("aspire $command --follow exited with code $exitCode: ${stderr.toString().trim()}")
             }
         } finally {
             withContext(NonCancellable) {
@@ -59,20 +68,23 @@ class AspireCliResourceWatcher(private val startProcess: suspend CoroutineScope.
                     }
                 } catch (e: Exception) {
                     rethrowControlFlowException(e)
-                    LOG.warn("Failed to stop aspire describe process", e)
+                    LOG.warn("Failed to stop aspire $command process", e)
                 }
             }
         }
     }
 
-    private fun parseResource(line: String): AspireCliResource? {
+    private fun parseResource(line: String): AspireCliResource? =
+        parseLine<AspireCliResource>(line, "describe")?.takeIf { it.name.isNotBlank() }
+
+    private inline fun <reified T> parseLine(line: String, command: String): T? {
         val trimmed = line.trim()
         if (!trimmed.startsWith('{')) return null
 
         return try {
-            JSON.decodeFromString<AspireCliResource>(trimmed).takeIf { it.name.isNotBlank() }
+            JSON.decodeFromString<T>(trimmed)
         } catch (e: SerializationException) {
-            LOG.trace { "Unable to parse aspire describe resource update: ${e.message}" }
+            LOG.trace { "Unable to parse aspire $command update: ${e.message}" }
             null
         }
     }
