@@ -62,6 +62,7 @@ internal class AspireResourceTest {
         val response = resource.executeCommand("restart")
 
         assertEquals(listOf(expectedRequest), commandExecutor.requests)
+        assertEquals(listOf(data.id.appHostPath), commandExecutor.appHostPaths)
         assertSame(expectedResponse, response)
 
         resource.dispose()
@@ -106,9 +107,11 @@ internal class AspireResourceTest {
         private val response: AspireResourceCommandResponse = AspireResourceCommandResponse(),
     ) : AspireResourceCommandExecutor {
         val requests = mutableListOf<AspireResourceCommandRequest>()
+        val appHostPaths = mutableListOf<AspireAppHostPath>()
 
-        override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+        override suspend fun executeResourceCommand(appHostPath: AspireAppHostPath, request: AspireResourceCommandRequest): AspireResourceCommandResponse {
             requests.add(request)
+            appHostPaths.add(appHostPath)
             return response
         }
     }

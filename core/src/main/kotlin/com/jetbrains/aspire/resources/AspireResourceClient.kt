@@ -22,5 +22,5 @@ interface AspireResourceLogWatcher {
 
 @ApiStatus.Internal
 interface AspireResourceCommandExecutor {
-    suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse
+    suspend fun executeResourceCommand(appHostPath: AspireAppHostPath, request: AspireResourceCommandRequest): AspireResourceCommandResponse
 }

@@ -63,7 +63,7 @@ internal class MockAspireResourceClient : AspireResourceClient {
         }.getValue(resourceName)
     }
 
-    override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+    override suspend fun executeResourceCommand(appHostPath: AspireAppHostPath, request: AspireResourceCommandRequest): AspireResourceCommandResponse {
         commandRequests.add(request)
         return AspireResourceCommandResponse()
     }

@@ -106,7 +106,7 @@ internal class GrpcResourceClient(
             .map { it.toAspireResourceLogEntries() }
     }
 
-    override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+    override suspend fun executeResourceCommand(appHostPath: AspireAppHostPath, request: AspireResourceCommandRequest): AspireResourceCommandResponse {
         val grpcRequest = ResourceCommandRequest.newBuilder()
             .setResourceName(request.resourceName)
             .setResourceType(request.resourceType)

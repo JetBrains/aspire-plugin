@@ -11,6 +11,9 @@ import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.spawnProcess
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.resources.AspireResourceCommandExecutor
+import com.jetbrains.aspire.resources.AspireResourceCommandRequest
+import com.jetbrains.aspire.resources.AspireResourceCommandResponse
 import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.resources.AspireResourceWatcher
@@ -23,7 +26,7 @@ import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-class AspireCliResourceClient(private val project: Project) : AspireResourceWatcher, AspireResourceLogWatcher {
+class AspireCliResourceClient(private val project: Project) : AspireResourceWatcher, AspireResourceLogWatcher, AspireResourceCommandExecutor {
     companion object {
         fun getInstance(project: Project): AspireCliResourceClient = project.service()
     }
@@ -60,5 +63,21 @@ class AspireCliResourceClient(private val project: Project) : AspireResourceWatc
                 .scope(this)
                 .eelIt()
         }.watchResourceConsoleLogs()
+    }
+
+    override suspend fun executeResourceCommand(appHostPath: AspireAppHostPath, request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+        val cliPath = AspireCliLocator.getInstance(project).locate()
+            ?: throw ExecutionException(AspireCoreBundle.message("run.configuration.cli.error.cli.not.found"))
+        val eelApi = project.getEelDescriptor().toEelApi()
+        val appHost = appHostPath.toNioPath().asEelPath()
+
+        return AspireCliResourceCommandRunner { args ->
+            eelApi.exec.spawnProcess(cliPath)
+                .args(args)
+                .env(mapOf("ASPIRE_NON_INTERACTIVE" to "true"))
+                .workingDirectory(appHost.parent)
+                .scope(this)
+                .eelIt()
+        }.executeResourceCommand(appHost.toString(), request)
     }
 }
