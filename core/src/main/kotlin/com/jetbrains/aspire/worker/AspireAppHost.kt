@@ -14,7 +14,7 @@ import com.jetbrains.aspire.sessions.SessionManagerImpl
 import com.jetbrains.aspire.dcp.AspireSessionServer
 import com.jetbrains.aspire.dcp.AspireSessionServerEndpoint
 import com.jetbrains.aspire.resources.AspireResourceClient
-import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
+import com.jetbrains.aspire.grpc.GrpcResourceClientFactory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex

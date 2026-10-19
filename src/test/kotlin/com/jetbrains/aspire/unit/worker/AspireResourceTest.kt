@@ -7,7 +7,7 @@ import com.jetbrains.aspire.resources.AspireResourceCommandRequest
 import com.jetbrains.aspire.resources.AspireResourceCommandResponse
 import com.jetbrains.aspire.resources.AspireResourceCommandResponseKind
 import com.jetbrains.aspire.resources.AspireResourceLogWatcher
-import com.jetbrains.aspire.resources.grpc.toAspireResourceData
+import com.jetbrains.aspire.grpc.toAspireResourceData
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData

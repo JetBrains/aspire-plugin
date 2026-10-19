@@ -13,13 +13,13 @@ import com.jetbrains.aspire.generated.dashboard.Url
 import com.jetbrains.aspire.generated.dashboard.UrlDisplayProperties
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.resources.grpc.toAspireResourceData
+import com.jetbrains.aspire.grpc.toAspireResourceData
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireAppHostPath
-import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
+import com.jetbrains.aspire.grpc.GrpcResourceClientFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

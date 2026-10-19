@@ -14,7 +14,7 @@ import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceTreeManager
-import com.jetbrains.aspire.resources.grpc.toAspireResourceData
+import com.jetbrains.aspire.grpc.toAspireResourceData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel

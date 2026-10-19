@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.unit.worker
 
 import com.jetbrains.aspire.resources.AspireResourceClient
-import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
+import com.jetbrains.aspire.grpc.GrpcResourceClientFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

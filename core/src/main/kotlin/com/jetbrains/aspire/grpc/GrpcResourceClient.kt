@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.resources.grpc
+package com.jetbrains.aspire.grpc
 
 import com.intellij.libraries.grpc.netty.shaded.NettyChannelProviderRegistrationService
 import com.intellij.openapi.diagnostic.logger
