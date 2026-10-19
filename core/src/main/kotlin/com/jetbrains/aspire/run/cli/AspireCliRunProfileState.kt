@@ -84,15 +84,7 @@ internal class AspireCliRunProfileState(
 
         checkAndNotifyDevCertificate(envs)
 
-        val resourceServiceEndpointUrl = envs.getAspireResourceServiceEndpointUrl()
-        val resourceServiceApiKey = envs.getAspireDashboardResourceServiceApiKey()
-        val otlpEndpointUrl = envs.getAspireDashboardOtlpEndpointUrl()
-        val appHostEnvironment = AppHostEnvironment(
-            resourceServiceEndpointUrl,
-            resourceServiceApiKey,
-            otlpEndpointUrl
-        )
-        environment.putUserData(APP_HOST_ENVIRONMENT_KEY, appHostEnvironment)
+        environment.putUserData(APP_HOST_ENVIRONMENT_KEY, AppHostEnvironment.EMPTY)
 
         val processHandler = startProcess(aspireCli, appHostFile, options, envs, eelApi)
         val console = createConsole().apply {

@@ -7,6 +7,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.TestApplicationManager
 import com.intellij.testFramework.common.timeoutRunBlocking
 import com.intellij.testFramework.replaceService
+import com.jetbrains.aspire.cli.AspireCliResourceClientFactory
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.generated.dashboard.Url
 import com.jetbrains.aspire.generated.dashboard.UrlDisplayProperties
@@ -31,6 +32,8 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.NullAndEmptySource
 import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -44,6 +47,7 @@ import kotlin.time.Duration.Companion.seconds
 internal class AspireAppHostTest {
     private lateinit var testRootDisposable: Disposable
     private lateinit var mockFactory: MockGrpcResourceClientFactory
+    private lateinit var mockCliFactory: MockAspireCliResourceClientFactory
     private lateinit var hostScope: CoroutineScope
 
     private val project get() = ProjectManager.getInstance().defaultProject
@@ -58,10 +62,16 @@ internal class AspireAppHostTest {
     fun setUpService() {
         testRootDisposable = Disposer.newDisposable("AspireAppHostTest")
         mockFactory = MockGrpcResourceClientFactory()
+        mockCliFactory = MockAspireCliResourceClientFactory()
         hostScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         ApplicationManager.getApplication().replaceService(
             GrpcResourceClientFactory::class.java,
             mockFactory,
+            testRootDisposable
+        )
+        ApplicationManager.getApplication().replaceService(
+            AspireCliResourceClientFactory::class.java,
+            mockCliFactory,
             testRootDisposable
         )
     }
@@ -290,16 +300,58 @@ internal class AspireAppHostTest {
         assertTrue(mockFactory.clientsFlow.value.isEmpty())
     }
 
+    @ParameterizedTest
+    @NullAndEmptySource
+    fun `CLI resource updates are observed when the resource endpoint is absent`(endpointUrl: String?) = timeoutRunBlocking {
+        val host = createAppHost()
+        val environment = AspireAppHost.AppHostEnvironment(endpointUrl, null, null)
+        val dashboard = resource("aspire-dashboard", "https://dashboard.example/cli")
+        val update = upsert(dashboard)
+
+        val client = startAppHostAndWaitForCliResourceClient(host, environment)
+        client.resourceUpdates.emit(update)
+
+        host.awaitDashboardUrl("https://dashboard.example/cli")
+        assertEquals(listOf(project), mockCliFactory.projects)
+        assertEquals(listOf(host.appHostPath), client.watchedAppHostPaths)
+        assertTrue(mockFactory.clientsFlow.value.isEmpty())
+    }
+
     @Test
-    fun `starting without a resource endpoint does not create a client`() = timeoutRunBlocking {
+    fun `stopping the host cancels subscriptions before closing the CLI client`() = timeoutRunBlocking {
+        val host = createAppHost()
+        val environment = AspireAppHost.AppHostEnvironment.EMPTY
+        val client = startAppHostAndWaitForCliResourceClient(host, environment)
+        val dashboard = resource("aspire-dashboard", "https://dashboard.example/cli")
+        val update = upsert(dashboard)
+        client.resourceUpdates.emit(update)
+        host.awaitDashboardUrl("https://dashboard.example/cli")
+        client.awaitConsoleLogSubscriptions(1)
+        var resourcesClearedAtShutdown: Boolean? = null
+        client.onShutdown = { resourcesClearedAtShutdown = host.rootResources.value.isEmpty() }
+
+        stopAppHost(host)
+        withTimeout(10.seconds) {
+            client.isShutdown.first { it }
+        }
+
+        assertEquals(1, client.shutdownCount)
+        assertEquals(0, client.resourceSubscriptionsAtShutdown)
+        assertEquals(0, client.consoleLogSubscriptionsAtShutdown)
+        assertEquals(true, resourcesClearedAtShutdown)
+    }
+
+    @Test
+    fun `starting with a resource endpoint after an empty environment creates a gRPC client`() = timeoutRunBlocking {
         val host = createAppHost()
         val emptyEnvironment = AspireAppHost.AppHostEnvironment.EMPTY
+        val cliClient = startAppHostAndWaitForCliResourceClient(host, emptyEnvironment)
         val environment = AspireAppHost.AppHostEnvironment("http://localhost:18888", null, null)
 
-        startAppHost(host, emptyEnvironment)
         stopAppHost(host)
         val client = startAppHostAndWaitForResourceClient(host, environment)
 
+        assertEquals(1, cliClient.shutdownCount)
         assertEquals(listOf(client), mockFactory.clientsFlow.value)
         assertEquals(listOf(environment.resourceServiceEndpointUrl), mockFactory.endpointUrls)
         assertEquals(listOf<String?>(null), mockFactory.apiKeys)
@@ -468,6 +520,19 @@ internal class AspireAppHostTest {
         startAppHost(host, environment)
         return withTimeout(10.seconds) {
             val client = mockFactory.clientsFlow.first { it.size > previousClientCount }.last()
+            client.resourceUpdates.subscriptionCount.first { it == 1 }
+            client
+        }
+    }
+
+    private suspend fun startAppHostAndWaitForCliResourceClient(
+        host: AspireAppHost,
+        environment: AspireAppHost.AppHostEnvironment,
+    ): MockAspireResourceClient {
+        val previousClientCount = mockCliFactory.clientsFlow.value.size
+        startAppHost(host, environment)
+        return withTimeout(10.seconds) {
+            val client = mockCliFactory.clientsFlow.first { it.size > previousClientCount }.last()
             client.resourceUpdates.subscriptionCount.first { it == 1 }
             client
         }

@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Resource watching for the Aspire CLI run configuration
+
 ## [2.9.6] - 2026-10-14
 
 ### Fixed

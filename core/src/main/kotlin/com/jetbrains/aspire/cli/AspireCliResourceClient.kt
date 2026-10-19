@@ -3,20 +3,16 @@
 package com.jetbrains.aspire.cli
 
 import com.intellij.execution.ExecutionException
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.platform.eel.provider.asEelPath
 import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.spawnProcess
 import com.jetbrains.aspire.AspireCoreBundle
-import com.jetbrains.aspire.resources.AspireResourceCommandExecutor
+import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.AspireResourceCommandRequest
 import com.jetbrains.aspire.resources.AspireResourceCommandResponse
-import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.resources.AspireResourceWatcher
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.toNioPath
@@ -25,12 +21,17 @@ import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
-@Service(Service.Level.PROJECT)
-class AspireCliResourceClient(private val project: Project) : AspireResourceWatcher, AspireResourceLogWatcher, AspireResourceCommandExecutor {
-    companion object {
-        fun getInstance(project: Project): AspireCliResourceClient = project.service()
-    }
+interface AspireCliResourceClientFactory {
+    fun create(project: Project): AspireResourceClient
+}
 
+internal class AspireCliResourceClientFactoryImpl : AspireCliResourceClientFactory {
+    override fun create(project: Project): AspireResourceClient {
+        return AspireCliResourceClient(project)
+    }
+}
+
+internal class AspireCliResourceClient(private val project: Project) : AspireResourceClient {
     /**
      * Starts a separate CLI process for each collector and stops it when collection is cancelled.
      * Emits each resource as an upsert, including the initial resources, not full snapshots.
@@ -80,4 +81,6 @@ class AspireCliResourceClient(private val project: Project) : AspireResourceWatc
                 .eelIt()
         }.executeResourceCommand(appHost.toString(), request)
     }
+
+    override fun shutdown() = Unit
 }

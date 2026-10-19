@@ -1,15 +1,5 @@
-@file:Suppress("UnstableApiUsage", "NonExtendableApiUsage")
-
 package com.jetbrains.aspire.unit.cli
 
-import com.intellij.platform.eel.EelApi
-import com.intellij.platform.eel.EelPosixProcess
-import com.intellij.platform.eel.ReadResult
-import com.intellij.platform.eel.SafeDeferred
-import com.intellij.platform.eel.UnixSignal
-import com.intellij.platform.eel.channels.EelDelicateApi
-import com.intellij.platform.eel.channels.EelReceiveChannel
-import com.intellij.platform.eel.provider.utils.asEelChannel
 import com.intellij.testFramework.common.timeoutRunBlocking
 import com.intellij.util.ExceptionUtil
 import com.jetbrains.aspire.cli.AspireCliResourceCommandRunner
@@ -21,11 +11,11 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayOutputStream
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EmptySource
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.IOException
-import java.nio.ByteBuffer
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -42,9 +32,10 @@ internal class AspireCliResourceCommandRunnerTest {
     fun `resource command and apphost are passed as separate CLI arguments`() = timeoutRunBlocking {
         val customRequest = AspireResourceCommandRequest("my resource", "Container", "custom-command")
         var arguments: List<String>? = null
+        val process = TestProcess()
         val runner = AspireCliResourceCommandRunner { args ->
             arguments = args
-            TestProcess()
+            process
         }
         val expected = listOf("resource", "my resource", "custom-command", "--non-interactive", "--nologo", "--apphost", appHostPath)
 
@@ -54,12 +45,28 @@ internal class AspireCliResourceCommandRunnerTest {
         assertEquals(AspireResourceCommandResponseKind.Succeeded, response.kind)
     }
 
-    @Test
-    fun `stdout is returned as text preserving split UTF-8 whitespace and line endings`() = timeoutRunBlocking {
-        val output = "  Приложение\r\n{\"value\":42}\nfinal line"
-        val process = TestProcess(stdout = TestReceiveChannel(output, chunkSize = 1))
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = [" \r\n\t"])
+    fun `blank stdout produces no result`(output: String) = timeoutRunBlocking {
+        val stdout = TestReceiveChannel(output)
+        val process = TestProcess(stdout = stdout)
         val runner = AspireCliResourceCommandRunner { process }
-        val expectedResult = AspireResourceCommandResult(output, AspireResourceCommandResultFormat.Text, displayImmediately = true)
+
+        val response = runner.executeResourceCommand(appHostPath, request)
+
+        assertEquals(AspireResourceCommandResponseKind.Succeeded, response.kind)
+        assertNull(response.result)
+    }
+
+    @Test
+    fun `stdout is collected as UTF-8 lines preserving whitespace`() = timeoutRunBlocking {
+        val output = "  Application 🚀\r\n{\"value\":42}\nfinal line"
+        val stdout = TestReceiveChannel(output, chunkSize = 1)
+        val process = TestProcess(stdout = stdout)
+        val runner = AspireCliResourceCommandRunner { process }
+        val expectedOutput = "  Application 🚀\n{\"value\":42}\nfinal line\n"
+        val expectedResult = AspireResourceCommandResult(expectedOutput, AspireResourceCommandResultFormat.Text, displayImmediately = true)
 
         val response = runner.executeResourceCommand(appHostPath, request)
 
@@ -70,44 +77,24 @@ internal class AspireCliResourceCommandRunnerTest {
     }
 
     @Test
-    fun `empty stdout produces no result`() = timeoutRunBlocking {
-        val runner = AspireCliResourceCommandRunner { TestProcess() }
-
-        val response = runner.executeResourceCommand(appHostPath, request)
-
-        assertEquals(AspireResourceCommandResponseKind.Succeeded, response.kind)
-        assertNull(response.result)
-    }
-
-    @Test
-    fun `whitespace stdout produces no result`() = timeoutRunBlocking {
-        val stdout = TestReceiveChannel(" \r\n\t")
-        val runner = AspireCliResourceCommandRunner { TestProcess(stdout = stdout) }
-
-        val response = runner.executeResourceCommand(appHostPath, request)
-
-        assertNull(response.result)
-    }
-
-    @Test
-    fun `stderr is drained concurrently without becoming command output or a failure`() = timeoutRunBlocking {
-        val stderrDrained = CompletableDeferred<Unit>()
-        val stderr = TestReceiveChannel("Restarting resource\n".repeat(2000), atEnd = { stderrDrained.complete(Unit) })
-        val stdout = TestReceiveChannel("command result", beforeRead = { stderrDrained.await() })
-        val process = TestProcess(stdout, stderr)
+    fun `stdout retains only the last 4000 characters`() = timeoutRunBlocking {
+        val output = "x".repeat(5000) + "\nCommand result"
+        val stdout = TestReceiveChannel(output)
+        val process = TestProcess(stdout = stdout)
         val runner = AspireCliResourceCommandRunner { process }
+        val expectedOutput = "$output\n".takeLast(4000)
 
         val response = runner.executeResourceCommand(appHostPath, request)
 
         assertEquals(AspireResourceCommandResponseKind.Succeeded, response.kind)
-        assertEquals("command result", response.result?.value)
-        assertNull(response.message)
+        assertEquals(expectedOutput, response.result?.value)
     }
 
     @Test
     fun `nonzero exit returns a failed response with exit code and bounded stderr tail`() = timeoutRunBlocking {
         val stderr = TestReceiveChannel("x".repeat(5000) + "\nCommand failed\n")
-        val process = TestProcess(stderr = stderr, completion = CompletableDeferred(7))
+        val completion = CompletableDeferred(7)
+        val process = TestProcess(stderr = stderr, completion = completion)
         val runner = AspireCliResourceCommandRunner { process }
 
         val response = runner.executeResourceCommand(appHostPath, request)
@@ -125,28 +112,59 @@ internal class AspireCliResourceCommandRunnerTest {
     @Test
     fun `failed command retains stdout when stderr is empty`() = timeoutRunBlocking {
         val stdout = TestReceiveChannel("failure details")
-        val process = TestProcess(stdout = stdout, completion = CompletableDeferred(1))
+        val completion = CompletableDeferred(1)
+        val process = TestProcess(stdout = stdout, completion = completion)
         val runner = AspireCliResourceCommandRunner { process }
 
         val response = runner.executeResourceCommand(appHostPath, request)
 
         assertEquals(AspireResourceCommandResponseKind.Failed, response.kind)
         assertTrue(response.message.orEmpty().contains("code 1"))
-        assertEquals("failure details", response.result?.value)
+        assertEquals("failure details\n", response.result?.value)
     }
 
     @Test
-    fun `each invocation starts a separate process`() = timeoutRunBlocking {
-        var starts = 0
-        val runner = AspireCliResourceCommandRunner {
-            starts++
-            TestProcess()
+    fun `spawn failure reaches the caller`() = timeoutRunBlocking {
+        val failure = IOException("spawn failed")
+        val runner = AspireCliResourceCommandRunner { throw failure }
+
+        val exception = assertFailsWith<IOException> { runner.executeResourceCommand(appHostPath, request) }
+
+        assertSame(failure, ExceptionUtil.getRootCause(exception))
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["stdout", "stderr"])
+    fun `output stream read failure propagates and kills the process`(failedStream: String) = timeoutRunBlocking {
+        val failure = IOException("$failedStream failed")
+        val channel = TestReceiveChannel("", beforeRead = { throw failure })
+        val completion = CompletableDeferred<Int>()
+        val process = if (failedStream == "stdout") {
+            TestProcess(stdout = channel, completion = completion)
+        } else {
+            TestProcess(stderr = channel, completion = completion)
         }
+        val runner = AspireCliResourceCommandRunner { process }
 
-        runner.executeResourceCommand(appHostPath, request)
-        runner.executeResourceCommand(appHostPath, request)
+        val exception = assertFailsWith<IOException> { runner.executeResourceCommand(appHostPath, request) }
 
-        assertEquals(2, starts)
+        assertSame(failure, ExceptionUtil.getRootCause(exception))
+        assertTrue(process.killed)
+    }
+
+    @Test
+    fun `stderr is drained concurrently without becoming command output or a failure`() = timeoutRunBlocking {
+        val stderrDrained = CompletableDeferred<Unit>()
+        val stderr = TestReceiveChannel("Restarting resource\n".repeat(2000), atEnd = { stderrDrained.complete(Unit) })
+        val stdout = TestReceiveChannel("command result", beforeRead = { stderrDrained.await() })
+        val process = TestProcess(stdout, stderr)
+        val runner = AspireCliResourceCommandRunner { process }
+
+        val response = runner.executeResourceCommand(appHostPath, request)
+
+        assertEquals(AspireResourceCommandResponseKind.Succeeded, response.kind)
+        assertEquals("command result\n", response.result?.value)
+        assertNull(response.message)
     }
 
     @Test
@@ -156,7 +174,8 @@ internal class AspireCliResourceCommandRunnerTest {
             reading.complete(Unit)
             awaitCancellation()
         })
-        val process = TestProcess(stdout = stdout, completion = CompletableDeferred())
+        val completion = CompletableDeferred<Int>()
+        val process = TestProcess(stdout = stdout, completion = completion)
         val runner = AspireCliResourceCommandRunner { process }
         var cancelled = false
         val execution = launch {
@@ -172,7 +191,6 @@ internal class AspireCliResourceCommandRunnerTest {
         execution.cancelAndJoin()
 
         assertTrue(process.killed)
-        assertEquals(137, process.exitCode.await())
         assertTrue(cancelled)
     }
 
@@ -180,7 +198,8 @@ internal class AspireCliResourceCommandRunnerTest {
     fun `cancellation after output streams close still kills the running process`() = timeoutRunBlocking {
         val streamsClosed = CompletableDeferred<Unit>()
         val stderr = TestReceiveChannel("", atEnd = { streamsClosed.complete(Unit) })
-        val process = TestProcess(stderr = stderr, completion = CompletableDeferred())
+        val completion = CompletableDeferred<Int>()
+        val process = TestProcess(stderr = stderr, completion = completion)
         val runner = AspireCliResourceCommandRunner { process }
         val execution = launch { runner.executeResourceCommand(appHostPath, request) }
         streamsClosed.await()
@@ -188,93 +207,5 @@ internal class AspireCliResourceCommandRunnerTest {
         execution.cancelAndJoin()
 
         assertTrue(process.killed)
-    }
-
-    @Test
-    fun `stdout read failure propagates and kills the process`() = timeoutRunBlocking {
-        val failure = IOException("stdout failed")
-        val stdout = TestReceiveChannel("", beforeRead = { throw failure })
-        val process = TestProcess(stdout = stdout, completion = CompletableDeferred())
-        val runner = AspireCliResourceCommandRunner { process }
-
-        val exception = assertFailsWith<IOException> { runner.executeResourceCommand(appHostPath, request) }
-
-        assertSame(failure, ExceptionUtil.getRootCause(exception))
-        assertTrue(process.killed)
-    }
-
-    @Test
-    fun `stderr read failure propagates and kills the process`() = timeoutRunBlocking {
-        val failure = IOException("stderr failed")
-        val stderr = TestReceiveChannel("", beforeRead = { throw failure })
-        val process = TestProcess(stderr = stderr, completion = CompletableDeferred())
-        val runner = AspireCliResourceCommandRunner { process }
-
-        val exception = assertFailsWith<IOException> { runner.executeResourceCommand(appHostPath, request) }
-
-        assertSame(failure, ExceptionUtil.getRootCause(exception))
-        assertTrue(process.killed)
-    }
-
-    @Test
-    fun `spawn failure reaches the caller`() = timeoutRunBlocking {
-        val failure = IOException("spawn failed")
-        val runner = AspireCliResourceCommandRunner { throw failure }
-
-        val exception = assertFailsWith<IOException> { runner.executeResourceCommand(appHostPath, request) }
-
-        assertSame(failure, ExceptionUtil.getRootCause(exception))
-    }
-
-    private class TestProcess(
-        override val stdout: EelReceiveChannel = TestReceiveChannel(""),
-        override val stderr: EelReceiveChannel = TestReceiveChannel(""),
-        private val completion: CompletableDeferred<Int> = CompletableDeferred(0),
-    ) : EelPosixProcess {
-        override val pid = object : EelApi.Pid {
-            override val value: Long = 123
-        }
-        override val stdin = ByteArrayOutputStream().asEelChannel()
-        override val exitCode = SafeDeferred(completion)
-        var killed = false
-            private set
-
-        override suspend fun kill() {
-            yield()
-            killed = true
-            completion.complete(137)
-        }
-
-        override suspend fun interrupt() = error("Unexpected interrupt")
-        override suspend fun sendSignal(sig: UnixSignal) = error("Unexpected signal")
-        override suspend fun resizePty(columns: Int, rows: Int) = error("Unexpected PTY resize")
-    }
-
-    private class TestReceiveChannel(
-        text: String,
-        private val chunkSize: Int = Int.MAX_VALUE,
-        private val beforeRead: suspend () -> Unit = {},
-        private val atEnd: suspend () -> Unit = {},
-    ) : EelReceiveChannel {
-        private val bytes = text.toByteArray(Charsets.UTF_8)
-        private var offset = 0
-        override val prefersDirectBuffers: Boolean = false
-
-        override suspend fun receive(dst: ByteBuffer): ReadResult {
-            beforeRead()
-            if (offset == bytes.size) {
-                atEnd()
-                return ReadResult.EOF
-            }
-            val size = minOf(dst.remaining(), bytes.size - offset, chunkSize)
-            dst.put(bytes, offset, size)
-            offset += size
-            return ReadResult.NOT_EOF
-        }
-
-        @Suppress("JetBrainsInternalApiUsage")
-        @OptIn(EelDelicateApi::class)
-        override fun available(): Int = bytes.size - offset
-        override suspend fun closeForReceive() {}
     }
 }

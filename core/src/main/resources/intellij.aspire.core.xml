@@ -52,6 +52,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceInterface="com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory"
                             serviceImplementation="com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactoryImpl"/>
+        <applicationService serviceInterface="com.jetbrains.aspire.cli.AspireCliResourceClientFactory"
+                            serviceImplementation="com.jetbrains.aspire.cli.AspireCliResourceClientFactoryImpl"/>
 
         <projectService serviceInterface="com.jetbrains.aspire.run.AspireRunConfigurationManager"
                         serviceImplementation="com.jetbrains.aspire.run.AspireRunConfigurationManagerImpl"/>
