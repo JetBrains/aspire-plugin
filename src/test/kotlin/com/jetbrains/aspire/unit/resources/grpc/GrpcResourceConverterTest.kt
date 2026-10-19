@@ -15,9 +15,9 @@ import com.jetbrains.aspire.resources.AspireResourceCommandResponseKind
 import com.jetbrains.aspire.resources.AspireResourceCommandResult
 import com.jetbrains.aspire.resources.AspireResourceCommandResultFormat
 import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.resources.grpc.toAspireResourceCommandResponse
-import com.jetbrains.aspire.resources.grpc.toAspireResourceLogEntries
-import com.jetbrains.aspire.resources.grpc.toAspireResourceUpdate
+import com.jetbrains.aspire.grpc.toAspireResourceCommandResponse
+import com.jetbrains.aspire.grpc.toAspireResourceLogEntries
+import com.jetbrains.aspire.grpc.toAspireResourceUpdate
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry

@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-package com.jetbrains.aspire.resources.grpc
+package com.jetbrains.aspire.grpc
 
 import com.intellij.libraries.grpc.netty.shaded.NettyChannelProviderRegistrationService
 import com.intellij.openapi.diagnostic.logger
@@ -97,7 +97,7 @@ internal class GrpcResourceClient(
             .mapNotNull { it.toAspireResourceUpdate(appHostPath) }
     }
 
-    override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
+    override fun watchResourceConsoleLogs(appHostPath: AspireAppHostPath, resourceName: String): Flow<List<AspireResourceLogEntry>> {
         val request = WatchResourceConsoleLogsRequest.newBuilder()
             .setResourceName(resourceName)
             .build()
@@ -106,7 +106,7 @@ internal class GrpcResourceClient(
             .map { it.toAspireResourceLogEntries() }
     }
 
-    override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+    override suspend fun executeResourceCommand(appHostPath: AspireAppHostPath, request: AspireResourceCommandRequest): AspireResourceCommandResponse {
         val grpcRequest = ResourceCommandRequest.newBuilder()
             .setResourceName(request.resourceName)
             .setResourceType(request.resourceType)

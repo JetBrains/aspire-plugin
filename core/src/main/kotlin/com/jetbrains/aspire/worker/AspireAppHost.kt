@@ -9,11 +9,12 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
+import com.jetbrains.aspire.cli.AspireCliResourceClientFactory
 import com.jetbrains.aspire.sessions.SessionManagerImpl
 import com.jetbrains.aspire.dcp.AspireSessionServer
 import com.jetbrains.aspire.dcp.AspireSessionServerEndpoint
 import com.jetbrains.aspire.resources.AspireResourceClient
-import com.jetbrains.aspire.resources.grpc.GrpcResourceClientFactory
+import com.jetbrains.aspire.grpc.GrpcResourceClientFactory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
@@ -94,14 +95,13 @@ class AspireAppHost(
 
                 val environment = state.environment
                 val endpointUrl = environment.resourceServiceEndpointUrl
-                if (endpointUrl == null) {
-                    LOG.trace { "Aspire AppHost $mainFilePath started without a resource service endpoint" }
-                    return@collectLatest
+                val client: AspireResourceClient = if (endpointUrl.isNullOrEmpty()) {
+                    LOG.trace { "Initializing CLI resource client for $mainFilePath" }
+                    service<AspireCliResourceClientFactory>().create(project)
+                } else {
+                    LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
+                    service<GrpcResourceClientFactory>().create(endpointUrl, environment.resourceServiceApiKey)
                 }
-
-                LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
-                val client = service<GrpcResourceClientFactory>()
-                    .create(endpointUrl, environment.resourceServiceApiKey)
                 try {
                     resourceClient.value = client
                     awaitCancellation()

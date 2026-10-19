@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.resources.grpc
+package com.jetbrains.aspire.grpc
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.Value

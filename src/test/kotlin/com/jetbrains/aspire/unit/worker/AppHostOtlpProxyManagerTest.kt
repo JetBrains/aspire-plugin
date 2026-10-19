@@ -6,12 +6,13 @@ import com.jetbrains.aspire.worker.AppHostOtlpProxyManager
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireAppHost.AspireAppHostState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -24,9 +25,10 @@ internal class AppHostOtlpProxyManagerTest {
     private lateinit var extension: RecordingOtlpExtension
     private lateinit var appHostState: MutableStateFlow<AspireAppHostState>
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @BeforeEach
     fun setUp() {
-        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        scope = CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher())
         extension = RecordingOtlpExtension()
         appHostState = MutableStateFlow(AspireAppHostState.Inactive)
         val manager = AppHostOtlpProxyManager(scope) { extension }
