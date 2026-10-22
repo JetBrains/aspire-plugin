@@ -2,25 +2,11 @@ package com.jetbrains.aspire.cli
 
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.util.getParentDisplayName
 import com.jetbrains.aspire.util.mapLaunchConfigurationType
 import com.jetbrains.aspire.util.mapResourceState
 import com.jetbrains.aspire.util.mapResourceStateStyle
 import com.jetbrains.aspire.util.mapResourceType
-import com.jetbrains.aspire.worker.AspireAppHostPath
-import com.jetbrains.aspire.worker.AspirePath
-import com.jetbrains.aspire.worker.AspireResourceData
-import com.jetbrains.aspire.worker.AspireResourceId
-import com.jetbrains.aspire.worker.AspireResourceProperty
-import com.jetbrains.aspire.worker.ResourceCommand
-import com.jetbrains.aspire.worker.ResourceCommandState
-import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
-import com.jetbrains.aspire.worker.ResourceHealthStatus
-import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
-import com.jetbrains.aspire.worker.ResourceRelationship
-import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceUrl
-import com.jetbrains.aspire.worker.ResourceVolume
+import com.jetbrains.aspire.worker.*
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -43,6 +29,7 @@ private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPat
     val resourceStateStyle = stateStyle?.let(::mapResourceStateStyle)
 
     var launchConfigurationType = ResourceLaunchConfigurationType.Unknown
+    var parentName: String? = null
     var pid: AspireResourceProperty<Int>? = null
     var projectPath: AspireResourceProperty<AspirePath>? = null
     var executablePath: AspireResourceProperty<AspirePath>? = null
@@ -62,6 +49,7 @@ private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPat
 
         when (propertyName) {
             "resource.launchConfigurationType" -> launchConfigurationType = mapLaunchConfigurationType(propValue)
+            "resource.parentName" -> parentName = propValue
             "executable.pid" -> pid = propValue.toIntOrNull()?.let { AspireResourceProperty(it, false) }
             "project.path" -> projectPath = AspireResourceProperty(AspirePath(propValue), false)
             "executable.path" -> executablePath = AspireResourceProperty(AspirePath(propValue), false)
@@ -99,7 +87,6 @@ private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPat
         val targetName = it.resourceName ?: return@mapNotNull null
         ResourceRelationship(targetName, it.type.orEmpty())
     }
-    val parentDisplayName = resourceRelationships.getParentDisplayName()
     val resourceCommands = commands
         .orEmpty()
         .entries
@@ -135,7 +122,7 @@ private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPat
         environment = resourceEnvironment,
         volumes = resourceVolumes,
         relationships = resourceRelationships,
-        parentDisplayName = parentDisplayName,
+        parentName = parentName,
         commands = resourceCommands,
         createdAt = creationTimestamp.toResourceTimestamp(timezone),
         startedAt = startTimestamp.toResourceTimestamp(timezone),

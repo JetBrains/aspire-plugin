@@ -64,8 +64,8 @@ class AspireResource(
     val displayName: String
         get() = _data.value.displayName
 
-    val parentDisplayName: String?
-        get() = _data.value.parentDisplayName
+    val parentName: String?
+        get() = _data.value.parentName
 
     private val _childrenResources = MutableStateFlow<List<AspireResource>>(emptyList())
     override val childrenResources: StateFlow<List<AspireResource>> = _childrenResources.asStateFlow()

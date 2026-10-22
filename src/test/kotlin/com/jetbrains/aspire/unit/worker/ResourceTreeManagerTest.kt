@@ -4,7 +4,9 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.TestApplicationManager
+import com.google.protobuf.Value
 import com.jetbrains.aspire.generated.dashboard.Resource
+import com.jetbrains.aspire.generated.dashboard.ResourceProperty
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.AspireResourceCommandRequest
@@ -292,7 +294,7 @@ internal class ResourceTreeManagerTest {
         testScheduler.runCurrent()
 
         val childResourceName = "child"
-        val childResource = buildResource(childResourceName, "Child", parentDisplayName = parentDisplayName)
+        val childResource = buildResource(childResourceName, "Child", parentName = parentResourceName)
         val childUpdate = buildUpsertUpdate(listOf(childResource))
         client.resourceUpdates.emit(childUpdate)
         testScheduler.runCurrent()
@@ -314,8 +316,9 @@ internal class ResourceTreeManagerTest {
         testScheduler.runCurrent()
 
         val parentDisplayName = "Parent"
+        val parentResourceName = "parent"
         val childResourceName = "child"
-        val childResource = buildResource(childResourceName, "Child", parentDisplayName = parentDisplayName)
+        val childResource = buildResource(childResourceName, "Child", parentName = parentResourceName)
         val childUpdate = buildUpsertUpdate(listOf(childResource))
         client.resourceUpdates.emit(childUpdate)
         testScheduler.runCurrent()
@@ -325,7 +328,6 @@ internal class ResourceTreeManagerTest {
         assertEquals(childResourceName, manager.rootResources.value[0].resourceName)
 
         // Now parent arrives
-        val parentResourceName = "parent"
         val parentResource = buildResource(parentResourceName, parentDisplayName)
         val parentUpdate = buildUpsertUpdate(listOf(parentResource))
         client.resourceUpdates.emit(parentUpdate)
@@ -355,7 +357,7 @@ internal class ResourceTreeManagerTest {
         testScheduler.runCurrent()
 
         val childResourceName = "child"
-        val childResource = buildResource(childResourceName, "Child", parentDisplayName = parentDisplayName)
+        val childResource = buildResource(childResourceName, "Child", parentName = parentResourceName)
         val childUpdate = buildUpsertUpdate(listOf(childResource))
         client.resourceUpdates.emit(childUpdate)
         testScheduler.runCurrent()
@@ -384,13 +386,13 @@ internal class ResourceTreeManagerTest {
         val parentDisplayName = "Parent"
 
         val childResourceName1 = "child-1"
-        val childResource1 = buildResource(childResourceName1, "Child 1", parentDisplayName = parentDisplayName)
+        val childResource1 = buildResource(childResourceName1, "Child 1", parentName = parentResourceName)
         val childUpdate1 = buildUpsertUpdate(listOf(childResource1))
         client.resourceUpdates.emit(childUpdate1)
         testScheduler.runCurrent()
 
         val childResourceName2 = "child-2"
-        val childResource2 = buildResource(childResourceName2, "Child 2", parentDisplayName = parentDisplayName)
+        val childResource2 = buildResource(childResourceName2, "Child 2", parentName = parentResourceName)
         val childUpdate2 = buildUpsertUpdate(listOf(childResource2))
         client.resourceUpdates.emit(childUpdate2)
         testScheduler.runCurrent()
@@ -412,6 +414,108 @@ internal class ResourceTreeManagerTest {
         assertEquals(2, children.size)
         assertTrue(children.any { it.resourceName == childResourceName1 })
         assertTrue(children.any { it.resourceName == childResourceName2 })
+    }
+
+    @Test
+    fun `parents with identical display names keep separate children`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val firstParent = buildResource("parent-1", "Parent")
+        val secondParent = buildResource("parent-2", "Parent")
+        val firstChild = buildResource("child-1", "Child", parentName = firstParent.name)
+        val secondChild = buildResource("child-2", "Child", parentName = secondParent.name)
+        val initialData = buildInitialData(listOf(firstParent, secondParent, firstChild, secondChild))
+
+        client.resourceUpdates.emit(initialData)
+        testScheduler.runCurrent()
+
+        val roots = manager.rootResources.value
+        assertEquals(listOf(firstParent.name, secondParent.name), roots.map { it.resourceName })
+        assertEquals(firstChild.name, roots[0].childrenResources.value.single().resourceName)
+        assertEquals(secondChild.name, roots[1].childrenResources.value.single().resourceName)
+    }
+
+    @Test
+    fun `pending child ignores a resource whose display name matches its parent name`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val parent = buildResource("parent", "Parent")
+        val child = buildResource("child", "Child", parentName = parent.name)
+        val unrelatedResource = buildResource("unrelated", parent.name)
+        val initialData = buildInitialData(listOf(child, unrelatedResource))
+        client.resourceUpdates.emit(initialData)
+        testScheduler.runCurrent()
+        val storedChild = manager.rootResources.value.first { it.resourceName == child.name }
+        val storedUnrelatedResource = manager.rootResources.value.first { it.resourceName == unrelatedResource.name }
+        assertTrue(storedUnrelatedResource.childrenResources.value.isEmpty())
+        val parentUpdate = buildUpsertUpdate(listOf(parent))
+
+        client.resourceUpdates.emit(parentUpdate)
+        testScheduler.runCurrent()
+
+        val roots = manager.rootResources.value
+        assertEquals(listOf(unrelatedResource.name, parent.name), roots.map { it.resourceName })
+        assertSame(storedChild, roots[1].childrenResources.value.single())
+        assertTrue(storedUnrelatedResource.childrenResources.value.isEmpty())
+    }
+
+    @Test
+    fun `removing child detaches it after parent display name update`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val parent = buildResource("parent", "Parent")
+        val child = buildResource("child", "Child", parentName = parent.name)
+        val initialData = buildInitialData(listOf(parent, child))
+        client.resourceUpdates.emit(initialData)
+        testScheduler.runCurrent()
+        val storedParent = manager.rootResources.value.single()
+        assertEquals(child.name, storedParent.childrenResources.value.single().resourceName)
+        val updatedParent = buildResource(parent.name, "Updated Parent")
+        val parentUpdate = buildUpsertUpdate(listOf(updatedParent))
+        client.resourceUpdates.emit(parentUpdate)
+        testScheduler.runCurrent()
+        val deleteChildUpdate = buildDeleteUpdate(listOf(child))
+
+        client.resourceUpdates.emit(deleteChildUpdate)
+        testScheduler.runCurrent()
+
+        assertSame(storedParent, manager.rootResources.value.single())
+        assertTrue(storedParent.childrenResources.value.isEmpty())
+    }
+
+    @Test
+    fun `removing and recreating parent after display name update reattaches children`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val parent = buildResource("parent", "Parent")
+        val child = buildResource("child", "Child", parentName = parent.name)
+        val initialData = buildInitialData(listOf(parent, child))
+        client.resourceUpdates.emit(initialData)
+        testScheduler.runCurrent()
+        val storedChild = manager.rootResources.value.single().childrenResources.value.single()
+        val updatedParent = buildResource(parent.name, "Updated Parent")
+        val parentUpdate = buildUpsertUpdate(listOf(updatedParent))
+        client.resourceUpdates.emit(parentUpdate)
+        testScheduler.runCurrent()
+        val deleteParentUpdate = buildDeleteUpdate(listOf(updatedParent))
+        client.resourceUpdates.emit(deleteParentUpdate)
+        testScheduler.runCurrent()
+        assertSame(storedChild, manager.rootResources.value.single())
+
+        client.resourceUpdates.emit(parentUpdate)
+        testScheduler.runCurrent()
+
+        val storedParent = manager.rootResources.value.single()
+        assertEquals(parent.name, storedParent.resourceName)
+        assertSame(storedChild, storedParent.childrenResources.value.single())
     }
 
     // endregion
@@ -727,7 +831,7 @@ internal class ResourceTreeManagerTest {
         resourceType: String = "Project",
         state: String = "Running",
         isHidden: Boolean = false,
-        parentDisplayName: String? = null,
+        parentName: String? = null,
     ): Resource {
         val builder = Resource.newBuilder()
             .setName(name)
@@ -737,12 +841,13 @@ internal class ResourceTreeManagerTest {
             .setState(state)
             .setIsHidden(isHidden)
 
-        if (parentDisplayName != null) {
-            val relationship = com.jetbrains.aspire.generated.dashboard.ResourceRelationship.newBuilder()
-                .setResourceName(parentDisplayName)
-                .setType("parent")
+        if (parentName != null) {
+            val parentValue = Value.newBuilder().setStringValue(parentName).build()
+            val parentProperty = ResourceProperty.newBuilder()
+                .setName("resource.parentName")
+                .setValue(parentValue)
                 .build()
-            builder.addRelationships(relationship)
+            builder.addProperties(parentProperty)
         }
 
         return builder.build()

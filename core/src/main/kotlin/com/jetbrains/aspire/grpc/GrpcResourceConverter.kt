@@ -2,41 +2,13 @@ package com.jetbrains.aspire.grpc
 
 import com.google.protobuf.Timestamp
 import com.google.protobuf.Value
-import com.jetbrains.aspire.generated.dashboard.CommandResultFormat
-import com.jetbrains.aspire.generated.dashboard.HealthReport
-import com.jetbrains.aspire.generated.dashboard.HealthStatus
-import com.jetbrains.aspire.generated.dashboard.Resource
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
-import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponseKind
-import com.jetbrains.aspire.generated.dashboard.WatchResourceConsoleLogsUpdate
-import com.jetbrains.aspire.generated.dashboard.WatchResourcesUpdate
-import com.jetbrains.aspire.resources.AspireResourceChange
-import com.jetbrains.aspire.resources.AspireResourceCommandResponse
-import com.jetbrains.aspire.resources.AspireResourceCommandResponseKind
-import com.jetbrains.aspire.resources.AspireResourceCommandResult
-import com.jetbrains.aspire.resources.AspireResourceCommandResultFormat
-import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.util.getParentDisplayName
-import com.jetbrains.aspire.util.mapLaunchConfigurationType
-import com.jetbrains.aspire.util.mapResourceState
-import com.jetbrains.aspire.util.mapResourceStateStyle
-import com.jetbrains.aspire.util.mapResourceType
-import com.jetbrains.aspire.util.parseLogEntry
-import com.jetbrains.aspire.worker.AspireResourceData
-import com.jetbrains.aspire.worker.AspireAppHostPath
-import com.jetbrains.aspire.worker.AspirePath
-import com.jetbrains.aspire.worker.AspireResourceProperty
-import com.jetbrains.aspire.worker.AspireResourceId
-import com.jetbrains.aspire.worker.AspireResourceLogEntry
+import com.jetbrains.aspire.generated.dashboard.*
+import com.jetbrains.aspire.resources.*
+import com.jetbrains.aspire.util.*
+import com.jetbrains.aspire.worker.*
 import com.jetbrains.aspire.worker.ResourceCommand
 import com.jetbrains.aspire.worker.ResourceCommandState
-import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
-import com.jetbrains.aspire.worker.ResourceHealthStatus
-import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceRelationship
-import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceUrl
-import com.jetbrains.aspire.worker.ResourceVolume
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -73,6 +45,7 @@ fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourc
     val healthStatus = calculateHealthStatus(state, healthReportsList)
 
     var launchConfigurationType = ResourceLaunchConfigurationType.Unknown
+    var parentName: String? = null
     var exitCode: AspireResourceProperty<Int>? = null
     var pid: AspireResourceProperty<Int>? = null
     var projectPath: AspireResourceProperty<AspirePath>? = null
@@ -95,6 +68,7 @@ fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourc
 
         when (property.name) {
             "resource.launchConfigurationType" -> launchConfigurationType = mapLaunchConfigurationType(propValue)
+            "resource.parentName" -> parentName = propValue
             "resource.exitCode" -> exitCode = AspireResourceProperty(propValue.toDouble().roundToInt(), isSensitive)
             "executable.pid" -> pid = AspireResourceProperty(propValue.toDouble().roundToInt(), isSensitive)
             "project.path" -> projectPath = AspireResourceProperty(AspirePath(propValue), isSensitive)
@@ -138,7 +112,6 @@ fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourc
     val relationships = relationshipsList.map {
         ResourceRelationship(it.resourceName, it.type)
     }
-    val parentDisplayName = relationships.getParentDisplayName()
 
     val commands = commandsList.map {
         ResourceCommand(
@@ -168,7 +141,7 @@ fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourc
         environment = environment,
         volumes = volumes,
         relationships = relationships,
-        parentDisplayName = parentDisplayName,
+        parentName = parentName,
         commands = commands,
         createdAt = createdAt,
         startedAt = startedAt,

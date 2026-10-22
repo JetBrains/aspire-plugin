@@ -89,7 +89,7 @@ class ResourceGraphServiceTest {
             environment = emptyList(),
             volumes = emptyList(),
             relationships = relationships,
-            parentDisplayName = null,
+            parentName = null,
             commands = emptyList(),
             createdAt = null,
             startedAt = null,

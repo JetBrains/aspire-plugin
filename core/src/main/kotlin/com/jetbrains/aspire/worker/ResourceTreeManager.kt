@@ -62,7 +62,6 @@ class ResourceTreeManager(
     private val resourceObservationMutex = Mutex()
 
     private val resources = HashMap<String, AspireResource>()
-    private val resourcesByDisplayName = HashMap<String, AspireResource>()
     private val pendingChildren = HashMap<String, MutableSet<String>>()
 
     private val _rootResources = MutableStateFlow<List<AspireResource>>(emptyList())
@@ -169,11 +168,10 @@ class ResourceTreeManager(
         Disposer.register(parentDisposable, resource)
 
         resources[resource.resourceName] = resource
-        resourcesByDisplayName[resource.displayName] = resource
 
         attachResource(resource)
 
-        processPendingResources(resource.displayName)
+        processPendingResources(resource.resourceName)
 
         withContext(uiDispatcher) {
             project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceCreated(resource)
@@ -192,7 +190,6 @@ class ResourceTreeManager(
         if (!resources.containsKey(resource.resourceName)) return
 
         resources.remove(resource.resourceName)
-        resourcesByDisplayName.remove(resource.displayName)
 
         detachFromParent(resource)
 
@@ -209,7 +206,7 @@ class ResourceTreeManager(
     }
 
     /**
-     * Attaches a resource to its parent based on [AspireResource.parentDisplayName].
+     * Attaches a resource to its parent based on [AspireResource.parentName].
      *
      * - If the resource has no parent, it becomes a root resource.
      * - If the parent exists, the resource is added as its child and removed from roots/pending.
@@ -217,21 +214,21 @@ class ResourceTreeManager(
      *   in [pendingChildren] so it can be re-attached when the parent appears.
      */
     private fun attachResource(resource: AspireResource) {
-        val parentDisplayName = resource.parentDisplayName
-        if (parentDisplayName == null) {
+        val parentName = resource.parentName
+        if (parentName == null) {
             addRootResource(resource)
             return
         }
 
-        val parentResource = findResourceByDisplayName(parentDisplayName)
+        val parentResource = resources[parentName]
         if (parentResource == null) {
             addRootResource(resource)
-            addPendingChild(parentDisplayName, resource.resourceName)
+            addPendingChild(parentName, resource.resourceName)
             return
         }
 
         removeRootResource(resource)
-        removePendingChild(parentDisplayName, resource.resourceName)
+        removePendingChild(parentName, resource.resourceName)
         parentResource.addChildResource(resource)
     }
 
@@ -239,16 +236,16 @@ class ResourceTreeManager(
      * Detaches a resource from its parent (or from roots) and pending list.
      */
     private fun detachFromParent(resource: AspireResource) {
-        val parentDisplayName = resource.parentDisplayName
-        if (parentDisplayName == null) {
+        val parentName = resource.parentName
+        if (parentName == null) {
             removeRootResource(resource)
             return
         }
 
-        val parentResource = findResourceByDisplayName(parentDisplayName)
+        val parentResource = resources[parentName]
         if (parentResource == null) {
             removeRootResource(resource)
-            removePendingChild(parentDisplayName, resource.resourceName)
+            removePendingChild(parentName, resource.resourceName)
             return
         }
 
@@ -266,26 +263,26 @@ class ResourceTreeManager(
         _rootResources.update { it - resource }
     }
 
-    private fun addPendingChild(parentDisplayName: String, childResourceName: String) {
+    private fun addPendingChild(parentName: String, childResourceName: String) {
         pendingChildren
-            .getOrPut(parentDisplayName) { mutableSetOf() }
+            .getOrPut(parentName) { mutableSetOf() }
             .add(childResourceName)
     }
 
-    private fun removePendingChild(parentDisplayName: String, childResourceName: String) {
-        val pending = pendingChildren[parentDisplayName] ?: return
+    private fun removePendingChild(parentName: String, childResourceName: String) {
+        val pending = pendingChildren[parentName] ?: return
         pending.remove(childResourceName)
         if (pending.isEmpty()) {
-            pendingChildren.remove(parentDisplayName)
+            pendingChildren.remove(parentName)
         }
     }
 
-    private fun processPendingResources(parentDisplayName: String) {
-        val pending = pendingChildren.remove(parentDisplayName) ?: return
+    private fun processPendingResources(parentName: String) {
+        val pending = pendingChildren.remove(parentName) ?: return
 
         for (childResourceName in pending) {
             val childResource = resources[childResourceName] ?: continue
-            if (childResource.parentDisplayName == parentDisplayName) {
+            if (childResource.parentName == parentName) {
                 attachResource(childResource)
             }
         }
@@ -296,7 +293,4 @@ class ResourceTreeManager(
             removeResource(resource)
         }
     }
-
-    private fun findResourceByDisplayName(displayName: String): AspireResource? =
-        resourcesByDisplayName[displayName]
 }

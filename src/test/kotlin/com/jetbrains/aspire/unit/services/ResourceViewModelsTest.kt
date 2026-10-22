@@ -129,7 +129,7 @@ class ResourceViewModelsTest {
                 environment = emptyList(),
                 volumes = emptyList(),
                 relationships = emptyList(),
-                parentDisplayName = null,
+                parentName = null,
                 commands = emptyList(),
                 createdAt = null,
                 startedAt = null,

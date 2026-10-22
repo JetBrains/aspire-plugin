@@ -87,7 +87,7 @@ internal class AspireCliResourceConverterTest {
         assertTrue(data.environment.isEmpty())
         assertTrue(data.volumes.isEmpty())
         assertTrue(data.relationships.isEmpty())
-        assertNull(data.parentDisplayName)
+        assertNull(data.parentName)
         assertNull(data.createdAt)
         assertNull(data.startedAt)
         assertNull(data.stoppedAt)
@@ -284,11 +284,13 @@ internal class AspireCliResourceConverterTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["Parent", "parent", "PARENT"])
-    fun `relationships preserve targets and identify the first parent ignoring case`(parentType: String) {
+    fun `relationships preserve targets and types independently of parent name`(parentType: String) {
         val reference = AspireCliResourceRelationship("Reference", "database")
         val parent = AspireCliResourceRelationship(parentType, "group")
         val otherParent = AspireCliResourceRelationship("Parent", "other-group")
-        val resource = AspireCliResource("api", relationships = listOf(reference, parent, otherParent))
+        val parentName = JsonPrimitive("parent-resource")
+        val properties = mapOf("resource.parentName" to parentName)
+        val resource = AspireCliResource("api", relationships = listOf(reference, parent, otherParent), properties = properties)
         val expected = listOf(
             ResourceRelationship("database", "Reference"),
             ResourceRelationship("group", parentType),
@@ -298,7 +300,19 @@ internal class AspireCliResourceConverterTest {
         val data = convert(resource)
 
         assertEquals(expected, data.relationships)
-        assertEquals("group", data.parentDisplayName)
+        assertEquals("parent-resource", data.parentName)
+    }
+
+    @Test
+    fun `parent relationship without parent name property does not set parent name`() {
+        val parent = AspireCliResourceRelationship("Parent", "group")
+        val resource = AspireCliResource("api", relationships = listOf(parent))
+        val expectedRelationship = ResourceRelationship("group", "Parent")
+
+        val data = convert(resource)
+
+        assertEquals(listOf(expectedRelationship), data.relationships)
+        assertNull(data.parentName)
     }
 
     @Test
@@ -312,7 +326,7 @@ internal class AspireCliResourceConverterTest {
         val data = convert(resource)
 
         assertEquals(expected, data.relationships)
-        assertNull(data.parentDisplayName)
+        assertNull(data.parentName)
     }
 
     @Test

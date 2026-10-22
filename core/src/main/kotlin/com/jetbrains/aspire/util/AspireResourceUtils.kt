@@ -45,9 +45,6 @@ private fun List<AspireResource>.findInTree(predicate: (AspireResource) -> Boole
     return null
 }
 
-internal fun List<ResourceRelationship>.getParentDisplayName(): String? =
-    firstOrNull { it.type.equals("parent", true) }?.resourceName
-
 internal fun mapResourceType(type: String): ResourceType = when (type) {
     "Project" -> ResourceType.Project
     "Container" -> ResourceType.Container
