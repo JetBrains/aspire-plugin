@@ -116,7 +116,7 @@ private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPat
         displayName = displayName ?: resourceName,
         state = resourceState,
         stateStyle = resourceStateStyle,
-        isHidden = resourceState == ResourceState.Hidden,
+        isHidden = isHiddenResource(resourceName),
         healthStatus = calculateHealthStatus(resourceState),
         urls = resourceUrls,
         environment = resourceEnvironment,
@@ -143,6 +143,12 @@ private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPat
         source = source?.let { AspireResourceProperty(it, false) },
         value = value,
     )
+}
+
+private fun isHiddenResource(resourceName: String): Boolean {
+    // The CLI does not expose the actual isHidden field, so only resources known to be hidden are inferred from their names.
+    // Switch to the actual isHidden field when the CLI exposes it.
+    return resourceName.startsWith("aspire-dashboard-") || resourceName.contains("-rebuilder-")
 }
 
 private fun String?.toResourceTimestamp(timezone: TimeZone): LocalDateTime? {

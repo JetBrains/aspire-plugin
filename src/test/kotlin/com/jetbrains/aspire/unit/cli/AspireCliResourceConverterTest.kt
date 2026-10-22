@@ -153,12 +153,32 @@ internal class AspireCliResourceConverterTest {
     }
 
     @Test
-    fun `hidden state hides the resource`() {
+    fun `hidden state alone does not hide the resource`() {
         val resource = AspireCliResource("api", resourceType = "Project", state = "Hidden")
 
         val data = convert(resource)
 
+        assertFalse(data.isHidden)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["aspire-dashboard-123", "api-rebuilder-123"])
+    fun `known internal resource names hide the resource`(name: String) {
+        val resource = AspireCliResource(name, state = "Running")
+
+        val data = convert(resource)
+
         assertTrue(data.isHidden)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["api", "aspire-dashboard", "api-aspire-dashboard-123", "api-rebuilder", "rebuilder-123"])
+    fun `resource names outside the known hidden patterns remain visible`(name: String) {
+        val resource = AspireCliResource(name, state = "Running")
+
+        val data = convert(resource)
+
+        assertFalse(data.isHidden)
     }
 
     @ParameterizedTest
