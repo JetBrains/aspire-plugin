@@ -44,7 +44,7 @@ internal class AspireCliResourceClient(private val project: Project) : AspireRes
             val appHost = appHostPath.toNioPath().asEelPath()
 
             eelApi.exec.spawnProcess(cliPath)
-                .args("describe", "--follow", "--format", "json", "--nologo", "--non-interactive", "--apphost", appHost.toString())
+                .args("describe", "--include-hidden", "--follow", "--format", "json", "--nologo", "--non-interactive", "--apphost", appHost.toString())
                 .workingDirectory(appHost.parent)
                 .scope(this)
                 .eelIt()
