@@ -116,7 +116,7 @@ class AspireCliResourceWatcher(
     private data class WatchResult(val receivedEvent: Boolean, val stderr: String, val stdout: String)
 
     private fun parseResource(line: String): AspireCliResource? =
-        parseLine<AspireCliResource>(line, "describe")?.takeIf { it.name.isNotBlank() }
+        parseLine<AspireCliResource>(line, "describe")?.takeIf { !it.name.isNullOrBlank() }
 
     private inline fun <reified T> parseLine(line: String, command: String): T? {
         val trimmed = line.trim()
