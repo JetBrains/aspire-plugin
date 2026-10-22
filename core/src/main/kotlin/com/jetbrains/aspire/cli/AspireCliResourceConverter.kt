@@ -2,6 +2,11 @@ package com.jetbrains.aspire.cli
 
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.util.getParentDisplayName
+import com.jetbrains.aspire.util.mapLaunchConfigurationType
+import com.jetbrains.aspire.util.mapResourceState
+import com.jetbrains.aspire.util.mapResourceStateStyle
+import com.jetbrains.aspire.util.mapResourceType
 import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceData
@@ -9,17 +14,22 @@ import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceProperty
 import com.jetbrains.aspire.worker.ResourceCommand
 import com.jetbrains.aspire.worker.ResourceCommandState
+import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
 import com.jetbrains.aspire.worker.ResourceHealthStatus
 import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
+import com.jetbrains.aspire.worker.ResourceRelationship
 import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceStateStyle
-import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.worker.ResourceUrl
+import com.jetbrains.aspire.worker.ResourceVolume
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import org.jetbrains.annotations.ApiStatus
+import kotlin.time.Instant
 
 @ApiStatus.Internal
 fun AspireCliResource.toAspireResourceUpdate(appHostPath: AspireAppHostPath): AspireResourceUpdate {
@@ -28,40 +38,73 @@ fun AspireCliResource.toAspireResourceUpdate(appHostPath: AspireAppHostPath): As
 }
 
 private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourceData {
-    val resourceState = state?.let { value -> ResourceState.entries.find { it.name == value } ?: ResourceState.Unknown }
-    return AspireResourceData(
-        id = AspireResourceId(appHostPath, name),
-        uid = name,
-        name = name,
-        type = mapResourceType(resourceType),
-        launchConfigurationType = when (property("resource.launchConfigurationType")?.value) {
-            "project" -> ResourceLaunchConfigurationType.Project
-            "azure-functions" -> ResourceLaunchConfigurationType.AzureFunctions
-            else -> ResourceLaunchConfigurationType.Unknown
-        },
-        originType = resourceType,
-        displayName = displayName ?: name,
-        state = resourceState,
-        stateStyle = stateStyle?.let { value ->
-            ResourceStateStyle.entries.find { it.name.equals(value, true) } ?: ResourceStateStyle.Unknown
-        },
-        isHidden = resourceState == ResourceState.Hidden,
-        healthStatus = calculateHealthStatus(resourceState),
-        urls = urls.orEmpty().map {
-            ResourceUrl(
-                endpointName = it.name,
-                fullUrl = it.url,
-                isInternal = it.isInternal,
-                isInactive = false,
-                sortOrder = 0,
-                displayName = it.displayName ?: it.name.orEmpty(),
-            )
-        },
-        environment = emptyList(),
-        volumes = emptyList(),
-        relationships = emptyList(),
-        parentDisplayName = null,
-        commands = commands.orEmpty().map { (commandName, command) ->
+    val resourceName = requireNotNull(name) { "Resource name is required to create a resource update" }
+    val resourceState = state?.let(::mapResourceState)
+    val resourceStateStyle = stateStyle?.let(::mapResourceStateStyle)
+
+    var launchConfigurationType = ResourceLaunchConfigurationType.Unknown
+    var pid: AspireResourceProperty<Int>? = null
+    var projectPath: AspireResourceProperty<AspirePath>? = null
+    var executablePath: AspireResourceProperty<AspirePath>? = null
+    var executableWorkDir: AspireResourceProperty<AspirePath>? = null
+    var args: AspireResourceProperty<String>? = null
+    var containerImage: AspireResourceProperty<String>? = null
+    var containerId: AspireResourceProperty<String>? = null
+    var containerPorts: AspireResourceProperty<String>? = null
+    var containerCommand: AspireResourceProperty<String>? = null
+    var containerArgs: AspireResourceProperty<String>? = null
+    var containerLifetime: AspireResourceProperty<String>? = null
+    var connectionString: AspireResourceProperty<String>? = null
+    var value: AspireResourceProperty<String>? = null
+
+    for ((propertyName, propertyValue) in properties.orEmpty()) {
+        val propValue = propertyValue?.stringValue() ?: continue
+
+        when (propertyName) {
+            "resource.launchConfigurationType" -> launchConfigurationType = mapLaunchConfigurationType(propValue)
+            "executable.pid" -> pid = propValue.toIntOrNull()?.let { AspireResourceProperty(it, false) }
+            "project.path" -> projectPath = AspireResourceProperty(AspirePath(propValue), false)
+            "executable.path" -> executablePath = AspireResourceProperty(AspirePath(propValue), false)
+            "executable.workDir" -> executableWorkDir = AspireResourceProperty(AspirePath(propValue), false)
+            "executable.args" -> args = AspireResourceProperty(propValue, false)
+            "container.image" -> containerImage = AspireResourceProperty(propValue, false)
+            "container.id" -> containerId = AspireResourceProperty(propValue, false)
+            "container.ports" -> containerPorts = AspireResourceProperty(propValue, false)
+            "container.command" -> containerCommand = AspireResourceProperty(propValue, false)
+            "container.args" -> containerArgs = AspireResourceProperty(propValue, false)
+            "container.lifetime" -> containerLifetime = AspireResourceProperty(propValue, false)
+            "resource.connectionString" -> connectionString = AspireResourceProperty(propValue, false)
+            "Value" -> value = AspireResourceProperty(propValue, false)
+        }
+    }
+
+    val resourceUrls = urls.orEmpty().mapNotNull {
+        val url = it.url ?: return@mapNotNull null
+        ResourceUrl(
+            endpointName = it.name,
+            fullUrl = url,
+            isInternal = it.isInternal,
+            isInactive = false,
+            sortOrder = 0,
+            displayName = it.displayName ?: it.name.orEmpty(),
+        )
+    }
+    val resourceEnvironment = environment.orEmpty().map { (key, value) ->
+        ResourceEnvironmentVariable(key, value)
+    }
+    val resourceVolumes = volumes.orEmpty().map {
+        ResourceVolume(it.source.orEmpty(), it.target.orEmpty(), it.mountType.orEmpty(), it.isReadOnly)
+    }
+    val resourceRelationships = relationships.orEmpty().mapNotNull {
+        val targetName = it.resourceName ?: return@mapNotNull null
+        ResourceRelationship(targetName, it.type.orEmpty())
+    }
+    val parentDisplayName = resourceRelationships.getParentDisplayName()
+    val resourceCommands = commands
+        .orEmpty()
+        .entries
+        .sortedBy { it.value.sortOrder ?: 0 }
+        .map { (commandName, command) ->
             ResourceCommand(
                 name = commandName,
                 displayName = command.displayName ?: commandName,
@@ -73,36 +116,56 @@ private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPat
                     ResourceCommandState.entries.find { it.name == command.state } ?: ResourceCommandState.Disabled
                 },
             )
-        },
-        createdAt = null,
-        startedAt = null,
-        stoppedAt = null,
-        exitCode = (exitCode ?: property("resource.exitCode")?.value?.toIntOrNull())
-            ?.let { AspireResourceProperty(it, false) },
-        pid = property("executable.pid")?.value?.toIntOrNull()
-            ?.let { AspireResourceProperty(it, false) },
-        projectPath = property("project.path")
-            ?.let { AspireResourceProperty(AspirePath(it.value), it.isSensitive) },
-        executablePath = property("executable.path")
-            ?.let { AspireResourceProperty(AspirePath(it.value), it.isSensitive) },
-        executableWorkDir = property("executable.workDir")
-            ?.let { AspireResourceProperty(AspirePath(it.value), it.isSensitive) },
-        args = property("executable.args"),
-        containerImage = property("container.image"),
-        containerId = property("container.id"),
-        containerPorts = property("container.ports"),
-        containerCommand = property("container.command"),
-        containerArgs = property("container.args"),
-        containerLifetime = property("container.lifetime"),
-        connectionString = property("resource.connectionString"),
-        source = source
-            ?.let { AspireResourceProperty(it, false) } ?: property("resource.source"),
-        value = property("Value"),
+        }
+    val timezone = TimeZone.currentSystemDefault()
+
+    return AspireResourceData(
+        id = AspireResourceId(appHostPath, resourceName),
+        uid = uid ?: resourceName,
+        name = resourceName,
+        type = mapResourceType(resourceType.orEmpty()),
+        launchConfigurationType = launchConfigurationType,
+        originType = resourceType.orEmpty(),
+        displayName = displayName ?: resourceName,
+        state = resourceState,
+        stateStyle = resourceStateStyle,
+        isHidden = resourceState == ResourceState.Hidden,
+        healthStatus = calculateHealthStatus(resourceState),
+        urls = resourceUrls,
+        environment = resourceEnvironment,
+        volumes = resourceVolumes,
+        relationships = resourceRelationships,
+        parentDisplayName = parentDisplayName,
+        commands = resourceCommands,
+        createdAt = creationTimestamp.toResourceTimestamp(timezone),
+        startedAt = startTimestamp.toResourceTimestamp(timezone),
+        stoppedAt = stopTimestamp.toResourceTimestamp(timezone),
+        exitCode = exitCode?.let { AspireResourceProperty(it, false) },
+        pid = pid,
+        projectPath = projectPath,
+        executablePath = executablePath,
+        executableWorkDir = executableWorkDir,
+        args = args,
+        containerImage = containerImage,
+        containerId = containerId,
+        containerPorts = containerPorts,
+        containerCommand = containerCommand,
+        containerArgs = containerArgs,
+        containerLifetime = containerLifetime,
+        connectionString = connectionString,
+        source = source?.let { AspireResourceProperty(it, false) },
+        value = value,
     )
 }
 
-private fun AspireCliResource.property(name: String): AspireResourceProperty<String>? =
-    properties?.get(name)?.stringValue()?.let { AspireResourceProperty(it, false) }
+private fun String?.toResourceTimestamp(timezone: TimeZone): LocalDateTime? {
+    if (this == null) return null
+    return try {
+        Instant.parse(this).toLocalDateTime(timezone)
+    } catch (_: IllegalArgumentException) {
+        null
+    }
+}
 
 private fun JsonElement.stringValue(): String? = when (this) {
     is JsonPrimitive -> contentOrNull
@@ -112,19 +175,17 @@ private fun JsonElement.stringValue(): String? = when (this) {
 
 private fun AspireCliResource.calculateHealthStatus(state: ResourceState?): ResourceHealthStatus? {
     if (state != ResourceState.Running) return null
+
     ResourceHealthStatus.entries.find { it.name == healthStatus }?.let { return it }
-    val statuses = healthReports.orEmpty().values.map { it.status }
+
+    if (healthReports.isNullOrEmpty()) return ResourceHealthStatus.Healthy
+
+    val statuses = healthReports.values.map { it.status }
+    if (statuses.any { it == null }) return ResourceHealthStatus.Unhealthy
+
     return when {
-        statuses.any { it == null || it == "Unhealthy" } -> ResourceHealthStatus.Unhealthy
+        statuses.any { it == "Unhealthy" } -> ResourceHealthStatus.Unhealthy
         statuses.any { it == "Degraded" } -> ResourceHealthStatus.Degraded
         else -> ResourceHealthStatus.Healthy
     }
-}
-
-private fun mapResourceType(type: String): ResourceType = when (type) {
-    "MongoDBDatabaseResource" -> ResourceType.MongoDB
-    "MySqlDatabaseResource" -> ResourceType.MySql
-    "PostgresDatabaseResource" -> ResourceType.Postgres
-    "SqlServerDatabaseResource" -> ResourceType.SqlServer
-    else -> ResourceType.entries.find { it.name == type } ?: ResourceType.Unknown
 }

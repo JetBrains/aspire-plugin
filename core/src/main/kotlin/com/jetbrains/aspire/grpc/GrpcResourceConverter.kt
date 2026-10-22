@@ -16,6 +16,11 @@ import com.jetbrains.aspire.resources.AspireResourceCommandResponseKind
 import com.jetbrains.aspire.resources.AspireResourceCommandResult
 import com.jetbrains.aspire.resources.AspireResourceCommandResultFormat
 import com.jetbrains.aspire.resources.AspireResourceUpdate
+import com.jetbrains.aspire.util.getParentDisplayName
+import com.jetbrains.aspire.util.mapLaunchConfigurationType
+import com.jetbrains.aspire.util.mapResourceState
+import com.jetbrains.aspire.util.mapResourceStateStyle
+import com.jetbrains.aspire.util.mapResourceType
 import com.jetbrains.aspire.util.parseLogEntry
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireAppHostPath
@@ -30,8 +35,6 @@ import com.jetbrains.aspire.worker.ResourceHealthStatus
 import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceRelationship
 import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceStateStyle
-import com.jetbrains.aspire.worker.ResourceType
 import com.jetbrains.aspire.worker.ResourceUrl
 import com.jetbrains.aspire.worker.ResourceVolume
 import kotlinx.datetime.LocalDateTime
@@ -135,7 +138,7 @@ fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourc
     val relationships = relationshipsList.map {
         ResourceRelationship(it.resourceName, it.type)
     }
-    val parentDisplayName = relationshipsList.firstOrNull { it.type.equals("parent", true) }?.resourceName
+    val parentDisplayName = relationships.getParentDisplayName()
 
     val commands = commandsList.map {
         ResourceCommand(
@@ -248,49 +251,6 @@ private fun calculateHealthStatus(
         statuses.any { it == HealthStatus.HEALTH_STATUS_DEGRADED } -> ResourceHealthStatus.Degraded
         else -> ResourceHealthStatus.Healthy
     }
-}
-
-private fun mapResourceType(type: String): ResourceType = when (type) {
-    "Project" -> ResourceType.Project
-    "Container" -> ResourceType.Container
-    "Executable" -> ResourceType.Executable
-    "Parameter" -> ResourceType.Parameter
-    "ExternalService" -> ResourceType.ExternalService
-    "MongoDBDatabaseResource" -> ResourceType.MongoDB
-    "MySqlDatabaseResource" -> ResourceType.MySql
-    "PostgresDatabaseResource" -> ResourceType.Postgres
-    "SqlServerDatabaseResource" -> ResourceType.SqlServer
-    "AzureStorageResource" -> ResourceType.AzureStorageResource
-    else -> ResourceType.Unknown
-}
-
-private fun mapLaunchConfigurationType(type: String): ResourceLaunchConfigurationType = when (type) {
-    "project" -> ResourceLaunchConfigurationType.Project
-    "azure-functions" -> ResourceLaunchConfigurationType.AzureFunctions
-    else -> ResourceLaunchConfigurationType.Unknown
-}
-
-private fun mapResourceState(state: String): ResourceState = when (state) {
-    "Building" -> ResourceState.Building
-    "Starting" -> ResourceState.Starting
-    "Running" -> ResourceState.Running
-    "FailedToStart" -> ResourceState.FailedToStart
-    "RuntimeUnhealthy" -> ResourceState.RuntimeUnhealthy
-    "Stopping" -> ResourceState.Stopping
-    "Exited" -> ResourceState.Exited
-    "Finished" -> ResourceState.Finished
-    "Waiting" -> ResourceState.Waiting
-    "NotStarted" -> ResourceState.NotStarted
-    "Hidden" -> ResourceState.Hidden
-    else -> ResourceState.Unknown
-}
-
-private fun mapResourceStateStyle(style: String): ResourceStateStyle = when (style) {
-    "success" -> ResourceStateStyle.Success
-    "info" -> ResourceStateStyle.Info
-    "warning" -> ResourceStateStyle.Warning
-    "error" -> ResourceStateStyle.Error
-    else -> ResourceStateStyle.Unknown
 }
 
 private fun mapCommandState(state: GrpcCommandState): ResourceCommandState = when (state) {

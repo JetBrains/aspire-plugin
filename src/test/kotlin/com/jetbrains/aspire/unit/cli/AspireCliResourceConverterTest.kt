@@ -3,7 +3,9 @@ package com.jetbrains.aspire.unit.cli
 import com.jetbrains.aspire.cli.AspireCliResource
 import com.jetbrains.aspire.cli.AspireCliResourceCommand
 import com.jetbrains.aspire.cli.AspireCliResourceHealthReport
+import com.jetbrains.aspire.cli.AspireCliResourceRelationship
 import com.jetbrains.aspire.cli.AspireCliResourceUrl
+import com.jetbrains.aspire.cli.AspireCliResourceVolume
 import com.jetbrains.aspire.cli.toAspireResourceUpdate
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
@@ -13,11 +15,16 @@ import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceProperty
 import com.jetbrains.aspire.worker.ResourceCommandState
+import com.jetbrains.aspire.worker.ResourceEnvironmentVariable
 import com.jetbrains.aspire.worker.ResourceHealthStatus
 import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
+import com.jetbrains.aspire.worker.ResourceRelationship
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceStateStyle
 import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceVolume
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import org.junit.jupiter.api.Test
@@ -29,6 +36,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 
 internal class AspireCliResourceConverterTest {
     private val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
@@ -48,6 +56,18 @@ internal class AspireCliResourceConverterTest {
         assertEquals("Project", data.originType)
         assertEquals(ResourceState.Starting, data.state)
         assertEquals(ResourceStateStyle.Info, data.stateStyle)
+    }
+
+    @Test
+    fun `resource UID is preserved separately from its name`() {
+        val resource = AspireCliResource("api", uid = "api-123")
+        val expectedId = AspireResourceId(appHostPath, "api")
+
+        val data = convert(resource)
+
+        assertEquals("api-123", data.uid)
+        assertEquals("api", data.name)
+        assertEquals(expectedId, data.id)
     }
 
     @Test
@@ -88,6 +108,38 @@ internal class AspireCliResourceConverterTest {
 
         assertEquals(expected, data.type)
         assertEquals(type, data.originType)
+    }
+
+    @Test
+    fun `absent resource type is unknown`() {
+        val resource = AspireCliResource("api")
+
+        val data = convert(resource)
+
+        assertEquals(ResourceType.Unknown, data.type)
+        assertEquals("", data.originType)
+    }
+
+    @ParameterizedTest
+    @CsvSource("Building, Building", "Starting, Starting", "Running, Running", "FailedToStart, FailedToStart",
+               "RuntimeUnhealthy, RuntimeUnhealthy", "Stopping, Stopping", "Exited, Exited", "Finished, Finished",
+               "Waiting, Waiting", "NotStarted, NotStarted", "Hidden, Hidden", "FutureState, Unknown")
+    fun `resource states are converted including unknown values`(state: String, expected: ResourceState) {
+        val resource = AspireCliResource("api", state = state)
+
+        val data = convert(resource)
+
+        assertEquals(expected, data.state)
+    }
+
+    @ParameterizedTest
+    @CsvSource("success, Success", "info, Info", "warning, Warning", "error, Error", "future-style, Unknown")
+    fun `resource state styles are converted including unknown values`(style: String, expected: ResourceStateStyle) {
+        val resource = AspireCliResource("api", stateStyle = style)
+
+        val data = convert(resource)
+
+        assertEquals(expected, data.stateStyle)
     }
 
     @Test
@@ -158,6 +210,17 @@ internal class AspireCliResourceConverterTest {
     }
 
     @Test
+    fun `endpoints without a URL are ignored`() {
+        val endpointWithoutUrl = AspireCliResourceUrl(name = "pending")
+        val endpointWithUrl = AspireCliResourceUrl(url = "http://localhost:1234")
+        val resource = AspireCliResource("api", urls = listOf(endpointWithoutUrl, endpointWithUrl))
+
+        val data = convert(resource)
+
+        assertEquals(listOf("http://localhost:1234"), data.urls.map { it.fullUrl })
+    }
+
+    @Test
     fun `commands preserve names descriptions and states`() {
         val commands = mapOf(
             "restart" to AspireCliResourceCommand("Restart", "Restart the resource", "Highlighted", "Enabled"),
@@ -179,10 +242,121 @@ internal class AspireCliResourceConverterTest {
     }
 
     @Test
+    fun `environment preserves variable names and nullable values`() {
+        val environment = linkedMapOf("MODE" to "Development", "EMPTY" to "", "UNRESOLVED" to null)
+        val resource = AspireCliResource("api", environment = environment)
+        val expected = listOf(
+            ResourceEnvironmentVariable("MODE", "Development"),
+            ResourceEnvironmentVariable("EMPTY", ""),
+            ResourceEnvironmentVariable("UNRESOLVED", null),
+        )
+
+        val data = convert(resource)
+
+        assertEquals(expected, data.environment)
+    }
+
+    @Test
+    fun `volumes preserve source target mount type and read only flag`() {
+        val bindMount = AspireCliResourceVolume("/data", "/app/data", "bind", true)
+        val namedVolume = AspireCliResourceVolume("cache-data", "/cache", "volume")
+        val resource = AspireCliResource("api", volumes = listOf(bindMount, namedVolume))
+        val expected = listOf(
+            ResourceVolume("/data", "/app/data", "bind", true),
+            ResourceVolume("cache-data", "/cache", "volume", false),
+        )
+
+        val data = convert(resource)
+
+        assertEquals(expected, data.volumes)
+    }
+
+    @Test
+    fun `omitted volume fields use empty string defaults`() {
+        val volume = AspireCliResourceVolume(target = "/data")
+        val resource = AspireCliResource("api", volumes = listOf(volume))
+        val expected = ResourceVolume("", "/data", "", false)
+
+        val data = convert(resource)
+
+        assertEquals(listOf(expected), data.volumes)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["Parent", "parent", "PARENT"])
+    fun `relationships preserve targets and identify the first parent ignoring case`(parentType: String) {
+        val reference = AspireCliResourceRelationship("Reference", "database")
+        val parent = AspireCliResourceRelationship(parentType, "group")
+        val otherParent = AspireCliResourceRelationship("Parent", "other-group")
+        val resource = AspireCliResource("api", relationships = listOf(reference, parent, otherParent))
+        val expected = listOf(
+            ResourceRelationship("database", "Reference"),
+            ResourceRelationship("group", parentType),
+            ResourceRelationship("other-group", "Parent"),
+        )
+
+        val data = convert(resource)
+
+        assertEquals(expected, data.relationships)
+        assertEquals("group", data.parentDisplayName)
+    }
+
+    @Test
+    fun `relationships without a target are ignored and missing types use an empty string`() {
+        val missingTarget = AspireCliResourceRelationship(type = "Parent")
+        val missingType = AspireCliResourceRelationship(resourceName = "database")
+        val futureType = AspireCliResourceRelationship("FutureType", "cache")
+        val resource = AspireCliResource("api", relationships = listOf(missingTarget, missingType, futureType))
+        val expected = listOf(ResourceRelationship("database", ""), ResourceRelationship("cache", "FutureType"))
+
+        val data = convert(resource)
+
+        assertEquals(expected, data.relationships)
+        assertNull(data.parentDisplayName)
+    }
+
+    @Test
+    fun `timestamps preserve instants and fractional seconds in the system time zone`() {
+        val resource = AspireCliResource(
+            "api",
+            creationTimestamp = "2026-10-22T10:00:00.1234567+02:00",
+            startTimestamp = "2026-10-22T04:00:01-04:00",
+            stopTimestamp = "2026-10-22T08:01:00Z",
+        )
+        val timezone = TimeZone.currentSystemDefault()
+        val expectedCreatedAt = Instant.parse("2026-10-22T08:00:00.1234567Z").toLocalDateTime(timezone)
+        val expectedStartedAt = Instant.parse("2026-10-22T08:00:01Z").toLocalDateTime(timezone)
+        val expectedStoppedAt = Instant.parse("2026-10-22T08:01:00Z").toLocalDateTime(timezone)
+
+        val data = convert(resource)
+
+        assertEquals(expectedCreatedAt, data.createdAt)
+        assertEquals(expectedStartedAt, data.startedAt)
+        assertEquals(expectedStoppedAt, data.stoppedAt)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["", "invalid", "2026-10-22T08:00:00", "2026-99-99T08:00:00Z"])
+    fun `invalid timestamps do not interrupt conversion of valid fields`(timestamp: String) {
+        val resource = AspireCliResource(
+            "api",
+            creationTimestamp = timestamp,
+            startTimestamp = "2026-10-22T08:00:01Z",
+            stopTimestamp = timestamp,
+        )
+        val expectedStartedAt = Instant.parse("2026-10-22T08:00:01Z").toLocalDateTime(TimeZone.currentSystemDefault())
+
+        val data = convert(resource)
+
+        assertNull(data.createdAt)
+        assertEquals(expectedStartedAt, data.startedAt)
+        assertNull(data.stoppedAt)
+    }
+
+    @Test
     fun `properties populate process paths and container data`() {
         val properties = mapOf(
             "resource.launchConfigurationType" to "project",
-            "resource.exitCode" to "7",
             "executable.pid" to "123",
             "project.path" to "/src/api.csproj",
             "executable.path" to "/usr/bin/api",
@@ -195,10 +369,9 @@ internal class AspireCliResourceConverterTest {
             "container.args" to "--save 60 1",
             "container.lifetime" to "Persistent",
             "resource.connectionString" to "localhost:6379",
-            "resource.source" to "redis",
             "Value" to "parameter value",
         ).mapValues { (_, value) -> JsonPrimitive(value) }
-        val resource = AspireCliResource("api", resourceType = "Project", properties = properties)
+        val resource = AspireCliResource("api", resourceType = "Project", exitCode = 7, source = "redis", properties = properties)
 
         val data = convert(resource)
 
@@ -226,9 +399,9 @@ internal class AspireCliResourceConverterTest {
             {
               "name":"apiservice-zytddxap",
               "resourceType":"Project",
+              "exitCode":0,
               "properties":{
                 "executable.pid":78722,
-                "resource.exitCode":0,
                 "executable.args":null,
                 "executable.path":"dotnet",
                 "project.path":"/src/ApiService.csproj",
@@ -259,10 +432,8 @@ internal class AspireCliResourceConverterTest {
     }
 
     @Test
-    fun `explicit exit code and source take precedence over properties`() {
-        val properties = mapOf("resource.exitCode" to "1", "resource.source" to "property source")
-            .mapValues { (_, value) -> JsonPrimitive(value) }
-        val resource = AspireCliResource("api", resourceType = "Project", exitCode = 7, source = "cli source", properties = properties)
+    fun `explicit exit code and source are converted`() {
+        val resource = AspireCliResource("api", resourceType = "Project", exitCode = 7, source = "cli source")
 
         val data = convert(resource)
 
@@ -272,13 +443,12 @@ internal class AspireCliResourceConverterTest {
 
     @Test
     fun `invalid and null property values are ignored`() {
-        val properties = mapOf("resource.exitCode" to "invalid", "executable.pid" to "9999999999999", "project.path" to null)
+        val properties = mapOf("executable.pid" to "9999999999999", "project.path" to null)
             .mapValues { (_, value) -> JsonPrimitive(value) }
         val resource = AspireCliResource("api", resourceType = "Project", properties = properties)
 
         val data = convert(resource)
 
-        assertNull(data.exitCode)
         assertNull(data.pid)
         assertNull(data.projectPath)
     }
@@ -287,14 +457,13 @@ internal class AspireCliResourceConverterTest {
     @ValueSource(strings = ["true", "[]", "{\"value\":1}", "\"invalid\"", "9999999999999", "null"])
     fun `invalid numeric JSON properties are ignored`(value: String) {
         val json = """
-            {"name":"api","resourceType":"Project","properties":{"executable.pid":$value,"resource.exitCode":$value}}
+            {"name":"api","resourceType":"Project","properties":{"executable.pid":$value}}
         """.trimIndent()
 
         val resource = Json.decodeFromString<AspireCliResource>(json)
         val data = convert(resource)
 
         assertNull(data.pid)
-        assertNull(data.exitCode)
     }
 
     private fun convert(resource: AspireCliResource): AspireResourceData {
