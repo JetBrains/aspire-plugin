@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Improve resource monitoring for Aspire CLI run configuration
+
+## [2.9.7] - 2026-10-20
+
 ### Added
 
 - Resource watching for the Aspire CLI run configuration
@@ -797,7 +803,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.6...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.7...HEAD
+[2.9.7]: https://github.com/JetBrains/aspire-plugin/compare/2.9.6...2.9.7
 [2.9.6]: https://github.com/JetBrains/aspire-plugin/compare/2.9.5...2.9.6
 [2.9.5]: https://github.com/JetBrains/aspire-plugin/compare/2.9.4...2.9.5
 [2.9.4]: https://github.com/JetBrains/aspire-plugin/compare/2.9.3...2.9.4

@@ -26,7 +26,7 @@ data class AspireResourceData(
     val environment: List<ResourceEnvironmentVariable>,
     val volumes: List<ResourceVolume>,
     val relationships: List<ResourceRelationship>,
-    val parentDisplayName: String?,
+    val parentName: String?,
     val commands: List<ResourceCommand>,
     val createdAt: LocalDateTime?,
     val startedAt: LocalDateTime?,

@@ -3,7 +3,6 @@ package com.jetbrains.aspire.unit.cli
 import com.intellij.execution.ExecutionException
 import com.intellij.testFramework.common.timeoutRunBlocking
 import com.intellij.util.ExceptionUtil
-import com.jetbrains.aspire.cli.AspireCliResourceCommandInputType
 import com.jetbrains.aspire.cli.AspireCliResourceWatcher
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import kotlinx.coroutines.*
@@ -12,7 +11,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 import org.junit.jupiter.api.Test
 import java.io.IOException
@@ -63,7 +61,8 @@ internal class AspireCliResourceWatcherTest {
             {invalid json}
             {}
             {"name":"","resourceType":"Project"}
-            {"name":"missing-type"}
+            {"name":null,"resourceType":"Project"}
+            {"name":"   ","resourceType":"Project"}
             {"name":"api","resourceType":"Project","futureField":true}
         """.trimIndent()
         val stdout = TestReceiveChannel(output)
@@ -76,13 +75,29 @@ internal class AspireCliResourceWatcherTest {
     }
 
     @Test
+    fun `resources without a type still produce updates`() = runTest(timeout = 10.seconds) {
+        val output = """
+            {"name":"missing-type"}
+            {"name":"null-type","resourceType":null}
+        """.trimIndent()
+        val stdout = TestReceiveChannel(output)
+        val process = TestProcess(stdout = stdout)
+        val watcher = AspireCliResourceWatcher { process }
+
+        val updates = watcher.watchResources().toList()
+
+        assertEquals(listOf("missing-type", "null-type"), updates.map { it.name })
+        assertTrue(updates.all { it.resourceType == null })
+    }
+
+    @Test
     fun `nested resource models are deserialized`() = runTest(timeout = 10.seconds) {
         val output = """
             {"name":"api","resourceType":"Project","healthReports":{"ready":{"status":"Healthy"}},"urls":[{"url":"https://localhost:1234","isInternal":false}],"properties":{"pid":"123","optional":null,"executable.pid":78722,"resource.appArgs":[]},"commands":{"restart":{"argumentInputs":[{"name":"force","inputType":"Boolean","required":true}]}}}
         """.trimIndent()
         val expectedProperties = mapOf(
             "pid" to JsonPrimitive("123"),
-            "optional" to JsonNull,
+            "optional" to null,
             "executable.pid" to JsonPrimitive(78722),
             "resource.appArgs" to JsonArray(emptyList()),
         )
@@ -96,7 +111,7 @@ internal class AspireCliResourceWatcherTest {
         assertEquals("https://localhost:1234", resource.urls?.single()?.url)
         assertEquals(expectedProperties, resource.properties)
         val argument = resource.commands?.get("restart")?.argumentInputs?.single()
-        assertEquals(AspireCliResourceCommandInputType.Boolean, argument?.inputType)
+        assertEquals("Boolean", argument?.inputType)
         assertEquals(true, argument?.required)
     }
 
