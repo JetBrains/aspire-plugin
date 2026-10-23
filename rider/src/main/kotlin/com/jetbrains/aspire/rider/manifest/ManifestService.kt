@@ -11,6 +11,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorOpenRequest
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.platform.ide.progress.withBackgroundProgress
@@ -77,7 +78,10 @@ class ManifestService(private val project: Project) {
                     ?.takeIf { it.isValid }
                 if (file != null) {
                     withContext(Dispatchers.EDT) {
-                        FileEditorManager.getInstance(project).openFile(file, true)
+                        val request = FileEditorOpenRequest.withFocus(true)
+                        FileEditorManager
+                            .getInstance(project)
+                            .requestOpenFile(file, request)
                     }
                 }
             } else {
