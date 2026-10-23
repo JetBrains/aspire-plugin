@@ -1,0 +1,7 @@
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.aspire.shared"/>
+        <module name="intellij.aspire.core"/>
+        <plugin id="com.jetbrains.opentelemetry"/>
+    </dependencies>
+</idea-plugin>

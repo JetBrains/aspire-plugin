@@ -11,6 +11,7 @@
 | `diagram`  | Architecture visualization (bundled Diagram plugin dependency)   | `shared`   |
 | `docker`   | Docker container integration                                     | `core`     |
 | `database` | Database connection support                                      | `core`     |
+| `opentelemetry` | OpenTelemetry integration scaffolding (no services yet)      | `shared` + `core` + OpenTelemetry plugin |
 
 ## .NET projects (`src/dotnet/`)
 

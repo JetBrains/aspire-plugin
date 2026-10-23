@@ -27,6 +27,9 @@ netty = "4.2.16.Final"
 # Keep aligned with the IDE's coroutines-core; the test library's own core dependency is excluded.
 coroutineTest = "1.10.2"
 
+# IntelliJ plugins
+openTelemetry = "2.3.4"
+
 # plugins
 kotlin = "2.4.20"
 changelog = "2.5.0"

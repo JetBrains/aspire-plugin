@@ -27,6 +27,7 @@
         <module name="intellij.aspire.diagram"/>
         <module name="intellij.aspire.docker"/>
         <module name="intellij.aspire.database"/>
+        <module name="intellij.aspire.opentelemetry"/>
     </content>
 
     <extensions defaultExtensionNs="com.intellij">
