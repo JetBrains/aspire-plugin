@@ -28,7 +28,7 @@ netty = "4.2.16.Final"
 coroutineTest = "1.10.2"
 
 # IntelliJ plugins
-openTelemetry = "2.3.4"
+openTelemetry = "2.3.5"
 
 # plugins
 kotlin = "2.4.20"

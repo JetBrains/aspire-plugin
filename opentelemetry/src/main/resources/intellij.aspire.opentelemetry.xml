@@ -4,4 +4,9 @@
         <module name="intellij.aspire.core"/>
         <plugin id="com.jetbrains.opentelemetry"/>
     </dependencies>
+
+    <applicationListeners>
+        <listener class="com.jetbrains.aspire.opentelemetry.AspireOpenTelemetryServerListener"
+                  topic="com.jetbrains.opentelemetry.core.service.OpenTelemetryServerListener"/>
+    </applicationListeners>
 </idea-plugin>
