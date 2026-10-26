@@ -7,6 +7,7 @@
 ### Changed
 
 - Improve resource monitoring for Aspire CLI run configuration
+- Update platform version to 2026.3-EAP8
 
 ## [2.9.7] - 2026-10-20
 
