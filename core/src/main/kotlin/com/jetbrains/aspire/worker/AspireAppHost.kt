@@ -77,6 +77,14 @@ class AspireAppHost(
         }
         .stateIn(cs, SharingStarted.Eagerly, null)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val aspireOtlpUrl: StateFlow<String?> = rootResources
+        .map { resources -> resources.firstOrNull { it.displayName == "aspire-dashboard" } }
+        .flatMapLatest { resource ->
+            resource?.data?.map { selectOtlpUrl(it.urls) } ?: flowOf(null)
+        }
+        .stateIn(cs, SharingStarted.Eagerly, null)
+
     override val data: StateFlow<AspireAppHostData> = appHostState
         .map { state -> toData(state) }
         .stateIn(cs, SharingStarted.Eagerly, toData(appHostState.value))
@@ -169,6 +177,10 @@ class AspireAppHost(
         val dashboardUrls = urls.filter { it.displayName.contains("dashboard", ignoreCase = true) }
         return dashboardUrls.firstOrNull { it.fullUrl.startsWith("https://", ignoreCase = true) }?.fullUrl
             ?: dashboardUrls.firstOrNull { it.fullUrl.startsWith("http://", ignoreCase = true) }?.fullUrl
+    }
+
+    private fun selectOtlpUrl(urls: List<ResourceUrl>): String? {
+        return urls.firstOrNull { it.endpointName?.contains("otlp-grpc", ignoreCase = true) ?: false }?.fullUrl
     }
 
     private inner class AppHostLifecycleListener : AppHostListener {

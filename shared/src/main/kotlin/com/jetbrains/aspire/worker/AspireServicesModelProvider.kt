@@ -16,6 +16,7 @@ interface AspireAppHostModel {
     val data: StateFlow<AspireAppHostData>
     val rootResources: StateFlow<List<AspireResourceModel>>
     val aspireDashboardUrl: StateFlow<String?>
+    val aspireOtlpUrl: StateFlow<String?>
     val logFlow: StateFlow<SharedFlow<AppHostLogEntry>?>
 }
 
