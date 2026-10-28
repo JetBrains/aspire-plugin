@@ -2,7 +2,7 @@ package com.jetbrains.aspire
 
 import com.intellij.openapi.help.WebHelpProvider
 
-class AspireHelpProvider : WebHelpProvider() {
+internal class AspireHelpProvider : WebHelpProvider() {
     companion object {
         const val HELP_ID_PREFIX = "com.jetbrains.aspire."
         private const val HELP_DOCS = "https://www.jetbrains.com/help/rider"

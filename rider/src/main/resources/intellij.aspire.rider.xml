@@ -2,6 +2,7 @@
     <dependencies>
         <module name="intellij.aspire.shared"/>
         <module name="intellij.aspire.core"/>
+        <module name="intellij.aspire.core.frontend"/>
         <module name="intellij.rd.client"/>
         <module name="intellij.execution.multilaunch.core"/>
         <module name="intellij.rider.rdclient.dotnet"/>

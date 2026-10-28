@@ -8,6 +8,9 @@ import kotlin.io.path.absolutePathString
 @ApiStatus.Internal
 fun AspirePath.toNioPath(): Path = Path(value)
 
+@ApiStatus.Internal
+fun AspireAppHostPath.toNioPath(): Path = Path(value)
+
 internal fun Path.toAspireAppHostPath(): AspireAppHostPath = AspireAppHostPath(absolutePathString())
 
 @ApiStatus.Internal

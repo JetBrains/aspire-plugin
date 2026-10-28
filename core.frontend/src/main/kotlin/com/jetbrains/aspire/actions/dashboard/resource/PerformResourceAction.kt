@@ -12,7 +12,7 @@ import com.intellij.openapi.ui.popup.JBPopupListener
 import com.intellij.openapi.ui.popup.LightweightWindowEvent
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
-import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.AspireCoreFrontendBundle
 import com.jetbrains.aspire.worker.AspireResourceCommandExecutor
 import com.jetbrains.aspire.worker.getNonDefaultCommands
 import com.jetbrains.aspire.worker.ResourceCommand
@@ -33,7 +33,7 @@ internal class PerformResourceAction : AspireResourceBaseAction() {
 
             val popup = JBPopupFactory.getInstance().createListPopup(object :
                 BaseListPopupStep<ResourceCommand>(
-                    AspireCoreBundle.message("resource.choose.command.popup.header"),
+                    AspireCoreFrontendBundle.message("resource.choose.command.popup.header"),
                     commands
                 ) {
 

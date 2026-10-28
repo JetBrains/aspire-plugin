@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
 import com.jetbrains.aspire.actions.ASPIRE_APP_HOST_DASHBOARD_URL
 
-class AspireOpenDashboardAction : DumbAwareAction() {
+internal class AspireOpenDashboardAction : DumbAwareAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val dashboardUrl = event.getData(ASPIRE_APP_HOST_DASHBOARD_URL)
         if (dashboardUrl.isNullOrEmpty()) return

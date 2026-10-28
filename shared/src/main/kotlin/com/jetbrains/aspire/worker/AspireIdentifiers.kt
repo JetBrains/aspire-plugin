@@ -2,8 +2,6 @@ package com.jetbrains.aspire.worker
 
 import kotlinx.serialization.Serializable
 import org.jetbrains.annotations.ApiStatus
-import java.nio.file.Path
-import kotlin.io.path.Path
 
 @ApiStatus.Internal
 @Serializable
@@ -22,9 +20,6 @@ value class AspireAppHostId(val value: String)
 @Serializable
 @JvmInline
 value class AspireAppHostPath(val value: String)
-
-@ApiStatus.Internal
-fun AspireAppHostPath.toNioPath(): Path = Path(value)
 
 @ApiStatus.Internal
 @Serializable

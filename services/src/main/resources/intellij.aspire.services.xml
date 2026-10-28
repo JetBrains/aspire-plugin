@@ -2,6 +2,7 @@
     <dependencies>
         <module name="intellij.aspire.shared"/>
         <module name="intellij.aspire.core"/>
+        <module name="intellij.aspire.core.frontend"/>
         <plugin id="intellij.execution.serviceView.plugin"/>
     </dependencies>
 

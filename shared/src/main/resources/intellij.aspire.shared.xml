@@ -10,6 +10,10 @@
                         dynamic="true"/>
     </extensionPoints>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <iconMapper mappingFile="AspireSharedIconMappings.json"/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.jetbrains.aspire">
         <resourceIconProvider implementation="com.jetbrains.aspire.util.BaseAspireResourceIconProvider"/>
     </extensions>
