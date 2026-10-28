@@ -3,6 +3,7 @@
         <module name="intellij.aspire.shared"/>
         <module name="intellij.aspire.core"/>
         <plugin id="com.jetbrains.opentelemetry"/>
+        <module name="intellij.opentelemetry.core"/>
     </dependencies>
 
     <applicationListeners>
