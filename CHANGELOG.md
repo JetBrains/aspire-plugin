@@ -6,6 +6,7 @@
 
 ### Changed
 
+- Update Aspire version to 13.6.4
 - Improve resource monitoring for Aspire CLI run configuration
 - Update platform version to 2026.3-EAP8
 
