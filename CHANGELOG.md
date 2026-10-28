@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [2.9.8] - 2026-10-28
+
 ### Changed
 
 - Update Aspire version to 13.6.4
@@ -805,7 +807,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.7...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.8...HEAD
+[2.9.8]: https://github.com/JetBrains/aspire-plugin/compare/2.9.7...2.9.8
 [2.9.7]: https://github.com/JetBrains/aspire-plugin/compare/2.9.6...2.9.7
 [2.9.6]: https://github.com/JetBrains/aspire-plugin/compare/2.9.5...2.9.6
 [2.9.5]: https://github.com/JetBrains/aspire-plugin/compare/2.9.4...2.9.5
