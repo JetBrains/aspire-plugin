@@ -16,13 +16,15 @@ import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.rider.sessions.findRunnableProjectByPathSuspending
 import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
 import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rd.util.lifetime.LifetimeDefinition
+import com.jetbrains.rd.util.threading.coroutines.synchronizeWith
 import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.run.configurations.dotNetFile.FileBasedProgramProjectManager
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import java.nio.file.Path
 import kotlin.io.path.extension
 import kotlin.io.path.nameWithoutExtension
@@ -39,9 +41,6 @@ internal class DotNetAppHostDebuggerExtension : AppHostDebuggerExtension {
     companion object {
         private val LOG = logger<DotNetAppHostDebuggerExtension>()
 
-        // Bound the search a little above the AppHost-side ASPIRE_DEBUGGER_TIMEOUT the runner sets (120s):
-        // keep looking while the AppHost is still blocked, but give up if it never appears.
-        private val DISCOVERY_TIMEOUT = 150.seconds
         private val POLL_INTERVAL = 1.seconds
 
         private val DOTNET_EXECUTABLE_NAMES = setOf("dotnet", "dotnet.exe")
@@ -51,42 +50,38 @@ internal class DotNetAppHostDebuggerExtension : AppHostDebuggerExtension {
 
     override fun isApplicable(appHostFilePath: Path): Boolean =
         when (appHostFilePath.extension.lowercase()) {
-            "csproj", "cs" -> true // C# project or single-file (apphost.cs) AppHost
+            "csproj", "cs" -> true
             else -> false
         }
 
-    override suspend fun attachToAppHost(appHostFilePath: Path, cliProcessPid: Long, project: Project, lifetime: Lifetime) {
-        val pid = withTimeoutOrNull(DISCOVERY_TIMEOUT) {
-            var found: Long? = null
-            val outputs = withBackgroundProgress(project, AspireRiderBundle.message("progress.waiting.for.apphost")) {
-                resolveAppHostOutputs(appHostFilePath, project, lifetime)
-            }
-
-            if (outputs.isEmpty())
-            {
-                LOG.warn("Could not find the .NET AppHost outputs for $appHostFilePath; skipping debugger attach")
-                return@withTimeoutOrNull null
-            }
-
-            while (found == null) {
-                // Re-resolved on every poll: the project model may still be loading when the run starts.
-                found = withContext(Dispatchers.IO) { findAppHostPid(outputs, cliProcessPid)?.pid?.value }
-                if (found == null) delay(POLL_INTERVAL)
-            }
-            found
+    override suspend fun attachToAppHost(
+        appHostFilePath: Path,
+        cliProcessPid: Long,
+        project: Project,
+        scope: CoroutineScope
+    ): Result<Unit> {
+        // Terminated when the run's scope is cancelled.
+        val lifetime = LifetimeDefinition().also { it.synchronizeWith(scope) }
+        val outputs = withBackgroundProgress(project, AspireRiderBundle.message("progress.waiting.for.apphost")) {
+            resolveAppHostOutputs(appHostFilePath, project, lifetime)
         }
 
-        if (pid == null) {
-            LOG.warn(
-                "Could not find the .NET AppHost process for $appHostFilePath by its project output within " +
-                    "$DISCOVERY_TIMEOUT; skipping debugger attach"
-            )
-            return
+        if (outputs.isEmpty()) {
+            LOG.warn("Could not find the .NET AppHost outputs for $appHostFilePath; skipping debugger attach")
+            return Result.failure(Exception("Could not find the .NET AppHost outputs for $appHostFilePath"))
+        }
+
+        // Polls until the AppHost appears; the caller cancels the attempt once it has waited long enough.
+        var pid: Long? = null
+        while (pid == null) {
+            pid = withContext(Dispatchers.IO) { findAppHostPid(outputs, cliProcessPid)?.pid?.value }
+            if (pid == null) delay(POLL_INTERVAL)
         }
 
         LOG.trace { "Attaching .NET debugger to AppHost process $pid ($appHostFilePath)" }
         AttachDebuggerService.getInstance(project)
             .attach(pid.toInt(), AspireRiderBundle.message("progress.attach.debugger.to.apphost"))
+        return Result.success(Unit)
     }
 
     /**

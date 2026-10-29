@@ -2,7 +2,7 @@ package com.jetbrains.aspire.extensions
 
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
-import com.jetbrains.rd.util.lifetime.Lifetime
+import kotlinx.coroutines.CoroutineScope
 import java.nio.file.Path
 
 interface AppHostDebuggerExtension {
@@ -22,5 +22,5 @@ interface AppHostDebuggerExtension {
 
     fun isApplicable(appHostFilePath: Path): Boolean
 
-    suspend fun attachToAppHost(appHostFilePath: Path, cliProcessPid: Long, project: Project, lifetime: Lifetime)
+    suspend fun attachToAppHost(appHostFilePath: Path, cliProcessPid: Long, project: Project, scope: CoroutineScope): Result<Unit>
 }

@@ -29,6 +29,12 @@ internal class AspireConfigurable : BoundConfigurable(AspireCoreBundle.message("
             checkBox(AspireCoreBundle.message("configurable.Aspire.show.app.host.not.debugged.notification"))
                 .bindSelected(settings::showAppHostNotDebuggedNotification)
         }
+        row(AspireCoreBundle.message("configurable.Aspire.app.host.attach.timeout")) {
+            intTextField(1..3600, 10)
+                .bindIntText(settings::appHostAttachTimeoutSeconds)
+                .columns(COLUMNS_TINY)
+                .comment(AspireCoreBundle.message("configurable.Aspire.app.host.attach.timeout.comment"))
+        }
         group(AspireCoreBundle.message("configurable.Aspire.dotnet")) {
             row {
                 checkBox(AspireCoreBundle.message("configurable.Aspire.force.build.of.apphost.referenced.projects"))

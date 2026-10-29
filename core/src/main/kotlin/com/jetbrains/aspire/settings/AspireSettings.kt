@@ -94,4 +94,10 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         set(value) {
             state.showAppHostNotDebuggedNotification = value
         }
+
+    var appHostAttachTimeoutSeconds
+        get() = state.appHostAttachTimeoutSeconds
+        set(value) {
+            state.appHostAttachTimeoutSeconds = value
+        }
 }

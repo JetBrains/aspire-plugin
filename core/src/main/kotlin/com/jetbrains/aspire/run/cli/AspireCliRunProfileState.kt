@@ -18,10 +18,13 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.diagnostic.getOrLogException
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
+import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.platform.eel.*
 import com.intellij.platform.eel.provider.*
+import com.intellij.platform.util.coroutines.childScope
 import com.intellij.psi.search.ExecutionSearchScopes
 import com.intellij.util.applyIf
 import com.intellij.util.execution.ParametersListUtil
@@ -36,15 +39,21 @@ import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.run.AspireExecutionListener.Companion.APP_HOST_ENVIRONMENT_KEY
 import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
+import com.jetbrains.aspire.settings.AspireConfigurable
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.*
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.name
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 internal class AspireCliRunProfileState(
     private val configuration: AspireCliRunConfiguration,
@@ -54,6 +63,10 @@ internal class AspireCliRunProfileState(
         private val LOG = logger<AspireCliRunProfileState>()
         private const val NOTIFICATION_GROUP = "Aspire"
         private const val INSTALL_URL = "https://aspire.dev/get-started/install-cli/"
+
+        // The attach attempt is bounded a little above the AppHost-side `ASPIRE_DEBUGGER_TIMEOUT`: keep looking
+        // while the AppHost is still blocked, but give up if it never appears.
+        private val ATTACH_TIMEOUT_MARGIN = 30.seconds
     }
 
     private val containerRuntimeNotificationCount = AtomicInteger()
@@ -80,7 +93,8 @@ internal class AspireCliRunProfileState(
 
         val debugServices = executor.id == DefaultDebugExecutor.EXECUTOR_ID
         val appHostDebugger = if (debugServices) resolveAppHostDebugger(appHostFile) else null
-        configureDebuggingEnvironmentVariables(debugServices, appHostDebugger != null, envs)
+        val appHostAttachTimeout = resolveAppHostAttachTimeout(envs)
+        configureDebuggingEnvironmentVariables(debugServices, appHostDebugger != null, appHostAttachTimeout, envs)
 
         checkAndNotifyDevCertificate(envs)
 
@@ -92,7 +106,7 @@ internal class AspireCliRunProfileState(
         }
 
         if (appHostDebugger != null) {
-            attachDebuggerToAppHost(appHostDebugger, appHostFile, cliProcessPid, processHandler)
+            attachDebuggerToAppHost(appHostDebugger, appHostFile, cliProcessPid, appHostAttachTimeout, processHandler)
         } else if (debugServices) {
             notifyAppHostNotDebugged(appHostFile)
         }
@@ -131,6 +145,7 @@ internal class AspireCliRunProfileState(
     private fun configureDebuggingEnvironmentVariables(
         debugServices: Boolean,
         debugAppHost: Boolean,
+        appHostAttachTimeout: Duration,
         envs: MutableMap<String, String>
     ) {
         // Tells the AppHost which mode to put on the launch configurations of its DCP `run_session`
@@ -149,9 +164,18 @@ internal class AspireCliRunProfileState(
         // variable is set only when the AppHost will actually be debugged.
         if (debugAppHost) {
             envs[ASPIRE_WAIT_FOR_DEBUGGER] = "true"
-            // The default wait is 30s; give attach (which may follow a build) a comfortable window.
-            envs.putIfAbsent(ASPIRE_DEBUGGER_TIMEOUT, "120")
+            envs[ASPIRE_DEBUGGER_TIMEOUT] = appHostAttachTimeout.inWholeSeconds.toString()
         }
+    }
+
+    /**
+     * How long the AppHost waits for the debugger before it continues undebugged. The AppHost's own default
+     * (30s) is easily missed when attach follows a build, so the settings value is used, unless the run
+     * configuration environment carries an explicit `ASPIRE_DEBUGGER_TIMEOUT`.
+     */
+    private fun resolveAppHostAttachTimeout(envs: Map<String, String>): Duration {
+        val configuredSeconds = envs[ASPIRE_DEBUGGER_TIMEOUT]?.toIntOrNull()?.takeIf { it > 0 }
+        return (configuredSeconds ?: AspireSettings.getInstance().appHostAttachTimeoutSeconds).seconds
     }
 
     /**
@@ -180,19 +204,40 @@ internal class AspireCliRunProfileState(
         debuggerExtension: AppHostDebuggerExtension,
         appHostFilePath: Path,
         cliProcessPid: Long,
+        timeout: Duration,
         processHandler: ProcessHandler
     ) {
         val project = environment.project
 
         // Cancelled on process termination, so a stop mid-attach cancels the polling cleanly.
-        val attachLifetime = AspireService.getInstance(project).lifetime.createNested()
+        val attachScope = AspireService.getInstance(project).scope.childScope("Aspire AppHost debugger attach")
         processHandler.addProcessListener(object : ProcessListener {
             override fun processTerminated(event: ProcessEvent) {
-                attachLifetime.terminate(true)
+                attachScope.cancel()
             }
         })
-        attachLifetime.coroutineScope.launch {
-            debuggerExtension.attachToAppHost(appHostFilePath, cliProcessPid, project, attachLifetime)
+        attachScope.launch {
+            val attachTimeout = timeout + ATTACH_TIMEOUT_MARGIN
+            val attached = try {
+                withTimeoutOrNull(attachTimeout) {
+                    debuggerExtension.attachToAppHost(appHostFilePath, cliProcessPid, project, attachScope).getOrLogException(LOG)
+                    true
+                } ?: run {
+                    LOG.warn("The debugger was not attached to the AppHost $appHostFilePath within $attachTimeout")
+                    false
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                LOG.warn("Failed to attach the debugger to the AppHost $appHostFilePath", e)
+                false
+            }
+            // Not reached when the run is stopped mid-attach: cancelling the scope cancels the coroutine.
+            if (attached) {
+                notifyAppHostAttachFailed(appHostFilePath)
+                // Nothing is attached, so nothing bound to the scope is needed any longer.
+                attachScope.cancel()
+            }
         }
     }
 
@@ -305,5 +350,21 @@ internal class AspireCliRunProfileState(
                 settings.showAppHostNotDebuggedNotification = false
             })
             .notify(environment.project)
+    }
+
+    private fun notifyAppHostAttachFailed(appHostFile: Path) {
+        val project = environment.project
+        Notification(
+            NOTIFICATION_GROUP,
+            AspireCoreBundle.message("notification.app.host.attach.failed.title"),
+            AspireCoreBundle.message("notification.app.host.attach.failed.content", appHostFile.name),
+            NotificationType.WARNING
+        )
+            .addAction(NotificationAction.createSimpleExpiring(
+                AspireCoreBundle.message("notification.action.aspire.settings")
+            ) {
+                ShowSettingsUtil.getInstance().showSettingsDialog(project, AspireConfigurable::class.java)
+            })
+            .notify(project)
     }
 }
