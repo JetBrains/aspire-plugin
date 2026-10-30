@@ -23,4 +23,4 @@ value class AspireAppHostPath(val value: String)
 
 @ApiStatus.Internal
 @Serializable
-data class AspireResourceId(val appHostPath: AspireAppHostPath, val resourceName: String)
+data class AspireResourceId(val appHostId: AspireAppHostId, val resourceName: String)
