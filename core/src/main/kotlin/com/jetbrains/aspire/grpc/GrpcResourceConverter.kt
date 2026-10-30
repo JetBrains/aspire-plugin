@@ -18,11 +18,11 @@ import kotlin.time.Instant
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandState as GrpcCommandState
 
 @ApiStatus.Internal
-fun WatchResourcesUpdate.toAspireResourceUpdate(appHostPath: AspireAppHostPath): AspireResourceUpdate? = when {
-    hasInitialData() -> AspireResourceUpdate.InitialData(initialData.resourcesList.map { it.toAspireResourceData(appHostPath) })
+fun WatchResourcesUpdate.toAspireResourceUpdate(appHostId: AspireAppHostId): AspireResourceUpdate? = when {
+    hasInitialData() -> AspireResourceUpdate.InitialData(initialData.resourcesList.map { it.toAspireResourceData(appHostId) })
     hasChanges() -> AspireResourceUpdate.Changes(changes.valueList.mapNotNull { change ->
         when {
-            change.hasUpsert() -> AspireResourceChange.Upsert(change.upsert.toAspireResourceData(appHostPath))
+            change.hasUpsert() -> AspireResourceChange.Upsert(change.upsert.toAspireResourceData(appHostId))
             change.hasDelete() -> AspireResourceChange.Delete(change.delete.resourceName)
             else -> null
         }
@@ -31,7 +31,7 @@ fun WatchResourcesUpdate.toAspireResourceUpdate(appHostPath: AspireAppHostPath):
 }
 
 @ApiStatus.Internal
-fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourceData {
+fun Resource.toAspireResourceData(appHostId: AspireAppHostId): AspireResourceData {
     val type = mapResourceType(resourceType)
 
     val timezone = TimeZone.currentSystemDefault()
@@ -126,7 +126,7 @@ fun Resource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourc
     }
 
     return AspireResourceData(
-        id = AspireResourceId(appHostPath, name),
+        id = AspireResourceId(appHostId, name),
         uid = uid,
         name = name,
         type = type,

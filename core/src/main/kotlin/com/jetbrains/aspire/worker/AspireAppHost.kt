@@ -108,7 +108,7 @@ class AspireAppHost(
                     service<AspireCliResourceClientFactory>().create(project, id, appHostPath)
                 } else {
                     LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
-                    service<GrpcResourceClientFactory>().create(endpointUrl, environment.resourceServiceApiKey)
+                    service<GrpcResourceClientFactory>().create(endpointUrl, environment.resourceServiceApiKey, id)
                 }
                 try {
                     resourceClient.value = client

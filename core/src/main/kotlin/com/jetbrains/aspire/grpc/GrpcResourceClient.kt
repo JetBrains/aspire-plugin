@@ -12,7 +12,7 @@ import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.AspireResourceCommandRequest
 import com.jetbrains.aspire.resources.AspireResourceCommandResponse
 import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import io.grpc.ManagedChannel
 import io.grpc.Metadata
@@ -30,18 +30,19 @@ import java.util.concurrent.TimeUnit
 
 @ApiStatus.Internal
 interface GrpcResourceClientFactory {
-    fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireResourceClient
+    fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?, appHostId: AspireAppHostId): AspireResourceClient
 }
 
 internal class GrpcResourceClientFactoryImpl : GrpcResourceClientFactory {
-    override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?): AspireResourceClient {
-        return GrpcResourceClient(resourceServiceEndpointUrl, resourceServiceApiKey)
+    override fun create(resourceServiceEndpointUrl: String, resourceServiceApiKey: String?, appHostId: AspireAppHostId): AspireResourceClient {
+        return GrpcResourceClient(resourceServiceEndpointUrl, resourceServiceApiKey, appHostId)
     }
 }
 
 internal class GrpcResourceClient(
     resourceServiceEndpointUrl: String,
-    resourceServiceApiKey: String?
+    resourceServiceApiKey: String?,
+    private val appHostId: AspireAppHostId,
 ) : AspireResourceClient {
     companion object {
         private val LOG = logger<GrpcResourceClient>()
@@ -90,14 +91,14 @@ internal class GrpcResourceClient(
         LOG.trace { "Created gRPC dashboard client for $resourceServiceEndpointUrl" }
     }
 
-    override fun watchResources(appHostPath: AspireAppHostPath): Flow<AspireResourceUpdate> {
+    override fun watchResources(): Flow<AspireResourceUpdate> {
         val request = WatchResourcesRequest.getDefaultInstance()
         return stub
             .watchResources(request, metadata)
-            .mapNotNull { it.toAspireResourceUpdate(appHostPath) }
+            .mapNotNull { it.toAspireResourceUpdate(appHostId) }
     }
 
-    override fun watchResourceConsoleLogs(appHostPath: AspireAppHostPath, resourceName: String): Flow<List<AspireResourceLogEntry>> {
+    override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
         val request = WatchResourceConsoleLogsRequest.newBuilder()
             .setResourceName(resourceName)
             .build()
@@ -106,7 +107,7 @@ internal class GrpcResourceClient(
             .map { it.toAspireResourceLogEntries() }
     }
 
-    override suspend fun executeResourceCommand(appHostPath: AspireAppHostPath, request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+    override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
         val grpcRequest = ResourceCommandRequest.newBuilder()
             .setResourceName(request.resourceName)
             .setResourceType(request.resourceType)
