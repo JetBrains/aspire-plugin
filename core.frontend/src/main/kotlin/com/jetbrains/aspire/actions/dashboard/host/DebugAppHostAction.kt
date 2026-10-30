@@ -6,12 +6,11 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.run.AspireRunConfigurationManager
 import com.jetbrains.aspire.worker.AspireAppHostData
 import com.jetbrains.aspire.worker.AspireAppHostStatus
-import com.jetbrains.aspire.worker.toNioPath
 
 internal class DebugAppHostAction : AspireAppHostBaseAction() {
     override fun performAction(event: AnActionEvent, appHostData: AspireAppHostData, project: Project) {
         project.service<AspireRunConfigurationManager>()
-            .executeConfigurationForAppHost(appHostData.path.toNioPath(), underDebug = true)
+            .executeConfigurationForAppHost(appHostData.id, underDebug = true)
     }
 
     override fun updateAction(event: AnActionEvent, appHostData: AspireAppHostData) {

@@ -31,13 +31,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  * to track the AppHost lifecycle state ([appHostState]), including the environment of each launch,
  * and owns the resource client supplied to [ResourceTreeManager].
  *
- * @param mainFilePath path to the main project file (.csproj or .cs) of the AppHost
+ * @param appHostPath path to the main project file (.csproj or .cs) of the AppHost
  */
 @ApiStatus.Internal
 class AspireAppHost(
     override val id: AspireAppHostId,
     val name: String,
-    val mainFilePath: Path,
+    val appHostPath: Path,
     private val project: Project,
     parentCs: CoroutineScope
 ) : Disposable, AspireAppHostModel {
@@ -47,13 +47,11 @@ class AspireAppHost(
 
     private val cs = parentCs.childScope("Aspire AppHost")
 
-    override val appHostPath: Path = mainFilePath
-
     private val sessionServerMutex = Mutex()
     private var sessionServer: AspireSessionServer? = null
 
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
-    private val sessionManager = SessionManagerImpl(project, cs, mainFilePath)
+    private val sessionManager = SessionManagerImpl(project, cs, appHostPath)
         .also { Disposer.register(this, it) }
 
     private val disposed = AtomicBoolean(false)
@@ -104,10 +102,10 @@ class AspireAppHost(
                 val environment = state.environment
                 val endpointUrl = environment.resourceServiceEndpointUrl
                 val client: AspireResourceClient = if (endpointUrl.isNullOrEmpty()) {
-                    LOG.trace { "Initializing CLI resource client for $mainFilePath" }
+                    LOG.trace { "Initializing CLI resource client for $appHostPath" }
                     service<AspireCliResourceClientFactory>().create(project, id, appHostPath)
                 } else {
-                    LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
+                    LOG.trace { "Initializing gRPC dashboard client for $appHostPath" }
                     service<GrpcResourceClientFactory>().create(endpointUrl, environment.resourceServiceApiKey, id)
                 }
                 try {
@@ -148,7 +146,7 @@ class AspireAppHost(
 
             sessionServer = server
             val endpoint = checkNotNull(server.endpoint)
-            LOG.trace { "Started embedded DCP server for $mainFilePath on port ${endpoint.port} (https=${endpoint.isHttps})" }
+            LOG.trace { "Started embedded DCP server for $appHostPath on port ${endpoint.port} (https=${endpoint.isHttps})" }
             return endpoint
         }
     }
@@ -156,7 +154,7 @@ class AspireAppHost(
     override fun dispose() {
         if (!disposed.compareAndSet(false, true)) return
 
-        LOG.trace { "Disposing AspireAppHost for project: $mainFilePath" }
+        LOG.trace { "Disposing AspireAppHost for project: $appHostPath" }
 
         cs.launch(start = CoroutineStart.ATOMIC) {
             withContext(NonCancellable) {
