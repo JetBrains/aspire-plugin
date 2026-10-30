@@ -24,6 +24,7 @@ import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
 import com.jetbrains.aspire.run.AspireRunConfigurationManager
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
+import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
 import com.jetbrains.rider.run.environment.withDetectedExecutableType
@@ -144,8 +145,12 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
     }
 
     private suspend fun getAspireRunConfiguration(appHostFile: Path, project: Project): AspireRiderRunConfiguration? {
+        val appHostId = AspireWorker.getInstance(project)
+            .getAppHostByPath(appHostFile)?.id
+            ?: return null
         val name = project.serviceAsync<AspireRunConfigurationManager>()
-            .getRunConfigurationNameForAppHost(appHostFile) ?: return null
+            .getRunConfigurationNameForAppHost(appHostId)
+            ?: return null
 
         val configurationType = ConfigurationTypeUtil.findConfigurationType(AspireConfigurationType::class.java)
         val runConfiguration = RunManager.getInstanceAsync(project)

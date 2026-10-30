@@ -16,9 +16,10 @@ import com.jetbrains.aspire.resources.AspireResourceCommandResult
 import com.jetbrains.aspire.resources.AspireResourceCommandResultFormat
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.grpc.toAspireResourceCommandResponse
+import com.jetbrains.aspire.grpc.toAspireResourceData
 import com.jetbrains.aspire.grpc.toAspireResourceLogEntries
 import com.jetbrains.aspire.grpc.toAspireResourceUpdate
-import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.ResourceState
@@ -34,7 +35,7 @@ import kotlin.test.assertTrue
 internal class GrpcResourceConverterTest {
     @Test
     fun `initial data contains converted resources with AppHost scoped ids`() {
-        val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
+        val appHostId = AspireAppHostId("AppHost")
         val api = resource("api", "Starting")
         val worker = resource("worker", "Running")
         val initialData = InitialResourceData.newBuilder()
@@ -42,10 +43,10 @@ internal class GrpcResourceConverterTest {
             .addResources(worker)
             .build()
         val update = WatchResourcesUpdate.newBuilder().setInitialData(initialData).build()
-        val apiId = AspireResourceId(appHostPath, "api")
-        val workerId = AspireResourceId(appHostPath, "worker")
+        val apiId = AspireResourceId(appHostId, "api")
+        val workerId = AspireResourceId(appHostId, "worker")
 
-        val converted = update.toAspireResourceUpdate(appHostPath)
+        val converted = update.toAspireResourceUpdate(appHostId)
 
         val snapshot = assertIs<AspireResourceUpdate.InitialData>(converted)
         assertEquals(listOf(apiId, workerId), snapshot.resources.map { it.id })
@@ -55,19 +56,32 @@ internal class GrpcResourceConverterTest {
 
     @Test
     fun `empty initial data remains a snapshot`() {
-        val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
+        val appHostId = AspireAppHostId("AppHost")
         val initialData = InitialResourceData.getDefaultInstance()
         val update = WatchResourcesUpdate.newBuilder().setInitialData(initialData).build()
 
-        val converted = update.toAspireResourceUpdate(appHostPath)
+        val converted = update.toAspireResourceUpdate(appHostId)
 
         val snapshot = assertIs<AspireResourceUpdate.InitialData>(converted)
         assertTrue(snapshot.resources.isEmpty())
     }
 
     @Test
+    fun `same named resources from different AppHosts have distinct ids`() {
+        val resource = resource("api", "Running")
+        val firstAppHostId = AspireAppHostId("FirstHost")
+        val secondAppHostId = AspireAppHostId("SecondHost")
+
+        val first = resource.toAspireResourceData(firstAppHostId)
+        val second = resource.toAspireResourceData(secondAppHostId)
+
+        assertEquals(AspireResourceId(firstAppHostId, "api"), first.id)
+        assertEquals(AspireResourceId(secondAppHostId, "api"), second.id)
+    }
+
+    @Test
     fun `changes preserve upsert and delete order while ignoring unset changes`() {
-        val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
+        val appHostId = AspireAppHostId("AppHost")
         val startingResource = resource("api", "Starting")
         val startingChange = WatchResourcesChange.newBuilder().setUpsert(startingResource).build()
         val deletion = ResourceDeletion.newBuilder().setResourceName("api").build()
@@ -82,9 +96,9 @@ internal class GrpcResourceConverterTest {
             .addValue(runningChange)
             .build()
         val update = WatchResourcesUpdate.newBuilder().setChanges(changes).build()
-        val expectedId = AspireResourceId(appHostPath, "api")
+        val expectedId = AspireResourceId(appHostId, "api")
 
-        val converted = update.toAspireResourceUpdate(appHostPath)
+        val converted = update.toAspireResourceUpdate(appHostId)
 
         val batch = assertIs<AspireResourceUpdate.Changes>(converted)
         assertEquals(3, batch.changes.size)
@@ -100,10 +114,10 @@ internal class GrpcResourceConverterTest {
 
     @Test
     fun `update without a payload is ignored`() {
-        val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
+        val appHostId = AspireAppHostId("AppHost")
         val update = WatchResourcesUpdate.getDefaultInstance()
 
-        val converted = update.toAspireResourceUpdate(appHostPath)
+        val converted = update.toAspireResourceUpdate(appHostId)
 
         assertNull(converted)
     }

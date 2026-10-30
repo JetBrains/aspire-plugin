@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.unit.services
 
 import com.jetbrains.aspire.services.visibleResources
-import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
@@ -31,15 +31,15 @@ class VisibleResourcesTest {
         backgroundScope.launch { resources.visibleResources(showHidden).collect { result = it } }
 
         runCurrent()
-        assertEquals(listOf("visible"), result.map { it.resourceName })
+        assertEquals(listOf("visible"), result.map { it.id.resourceName })
 
         showHidden.value = true
         runCurrent()
-        assertEquals(listOf("visible", "hidden", "hidden-state"), result.map { it.resourceName })
+        assertEquals(listOf("visible", "hidden", "hidden-state"), result.map { it.id.resourceName })
 
         showHidden.value = false
         runCurrent()
-        assertEquals(listOf("visible"), result.map { it.resourceName })
+        assertEquals(listOf("visible"), result.map { it.id.resourceName })
     }
 
     @Test
@@ -122,10 +122,11 @@ class VisibleResourcesTest {
     }
 
     private class TestResource(
-        override val resourceName: String,
+        resourceName: String,
         isHidden: Boolean = false,
         state: String = "Running",
     ) : AspireResourceModel {
+        override val id = AspireResourceId(AspireAppHostId("app-host"), resourceName)
         override val data = MutableStateFlow(createData(isHidden, state))
         override val childrenResources = MutableStateFlow<List<AspireResourceModel>>(emptyList())
         override val logFlow = MutableSharedFlow<AspireResourceLogEntry>()
@@ -136,13 +137,13 @@ class VisibleResourcesTest {
 
         private fun createData(isHidden: Boolean, state: String): AspireResourceData =
             AspireResourceData(
-                id = AspireResourceId(AspireAppHostPath("app-host"), resourceName),
-                uid = "uid-$resourceName",
-                name = resourceName,
+                id = id,
+                uid = "uid-${id.resourceName}",
+                name = id.resourceName,
                 type = ResourceType.Unknown,
                 launchConfigurationType = ResourceLaunchConfigurationType.Unknown,
                 originType = "Project",
-                displayName = resourceName,
+                displayName = id.resourceName,
                 state = if (state == "Hidden") ResourceState.Hidden else null,
                 stateStyle = null,
                 isHidden = isHidden,

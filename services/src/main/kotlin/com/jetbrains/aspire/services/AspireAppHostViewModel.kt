@@ -14,7 +14,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.platform.util.coroutines.childScope
 import com.intellij.terminal.TerminalExecutionConsoleBuilder
 import com.jetbrains.aspire.worker.AspireAppHostData
-import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireAppHostModel
 import com.jetbrains.aspire.worker.AspireAppHostStatus
 import kotlinx.coroutines.*
@@ -43,7 +43,7 @@ internal class AspireAppHostViewModel(
 
     private val descriptor by lazy { AspireAppHostServiceViewDescriptor(this) }
 
-    val appHostPath: AspireAppHostPath = appHost.appHostPath
+    val id: AspireAppHostId = appHost.id
     val displayName: String = appHost.data.value.name
     val appHostData: StateFlow<AspireAppHostData> = appHost.data
     val aspireDashboardUrl: StateFlow<String?> = appHost.aspireDashboardUrl
@@ -140,7 +140,7 @@ internal class AspireAppHostViewModel(
     }
 
     override fun dispose() {
-        LOG.trace { "Disposing AspireAppHost VM for project: ${appHostPath.value}" }
+        LOG.trace { "Disposing AspireAppHost VM for project: ${id.value}" }
         cs.cancel()
     }
 }

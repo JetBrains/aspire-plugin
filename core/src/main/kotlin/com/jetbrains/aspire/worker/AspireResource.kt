@@ -36,7 +36,7 @@ import kotlin.coroutines.cancellation.CancellationException
  * is internal and should only be called by the owning resource manager to apply state changes
  * received from the dashboard.
  *
- * @param resourceName the unique identifier of this resource within the AppHost
+ * @param id the unique identifier of this resource within the AppHost
  * @param initialData the initial state data for this resource
  *
  * @see ResourceTreeManager for resource lifecycle management
@@ -44,7 +44,7 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 @ApiStatus.Internal
 class AspireResource(
-    override val resourceName: String,
+    override val id: AspireResourceId,
     initialData: AspireResourceData,
     parentCs: CoroutineScope,
     private val resourceLogWatcher: AspireResourceLogWatcher,
@@ -56,7 +56,8 @@ class AspireResource(
     }
 
     private val cs = parentCs.childScope("Aspire Resource")
-    private val appHostPath = initialData.id.appHostPath
+
+    val resourceName: String = id.resourceName
 
     private val _data = MutableStateFlow(initialData)
     override val data: StateFlow<AspireResourceData> = _data.asStateFlow()
@@ -78,7 +79,7 @@ class AspireResource(
 
     init {
         cs.launch {
-            resourceLogWatcher.watchResourceConsoleLogs(appHostPath, resourceName)
+            resourceLogWatcher.watchResourceConsoleLogs(resourceName)
                 .catch { cause ->
                     if (cause is CancellationException) throw cause
                     LOG.trace { "Console log stream for $resourceName ended: ${cause.message}" }
@@ -115,7 +116,7 @@ class AspireResource(
 
     suspend fun executeCommand(commandName: String): AspireResourceCommandResponse {
         val request = AspireResourceCommandRequest(resourceName, _data.value.originType, commandName)
-        val response = resourceCommandExecutor.executeResourceCommand(appHostPath, request)
+        val response = resourceCommandExecutor.executeResourceCommand(request)
         if (response.kind == AspireResourceCommandResponseKind.Failed) {
             LOG.warn("Command $commandName on $resourceName failed: ${response.message.orEmpty()}")
         }

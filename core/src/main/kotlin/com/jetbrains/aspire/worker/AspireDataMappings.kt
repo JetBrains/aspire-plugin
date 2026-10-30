@@ -3,15 +3,9 @@ package com.jetbrains.aspire.worker
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 
 @ApiStatus.Internal
 fun AspirePath.toNioPath(): Path = Path(value)
-
-@ApiStatus.Internal
-fun AspireAppHostPath.toNioPath(): Path = Path(value)
-
-internal fun Path.toAspireAppHostPath(): AspireAppHostPath = AspireAppHostPath(absolutePathString())
 
 @ApiStatus.Internal
 fun AspireAppHost.toData(state: AspireAppHost.AspireAppHostState): AspireAppHostData {
@@ -21,5 +15,5 @@ fun AspireAppHost.toData(state: AspireAppHost.AspireAppHostState): AspireAppHost
         AspireAppHost.AspireAppHostState.Stopped -> AspireAppHostStatus.Stopped
     }
 
-    return AspireAppHostData(appHostPath, name, status)
+    return AspireAppHostData(id, name, status)
 }

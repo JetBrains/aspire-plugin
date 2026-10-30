@@ -13,6 +13,7 @@ import com.intellij.openapi.util.Key
 import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
+import com.jetbrains.aspire.worker.AspireAppHostId
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.ApiStatus
 abstract class AspireExecutionListener(private val project: Project) : ExecutionListener {
     companion object {
         val APP_HOST_ENVIRONMENT_KEY = Key.create<AppHostEnvironment>("aspire.appHostEnvironment")
+        val APP_HOST_ID_KEY = Key.create<AspireAppHostId>("aspire.appHostId")
 
         private val LOG = logger<AspireExecutionListener>()
         private const val LOG_REPLAY_CAPACITY = 100
@@ -40,9 +42,8 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
         if (profile !is AspireRunConfiguration) return
         if (!isValid(profile)) return
 
-        val appHostFile = profile.appHostFile
-        if (appHostFile == null) {
-            LOG.warn("Aspire run configuration '${profile.name}' started without an AppHost file path")
+        val appHostId = env.getUserData(APP_HOST_ID_KEY) ?: run {
+            LOG.warn("Aspire run configuration '${profile.name}' started without an AppHost ID")
             return
         }
         val appHostEnvironment = env.getUserData(APP_HOST_ENVIRONMENT_KEY) ?: run {
@@ -62,7 +63,7 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(appHostFile, appHostEnvironment, logFlow.asSharedFlow())
+            .appHostStarted(appHostId, appHostEnvironment, logFlow.asSharedFlow())
     }
 
     override fun processTerminated(
@@ -74,14 +75,13 @@ abstract class AspireExecutionListener(private val project: Project) : Execution
         val profile = env.runProfile
         if (!isValid(profile)) return
 
-        val appHostFile = (profile as AspireRunConfiguration).appHostFile
-        if (appHostFile == null) {
-            LOG.warn("Aspire run configuration '${profile.name}' terminated without an AppHost file path")
+        val appHostId = env.getUserData(APP_HOST_ID_KEY) ?: run {
+            LOG.warn("Aspire run configuration '${profile.name}' terminated without an AppHost ID")
             return
         }
 
         project.messageBus
             .syncPublisher(AppHostListener.TOPIC)
-            .appHostStopped(appHostFile)
+            .appHostStopped(appHostId)
     }
 }

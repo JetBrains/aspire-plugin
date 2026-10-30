@@ -14,8 +14,10 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.run.AspireExecutionListener.Companion.APP_HOST_ID_KEY
+import com.jetbrains.aspire.worker.AspireAppHostId
+import com.jetbrains.aspire.worker.AspireWorker
 import org.jetbrains.annotations.ApiStatus
-import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -27,15 +29,17 @@ internal class AspireRunConfigurationManagerImpl(private val project: Project) :
         private val LOG = logger<AspireRunConfigurationManagerImpl>()
     }
 
-    private val runConfigurationNames = ConcurrentHashMap<Path, String>()
+    private val runConfigurationNames = ConcurrentHashMap<AspireAppHostId, String>()
 
-    override fun saveRunConfigurationForAppHost(appHostFile: Path, runConfigurationName: String) {
-        runConfigurationNames[appHostFile] = runConfigurationName
+    override fun saveRunConfigurationForAppHost(appHostId: AspireAppHostId, runConfigurationName: String) {
+        runConfigurationNames[appHostId] = runConfigurationName
     }
 
-    override fun getRunConfigurationNameForAppHost(appHostFile: Path): String? = runConfigurationNames[appHostFile]
+    override fun getRunConfigurationNameForAppHost(appHostId: AspireAppHostId): String? = runConfigurationNames[appHostId]
 
-    override fun executeConfigurationForAppHost(appHostFile: Path, underDebug: Boolean) {
+    override fun executeConfigurationForAppHost(appHostId: AspireAppHostId, underDebug: Boolean) {
+        val appHost = AspireWorker.getInstance(project).getAppHostById(appHostId) ?: return
+
         val executor =
             if (underDebug) DefaultDebugExecutor.getDebugExecutorInstance()
             else DefaultRunExecutor.getRunExecutorInstance()
@@ -44,7 +48,7 @@ internal class AspireRunConfigurationManagerImpl(private val project: Project) :
         val selected = runManager.selectedConfiguration
         val selectedConfiguration = selected?.configuration
         if (selectedConfiguration != null && selectedConfiguration is AspireRunConfiguration) {
-            if (appHostFile == selectedConfiguration.appHostFile) {
+            if (appHost.appHostPath == selectedConfiguration.appHostFile) {
                 ProgramRunnerUtil.executeConfiguration(selected, executor)
                 return
             }
@@ -52,7 +56,7 @@ internal class AspireRunConfigurationManagerImpl(private val project: Project) :
 
         val configurations = runManager.allSettings.filter {
             val configuration = it.configuration
-            configuration is AspireRunConfiguration && configuration.appHostFile == appHostFile
+            configuration is AspireRunConfiguration && configuration.appHostFile == appHost.appHostPath
         }
 
         if (configurations.isEmpty()) {
@@ -67,16 +71,18 @@ internal class AspireRunConfigurationManagerImpl(private val project: Project) :
             return
         }
 
-        val savedConfigurationName = runConfigurationNames[appHostFile]
+        val savedConfigurationName = runConfigurationNames[appHostId]
         val configurationToRun = configurations.firstOrNull { it.name == savedConfigurationName } ?: configurations.first()
         ProgramRunnerUtil.executeConfiguration(configurationToRun, executor)
     }
 
-    override fun stopConfigurationForAppHost(appHostFile: Path) {
+    override fun stopConfigurationForAppHost(appHostId: AspireAppHostId) {
+        val appHost = AspireWorker.getInstance(project).getAppHostById(appHostId) ?: return
+
         val executionManager = ExecutionManagerImpl.getInstance(project)
         val descriptors = executionManager.getDescriptors { settings ->
             val configuration = settings.configuration
-            configuration is AspireRunConfiguration && configuration.appHostFile == appHostFile
+            configuration is AspireRunConfiguration && configuration.appHostFile == appHost.appHostPath
         }
 
         descriptors.forEach { descriptor ->
@@ -93,10 +99,10 @@ internal class AspireRunConfigurationManagerImpl(private val project: Project) :
             handler: ProcessHandler
         ) {
             val profile = env.runProfile as? AspireRunConfiguration ?: return
-            val appHostFile = profile.appHostFile ?: return
+            val appHostId = env.getUserData(APP_HOST_ID_KEY) ?: return
 
             project.service<AspireRunConfigurationManager>()
-                .saveRunConfigurationForAppHost(appHostFile, profile.name)
+                .saveRunConfigurationForAppHost(appHostId, profile.name)
         }
     }
 }

@@ -30,7 +30,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         fun getInstance(project: Project): AspireWorker = project.service()
         private val LOG = logger<AspireWorker>()
 
-        private fun generateAppHostId(): AspireAppHostId {
+        private fun generateRandomAppHostId(): AspireAppHostId {
             val allowedChars = buildList {
                 addAll('A'..'Z')
                 addAll('a'..'z')
@@ -41,49 +41,62 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
                 .joinToString("")
             return AspireAppHostId(id)
         }
+
+        private fun generateUniqueAppHostId(
+            registeredIds: Set<AspireAppHostId>,
+            nextCandidate: () -> AspireAppHostId = ::generateRandomAppHostId,
+        ): AspireAppHostId {
+            while (true) {
+                val candidate = nextCandidate()
+                if (candidate !in registeredIds) return candidate
+            }
+        }
     }
 
     private val _appHosts: MutableStateFlow<List<AspireAppHost>> = MutableStateFlow(emptyList())
     val appHosts: StateFlow<List<AspireAppHost>> = _appHosts.asStateFlow()
 
-    private fun addAppHost(name: String, appHostFilePath: Path) {
-        LOG.trace { "Adding a new Aspire AppHost ${appHostFilePath.absolutePathString()}" }
+    private fun addAppHost(name: String, appHostPath: Path) {
+        LOG.trace { "Adding a new Aspire AppHost ${appHostPath.absolutePathString()}" }
 
         _appHosts.update { currentList ->
-            if (currentList.any { it.mainFilePath == appHostFilePath }) return@update currentList
+            if (currentList.any { it.appHostPath == appHostPath }) return@update currentList
 
-            val id = generateAppHostId()
-            val appHost = AspireAppHost(id, name, appHostFilePath, project, cs)
+            val id = generateUniqueAppHostId(currentList.mapTo(mutableSetOf()) { it.id })
+            val appHost = AspireAppHost(id, name, appHostPath, project, cs)
             Disposer.register(this@AspireWorker, appHost)
             currentList + appHost
         }
     }
 
-    private fun removeAppHost(appHostFilePath: Path) {
-        LOG.trace { "Removing the Aspire AppHost ${appHostFilePath.absolutePathString()}" }
+    private fun removeAppHostByPath(appHostPath: Path) {
+        LOG.trace { "Removing the Aspire AppHost ${appHostPath.absolutePathString()}" }
 
         _appHosts.update { currentList ->
-            currentList.filter { it.mainFilePath != appHostFilePath }
+            currentList.filter { it.appHostPath != appHostPath }
         }
     }
 
-    fun getAppHostById(appHostPath: AspireAppHostPath): AspireAppHost? =
-        _appHosts.value.firstOrNull { it.mainFilePath.toAspireAppHostPath() == appHostPath }
+    fun getAppHostById(appHostId: AspireAppHostId): AspireAppHost? =
+        _appHosts.value.firstOrNull { it.id == appHostId }
+
+    fun getAppHostByPath(appHostPath: Path): AspireAppHost? =
+        _appHosts.value.firstOrNull { it.appHostPath == appHostPath }
 
     /** Starts or reuses the AppHost's session server and returns the DCP connection environment variables. */
-    suspend fun startAppHostSessionServer(appHostFilePath: Path): Pair<AspireAppHost, AspireSessionServerEndpoint> {
-        val appHost = requireNotNull(getOrCreateAppHostByPath(appHostFilePath))
+    suspend fun startAppHostSessionServer(appHostPath: Path): Pair<AspireAppHost, AspireSessionServerEndpoint> {
+        val appHost = requireNotNull(getOrCreateAppHostByPath(appHostPath))
         val endpoint = appHost.startSessionServer()
 
         return appHost to endpoint
     }
 
-    private fun getOrCreateAppHostByPath(appHostFilePath: Path): AspireAppHost? {
-        _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }?.let { return it }
+    private fun getOrCreateAppHostByPath(appHostPath: Path): AspireAppHost? {
+        _appHosts.value.firstOrNull { it.appHostPath == appHostPath }?.let { return it }
 
-        addAppHost(appHostFilePath.nameWithoutExtension, appHostFilePath)
+        addAppHost(appHostPath.nameWithoutExtension, appHostPath)
 
-        return _appHosts.value.firstOrNull { it.mainFilePath == appHostFilePath }
+        return _appHosts.value.firstOrNull { it.appHostPath == appHostPath }
     }
 
     override fun dispose() {
@@ -95,7 +108,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         }
 
         override fun appHostRemoved(appHostFilePath: Path) {
-            getInstance(project).removeAppHost(appHostFilePath)
+            getInstance(project).removeAppHostByPath(appHostFilePath)
         }
     }
 }

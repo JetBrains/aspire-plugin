@@ -31,13 +31,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  * to track the AppHost lifecycle state ([appHostState]), including the environment of each launch,
  * and owns the resource client supplied to [ResourceTreeManager].
  *
- * @param mainFilePath path to the main project file (.csproj or .cs) of the AppHost
+ * @param appHostPath path to the main project file (.csproj or .cs) of the AppHost
  */
 @ApiStatus.Internal
 class AspireAppHost(
     override val id: AspireAppHostId,
     val name: String,
-    val mainFilePath: Path,
+    val appHostPath: Path,
     private val project: Project,
     parentCs: CoroutineScope
 ) : Disposable, AspireAppHostModel {
@@ -47,13 +47,11 @@ class AspireAppHost(
 
     private val cs = parentCs.childScope("Aspire AppHost")
 
-    override val appHostPath: AspireAppHostPath = mainFilePath.toAspireAppHostPath()
-
     private val sessionServerMutex = Mutex()
     private var sessionServer: AspireSessionServer? = null
 
     private val otlpProxyManager = AppHostOtlpProxyManager(cs)
-    private val sessionManager = SessionManagerImpl(project, cs, mainFilePath)
+    private val sessionManager = SessionManagerImpl(project, cs, appHostPath)
         .also { Disposer.register(this, it) }
 
     private val disposed = AtomicBoolean(false)
@@ -65,7 +63,7 @@ class AspireAppHost(
     val appHostState: StateFlow<AspireAppHostState> = mutableAppHostState.asStateFlow()
 
     private val resourceClient = MutableStateFlow<AspireResourceClient?>(null)
-    private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this, resourceClient)
+    private val resourceTreeManager = ResourceTreeManager(project, cs, this, resourceClient)
     override val rootResources: StateFlow<List<AspireResource>>
         get() = resourceTreeManager.rootResources
 
@@ -104,11 +102,11 @@ class AspireAppHost(
                 val environment = state.environment
                 val endpointUrl = environment.resourceServiceEndpointUrl
                 val client: AspireResourceClient = if (endpointUrl.isNullOrEmpty()) {
-                    LOG.trace { "Initializing CLI resource client for $mainFilePath" }
-                    service<AspireCliResourceClientFactory>().create(project)
+                    LOG.trace { "Initializing CLI resource client for $appHostPath" }
+                    service<AspireCliResourceClientFactory>().create(project, id, appHostPath)
                 } else {
-                    LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
-                    service<GrpcResourceClientFactory>().create(endpointUrl, environment.resourceServiceApiKey)
+                    LOG.trace { "Initializing gRPC dashboard client for $appHostPath" }
+                    service<GrpcResourceClientFactory>().create(endpointUrl, environment.resourceServiceApiKey, id)
                 }
                 try {
                     resourceClient.value = client
@@ -148,7 +146,7 @@ class AspireAppHost(
 
             sessionServer = server
             val endpoint = checkNotNull(server.endpoint)
-            LOG.trace { "Started embedded DCP server for $mainFilePath on port ${endpoint.port} (https=${endpoint.isHttps})" }
+            LOG.trace { "Started embedded DCP server for $appHostPath on port ${endpoint.port} (https=${endpoint.isHttps})" }
             return endpoint
         }
     }
@@ -156,7 +154,7 @@ class AspireAppHost(
     override fun dispose() {
         if (!disposed.compareAndSet(false, true)) return
 
-        LOG.trace { "Disposing AspireAppHost for project: $mainFilePath" }
+        LOG.trace { "Disposing AspireAppHost for project: $appHostPath" }
 
         cs.launch(start = CoroutineStart.ATOMIC) {
             withContext(NonCancellable) {
@@ -185,21 +183,21 @@ class AspireAppHost(
 
     private inner class AppHostLifecycleListener : AppHostListener {
         override fun appHostStarted(
-            appHostFile: Path,
+            appHostId: AspireAppHostId,
             environment: AppHostEnvironment,
             logFlow: SharedFlow<AppHostLogEntry>
         ) {
-            if (mainFilePath != appHostFile) return
+            if (id != appHostId) return
 
-            LOG.trace { "Aspire AppHost $mainFilePath was started" }
+            LOG.trace { "Aspire AppHost $id was started" }
             mutableLogFlow.value = logFlow
             mutableAppHostState.value = AspireAppHostState.Started(environment)
         }
 
-        override fun appHostStopped(appHostFile: Path) {
-            if (mainFilePath != appHostFile) return
+        override fun appHostStopped(appHostId: AspireAppHostId) {
+            if (id != appHostId) return
 
-            LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
+            LOG.trace { "Aspire AppHost $id was stopped" }
             mutableLogFlow.value = null
             mutableAppHostState.value = AspireAppHostState.Stopped
         }

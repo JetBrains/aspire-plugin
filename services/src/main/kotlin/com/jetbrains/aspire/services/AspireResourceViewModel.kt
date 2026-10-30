@@ -35,7 +35,8 @@ class AspireResourceViewModel(
 
     private val descriptor by lazy { AspireResourceServiceViewDescriptor(this) }
 
-    val resourceName: String = resource.resourceName
+    val id = resource.id
+    val resourceName: String = id.resourceName
     val resourceData: StateFlow<AspireResourceData> = resource.data
 
     private val logProcessHandler = LogProcessHandler()

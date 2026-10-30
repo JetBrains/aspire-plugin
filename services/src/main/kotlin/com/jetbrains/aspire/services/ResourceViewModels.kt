@@ -32,12 +32,12 @@ fun Flow<List<AspireResourceModel>>.toResourceViewModels(
 ): StateFlow<List<AspireResourceViewModel>> =
     visibleResources(AspireSettings.getInstance().showHiddenResourcesFlow)
         .runningFold(emptyList<AspireResourceViewModel>()) { currentViewModels, newResources ->
-            val currentViewModelsByName = currentViewModels.associateBy { it.resourceName }
-            val newIds = newResources.map { it.resourceName }.toSet()
+            val currentViewModelsById = currentViewModels.associateBy { it.id }
+            val newIds = newResources.map { it.id }.toSet()
 
             buildList {
                 for (viewModel in currentViewModels) {
-                    if (viewModel.resourceName in newIds) {
+                    if (viewModel.id in newIds) {
                         LOG.trace { "Resource ViewModel for ${viewModel.resourceName} already exists" }
                         add(viewModel)
                     } else {
@@ -47,8 +47,8 @@ fun Flow<List<AspireResourceModel>>.toResourceViewModels(
                 }
 
                 for (newResource in newResources) {
-                    if (newResource.resourceName !in currentViewModelsByName) {
-                        LOG.trace { "Creating new Resource ViewModel for ${newResource.resourceName}" }
+                    if (newResource.id !in currentViewModelsById) {
+                        LOG.trace { "Creating new Resource ViewModel for ${newResource.id.resourceName}" }
                         val resourceVM = AspireResourceViewModel(project, cs, newResource)
                         if (Disposer.tryRegister(parent, resourceVM)) {
                             add(resourceVM)

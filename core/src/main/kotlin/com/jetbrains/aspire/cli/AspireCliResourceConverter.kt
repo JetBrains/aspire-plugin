@@ -18,12 +18,12 @@ import org.jetbrains.annotations.ApiStatus
 import kotlin.time.Instant
 
 @ApiStatus.Internal
-fun AspireCliResource.toAspireResourceUpdate(appHostPath: AspireAppHostPath): AspireResourceUpdate {
-    val data = toAspireResourceData(appHostPath)
+fun AspireCliResource.toAspireResourceUpdate(appHostId: AspireAppHostId): AspireResourceUpdate {
+    val data = toAspireResourceData(appHostId)
     return AspireResourceUpdate.Changes(listOf(AspireResourceChange.Upsert(data)))
 }
 
-private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPath): AspireResourceData {
+private fun AspireCliResource.toAspireResourceData(appHostId: AspireAppHostId): AspireResourceData {
     val resourceName = requireNotNull(name) { "Resource name is required to create a resource update" }
     val resourceState = state?.let(::mapResourceState)
     val resourceStateStyle = stateStyle?.let(::mapResourceStateStyle)
@@ -107,7 +107,7 @@ private fun AspireCliResource.toAspireResourceData(appHostPath: AspireAppHostPat
     val timezone = TimeZone.currentSystemDefault()
 
     return AspireResourceData(
-        id = AspireResourceId(appHostPath, resourceName),
+        id = AspireResourceId(appHostId, resourceName),
         uid = uid ?: resourceName,
         name = resourceName,
         type = mapResourceType(resourceType.orEmpty()),

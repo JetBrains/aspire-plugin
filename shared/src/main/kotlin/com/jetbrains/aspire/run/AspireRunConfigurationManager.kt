@@ -1,20 +1,20 @@
 package com.jetbrains.aspire.run
 
+import com.jetbrains.aspire.worker.AspireAppHostId
 import org.jetbrains.annotations.ApiStatus
-import java.nio.file.Path
 
 /** Manages running and stopping configurations associated with an AppHost. */
 @ApiStatus.Internal
 interface AspireRunConfigurationManager {
     /** Remembers the configuration launched for the given AppHost. */
-    fun saveRunConfigurationForAppHost(appHostFile: Path, runConfigurationName: String)
+    fun saveRunConfigurationForAppHost(appHostId: AspireAppHostId, runConfigurationName: String)
 
     /** Returns the name of the last configuration launched for the given AppHost. */
-    fun getRunConfigurationNameForAppHost(appHostFile: Path): String?
+    fun getRunConfigurationNameForAppHost(appHostId: AspireAppHostId): String?
 
     /** Runs a configuration for the given AppHost using the Run or Debug executor, depending on [underDebug]. */
-    fun executeConfigurationForAppHost(appHostFile: Path, underDebug: Boolean)
+    fun executeConfigurationForAppHost(appHostId: AspireAppHostId, underDebug: Boolean)
 
     /** Stops all running configurations for the given AppHost. */
-    fun stopConfigurationForAppHost(appHostFile: Path)
+    fun stopConfigurationForAppHost(appHostId: AspireAppHostId)
 }

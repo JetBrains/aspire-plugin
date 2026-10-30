@@ -14,7 +14,7 @@ class ShowResourceGraphAction : AnAction() {
         val appHostData = event.getData(ASPIRE_APP_HOST_DATA) ?: return
 
         event.coroutineScope.launch {
-            ResourceGraphService.getInstance(project).showResourceGraph(appHostData.path)
+            ResourceGraphService.getInstance(project).showResourceGraph(appHostData.id)
         }
     }
 

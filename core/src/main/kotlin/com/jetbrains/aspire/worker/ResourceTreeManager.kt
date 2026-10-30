@@ -23,7 +23,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
-import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
@@ -47,7 +46,6 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 @ApiStatus.Internal
 class ResourceTreeManager(
-    private val appHostFile: Path,
     private val project: Project,
     parentCs: CoroutineScope,
     private val parentDisposable: Disposable,
@@ -78,13 +76,13 @@ class ResourceTreeManager(
                     coroutineScope {
                         val resourceCs = this
                         try {
-                            client.watchResources(appHostFile.toAspireAppHostPath())
+                            client.watchResources()
                                 .retryWhen { cause, attempt ->
                                     if (cause is CancellationException) {
                                         false
                                     } else {
                                         val retryDelay = (500L * (1 shl attempt.coerceAtMost(6).toInt())).coerceAtMost(30_000L)
-                                        LOG.trace { "gRPC dashboard connection failed for $appHostFile, retrying in ${retryDelay}ms (attempt ${attempt + 1}): ${cause.message}" }
+                                        LOG.trace { "Resource service connection failed, retrying in ${retryDelay}ms (attempt ${attempt + 1}): ${cause.message}" }
                                         delay(retryDelay.milliseconds)
                                         true
                                     }
@@ -145,7 +143,7 @@ class ResourceTreeManager(
 
         if (existing == null) {
             val resource = AspireResource(
-                data.name,
+                data.id,
                 data,
                 resourceCs,
                 resourceLogWatcher = client,

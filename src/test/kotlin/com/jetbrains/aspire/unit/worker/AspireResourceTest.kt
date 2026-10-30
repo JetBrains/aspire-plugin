@@ -8,7 +8,7 @@ import com.jetbrains.aspire.resources.AspireResourceCommandResponse
 import com.jetbrains.aspire.resources.AspireResourceCommandResponseKind
 import com.jetbrains.aspire.resources.AspireResourceLogWatcher
 import com.jetbrains.aspire.grpc.toAspireResourceData
-import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
@@ -34,7 +34,7 @@ internal class AspireResourceTest {
         val data = createResourceData()
         val watcher = TestResourceLogWatcher()
         val commandExecutor = TestResourceCommandExecutor()
-        val resource = AspireResource(data.name, data, this, watcher, commandExecutor)
+        val resource = AspireResource(data.id, data, this, watcher, commandExecutor)
         val stdoutEntry = AspireResourceLogEntry("Resource output", false)
         val stderrEntry = AspireResourceLogEntry("Resource error", true)
         val logEntries = listOf(stdoutEntry, stderrEntry)
@@ -44,7 +44,7 @@ internal class AspireResourceTest {
         testScheduler.runCurrent()
 
         assertEquals(listOf(data.name), watcher.watchedResourceNames)
-        assertEquals(listOf(data.id.appHostPath), watcher.watchedAppHostPaths)
+        assertEquals(data.id, resource.id)
         assertEquals(logEntries, resource.logFlow.replayCache)
 
         resource.dispose()
@@ -56,13 +56,12 @@ internal class AspireResourceTest {
         val watcher = TestResourceLogWatcher()
         val expectedResponse = AspireResourceCommandResponse(AspireResourceCommandResponseKind.Succeeded, "Command completed")
         val commandExecutor = TestResourceCommandExecutor(expectedResponse)
-        val resource = AspireResource(data.name, data, this, watcher, commandExecutor)
+        val resource = AspireResource(data.id, data, this, watcher, commandExecutor)
         val expectedRequest = AspireResourceCommandRequest(data.name, data.originType, "restart")
 
         val response = resource.executeCommand("restart")
 
         assertEquals(listOf(expectedRequest), commandExecutor.requests)
-        assertEquals(listOf(data.id.appHostPath), commandExecutor.appHostPaths)
         assertSame(expectedResponse, response)
 
         resource.dispose()
@@ -72,7 +71,7 @@ internal class AspireResourceTest {
     fun `disposing a resource does not shut down the shared client`() = runTest {
         val data = createResourceData()
         val client = MockAspireResourceClient()
-        val resource = AspireResource(data.name, data, this, client, client)
+        val resource = AspireResource(data.id, data, this, client, client)
         testScheduler.runCurrent()
 
         resource.dispose()
@@ -87,18 +86,15 @@ internal class AspireResourceTest {
             .setDisplayName("API")
             .setResourceType("Project")
             .build()
-        val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
-        return resource.toAspireResourceData(appHostPath)
+        return resource.toAspireResourceData(AspireAppHostId("AppHost"))
     }
 
     private class TestResourceLogWatcher : AspireResourceLogWatcher {
         val consoleLogUpdates = MutableSharedFlow<List<AspireResourceLogEntry>>(extraBufferCapacity = 64)
         val watchedResourceNames = mutableListOf<String>()
-        val watchedAppHostPaths = mutableListOf<AspireAppHostPath>()
 
-        override fun watchResourceConsoleLogs(appHostPath: AspireAppHostPath, resourceName: String): Flow<List<AspireResourceLogEntry>> {
+        override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
             watchedResourceNames.add(resourceName)
-            watchedAppHostPaths.add(appHostPath)
             return consoleLogUpdates
         }
     }
@@ -107,11 +103,9 @@ internal class AspireResourceTest {
         private val response: AspireResourceCommandResponse = AspireResourceCommandResponse(),
     ) : AspireResourceCommandExecutor {
         val requests = mutableListOf<AspireResourceCommandRequest>()
-        val appHostPaths = mutableListOf<AspireAppHostPath>()
 
-        override suspend fun executeResourceCommand(appHostPath: AspireAppHostPath, request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+        override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
             requests.add(request)
-            appHostPaths.add(appHostPath)
             return response
         }
     }

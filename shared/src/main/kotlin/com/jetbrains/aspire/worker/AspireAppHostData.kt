@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus
 @ApiStatus.Internal
 @Serializable
 data class AspireAppHostData(
-    val path: AspireAppHostPath,
+    val id: AspireAppHostId,
     val name: String,
     val status: AspireAppHostStatus,
 )
