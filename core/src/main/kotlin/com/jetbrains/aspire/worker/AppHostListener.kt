@@ -4,7 +4,6 @@ import com.intellij.util.messages.Topic
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import kotlinx.coroutines.flow.SharedFlow
 import org.jetbrains.annotations.ApiStatus
-import java.nio.file.Path
 
 /**
  * Project-level listener for Aspire AppHost lifecycle transitions.
@@ -21,13 +20,14 @@ interface AppHostListener {
     /**
      * Notifies that an Aspire AppHost process has started.
      *
+     * @param appHostId identity of the AppHost object prepared for this process launch
      * @param environment connection metadata prepared for this process launch
      * @param logFlow buffered stream of the AppHost process output (text + stderr flag)
      */
-    fun appHostStarted(appHostFile: Path, environment: AppHostEnvironment, logFlow: SharedFlow<AppHostLogEntry>)
+    fun appHostStarted(appHostId: AspireAppHostId, environment: AppHostEnvironment, logFlow: SharedFlow<AppHostLogEntry>)
 
     /**
      * Notifies that an Aspire AppHost process has stopped.
      */
-    fun appHostStopped(appHostFile: Path)
+    fun appHostStopped(appHostId: AspireAppHostId)
 }

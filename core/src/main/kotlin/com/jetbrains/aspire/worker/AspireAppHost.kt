@@ -185,21 +185,21 @@ class AspireAppHost(
 
     private inner class AppHostLifecycleListener : AppHostListener {
         override fun appHostStarted(
-            appHostFile: Path,
+            appHostId: AspireAppHostId,
             environment: AppHostEnvironment,
             logFlow: SharedFlow<AppHostLogEntry>
         ) {
-            if (mainFilePath != appHostFile) return
+            if (id != appHostId) return
 
-            LOG.trace { "Aspire AppHost $mainFilePath was started" }
+            LOG.trace { "Aspire AppHost $id was started" }
             mutableLogFlow.value = logFlow
             mutableAppHostState.value = AspireAppHostState.Started(environment)
         }
 
-        override fun appHostStopped(appHostFile: Path) {
-            if (mainFilePath != appHostFile) return
+        override fun appHostStopped(appHostId: AspireAppHostId) {
+            if (id != appHostId) return
 
-            LOG.trace { "Aspire AppHost $mainFilePath was stopped" }
+            LOG.trace { "Aspire AppHost $id was stopped" }
             mutableLogFlow.value = null
             mutableAppHostState.value = AspireAppHostState.Stopped
         }
