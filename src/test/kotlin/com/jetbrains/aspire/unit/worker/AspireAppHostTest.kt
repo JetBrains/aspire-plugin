@@ -18,7 +18,6 @@ import com.jetbrains.aspire.worker.AppHostListener
 import com.jetbrains.aspire.worker.AppHostLogEntry
 import com.jetbrains.aspire.worker.AspireAppHost
 import com.jetbrains.aspire.worker.AspireAppHostId
-import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.grpc.GrpcResourceClientFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +51,7 @@ internal class AspireAppHostTest {
 
     private val project get() = ProjectManager.getInstance().defaultProject
     private val appHostPath = Path.of("test/path/AppHost.csproj")
+    private val appHostId = AspireAppHostId("AppHost")
 
     @BeforeAll
     fun setUpApplication() {
@@ -262,6 +262,7 @@ internal class AspireAppHostTest {
 
         assertEquals(listOf(environment.resourceServiceEndpointUrl), mockFactory.endpointUrls)
         assertEquals(listOf(environment.resourceServiceApiKey), mockFactory.apiKeys)
+        assertEquals(listOf(appHostId), mockFactory.appHostIds)
         assertEquals(listOf(client), mockFactory.clientsFlow.value)
         assertFalse(client.isShutdown.value)
     }
@@ -273,7 +274,7 @@ internal class AspireAppHostTest {
         val messages = MutableSharedFlow<AppHostLogEntry>()
 
         project.messageBus.syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(appHostPath, environment, messages)
+            .appHostStarted(host.id, environment, messages)
 
         withTimeout(10.seconds) {
             mockFactory.clientsFlow.first { it.isNotEmpty() }
@@ -283,6 +284,7 @@ internal class AspireAppHostTest {
         assertSame(environment, state.environment)
         assertEquals(listOf(environment.resourceServiceEndpointUrl), mockFactory.endpointUrls)
         assertEquals(listOf(environment.resourceServiceApiKey), mockFactory.apiKeys)
+        assertEquals(listOf(appHostId), mockFactory.appHostIds)
     }
 
     @Test
@@ -290,10 +292,10 @@ internal class AspireAppHostTest {
         val host = createAppHost()
         val environment = createDefaultEnvironment()
         val messages = MutableSharedFlow<AppHostLogEntry>()
-        val otherAppHostPath = Path.of("test/path/OtherAppHost.csproj")
+        val otherAppHostId = AspireAppHostId("OtherHost")
 
         project.messageBus.syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(otherAppHostPath, environment, messages)
+            .appHostStarted(otherAppHostId, environment, messages)
 
         assertEquals(AspireAppHost.AspireAppHostState.Inactive, host.appHostState.value)
         assertEquals(null, host.logFlow.value)
@@ -313,7 +315,8 @@ internal class AspireAppHostTest {
 
         host.awaitDashboardUrl("https://dashboard.example/cli")
         assertEquals(listOf(project), mockCliFactory.projects)
-        assertEquals(listOf(host.appHostPath), client.watchedAppHostPaths)
+        assertEquals(listOf(appHostId), mockCliFactory.appHostIds)
+        assertEquals(listOf(host.appHostPath), mockCliFactory.appHostPaths)
         assertTrue(mockFactory.clientsFlow.value.isEmpty())
     }
 
@@ -481,8 +484,7 @@ internal class AspireAppHostTest {
     }
 
     private fun createAppHost(): AspireAppHost {
-        val id = AspireAppHostId("AppHost")
-        return AspireAppHost(id, "AppHost", appHostPath, project, hostScope).also {
+        return AspireAppHost(appHostId, "AppHost", appHostPath, project, hostScope).also {
             Disposer.register(testRootDisposable, it)
         }
     }
@@ -490,7 +492,7 @@ internal class AspireAppHostTest {
     private suspend fun startAppHost(host: AspireAppHost, environment: AspireAppHost.AppHostEnvironment) {
         val messages = MutableSharedFlow<AppHostLogEntry>()
         project.messageBus.syncPublisher(AppHostListener.TOPIC)
-            .appHostStarted(appHostPath, environment, messages)
+            .appHostStarted(host.id, environment, messages)
 
         withTimeout(10.seconds) {
             host.appHostState.first { it is AspireAppHost.AspireAppHostState.Started }
@@ -499,7 +501,7 @@ internal class AspireAppHostTest {
 
     private suspend fun stopAppHost(host: AspireAppHost) {
         project.messageBus.syncPublisher(AppHostListener.TOPIC)
-            .appHostStopped(appHostPath)
+            .appHostStopped(host.id)
 
         withTimeout(10.seconds) {
             host.appHostState.first { it is AspireAppHost.AspireAppHostState.Stopped }
@@ -575,8 +577,7 @@ internal class AspireAppHostTest {
     }
 
     private fun upsert(resource: Resource): AspireResourceUpdate {
-        val hostPath = AspireAppHostPath(appHostPath.toAbsolutePath().toString())
-        val data = resource.toAspireResourceData(hostPath)
+        val data = resource.toAspireResourceData(appHostId)
         val change = AspireResourceChange.Upsert(data)
         val changes = listOf(change)
         return AspireResourceUpdate.Changes(changes)

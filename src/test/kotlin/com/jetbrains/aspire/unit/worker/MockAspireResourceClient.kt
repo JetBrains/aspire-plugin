@@ -4,7 +4,6 @@ import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.AspireResourceCommandRequest
 import com.jetbrains.aspire.resources.AspireResourceCommandResponse
 import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.worker.AspireAppHostPath
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger
 internal class MockAspireResourceClient : AspireResourceClient {
     val resourceUpdates = MutableSharedFlow<AspireResourceUpdate>(extraBufferCapacity = 64)
 
-    val watchedAppHostPaths: MutableList<AspireAppHostPath> = Collections.synchronizedList(mutableListOf())
+    var resourceWatchCalls: Int = 0
+        private set
     val watchedResourceNames: MutableList<String> = Collections.synchronizedList(mutableListOf())
     val commandRequests: MutableList<AspireResourceCommandRequest> = Collections.synchronizedList(mutableListOf())
 
@@ -51,19 +51,19 @@ internal class MockAspireResourceClient : AspireResourceClient {
     val shutdownCount: Int
         get() = shutdownCalls.get()
 
-    override fun watchResources(appHostPath: AspireAppHostPath): Flow<AspireResourceUpdate> {
-        watchedAppHostPaths.add(appHostPath)
+    override fun watchResources(): Flow<AspireResourceUpdate> {
+        resourceWatchCalls++
         return resourceUpdates
     }
 
-    override fun watchResourceConsoleLogs(appHostPath: AspireAppHostPath, resourceName: String): Flow<List<AspireResourceLogEntry>> {
+    override fun watchResourceConsoleLogs(resourceName: String): Flow<List<AspireResourceLogEntry>> {
         watchedResourceNames.add(resourceName)
         return consoleLogFlows.updateAndGet { flows ->
             if (resourceName in flows) flows else flows + (resourceName to MutableSharedFlow())
         }.getValue(resourceName)
     }
 
-    override suspend fun executeResourceCommand(appHostPath: AspireAppHostPath, request: AspireResourceCommandRequest): AspireResourceCommandResponse {
+    override suspend fun executeResourceCommand(request: AspireResourceCommandRequest): AspireResourceCommandResponse {
         commandRequests.add(request)
         return AspireResourceCommandResponse()
     }

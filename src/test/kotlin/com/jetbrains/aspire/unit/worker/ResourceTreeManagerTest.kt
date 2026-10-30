@@ -11,7 +11,7 @@ import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceClient
 import com.jetbrains.aspire.resources.AspireResourceCommandRequest
 import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.worker.ResourceState
@@ -30,7 +30,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotSame
@@ -101,16 +100,14 @@ internal class ResourceTreeManagerTest {
     }
 
     @Test
-    fun `resource watcher receives the AppHost path`() = runTest {
-        val appHostPath = Path.of("test/path/AppHost.csproj")
+    fun `resource watcher is started without receiving an AppHost path`() = runTest {
         val client = MockAspireResourceClient()
         val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
-        val manager = createResourceTreeManager(resourceClient, appHostPath)
-        val expectedAppHostPath = AspireAppHostPath(appHostPath.toAbsolutePath().toString())
+        val manager = createResourceTreeManager(resourceClient)
 
         testScheduler.runCurrent()
 
-        assertEquals(listOf(expectedAppHostPath), client.watchedAppHostPaths)
+        assertEquals(1, client.resourceWatchCalls)
     }
 
     @Test
@@ -120,8 +117,7 @@ internal class ResourceTreeManagerTest {
         val manager = createResourceTreeManager(resourceClient)
         testScheduler.runCurrent()
         val resource = buildResource("api", "API")
-        val appHostPath = AspireAppHostPath("another/path/AppHost.csproj")
-        val data = resource.toAspireResourceData(appHostPath)
+        val data = resource.toAspireResourceData(AspireAppHostId("AppHost"))
         val change = AspireResourceChange.Upsert(data)
         val changes = listOf(change)
         val update = AspireResourceUpdate.Changes(changes)
@@ -808,10 +804,8 @@ internal class ResourceTreeManagerTest {
 
     private fun TestScope.createResourceTreeManager(
         resourceClient: StateFlow<AspireResourceClient?>,
-        appHostPath: Path = Path.of("test/path/AppHost.csproj"),
         parentCs: CoroutineScope = backgroundScope,
     ): ResourceTreeManager = ResourceTreeManager(
-        appHostPath,
         project,
         parentCs,
         testRootDisposable,
@@ -854,15 +848,13 @@ internal class ResourceTreeManagerTest {
     }
 
     private fun buildInitialData(resources: List<Resource>): AspireResourceUpdate {
-        val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
-        val data = resources.map { it.toAspireResourceData(appHostPath) }
+        val data = resources.map { it.toAspireResourceData(AspireAppHostId("AppHost")) }
         return AspireResourceUpdate.InitialData(data)
     }
 
     private fun buildUpsertUpdate(resources: List<Resource>): AspireResourceUpdate {
-        val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
         val changes = resources.map {
-            val data = it.toAspireResourceData(appHostPath)
+            val data = it.toAspireResourceData(AspireAppHostId("AppHost"))
             AspireResourceChange.Upsert(data)
         }
         return AspireResourceUpdate.Changes(changes)

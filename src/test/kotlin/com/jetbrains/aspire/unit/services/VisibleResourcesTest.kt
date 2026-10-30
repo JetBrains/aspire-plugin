@@ -1,7 +1,7 @@
 package com.jetbrains.aspire.unit.services
 
 import com.jetbrains.aspire.services.visibleResources
-import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
@@ -136,7 +136,7 @@ class VisibleResourcesTest {
 
         private fun createData(isHidden: Boolean, state: String): AspireResourceData =
             AspireResourceData(
-                id = AspireResourceId(AspireAppHostPath("app-host"), resourceName),
+                id = AspireResourceId(AspireAppHostId("app-host"), resourceName),
                 uid = "uid-$resourceName",
                 name = resourceName,
                 type = ResourceType.Unknown,

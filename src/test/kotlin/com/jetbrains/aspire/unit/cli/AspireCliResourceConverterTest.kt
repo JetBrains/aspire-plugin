@@ -9,7 +9,7 @@ import com.jetbrains.aspire.cli.AspireCliResourceVolume
 import com.jetbrains.aspire.cli.toAspireResourceUpdate
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
-import com.jetbrains.aspire.worker.AspireAppHostPath
+import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
@@ -39,12 +39,12 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 internal class AspireCliResourceConverterTest {
-    private val appHostPath = AspireAppHostPath("test/path/AppHost.csproj")
+    private val appHostId = AspireAppHostId("AppHost")
 
     @Test
     fun `resource becomes an upsert scoped to its AppHost`() {
         val resource = AspireCliResource("api", displayName = "API", resourceType = "Project", state = "Starting", stateStyle = "info")
-        val expectedId = AspireResourceId(appHostPath, "api")
+        val expectedId = AspireResourceId(appHostId, "api")
 
         val data = convert(resource)
 
@@ -59,9 +59,22 @@ internal class AspireCliResourceConverterTest {
     }
 
     @Test
+    fun `same named resources from different AppHosts have distinct ids`() {
+        val resource = AspireCliResource("api", resourceType = "Project")
+        val otherAppHostId = AspireAppHostId("OtherHost")
+
+        val first = convert(resource)
+        val secondUpdate = assertIs<AspireResourceUpdate.Changes>(resource.toAspireResourceUpdate(otherAppHostId))
+        val second = assertIs<AspireResourceChange.Upsert>(secondUpdate.changes.single()).data
+
+        assertEquals(AspireResourceId(appHostId, "api"), first.id)
+        assertEquals(AspireResourceId(otherAppHostId, "api"), second.id)
+    }
+
+    @Test
     fun `resource UID is preserved separately from its name`() {
         val resource = AspireCliResource("api", uid = "api-123")
-        val expectedId = AspireResourceId(appHostPath, "api")
+        val expectedId = AspireResourceId(appHostId, "api")
 
         val data = convert(resource)
 
@@ -501,7 +514,7 @@ internal class AspireCliResourceConverterTest {
     }
 
     private fun convert(resource: AspireCliResource): AspireResourceData {
-        val update = assertIs<AspireResourceUpdate.Changes>(resource.toAspireResourceUpdate(appHostPath))
+        val update = assertIs<AspireResourceUpdate.Changes>(resource.toAspireResourceUpdate(appHostId))
         return assertIs<AspireResourceChange.Upsert>(update.changes.single()).data
     }
 }
