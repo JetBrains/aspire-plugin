@@ -65,7 +65,7 @@ class AspireAppHost(
     val appHostState: StateFlow<AspireAppHostState> = mutableAppHostState.asStateFlow()
 
     private val resourceClient = MutableStateFlow<AspireResourceClient?>(null)
-    private val resourceTreeManager = ResourceTreeManager(mainFilePath, project, cs, this, resourceClient)
+    private val resourceTreeManager = ResourceTreeManager(project, cs, this, resourceClient)
     override val rootResources: StateFlow<List<AspireResource>>
         get() = resourceTreeManager.rootResources
 
