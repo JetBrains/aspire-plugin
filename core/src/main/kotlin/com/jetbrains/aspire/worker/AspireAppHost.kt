@@ -105,7 +105,7 @@ class AspireAppHost(
                 val endpointUrl = environment.resourceServiceEndpointUrl
                 val client: AspireResourceClient = if (endpointUrl.isNullOrEmpty()) {
                     LOG.trace { "Initializing CLI resource client for $mainFilePath" }
-                    service<AspireCliResourceClientFactory>().create(project)
+                    service<AspireCliResourceClientFactory>().create(project, id, appHostPath)
                 } else {
                     LOG.trace { "Initializing gRPC dashboard client for $mainFilePath" }
                     service<GrpcResourceClientFactory>().create(endpointUrl, environment.resourceServiceApiKey)
