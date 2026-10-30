@@ -30,7 +30,7 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         fun getInstance(project: Project): AspireWorker = project.service()
         private val LOG = logger<AspireWorker>()
 
-        private fun generateAppHostId(): AspireAppHostId {
+        private fun generateRandomAppHostId(): AspireAppHostId {
             val allowedChars = buildList {
                 addAll('A'..'Z')
                 addAll('a'..'z')
@@ -41,6 +41,16 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
                 .joinToString("")
             return AspireAppHostId(id)
         }
+
+        private fun generateUniqueAppHostId(
+            registeredIds: Set<AspireAppHostId>,
+            nextCandidate: () -> AspireAppHostId = ::generateRandomAppHostId,
+        ): AspireAppHostId {
+            while (true) {
+                val candidate = nextCandidate()
+                if (candidate !in registeredIds) return candidate
+            }
+        }
     }
 
     private val _appHosts: MutableStateFlow<List<AspireAppHost>> = MutableStateFlow(emptyList())
@@ -50,9 +60,9 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         LOG.trace { "Adding a new Aspire AppHost ${appHostFilePath.absolutePathString()}" }
 
         _appHosts.update { currentList ->
-            if (currentList.any { it.mainFilePath == appHostFilePath }) return@update currentList
+            if (currentList.any { it.appHostPath == appHostFilePath }) return@update currentList
 
-            val id = generateAppHostId()
+            val id = generateUniqueAppHostId(currentList.mapTo(mutableSetOf()) { it.id })
             val appHost = AspireAppHost(id, name, appHostFilePath, project, cs)
             Disposer.register(this@AspireWorker, appHost)
             currentList + appHost
