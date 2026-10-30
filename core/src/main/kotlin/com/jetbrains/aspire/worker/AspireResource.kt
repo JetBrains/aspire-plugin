@@ -56,7 +56,6 @@ class AspireResource(
     }
 
     private val cs = parentCs.childScope("Aspire Resource")
-    private val appHostPath = initialData.id.appHostPath
 
     private val _data = MutableStateFlow(initialData)
     override val data: StateFlow<AspireResourceData> = _data.asStateFlow()
@@ -78,7 +77,7 @@ class AspireResource(
 
     init {
         cs.launch {
-            resourceLogWatcher.watchResourceConsoleLogs(appHostPath, resourceName)
+            resourceLogWatcher.watchResourceConsoleLogs(resourceName)
                 .catch { cause ->
                     if (cause is CancellationException) throw cause
                     LOG.trace { "Console log stream for $resourceName ended: ${cause.message}" }
@@ -115,7 +114,7 @@ class AspireResource(
 
     suspend fun executeCommand(commandName: String): AspireResourceCommandResponse {
         val request = AspireResourceCommandRequest(resourceName, _data.value.originType, commandName)
-        val response = resourceCommandExecutor.executeResourceCommand(appHostPath, request)
+        val response = resourceCommandExecutor.executeResourceCommand(request)
         if (response.kind == AspireResourceCommandResponseKind.Failed) {
             LOG.warn("Command $commandName on $resourceName failed: ${response.message.orEmpty()}")
         }
