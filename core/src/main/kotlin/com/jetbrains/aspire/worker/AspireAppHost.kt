@@ -47,7 +47,7 @@ class AspireAppHost(
 
     private val cs = parentCs.childScope("Aspire AppHost")
 
-    override val appHostPath: AspireAppHostPath = mainFilePath.toAspireAppHostPath()
+    override val appHostPath: Path = mainFilePath
 
     private val sessionServerMutex = Mutex()
     private var sessionServer: AspireSessionServer? = null
