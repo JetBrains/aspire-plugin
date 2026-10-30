@@ -8,9 +8,6 @@ import kotlin.io.path.Path
 fun AspirePath.toNioPath(): Path = Path(value)
 
 @ApiStatus.Internal
-fun AspireAppHostPath.toNioPath(): Path = Path(value)
-
-@ApiStatus.Internal
 fun AspireAppHost.toData(state: AspireAppHost.AspireAppHostState): AspireAppHostData {
     val status = when (state) {
         AspireAppHost.AspireAppHostState.Inactive -> AspireAppHostStatus.Inactive
