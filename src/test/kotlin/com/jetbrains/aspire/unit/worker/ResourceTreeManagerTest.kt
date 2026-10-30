@@ -125,6 +125,7 @@ internal class ResourceTreeManagerTest {
         client.resourceUpdates.emit(update)
         testScheduler.runCurrent()
 
+        assertEquals(data.id, manager.rootResources.value.single().id)
         assertSame(data, manager.rootResources.value.single().data.value)
     }
 

@@ -34,7 +34,7 @@ internal class AspireResourceTest {
         val data = createResourceData()
         val watcher = TestResourceLogWatcher()
         val commandExecutor = TestResourceCommandExecutor()
-        val resource = AspireResource(data.name, data, this, watcher, commandExecutor)
+        val resource = AspireResource(data.id, data, this, watcher, commandExecutor)
         val stdoutEntry = AspireResourceLogEntry("Resource output", false)
         val stderrEntry = AspireResourceLogEntry("Resource error", true)
         val logEntries = listOf(stdoutEntry, stderrEntry)
@@ -44,6 +44,7 @@ internal class AspireResourceTest {
         testScheduler.runCurrent()
 
         assertEquals(listOf(data.name), watcher.watchedResourceNames)
+        assertEquals(data.id, resource.id)
         assertEquals(logEntries, resource.logFlow.replayCache)
 
         resource.dispose()
@@ -55,7 +56,7 @@ internal class AspireResourceTest {
         val watcher = TestResourceLogWatcher()
         val expectedResponse = AspireResourceCommandResponse(AspireResourceCommandResponseKind.Succeeded, "Command completed")
         val commandExecutor = TestResourceCommandExecutor(expectedResponse)
-        val resource = AspireResource(data.name, data, this, watcher, commandExecutor)
+        val resource = AspireResource(data.id, data, this, watcher, commandExecutor)
         val expectedRequest = AspireResourceCommandRequest(data.name, data.originType, "restart")
 
         val response = resource.executeCommand("restart")
@@ -70,7 +71,7 @@ internal class AspireResourceTest {
     fun `disposing a resource does not shut down the shared client`() = runTest {
         val data = createResourceData()
         val client = MockAspireResourceClient()
-        val resource = AspireResource(data.name, data, this, client, client)
+        val resource = AspireResource(data.id, data, this, client, client)
         testScheduler.runCurrent()
 
         resource.dispose()

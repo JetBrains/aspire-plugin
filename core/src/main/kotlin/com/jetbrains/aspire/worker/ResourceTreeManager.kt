@@ -143,7 +143,7 @@ class ResourceTreeManager(
 
         if (existing == null) {
             val resource = AspireResource(
-                data.name,
+                data.id,
                 data,
                 resourceCs,
                 resourceLogWatcher = client,

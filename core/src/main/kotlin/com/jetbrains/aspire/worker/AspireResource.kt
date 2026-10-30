@@ -36,7 +36,7 @@ import kotlin.coroutines.cancellation.CancellationException
  * is internal and should only be called by the owning resource manager to apply state changes
  * received from the dashboard.
  *
- * @param resourceName the unique identifier of this resource within the AppHost
+ * @param id the unique identifier of this resource within the AppHost
  * @param initialData the initial state data for this resource
  *
  * @see ResourceTreeManager for resource lifecycle management
@@ -44,7 +44,7 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 @ApiStatus.Internal
 class AspireResource(
-    override val resourceName: String,
+    override val id: AspireResourceId,
     initialData: AspireResourceData,
     parentCs: CoroutineScope,
     private val resourceLogWatcher: AspireResourceLogWatcher,
@@ -56,6 +56,8 @@ class AspireResource(
     }
 
     private val cs = parentCs.childScope("Aspire Resource")
+
+    val resourceName: String = id.resourceName
 
     private val _data = MutableStateFlow(initialData)
     override val data: StateFlow<AspireResourceData> = _data.asStateFlow()

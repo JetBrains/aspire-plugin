@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -88,6 +89,27 @@ class ResourceViewModelsTest {
     }
 
     @Test
+    fun `resources with the same name from different app hosts get different view models`() = runTest {
+        val project = ProjectManager.getInstance().defaultProject
+        val parent = Disposer.newDisposable("parent")
+        Disposer.register(testRootDisposable, parent)
+        val firstResource = TestResource("api", appHostId = AspireAppHostId("first-app-host"))
+        val secondResource = TestResource("api", appHostId = AspireAppHostId("second-app-host"))
+        val resources = MutableStateFlow<List<AspireResourceModel>>(listOf(firstResource))
+        val viewModels = resources.toResourceViewModels(project, backgroundScope, parent)
+        runCurrent()
+        val firstViewModel = viewModels.value.single()
+
+        resources.value = listOf(secondResource)
+        runCurrent()
+        val secondViewModel = viewModels.value.single()
+
+        assertEquals(secondResource.id, secondViewModel.id)
+        assertNotSame(firstViewModel, secondViewModel)
+        assertFalse(Disposer.tryRegister(firstViewModel) {})
+    }
+
+    @Test
     fun `removed view models are disposed and new ones belong to the parent`() = runTest {
         val project = ProjectManager.getInstance().defaultProject
         val parent = Disposer.newDisposable("parent")
@@ -109,12 +131,14 @@ class ResourceViewModelsTest {
     }
 
     private class TestResource(
-        override val resourceName: String,
+        resourceName: String,
         type: ResourceType = ResourceType.Unknown,
+        appHostId: AspireAppHostId = AspireAppHostId("app-host"),
     ) : AspireResourceModel {
+        override val id = AspireResourceId(appHostId, resourceName)
         override val data = MutableStateFlow(
             AspireResourceData(
-                id = AspireResourceId(AspireAppHostId("app-host"), resourceName),
+                id = id,
                 uid = "uid-$resourceName",
                 name = resourceName,
                 type = type,
