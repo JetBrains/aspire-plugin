@@ -33,19 +33,17 @@ import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.cli.AspireCliLocator
 import com.jetbrains.aspire.cli.AspireCliLogLevel
+import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
 import com.jetbrains.aspire.extensions.DevCertificateProvider
-import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
 import com.jetbrains.aspire.run.AspireExecutionListener.Companion.APP_HOST_ENVIRONMENT_KEY
+import com.jetbrains.aspire.run.AspireExecutionListener.Companion.APP_HOST_ID_KEY
 import com.jetbrains.aspire.run.AsyncRunProfileState
 import com.jetbrains.aspire.run.StoppedContainerRuntimeProcessListener
 import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.util.getAspireAllowUnsecuredTransport
-import com.jetbrains.aspire.util.getAspireDashboardOtlpEndpointUrl
-import com.jetbrains.aspire.util.getAspireDashboardResourceServiceApiKey
-import com.jetbrains.aspire.util.getAspireResourceServiceEndpointUrl
+import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.absolutePathString
@@ -112,6 +110,7 @@ internal class AspireCliRunProfileState(
     private suspend fun putAdditionalEnvironmentVariables(envs: MutableMap<String, String>, appHostFile: Path) {
         val aspireWorker = AspireWorker.getInstance(environment.project)
         val (appHost, endpoint) = aspireWorker.startAppHostSessionServer(appHostFile)
+        environment.putUserData(APP_HOST_ID_KEY, appHost.id)
         envs[DCP_INSTANCE_ID_PREFIX] = appHost.id.value
         envs.putAll(endpoint.toDcpEnvironmentVariables())
 
