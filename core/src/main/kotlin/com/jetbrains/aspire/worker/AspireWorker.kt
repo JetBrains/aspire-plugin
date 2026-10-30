@@ -67,8 +67,8 @@ class AspireWorker(private val project: Project, private val cs: CoroutineScope)
         }
     }
 
-    fun getAppHostById(appHostPath: AspireAppHostPath): AspireAppHost? =
-        _appHosts.value.firstOrNull { it.mainFilePath.toAspireAppHostPath() == appHostPath }
+    fun getAppHostById(appHostId: AspireAppHostId): AspireAppHost? =
+        _appHosts.value.firstOrNull { it.id == appHostId }
 
     /** Starts or reuses the AppHost's session server and returns the DCP connection environment variables. */
     suspend fun startAppHostSessionServer(appHostFilePath: Path): Pair<AspireAppHost, AspireSessionServerEndpoint> {
