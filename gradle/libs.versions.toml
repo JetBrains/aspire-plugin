@@ -8,9 +8,9 @@ junit = "4.13.2"
 # Assertion API used by JUnit and the bundled IDE test framework; verify compatibility when updating.
 opentest4j = "1.3.0"
 # Keep Jupiter API, params and engine on the same release; verify bundled IDE test framework compatibility.
-junitJupiter = "6.0.3"
+junitJupiter = "6.1.3"
 # Keep on the same release as junitJupiter; verify bundled IDE test framework compatibility.
-junitPlatform = "6.0.3"
+junitPlatform = "6.1.3"
 # The IDE supplies the runtime; compile APIs and generated Java stubs must remain compatible with it.
 grpc = "1.73.0"
 # The IDE supplies the runtime; compile APIs and generated Kotlin stubs must remain compatible with it.
