@@ -6,6 +6,7 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
+import com.intellij.openapi.rd.createNestedDisposable
 import com.intellij.openapi.util.Key
 import com.jetbrains.aspire.sessions.SessionEvent
 import com.jetbrains.aspire.sessions.SessionLogReceived
@@ -23,11 +24,20 @@ import org.jetbrains.annotations.ApiStatus
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * Process listener for an Aspire session process.
+ *
+ * Rider may bind this listener to the session lifetime and remove it when that lifetime ends,
+ * which can happen before the process actually exits (e.g., on DCP `DELETE session` or AppHost disposal).
+ * To not lose the final output and the termination event, this listener handles only the process start
+ * and registers a separate [ProcessEventHandler] bound to its own lifetime (nested in `parentLifetime`).
+ * The handler is the only place where the process output and termination are processed.
+ */
 @ApiStatus.Internal
 class SessionProcessEventListener(
     private val sessionId: String,
     private val sessionEvents: Channel<SessionEvent>,
-    private val processLifetime: Lifetime,
+    parentLifetime: Lifetime,
     private val terminateProcessLifetime: () -> Unit
 ) : ProcessListener {
     companion object {
@@ -36,17 +46,36 @@ class SessionProcessEventListener(
         private const val UNKNOWN_EXIT_CODE = 0
     }
 
-    private val stdOutBuffer = SessionLogBuffer(sessionId, false, sessionEvents, processLifetime)
-    private val stdErrBuffer = SessionLogBuffer(sessionId, true, sessionEvents, processLifetime)
+    private val listenerLifetimeDefinition by lazy { parentLifetime.createNested() }
 
+    private val stdOutBuffer by lazy {
+        SessionLogBuffer(sessionId, false, sessionEvents, listenerLifetimeDefinition.lifetime)
+    }
+    private val stdErrBuffer by lazy {
+        SessionLogBuffer(sessionId, true, sessionEvents, listenerLifetimeDefinition.lifetime)
+    }
+
+    private val eventHandler = ProcessEventHandler()
+
+    private val isStarted = AtomicBoolean(false)
     private val isTerminated = AtomicBoolean(false)
 
     override fun startNotified(event: ProcessEvent) {
+        if (!isStarted.compareAndSet(false, true)) {
+            LOG.trace { "Session $sessionId process start was already handled" }
+            return
+        }
+
         LOG.info("Session $sessionId process was started")
         val processHandler = event.processHandler
 
+        processHandler.addProcessListener(
+            eventHandler,
+            listenerLifetimeDefinition.lifetime.createNestedDisposable()
+        )
+
         if (processHandler is DebuggerWorkerProcessHandlerBase) {
-            processHandler.workerModel.targetExited.advise(processLifetime) {
+            processHandler.workerModel.targetExited.advise(listenerLifetimeDefinition.lifetime) {
                 targetProcessTerminated(it.exitCode)
             }
         }
@@ -68,27 +97,12 @@ class SessionProcessEventListener(
         }
     }
 
-    override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
-        if (outputType == ProcessOutputType.STDERR) {
-            stdErrBuffer.append(event.text)
-        } else {
-            stdOutBuffer.append(event.text)
-        }
-    }
-
     override fun processNotStarted() {
         LOG.warn("Session $sessionId process is not started")
         terminateSession(UNSUCCESSFUL_EXIT_CODE)
     }
 
-    override fun processTerminated(event: ProcessEvent) {
-        LOG.info("Session $sessionId process was terminated (${event.exitCode}, ${event.text})")
-        val isDebuggerWorkerProcess = event.processHandler is DebuggerWorkerProcessHandlerBase
-        val exitCode = if (!isDebuggerWorkerProcess) event.exitCode else UNKNOWN_EXIT_CODE
-        terminateSession(exitCode)
-    }
-
-    fun targetProcessTerminated(exitCode: Int) {
+    private fun targetProcessTerminated(exitCode: Int) {
         LOG.info("Session $sessionId target process was terminated with exitCode $exitCode")
         terminateSession(exitCode)
     }
@@ -108,7 +122,29 @@ class SessionProcessEventListener(
             LOG.warn("Unable to send an event for session $sessionId termination")
         }
 
+        listenerLifetimeDefinition.terminate()
         terminateProcessLifetime()
+    }
+
+    /**
+     * Handles the process output and termination.
+     * It's the only place where these events are processed, so they are never handled twice.
+     */
+    private inner class ProcessEventHandler : ProcessListener {
+        override fun onTextAvailable(event: ProcessEvent, outputType: Key<*>) {
+            if (outputType == ProcessOutputType.STDERR) {
+                stdErrBuffer.append(event.text)
+            } else {
+                stdOutBuffer.append(event.text)
+            }
+        }
+
+        override fun processTerminated(event: ProcessEvent) {
+            LOG.info("Session $sessionId process was terminated (${event.exitCode}, ${event.text})")
+            val isDebuggerWorkerProcess = event.processHandler is DebuggerWorkerProcessHandlerBase
+            val exitCode = if (!isDebuggerWorkerProcess) event.exitCode else UNKNOWN_EXIT_CODE
+            terminateSession(exitCode)
+        }
     }
 
     private class SessionLogBuffer(
