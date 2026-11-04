@@ -15,6 +15,7 @@ import com.jetbrains.aspire.rider.generated.GetReferencedProjectsFromAppHostRequ
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.rider.util.DotNetBuildService
 import com.jetbrains.aspire.rider.util.findExistingAppHost
+import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.StartSessionRequestHandler
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.settings.AspireSettings
@@ -177,7 +178,8 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
             val sessionProcessListener = createSessionProcessEventListener(
                 request.sessionId,
                 request.sessionEvents,
-                request.sessionLifetime
+                request.sessionLifetime,
+                project
             )
 
             launchSessionProcess(
@@ -203,12 +205,13 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
     private fun createSessionProcessEventListener(
         sessionId: String,
         sessionEvents: Channel<SessionEvent>,
-        processLifetimeDefinition: LifetimeDefinition
+        processLifetimeDefinition: LifetimeDefinition,
+        project: Project
     ): ProcessListener {
         return SessionProcessEventListener(
             sessionId,
             sessionEvents,
-            processLifetimeDefinition.lifetime
+            AspireService.getInstance(project).lifetime
         ) {
             if (processLifetimeDefinition.isAlive) {
                 application.invokeLater {
