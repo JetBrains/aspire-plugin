@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 @Service
 class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(AspireSettingsState()) {
     companion object {
+        /** Must match the `applicationConfigurable` id in `intellij.aspire.core.frontend.xml`. */
+        const val CONFIGURABLE_ID = "Aspire.Configurable"
+
         fun getInstance() = service<AspireSettings>()
     }
 
@@ -87,5 +90,17 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
         set(value) {
             state.showHiddenResources = value
             _showHiddenResources.value = value
+        }
+
+    var showAppHostNotDebuggedNotification
+        get() = state.showAppHostNotDebuggedNotification
+        set(value) {
+            state.showAppHostNotDebuggedNotification = value
+        }
+
+    var appHostAttachTimeoutSeconds
+        get() = state.appHostAttachTimeoutSeconds
+        set(value) {
+            state.appHostAttachTimeoutSeconds = value
         }
 }
