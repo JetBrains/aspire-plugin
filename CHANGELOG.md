@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Removed
+
+- Aspire manifest generation actions and service
+
 ### Fixed
 
 - [RIDER-144901](https://youtrack.jetbrains.com/issue/RIDER-144901) Exit code is missing when stopping a service from the Services tool window
