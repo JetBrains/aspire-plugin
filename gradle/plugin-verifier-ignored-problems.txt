@@ -1,0 +1,10 @@
+// Temporary workaround for Plugin Verifier 1.411 against Rider EAP8 (RD-263.7307.48)
+// and RC1 (RD-263.7307.198).
+// Aspire is bundled in Rider. When verifying its update, the verifier uses the bundled
+// plugin's layout and resolves Terminal's main JAR without its frontend content module.
+// intellij.terminal.frontend is declared in intellij.aspire.core.frontend.xml and its
+// classes are present in the SDK. The same artifact with only its plugin ID changed
+// to an unbundled ID verifies as Compatible, including all Terminal API calls.
+// Remove this exception when the verifier handles updates of bundled plugins correctly.
+// Scope it to 2.9.9 so the workaround must be reconsidered for the next plugin version.
+me.rafaelldi.aspire:2.9.9:Package 'com\.intellij\.terminal\.frontend' is not found

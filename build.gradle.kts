@@ -85,6 +85,7 @@ intellijPlatform {
     }
 
     pluginVerification {
+        ignoredProblemsFile = layout.projectDirectory.file("gradle/plugin-verifier-ignored-problems.txt")
         failureLevel = listOf(
             VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
             VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES,

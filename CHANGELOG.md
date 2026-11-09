@@ -8,6 +8,10 @@
 
 - Publish and deploy Aspire AppHosts actions
 
+### Changed
+
+- Update Rider SDK version to 2026.3-RC1
+
 ### Removed
 
 - Aspire manifest generation actions and service
