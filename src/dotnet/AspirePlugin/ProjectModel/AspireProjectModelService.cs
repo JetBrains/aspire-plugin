@@ -46,19 +46,7 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
             return null;
         }
 
-        var referencedProjectPaths = new List<VirtualFileSystemPath>(projectFilePaths.Count);
-        foreach (var projectPath in projectFilePaths)
-        {
-            var project = AddProjectReference(hostProject, projectPath);
-            if (project is null)
-            {
-                continue;
-            }
-
-            referencedProjectPaths.Add(projectPath);
-            lifetime.ThrowIfNotAlive();
-        }
-
+        var referencedProjectPaths = AddProjectReferences(hostProject, projectFilePaths, lifetime);
         var resultPaths = referencedProjectPaths.Select(it => it.ToRd()).ToList();
         return new ReferenceProjectsFromAppHostResponse(resultPaths);
     }
@@ -101,20 +89,33 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
         return new ReferenceServiceDefaultsFromProjectsResponse(resultPaths);
     }
 
-    private IProject? AddProjectReference(IProject targetProject, VirtualFileSystemPath projectToReference)
+    private List<VirtualFileSystemPath> AddProjectReferences(
+        IProject targetProject,
+        List<VirtualFileSystemPath> projectFilePaths,
+        Lifetime lifetime)
     {
         using (solution.Locks.UsingReadLock())
         {
-            var toProject = solution.FindProjectByProjectFilePath(projectToReference);
-            if (toProject is null)
+            var projectsToReference = new List<IProject>(projectFilePaths.Count);
+            var referencedProjectPaths = new List<VirtualFileSystemPath>(projectFilePaths.Count);
+            foreach (var projectPath in projectFilePaths)
             {
-                logger.Warn("Unable to resolve project from a file path");
-                return null;
+                lifetime.ThrowIfNotAlive();
+
+                var toProject = solution.FindProjectByProjectFilePath(projectPath);
+                if (toProject is null)
+                {
+                    logger.Warn("Unable to resolve project from a file path");
+                    continue;
+                }
+
+                projectsToReference.Add(toProject);
+                referencedProjectPaths.Add(projectPath);
             }
 
-            AddProjectReference(targetProject, toProject);
+            AddProjectReferences(targetProject, projectsToReference);
 
-            return toProject;
+            return referencedProjectPaths;
         }
     }
 
@@ -129,14 +130,16 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
                 return null;
             }
 
-            AddProjectReference(fromProject, projectToReference);
+            AddProjectReferences(fromProject, [projectToReference]);
 
             return fromProject;
         }
     }
 
-    private void AddProjectReference(IProject targetProject, IProject projectToReference)
+    private void AddProjectReferences(IProject targetProject, List<IProject> projectsToReference)
     {
+        if (projectsToReference.Count == 0) return;
+
         var existingReferences = new Dictionary<TargetFrameworkId, List<Guid>>(targetProject.TargetFrameworkIds.Count);
         foreach (var tfm in targetProject.TargetFrameworkIds)
         {
@@ -149,14 +152,18 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
 
         solution.InvokeUnderTransaction(cookie =>
         {
-            foreach (var tfm in targetProject.TargetFrameworkIds)
+            foreach (var projectToReference in projectsToReference)
             {
-                if (existingReferences[tfm].Contains(projectToReference.Guid))
+                foreach (var tfm in targetProject.TargetFrameworkIds)
                 {
-                    continue;
-                }
+                    if (existingReferences[tfm].Contains(projectToReference.Guid))
+                    {
+                        continue;
+                    }
 
-                cookie.AddModuleReference(targetProject, projectToReference, tfm);
+                    cookie.AddModuleReference(targetProject, projectToReference, tfm);
+                    existingReferences[tfm].Add(projectToReference.Guid);
+                }
             }
         });
     }

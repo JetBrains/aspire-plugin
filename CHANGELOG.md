@@ -18,6 +18,7 @@
 
 ### Fixed
 
+- Missing AppHost project references when adding Aspire orchestration to multiple projects
 - [RIDER-144901](https://youtrack.jetbrains.com/issue/RIDER-144901) Exit code is missing when stopping a service from the Services tool window
 
 ## [2.9.8] - 2026-10-28
