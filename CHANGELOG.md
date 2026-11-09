@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Publish and deploy Aspire AppHosts actions
+
 ### Removed
 
 - Aspire manifest generation actions and service

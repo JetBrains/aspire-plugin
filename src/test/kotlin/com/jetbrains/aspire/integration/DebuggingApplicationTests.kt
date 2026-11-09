@@ -51,7 +51,7 @@ class DebuggingApplicationTests : DebuggerTestBase() {
         runTest(
             "DefaultAspireSolution.AppHost: http",
             fileForBreakpoint,
-            12,
+            14,
             "DefaultAspireSolution.AppHost: http",
             1
         ) {

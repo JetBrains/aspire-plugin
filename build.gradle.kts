@@ -59,6 +59,8 @@ dependencies {
         testBundledModule("intellij.rd.client")
         testBundledPlugin("intellij.structureView.plugin")
         testBundledPlugin("intellij.bookmarks.plugin")
+        testBundledPlugin("org.jetbrains.plugins.terminal")
+        testBundledModule("intellij.terminal.frontend")
     }
 
     compileOnly(libs.serializationJson)

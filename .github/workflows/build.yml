@@ -97,6 +97,12 @@ jobs:
         working-directory: /usr/share/dotnet
         run: dotnet new install Aspire.ProjectTemplates@13.6.4
 
+      # Install Aspire CLI
+      - name: Install Aspire CLI
+        run: |
+          curl -fsSL https://aspire.dev/install.sh | bash -s -- --version 13.6.4
+          echo "$HOME/.aspire/bin" >> "$GITHUB_PATH"
+
       # Install MAUI workload
       - name: Install MAUI workload
         working-directory: /usr/share/dotnet
