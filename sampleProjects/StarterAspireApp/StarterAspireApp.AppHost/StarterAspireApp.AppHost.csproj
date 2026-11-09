@@ -9,6 +9,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.Docker" Version="13.6.4" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\StarterAspireApp.ApiService\StarterAspireApp.ApiService.csproj" />
         <ProjectReference Include="..\StarterAspireApp.Web\StarterAspireApp.Web.csproj" />
     </ItemGroup>
