@@ -50,6 +50,9 @@
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceInterface="com.jetbrains.aspire.deployment.AspireAppHostDeploymentService"
+                        serviceImplementation="com.jetbrains.aspire.deployment.AspireAppHostDeploymentServiceImpl"/>
+
         <applicationService serviceInterface="com.jetbrains.aspire.grpc.GrpcResourceClientFactory"
                             serviceImplementation="com.jetbrains.aspire.grpc.GrpcResourceClientFactoryImpl"/>
         <applicationService serviceInterface="com.jetbrains.aspire.cli.AspireCliResourceClientFactory"

@@ -3,6 +3,8 @@
         <module name="intellij.platform.frontend"/>
         <module name="intellij.aspire.shared"/>
         <module name="intellij.aspire.core"/>
+        <plugin id="org.jetbrains.plugins.terminal"/>
+        <module name="intellij.terminal.frontend"/>
     </dependencies>
 
     <resource-bundle>messages.AspireCoreFrontendBundle</resource-bundle>
@@ -40,6 +42,16 @@
                     icon="AllIcons.Actions.Suspend">
                 <override-text place="GoToAction"/>
             </action>
+            <action id="Aspire.Host.Publish"
+                    class="com.jetbrains.aspire.actions.dashboard.host.PublishAppHostAction"
+                    icon="AllIcons.Actions.Upload">
+                <override-text place="GoToAction"/>
+            </action>
+            <action id="Aspire.Host.Deploy"
+                    class="com.jetbrains.aspire.actions.dashboard.host.DeployAppHostAction"
+                    icon="AllIcons.Nodes.Deploy">
+                <override-text place="GoToAction"/>
+            </action>
             <action id="Aspire.Host.Dashboard"
                     class="com.jetbrains.aspire.actions.dashboard.host.AspireOpenDashboardAction"
                     icon="AllIcons.General.Web">
@@ -50,6 +62,9 @@
             <reference ref="Aspire.Host.Run"/>
             <reference ref="Aspire.Host.Debug"/>
             <reference ref="Aspire.Host.Stop"/>
+            <separator/>
+            <reference ref="Aspire.Host.Publish"/>
+            <reference ref="Aspire.Host.Deploy"/>
             <separator/>
             <reference ref="Aspire.Host.Dashboard"/>
             <separator/>

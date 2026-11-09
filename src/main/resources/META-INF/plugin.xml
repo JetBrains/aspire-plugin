@@ -10,7 +10,6 @@
             <li>Support for running and debugging of Aspire projects</li>
             <li>Unit testing</li>
             <li>Resource dashboard</li>
-            <li>Manifest generation</li>
             <li>Automatic database connection</li>
         </ul>
     ]]></description>

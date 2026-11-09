@@ -59,6 +59,8 @@ dependencies {
         testBundledModule("intellij.rd.client")
         testBundledPlugin("intellij.structureView.plugin")
         testBundledPlugin("intellij.bookmarks.plugin")
+        testBundledPlugin("org.jetbrains.plugins.terminal")
+        testBundledModule("intellij.terminal.frontend")
     }
 
     compileOnly(libs.serializationJson)
@@ -83,6 +85,7 @@ intellijPlatform {
     }
 
     pluginVerification {
+        ignoredProblemsFile = layout.projectDirectory.file("gradle/plugin-verifier-ignored-problems.txt")
         failureLevel = listOf(
             VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
             VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES,

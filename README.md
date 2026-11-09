@@ -13,7 +13,6 @@ The plugin provides support for Aspire projects in JetBrains Rider.
 **Features:**
 * Support for running and debugging of Aspire projects
 * Resource dashboard
-* Manifest generation
 * Automatic database connection
 
 **Documentation**:
