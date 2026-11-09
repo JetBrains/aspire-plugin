@@ -3,10 +3,9 @@
 package com.jetbrains.aspire.deployment
 
 import com.intellij.diagnostic.rethrowControlFlowException
-import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
-import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.platform.eel.provider.asEelPath
@@ -49,11 +48,9 @@ internal class AspireAppHostDeploymentServiceImpl(private val project: Project) 
                     AspireCoreBundle.message("notification.aspire.cli.not.installed.title"),
                     AspireCoreBundle.message("notification.aspire.cli.not.installed.content"),
                     NotificationType.WARNING,
-                ).addAction(
-                    NotificationAction.createSimple(AspireCoreBundle.message("notification.aspire.cli.install.action")) {
-                        BrowserUtil.browse("https://aspire.dev/get-started/install-cli/")
-                    }
-                ).notify(project)
+                )
+                    .addAction(ActionManager.getInstance().getAction("Aspire.InstallCli"))
+                    .notify(project)
                 return@withContext null
             }
 

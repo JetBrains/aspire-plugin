@@ -33,8 +33,9 @@ internal class AspireCliLocator(private val project: Project) {
 
     /**
      * Returns the configured CLI path, or a cached executable found on the `PATH` or in the default installation directories.
+     * Set [refresh] to discard a cached path and search for the executable again.
      */
-    suspend fun locate(): EelPath? {
+    suspend fun locate(refresh: Boolean = false): EelPath? {
         val eelApi = project.getEelDescriptor().toEelApi()
 
         val configuredPath = AspireSettings.getInstance().aspireCliPath.takeIf { it.isNotBlank() }
@@ -42,7 +43,11 @@ internal class AspireCliLocator(private val project: Project) {
             return EelPath.parse(configuredPath, eelApi.descriptor)
         }
 
-        cachedPaths[eelApi.descriptor]?.let { return it }
+        if (refresh) {
+            cachedPaths.remove(eelApi.descriptor)
+        } else {
+            cachedPaths[eelApi.descriptor]?.let { return it }
+        }
 
         val candidate = resolveFromPath(eelApi) ?: resolveFromDefaultPaths(eelApi)
         if (candidate == null) {

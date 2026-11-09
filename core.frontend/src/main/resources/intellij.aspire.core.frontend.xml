@@ -21,6 +21,8 @@
     </extensions>
 
     <actions>
+        <action id="Aspire.InstallCli"
+                class="com.jetbrains.aspire.actions.InstallAspireCliAction"/>
         <action id="Aspire.Settings"
                 class="com.jetbrains.aspire.actions.AspireSettingsAction"
                 icon="AllIcons.General.Settings"/>
