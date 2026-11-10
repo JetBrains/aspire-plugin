@@ -11,6 +11,7 @@ import com.intellij.ui.components.JBTabbedPane
 import com.jetbrains.aspire.actions.ASPIRE_RESOURCE_DATA
 import com.jetbrains.aspire.services.components.ResourceConsolePanel
 import com.jetbrains.aspire.services.components.ResourceDashboardPanel
+import com.jetbrains.aspire.services.components.ResourceDashboardState
 import com.jetbrains.aspire.settings.AspireSettings
 import java.awt.BorderLayout
 import javax.swing.JPanel
@@ -21,10 +22,13 @@ internal class AspireResourceServiceViewDescriptor(
 
     private val resourceActions = ActionManager.getInstance().getAction("Aspire.Resource") as ActionGroup
 
+    private var renderedDashboardState: ResourceDashboardState = currentDashboardState()
+    private val dashboardPanel = ResourceDashboardPanel(renderedDashboardState)
+
     private val tabs = JBTabbedPane().apply {
         addTab(
             AspireServicesBundle.message("service.tab.dashboard"),
-            ResourceDashboardPanel(vm.uiState.value.resourceData)
+            dashboardPanel
         )
         addTab(
             AspireServicesBundle.message("service.tab.console"),
@@ -47,10 +51,24 @@ internal class AspireResourceServiceViewDescriptor(
         addText(resourceData.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
     }
 
+    // The Service View calls this on every event of the Aspire contributor while the node is selected,
+    // so the dashboard is rebuilt only when the rendered data (or the settings affecting it) has changed.
     override fun getContentComponent(): JPanel {
-        val resourceData = vm.uiState.value.resourceData
-        tabs.setComponentAt(0, ResourceDashboardPanel(resourceData))
+        val dashboardState = currentDashboardState()
+        if (dashboardState != renderedDashboardState) {
+            renderedDashboardState = dashboardState
+            dashboardPanel.update(dashboardState)
+        }
         return panel
+    }
+
+    private fun currentDashboardState(): ResourceDashboardState {
+        val settings = AspireSettings.getInstance()
+        return ResourceDashboardState(
+            vm.uiState.value.resourceData,
+            settings.showSensitiveProperties,
+            settings.showEnvironmentVariables
+        )
     }
 
     override fun getPopupActions() = resourceActions

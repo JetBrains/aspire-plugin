@@ -15,25 +15,56 @@ import com.jetbrains.aspire.services.AspireServicesBundle
 import com.jetbrains.aspire.services.getIcon
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceType
-import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
 
-internal class ResourceDashboardPanel(resourceData: AspireResourceData) : BorderLayoutPanel() {
-    private var panel = setUpPanel(resourceData)
+/**
+ * Everything [ResourceDashboardPanel] renders: the resource data and the display settings that affect it.
+ */
+internal data class ResourceDashboardState(
+    val resourceData: AspireResourceData,
+    val showSensitiveProperties: Boolean,
+    val showEnvironmentVariables: Boolean,
+)
+
+internal class ResourceDashboardPanel(state: ResourceDashboardState) : BorderLayoutPanel() {
+    private val toolbar = ActionManager.getInstance().let { actionManager ->
+        val toolbarActions = actionManager.getAction("Aspire.Resource") as ActionGroup
+        actionManager.createActionToolbar(ActionPlaces.TOOLBAR, toolbarActions, true).apply {
+            targetComponent = this@ResourceDashboardPanel
+        }
+    }
+
+    private val scrollPane = ScrollPaneFactory.createScrollPane(null, SideBorder.NONE)
 
     init {
         border = JBUI.Borders.empty(5, 10)
-        add(ScrollPaneFactory.createScrollPane(panel, SideBorder.NONE))
+        add(scrollPane)
+        update(state)
     }
 
-    private fun setUpPanel(resourceData: AspireResourceData): DialogPanel = panel {
+    /**
+     * Rebuilds the dashboard content for [state] in place, keeping this component,
+     * its toolbar and the scroll position.
+     */
+    fun update(state: ResourceDashboardState) {
+        val content = setUpPanel(state)
+
+        val viewport = scrollPane.viewport
+        val viewPosition = viewport.viewPosition
+        scrollPane.setViewportView(content)
+        scrollPane.validate()
+        viewport.viewPosition = viewPosition
+    }
+
+    private fun setUpPanel(state: ResourceDashboardState): DialogPanel = panel {
+        val resourceData = state.resourceData
         addHeader(resourceData)
-        addProperties(resourceData)
+        addProperties(resourceData, state.showSensitiveProperties)
         addEndpoints(resourceData)
         addVolumes(resourceData)
-        addEnvironmentVariables(resourceData)
+        addEnvironmentVariables(resourceData, state.showEnvironmentVariables)
     }
 
     private fun Panel.addHeader(data: AspireResourceData) {
@@ -95,10 +126,6 @@ internal class ResourceDashboardPanel(resourceData: AspireResourceData) : Border
     }
 
     private fun Row.addActionToolbar() {
-        val actionManager = ActionManager.getInstance()
-        val toolbarActions = actionManager.getAction("Aspire.Resource") as ActionGroup
-        val toolbar = actionManager.createActionToolbar(ActionPlaces.TOOLBAR, toolbarActions, true)
-        toolbar.targetComponent = this@ResourceDashboardPanel
         cell(toolbar.component)
     }
 
@@ -127,10 +154,20 @@ internal class ResourceDashboardPanel(resourceData: AspireResourceData) : Border
         }
     }
 
-    private fun Panel.addProperties(data: AspireResourceData) {
+    private fun Panel.addProperties(data: AspireResourceData, showSensitive: Boolean) {
         row {
             label(AspireServicesBundle.message("service.tab.dashboard.properties")).bold()
         }.bottomGap(BottomGap.SMALL)
+
+        fun Panel.stringPropertyRow(label: String, property: AspireResourceProperty<String>?) =
+            propertyRow(label, property, showSensitive) { it }
+
+        fun Panel.intPropertyRow(label: String, property: AspireResourceProperty<Int>?) =
+            propertyRow(label, property, showSensitive) { it.toString() }
+
+        fun Panel.pathPropertyRow(label: String, property: AspireResourceProperty<AspirePath>?) =
+            propertyRow(label, property, showSensitive) { it.value }
+
         with(data) {
             state?.let {
                 row(AspireServicesBundle.message("service.tab.dashboard.properties.state")) { copyableLabel(it.name) }
@@ -189,8 +226,7 @@ internal class ResourceDashboardPanel(resourceData: AspireResourceData) : Border
         }
     }
 
-    private fun Panel.addEnvironmentVariables(data: AspireResourceData) {
-        val showEnvironment = AspireSettings.getInstance().showEnvironmentVariables
+    private fun Panel.addEnvironmentVariables(data: AspireResourceData, showEnvironment: Boolean) {
         if (data.environment.isNotEmpty()) {
             row {
                 label(AspireServicesBundle.message("service.tab.dashboard.environment")).bold()
@@ -204,27 +240,15 @@ internal class ResourceDashboardPanel(resourceData: AspireResourceData) : Border
         }
     }
 
-    private fun Panel.stringPropertyRow(label: String, property: AspireResourceProperty<String>?) {
-        propertyRow(label, property) { it }
-    }
-
-    private fun Panel.intPropertyRow(label: String, property: AspireResourceProperty<Int>?) {
-        propertyRow(label, property) { it.toString() }
-    }
-
-    private fun Panel.pathPropertyRow(label: String, property: AspireResourceProperty<AspirePath>?) {
-        propertyRow(label, property) { it.value }
-    }
-
     private fun <T> Panel.propertyRow(
         label: String,
         property: AspireResourceProperty<T>?,
+        showSensitive: Boolean,
         mapper: (T) -> String,
     ) {
         if (property == null) return
 
         val value = property.value
-        val showSensitive = AspireSettings.getInstance().showSensitiveProperties
         val text = if (showSensitive || !property.isSensitive) mapper(value) else "*****"
         row(label) { copyableLabel(text) }
     }

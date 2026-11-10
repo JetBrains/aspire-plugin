@@ -10,6 +10,7 @@ import com.intellij.util.ui.JBUI
 import com.jetbrains.aspire.actions.ASPIRE_APP_HOST_DASHBOARD_URL
 import com.jetbrains.aspire.actions.ASPIRE_APP_HOST_DATA
 import java.awt.BorderLayout
+import javax.swing.JComponent
 import javax.swing.JPanel
 
 internal class AspireAppHostServiceViewDescriptor(
@@ -27,26 +28,28 @@ internal class AspireAppHostServiceViewDescriptor(
         addText(vm.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
     }
 
+    private val emptyPanel = JBPanelWithEmptyText()
+
+    private val consolePanel = JPanel(BorderLayout()).apply {
+        border = JBUI.Borders.empty()
+    }
+
+    // The Service View calls this on every event of the Aspire contributor while the node is selected,
+    // so the same component instances are returned to avoid re-parenting the console each time.
     override fun getContentComponent(): JPanel {
         return when (val state = vm.uiState.value) {
-            is AppHostUiState.Initial -> {
-                JBPanelWithEmptyText()
-            }
-
-            is AppHostUiState.Active -> {
-                JPanel(BorderLayout()).apply {
-                    border = JBUI.Borders.empty()
-                    add(state.consoleComponent)
-                }
-            }
-
-            is AppHostUiState.Inactive -> {
-                JPanel(BorderLayout()).apply {
-                    border = JBUI.Borders.empty()
-                    add(state.consoleComponent)
-                }
-            }
+            is AppHostUiState.Initial -> emptyPanel
+            is AppHostUiState.Active -> consolePanelWith(state.consoleComponent)
+            is AppHostUiState.Inactive -> consolePanelWith(state.consoleComponent)
         }
+    }
+
+    private fun consolePanelWith(consoleComponent: JComponent): JPanel {
+        if (consoleComponent.parent !== consolePanel) {
+            consolePanel.removeAll()
+            consolePanel.add(consoleComponent, BorderLayout.CENTER)
+        }
+        return consolePanel
     }
 
     override fun getToolbarActions() = appHostActions
