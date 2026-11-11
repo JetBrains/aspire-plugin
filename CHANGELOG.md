@@ -10,7 +10,7 @@
 
 ### Changed
 
-- Update Rider SDK version to 2026.3-RC1
+- Update Rider SDK version to stable 2026.3 release
 
 ### Removed
 
