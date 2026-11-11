@@ -5,11 +5,13 @@ import com.intellij.database.dataSource.DatabaseDriver
 import com.intellij.database.dataSource.LocalDataSource
 import com.intellij.database.dataSource.LocalDataSourceManager
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.extensions.DevCertificateProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
@@ -31,6 +33,13 @@ internal class DatabaseDataSourceManager(private val project: Project) {
     }
 
     private val registeredResources = ConcurrentHashMap<String, Unit>()
+
+    private val databaseTlsConfigurator by lazy {
+        val certificateDirectory = PathManager.getSystemDir().resolve("aspire").resolve("certificates")
+        DatabaseTlsConfigurator(certificateDirectory) {
+            DevCertificateProvider.getInstance()?.exportCertificate(true, project)
+        }
+    }
 
     fun tryRegisterResourceId(resourceId: String): Boolean {
         return registeredResources.putIfAbsent(resourceId, Unit) == null
@@ -66,6 +75,7 @@ internal class DatabaseDataSourceManager(private val project: Project) {
             isAutoSynchronize = true
             setAdditionalProperty(ASPIRE_RESOURCE_ID, databaseResource.resourceName)
         }
+        databaseTlsConfigurator.configure(createdDataSource, databaseResource.type)
         withContext(Dispatchers.EDT) {
             dataSourceManager.addDataSource(createdDataSource)
         }

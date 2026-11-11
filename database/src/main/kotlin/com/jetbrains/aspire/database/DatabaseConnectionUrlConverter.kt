@@ -1,6 +1,7 @@
 package com.jetbrains.aspire.database
 
 import com.intellij.database.dataSource.DatabaseDriver
+import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -69,6 +70,7 @@ internal class DatabaseConnectionUrlConverter(private val project: Project) {
                     ?.getOrNull()
             }
         } catch (e: Exception) {
+            rethrowControlFlowException(e)
             LOG.warn("Failed to get connection URL for ${databaseResource.name}", e)
             return null
         }
@@ -93,7 +95,7 @@ internal class DatabaseConnectionUrlConverter(private val project: Project) {
         }
         host?.let { sb.append(it) }
         port?.let { sb.append(":").append(it) }
-        if (ssl?.lowercase() == "true") sb.append("?ssl=true&verifyServerCertificate=false")
+        if (ssl?.lowercase() == "true") sb.append("?ssl=true")
 
         return sb.toString()
     }

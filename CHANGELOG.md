@@ -6,6 +6,12 @@
 
 ### Added
 
+- TLS connections to local Aspire MongoDB and Redis resources using the development certificate
+
+## [2.9.9] - 2026-11-11
+
+### Added
+
 - Publish and deploy Aspire AppHosts actions
 
 ### Changed
@@ -824,7 +830,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.8...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.9...HEAD
+[2.9.9]: https://github.com/JetBrains/aspire-plugin/compare/2.9.8...2.9.9
 [2.9.8]: https://github.com/JetBrains/aspire-plugin/compare/2.9.7...2.9.8
 [2.9.7]: https://github.com/JetBrains/aspire-plugin/compare/2.9.6...2.9.7
 [2.9.6]: https://github.com/JetBrains/aspire-plugin/compare/2.9.5...2.9.6
