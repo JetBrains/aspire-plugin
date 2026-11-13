@@ -20,6 +20,10 @@ internal class AspireConfigurable : BoundConfigurable(AspireCoreFrontendBundle.m
                 .bindText(settings::aspireCliPath)
                 .align(AlignX.FILL)
                 .comment(AspireCoreFrontendBundle.message("configurable.Aspire.cli.path.comment"))
+        }
+        row {
+            checkBox(AspireCoreFrontendBundle.message("configurable.Aspire.check.cli.updates"))
+                .bindSelected(settings::checkAspireCliUpdates)
         }.bottomGap(BottomGap.MEDIUM)
         row {
             checkBox(AspireCoreFrontendBundle.message("configurable.Aspire.connect.to.dcp.via.https"))

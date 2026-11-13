@@ -5,6 +5,7 @@ package com.jetbrains.aspire.cli
 import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.execution.ExecutionException
 import com.intellij.notification.Notification
+import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.components.Service
@@ -21,6 +22,7 @@ import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.spawnProcess
 import com.intellij.util.text.SemVer
 import com.jetbrains.aspire.AspireCoreBundle
+import com.jetbrains.aspire.settings.AspireSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -45,6 +47,8 @@ import kotlin.time.Duration.Companion.seconds
  *
  * Checks are scheduled with [scheduleCheck] and run asynchronously one at a time;
  * a burst of requests is collapsed into a single check.
+ * Unless the cache is bypassed (an explicit user request), checks are skipped
+ * when [AspireSettings.checkAspireCliUpdates] is disabled.
  */
 @Service(Service.Level.PROJECT)
 @ApiStatus.Internal
@@ -84,7 +88,8 @@ class AspireCliUpdateChecker(private val project: Project, cs: CoroutineScope) {
 
     /**
      * Schedules an asynchronous check of the Aspire CLI version.
-     * Set [bypassCache] to check the CLI again even if it has already been checked.
+     * Set [bypassCache] to check the CLI again even if it has already been checked
+     * or update checks are disabled in the settings.
      */
     fun scheduleCheck(bypassCache: Boolean = false) {
         if (bypassCache) bypassCacheRequested.set(true)
@@ -92,6 +97,11 @@ class AspireCliUpdateChecker(private val project: Project, cs: CoroutineScope) {
     }
 
     private suspend fun checkIfCliOutdated(bypassCache: Boolean) {
+        if (!bypassCache && !AspireSettings.getInstance().checkAspireCliUpdates) {
+            LOG.debug("Aspire CLI update checks are disabled")
+            return
+        }
+
         val executablePath = try {
             AspireCliLocator.getInstance(project).locate(refresh = bypassCache)
         } catch (e: ExecutionException) {
@@ -221,8 +231,6 @@ class AspireCliUpdateChecker(private val project: Project, cs: CoroutineScope) {
         installedVersionText: String,
         availableVersionText: String
     ) {
-        if (project.isDisposed) return
-
         Notification(
             "Aspire",
             AspireCoreBundle.message("notification.aspire.cli.outdated.title"),
@@ -235,6 +243,13 @@ class AspireCliUpdateChecker(private val project: Project, cs: CoroutineScope) {
             NotificationType.WARNING,
         )
             .addAction(ActionManager.getInstance().getAction("Aspire.UpdateCli"))
+            .addAction(
+                NotificationAction.createSimpleExpiring(
+                    AspireCoreBundle.message("notification.aspire.cli.outdated.do.not.check.action")
+                ) {
+                    AspireSettings.getInstance().checkAspireCliUpdates = false
+                }
+            )
             .notify(project)
     }
 
