@@ -37,7 +37,8 @@ internal class AspireCliSelfUpdateServiceImpl(private val project: Project) : As
             }
 
             val command = listOf(cliPath.toString(), "update", "--self")
-            AspireCliCommandLine(command, AspirePath(eelApi.userInfo.home.toString()))
+            val workingDirectory = AspirePath(eelApi.userInfo.home.toString())
+            AspireCliCommandLine(command, workingDirectory)
         } catch (e: Exception) {
             rethrowControlFlowException(e)
             LOG.warn("Unable to prepare Aspire CLI update", e)

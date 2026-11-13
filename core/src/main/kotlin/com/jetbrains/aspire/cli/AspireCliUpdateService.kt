@@ -3,6 +3,7 @@
 package com.jetbrains.aspire.cli
 
 import com.intellij.diagnostic.rethrowControlFlowException
+import com.intellij.execution.ExecutionException
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionManager
@@ -56,7 +57,13 @@ class AspireCliUpdateService(private val project: Project) {
 
     @RequiresBackgroundThread
     suspend fun checkIfCliOutdated() {
-        val executablePath = AspireCliLocator.getInstance(project).locate() ?: return
+        val executablePath = try {
+            AspireCliLocator.getInstance(project).locate()
+        } catch (e: ExecutionException) {
+            LOG.warn("Unable to locate Aspire CLI", e)
+            null
+        } ?: return
+
         checkIfCliOutdated(executablePath)
     }
 
