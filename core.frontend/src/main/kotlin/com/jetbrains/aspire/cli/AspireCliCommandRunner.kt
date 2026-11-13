@@ -7,6 +7,7 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
@@ -20,15 +21,22 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.plugins.terminal.startup.TerminalProcessType
 
 /**
- * Runs Aspire CLI management commands (installation, self-update) in a new terminal tab.
+ * Prepares an [AspireCliCommand] and runs it in a new terminal tab.
  */
 @Service(Service.Level.PROJECT)
-internal class AspireCliTerminalRunner(private val project: Project) {
+internal class AspireCliCommandRunner(private val project: Project) {
     companion object {
-        private val LOG = logger<AspireCliTerminalRunner>()
+        fun getInstance(project: Project): AspireCliCommandRunner = project.service()
+
+        private val LOG = logger<AspireCliCommandRunner>()
     }
 
-    suspend fun run(
+    suspend fun run(command: AspireCliCommand, @NlsContexts.TabTitle tabName: String) {
+        val commandLine = project.service<AspireCliCommandService>().prepare(command) ?: return
+        openTerminal(commandLine, tabName)
+    }
+
+    private suspend fun openTerminal(
         commandLine: AspireCliCommandLine,
         @NlsContexts.TabTitle tabName: String,
     ): Unit = withContext(Dispatchers.EDT) {
