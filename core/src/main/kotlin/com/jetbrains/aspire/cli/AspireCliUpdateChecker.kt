@@ -19,13 +19,14 @@ import com.intellij.platform.eel.provider.asEelPath
 import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.eel.spawnProcess
-import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.text.SemVer
 import com.jetbrains.aspire.AspireCoreBundle
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -35,63 +36,90 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
+/**
+ * Checks whether the Aspire CLI is outdated and warns the user if a newer version is available.
+ *
+ * Checks are scheduled with [scheduleCheck] and run asynchronously one at a time;
+ * a burst of requests is collapsed into a single check.
+ */
 @Service(Service.Level.PROJECT)
 @ApiStatus.Internal
-class AspireCliUpdateService(private val project: Project) {
+class AspireCliUpdateChecker(private val project: Project, cs: CoroutineScope) {
     companion object {
-        fun getInstance(project: Project): AspireCliUpdateService = project.service()
+        fun getInstance(project: Project): AspireCliUpdateChecker = project.service()
 
-        private val LOG = logger<AspireCliUpdateService>()
+        private val LOG = logger<AspireCliUpdateChecker>()
         private val JSON = Json { ignoreUnknownKeys = true }
         private const val MAX_CAPTURE_BYTES = 1024 * 1024
+        private val DEBOUNCE_DELAY = 500.milliseconds
         private val VERSION_PATTERN = Regex(
             "(0|[1-9]\\d{0,4})\\.(0|[1-9]\\d{0,4})\\.(0|[1-9]\\d{0,4})" +
                     "(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?",
         )
     }
 
-    private val mutex = Mutex()
+    private val checkRequests = Channel<Unit>(Channel.CONFLATED)
+    private val bypassCacheRequested = AtomicBoolean(false)
+
     private val inspectedCliPaths = mutableSetOf<CliPath>()
 
-    @RequiresBackgroundThread
-    suspend fun checkIfCliOutdated() {
+    init {
+        cs.launch {
+            for (request in checkRequests) {
+                delay(DEBOUNCE_DELAY)
+                val bypassCache = bypassCacheRequested.getAndSet(false)
+                try {
+                    checkIfCliOutdated(bypassCache)
+                } catch (e: Exception) {
+                    rethrowControlFlowException(e)
+                    LOG.warn("Unable to check Aspire CLI updates", e)
+                }
+            }
+        }
+    }
+
+    /**
+     * Schedules an asynchronous check of the Aspire CLI version.
+     * Set [bypassCache] to check the CLI again even if it has already been checked.
+     */
+    fun scheduleCheck(bypassCache: Boolean = false) {
+        if (bypassCache) bypassCacheRequested.set(true)
+        checkRequests.trySend(Unit)
+    }
+
+    private suspend fun checkIfCliOutdated(bypassCache: Boolean) {
         val executablePath = try {
-            AspireCliLocator.getInstance(project).locate()
+            AspireCliLocator.getInstance(project).locate(refresh = bypassCache)
         } catch (e: ExecutionException) {
             LOG.warn("Unable to locate Aspire CLI", e)
             null
         } ?: return
 
-        checkIfCliOutdated(executablePath)
-    }
-
-    @RequiresBackgroundThread
-    suspend fun checkIfCliOutdated(executablePath: EelPath, executionDirectory: EelPath? = null): Unit =
-        mutex.withLock {
-            val resolvedDirectory = executionDirectory
-                ?: project.basePath?.let { Path.of(it).asEelPath() }
-                ?: executablePath.descriptor.toEelApi().userInfo.home
-            val cliPath = CliPath(executablePath, resolvedDirectory)
-            if (cliPath in inspectedCliPaths) {
-                LOG.debug("Already checked CLI at $cliPath")
-                return
-            }
-
-            // Doctor runs all environment checks, which have a two-minute budget. Its exit code can be
-            // nonzero because of unrelated checks; only the structured cli-version metadata matters here.
-            val releaseSuggestion = loadReleaseSuggestion(executablePath, resolvedDirectory)
-            inspectedCliPaths.add(cliPath)
-
-            if (releaseSuggestion != null && releaseSuggestion.availableRelease > releaseSuggestion.observedRelease) {
-                displayUpdateNotification(
-                    executablePath,
-                    releaseSuggestion.observedRelease.rawVersion,
-                    releaseSuggestion.availableRelease.rawVersion.substringBefore('+')
-                )
-            }
+        val executionDirectory = project.basePath?.let { Path.of(it).asEelPath() }
+            ?: executablePath.descriptor.toEelApi().userInfo.home
+        val cliPath = CliPath(executablePath, executionDirectory)
+        if (!bypassCache && cliPath in inspectedCliPaths) {
+            LOG.debug("Already checked CLI at $cliPath")
+            return
         }
+
+        // Doctor runs all environment checks, which have a two-minute budget. Its exit code can be
+        // nonzero because of unrelated checks; only the structured cli-version metadata matters here.
+        val releaseSuggestion = loadReleaseSuggestion(executablePath, executionDirectory)
+        inspectedCliPaths.add(cliPath)
+
+        if (releaseSuggestion != null && releaseSuggestion.availableRelease > releaseSuggestion.observedRelease) {
+            displayUpdateNotification(
+                executablePath,
+                releaseSuggestion.observedRelease.rawVersion,
+                releaseSuggestion.availableRelease.rawVersion.substringBefore('+')
+            )
+        }
+    }
 
     private suspend fun loadReleaseSuggestion(
         executablePath: EelPath,
