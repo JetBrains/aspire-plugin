@@ -83,6 +83,7 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
         }
 
         val cliPath = locateCliOrNotify(refresh = false) ?: return null
+        AspireCliUpdateChecker.getInstance(project).scheduleCheck()
         val appHostPath = appHost.appHostPath.toAbsolutePath()
         val arguments = command.arguments(appHostPath.asEelPath())
         val workingDirectory = AspirePath(appHostPath.parent.asEelPath().toString())
