@@ -31,6 +31,12 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
             state.aspireCliPath = value
         }
 
+    var checkAspireCliUpdates
+        get() = state.checkAspireCliUpdates
+        set(value) {
+            state.checkAspireCliUpdates = value
+        }
+
     var forceBuildOfAppHostReferencedProjects
         get() = state.forceBuildOfAppHostReferencedProjects
         set(value) {

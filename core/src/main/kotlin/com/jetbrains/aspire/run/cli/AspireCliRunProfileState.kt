@@ -13,11 +13,9 @@ import com.intellij.execution.process.*
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.ConsoleView
-import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -32,6 +30,7 @@ import com.intellij.util.io.BaseOutputReader
 import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.cli.AspireCliLocator
+import com.jetbrains.aspire.cli.AspireCliNotifications
 import com.jetbrains.aspire.cli.AspireCliLogLevel
 import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
 import com.jetbrains.aspire.extensions.AppHostDebuggerExtension
@@ -62,7 +61,6 @@ internal class AspireCliRunProfileState(
     companion object {
         private val LOG = logger<AspireCliRunProfileState>()
         private const val NOTIFICATION_GROUP = "Aspire"
-        private const val INSTALL_URL = "https://aspire.dev/get-started/install-cli/"
     }
 
     private val containerRuntimeNotificationCount = AtomicInteger()
@@ -78,7 +76,7 @@ internal class AspireCliRunProfileState(
 
         val aspireCli = AspireCliLocator.getInstance(project).locate()?.asNioPath()
         if (aspireCli == null) {
-            notifyCliNotInstalled()
+            AspireCliNotifications.notifyCliNotFound(project)
             throw ExecutionException(AspireCoreBundle.message("run.configuration.cli.error.cli.not.found"))
         }
 
@@ -276,22 +274,6 @@ internal class AspireCliRunProfileState(
             add("--log-level")
             add(it.name)
         }
-    }
-
-    private fun notifyCliNotInstalled() {
-        Notification(
-            NOTIFICATION_GROUP,
-            AspireCoreBundle.message("notification.aspire.cli.not.installed.title"),
-            AspireCoreBundle.message("notification.aspire.cli.not.installed.content"),
-            NotificationType.WARNING
-        )
-            .addAction(object :
-                NotificationAction(AspireCoreBundle.message("notification.aspire.cli.install.action")) {
-                override fun actionPerformed(e: AnActionEvent, notification: Notification) {
-                    BrowserUtil.browse(INSTALL_URL)
-                }
-            })
-            .notify(environment.project)
     }
 
     private fun notifyAppHostNotDebugged(appHostFile: Path) {

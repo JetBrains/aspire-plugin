@@ -4,6 +4,7 @@ import com.intellij.openapi.components.BaseState
 
 class AspireSettingsState : BaseState() {
     var aspireCliPath by string()
+    var checkAspireCliUpdates by property(true)
     var forceBuildOfAppHostReferencedProjects by property(false)
     var buildExternalNetProjects by property(true)
     var doNotLaunchBrowserForProjects by property(true)

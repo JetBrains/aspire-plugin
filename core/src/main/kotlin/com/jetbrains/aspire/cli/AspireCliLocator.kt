@@ -3,6 +3,7 @@
 package com.jetbrains.aspire.cli
 
 import com.intellij.diagnostic.rethrowControlFlowException
+import com.intellij.execution.ExecutionException
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -12,8 +13,10 @@ import com.intellij.platform.eel.EelApi
 import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.isWindows
 import com.intellij.platform.eel.path.EelPath
+import com.intellij.platform.eel.path.EelPathException
 import com.intellij.platform.eel.provider.getEelDescriptor
 import com.intellij.platform.eel.provider.toEelApi
+import com.jetbrains.aspire.AspireCoreBundle
 import com.jetbrains.aspire.settings.AspireSettings
 import java.util.concurrent.ConcurrentHashMap
 
@@ -33,16 +36,23 @@ internal class AspireCliLocator(private val project: Project) {
 
     /**
      * Returns the configured CLI path, or a cached executable found on the `PATH` or in the default installation directories.
+     * Set [refresh] to discard a cached path and search for the executable again.
+     *
+     * @throws AspireCliInvalidPathException if the configured CLI path is invalid or does not point to an executable
      */
-    suspend fun locate(): EelPath? {
+    suspend fun locate(refresh: Boolean = false): EelPath? {
         val eelApi = project.getEelDescriptor().toEelApi()
 
         val configuredPath = AspireSettings.getInstance().aspireCliPath.takeIf { it.isNotBlank() }
         if (configuredPath != null) {
-            return EelPath.parse(configuredPath, eelApi.descriptor)
+            return resolveConfiguredPath(eelApi, configuredPath)
         }
 
-        cachedPaths[eelApi.descriptor]?.let { return it }
+        if (refresh) {
+            cachedPaths.remove(eelApi.descriptor)
+        } else {
+            cachedPaths[eelApi.descriptor]?.let { return it }
+        }
 
         val candidate = resolveFromPath(eelApi) ?: resolveFromDefaultPaths(eelApi)
         if (candidate == null) {
@@ -52,6 +62,20 @@ internal class AspireCliLocator(private val project: Project) {
         }
         return candidate
     }
+
+    private suspend fun resolveConfiguredPath(eelApi: EelApi, configuredPath: String): EelPath {
+        val path = try {
+            EelPath.parse(configuredPath, eelApi.descriptor)
+        } catch (e: EelPathException) {
+            throw invalidConfiguredPath(configuredPath, e)
+        }
+
+        return eelApi.exec.findExeFilesInPath(path.toString()).firstOrNull()
+            ?: throw invalidConfiguredPath(configuredPath, null)
+    }
+
+    private fun invalidConfiguredPath(configuredPath: String, cause: Throwable?) =
+        AspireCliInvalidPathException(configuredPath, cause)
 
     private suspend fun resolveFromPath(eelApi: EelApi): EelPath? {
         return try {
@@ -81,3 +105,9 @@ internal class AspireCliLocator(private val project: Project) {
         }
     }
 }
+
+/**
+ * Thrown when the Aspire CLI path configured in the settings is invalid or does not point to an executable.
+ */
+internal class AspireCliInvalidPathException(val configuredPath: String, cause: Throwable?) :
+    ExecutionException(AspireCoreBundle.message("aspire.cli.invalid.path", configuredPath), cause)
