@@ -4,8 +4,9 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.DumbAwareAction
+import com.jetbrains.aspire.AspireCoreFrontendBundle
 import com.jetbrains.aspire.cli.AspireCliInstallationService
-import com.jetbrains.aspire.cli.AspireCliInstallationTerminalRunner
+import com.jetbrains.aspire.cli.AspireCliTerminalRunner
 import kotlinx.coroutines.launch
 
 internal class InstallAspireCliAction : DumbAwareAction() {
@@ -13,7 +14,8 @@ internal class InstallAspireCliAction : DumbAwareAction() {
         val project = event.project ?: return
         event.coroutineScope.launch {
             val commandLine = project.service<AspireCliInstallationService>().prepareCommand() ?: return@launch
-            project.service<AspireCliInstallationTerminalRunner>().run(commandLine)
+            project.service<AspireCliTerminalRunner>()
+                .run(commandLine, AspireCoreFrontendBundle.message("cli.install.terminal.title"))
         }
     }
 

@@ -5,6 +5,7 @@ package com.jetbrains.aspire.cli
 import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -197,7 +198,9 @@ class AspireCliUpdateService(private val project: Project) {
                 availableVersionText,
             ),
             NotificationType.WARNING,
-        ).notify(project)
+        )
+            .addAction(ActionManager.getInstance().getAction("Aspire.UpdateCli"))
+            .notify(project)
     }
 
     private data class CliPath(val executablePath: EelPath, val executionDirectory: EelPath)

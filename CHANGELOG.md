@@ -12,6 +12,7 @@
 - TLS connections to local Aspire MongoDB and Redis resources using the development certificate
 - Install Aspire CLI action
 - Check for Aspire CLI updates action
+- Update Aspire CLI action
 
 ## [2.9.9] - 2026-11-11
 

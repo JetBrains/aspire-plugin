@@ -25,7 +25,7 @@ internal class AspireCliInstallationServiceImpl(private val project: Project) : 
         private val LOG = logger<AspireCliInstallationServiceImpl>()
     }
 
-    override suspend fun prepareCommand(): AspireCliInstallationCommandLine? = withContext(Dispatchers.IO) {
+    override suspend fun prepareCommand(): AspireCliCommandLine? = withContext(Dispatchers.IO) {
         try {
             val eelApi = project.getEelDescriptor().toEelApi()
             val configuredPath = AspireSettings.getInstance().aspireCliPath
@@ -70,7 +70,7 @@ internal class AspireCliInstallationServiceImpl(private val project: Project) : 
         configuredPath: String,
         locatedCli: AspirePath?,
         findExecutable: suspend (String) -> AspirePath?,
-    ): AspireCliInstallationCommandLine? {
+    ): AspireCliCommandLine? {
         val existingCli = if (configuredPath.isNotBlank()) {
             findExecutable(configuredPath) ?: throw ExecutionException(
                 AspireCoreBundle.message("notification.aspire.cli.install.invalid.path", configuredPath),
@@ -105,7 +105,7 @@ internal class AspireCliInstallationServiceImpl(private val project: Project) : 
             listOf(bash.value, "-o", "pipefail", "-c", script)
         }
 
-        return AspireCliInstallationCommandLine(command, homeDirectory)
+        return AspireCliCommandLine(command, homeDirectory)
     }
 
     private fun missingTool(name: String) =

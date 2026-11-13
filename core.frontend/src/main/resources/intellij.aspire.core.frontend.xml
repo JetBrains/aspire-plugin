@@ -25,6 +25,8 @@
                 class="com.jetbrains.aspire.actions.InstallAspireCliAction"/>
         <action id="Aspire.CheckCliUpdates"
                 class="com.jetbrains.aspire.actions.CheckAspireCliUpdatesAction"/>
+        <action id="Aspire.UpdateCli"
+                class="com.jetbrains.aspire.actions.UpdateAspireCliAction"/>
         <action id="Aspire.Settings"
                 class="com.jetbrains.aspire.actions.AspireSettingsAction"
                 icon="AllIcons.General.Settings"/>
