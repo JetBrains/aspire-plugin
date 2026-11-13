@@ -45,7 +45,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
         val sessionProjectPath = launchConfiguration.projectPath
         val runnableProject =
-            project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) {
+            project.solution.runnableProjectsModel.findByProjectPath(sessionProjectPath) {
                 runnableProjectKinds.contains(it.kind)
             }
 

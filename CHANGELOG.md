@@ -4,6 +4,9 @@
 
 ## [Unreleased]
 
+- Debugging of the AppHost launched by the Aspire CLI run configuration
+- Configurable timeout for attaching the debugger to the AppHost of an Aspire CLI run, and a notification when the attach fails
+
 ### Added
 
 - TLS connections to local Aspire MongoDB and Redis resources using the development certificate

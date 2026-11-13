@@ -13,14 +13,14 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.rider.launchProfiles.getWorkingDirectory
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
-import com.jetbrains.aspire.rider.sessions.findBySessionProject
+import com.jetbrains.aspire.rider.sessions.findByProjectPath
 import com.jetbrains.aspire.rider.sessions.getLaunchProfile
 import com.jetbrains.aspire.rider.sessions.mergeArguments
 import com.jetbrains.aspire.rider.sessions.mergeEnvironmentVariables
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
-import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.rider.util.MSBuildPropertyService
 import com.jetbrains.aspire.rider.util.getStartBrowserAction
+import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
+import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rider.azureFunctions.coreTools.AzureFunctionsCoreToolsExecutableService
 import com.jetbrains.rider.azureFunctions.localSettings.AzureFunctionsLocalSettings
 import com.jetbrains.rider.azureFunctions.utils.getApplicationUrl
@@ -55,7 +55,7 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
         aspireRunConfiguration: AspireRiderRunConfiguration?
     ): DotNetExecutable? {
         val sessionProjectPath = launchConfiguration.projectPath
-        val runnableProject = project.solution.runnableProjectsModel.findBySessionProject(sessionProjectPath) {
+        val runnableProject = project.solution.runnableProjectsModel.findByProjectPath(sessionProjectPath) {
             it.kind == RunnableProjectKinds.AzureFunctions
         }
         return if (runnableProject != null) {
