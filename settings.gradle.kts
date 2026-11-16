@@ -35,3 +35,5 @@ plugins {
 rootProject.name = "intellij.aspire"
 
 include(":protocol", ":shared", ":core", ":core.frontend", ":services", ":diagram", ":docker", ":database",/* ":opentelemetry",*/ ":rider")
+
+project(":core.frontend").projectDir = file("core/frontend")
