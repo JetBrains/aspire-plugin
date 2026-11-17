@@ -2,13 +2,11 @@
 
 package com.jetbrains.aspire.services.actions
 
-import com.intellij.execution.configurations.runConfigurationType
-import com.intellij.execution.impl.EditConfigurationsDialog
 import com.intellij.execution.services.ServiceViewAddActionContributor
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
-import com.jetbrains.aspire.run.cli.AspireCliConfigurationType
+import com.jetbrains.aspire.services.AspireCliRunConfigurationEditorOpener
 import com.jetbrains.aspire.services.AspireMainServiceViewContributor
 
 internal class AspireAddCliRunConfigurationAction : DumbAwareAction(), ServiceViewAddActionContributor {
@@ -23,8 +21,6 @@ internal class AspireAddCliRunConfigurationAction : DumbAwareAction(), ServiceVi
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project ?: return
-        val configurationType = runConfigurationType<AspireCliConfigurationType>()
-
-        EditConfigurationsDialog(project, configurationType).show()
+        AspireCliRunConfigurationEditorOpener.getInstance(project).open()
     }
 }
