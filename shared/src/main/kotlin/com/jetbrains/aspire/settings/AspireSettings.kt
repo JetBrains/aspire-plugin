@@ -5,12 +5,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 @State(
-    name = "com.jetbrains.rider.aspire.settings.AspireSettings",
+    name = AspireSettings.COMPONENT_NAME,
     storages = [(Storage("AspireSettings.xml"))]
 )
 @Service
 class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(AspireSettingsState()) {
     companion object {
+        internal const val COMPONENT_NAME = "com.jetbrains.rider.aspire.settings.AspireSettings"
+
         /** Must match the `applicationConfigurable` id in `intellij.aspire.core.frontend.xml`. */
         const val CONFIGURABLE_ID = "Aspire.Configurable"
 
@@ -23,6 +25,10 @@ class AspireSettings : SimplePersistentStateComponent<AspireSettingsState>(Aspir
     override fun loadState(state: AspireSettingsState) {
         super.loadState(state)
         _showHiddenResources.value = state.showHiddenResources
+    }
+
+    override fun noStateLoaded() {
+        loadState(AspireSettingsState())
     }
 
     var aspireCliPath: String

@@ -12,6 +12,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <iconMapper mappingFile="AspireSharedIconMappings.json"/>
+        <applicationSettings service="com.jetbrains.aspire.settings.AspireSettings"/>
+        <rdct.remoteSettingProvider implementation="com.jetbrains.aspire.settings.AspireRemoteSettingInfoProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
