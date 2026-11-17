@@ -1,4 +1,4 @@
-package com.jetbrains.aspire.services
+package com.jetbrains.aspire.run
 
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.project.Project
@@ -6,9 +6,9 @@ import com.intellij.util.application
 import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
-interface AspireServicesApi {
+interface AspireRunConfigurationEditorApi {
     companion object {
-        suspend fun getInstance(): AspireServicesApi = application.serviceAsync()
+        suspend fun getInstance(): AspireRunConfigurationEditorApi = application.serviceAsync()
     }
 
     /**

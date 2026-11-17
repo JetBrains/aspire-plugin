@@ -6,7 +6,7 @@
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceInterface="com.jetbrains.aspire.services.AspireServicesApi"
-                            serviceImplementation="com.jetbrains.aspire.services.AspireServicesApiImpl"/>
+        <applicationService serviceInterface="com.jetbrains.aspire.run.AspireRunConfigurationEditorApi"
+                            serviceImplementation="com.jetbrains.aspire.services.AspireRunConfigurationEditorApiImpl"/>
     </extensions>
 </idea-plugin>

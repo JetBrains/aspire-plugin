@@ -3,6 +3,7 @@ package com.jetbrains.aspire.services
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.run.AspireRunConfigurationEditorApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -14,7 +15,7 @@ internal class AspireCliRunConfigurationEditorOpener(private val project: Projec
 
     fun open() {
         cs.launch {
-            AspireServicesApi.getInstance().openCliRunConfigurationEditor(project)
+            AspireRunConfigurationEditorApi.getInstance().openCliRunConfigurationEditor(project)
         }
     }
 }
