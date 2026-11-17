@@ -1,16 +1,17 @@
 package com.jetbrains.aspire.actions.dashboard.host
 
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.run.AspireRunConfigurationManager
+import com.jetbrains.aspire.run.AspireRunManagerApi
 import com.jetbrains.aspire.worker.AspireAppHostData
 import com.jetbrains.aspire.worker.AspireAppHostStatus
+import kotlinx.coroutines.launch
 
 internal class RunAppHostAction : AspireAppHostBaseAction() {
     override fun performAction(event: AnActionEvent, appHostData: AspireAppHostData, project: Project) {
-        project.service<AspireRunConfigurationManager>()
-            .executeConfigurationForAppHost(appHostData.id, underDebug = false)
+        event.coroutineScope.launch {
+            AspireRunManagerApi.getInstance().executeConfigurationForAppHost(project, appHostData.id, underDebug = false)
+        }
     }
 
     override fun updateAction(event: AnActionEvent, appHostData: AspireAppHostData) {

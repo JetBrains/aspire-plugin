@@ -14,7 +14,6 @@ import com.intellij.execution.runners.ProgramRunner
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.ide.browsers.StartBrowserSettings
 import com.intellij.openapi.application.EDT
-import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
@@ -148,7 +147,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
         val appHostId = AspireWorker.getInstance(project)
             .getAppHostByPath(appHostFile)?.id
             ?: return null
-        val name = project.serviceAsync<AspireRunConfigurationManager>()
+        val name = AspireRunConfigurationManager.getInstance(project)
             .getRunConfigurationNameForAppHost(appHostId)
             ?: return null
 

@@ -50,7 +50,7 @@
                   topic="com.intellij.execution.ExecutionListener"/>
         <listener class="com.jetbrains.aspire.run.cli.AspireCliUpdateCheckExecutionListener"
                   topic="com.intellij.execution.ExecutionListener"/>
-        <listener class="com.jetbrains.aspire.run.AspireRunConfigurationManagerImpl$Listener"
+        <listener class="com.jetbrains.aspire.run.AspireRunConfigurationManager$Listener"
                   topic="com.intellij.execution.ExecutionListener"/>
     </projectListeners>
 
@@ -63,8 +63,8 @@
         <applicationService serviceInterface="com.jetbrains.aspire.cli.AspireCliResourceClientFactory"
                             serviceImplementation="com.jetbrains.aspire.cli.AspireCliResourceClientFactoryImpl"/>
 
-        <projectService serviceInterface="com.jetbrains.aspire.run.AspireRunConfigurationManager"
-                        serviceImplementation="com.jetbrains.aspire.run.AspireRunConfigurationManagerImpl"/>
+        <applicationService serviceInterface="com.jetbrains.aspire.run.AspireRunManagerApi"
+                            serviceImplementation="com.jetbrains.aspire.run.AspireRunManagerApiImpl"/>
         <projectService serviceInterface="com.jetbrains.aspire.worker.AspireResourceCommandExecutor"
                         serviceImplementation="com.jetbrains.aspire.worker.AspireResourceCommandExecutorImpl"/>
         <projectService serviceInterface="com.jetbrains.aspire.worker.AspireAppHostResourcesProvider"
