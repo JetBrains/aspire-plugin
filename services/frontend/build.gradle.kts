@@ -13,6 +13,7 @@ dependencies {
             useCache = true
         }
 
+        bundledModule("intellij.platform.frontend")
         bundledPlugins("intellij.execution.serviceView.plugin")
     }
 
