@@ -46,6 +46,7 @@ dependencies {
         pluginModule(implementation(project(":core")))
         pluginModule(implementation(project(":core.frontend")))
         pluginModule(implementation(project(":services.frontend")))
+        pluginModule(implementation(project(":services.backend")))
         pluginModule(implementation(project(":diagram")))
         pluginModule(implementation(project(":docker")))
         pluginModule(implementation(project(":database")))
