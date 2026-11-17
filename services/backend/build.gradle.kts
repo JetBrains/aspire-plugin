@@ -14,7 +14,6 @@ dependencies {
         }
 
         bundledModule("intellij.platform.backend")
-        bundledModule("intellij.platform.rpc.backend")
     }
 
     implementation(project(":shared"))
