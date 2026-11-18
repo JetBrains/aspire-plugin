@@ -1,5 +1,8 @@
 {
   "appHost": {
     "path": "AspireSolutionWithNUnit.AppHost/AspireSolutionWithNUnit.AppHost.csproj"
+  },
+  "sdk": {
+    "version": "17.0.0"
   }
 }

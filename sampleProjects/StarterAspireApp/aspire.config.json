@@ -1,5 +1,8 @@
 {
   "appHost": {
     "path": "StarterAspireApp.AppHost/StarterAspireApp.AppHost.csproj"
+  },
+  "sdk": {
+    "version": "17.0.0"
   }
 }

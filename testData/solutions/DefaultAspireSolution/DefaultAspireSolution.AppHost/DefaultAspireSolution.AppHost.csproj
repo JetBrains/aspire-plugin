@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.6.4">
+<Project Sdk="Aspire.AppHost.Sdk/17.0.0">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.Docker" Version="13.6.4" />
+        <PackageReference Include="Aspire.Hosting.Docker" Version="17.0.0" />
     </ItemGroup>
 
     <ItemGroup>
