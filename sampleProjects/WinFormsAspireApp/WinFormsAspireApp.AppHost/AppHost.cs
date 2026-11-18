@@ -1,13 +1,11 @@
-using Projects;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
-var api = builder.AddProject<WinFormsAspireApp_ApiService>("api")
+var api = builder.AddDotnetProject("api", "../WinFormsAspireApp.ApiService/WinFormsAspireApp.ApiService.csproj")
     .WithHttpHealthCheck("/health");
 
 if (OperatingSystem.IsWindows())
 {
-    builder.AddProject<WinFormsAspireApp_WinFormsApp>("desktop")
+    builder.AddDotnetProject("desktop", "../WinFormsAspireApp.WinFormsApp/WinFormsAspireApp.WinFormsApp.csproj")
         .WithReference(api)
         .WaitFor(api);
 }

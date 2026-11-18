@@ -9,8 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\WpfAspireApp.ApiService\WpfAspireApp.ApiService.csproj" />
-        <ProjectReference Include="..\WpfAspireApp.WpfApp\WpfAspireApp.WpfApp.csproj" />
+        <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
     </ItemGroup>
 
 </Project>

@@ -9,11 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DataBaseApp.ApiService\DataBaseApp.ApiService.csproj" />
-        <ProjectReference Include="..\DataBaseApp.Web\DataBaseApp.Web.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
         <PackageReference Include="Aspire.Hosting.MongoDB" Version="17.0.0" />
         <PackageReference Include="Aspire.Hosting.MySql" Version="17.0.0" />
         <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="17.0.0" />

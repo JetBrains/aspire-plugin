@@ -1,5 +1,5 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.WorkerApp_Worker>("worker");
+builder.AddDotnetProject("worker", "../WorkerApp.Worker/WorkerApp.Worker.csproj");
 
 builder.Build().Run();

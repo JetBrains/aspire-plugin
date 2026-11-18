@@ -2,10 +2,10 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddDockerComposeEnvironment("compose");
 
-var apiService = builder.AddProject<Projects.StarterAspireApp_ApiService>("apiservice")
+var apiService = builder.AddDotnetProject("apiservice", "../StarterAspireApp.ApiService/StarterAspireApp.ApiService.csproj")
     .WithHttpHealthCheck("/health");
 
-builder.AddProject<Projects.StarterAspireApp_Web>("webfrontend")
+builder.AddDotnetProject("webfrontend", "../StarterAspireApp.Web/StarterAspireApp.Web.csproj")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WithReference(apiService)

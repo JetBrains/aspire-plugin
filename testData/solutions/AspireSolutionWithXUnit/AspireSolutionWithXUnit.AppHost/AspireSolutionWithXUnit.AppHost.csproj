@@ -9,8 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AspireSolutionWithXUnit.ApiService\AspireSolutionWithXUnit.ApiService.csproj" />
-        <ProjectReference Include="..\AspireSolutionWithXUnit.Web\AspireSolutionWithXUnit.Web.csproj" />
+        <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
     </ItemGroup>
 
 </Project>

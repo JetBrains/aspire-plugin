@@ -1,9 +1,9 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var apiService = builder.AddProject<Projects.AspireSolutionWithNUnit_ApiService>("apiservice")
+var apiService = builder.AddDotnetProject("apiservice", "../AspireSolutionWithNUnit.ApiService/AspireSolutionWithNUnit.ApiService.csproj")
     .WithHttpHealthCheck("/health");
 
-builder.AddProject<Projects.AspireSolutionWithNUnit_Web>("webfrontend")
+builder.AddDotnetProject("webfrontend", "../AspireSolutionWithNUnit.Web/AspireSolutionWithNUnit.Web.csproj")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WithReference(apiService)

@@ -19,14 +19,14 @@ var mongodb = mongo.AddDatabase("mongodb");
 var cache = builder.AddRedis("cache")
     .WithLifetime(ContainerLifetime.Persistent);
 
-var apiService = builder.AddProject<Projects.DataBaseApp_ApiService>("apiservice")
+var apiService = builder.AddDotnetProject("apiservice", "../DataBaseApp.ApiService/DataBaseApp.ApiService.csproj")
         .WithReference(postgresdb)
         .WithReference(mysqldb)
         .WithReference(sqlserverdb)
         .WithReference(mongodb)
         .WithReference(cache);
 
-builder.AddProject<Projects.DataBaseApp_Web>("webfrontend")
+builder.AddDotnetProject("webfrontend", "../DataBaseApp.Web/DataBaseApp.Web.csproj")
     .WithExternalHttpEndpoints()
     .WithReference(apiService)
     .WaitFor(apiService);

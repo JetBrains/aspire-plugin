@@ -9,12 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
         <PackageReference Include="Aspire.Hosting.Docker" Version="17.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\StarterAspireApp.ApiService\StarterAspireApp.ApiService.csproj" />
-        <ProjectReference Include="..\StarterAspireApp.Web\StarterAspireApp.Web.csproj" />
     </ItemGroup>
 
 </Project>

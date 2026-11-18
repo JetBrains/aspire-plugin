@@ -1,5 +1,5 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.BlazorApp>("blazor");
+builder.AddDotnetProject("blazor", "../BlazorApp/BlazorApp/BlazorApp.csproj");
 
 builder.Build().Run();
