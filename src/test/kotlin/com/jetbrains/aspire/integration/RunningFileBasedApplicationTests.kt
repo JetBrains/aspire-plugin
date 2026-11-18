@@ -61,7 +61,7 @@ class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
 
     @Test
     @Solution("AspireFileBasedDefaultAspireSolution")
-    fun runningAspireFileBasedSolutionLaunchesApiApplication() {
+    fun runningAspireFileBasedSolutionLaunchesApiApp() {
         buildSolutionWithReSharperBuild()
         createAndSelectAspireFileConfiguration()
         runTestForSelectedConfiguration(URI("http://localhost:5592/weatherforecast").toURL())
