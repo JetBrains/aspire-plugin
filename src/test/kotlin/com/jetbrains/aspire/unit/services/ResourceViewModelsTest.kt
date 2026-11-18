@@ -14,7 +14,7 @@ import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.AspireResourceModel
 import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -71,8 +71,8 @@ class ResourceViewModelsTest {
         val project = ProjectManager.getInstance().defaultProject
         val parent = Disposer.newDisposable("parent")
         Disposer.register(testRootDisposable, parent)
-        val container = TestResource("container", ResourceType.Container)
-        val projectResource = TestResource("project", ResourceType.Project)
+        val container = TestResource("container", ResourceKind.Container)
+        val projectResource = TestResource("project", ResourceKind.Project)
         val resources = MutableStateFlow<List<AspireResourceModel>>(listOf(container, projectResource))
 
         val viewModels = resources.toResourceViewModels(project, backgroundScope, parent)
@@ -132,7 +132,7 @@ class ResourceViewModelsTest {
 
     private class TestResource(
         resourceName: String,
-        type: ResourceType = ResourceType.Unknown,
+        kind: ResourceKind = ResourceKind.Unknown,
         appHostId: AspireAppHostId = AspireAppHostId("app-host"),
     ) : AspireResourceModel {
         override val id = AspireResourceId(appHostId, resourceName)
@@ -141,9 +141,10 @@ class ResourceViewModelsTest {
                 id = id,
                 uid = "uid-$resourceName",
                 name = resourceName,
-                type = type,
+                kind = kind,
                 launchConfigurationType = ResourceLaunchConfigurationType.Unknown,
-                originType = "Project",
+                resourceType = "Project",
+                resourceTypeDisplayName = "Project",
                 displayName = resourceName,
                 state = null,
                 stateStyle = null,

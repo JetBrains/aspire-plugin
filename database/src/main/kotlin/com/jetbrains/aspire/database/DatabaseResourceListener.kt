@@ -8,7 +8,7 @@ import com.jetbrains.aspire.worker.ResourceListener
 import com.jetbrains.aspire.database.DatabaseResourceConnectionService.AddDatabaseResourceConnection
 import com.jetbrains.aspire.database.DatabaseResourceConnectionService.RemoveDatabaseResourceConnection
 import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import com.jetbrains.aspire.settings.AspireSettings
 import java.net.URI
 
@@ -36,7 +36,7 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
         if (!AspireSettings.getInstance().connectToDatabase) return
 
         val data = resource.data.value
-        if (data.type != ResourceType.Container || data.state != ResourceState.Running) return
+        if (data.kind != ResourceKind.Container || data.state != ResourceState.Running) return
         val connectionString = data.connectionString?.value ?: return
         val containerId = data.containerId?.value ?: return
         val resourceType = findDatabaseType(data.name, data.containerImage?.value) ?: return
@@ -85,7 +85,7 @@ internal class DatabaseResourceListener(private val project: Project) : Resource
         if (!AspireSettings.getInstance().connectToDatabase) return
 
         val data = resource.data.value
-        if (data.type != ResourceType.Container) return
+        if (data.kind != ResourceKind.Container) return
         val isPersistent = data.containerLifetime?.value.equals("persistent", true)
         if (isPersistent) return
 

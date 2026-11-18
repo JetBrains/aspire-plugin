@@ -14,7 +14,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import com.jetbrains.aspire.services.AspireServicesBundle
 import com.jetbrains.aspire.services.getIcon
 import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspirePath
 import com.jetbrains.aspire.worker.AspireResourceProperty
@@ -84,21 +84,21 @@ internal class ResourceDashboardPanel(state: ResourceDashboardState) : BorderLay
             .bold()
             .gap(RightGap.SMALL)
 
-        if (data.type == ResourceType.Project) {
+        if (data.kind == ResourceKind.Project) {
             data.projectPath?.value?.let {
                 copyableLabel(it.fileName, color = UIUtil.FontColor.BRIGHTER)
                     .gap(RightGap.SMALL)
             }
         }
 
-        if (data.type == ResourceType.Container) {
+        if (data.kind == ResourceKind.Container) {
             data.containerImage?.value?.let {
                 copyableLabel(it, color = UIUtil.FontColor.BRIGHTER)
                     .gap(RightGap.SMALL)
             }
         }
 
-        if (data.type == ResourceType.Executable) {
+        if (data.kind == ResourceKind.Executable) {
             data.executablePath?.value?.let {
                 copyableLabel(it.fileName, color = UIUtil.FontColor.BRIGHTER)
                     .gap(RightGap.SMALL)
@@ -174,6 +174,9 @@ internal class ResourceDashboardPanel(state: ResourceDashboardState) : BorderLay
             }
             healthStatus?.let {
                 row(AspireServicesBundle.message("service.tab.dashboard.properties.health.status")) { copyableLabel(it.name) }
+            }
+            if (resourceTypeDisplayName.isNotBlank()) {
+                row(AspireServicesBundle.message("service.tab.dashboard.properties.type")) { copyableLabel(resourceTypeDisplayName) }
             }
             createdAt?.let {
                 row(AspireServicesBundle.message("service.tab.dashboard.properties.creation.time")) { copyableLabel(it.toString()) }

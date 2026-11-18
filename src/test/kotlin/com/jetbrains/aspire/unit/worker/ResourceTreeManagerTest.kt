@@ -718,7 +718,7 @@ internal class ResourceTreeManagerTest {
         client.resourceUpdates.emit(update)
         testScheduler.runCurrent()
         val storedResource = manager.rootResources.value.single()
-        val expectedRequest = AspireResourceCommandRequest(resource.name, storedResource.data.value.originType, "restart")
+        val expectedRequest = AspireResourceCommandRequest(resource.name, storedResource.data.value.resourceType, "restart")
 
         storedResource.executeCommand("restart")
 

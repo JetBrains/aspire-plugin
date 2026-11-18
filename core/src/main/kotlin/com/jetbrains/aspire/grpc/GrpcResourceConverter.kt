@@ -32,7 +32,7 @@ fun WatchResourcesUpdate.toAspireResourceUpdate(appHostId: AspireAppHostId): Asp
 
 @ApiStatus.Internal
 fun Resource.toAspireResourceData(appHostId: AspireAppHostId): AspireResourceData {
-    val type = mapResourceType(resourceType)
+    val kind = mapResourceKind(resourceType)
 
     val timezone = TimeZone.currentSystemDefault()
 
@@ -129,8 +129,9 @@ fun Resource.toAspireResourceData(appHostId: AspireAppHostId): AspireResourceDat
         id = AspireResourceId(appHostId, name),
         uid = uid,
         name = name,
-        type = type,
-        originType = resourceType,
+        kind = kind,
+        resourceType = resourceType,
+        resourceTypeDisplayName = resourceTypeDisplayName,
         launchConfigurationType = launchConfigurationType,
         displayName = displayName,
         state = state,

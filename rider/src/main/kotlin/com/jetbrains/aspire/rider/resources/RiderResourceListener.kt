@@ -6,9 +6,9 @@ import com.jetbrains.aspire.rider.generated.AspireRdResource
 import com.jetbrains.aspire.rider.generated.AspireRdResourceCommand
 import com.jetbrains.aspire.rider.generated.AspireRdResourceCommandState
 import com.jetbrains.aspire.rider.generated.AspireRdResourceHealthStatus
+import com.jetbrains.aspire.rider.generated.AspireRdResourceKind
 import com.jetbrains.aspire.rider.generated.AspireRdResourceState
 import com.jetbrains.aspire.rider.generated.AspireRdResourceStateStyle
-import com.jetbrains.aspire.rider.generated.AspireRdResourceType
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.worker.AspireResource
 import com.jetbrains.aspire.worker.AspireResourceData
@@ -16,7 +16,7 @@ import com.jetbrains.aspire.worker.ResourceCommandState
 import com.jetbrains.aspire.worker.ResourceHealthStatus
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceStateStyle
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import com.jetbrains.rider.projectView.hasSolution
 import com.jetbrains.rider.projectView.solution
 
@@ -43,7 +43,7 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
     private fun mapResource(state: AspireResourceData) = AspireRdResource(
         state.name,
         state.displayName,
-        state.type.toRdType(),
+        state.kind.toRdKind(),
         state.state?.toRdState(),
         state.stateStyle?.toRdStateStyle(),
         state.healthStatus?.toRdHealthStatus(),
@@ -87,17 +87,17 @@ internal class RiderResourceListener(private val project: Project) : ResourceLis
         ResourceHealthStatus.Degraded -> AspireRdResourceHealthStatus.Degraded
     }
 
-    private fun ResourceType.toRdType() = when (this) {
-        ResourceType.Project -> AspireRdResourceType.Project
-        ResourceType.Container -> AspireRdResourceType.Container
-        ResourceType.Executable -> AspireRdResourceType.Executable
-        ResourceType.Parameter -> AspireRdResourceType.Parameter
-        ResourceType.ExternalService -> AspireRdResourceType.ExternalService
-        ResourceType.MongoDB -> AspireRdResourceType.MongoDB
-        ResourceType.MySql -> AspireRdResourceType.MySql
-        ResourceType.Postgres -> AspireRdResourceType.Postgres
-        ResourceType.SqlServer -> AspireRdResourceType.SqlServer
-        ResourceType.AzureStorageResource -> AspireRdResourceType.AzureStorageResource
-        ResourceType.Unknown -> AspireRdResourceType.Unknown
+    private fun ResourceKind.toRdKind() = when (this) {
+        ResourceKind.Project -> AspireRdResourceKind.Project
+        ResourceKind.Container -> AspireRdResourceKind.Container
+        ResourceKind.Executable -> AspireRdResourceKind.Executable
+        ResourceKind.Parameter -> AspireRdResourceKind.Parameter
+        ResourceKind.ExternalService -> AspireRdResourceKind.ExternalService
+        ResourceKind.MongoDB -> AspireRdResourceKind.MongoDB
+        ResourceKind.MySql -> AspireRdResourceKind.MySql
+        ResourceKind.Postgres -> AspireRdResourceKind.Postgres
+        ResourceKind.SqlServer -> AspireRdResourceKind.SqlServer
+        ResourceKind.AzureStorageResource -> AspireRdResourceKind.AzureStorageResource
+        ResourceKind.Unknown -> AspireRdResourceKind.Unknown
     }
 }

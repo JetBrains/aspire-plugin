@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.actions.dashboard.resource.AspireResourceBaseAction
 import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import com.jetbrains.aspire.rider.debugger.AttachDebuggerService
 import com.jetbrains.aspire.rider.sessions.SessionProfileModeService
 import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
@@ -24,7 +24,7 @@ internal class AttachToProjectResourceAction : AspireResourceBaseAction() {
     override fun updateAction(event: AnActionEvent, resourceData: AspireResourceData, project: Project) {
         val pid = resourceData.pid?.value
         val projectPath = resourceData.projectPath?.value
-        if (resourceData.type != ResourceType.Project ||
+        if (resourceData.kind != ResourceKind.Project ||
             resourceData.launchConfigurationType != ResourceLaunchConfigurationType.Project ||
             resourceData.state != ResourceState.Running ||
             pid == null ||

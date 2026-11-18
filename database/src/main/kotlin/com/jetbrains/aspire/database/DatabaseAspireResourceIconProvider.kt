@@ -3,21 +3,21 @@ package com.jetbrains.aspire.database
 import com.intellij.icons.AllIcons
 import com.jetbrains.aspire.extensions.AspireResourceIconProvider
 import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 
 internal class DatabaseAspireResourceIconProvider : AspireResourceIconProvider {
     override val priority = 3
 
     override fun getIcon(
-        type: ResourceType,
+        type: ResourceKind,
         configurationType: ResourceLaunchConfigurationType,
         containerImage: String?
     ) = when (type) {
-        ResourceType.Postgres -> AllIcons.Providers.Postgresql
-        ResourceType.SqlServer -> AllIcons.Providers.SqlServer
-        ResourceType.MySql -> AllIcons.Providers.Mysql
-        ResourceType.MongoDB -> AllIcons.Providers.MongoDB
-        ResourceType.Container -> when {
+        ResourceKind.Postgres -> AllIcons.Providers.Postgresql
+        ResourceKind.SqlServer -> AllIcons.Providers.SqlServer
+        ResourceKind.MySql -> AllIcons.Providers.Mysql
+        ResourceKind.MongoDB -> AllIcons.Providers.MongoDB
+        ResourceKind.Container -> when {
             containerImage?.contains("postgres") == true -> AllIcons.Providers.Postgresql
             containerImage?.contains("mssql") == true -> AllIcons.Providers.SqlServer
             containerImage?.contains("mysql") == true -> AllIcons.Providers.Mysql

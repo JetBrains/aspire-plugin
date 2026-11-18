@@ -21,7 +21,7 @@ import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceRelationship
 import com.jetbrains.aspire.worker.ResourceState
 import com.jetbrains.aspire.worker.ResourceStateStyle
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import com.jetbrains.aspire.worker.ResourceVolume
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -30,6 +30,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.NullAndEmptySource
 import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -52,8 +53,8 @@ internal class AspireCliResourceConverterTest {
         assertEquals("api", data.uid)
         assertEquals("api", data.name)
         assertEquals("API", data.displayName)
-        assertEquals(ResourceType.Project, data.type)
-        assertEquals("Project", data.originType)
+        assertEquals(ResourceKind.Project, data.kind)
+        assertEquals("Project", data.resourceType)
         assertEquals(ResourceState.Starting, data.state)
         assertEquals(ResourceStateStyle.Info, data.stateStyle)
     }
@@ -114,13 +115,13 @@ internal class AspireCliResourceConverterTest {
                "ExternalService, ExternalService", "MongoDBDatabaseResource, MongoDB", "MySqlDatabaseResource, MySql",
                "PostgresDatabaseResource, Postgres", "SqlServerDatabaseResource, SqlServer", "AzureStorageResource, AzureStorageResource",
                "FutureType, Unknown")
-    fun `resource types include database aliases and unknown types`(type: String, expected: ResourceType) {
+    fun `resource types include database aliases and unknown types`(type: String, expected: ResourceKind) {
         val resource = AspireCliResource("resource", resourceType = type)
 
         val data = convert(resource)
 
-        assertEquals(expected, data.type)
-        assertEquals(type, data.originType)
+        assertEquals(expected, data.kind)
+        assertEquals(type, data.resourceType)
     }
 
     @Test
@@ -129,8 +130,8 @@ internal class AspireCliResourceConverterTest {
 
         val data = convert(resource)
 
-        assertEquals(ResourceType.Unknown, data.type)
-        assertEquals("", data.originType)
+        assertEquals(ResourceKind.Unknown, data.kind)
+        assertEquals("", data.resourceType)
     }
 
     @ParameterizedTest
@@ -511,6 +512,33 @@ internal class AspireCliResourceConverterTest {
         val data = convert(resource)
 
         assertNull(data.pid)
+    }
+
+    @Test
+    fun `JSON resource type display name is separate from resource identity and technical type`() {
+        val json = """
+            {"name":"cache","displayName":"Cache","resourceType":"Container","resourceTypeDisplayName":"Redis"}
+        """.trimIndent()
+        val resource = Json.decodeFromString<AspireCliResource>(json)
+
+        val data = convert(resource)
+
+        assertEquals("Redis", data.resourceTypeDisplayName)
+        assertEquals("cache", data.name)
+        assertEquals("Cache", data.displayName)
+        assertEquals("Container", data.resourceType)
+        assertEquals(ResourceKind.Container, data.kind)
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = [" ", "\t"])
+    fun `absent or blank resource type display name stays blank`(displayName: String?) {
+        val resource = AspireCliResource("database", resourceType = "PostgresDatabaseResource", resourceTypeDisplayName = displayName)
+
+        val data = convert(resource)
+
+        assertTrue(data.resourceTypeDisplayName.isBlank())
     }
 
     private fun convert(resource: AspireCliResource): AspireResourceData {

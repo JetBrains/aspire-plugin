@@ -49,6 +49,9 @@ internal class AspireResourceServiceViewDescriptor(
         val icon = getIcon(resourceData)
         setIcon(icon)
         addText(resourceData.displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+        if (resourceData.resourceTypeDisplayName.isNotBlank()) {
+            addText(" ${resourceData.resourceTypeDisplayName}", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+        }
     }
 
     // The Service View calls this on every event of the Aspire contributor while the node is selected,

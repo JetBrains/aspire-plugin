@@ -56,7 +56,7 @@ fun Flow<List<AspireResourceModel>>.toResourceViewModels(
                     }
                 }
             }.sortedWith(
-                compareBy({ it.resourceData.value.type }, { it.resourceData.value.name })
+                compareBy({ it.resourceData.value.kind }, { it.resourceData.value.name })
             )
         }
         .stateIn(cs, SharingStarted.Eagerly, emptyList())
