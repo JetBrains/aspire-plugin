@@ -107,13 +107,13 @@ fun runAspireProgram(project: Project, url: URL) {
         )
     )
 
-    val timeoutTracker = TimeoutTracker(Duration.ofSeconds(30))
-    while (!isApplicationReady) {
-        flushQueues()
-        timeoutTracker.throwIfExpired { "Application didn't start in time" }
-    }
-
     try {
+        val timeoutTracker = TimeoutTracker(Duration.ofMinutes(5))
+        while (!isApplicationReady) {
+            flushQueues()
+            timeoutTracker.throwIfExpired { "Application didn't start in time. Process output:\n$output" }
+        }
+
         val trigger = connectToUrlOnBackgroundThread(url)
         waitAndPump(Duration.ofSeconds(30), { trigger.hasValue })
         frameworkLogger.trace(trigger.valueOrThrow.unwrap())
