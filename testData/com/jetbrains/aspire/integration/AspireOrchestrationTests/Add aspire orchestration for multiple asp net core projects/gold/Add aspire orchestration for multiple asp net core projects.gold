@@ -44,21 +44,19 @@ EndGlobal
 
 AppHost:
 
-<Project Sdk="Aspire.AppHost.Sdk/13.6.4">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AspireUseCliBundle>true</AspireUseCliBundle>
         <UserSecretsId>GUID</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Project1\Project1.csproj" />
-      <ProjectReference Include="..\Project2\Project2.csproj" />
-      <ProjectReference Include="..\Project3\Project3.csproj" />
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="17.0.0"/>
+        <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0"/>
     </ItemGroup>
 
 </Project>
@@ -68,11 +66,11 @@ AppHost.AppHost.cs:
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.Project1>("project1");
+builder.AddDotnetProject("project1", "../Project1/Project1.csproj");
 
-builder.AddProject<Projects.Project2>("project2");
+builder.AddDotnetProject("project2", "../Project2/Project2.csproj");
 
-builder.AddProject<Projects.Project3>("project3");
+builder.AddDotnetProject("project3", "../Project3/Project3.csproj");
 
 builder.Build().Run();
 
@@ -93,11 +91,11 @@ ServiceDefaults:
 
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0"/>
         <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.10.0"/>
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.17.0"/>
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.17.0"/>
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.17.0"/>
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.17.0"/>
-        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.17.0"/>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.18.0"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.18.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.18.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.18.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.18.0"/>
     </ItemGroup>
 
 </Project>

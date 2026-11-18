@@ -36,7 +36,7 @@ internal class AspireAppHostModificationService(private val project: Project) {
 
         private const val APP_HOST_FILE = "AppHost.cs"
         private const val PROGRAM_FILE = "Program.cs"
-        private const val ADD_PROJECT_METHOD = ".AddProject("
+        private const val ADD_DOTNET_PROJECT_METHOD = ".AddDotnetProject("
         private const val CREATE_BUILDER_METHOD = ".CreateBuilder("
     }
 
@@ -74,7 +74,7 @@ internal class AspireAppHostModificationService(private val project: Project) {
 
             val text = document.text
 
-            val lastAddProjectIndex = text.lastIndexOf(ADD_PROJECT_METHOD)
+            val lastAddProjectIndex = text.lastIndexOf(ADD_DOTNET_PROJECT_METHOD)
             var semicolonIndex = if (lastAddProjectIndex == -1) {
                 val builderIndex = text.indexOf(CREATE_BUILDER_METHOD)
                 if (builderIndex == -1) {
@@ -87,7 +87,7 @@ internal class AspireAppHostModificationService(private val project: Project) {
             }
 
             if (semicolonIndex == -1) {
-                LOG.info("Unable to find an index to insert an `AddProject` method")
+                LOG.info("Unable to find an index to insert an `AddDotnetProject` method")
                 return@readAndEdtWriteAction value(false)
             }
 

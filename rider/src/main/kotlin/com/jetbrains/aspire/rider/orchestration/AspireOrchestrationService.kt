@@ -148,20 +148,25 @@ class AspireOrchestrationService(private val project: Project) {
             return false
         }
 
-        val projectFilePathStrings = projectEntities.mapNotNull { it.url?.toPath() }
-        val referenceByHostProjectResult =
-            referenceByHostProject(project, appHostProjectPath, projectFilePathStrings) ?: return false
+        val projectsRequiringReference = projectEntities.filter { entity ->
+            val projectType = getProjectType(entity) ?: return@filter false
+            AspireProjectOrchestrationHandler.getHandlerForType(projectType)?.requiresProjectReference == true
+        }
+        val projectsToRegister = if (projectsRequiringReference.isEmpty()) {
+            projectEntities
+        } else {
+            val projectFilePaths = projectsRequiringReference.mapNotNull { it.url?.toPath() }
+            val referenceResult = referenceByHostProject(project, appHostProjectPath, projectFilePaths) ?: return false
+            val referencedProjectPaths = referenceResult.referencedProjectFilePaths.map { it.toNioPath() }.toSet()
 
-        val referencedProjectFilePaths =
-            referenceByHostProjectResult.referencedProjectFilePaths.map { it.toNioPath() }
-
-        val referencedProjectEntities = projectEntities.filter { entity ->
-            entity.url?.toPath()?.let { path -> referencedProjectFilePaths.contains(path) } ?: false
+            projectEntities.filter { entity ->
+                entity !in projectsRequiringReference || entity.url?.toPath() in referencedProjectPaths
+            }
         }
 
         return AspireAppHostModificationService
             .getInstance(project)
-            .modifyAppHost(appHostEntity, referencedProjectEntities)
+            .modifyAppHost(appHostEntity, projectsToRegister)
     }
 
     private suspend fun notifyAboutAlreadyAddedOrchestration() = withContext(Dispatchers.EDT) {

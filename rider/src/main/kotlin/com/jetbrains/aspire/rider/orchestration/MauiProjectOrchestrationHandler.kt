@@ -29,6 +29,7 @@ internal class MauiProjectOrchestrationHandler : BaseOrchestrationHandler() {
     }
 
     override val priority = 1
+    override val requiresProjectReference = false
     override val supportedProjectTypes = listOf(RdProjectType.MAUI)
 
     override suspend fun modifyAppHost(
