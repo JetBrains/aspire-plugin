@@ -23,10 +23,19 @@ import com.jetbrains.rider.debugger.wasm.client.WasmAppEnvironmentInfo
 import com.jetbrains.rider.debugger.wasm.client.WasmClientRunProfile
 import com.jetbrains.rider.debugger.wasm.util.BlazorWasmBrowserUtil
 import com.jetbrains.rider.debugger.wasm.util.BlazorWasmCliOptionsProvider
+import com.jetbrains.rider.ijent.extensions.toNioPathOrNull
+import com.jetbrains.rider.model.Key
+import com.jetbrains.rider.model.runnableProjectsModel
+import com.jetbrains.rider.projectView.solution
+import com.jetbrains.rider.run.configurations.RunnableProjectKinds
+import com.jetbrains.rider.run.configurations.project.getCustomPathsAttribute
 import com.jetbrains.rider.run.environment.MSBuildEvaluator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.URI
+import kotlin.collections.orEmpty
+import kotlin.collections.singleOrNull
+import kotlin.io.path.pathString
 
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.sessionHost.projectLaunchers.WasmHostUtils")
 
@@ -91,7 +100,11 @@ internal suspend fun executeClient(
         LOG.warn("Unable to create wasp app environment info")
         return
     }
-    val appEnvInfo = WasmAppEnvironmentInfo(appUrl, outputAssemblyPath)
+    val appEnvInfo = WasmAppEnvironmentInfo(
+        appUrl,
+        outputAssemblyPath,
+        getClientOutputAssemblyPaths(project, projectFilePath), //TODO this parameter does not exist in 2027.1 builds
+        projectFilePath)
 
     connectedBrowser.availablePages.view(lifetime) { pageLifetime, _, page ->
         lifetime.coroutineScope.launch(Dispatchers.EDT) {
@@ -137,3 +150,15 @@ private suspend fun extractProjectOutputAssemblyPath(
     val properties = msBuildEvaluator.evaluatePropertiesSuspending(request)
     return properties[outputAssemblyProperty]
 }
+
+/**
+ * Returns the output assembly paths for the given project.
+ * A copy of the com.jetbrains.rider.debugger.wasm.host.WasmHostDebugProfileState#getClientOutputAssemblyPaths.
+ * Should be removed in 2027.1 alongside with its usage.
+ */
+private fun getClientOutputAssemblyPaths(project: Project, projectFilePath: String): List<String> =
+    project.solution.runnableProjectsModel.projects.valueOrNull.orEmpty()
+        .singleOrNull { it.projectFilePath == projectFilePath && it.kind == RunnableProjectKinds.LaunchSettings }
+        ?.getCustomPathsAttribute(Key.BlazorWasmOutputAssemblies)
+        ?.mapNotNull { it.toNioPathOrNull()?.pathString }
+        .orEmpty()
