@@ -1,0 +1,10 @@
+{
+  "sdk": {
+    "version": "11.0.100",
+    "rollForward": "latestMinor",
+    "allowPrerelease": false
+  },
+  "msbuild-sdks": {
+    "Azure.Functions.Sdk": "1.1.0"
+  }
+}

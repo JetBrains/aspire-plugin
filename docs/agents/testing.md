@@ -33,8 +33,8 @@ Use the root `:test` task when filtering integration tests. The unqualified `tes
 where the integration test filter matches no tests.
 
 The MAUI orchestration test needs the `maui-aspire-servicedefaults` template (`MauiAspire.ServiceDefaults.CSharp`),
-which is provided by `Microsoft.Maui.Templates.net10`, in addition to `Aspire.ProjectTemplates`.
-CI pins the template package to `10.0.20` to match the gold file. Install the same version locally with
-`./dotnet.cmd new install Microsoft.Maui.Templates.net10@10.0.20 --force`, then check that the template is available
+which is provided by `Microsoft.Maui.Templates.net11`, in addition to `Aspire.ProjectTemplates`.
+CI pins the template package to `11.0.0` to match the gold file. Install the same version locally with
+`./dotnet.cmd new install Microsoft.Maui.Templates.net11@11.0.0 --force`, then check that the template is available
 with `./dotnet.cmd new list maui-aspire-servicedefaults`. Install the package in the .NET environment Rider uses, even
 if the MAUI workload is installed in another .NET installation.

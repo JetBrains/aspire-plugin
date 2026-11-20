@@ -90,7 +90,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.x'
+          dotnet-version: '11.x'
 
       # Install Aspire templates
       - name: Install templates
@@ -106,12 +106,12 @@ jobs:
       # Install MAUI workload
       - name: Install MAUI workload
         working-directory: /usr/share/dotnet
-        run: dotnet workload install maui-android
+        run: dotnet workload install maui-android --version 11.0.100
 
       # Pin the MAUI template used by the orchestration gold test
       - name: Install MAUI templates
         working-directory: /usr/share/dotnet
-        run: dotnet new install Microsoft.Maui.Templates.net10@10.0.20 --force
+        run: dotnet new install Microsoft.Maui.Templates.net11@11.0.0 --force
 
       # Run tests
       - name: Run Tests
