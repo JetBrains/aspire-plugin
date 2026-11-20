@@ -156,6 +156,15 @@ internal suspend fun referenceSharedProject(
     project.solution.aspirePluginModel.referenceServiceDefaultsFromProjects.startSuspending(request)
 }
 
+internal suspend fun getProjectsTargetFrameworks(
+    project: Project,
+    projectFilePaths: List<Path>
+): GetProjectsTargetFrameworksResponse? = withContext(Dispatchers.EDT) {
+    val request = GetProjectsTargetFrameworksRequest(projectFilePaths.map { it.toRd() })
+
+    project.solution.aspirePluginModel.getProjectsTargetFrameworks.startSuspending(request)
+}
+
 /**
  * Generates a new Aspire project and adds it to the solution.
  *
