@@ -2,7 +2,14 @@
 #:package Aspire.Hosting.Dotnet@17.0.0
 #:property UserSecretsId=0169f63d-5f25-4676-8ffe-ebee3ecb224b
 
-var builder = DistributedApplication.CreateBuilder(args);
+using System.Runtime.CompilerServices;
+
+var options = new DistributedApplicationOptions
+{
+    Args = args,
+    ProjectDirectory = GetAppHostDirectory()
+};
+var builder = DistributedApplication.CreateBuilder(options);
 
 var apiService = builder.AddDotnetProject("apiservice", "./FileBasedAspireApp.ApiService/FileBasedAspireApp.ApiService.csproj")
     .WithHttpHealthCheck("/health");
@@ -14,3 +21,6 @@ builder.AddDotnetProject("webfrontend", "./FileBasedAspireApp.Web/FileBasedAspir
     .WaitFor(apiService);
 
 builder.Build().Run();
+
+// Aspire can take the project directory from Rider's temporary .csproj.
+static string GetAppHostDirectory([CallerFilePath] string sourceFile = "") => Path.GetDirectoryName(sourceFile)!;
