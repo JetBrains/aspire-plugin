@@ -9,7 +9,7 @@ import com.intellij.util.EnvironmentUtil
 import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.util.getAspireSpecificEnvironmentVariables
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
+import com.jetbrains.aspire.dcp.buildDcpEnvironmentVariables
 import com.jetbrains.rider.run.configurations.AsyncExecutorFactory
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
 import java.net.URI
@@ -28,12 +28,13 @@ internal abstract class AspireExecutorFactory(
     protected suspend fun putAdditionalEnvironmentVariables(
         envs: MutableMap<String, String>,
         appHostMainFilePath: Path,
-        activeRuntime: DotNetCoreRuntime
+        activeRuntime: DotNetCoreRuntime,
+        debug: Boolean,
     ) {
         val aspireWorker = AspireWorker.getInstance(project)
         val (appHost, endpoint) = aspireWorker.startAppHostSessionServer(appHostMainFilePath)
         envs[DCP_INSTANCE_ID_PREFIX] = appHost.id.value
-        envs.putAll(endpoint.toDcpEnvironmentVariables())
+        envs.putAll(buildDcpEnvironmentVariables(endpoint, debug))
 
         val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
             envs,

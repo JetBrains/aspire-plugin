@@ -2,9 +2,12 @@ package com.jetbrains.aspire.unit.worker.dcp
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.testFramework.TestApplicationManager
+import com.intellij.testFramework.ExtensionTestUtil
 import com.intellij.testFramework.common.timeoutRunBlocking
 import com.intellij.testFramework.replaceService
 import com.jetbrains.aspire.sessions.CreateSessionResponse
@@ -15,6 +18,12 @@ import com.jetbrains.aspire.sessions.SessionLogReceived
 import com.jetbrains.aspire.sessions.SessionProcessStarted
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.dcp.AspireSessionServer
+import com.jetbrains.aspire.extensions.StartSessionRequestHandler
+import com.jetbrains.aspire.sessions.StartSessionRequest
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -35,6 +44,14 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class AspireSessionServerTest {
     private lateinit var testRootDisposable: Disposable
+
+    private class TestStartSessionRequestHandler(override val sessionType: String) : StartSessionRequestHandler {
+        override fun isApplicable(request: StartSessionRequest): Boolean = false
+
+        override suspend fun handleRequests(requests: List<StartSessionRequest>, project: Project) {
+            error("This handler only supplies session type information")
+        }
+    }
 
     @BeforeAll
     fun setUpApplication() {
@@ -138,6 +155,41 @@ internal class AspireSessionServerTest {
             response.assertBodyContains("2025-10-01")
             response.assertBodyContains("supported_launch_configurations")
             response.assertBodyContains("project")
+        }
+    }
+
+    @Test
+    fun `info advertises registered session types without duplicates`() {
+        val projectHandler = TestStartSessionRequestHandler("project")
+        val customHandler = TestStartSessionRequestHandler("custom")
+        val duplicateHandler = TestStartSessionRequestHandler("custom")
+        val handlers = listOf(projectHandler, customHandler, duplicateHandler)
+        val extensionPoint = ExtensionPointName<StartSessionRequestHandler>("com.jetbrains.aspire.startSessionRequestHandler")
+        ExtensionTestUtil.maskExtensions(extensionPoint, handlers, testRootDisposable)
+        val sessionManager = MockSessionManager()
+
+        withServer(sessionManager) { baseUrl, _ ->
+            val response = httpGet("$baseUrl/info")
+
+            response.assertStatus(200)
+            val info = Json.parseToJsonElement(response.body())
+            val sessionTypes = info.jsonObject.getValue("supported_launch_configurations").jsonArray
+                .map { it.jsonPrimitive.content }
+            assertEquals(listOf("project", "custom"), sessionTypes)
+        }
+    }
+
+    @Test
+    fun `info advertises no session types when no handlers are registered`() {
+        val extensionPoint = ExtensionPointName<StartSessionRequestHandler>("com.jetbrains.aspire.startSessionRequestHandler")
+        ExtensionTestUtil.maskExtensions(extensionPoint, emptyList(), testRootDisposable)
+        val sessionManager = MockSessionManager()
+        withServer(sessionManager) { baseUrl, _ ->
+            val response = httpGet("$baseUrl/info")
+
+            response.assertStatus(200)
+            val info = Json.parseToJsonElement(response.body()).jsonObject
+            assertTrue(info.getValue("supported_launch_configurations").jsonArray.isEmpty())
         }
     }
 

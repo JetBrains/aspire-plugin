@@ -1,8 +1,5 @@
 package com.jetbrains.aspire.dcp
 
-import com.jetbrains.aspire.util.DEBUG_SESSION_PORT
-import com.jetbrains.aspire.util.DEBUG_SESSION_SERVER_CERTIFICATE
-import com.jetbrains.aspire.util.DEBUG_SESSION_TOKEN
 import org.jetbrains.annotations.ApiStatus
 
 /**
@@ -20,16 +17,3 @@ data class AspireSessionServerEndpoint(
     val isHttps: Boolean,
     val base64Cert: String?,
 )
-
-/**
- * Builds the DCP "IDE-execution" connection environment variables the AppHost process must receive to
- * connect back to this endpoint.
- *
- * @see <a href="https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#enabling-ide-execution">Enabling IDE execution</a>
- */
-@ApiStatus.Internal
-fun AspireSessionServerEndpoint.toDcpEnvironmentVariables(): Map<String, String> = buildMap {
-    put(DEBUG_SESSION_TOKEN, token)
-    put(DEBUG_SESSION_PORT, "localhost:$port")
-    if (isHttps) base64Cert?.let { put(DEBUG_SESSION_SERVER_CERTIFICATE, it) }
-}

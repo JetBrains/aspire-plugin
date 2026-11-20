@@ -13,7 +13,7 @@ import com.jetbrains.aspire.rider.generated.StartAspireHostResponse
 import com.jetbrains.aspire.rider.generated.StopAspireHostRequest
 import com.jetbrains.aspire.util.DCP_INSTANCE_ID_PREFIX
 import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
+import com.jetbrains.aspire.dcp.buildDcpEnvironmentVariables
 import com.jetbrains.rd.framework.impl.RdTask
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.threading.coroutines.lifetimedCoroutineScope
@@ -61,7 +61,7 @@ internal class AspireUnitTestService(private val project: Project, private val s
 
                 val environmentVariables = buildList {
                     add(AspireHostEnvironmentVariable(DCP_INSTANCE_ID_PREFIX, appHost.id.value))
-                    endpoint.toDcpEnvironmentVariables().forEach { envVar ->
+                    buildDcpEnvironmentVariables(endpoint, request.underDebugger).forEach { envVar ->
                         val environmentVariable = AspireHostEnvironmentVariable(envVar.key, envVar.value)
                         add(environmentVariable)
                     }
