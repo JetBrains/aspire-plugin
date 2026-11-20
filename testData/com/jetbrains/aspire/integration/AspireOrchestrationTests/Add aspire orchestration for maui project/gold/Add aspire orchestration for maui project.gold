@@ -32,23 +32,20 @@ EndGlobal
 
 AppHost:
 
-<Project Sdk="Aspire.AppHost.Sdk/13.6.4">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AspireUseCliBundle>true</AspireUseCliBundle>
         <UserSecretsId>GUID</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DefaultMauiSolution\DefaultMauiSolution.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Aspire.Hosting.Maui" Version="13.6.4-preview.1.26523.11" />
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="17.0.0"/>
+        <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0"/>
+        <PackageReference Include="Aspire.Hosting.Maui" Version="17.0.0-preview.1.26567.5" />
     </ItemGroup>
 
 </Project>

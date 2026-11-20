@@ -8,7 +8,7 @@ import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.AspireResourceModel
 import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -140,9 +140,10 @@ class VisibleResourcesTest {
                 id = id,
                 uid = "uid-${id.resourceName}",
                 name = id.resourceName,
-                type = ResourceType.Unknown,
+                kind = ResourceKind.Unknown,
                 launchConfigurationType = ResourceLaunchConfigurationType.Unknown,
-                originType = "Project",
+                resourceType = "Project",
+                resourceTypeDisplayName = "Project",
                 displayName = id.resourceName,
                 state = if (state == "Hidden") ResourceState.Hidden else null,
                 stateStyle = null,

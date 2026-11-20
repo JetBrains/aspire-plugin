@@ -5,7 +5,7 @@ import org.jetbrains.annotations.ApiStatus
 
 @ApiStatus.Internal
 @Serializable
-enum class ResourceType {
+enum class ResourceKind {
     Project,
     Container,
     Executable,

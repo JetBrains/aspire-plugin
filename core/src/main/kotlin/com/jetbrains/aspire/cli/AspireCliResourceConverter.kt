@@ -5,7 +5,7 @@ import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.util.mapLaunchConfigurationType
 import com.jetbrains.aspire.util.mapResourceState
 import com.jetbrains.aspire.util.mapResourceStateStyle
-import com.jetbrains.aspire.util.mapResourceType
+import com.jetbrains.aspire.util.mapResourceKind
 import com.jetbrains.aspire.worker.*
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -110,9 +110,10 @@ private fun AspireCliResource.toAspireResourceData(appHostId: AspireAppHostId): 
         id = AspireResourceId(appHostId, resourceName),
         uid = uid ?: resourceName,
         name = resourceName,
-        type = mapResourceType(resourceType.orEmpty()),
+        kind = mapResourceKind(resourceType.orEmpty()),
         launchConfigurationType = launchConfigurationType,
-        originType = resourceType.orEmpty(),
+        resourceType = resourceType.orEmpty(),
+        resourceTypeDisplayName = resourceTypeDisplayName.orEmpty(),
         displayName = displayName ?: resourceName,
         state = resourceState,
         stateStyle = resourceStateStyle,

@@ -115,7 +115,7 @@ class AspireResource(
     }
 
     suspend fun executeCommand(commandName: String): AspireResourceCommandResponse {
-        val request = AspireResourceCommandRequest(resourceName, _data.value.originType, commandName)
+        val request = AspireResourceCommandRequest(resourceName, _data.value.resourceType, commandName)
         val response = resourceCommandExecutor.executeResourceCommand(request)
         if (response.kind == AspireResourceCommandResponseKind.Failed) {
             LOG.warn("Command $commandName on $resourceName failed: ${response.message.orEmpty()}")

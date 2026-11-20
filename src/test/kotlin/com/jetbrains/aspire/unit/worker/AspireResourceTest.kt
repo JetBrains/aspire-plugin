@@ -57,7 +57,7 @@ internal class AspireResourceTest {
         val expectedResponse = AspireResourceCommandResponse(AspireResourceCommandResponseKind.Succeeded, "Command completed")
         val commandExecutor = TestResourceCommandExecutor(expectedResponse)
         val resource = AspireResource(data.id, data, this, watcher, commandExecutor)
-        val expectedRequest = AspireResourceCommandRequest(data.name, data.originType, "restart")
+        val expectedRequest = AspireResourceCommandRequest(data.name, data.resourceType, "restart")
 
         val response = resource.executeCommand("restart")
 

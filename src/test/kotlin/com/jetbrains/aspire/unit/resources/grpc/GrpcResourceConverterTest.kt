@@ -23,10 +23,12 @@ import com.jetbrains.aspire.worker.AspireAppHostId
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.AspireResourceLogEntry
 import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.NullAndEmptySource
+import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
@@ -51,7 +53,7 @@ internal class GrpcResourceConverterTest {
         val snapshot = assertIs<AspireResourceUpdate.InitialData>(converted)
         assertEquals(listOf(apiId, workerId), snapshot.resources.map { it.id })
         assertEquals(listOf(ResourceState.Starting, ResourceState.Running), snapshot.resources.map { it.state })
-        assertTrue(snapshot.resources.all { it.type == ResourceType.Project })
+        assertTrue(snapshot.resources.all { it.kind == ResourceKind.Project })
     }
 
     @Test
@@ -230,6 +232,43 @@ internal class GrpcResourceConverterTest {
 
         assertEquals("Command completed", converted.message)
         assertEquals(expectedResult, converted.result)
+    }
+
+    @Test
+    fun `resource type display name is separate from resource identity and technical type`() {
+        val appHostId = AspireAppHostId("AppHost")
+        val resource = Resource.newBuilder()
+            .setName("cache")
+            .setDisplayName("Cache")
+            .setResourceType("Container")
+            .setResourceTypeDisplayName("Redis")
+            .build()
+
+        val data = resource.toAspireResourceData(appHostId)
+
+        assertEquals("Redis", data.resourceTypeDisplayName)
+        assertEquals("cache", data.name)
+        assertEquals("Cache", data.displayName)
+        assertEquals("Container", data.resourceType)
+        assertEquals(ResourceKind.Container, data.kind)
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = [" ", "\t"])
+    fun `absent or blank resource type display name stays blank`(displayName: String?) {
+        val appHostId = AspireAppHostId("AppHost")
+        val builder = Resource.newBuilder()
+            .setName("database")
+            .setResourceType("PostgresDatabaseResource")
+        if (displayName != null) {
+            builder.setResourceTypeDisplayName(displayName)
+        }
+        val resource = builder.build()
+
+        val data = resource.toAspireResourceData(appHostId)
+
+        assertTrue(data.resourceTypeDisplayName.isBlank())
     }
 
     private fun resource(name: String, state: String): Resource = Resource.newBuilder()

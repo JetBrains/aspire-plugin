@@ -13,6 +13,7 @@ data class AspireCliResource(
     val name: String? = null,
     val displayName: String? = null,
     val resourceType: String? = null,
+    val resourceTypeDisplayName: String? = null,
     val uid: String? = null,
     val state: String? = null,
     val waitingFor: List<String>? = null,

@@ -3,13 +3,13 @@ package com.jetbrains.aspire.util
 import com.intellij.icons.AllIcons
 import com.jetbrains.aspire.extensions.AspireResourceIconProvider
 import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import org.jetbrains.annotations.ApiStatus
 import javax.swing.Icon
 
 @ApiStatus.Internal
 fun getResourceIcon(
-    type: ResourceType,
+    type: ResourceKind,
     configurationType: ResourceLaunchConfigurationType,
     containerImage: String?
 ): Icon {
@@ -25,15 +25,15 @@ internal class BaseAspireResourceIconProvider : AspireResourceIconProvider {
     override val priority = 0
 
     override fun getIcon(
-        type: ResourceType,
+        type: ResourceKind,
         configurationType: ResourceLaunchConfigurationType,
         containerImage: String?
     ) = when (type) {
-        ResourceType.Executable -> AllIcons.Nodes.Console
-        ResourceType.Parameter -> AllIcons.Nodes.Parameter
-        ResourceType.ExternalService -> AllIcons.General.Web
-        ResourceType.Container -> AllIcons.FileTypes.Docker
-        ResourceType.Unknown -> AllIcons.FileTypes.Unknown
+        ResourceKind.Executable -> AllIcons.Nodes.Console
+        ResourceKind.Parameter -> AllIcons.Nodes.Parameter
+        ResourceKind.ExternalService -> AllIcons.General.Web
+        ResourceKind.Container -> AllIcons.FileTypes.Docker
+        ResourceKind.Unknown -> AllIcons.FileTypes.Unknown
         else -> null
     }
 }

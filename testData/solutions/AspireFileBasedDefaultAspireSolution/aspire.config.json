@@ -2,6 +2,9 @@
   "appHost": {
     "path": "apphost.cs"
   },
+  "sdk": {
+    "version": "17.0.0"
+  },
   "profiles": {
     "http": {
       "applicationUrl": "http://localhost:15273",

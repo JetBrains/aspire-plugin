@@ -140,7 +140,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     public static  CtxWriteDelegate<ReferenceServiceDefaultsFromProjectsResponse> WriteReferenceServiceDefaultsFromProjectsResponseNullable = ReferenceServiceDefaultsFromProjectsResponse.Write.NullableClass();
     public static  CtxWriteDelegate<GetReferencedProjectsFromAppHostResponse> WriteGetReferencedProjectsFromAppHostResponseNullable = GetReferencedProjectsFromAppHostResponse.Write.NullableClass();
     
-    protected override long SerializationHash => 344688638181968712L;
+    protected override long SerializationHash => -866602471197445666L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -293,7 +293,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     //public fields
     [NotNull] public string Name {get; private set;}
     [NotNull] public string DisplayName {get; private set;}
-    public AspireRdResourceType Type {get; private set;}
+    public AspireRdResourceKind Kind {get; private set;}
     [CanBeNull] public AspireRdResourceState? State {get; private set;}
     [CanBeNull] public AspireRdResourceStateStyle? StateStyle {get; private set;}
     [CanBeNull] public AspireRdResourceHealthStatus? HealthStatus {get; private set;}
@@ -305,7 +305,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     public AspireRdResource(
       [NotNull] string name,
       [NotNull] string displayName,
-      AspireRdResourceType type,
+      AspireRdResourceKind kind,
       [CanBeNull] AspireRdResourceState? state,
       [CanBeNull] AspireRdResourceStateStyle? stateStyle,
       [CanBeNull] AspireRdResourceHealthStatus? healthStatus,
@@ -319,7 +319,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
       
       Name = name;
       DisplayName = displayName;
-      Type = type;
+      Kind = kind;
       State = state;
       StateStyle = stateStyle;
       HealthStatus = healthStatus;
@@ -328,11 +328,11 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     }
     //secondary constructor
     //deconstruct trait
-    public void Deconstruct([NotNull] out string name, [NotNull] out string displayName, out AspireRdResourceType type, [CanBeNull] out AspireRdResourceState? state, [CanBeNull] out AspireRdResourceStateStyle? stateStyle, [CanBeNull] out AspireRdResourceHealthStatus? healthStatus, [CanBeNull] out int? exitCode, [NotNull] out List<AspireRdResourceCommand> commands)
+    public void Deconstruct([NotNull] out string name, [NotNull] out string displayName, out AspireRdResourceKind kind, [CanBeNull] out AspireRdResourceState? state, [CanBeNull] out AspireRdResourceStateStyle? stateStyle, [CanBeNull] out AspireRdResourceHealthStatus? healthStatus, [CanBeNull] out int? exitCode, [NotNull] out List<AspireRdResourceCommand> commands)
     {
       name = Name;
       displayName = DisplayName;
-      type = Type;
+      kind = Kind;
       state = State;
       stateStyle = StateStyle;
       healthStatus = HealthStatus;
@@ -345,13 +345,13 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     {
       var name = reader.ReadString();
       var displayName = reader.ReadString();
-      var type = (AspireRdResourceType)reader.ReadInt();
+      var kind = (AspireRdResourceKind)reader.ReadInt();
       var state = ReadAspireRdResourceStateNullable(ctx, reader);
       var stateStyle = ReadAspireRdResourceStateStyleNullable(ctx, reader);
       var healthStatus = ReadAspireRdResourceHealthStatusNullable(ctx, reader);
       var exitCode = ReadIntNullable(ctx, reader);
       var commands = ReadAspireRdResourceCommandList(ctx, reader);
-      var _result = new AspireRdResource(name, displayName, type, state, stateStyle, healthStatus, exitCode, commands);
+      var _result = new AspireRdResource(name, displayName, kind, state, stateStyle, healthStatus, exitCode, commands);
       return _result;
     };
     public static CtxReadDelegate<AspireRdResourceState?> ReadAspireRdResourceStateNullable = new CtxReadDelegate<AspireRdResourceState>(JetBrains.Rd.Impl.Serializers.ReadEnum<AspireRdResourceState>).NullableStruct();
@@ -364,7 +364,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     {
       writer.Write(value.Name);
       writer.Write(value.DisplayName);
-      writer.Write((int)value.Type);
+      writer.Write((int)value.Kind);
       WriteAspireRdResourceStateNullable(ctx, writer, value.State);
       WriteAspireRdResourceStateStyleNullable(ctx, writer, value.StateStyle);
       WriteAspireRdResourceHealthStatusNullable(ctx, writer, value.HealthStatus);
@@ -393,7 +393,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return Name == other.Name && DisplayName == other.DisplayName && Type == other.Type && Equals(State, other.State) && Equals(StateStyle, other.StateStyle) && Equals(HealthStatus, other.HealthStatus) && Equals(ExitCode, other.ExitCode) && Commands.SequenceEqual(other.Commands);
+      return Name == other.Name && DisplayName == other.DisplayName && Kind == other.Kind && Equals(State, other.State) && Equals(StateStyle, other.StateStyle) && Equals(HealthStatus, other.HealthStatus) && Equals(ExitCode, other.ExitCode) && Commands.SequenceEqual(other.Commands);
     }
     //hash code trait
     public override int GetHashCode()
@@ -402,7 +402,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
         var hash = 0;
         hash = hash * 31 + Name.GetHashCode();
         hash = hash * 31 + DisplayName.GetHashCode();
-        hash = hash * 31 + (int) Type;
+        hash = hash * 31 + (int) Kind;
         hash = hash * 31 + (State != null ? (int) State : 0);
         hash = hash * 31 + (StateStyle != null ? (int) StateStyle : 0);
         hash = hash * 31 + (HealthStatus != null ? (int) HealthStatus : 0);
@@ -418,7 +418,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
       using (printer.IndentCookie()) {
         printer.Print("name = "); Name.PrintEx(printer); printer.Println();
         printer.Print("displayName = "); DisplayName.PrintEx(printer); printer.Println();
-        printer.Print("type = "); Type.PrintEx(printer); printer.Println();
+        printer.Print("kind = "); Kind.PrintEx(printer); printer.Println();
         printer.Print("state = "); State.PrintEx(printer); printer.Println();
         printer.Print("stateStyle = "); StateStyle.PrintEx(printer); printer.Println();
         printer.Print("healthStatus = "); HealthStatus.PrintEx(printer); printer.Println();
@@ -560,6 +560,24 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
+  /// <p>Generated from: AspirePluginModel.kt:63</p>
+  /// </summary>
+  public enum AspireRdResourceKind {
+    Project,
+    Container,
+    Executable,
+    Parameter,
+    ExternalService,
+    MongoDB,
+    MySql,
+    Postgres,
+    SqlServer,
+    AzureStorageResource,
+    Unknown
+  }
+  
+  
+  /// <summary>
   /// <p>Generated from: AspirePluginModel.kt:87</p>
   /// </summary>
   public enum AspireRdResourceState {
@@ -586,24 +604,6 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     Info,
     Warning,
     Error,
-    Unknown
-  }
-  
-  
-  /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:63</p>
-  /// </summary>
-  public enum AspireRdResourceType {
-    Project,
-    Container,
-    Executable,
-    Parameter,
-    ExternalService,
-    MongoDB,
-    MySql,
-    Postgres,
-    SqlServer,
-    AzureStorageResource,
     Unknown
   }
   

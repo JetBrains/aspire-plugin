@@ -18,6 +18,7 @@ import com.jetbrains.rider.test.scriptingApi.*
 import java.io.PrintStream
 import java.net.URL
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicBoolean
 
 fun dumpAspireHostRunConfigurations(project: Project, printStream: PrintStream) {
     val runManagerEx = RunManagerEx.getInstanceEx(project)
@@ -91,8 +92,8 @@ fun runAspireProgram(project: Project, url: URL) {
     val settings = RunManagerEx.getInstanceEx(project).selectedConfiguration
         ?: throw AssertionError("No configuration selected")
 
-    var isApplicationReady = false
-    val output = StringBuilder()
+    val isApplicationReady = AtomicBoolean()
+    val output = StringBuffer()
     val processHandler = startRunConfigurationProcess(
         project,
         settings,
@@ -100,20 +101,23 @@ fun runAspireProgram(project: Project, url: URL) {
         ProcessOutputLogger(
             {
                 output.append(it)
-                if (it.contains("Distributed application started")) isApplicationReady = true
+                if (it.contains("Distributed application started")) isApplicationReady.set(true)
             },
-            ProcessOutputType::isStdout,
+            { ProcessOutputType.isStdout(it) || ProcessOutputType.isStderr(it) },
             allowOutputBuffering = false
         )
     )
 
-    val timeoutTracker = TimeoutTracker(Duration.ofSeconds(30))
-    while (!isApplicationReady) {
-        flushQueues()
-        timeoutTracker.throwIfExpired { "Application didn't start in time" }
-    }
-
     try {
+        val timeoutTracker = TimeoutTracker(Duration.ofMinutes(5))
+        while (!isApplicationReady.get()) {
+            flushQueues()
+            check(!processHandler.isProcessTerminated) {
+                "Application exited with code ${processHandler.exitCode} before startup. Process output:\n$output"
+            }
+            timeoutTracker.throwIfExpired { "Application didn't start in time. Process output:\n$output" }
+        }
+
         val trigger = connectToUrlOnBackgroundThread(url)
         waitAndPump(Duration.ofSeconds(30), { trigger.hasValue })
         frameworkLogger.trace(trigger.valueOrThrow.unwrap())

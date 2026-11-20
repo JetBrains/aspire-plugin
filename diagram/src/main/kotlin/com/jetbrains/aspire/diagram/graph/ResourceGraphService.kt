@@ -69,7 +69,7 @@ internal class ResourceGraphService(private val project: Project) {
     private fun createResourceGraphNode(resource: AspireResourceData) = ResourceGraphNode(
         resource.uid,
         resource.displayName,
-        getResourceIcon(resource.type, resource.launchConfigurationType, resource.containerImage?.value)
+        getResourceIcon(resource.kind, resource.launchConfigurationType, resource.containerImage?.value)
     )
 
     private fun GraphChartKtConfigurator<ResourceGraphNode, ResourceGraphEdge>.resourceGraphConfigurator() {

@@ -2,7 +2,7 @@ package com.jetbrains.aspire.actions.dashboard.resource
 
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.worker.findRestartCommand
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import com.jetbrains.aspire.sessions.SessionLaunchMode
 import com.jetbrains.aspire.sessions.SessionLaunchPreferenceService
 import com.jetbrains.aspire.worker.AspireResourceData
@@ -17,7 +17,7 @@ internal class RestartWithoutDebuggerResourceAction : ResourceCommandAction() {
     }
 
     override fun checkResourceState(resourceData: AspireResourceData) =
-        resourceData.type == ResourceType.Project && resourceData.projectPath?.value != null
+        resourceData.kind == ResourceKind.Project && resourceData.projectPath?.value != null
 
     override fun findCommand(resourceData: AspireResourceData) = resourceData.commands.findRestartCommand()
 }

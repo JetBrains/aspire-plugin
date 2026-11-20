@@ -1,5 +1,8 @@
 {
   "appHost": {
     "path": "FunctionAspireApp.AppHost/FunctionAspireApp.AppHost.csproj"
+  },
+  "sdk": {
+    "version": "17.0.0"
   }
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.6.4">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -7,5 +7,10 @@
         <Nullable>enable</Nullable>
         <UserSecretsId>717f8414-b68e-44f2-bde4-5e89f45cfe4b</UserSecretsId>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="17.0.0" />
+        <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
+    </ItemGroup>
 
 </Project>

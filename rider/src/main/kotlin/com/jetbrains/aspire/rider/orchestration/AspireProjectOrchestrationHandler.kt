@@ -19,6 +19,7 @@ interface AspireProjectOrchestrationHandler {
 
     val priority: Int
     val supportedProjectTypes: List<RdProjectType>
+    val requiresProjectReference: Boolean get() = true
 
     /**
      * Provide [supportedProjectTypes] specific modifications to the `AppHost` project.

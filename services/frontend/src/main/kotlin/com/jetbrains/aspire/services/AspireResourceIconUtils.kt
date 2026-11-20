@@ -12,7 +12,7 @@ import javax.swing.Icon
 
 internal fun getIcon(resourceData: AspireResourceData): Icon {
     val baseIcon =
-        getResourceIcon(resourceData.type, resourceData.launchConfigurationType, resourceData.containerImage?.value)
+        getResourceIcon(resourceData.kind, resourceData.launchConfigurationType, resourceData.containerImage?.value)
 
     return when (getHealthStatusBadge(resourceData)) {
         ResourceIconBadge.Error -> BadgeIconSupplier(baseIcon).errorIcon

@@ -28,7 +28,7 @@ public class AspireResourceRunMarkerGutterMark()
             if (command.State != AspireRdResourceCommandState.Enabled) continue;
 
             var isRestart = command.Name is "restart" or "resource-restart";
-            if (isRestart && resource.Type == AspireRdResourceType.Project)
+            if (isRestart && resource.Kind == AspireRdResourceKind.Project)
             {
                 yield return new BulbMenuItem(
                     new ExecutableItem(() => resourceProtocolHost.ExecuteResourceCommand(

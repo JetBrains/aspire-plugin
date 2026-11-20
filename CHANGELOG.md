@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Update Aspire version to 17.0
+
+## [2.9.11] - 2026-11-20
+
 ### Fixed
 
 - [RIDER-145539](https://youtrack.jetbrains.com/issue/RIDER-145539) Blazor WASM debugging fails with NoSuchMethodError when running Aspire config
@@ -842,7 +848,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.10...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.11...HEAD
+[2.9.11]: https://github.com/JetBrains/aspire-plugin/compare/2.9.10...2.9.11
 [2.9.10]: https://github.com/JetBrains/aspire-plugin/compare/2.9.9...2.9.10
 [2.9.9]: https://github.com/JetBrains/aspire-plugin/compare/2.9.8...2.9.9
 [2.9.8]: https://github.com/JetBrains/aspire-plugin/compare/2.9.7...2.9.8

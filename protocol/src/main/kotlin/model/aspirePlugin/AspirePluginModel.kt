@@ -60,7 +60,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         +"Debug"
     }
 
-    private val AspireRdResourceType = enum("AspireRdResourceType") {
+    private val AspireRdResourceKind = enum("AspireRdResourceKind") {
         +"Project"
         +"Container"
         +"Executable"
@@ -83,7 +83,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
     private val AspireRdResource = structdef {
         field("name", string)
         field("displayName", nlsSafeString)
-        field("type", AspireRdResourceType)
+        field("kind", AspireRdResourceKind)
         field("state", enum("AspireRdResourceState") {
             +"Building"
             +"Starting"

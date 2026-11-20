@@ -1,14 +1,6 @@
 package com.jetbrains.aspire.util
 
-import com.jetbrains.aspire.worker.AspireAppHost
-import com.jetbrains.aspire.worker.AspireResource
-import com.jetbrains.aspire.worker.AspireWorker
-import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
-import com.jetbrains.aspire.worker.ResourceRelationship
-import com.jetbrains.aspire.worker.ResourceState
-import com.jetbrains.aspire.worker.ResourceStateStyle
-import com.jetbrains.aspire.worker.ResourceType
-import com.jetbrains.aspire.worker.toNioPath
+import com.jetbrains.aspire.worker.*
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 
@@ -28,7 +20,7 @@ fun AspireWorker.findProjectResource(projectPath: Path): AspireResource? =
     appHosts.value.firstNotNullOfOrNull { host ->
         host.findResource {
             val data = it.data.value
-            data.type == ResourceType.Project && data.projectPath?.value?.toNioPath() == projectPath
+            data.kind == ResourceKind.Project && data.projectPath?.value?.toNioPath() == projectPath
         }
     }
 
@@ -45,18 +37,18 @@ private fun List<AspireResource>.findInTree(predicate: (AspireResource) -> Boole
     return null
 }
 
-internal fun mapResourceType(type: String): ResourceType = when (type) {
-    "Project" -> ResourceType.Project
-    "Container" -> ResourceType.Container
-    "Executable" -> ResourceType.Executable
-    "Parameter" -> ResourceType.Parameter
-    "ExternalService" -> ResourceType.ExternalService
-    "MongoDBDatabaseResource" -> ResourceType.MongoDB
-    "MySqlDatabaseResource" -> ResourceType.MySql
-    "PostgresDatabaseResource" -> ResourceType.Postgres
-    "SqlServerDatabaseResource" -> ResourceType.SqlServer
-    "AzureStorageResource" -> ResourceType.AzureStorageResource
-    else -> ResourceType.Unknown
+internal fun mapResourceKind(type: String): ResourceKind = when (type) {
+    "Project" -> ResourceKind.Project
+    "Container" -> ResourceKind.Container
+    "Executable" -> ResourceKind.Executable
+    "Parameter" -> ResourceKind.Parameter
+    "ExternalService" -> ResourceKind.ExternalService
+    "MongoDBDatabaseResource" -> ResourceKind.MongoDB
+    "MySqlDatabaseResource" -> ResourceKind.MySql
+    "PostgresDatabaseResource" -> ResourceKind.Postgres
+    "SqlServerDatabaseResource" -> ResourceKind.SqlServer
+    "AzureStorageResource" -> ResourceKind.AzureStorageResource
+    else -> ResourceKind.Unknown
 }
 
 internal fun mapLaunchConfigurationType(type: String): ResourceLaunchConfigurationType = when (type) {

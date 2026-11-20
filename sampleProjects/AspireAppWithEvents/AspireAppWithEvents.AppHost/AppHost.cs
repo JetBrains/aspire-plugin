@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var apiService = builder.AddProject<Projects.AspireAppWithEvents_ApiService>("apiservice")
+var apiService = builder.AddDotnetProject("apiservice", "../AspireAppWithEvents.ApiService/AspireAppWithEvents.ApiService.csproj")
     .WithHttpHealthCheck("/health");
 
-builder.AddProject<Projects.AspireAppWithEvents_Web>("webfrontend")
+builder.AddDotnetProject("webfrontend", "../AspireAppWithEvents.Web/AspireAppWithEvents.Web.csproj")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WithReference(apiService)

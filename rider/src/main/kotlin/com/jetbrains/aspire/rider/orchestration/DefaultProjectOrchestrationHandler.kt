@@ -1,13 +1,21 @@
 package com.jetbrains.aspire.rider.orchestration
 
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.intellij.platform.backend.workspace.virtualFile
+import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.rider.model.RdProjectType
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.relativeTo
 
 internal class DefaultProjectOrchestrationHandler : BaseOrchestrationHandler() {
+    companion object {
+        private val LOG = logger<DefaultProjectOrchestrationHandler>()
+    }
+
     override val priority = 0
+    override val requiresProjectReference = false
     override val supportedProjectTypes = listOf(
         RdProjectType.Default,
         RdProjectType.Web,
@@ -20,19 +28,24 @@ internal class DefaultProjectOrchestrationHandler : BaseOrchestrationHandler() {
         projectEntities: List<ProjectModelEntity>,
         project: Project
     ): List<String> {
-        val projectPaths = projectEntities.mapNotNull { it.url?.virtualFile?.toNioPath() }
-        val projectNames = projectPaths.map { it.nameWithoutExtension }
+        val appHostProjectPath = appHostEntity.url?.toPath()
+        if (appHostProjectPath == null) {
+            LOG.warn("Unable to find AppHost project path. Skipping .NET project registration")
+            return emptyList()
+        }
+        val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
 
         return buildList {
-            for (projectName in projectNames.sorted()) {
-                val projectType = projectName.replace('.', '_')
+            for (projectPath in projectPaths.sortedBy { it.nameWithoutExtension }) {
+                val projectName = projectPath.nameWithoutExtension
                 val projectResourceName = projectName.replace('.', '-').lowercase()
+                val relativeProjectPath = projectPath.relativeTo(appHostProjectPath.parent)
 
                 val line = buildString {
-                    append("builder.AddProject<Projects.")
-                    append(projectType)
-                    append(">(\"")
+                    append("builder.AddDotnetProject(\"")
                     append(projectResourceName)
+                    append("\", \"")
+                    append(relativeProjectPath.invariantSeparatorsPathString)
                     append("\");")
                 }
                 add(line)

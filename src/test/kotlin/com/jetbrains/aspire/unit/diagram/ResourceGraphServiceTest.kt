@@ -9,7 +9,7 @@ import com.jetbrains.aspire.worker.AspireResourceData
 import com.jetbrains.aspire.worker.AspireResourceId
 import com.jetbrains.aspire.worker.ResourceLaunchConfigurationType
 import com.jetbrains.aspire.worker.ResourceRelationship
-import com.jetbrains.aspire.worker.ResourceType
+import com.jetbrains.aspire.worker.ResourceKind
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -77,9 +77,10 @@ class ResourceGraphServiceTest {
             id = resourceId,
             uid = "$displayName-uid",
             name = displayName,
-            type = ResourceType.Unknown,
+            kind = ResourceKind.Unknown,
             launchConfigurationType = ResourceLaunchConfigurationType.Unknown,
-            originType = "Unknown",
+            resourceType = "Unknown",
+            resourceTypeDisplayName = "Unknown",
             displayName = displayName,
             state = null,
             stateStyle = null,
