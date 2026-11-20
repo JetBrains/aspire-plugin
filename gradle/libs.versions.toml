@@ -31,7 +31,7 @@ coroutineTest = "1.10.2"
 openTelemetry = "2.3.6"
 
 # plugins
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 changelog = "2.5.0"
 protobufPlugin = "0.9.6"
 
