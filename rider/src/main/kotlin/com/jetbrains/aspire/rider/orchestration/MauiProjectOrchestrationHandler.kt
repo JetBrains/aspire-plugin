@@ -105,6 +105,10 @@ internal class MauiProjectOrchestrationHandler : BaseOrchestrationHandler() {
         return null
     }
 
-    override suspend fun generateServiceDefaults(project: Project): Path? =
-        generateAspireProject(project) { it.generateMauiServiceDefaults() }
+    override suspend fun generateServiceDefaults(
+        project: Project,
+        projectEntities: List<ProjectModelEntity>
+    ): Path? = generateAspireProject(project) {
+        it.generateMauiServiceDefaults(projectEntities.mapNotNull { entity -> entity.url?.toPath() })
+    }
 }

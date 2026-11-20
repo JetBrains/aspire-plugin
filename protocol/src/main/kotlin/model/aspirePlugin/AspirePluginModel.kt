@@ -36,6 +36,19 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("referencedProjectFilePaths", immutableList(RdPath))
     }
 
+    private val GetProjectsTargetFrameworksRequest = structdef {
+        field("projectFilePaths", immutableList(RdPath))
+    }
+
+    private val ProjectTargetFrameworks = structdef {
+        field("projectFilePath", RdPath)
+        field("targetFrameworks", immutableList(string))
+    }
+
+    private val GetProjectsTargetFrameworksResponse = structdef {
+        field("projects", immutableList(ProjectTargetFrameworks))
+    }
+
     private val StartAspireHostRequest = structdef {
         field("unitTestRunId", string)
         field("aspireHostProjectPath", RdPath)
@@ -143,6 +156,11 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
             "getReferencedProjectsFromAppHost",
             GetReferencedProjectsFromAppHostRequest,
             GetReferencedProjectsFromAppHostResponse.nullable
+        )
+        call(
+            "getProjectsTargetFrameworks",
+            GetProjectsTargetFrameworksRequest,
+            GetProjectsTargetFrameworksResponse.nullable
         )
         callback("startAspireHost", StartAspireHostRequest, StartAspireHostResponse).async
         callback("stopAspireHost", StopAspireHostRequest, void).async

@@ -6,6 +6,7 @@
 
 ### Changed
 
+- Choose target frameworks for generated Aspire AppHost and ServiceDefaults projects based on the selected projects
 - Update Aspire version to 17.0
 
 ## [2.9.11] - 2026-11-20

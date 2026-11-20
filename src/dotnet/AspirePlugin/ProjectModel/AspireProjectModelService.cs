@@ -216,6 +216,42 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
         return new GetReferencedProjectsFromAppHostResponse(resultPaths);
     }
 
+    public GetProjectsTargetFrameworksResponse? GetProjectsTargetFrameworks(
+        List<VirtualFileSystemPath> projectFilePaths,
+        Lifetime lifetime)
+    {
+        var projects = new List<ProjectTargetFrameworks>();
+        using (solution.Locks.UsingReadLock())
+        {
+            foreach (var projectPath in projectFilePaths)
+            {
+                lifetime.ThrowIfNotAlive();
+
+                var project = solution.FindProjectByProjectFilePath(projectPath);
+                if (project is null)
+                {
+                    logger.Verbose($"Unable to resolve project from a file path: {projectPath}");
+                    continue;
+                }
+
+                var targetFrameworks = new HashSet<string>();
+                foreach (var targetFrameworkId in project.TargetFrameworkIds)
+                {
+                    if (targetFrameworkId is null || !targetFrameworkId.IsNetCoreApp) continue;
+
+                    if (targetFrameworkId.TryGetShortIdentifier() is { } shortIdentifier)
+                    {
+                        targetFrameworks.Add(shortIdentifier);
+                    }
+                }
+
+                projects.Add(new ProjectTargetFrameworks(projectPath.ToRd(), targetFrameworks.ToList()));
+            }
+        }
+
+        return new GetProjectsTargetFrameworksResponse(projects);
+    }
+
     private HashSet<Guid> CalculateReferencedProjectGuids(IProject hostProject, Lifetime lifetime)
     {
         var referencedProjectGuids = new HashSet<Guid>();

@@ -1,5 +1,6 @@
 package com.jetbrains.aspire.rider.orchestration
 
+import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.ide.BrowserUtil
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
@@ -21,6 +22,7 @@ import com.jetbrains.rd.util.reactive.adviseNotNullOnce
 import com.jetbrains.rd.util.threading.coroutines.createTerminatedAfter
 import com.jetbrains.rider.model.ProjectTemplatesModel
 import com.jetbrains.rider.model.RdProjectTemplate
+import com.jetbrains.rider.model.RdProjectTemplateChoiceOption
 import com.jetbrains.rider.model.RdProjectTemplateSession
 import com.jetbrains.rider.model.projectTemplatesModel
 import com.jetbrains.rider.projectView.projectTemplates.providers.RiderProjectTemplateProvider
@@ -33,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import java.time.Duration
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.path.exists
 
 @Service(Service.Level.PROJECT)
@@ -47,6 +50,7 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
         private const val APP_HOST_PROJECT_DEFAULT_SUFFIX = "AppHost"
         private const val SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX = "ServiceDefaults"
         private const val MAUI_SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX = "Maui.ServiceDefaults"
+        private const val FRAMEWORK_PARAMETER_NAME = "Framework"
     }
 
     /**
@@ -59,6 +63,52 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
     suspend fun generateProjectFromTemplate(
         templateId: String,
         projectSuffix: String
+    ): Path? = generateProjectFromTemplate(templateId, projectSuffix, emptyList(), null)
+
+    /**
+     * Generates an AppHost project using the predefined AppHost template.
+     *
+     * @return The path to the generated AppHost project file, or null if generation failed
+     */
+    suspend fun generateAppHost(projectPaths: List<Path>): Path? =
+        generateProjectFromTemplate(
+            APP_HOST_TEMPLATE_ID,
+            APP_HOST_PROJECT_DEFAULT_SUFFIX,
+            projectPaths,
+            TemplateFrameworkSelectionStrategy.Highest
+        )
+
+    /**
+     * Generates a ServiceDefaults project using the predefined ServiceDefaults template.
+     *
+     * @return The path to the generated ServiceDefaults project file, or null if generation failed
+     */
+    suspend fun generateServiceDefaults(projectPaths: List<Path>): Path? =
+        generateProjectFromTemplate(
+            SERVICE_DEFAULTS_TEMPLATE_ID,
+            SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX,
+            projectPaths,
+            TemplateFrameworkSelectionStrategy.Lowest
+        )
+
+    /**
+     * Generates a Maui ServiceDefaults project using the predefined Maui ServiceDefaults template.
+     *
+     * @return The path to the generated Maui ServiceDefaults project file, or null if generation failed
+     */
+    suspend fun generateMauiServiceDefaults(projectPaths: List<Path>): Path? =
+        generateProjectFromTemplate(
+            MAUI_SERVICE_DEFAULTS_TEMPLATE_ID,
+            MAUI_SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX,
+            projectPaths,
+            TemplateFrameworkSelectionStrategy.Lowest
+        )
+
+    private suspend fun generateProjectFromTemplate(
+        templateId: String,
+        projectSuffix: String,
+        projectPaths: List<Path>,
+        frameworkSelectionStrategy: TemplateFrameworkSelectionStrategy?
     ): Path? = withBackgroundProgress(project, AspireRiderBundle.message("progress.generating.aspire.projects")) {
         LOG.info("Generating Aspire project for template: $templateId")
 
@@ -69,37 +119,65 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
             val template = findTemplateById(model, session, templateId, lifetime)
                 ?: return@withBackgroundProgress null
 
+            val templateParameters = if (frameworkSelectionStrategy == null) {
+                emptyMap()
+            } else {
+                selectFrameworkParameter(template, projectPaths, frameworkSelectionStrategy)
+            }
+
             return@withBackgroundProgress generateProjectFromTemplate(
                 session,
                 template,
-                projectSuffix
+                projectSuffix,
+                templateParameters
             )
         }
     }
 
-    /**
-     * Generates an AppHost project using the predefined AppHost template.
-     *
-     * @return The path to the generated AppHost project file, or null if generation failed
-     */
-    suspend fun generateAppHost(): Path? =
-        generateProjectFromTemplate(APP_HOST_TEMPLATE_ID, APP_HOST_PROJECT_DEFAULT_SUFFIX)
+    private suspend fun selectFrameworkParameter(
+        template: RdProjectTemplate,
+        projectPaths: List<Path>,
+        strategy: TemplateFrameworkSelectionStrategy
+    ): Map<String, String> {
+        val frameworkOption = template.options
+            .filterIsInstance<RdProjectTemplateChoiceOption>()
+            .firstOrNull { it.name == FRAMEWORK_PARAMETER_NAME }
+        if (frameworkOption == null) {
+            LOG.info("Template ${template.id} has no $FRAMEWORK_PARAMETER_NAME choice; using its default")
+            return emptyMap()
+        }
 
-    /**
-     * Generates a ServiceDefaults project using the predefined ServiceDefaults template.
-     *
-     * @return The path to the generated ServiceDefaults project file, or null if generation failed
-     */
-    suspend fun generateServiceDefaults(): Path? =
-        generateProjectFromTemplate(SERVICE_DEFAULTS_TEMPLATE_ID, SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX)
+        if (frameworkOption.choices.isEmpty()) {
+            LOG.info("Template ${template.id} has no choices for $FRAMEWORK_PARAMETER_NAME; using its default")
+            return emptyMap()
+        }
 
-    /**
-     * Generates a Maui ServiceDefaults project using the predefined Maui ServiceDefaults template.
-     *
-     * @return The path to the generated Maui ServiceDefaults project file, or null if generation failed
-     */
-    suspend fun generateMauiServiceDefaults(): Path? =
-        generateProjectFromTemplate(MAUI_SERVICE_DEFAULTS_TEMPLATE_ID, MAUI_SERVICE_DEFAULTS_PROJECT_DEFAULT_SUFFIX)
+        val projectTargetFrameworks = try {
+            getProjectsTargetFrameworks(project, projectPaths)?.projects?.flatMap { it.targetFrameworks }
+                ?: run {
+                    LOG.info("Unable to get target frameworks for template ${template.id}; using its default")
+                    return emptyMap()
+                }
+        } catch (e: Exception) {
+            rethrowControlFlowException(e)
+            LOG.info("Unable to get target frameworks for template ${template.id}; using its default", e)
+            return emptyMap()
+        }
+
+        if (projectTargetFrameworks.isEmpty()) {
+            LOG.info("No target frameworks found for template ${template.id}; using its default")
+            return emptyMap()
+        }
+
+        val supportedFrameworks = frameworkOption.choices.mapTo(mutableSetOf()) { it.name }
+        val selectedFramework = selectTemplateFramework(projectTargetFrameworks, supportedFrameworks, strategy)
+        if (selectedFramework == null) {
+            LOG.info("No matching $FRAMEWORK_PARAMETER_NAME choice for template ${template.id}; using its default")
+            return emptyMap()
+        }
+
+        return mapOf(FRAMEWORK_PARAMETER_NAME to selectedFramework)
+    }
 
     private suspend fun findTemplateById(
         model: ProjectTemplatesModel,
@@ -144,7 +222,8 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
     private suspend fun generateProjectFromTemplate(
         session: RdProjectTemplateSession,
         template: RdProjectTemplate?,
-        projectNameSuffix: String
+        projectNameSuffix: String,
+        templateParameters: Map<String, String>
     ): Path? {
         if (template == null) {
             LOG.warn("Unable to find Aspire template for the $projectNameSuffix project")
@@ -164,7 +243,8 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
             session,
             template,
             projectName,
-            projectDirectoryPath
+            projectDirectoryPath,
+            templateParameters
         )
 
         if (result.errorMessage != null) {
@@ -180,6 +260,7 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
         template: RdProjectTemplate,
         projectName: String,
         projectDirectory: Path,
+        templateParameters: Map<String, String>,
     ) = ProjectTemplatesExpanderUtils.expandProjectTemplate(
         session,
         project,
@@ -188,7 +269,7 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
         projectName,
         projectDirectory.toFile(),
         project.solutionDirectory,
-        mapOf(),
+        templateParameters,
         false
     )
 

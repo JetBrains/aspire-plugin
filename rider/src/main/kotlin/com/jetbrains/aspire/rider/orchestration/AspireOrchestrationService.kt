@@ -86,7 +86,7 @@ class AspireOrchestrationService(private val project: Project) {
             existingAppHostEntity
         } else {
             LOG.trace { "Generating new AppHost project" }
-            generateAppHost()
+            generateAppHost(projectEntities)
         }
 
         if (appHostEntity == null) {
@@ -117,8 +117,9 @@ class AspireOrchestrationService(private val project: Project) {
         }
     }
 
-    private suspend fun generateAppHost(): ProjectModelEntity? {
-        val appHostPath = generateAspireProject(project) { it.generateAppHost() } ?: return null
+    private suspend fun generateAppHost(projectEntities: List<ProjectModelEntity>): ProjectModelEntity? {
+        val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
+        val appHostPath = generateAspireProject(project) { it.generateAppHost(projectPaths) } ?: return null
         withContext(Dispatchers.EDT) {
             try {
                 val timeoutTracker = TimeoutTracker(60.seconds)
