@@ -1,10 +1,12 @@
 using JetBrains.Application.Components;
 using JetBrains.Application.Parts;
 using JetBrains.Application.Threading;
+using JetBrains.Core;
 using JetBrains.IDE;
 using JetBrains.Lifetimes;
 using JetBrains.ProjectModel;
 using JetBrains.ProjectModel.Model2.Assemblies.Interfaces;
+using JetBrains.ProjectModel.NuGet.PackageManagement;
 using JetBrains.ProjectModel.ProjectsHost.SolutionHost;
 using JetBrains.RdBackend.Common.Features.ProjectModel;
 using JetBrains.Rider.Aspire.Plugin.Generated;
@@ -25,6 +27,34 @@ namespace JetBrains.Rider.Aspire.Plugin.ProjectModel;
 [SolutionComponent(Instantiation.DemandAnyThreadSafe)]
 public class AspireProjectModelService(ISolution solution, ILogger logger)
 {
+    /// <summary>
+    /// Installs the specified NuGet package version in a project and waits for the operation to finish.
+    /// If the project cannot be found, the method logs a warning and returns.
+    /// </summary>
+    /// <param name="projectFilePath">The path to the project file in the current solution.</param>
+    /// <param name="packageId">The NuGet package ID.</param>
+    /// <param name="version">The package version to install.</param>
+    /// <param name="lifetime">The request lifetime used to resolve the project and package manager.</param>
+    public async Task<Unit> InstallNuGetPackage(
+        VirtualFileSystemPath projectFilePath,
+        string packageId,
+        string version,
+        Lifetime lifetime)
+    {
+        var project = await solution.Locks.StartReadActionAsync(lifetime, () =>
+            solution.FindProjectByProjectFilePath(projectFilePath));
+        if (project is null)
+        {
+            logger.Warn($"Unable to find project at {projectFilePath}");
+            return Unit.Instance;
+        }
+
+        var nuGetPackageManager = await solution.GetComponentAsync<NuGetNativePackageManager>(lifetime);
+        lifetime.ThrowIfNotAlive();
+        await nuGetPackageManager.InstallPackage(project, packageId, version);
+        return Unit.Instance;
+    }
+
     /// <summary>
     /// References multiple projects from an Aspire Host project.
     /// </summary>
@@ -214,6 +244,42 @@ public class AspireProjectModelService(ISolution solution, ILogger logger)
 
         var resultPaths = referencedProjects.Select(it => it.ToRd()).ToList();
         return new GetReferencedProjectsFromAppHostResponse(resultPaths);
+    }
+
+    public GetProjectsTargetFrameworksResponse? GetProjectsTargetFrameworks(
+        List<VirtualFileSystemPath> projectFilePaths,
+        Lifetime lifetime)
+    {
+        var projects = new List<ProjectTargetFrameworks>();
+        using (solution.Locks.UsingReadLock())
+        {
+            foreach (var projectPath in projectFilePaths)
+            {
+                lifetime.ThrowIfNotAlive();
+
+                var project = solution.FindProjectByProjectFilePath(projectPath);
+                if (project is null)
+                {
+                    logger.Verbose($"Unable to resolve project from a file path: {projectPath}");
+                    continue;
+                }
+
+                var targetFrameworks = new HashSet<string>();
+                foreach (var targetFrameworkId in project.TargetFrameworkIds)
+                {
+                    if (targetFrameworkId is null || !targetFrameworkId.IsNetCoreApp) continue;
+
+                    if (targetFrameworkId.TryGetShortIdentifier() is { } shortIdentifier)
+                    {
+                        targetFrameworks.Add(shortIdentifier);
+                    }
+                }
+
+                projects.Add(new ProjectTargetFrameworks(projectPath.ToRd(), targetFrameworks.ToList()));
+            }
+        }
+
+        return new GetProjectsTargetFrameworksResponse(projects);
     }
 
     private HashSet<Guid> CalculateReferencedProjectGuids(IProject hostProject, Lifetime lifetime)

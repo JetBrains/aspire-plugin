@@ -29,6 +29,9 @@ public class AspirePluginHost
         model.ReferenceProjectsFromAppHost.SetSync((lt, req) => ReferenceProjectsFromAppHost(req, lt));
         model.ReferenceServiceDefaultsFromProjects.SetSync((lt, req) => ReferenceServiceDefaultsFromProjects(req, lt));
         model.GetReferencedProjectsFromAppHost.SetSync((lt, req) => GetReferencedProjectsFromAppHost(req, lt));
+        model.GetProjectsTargetFrameworks.SetSync((lt, req) => GetProjectsTargetFrameworks(req, lt));
+        model.InstallNuGetPackage.SetAsync((lifetime, request) => projectModelService.InstallNuGetPackage(
+            request.ProjectFilePath.FromRd(), request.PackageId, request.Version, lifetime));
     }
 
     private string? GetProjectOutputType(RdPath projectPath)
@@ -68,6 +71,15 @@ public class AspirePluginHost
     {
         return _projectModelService.GetReferencedProjectsFromAppHost(
             request.HostProjectFilePath.FromRd(),
+            request.ProjectFilePaths.Select(it => it.FromRd()).ToList(),
+            lifetime);
+    }
+
+    private GetProjectsTargetFrameworksResponse? GetProjectsTargetFrameworks(
+        GetProjectsTargetFrameworksRequest request,
+        Lifetime lifetime)
+    {
+        return _projectModelService.GetProjectsTargetFrameworks(
             request.ProjectFilePaths.Select(it => it.FromRd()).ToList(),
             lifetime);
     }

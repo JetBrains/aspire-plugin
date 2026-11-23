@@ -1,5 +1,9 @@
 package com.jetbrains.aspire.rider.orchestration
 
+import com.intellij.diagnostic.rethrowControlFlowException
+import com.intellij.notification.Notification
+import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.serviceAsync
 import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
@@ -8,16 +12,39 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.workspaceModel.ide.toPath
+import com.jetbrains.aspire.rider.AspireRiderBundle
+import com.jetbrains.aspire.rider.generated.InstallNuGetPackageRequest
+import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.rider.util.isAspireSharedProject
 import com.jetbrains.rider.ijent.extensions.toNioPath
+import com.jetbrains.rider.ijent.extensions.toRd
+import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.nameWithoutExtension
 
 internal abstract class BaseOrchestrationHandler : AspireProjectOrchestrationHandler {
     companion object {
         private val LOG = logger<BaseOrchestrationHandler>()
+    }
+
+    protected suspend fun installAppHostPackageIfMissing(
+        project: Project,
+        appHostEntity: ProjectModelEntity,
+        appHostProjectPath: Path,
+        packageName: String,
+        packageVersion: String,
+    ) {
+        if (isNuGetPackageInstalled(packageName, appHostEntity, project) != false) return
+
+        val request = InstallNuGetPackageRequest(appHostProjectPath.toRd(), packageName, packageVersion)
+        withContext(Dispatchers.EDT) {
+            project.solution.aspirePluginModel.installNuGetPackage.startSuspending(request)
+        }
     }
 
     override suspend fun generateServiceDefaultsAndModifyProjects(
@@ -35,7 +62,7 @@ internal abstract class BaseOrchestrationHandler : AspireProjectOrchestrationHan
             existingServiceDefaultsPath
         } else {
             LOG.trace { "Generating a new ServiceDefaults project" }
-            generateServiceDefaults(project)
+            generateServiceDefaults(project, projectEntities)
         }
 
         if (serviceDefaultsPath == null) {
@@ -43,7 +70,16 @@ internal abstract class BaseOrchestrationHandler : AspireProjectOrchestrationHan
             return false
         }
 
-        val projectFilePaths = projectEntities.mapNotNull { it.url?.toPath() }
+        val projectFilePaths = filterProjectsCompatibleWithServiceDefaults(
+            project,
+            serviceDefaultsPath,
+            projectEntities.mapNotNull { it.url?.toPath() }
+        )
+        if (projectFilePaths.isEmpty()) {
+            LOG.info("No projects compatible with the ServiceDefaults project")
+            return false
+        }
+
         val referenceResult = referenceSharedProject(project, serviceDefaultsPath, projectFilePaths)
             ?: return false
 
@@ -61,6 +97,74 @@ internal abstract class BaseOrchestrationHandler : AspireProjectOrchestrationHan
         return modified
     }
 
+    /**
+     * Returns the projects from [projectFilePaths] that can reference the ServiceDefaults project.
+     *
+     * ServiceDefaults is a library, so a project can reference it only if the project targets the same or a newer .NET.
+     * Its framework may be higher than some selected projects require: an existing ServiceDefaults keeps its own framework,
+     * and the template may not support the lowest selected framework.
+     * Referencing it from such projects would break their build (NU1201).
+     *
+     * A project is compatible if each of its .NET target frameworks is greater than or equal to the lowest ServiceDefaults framework
+     * (see [isCompatibleWithLibraryFrameworks]). Incompatible projects are skipped, and the user is notified about them.
+     * If the target frameworks cannot be obtained, all projects are returned.
+     */
+    private suspend fun filterProjectsCompatibleWithServiceDefaults(
+        project: Project,
+        serviceDefaultsPath: Path,
+        projectFilePaths: List<Path>
+    ): List<Path> {
+        val (serviceDefaultsFrameworks, projectFrameworks) = try {
+            val serviceDefaultsResponse = getProjectsTargetFrameworks(project, listOf(serviceDefaultsPath))
+            val projectsResponse = getProjectsTargetFrameworks(project, projectFilePaths)
+            if (serviceDefaultsResponse == null || projectsResponse == null) {
+                LOG.info("Unable to get target frameworks; skipping the ServiceDefaults compatibility check")
+                return projectFilePaths
+            }
+
+            val serviceDefaultsFrameworks = serviceDefaultsResponse.projects.flatMap { it.targetFrameworks }
+            val projectFrameworks = projectsResponse.projects.associate {
+                it.projectFilePath.toNioPath() to it.targetFrameworks
+            }
+            serviceDefaultsFrameworks to projectFrameworks
+        } catch (e: Exception) {
+            rethrowControlFlowException(e)
+            LOG.warn("Unable to get target frameworks; skipping the ServiceDefaults compatibility check", e)
+            return projectFilePaths
+        }
+
+        val (compatibleProjects, incompatibleProjects) = projectFilePaths.partition { projectPath ->
+            isCompatibleWithLibraryFrameworks(projectFrameworks[projectPath].orEmpty(), serviceDefaultsFrameworks)
+        }
+
+        if (incompatibleProjects.isNotEmpty()) {
+            LOG.info("Projects incompatible with the ServiceDefaults ($serviceDefaultsFrameworks): $incompatibleProjects")
+            notifyAboutIncompatibleProjects(project, serviceDefaultsPath, serviceDefaultsFrameworks, incompatibleProjects)
+        }
+
+        return compatibleProjects
+    }
+
+    private suspend fun notifyAboutIncompatibleProjects(
+        project: Project,
+        serviceDefaultsPath: Path,
+        serviceDefaultsFrameworks: List<String>,
+        incompatibleProjects: List<Path>
+    ) = withContext(Dispatchers.EDT) {
+        Notification(
+            "Aspire",
+            AspireRiderBundle.message("notification.incompatible.service.defaults.projects.title"),
+            AspireRiderBundle.message(
+                "notification.incompatible.service.defaults.projects.description",
+                serviceDefaultsPath.nameWithoutExtension,
+                serviceDefaultsFrameworks.sorted().joinToString(", "),
+                incompatibleProjects.joinToString(", ") { it.nameWithoutExtension }
+            ),
+            NotificationType.WARNING
+        )
+            .notify(project)
+    }
+
     protected open suspend fun findExistingServiceDefaults(project: Project): Path? {
         val dotnetProjects = project.serviceAsync<WorkspaceModel>().findProjects()
         for (dotnetProject in dotnetProjects) {
@@ -76,6 +180,10 @@ internal abstract class BaseOrchestrationHandler : AspireProjectOrchestrationHan
         return null
     }
 
-    protected open suspend fun generateServiceDefaults(project: Project): Path? =
-        generateAspireProject(project) { it.generateServiceDefaults() }
+    protected open suspend fun generateServiceDefaults(
+        project: Project,
+        projectEntities: List<ProjectModelEntity>
+    ): Path? = generateAspireProject(project) {
+        it.generateServiceDefaults(projectEntities.mapNotNull { entity -> entity.url?.toPath() })
+    }
 }

@@ -78,7 +78,17 @@ class AspireOrchestrationService(private val project: Project) {
      */
     suspend fun addAspireOrchestration(
         projectEntities: List<ProjectModelEntity>,
-    ) = withBackgroundProgress(project, AspireRiderBundle.message("progress.adding.aspire.orchestration")) {
+    ) {
+        withBackgroundProgress(project, AspireRiderBundle.message("progress.adding.aspire.orchestration")) {
+            addOrchestration(projectEntities)
+        }
+
+        AspireTemplatePackageManager
+            .getInstance(project)
+            .notifyIfOutdated()
+    }
+
+    private suspend fun addOrchestration(projectEntities: List<ProjectModelEntity>) {
         val existingAppHostEntity = findExistingAppHost(project)
 
         val appHostEntity = if (existingAppHostEntity != null) {
@@ -86,12 +96,12 @@ class AspireOrchestrationService(private val project: Project) {
             existingAppHostEntity
         } else {
             LOG.trace { "Generating new AppHost project" }
-            generateAppHost()
+            generateAppHost(projectEntities)
         }
 
         if (appHostEntity == null) {
             LOG.warn("Unable to find or generate AppHost project")
-            return@withBackgroundProgress
+            return
         }
 
         val appHostFileWasModified = updateAppHostProject(appHostEntity, projectEntities)
@@ -117,8 +127,9 @@ class AspireOrchestrationService(private val project: Project) {
         }
     }
 
-    private suspend fun generateAppHost(): ProjectModelEntity? {
-        val appHostPath = generateAspireProject(project) { it.generateAppHost() } ?: return null
+    private suspend fun generateAppHost(projectEntities: List<ProjectModelEntity>): ProjectModelEntity? {
+        val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
+        val appHostPath = generateAspireProject(project) { it.generateAppHost(projectPaths) } ?: return null
         withContext(Dispatchers.EDT) {
             try {
                 val timeoutTracker = TimeoutTracker(60.seconds)
