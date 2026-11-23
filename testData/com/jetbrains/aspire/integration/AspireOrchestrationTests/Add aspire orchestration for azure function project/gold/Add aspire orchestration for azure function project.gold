@@ -36,7 +36,7 @@ AppHost:
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UserSecretsId>GUID</UserSecretsId>
@@ -70,7 +70,7 @@ ServiceDefaults:
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsAspireSharedProject>true</IsAspireSharedProject>
@@ -93,7 +93,7 @@ ServiceDefaults:
 
 Project(DefaultAzureFunctionSolution.csproj):
 
-﻿<Project Sdk="Azure.Functions.Sdk">
+﻿<Project Sdk="Azure.Functions.Sdk/1.1.0">
 
     <PropertyGroup>
         <TargetFramework>net11.0</TargetFramework>
