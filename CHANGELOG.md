@@ -8,6 +8,7 @@
 
 - Choose target frameworks for generated Aspire AppHost and ServiceDefaults projects based on the selected projects
 - Update Aspire version to 17.0
+- Add Azure Functions projects to the Aspire AppHost by relative path when adding orchestration
 
 ## [2.9.11] - 2026-11-20
 

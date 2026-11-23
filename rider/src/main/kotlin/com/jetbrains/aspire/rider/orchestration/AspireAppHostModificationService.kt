@@ -21,9 +21,11 @@ import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.PsiTreeWalker
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.RiderTextContent
+import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.lexer.CSharpTokenType
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.CsIndentingNaiveRulesSet
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.RiderIndentingEditorSettings
 import com.jetbrains.rider.languages.fileTypes.csharp.kotoparser.session.calculateCsIndent
+import com.jetbrains.rider.languages.fileTypes.csharp.lexer.CSharpLexer
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -36,8 +38,8 @@ internal class AspireAppHostModificationService(private val project: Project) {
 
         private const val APP_HOST_FILE = "AppHost.cs"
         private const val PROGRAM_FILE = "Program.cs"
-        private const val ADD_DOTNET_PROJECT_METHOD = ".AddDotnetProject("
-        private const val CREATE_BUILDER_METHOD = ".CreateBuilder("
+        private val PROJECT_REGISTRATION = Regex("""\.\s*(?:AddDotnetProject|AddProject|AddAzureFunctionsProject|AddMauiProject)\s*[(<]""")
+        private val CREATE_BUILDER = Regex("""\.\s*CreateBuilder\s*\(""")
     }
 
     /**
@@ -72,22 +74,10 @@ internal class AspireAppHostModificationService(private val project: Project) {
                 return@readAndEdtWriteAction value(false)
             }
 
-            val text = document.text
-
-            val lastAddProjectIndex = text.lastIndexOf(ADD_DOTNET_PROJECT_METHOD)
-            var semicolonIndex = if (lastAddProjectIndex == -1) {
-                val builderIndex = text.indexOf(CREATE_BUILDER_METHOD)
-                if (builderIndex == -1) {
-                    LOG.info("Unable to find a method for creating a distributed builder")
-                    return@readAndEdtWriteAction value(false)
-                }
-                text.indexOf(';', builderIndex)
-            } else {
-                text.indexOf(';', lastAddProjectIndex)
-            }
-
-            if (semicolonIndex == -1) {
-                LOG.info("Unable to find an index to insert an `AddDotnetProject` method")
+            val text = document.immutableCharSequence
+            val insertionSemicolon = findInsertionSemicolon(text)
+            if (insertionSemicolon == null) {
+                LOG.info("Unable to find a statement after which to insert project registrations")
                 return@readAndEdtWriteAction value(false)
             }
 
@@ -95,9 +85,10 @@ internal class AspireAppHostModificationService(private val project: Project) {
 
             writeCommandAction(project, AspireRiderBundle.message("write.command.insert.into.app.host")) {
                 val indent =
-                    if (psiFile != null) calculateIndent(psiFile, document, semicolonIndex)
+                    if (psiFile != null) calculateIndent(psiFile, document, insertionSemicolon)
                     else ""
 
+                var semicolonIndex = insertionSemicolon
                 var methodsWereInserted = false
                 for (lineToInsert in linesToInsert) {
                     if (text.contains(lineToInsert)) continue
@@ -116,6 +107,36 @@ internal class AspireAppHostModificationService(private val project: Project) {
                 return@writeCommandAction methodsWereInserted
             }
         }
+    }
+
+    private fun findInsertionSemicolon(text: CharSequence): Int? {
+        val lexer = CSharpLexer()
+        lexer.start(text)
+        var builderIndex = -1
+        var registrationIndex = -1
+        while (lexer.tokenType != null) {
+            if (lexer.tokenType == CSharpTokenType.DOT) {
+                val offset = lexer.tokenStart
+                if (PROJECT_REGISTRATION.matchesAt(text, offset)) registrationIndex = offset
+                if (builderIndex == -1 && CREATE_BUILDER.matchesAt(text, offset)) builderIndex = offset
+            }
+            lexer.advance()
+        }
+
+        val statementStart = if (registrationIndex == -1) builderIndex else registrationIndex
+        if (statementStart == -1) return null
+
+        lexer.start(text, statementStart, text.length, 0)
+        var parentheses = 0
+        while (lexer.tokenType != null) {
+            when (lexer.tokenType) {
+                CSharpTokenType.LPARENTH -> parentheses++
+                CSharpTokenType.RPARENTH -> if (parentheses > 0) parentheses--
+                CSharpTokenType.SEMICOLON -> if (parentheses == 0) return lexer.tokenStart
+            }
+            lexer.advance()
+        }
+        return null
     }
 
     private fun findAppHostFile(hostProjectPath: Path): VirtualFile? {

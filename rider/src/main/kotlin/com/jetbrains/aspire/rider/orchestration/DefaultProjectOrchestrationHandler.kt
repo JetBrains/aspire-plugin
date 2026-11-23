@@ -7,7 +7,7 @@ import com.jetbrains.rider.model.RdProjectType
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.nameWithoutExtension
-import kotlin.io.path.relativeTo
+import kotlin.io.path.relativeToOrNull
 
 internal class DefaultProjectOrchestrationHandler : BaseOrchestrationHandler() {
     companion object {
@@ -33,13 +33,18 @@ internal class DefaultProjectOrchestrationHandler : BaseOrchestrationHandler() {
             LOG.warn("Unable to find AppHost project path. Skipping .NET project registration")
             return emptyList()
         }
+
         val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
 
         return buildList {
             for (projectPath in projectPaths.sortedBy { it.nameWithoutExtension }) {
                 val projectName = projectPath.nameWithoutExtension
                 val projectResourceName = projectName.replace('.', '-').lowercase()
-                val relativeProjectPath = projectPath.relativeTo(appHostProjectPath.parent)
+                val relativeProjectPath = projectPath.relativeToOrNull(appHostProjectPath.parent)
+                if (relativeProjectPath == null) {
+                    LOG.warn("Unable to find a path from the AppHost to the .NET project: $projectPath")
+                    continue
+                }
 
                 val line = buildString {
                     append("builder.AddDotnetProject(\"")
@@ -52,5 +57,4 @@ internal class DefaultProjectOrchestrationHandler : BaseOrchestrationHandler() {
             }
         }
     }
-
 }

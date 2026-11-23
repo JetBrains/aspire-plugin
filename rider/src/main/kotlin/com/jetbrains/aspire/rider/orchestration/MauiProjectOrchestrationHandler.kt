@@ -13,7 +13,7 @@ import com.jetbrains.rider.projectView.workspace.findProjects
 import java.nio.file.Path
 import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.nameWithoutExtension
-import kotlin.io.path.relativeTo
+import kotlin.io.path.relativeToOrNull
 
 internal class MauiProjectOrchestrationHandler : BaseOrchestrationHandler() {
     companion object {
@@ -48,15 +48,19 @@ internal class MauiProjectOrchestrationHandler : BaseOrchestrationHandler() {
         val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
 
         return buildList {
-            for (projectPath in projectPaths.sorted()) {
+            for (projectPath in projectPaths.sortedBy { it.nameWithoutExtension }) {
                 val projectName = projectPath.nameWithoutExtension
                 val projectResourceName = projectName.replace('.', '-').lowercase()
-                val relativeProjectPath = projectPath.relativeTo(appHostProjectPath.parent)
+                val relativeProjectPath = projectPath.relativeToOrNull(appHostProjectPath.parent)
+                if (relativeProjectPath == null) {
+                    LOG.warn("Unable to find a path from the AppHost to the .NET MAUI project: $projectPath")
+                    continue
+                }
 
                 val line = buildString {
                     append("builder.AddMauiProject(\"")
                     append(projectResourceName)
-                    append("\", @\"")
+                    append("\", \"")
                     append(relativeProjectPath.invariantSeparatorsPathString)
                     append("\");")
                 }

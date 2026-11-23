@@ -5,7 +5,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.rider.model.RdProjectType
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.relativeToOrNull
 
 internal class AzureFunctionOrchestrationHandler : BaseOrchestrationHandler() {
     companion object {
@@ -13,6 +15,7 @@ internal class AzureFunctionOrchestrationHandler : BaseOrchestrationHandler() {
     }
 
     override val priority = 1
+    override val requiresProjectReference = false
     override val supportedProjectTypes = listOf(RdProjectType.AzureFunction)
 
     override suspend fun modifyAppHost(
@@ -37,16 +40,20 @@ internal class AzureFunctionOrchestrationHandler : BaseOrchestrationHandler() {
         val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
 
         return buildList {
-            for (projectPath in projectPaths.sorted()) {
+            for (projectPath in projectPaths.sortedBy { it.nameWithoutExtension }) {
                 val projectName = projectPath.nameWithoutExtension
-                val projectType = projectName.replace('.', '_')
                 val projectResourceName = projectName.replace('.', '-').lowercase()
+                val relativeProjectPath = projectPath.relativeToOrNull(appHostProjectPath.parent)
+                if (relativeProjectPath == null) {
+                    LOG.warn("Unable to find a path from the AppHost to the Azure Functions project: $projectPath")
+                    continue
+                }
 
                 val lines = buildString {
-                    append("builder.AddAzureFunctionsProject<Projects.")
-                    append(projectType)
-                    append(">(\"")
+                    append("builder.AddAzureFunctionsProject(\"")
                     append(projectResourceName)
+                    append("\", \"")
+                    append(relativeProjectPath.invariantSeparatorsPathString)
                     append("\")")
                     appendLine()
                     append("    .WithExternalHttpEndpoints();")

@@ -48,10 +48,6 @@ AppHost:
         <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\DefaultAzureFunctionSolution\DefaultAzureFunctionSolution.csproj" />
-    </ItemGroup>
-
 </Project>
 
 
@@ -59,7 +55,7 @@ AppHost.AppHost.cs:
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddAzureFunctionsProject<Projects.DefaultAzureFunctionSolution>("defaultazurefunctionsolution")
+builder.AddAzureFunctionsProject("defaultazurefunctionsolution", "../DefaultAzureFunctionSolution/DefaultAzureFunctionSolution.csproj")
     .WithExternalHttpEndpoints();
 
 builder.Build().Run();
