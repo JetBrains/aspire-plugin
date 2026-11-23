@@ -96,3 +96,11 @@ data class DotNetSessionLaunchConfiguration(
     val args: List<String>?,
     val envs: List<Pair<String, String>>?
 ) : SessionLaunchConfiguration
+
+@ApiStatus.Internal
+data class AzureFunctionsSessionLaunchConfiguration(
+    val projectPath: Path,
+    val debug: Boolean,
+    val args: List<String>?,
+    val envs: List<Pair<String, String>>?
+) : SessionLaunchConfiguration

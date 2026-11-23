@@ -144,7 +144,7 @@ internal class SessionManagerImpl(
             val handler = StartSessionRequestHandler.findApplicableHandler(groupedRequests)
             if (handler == null) {
                 LOG.warn("No applicable handler found for ${launchConfigType.simpleName} request type")
-                return
+                return@forEach
             }
 
             handler.handleRequests(groupedRequests, project)

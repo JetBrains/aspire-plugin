@@ -51,6 +51,13 @@ internal data class ProjectLaunchConfiguration(
 ) : LaunchConfiguration()
 
 @Serializable
+@SerialName("azure-functions")
+internal data class AzureFunctionsLaunchConfiguration(
+    val projectPath: String,
+    val mode: Mode? = null,
+) : LaunchConfiguration()
+
+@Serializable
 internal enum class Mode {
     @SerialName("Debug")
     Debug,

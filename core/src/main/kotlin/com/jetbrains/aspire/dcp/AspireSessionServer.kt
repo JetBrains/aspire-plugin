@@ -214,19 +214,25 @@ class AspireSessionServer(
     }
 
     private fun createSession(aspireHostId: String, session: Session): Pair<String?, ErrorCode?> {
-        val projectLaunchConfiguration = session.launchConfigurations
-            .filterIsInstance<ProjectLaunchConfiguration>()
-            .singleOrNull()
-            ?: return null to ErrorCode.UnableToFindSupportedLaunchConfiguration
+        val launchConfiguration = when (val dcpLaunchConfiguration = session.launchConfigurations.singleOrNull()) {
+            is ProjectLaunchConfiguration -> DotNetSessionLaunchConfiguration(
+                Path(dcpLaunchConfiguration.projectPath),
+                dcpLaunchConfiguration.mode == Mode.Debug,
+                dcpLaunchConfiguration.launchProfile,
+                dcpLaunchConfiguration.disableLaunchProfile == true,
+                session.args,
+                mapEnvironmentVariables(session),
+            )
 
-        val launchConfiguration = DotNetSessionLaunchConfiguration(
-            Path(projectLaunchConfiguration.projectPath),
-            projectLaunchConfiguration.mode == Mode.Debug,
-            projectLaunchConfiguration.launchProfile,
-            projectLaunchConfiguration.disableLaunchProfile == true,
-            session.args,
-            mapEnvironmentVariables(session),
-        )
+            is AzureFunctionsLaunchConfiguration -> AzureFunctionsSessionLaunchConfiguration(
+                Path(dcpLaunchConfiguration.projectPath),
+                dcpLaunchConfiguration.mode == Mode.Debug,
+                session.args,
+                mapEnvironmentVariables(session),
+            )
+
+            null -> return null to ErrorCode.UnableToFindSupportedLaunchConfiguration
+        }
         val request = CreateSessionRequest(aspireHostId, launchConfiguration)
         val response = sessionManager.createSession(request)
 
