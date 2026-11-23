@@ -24,6 +24,7 @@ class AspirePluginModel private constructor(
     private val _referenceServiceDefaultsFromProjects: RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?>,
     private val _getReferencedProjectsFromAppHost: RdCall<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse?>,
     private val _getProjectsTargetFrameworks: RdCall<GetProjectsTargetFrameworksRequest, GetProjectsTargetFrameworksResponse?>,
+    private val _installNuGetPackage: RdCall<InstallNuGetPackageRequest, Unit>,
     private val _startAspireHost: RdCall<StartAspireHostRequest, StartAspireHostResponse>,
     private val _stopAspireHost: RdCall<StopAspireHostRequest, Unit>,
     private val _unitTestRunCancelled: RdSignal<String>,
@@ -45,6 +46,7 @@ class AspirePluginModel private constructor(
             serializers.register(LazyCompanionMarshaller(RdId(1950270621882930284), classLoader, "com.jetbrains.aspire.rider.generated.GetProjectsTargetFrameworksRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(-7973999944647292340), classLoader, "com.jetbrains.aspire.rider.generated.ProjectTargetFrameworks"))
             serializers.register(LazyCompanionMarshaller(RdId(5118157057295117828), classLoader, "com.jetbrains.aspire.rider.generated.GetProjectsTargetFrameworksResponse"))
+            serializers.register(LazyCompanionMarshaller(RdId(-4945821773820548560), classLoader, "com.jetbrains.aspire.rider.generated.InstallNuGetPackageRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(4011588048384607098), classLoader, "com.jetbrains.aspire.rider.generated.StartAspireHostRequest"))
             serializers.register(LazyCompanionMarshaller(RdId(-7704547362275130218), classLoader, "com.jetbrains.aspire.rider.generated.AspireHostEnvironmentVariable"))
             serializers.register(LazyCompanionMarshaller(RdId(-4767979015991107402), classLoader, "com.jetbrains.aspire.rider.generated.StartAspireHostResponse"))
@@ -69,7 +71,7 @@ class AspirePluginModel private constructor(
         private val __GetReferencedProjectsFromAppHostResponseNullableSerializer = GetReferencedProjectsFromAppHostResponse.nullable()
         private val __GetProjectsTargetFrameworksResponseNullableSerializer = GetProjectsTargetFrameworksResponse.nullable()
         
-        const val serializationHash = 7036761983117679662L
+        const val serializationHash = 5948218541917116147L
         
     }
     override val serializersOwner: ISerializersOwner get() = AspirePluginModel
@@ -81,6 +83,7 @@ class AspirePluginModel private constructor(
     val referenceServiceDefaultsFromProjects: IRdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?> get() = _referenceServiceDefaultsFromProjects
     val getReferencedProjectsFromAppHost: IRdCall<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse?> get() = _getReferencedProjectsFromAppHost
     val getProjectsTargetFrameworks: IRdCall<GetProjectsTargetFrameworksRequest, GetProjectsTargetFrameworksResponse?> get() = _getProjectsTargetFrameworks
+    val installNuGetPackage: IRdCall<InstallNuGetPackageRequest, Unit> get() = _installNuGetPackage
     val startAspireHost: IRdEndpoint<StartAspireHostRequest, StartAspireHostResponse> get() = _startAspireHost
     val stopAspireHost: IRdEndpoint<StopAspireHostRequest, Unit> get() = _stopAspireHost
     val unitTestRunCancelled: IAsyncSource<String> get() = _unitTestRunCancelled
@@ -93,6 +96,7 @@ class AspirePluginModel private constructor(
     }
     
     init {
+        _installNuGetPackage.async = true
         _startAspireHost.async = true
         _stopAspireHost.async = true
         _unitTestRunCancelled.async = true
@@ -105,6 +109,7 @@ class AspirePluginModel private constructor(
         bindableChildren.add("referenceServiceDefaultsFromProjects" to _referenceServiceDefaultsFromProjects)
         bindableChildren.add("getReferencedProjectsFromAppHost" to _getReferencedProjectsFromAppHost)
         bindableChildren.add("getProjectsTargetFrameworks" to _getProjectsTargetFrameworks)
+        bindableChildren.add("installNuGetPackage" to _installNuGetPackage)
         bindableChildren.add("startAspireHost" to _startAspireHost)
         bindableChildren.add("stopAspireHost" to _stopAspireHost)
         bindableChildren.add("unitTestRunCancelled" to _unitTestRunCancelled)
@@ -120,6 +125,7 @@ class AspirePluginModel private constructor(
         RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse?>(ReferenceServiceDefaultsFromProjectsRequest, __ReferenceServiceDefaultsFromProjectsResponseNullableSerializer),
         RdCall<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse?>(GetReferencedProjectsFromAppHostRequest, __GetReferencedProjectsFromAppHostResponseNullableSerializer),
         RdCall<GetProjectsTargetFrameworksRequest, GetProjectsTargetFrameworksResponse?>(GetProjectsTargetFrameworksRequest, __GetProjectsTargetFrameworksResponseNullableSerializer),
+        RdCall<InstallNuGetPackageRequest, Unit>(InstallNuGetPackageRequest, FrameworkMarshallers.Void),
         RdCall<StartAspireHostRequest, StartAspireHostResponse>(StartAspireHostRequest, StartAspireHostResponse),
         RdCall<StopAspireHostRequest, Unit>(StopAspireHostRequest, FrameworkMarshallers.Void),
         RdSignal<String>(FrameworkMarshallers.String),
@@ -138,6 +144,7 @@ class AspirePluginModel private constructor(
             print("referenceServiceDefaultsFromProjects = "); _referenceServiceDefaultsFromProjects.print(printer); println()
             print("getReferencedProjectsFromAppHost = "); _getReferencedProjectsFromAppHost.print(printer); println()
             print("getProjectsTargetFrameworks = "); _getProjectsTargetFrameworks.print(printer); println()
+            print("installNuGetPackage = "); _installNuGetPackage.print(printer); println()
             print("startAspireHost = "); _startAspireHost.print(printer); println()
             print("stopAspireHost = "); _stopAspireHost.print(printer); println()
             print("unitTestRunCancelled = "); _unitTestRunCancelled.print(printer); println()
@@ -154,6 +161,7 @@ class AspirePluginModel private constructor(
             _referenceServiceDefaultsFromProjects.deepClonePolymorphic(),
             _getReferencedProjectsFromAppHost.deepClonePolymorphic(),
             _getProjectsTargetFrameworks.deepClonePolymorphic(),
+            _installNuGetPackage.deepClonePolymorphic(),
             _startAspireHost.deepClonePolymorphic(),
             _stopAspireHost.deepClonePolymorphic(),
             _unitTestRunCancelled.deepClonePolymorphic(),
@@ -170,7 +178,7 @@ val com.jetbrains.rd.ide.model.Solution.aspirePluginModel get() = getOrCreateExt
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:58]
+ * #### Generated from [AspirePluginModel.kt:64]
  */
 data class AspireHostEnvironmentVariable (
     val key: String,
@@ -239,7 +247,7 @@ data class AspireHostEnvironmentVariable (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:96]
+ * #### Generated from [AspirePluginModel.kt:102]
  */
 data class AspireRdResource (
     val name: String,
@@ -344,7 +352,7 @@ data class AspireRdResource (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:130]
+ * #### Generated from [AspirePluginModel.kt:136]
  */
 data class AspireRdResourceCommand (
     val name: String,
@@ -419,7 +427,7 @@ data class AspireRdResourceCommand (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:133]
+ * #### Generated from [AspirePluginModel.kt:139]
  */
 enum class AspireRdResourceCommandState {
     Enabled, 
@@ -445,7 +453,7 @@ enum class AspireRdResourceCommandState {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:121]
+ * #### Generated from [AspirePluginModel.kt:127]
  */
 enum class AspireRdResourceHealthStatus {
     Healthy, 
@@ -471,7 +479,7 @@ enum class AspireRdResourceHealthStatus {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:76]
+ * #### Generated from [AspirePluginModel.kt:82]
  */
 enum class AspireRdResourceKind {
     Project, 
@@ -505,7 +513,7 @@ enum class AspireRdResourceKind {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:100]
+ * #### Generated from [AspirePluginModel.kt:106]
  */
 enum class AspireRdResourceState {
     Building, 
@@ -540,7 +548,7 @@ enum class AspireRdResourceState {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:114]
+ * #### Generated from [AspirePluginModel.kt:120]
  */
 enum class AspireRdResourceStateStyle {
     Success, 
@@ -568,7 +576,7 @@ enum class AspireRdResourceStateStyle {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:71]
+ * #### Generated from [AspirePluginModel.kt:77]
  */
 enum class AspireRdSessionLaunchMode {
     Run, 
@@ -593,7 +601,7 @@ enum class AspireRdSessionLaunchMode {
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:90]
+ * #### Generated from [AspirePluginModel.kt:96]
  */
 data class ExecuteResourceCommandRequest (
     val resourceName: String,
@@ -916,6 +924,81 @@ data class GetReferencedProjectsFromAppHostResponse (
         printer.println("GetReferencedProjectsFromAppHostResponse (")
         printer.indent {
             print("referencedProjectFilePaths = "); referencedProjectFilePaths.print(printer); println()
+        }
+        printer.print(")")
+    }
+    //deepClone
+    //contexts
+    //threading
+}
+
+
+/**
+ * #### Generated from [AspirePluginModel.kt:52]
+ */
+data class InstallNuGetPackageRequest (
+    val projectFilePath: com.jetbrains.rd.ide.model.RdPath,
+    val packageId: String,
+    val version: String
+) : IPrintable {
+    //write-marshaller
+    private fun write(ctx: SerializationCtx, buffer: AbstractBuffer)  {
+        com.jetbrains.rd.ide.model.RdPath.write(ctx, buffer, projectFilePath)
+        buffer.writeString(packageId)
+        buffer.writeString(version)
+    }
+    //companion
+    
+    companion object : IMarshaller<InstallNuGetPackageRequest> {
+        override val _type: KClass<InstallNuGetPackageRequest> = InstallNuGetPackageRequest::class
+        override val id: RdId get() = RdId(-4945821773820548560)
+        
+        @Suppress("UNCHECKED_CAST")
+        override fun read(ctx: SerializationCtx, buffer: AbstractBuffer): InstallNuGetPackageRequest  {
+            val projectFilePath = com.jetbrains.rd.ide.model.RdPath.read(ctx, buffer)
+            val packageId = buffer.readString()
+            val version = buffer.readString()
+            return InstallNuGetPackageRequest(projectFilePath, packageId, version)
+        }
+        
+        override fun write(ctx: SerializationCtx, buffer: AbstractBuffer, value: InstallNuGetPackageRequest)  {
+            value.write(ctx, buffer)
+        }
+        
+        
+    }
+    //fields
+    //methods
+    //initializer
+    //secondary constructor
+    //equals trait
+    override fun equals(other: Any?): Boolean  {
+        if (this === other) return true
+        if (other == null || other::class != this::class) return false
+        
+        other as InstallNuGetPackageRequest
+        
+        if (projectFilePath != other.projectFilePath) return false
+        if (packageId != other.packageId) return false
+        if (version != other.version) return false
+        
+        return true
+    }
+    //hash code trait
+    override fun hashCode(): Int  {
+        var __r = 0
+        __r = __r*31 + projectFilePath.hashCode()
+        __r = __r*31 + packageId.hashCode()
+        __r = __r*31 + version.hashCode()
+        return __r
+    }
+    //pretty print
+    override fun print(printer: PrettyPrinter)  {
+        printer.println("InstallNuGetPackageRequest (")
+        printer.indent {
+            print("projectFilePath = "); projectFilePath.print(printer); println()
+            print("packageId = "); packageId.print(printer); println()
+            print("version = "); version.print(printer); println()
         }
         printer.print(")")
     }
@@ -1259,7 +1342,7 @@ data class ReferenceServiceDefaultsFromProjectsResponse (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:52]
+ * #### Generated from [AspirePluginModel.kt:58]
  */
 data class StartAspireHostRequest (
     val unitTestRunId: String,
@@ -1334,7 +1417,7 @@ data class StartAspireHostRequest (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:63]
+ * #### Generated from [AspirePluginModel.kt:69]
  */
 data class StartAspireHostResponse (
     val environmentVariables: Array<AspireHostEnvironmentVariable>
@@ -1397,7 +1480,7 @@ data class StartAspireHostResponse (
 
 
 /**
- * #### Generated from [AspirePluginModel.kt:67]
+ * #### Generated from [AspirePluginModel.kt:73]
  */
 data class StopAspireHostRequest (
     val unitTestRunId: String

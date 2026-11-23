@@ -30,6 +30,8 @@ public class AspirePluginHost
         model.ReferenceServiceDefaultsFromProjects.SetSync((lt, req) => ReferenceServiceDefaultsFromProjects(req, lt));
         model.GetReferencedProjectsFromAppHost.SetSync((lt, req) => GetReferencedProjectsFromAppHost(req, lt));
         model.GetProjectsTargetFrameworks.SetSync((lt, req) => GetProjectsTargetFrameworks(req, lt));
+        model.InstallNuGetPackage.SetAsync((lifetime, request) => projectModelService.InstallNuGetPackage(
+            request.ProjectFilePath.FromRd(), request.PackageId, request.Version, lifetime));
     }
 
     private string? GetProjectOutputType(RdPath projectPath)

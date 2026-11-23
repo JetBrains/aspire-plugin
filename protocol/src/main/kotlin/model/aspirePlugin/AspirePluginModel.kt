@@ -49,6 +49,12 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
         field("projects", immutableList(ProjectTargetFrameworks))
     }
 
+    private val InstallNuGetPackageRequest = structdef {
+        field("projectFilePath", RdPath)
+        field("packageId", string)
+        field("version", string)
+    }
+
     private val StartAspireHostRequest = structdef {
         field("unitTestRunId", string)
         field("aspireHostProjectPath", RdPath)
@@ -162,6 +168,7 @@ object AspirePluginModel : Ext(SolutionModel.Solution) {
             GetProjectsTargetFrameworksRequest,
             GetProjectsTargetFrameworksResponse.nullable
         )
+        call("installNuGetPackage", InstallNuGetPackageRequest, void).async
         callback("startAspireHost", StartAspireHostRequest, StartAspireHostResponse).async
         callback("stopAspireHost", StopAspireHostRequest, void).async
         sink("unitTestRunCancelled", string).async

@@ -13,8 +13,12 @@ import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.backend.workspace.virtualFile
 import com.intellij.workspaceModel.ide.toPath
 import com.jetbrains.aspire.rider.AspireRiderBundle
+import com.jetbrains.aspire.rider.generated.InstallNuGetPackageRequest
+import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.rider.util.isAspireSharedProject
 import com.jetbrains.rider.ijent.extensions.toNioPath
+import com.jetbrains.rider.ijent.extensions.toRd
+import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +30,21 @@ import kotlin.io.path.nameWithoutExtension
 internal abstract class BaseOrchestrationHandler : AspireProjectOrchestrationHandler {
     companion object {
         private val LOG = logger<BaseOrchestrationHandler>()
+    }
+
+    protected suspend fun installAppHostPackageIfMissing(
+        project: Project,
+        appHostEntity: ProjectModelEntity,
+        appHostProjectPath: Path,
+        packageName: String,
+        packageVersion: String,
+    ) {
+        if (isNuGetPackageInstalled(packageName, appHostEntity, project) != false) return
+
+        val request = InstallNuGetPackageRequest(appHostProjectPath.toRd(), packageName, packageVersion)
+        withContext(Dispatchers.EDT) {
+            project.solution.aspirePluginModel.installNuGetPackage.startSuspending(request)
+        }
     }
 
     override suspend fun generateServiceDefaultsAndModifyProjects(

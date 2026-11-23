@@ -232,14 +232,6 @@ internal fun isNuGetPackageInstalled(
         return null
     }
 
-    return isNuGetPackageInstalled(packageName, projectId, project)
-}
-
-internal fun isNuGetPackageInstalled(
-    packageName: String,
-    projectId: Int,
-    project: Project
-): Boolean? {
     val riderNuGetFacade = RiderNuGetFacade.getInstance(project)
     val nugetProject = riderNuGetFacade.host.nuGetProjectModel.projects[projectId]
     if (nugetProject == null) {

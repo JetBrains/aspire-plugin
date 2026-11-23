@@ -47,6 +47,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     [NotNull] public IRdEndpoint<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse> ReferenceServiceDefaultsFromProjects => _ReferenceServiceDefaultsFromProjects;
     [NotNull] public IRdEndpoint<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse> GetReferencedProjectsFromAppHost => _GetReferencedProjectsFromAppHost;
     [NotNull] public IRdEndpoint<GetProjectsTargetFrameworksRequest, GetProjectsTargetFrameworksResponse> GetProjectsTargetFrameworks => _GetProjectsTargetFrameworks;
+    [NotNull] public IRdEndpoint<InstallNuGetPackageRequest, Unit> InstallNuGetPackage => _InstallNuGetPackage;
     [NotNull] public IRdCall<StartAspireHostRequest, StartAspireHostResponse> StartAspireHost => _StartAspireHost;
     [NotNull] public IRdCall<StopAspireHostRequest, Unit> StopAspireHost => _StopAspireHost;
     [NotNull] public void UnitTestRunCancelled(string value) => _UnitTestRunCancelled.Fire(value);
@@ -59,6 +60,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     [NotNull] private readonly RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse> _ReferenceServiceDefaultsFromProjects;
     [NotNull] private readonly RdCall<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse> _GetReferencedProjectsFromAppHost;
     [NotNull] private readonly RdCall<GetProjectsTargetFrameworksRequest, GetProjectsTargetFrameworksResponse> _GetProjectsTargetFrameworks;
+    [NotNull] private readonly RdCall<InstallNuGetPackageRequest, Unit> _InstallNuGetPackage;
     [NotNull] private readonly RdCall<StartAspireHostRequest, StartAspireHostResponse> _StartAspireHost;
     [NotNull] private readonly RdCall<StopAspireHostRequest, Unit> _StopAspireHost;
     [NotNull] private readonly RdSignal<string> _UnitTestRunCancelled;
@@ -72,6 +74,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
       [NotNull] RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse> referenceServiceDefaultsFromProjects,
       [NotNull] RdCall<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse> getReferencedProjectsFromAppHost,
       [NotNull] RdCall<GetProjectsTargetFrameworksRequest, GetProjectsTargetFrameworksResponse> getProjectsTargetFrameworks,
+      [NotNull] RdCall<InstallNuGetPackageRequest, Unit> installNuGetPackage,
       [NotNull] RdCall<StartAspireHostRequest, StartAspireHostResponse> startAspireHost,
       [NotNull] RdCall<StopAspireHostRequest, Unit> stopAspireHost,
       [NotNull] RdSignal<string> unitTestRunCancelled,
@@ -84,6 +87,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
       if (referenceServiceDefaultsFromProjects == null) throw new ArgumentNullException("referenceServiceDefaultsFromProjects");
       if (getReferencedProjectsFromAppHost == null) throw new ArgumentNullException("getReferencedProjectsFromAppHost");
       if (getProjectsTargetFrameworks == null) throw new ArgumentNullException("getProjectsTargetFrameworks");
+      if (installNuGetPackage == null) throw new ArgumentNullException("installNuGetPackage");
       if (startAspireHost == null) throw new ArgumentNullException("startAspireHost");
       if (stopAspireHost == null) throw new ArgumentNullException("stopAspireHost");
       if (unitTestRunCancelled == null) throw new ArgumentNullException("unitTestRunCancelled");
@@ -95,12 +99,14 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
       _ReferenceServiceDefaultsFromProjects = referenceServiceDefaultsFromProjects;
       _GetReferencedProjectsFromAppHost = getReferencedProjectsFromAppHost;
       _GetProjectsTargetFrameworks = getProjectsTargetFrameworks;
+      _InstallNuGetPackage = installNuGetPackage;
       _StartAspireHost = startAspireHost;
       _StopAspireHost = stopAspireHost;
       _UnitTestRunCancelled = unitTestRunCancelled;
       _ExecuteResourceCommand = executeResourceCommand;
       _Resources = resources;
       _Resources.OptimizeNested = true;
+      _InstallNuGetPackage.Async = true;
       _StartAspireHost.Async = true;
       _StopAspireHost.Async = true;
       _UnitTestRunCancelled.Async = true;
@@ -115,6 +121,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
       BindableChildren.Add(new KeyValuePair<string, object>("referenceServiceDefaultsFromProjects", _ReferenceServiceDefaultsFromProjects));
       BindableChildren.Add(new KeyValuePair<string, object>("getReferencedProjectsFromAppHost", _GetReferencedProjectsFromAppHost));
       BindableChildren.Add(new KeyValuePair<string, object>("getProjectsTargetFrameworks", _GetProjectsTargetFrameworks));
+      BindableChildren.Add(new KeyValuePair<string, object>("installNuGetPackage", _InstallNuGetPackage));
       BindableChildren.Add(new KeyValuePair<string, object>("startAspireHost", _StartAspireHost));
       BindableChildren.Add(new KeyValuePair<string, object>("stopAspireHost", _StopAspireHost));
       BindableChildren.Add(new KeyValuePair<string, object>("unitTestRunCancelled", _UnitTestRunCancelled));
@@ -129,6 +136,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
       new RdCall<ReferenceServiceDefaultsFromProjectsRequest, ReferenceServiceDefaultsFromProjectsResponse>(ReferenceServiceDefaultsFromProjectsRequest.Read, ReferenceServiceDefaultsFromProjectsRequest.Write, ReadReferenceServiceDefaultsFromProjectsResponseNullable, WriteReferenceServiceDefaultsFromProjectsResponseNullable),
       new RdCall<GetReferencedProjectsFromAppHostRequest, GetReferencedProjectsFromAppHostResponse>(GetReferencedProjectsFromAppHostRequest.Read, GetReferencedProjectsFromAppHostRequest.Write, ReadGetReferencedProjectsFromAppHostResponseNullable, WriteGetReferencedProjectsFromAppHostResponseNullable),
       new RdCall<GetProjectsTargetFrameworksRequest, GetProjectsTargetFrameworksResponse>(GetProjectsTargetFrameworksRequest.Read, GetProjectsTargetFrameworksRequest.Write, ReadGetProjectsTargetFrameworksResponseNullable, WriteGetProjectsTargetFrameworksResponseNullable),
+      new RdCall<InstallNuGetPackageRequest, Unit>(InstallNuGetPackageRequest.Read, InstallNuGetPackageRequest.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid),
       new RdCall<StartAspireHostRequest, StartAspireHostResponse>(StartAspireHostRequest.Read, StartAspireHostRequest.Write, StartAspireHostResponse.Read, StartAspireHostResponse.Write),
       new RdCall<StopAspireHostRequest, Unit>(StopAspireHostRequest.Read, StopAspireHostRequest.Write, JetBrains.Rd.Impl.Serializers.ReadVoid, JetBrains.Rd.Impl.Serializers.WriteVoid),
       new RdSignal<string>(JetBrains.Rd.Impl.Serializers.ReadString, JetBrains.Rd.Impl.Serializers.WriteString),
@@ -150,7 +158,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
     public static  CtxWriteDelegate<GetReferencedProjectsFromAppHostResponse> WriteGetReferencedProjectsFromAppHostResponseNullable = GetReferencedProjectsFromAppHostResponse.Write.NullableClass();
     public static  CtxWriteDelegate<GetProjectsTargetFrameworksResponse> WriteGetProjectsTargetFrameworksResponseNullable = GetProjectsTargetFrameworksResponse.Write.NullableClass();
     
-    protected override long SerializationHash => 7036761983117679662L;
+    protected override long SerializationHash => 5948218541917116147L;
     
     protected override Action<ISerializers> Register => RegisterDeclaredTypesSerializers;
     public static void RegisterDeclaredTypesSerializers(ISerializers serializers)
@@ -176,6 +184,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
         printer.Print("referenceServiceDefaultsFromProjects = "); _ReferenceServiceDefaultsFromProjects.PrintEx(printer); printer.Println();
         printer.Print("getReferencedProjectsFromAppHost = "); _GetReferencedProjectsFromAppHost.PrintEx(printer); printer.Println();
         printer.Print("getProjectsTargetFrameworks = "); _GetProjectsTargetFrameworks.PrintEx(printer); printer.Println();
+        printer.Print("installNuGetPackage = "); _InstallNuGetPackage.PrintEx(printer); printer.Println();
         printer.Print("startAspireHost = "); _StartAspireHost.PrintEx(printer); printer.Println();
         printer.Print("stopAspireHost = "); _StopAspireHost.PrintEx(printer); printer.Println();
         printer.Print("unitTestRunCancelled = "); _UnitTestRunCancelled.PrintEx(printer); printer.Println();
@@ -202,7 +211,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:58</p>
+  /// <p>Generated from: AspirePluginModel.kt:64</p>
   /// </summary>
   public sealed class AspireHostEnvironmentVariable : IPrintable, IEquatable<AspireHostEnvironmentVariable>
   {
@@ -296,7 +305,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:96</p>
+  /// <p>Generated from: AspirePluginModel.kt:102</p>
   /// </summary>
   public sealed class AspireRdResource : IPrintable, IEquatable<AspireRdResource>
   {
@@ -449,7 +458,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:130</p>
+  /// <p>Generated from: AspirePluginModel.kt:136</p>
   /// </summary>
   public sealed class AspireRdResourceCommand : IPrintable, IEquatable<AspireRdResourceCommand>
   {
@@ -551,7 +560,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:133</p>
+  /// <p>Generated from: AspirePluginModel.kt:139</p>
   /// </summary>
   public enum AspireRdResourceCommandState {
     Enabled,
@@ -561,7 +570,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:121</p>
+  /// <p>Generated from: AspirePluginModel.kt:127</p>
   /// </summary>
   public enum AspireRdResourceHealthStatus {
     Healthy,
@@ -571,7 +580,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:76</p>
+  /// <p>Generated from: AspirePluginModel.kt:82</p>
   /// </summary>
   public enum AspireRdResourceKind {
     Project,
@@ -589,7 +598,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:100</p>
+  /// <p>Generated from: AspirePluginModel.kt:106</p>
   /// </summary>
   public enum AspireRdResourceState {
     Building,
@@ -608,7 +617,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:114</p>
+  /// <p>Generated from: AspirePluginModel.kt:120</p>
   /// </summary>
   public enum AspireRdResourceStateStyle {
     Success,
@@ -620,7 +629,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:71</p>
+  /// <p>Generated from: AspirePluginModel.kt:77</p>
   /// </summary>
   public enum AspireRdSessionLaunchMode {
     Run,
@@ -629,7 +638,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:90</p>
+  /// <p>Generated from: AspirePluginModel.kt:96</p>
   /// </summary>
   public sealed class ExecuteResourceCommandRequest : IPrintable, IEquatable<ExecuteResourceCommandRequest>
   {
@@ -1076,6 +1085,109 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
       printer.Println("GetReferencedProjectsFromAppHostResponse (");
       using (printer.IndentCookie()) {
         printer.Print("referencedProjectFilePaths = "); ReferencedProjectFilePaths.PrintEx(printer); printer.Println();
+      }
+      printer.Print(")");
+    }
+    //toString
+    public override string ToString()
+    {
+      var printer = new SingleLinePrettyPrinter();
+      Print(printer);
+      return printer.ToString();
+    }
+  }
+  
+  
+  /// <summary>
+  /// <p>Generated from: AspirePluginModel.kt:52</p>
+  /// </summary>
+  public sealed class InstallNuGetPackageRequest : IPrintable, IEquatable<InstallNuGetPackageRequest>
+  {
+    //fields
+    //public fields
+    [NotNull] public JetBrains.Rider.Model.RdPath ProjectFilePath {get; private set;}
+    [NotNull] public string PackageId {get; private set;}
+    [NotNull] public string Version {get; private set;}
+    
+    //private fields
+    //primary constructor
+    public InstallNuGetPackageRequest(
+      [NotNull] JetBrains.Rider.Model.RdPath projectFilePath,
+      [NotNull] string packageId,
+      [NotNull] string version
+    )
+    {
+      if (projectFilePath == null) throw new ArgumentNullException("projectFilePath");
+      if (packageId == null) throw new ArgumentNullException("packageId");
+      if (version == null) throw new ArgumentNullException("version");
+      
+      ProjectFilePath = projectFilePath;
+      PackageId = packageId;
+      Version = version;
+    }
+    //secondary constructor
+    //deconstruct trait
+    public void Deconstruct([NotNull] out JetBrains.Rider.Model.RdPath projectFilePath, [NotNull] out string packageId, [NotNull] out string version)
+    {
+      projectFilePath = ProjectFilePath;
+      packageId = PackageId;
+      version = Version;
+    }
+    //statics
+    
+    public static CtxReadDelegate<InstallNuGetPackageRequest> Read = (ctx, reader) => 
+    {
+      var projectFilePath = JetBrains.Rider.Model.RdPath.Read(ctx, reader);
+      var packageId = reader.ReadString();
+      var version = reader.ReadString();
+      var _result = new InstallNuGetPackageRequest(projectFilePath, packageId, version);
+      return _result;
+    };
+    
+    public static CtxWriteDelegate<InstallNuGetPackageRequest> Write = (ctx, writer, value) => 
+    {
+      JetBrains.Rider.Model.RdPath.Write(ctx, writer, value.ProjectFilePath);
+      writer.Write(value.PackageId);
+      writer.Write(value.Version);
+    };
+    
+    //constants
+    
+    //custom body
+    //methods
+    //equals trait
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() != GetType()) return false;
+      return Equals((InstallNuGetPackageRequest) obj);
+    }
+    public bool Equals(InstallNuGetPackageRequest other)
+    {
+      if (ReferenceEquals(null, other)) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return Equals(ProjectFilePath, other.ProjectFilePath) && PackageId == other.PackageId && Version == other.Version;
+    }
+    //hash code trait
+    public override int GetHashCode()
+    {
+      unchecked {
+        var hash = 0;
+        hash = hash * 31 + ProjectFilePath.GetHashCode();
+        hash = hash * 31 + PackageId.GetHashCode();
+        hash = hash * 31 + Version.GetHashCode();
+        return hash;
+      }
+    }
+    //pretty print
+    public void Print(PrettyPrinter printer)
+    {
+      printer.Println("InstallNuGetPackageRequest (");
+      using (printer.IndentCookie()) {
+        printer.Print("projectFilePath = "); ProjectFilePath.PrintEx(printer); printer.Println();
+        printer.Print("packageId = "); PackageId.PrintEx(printer); printer.Println();
+        printer.Print("version = "); Version.PrintEx(printer); printer.Println();
       }
       printer.Print(")");
     }
@@ -1552,7 +1664,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:52</p>
+  /// <p>Generated from: AspirePluginModel.kt:58</p>
   /// </summary>
   public sealed class StartAspireHostRequest : IPrintable, IEquatable<StartAspireHostRequest>
   {
@@ -1654,7 +1766,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:63</p>
+  /// <p>Generated from: AspirePluginModel.kt:69</p>
   /// </summary>
   public sealed class StartAspireHostResponse : IPrintable, IEquatable<StartAspireHostResponse>
   {
@@ -1741,7 +1853,7 @@ namespace JetBrains.Rider.Aspire.Plugin.Generated
   
   
   /// <summary>
-  /// <p>Generated from: AspirePluginModel.kt:67</p>
+  /// <p>Generated from: AspirePluginModel.kt:73</p>
   /// </summary>
   public sealed class StopAspireHostRequest : IPrintable, IEquatable<StopAspireHostRequest>
   {
