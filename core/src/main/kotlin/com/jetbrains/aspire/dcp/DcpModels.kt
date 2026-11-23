@@ -51,6 +51,19 @@ internal data class ProjectLaunchConfiguration(
 ) : LaunchConfiguration()
 
 @Serializable
+@SerialName("project-with-external-build.v1")
+internal data class ProjectWithExternalBuildLaunchConfiguration(
+    val projectPath: String,
+    val mode: Mode? = null,
+    val launchProfile: String? = null,
+    val disableLaunchProfile: Boolean? = null,
+    val buildConfiguration: String? = null,
+    val buildEnvironment: Map<String, String>? = null,
+    val buildWorkingDirectory: String? = null,
+    val suppressBuild: Boolean = false,
+) : LaunchConfiguration()
+
+@Serializable
 @SerialName("azure-functions")
 internal data class AzureFunctionsLaunchConfiguration(
     val projectPath: String,

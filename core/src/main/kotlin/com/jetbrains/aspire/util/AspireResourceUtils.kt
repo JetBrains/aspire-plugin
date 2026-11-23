@@ -52,7 +52,7 @@ internal fun mapResourceKind(type: String): ResourceKind = when (type) {
 }
 
 internal fun mapLaunchConfigurationType(type: String): ResourceLaunchConfigurationType = when (type) {
-    "project" -> ResourceLaunchConfigurationType.Project
+    "project", "project-with-external-build.v1" -> ResourceLaunchConfigurationType.Project
     "azure-functions" -> ResourceLaunchConfigurationType.AzureFunctions
     else -> ResourceLaunchConfigurationType.Unknown
 }

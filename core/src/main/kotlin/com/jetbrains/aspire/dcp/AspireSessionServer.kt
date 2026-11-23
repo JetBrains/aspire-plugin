@@ -224,6 +224,19 @@ class AspireSessionServer(
                 mapEnvironmentVariables(session),
             )
 
+            is ProjectWithExternalBuildLaunchConfiguration -> ExternalBuildSessionLaunchConfiguration(
+                Path(dcpLaunchConfiguration.projectPath),
+                dcpLaunchConfiguration.mode == Mode.Debug,
+                dcpLaunchConfiguration.launchProfile,
+                dcpLaunchConfiguration.disableLaunchProfile == true,
+                session.args,
+                mapEnvironmentVariables(session),
+                dcpLaunchConfiguration.buildConfiguration,
+                dcpLaunchConfiguration.buildEnvironment,
+                dcpLaunchConfiguration.buildWorkingDirectory?.let { Path(it) },
+                dcpLaunchConfiguration.suppressBuild,
+            )
+
             is AzureFunctionsLaunchConfiguration -> AzureFunctionsSessionLaunchConfiguration(
                 Path(dcpLaunchConfiguration.projectPath),
                 dcpLaunchConfiguration.mode == Mode.Debug,

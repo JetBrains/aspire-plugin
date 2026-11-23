@@ -103,6 +103,20 @@ data class DotNetSessionLaunchConfiguration(
 ) : SessionLaunchConfiguration
 
 @ApiStatus.Internal
+data class ExternalBuildSessionLaunchConfiguration(
+    override val projectPath: Path,
+    override val debug: Boolean,
+    val launchProfile: String?,
+    val disableLaunchProfile: Boolean,
+    override val args: List<String>?,
+    override val envs: List<Pair<String, String>>?,
+    val buildConfiguration: String?,
+    val buildEnvironment: Map<String, String>?,
+    val buildWorkingDirectory: Path?,
+    val suppressBuild: Boolean,
+) : SessionLaunchConfiguration
+
+@ApiStatus.Internal
 data class AzureFunctionsSessionLaunchConfiguration(
     override val projectPath: Path,
     override val debug: Boolean,
