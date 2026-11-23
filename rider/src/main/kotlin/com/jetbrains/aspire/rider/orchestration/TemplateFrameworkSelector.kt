@@ -8,21 +8,83 @@ import org.jetbrains.annotations.ApiStatus
 enum class TemplateFrameworkSelectionStrategy { Lowest, Highest }
 
 private val versionComparator = compareBy<RdVersionInfo>({ it.major }, { it.minor })
+private val nullableVersionComparator = nullsFirst(versionComparator)
 
 /**
- * Selects a .NET framework from [supportedFrameworks] based on [targetFrameworks].
+ * A template found by an ID prefix, along with its `Framework` choices.
  *
- * [TemplateFrameworkSelectionStrategy.Lowest] uses the lowest .NET target version as the upper limit.
- * [TemplateFrameworkSelectionStrategy.Highest] uses the highest. The comparison uses major and minor versions,
- * so a target such as `net10.0-windows` counts as `net10.0`.
+ * [version] is parsed from the template ID suffix (see [parseTemplateIdVersion]).
+ */
+@ApiStatus.Internal
+data class TemplateCandidate(
+    val id: String,
+    val version: RdVersionInfo?,
+    val frameworks: Set<String>,
+)
+
+/**
+ * The result of [selectTemplate]: the ID of the selected template and the `Framework` choice to pass to it.
+ */
+@ApiStatus.Internal
+data class TemplateSelection(
+    val id: String,
+    val framework: String,
+)
+
+/**
+ * Parses the version suffix of [templateId] that follows [templateIdPrefix].
  *
- * Among supported .NET frameworks without a platform suffix, picks the highest version at or below the limit.
- * If all eligible versions are above the limit, picks the lowest one.
+ * For example, `MauiAspire.ServiceDefaults.CSharp.11.0` with the prefix `MauiAspire.ServiceDefaults.CSharp`
+ * gives `11.0`. Returns `null` if there is no suffix or it isn't a version.
+ */
+@ApiStatus.Internal
+fun parseTemplateIdVersion(templateId: String, templateIdPrefix: String): RdVersionInfo? {
+    if (!templateId.startsWith("$templateIdPrefix.")) return null
+
+    val parts = templateId.removePrefix("$templateIdPrefix.").split('.').map { it.toIntOrNull() ?: return null }
+    if (parts.isEmpty() || parts.size > 3) return null
+
+    return RdVersionInfo(parts[0], parts.getOrElse(1) { 0 }, parts.getOrElse(2) { 0 })
+}
+
+/**
+ * Returns the candidate with the highest [TemplateCandidate.version]. Candidates without a version go last.
+ */
+@ApiStatus.Internal
+fun selectLatestTemplate(candidates: List<TemplateCandidate>): TemplateCandidate? =
+    candidates.maxWithOrNull(compareBy(nullableVersionComparator, TemplateCandidate::version))
+
+/**
+ * Selects a template and its `Framework` choice.
  *
- * For targets `net9.0` and `net10.0-windows` and choices `net8.0` and `net10.0`, `Lowest` picks `net8.0`
- * and `Highest` picks `net10.0`.
+ * The framework is selected by [selectTemplateFramework] from the choices of all [candidates].
+ * Then the latest template (see [selectLatestTemplate]) that supports this framework is picked.
  *
- * Returns `null` if there are no recognized .NET target versions or no eligible supported frameworks.
+ * Returns `null` if no framework can be selected.
+ */
+@ApiStatus.Internal
+fun selectTemplate(
+    candidates: List<TemplateCandidate>,
+    targetFrameworks: List<String>,
+    strategy: TemplateFrameworkSelectionStrategy,
+): TemplateSelection? {
+    val supportedFrameworks = candidates.flatMapTo(mutableSetOf()) { it.frameworks }
+    val framework = selectTemplateFramework(targetFrameworks, supportedFrameworks, strategy) ?: return null
+    val template = selectLatestTemplate(candidates.filter { framework in it.frameworks }) ?: return null
+
+    return TemplateSelection(template.id, framework)
+}
+
+/**
+ * Picks a .NET framework for the template.
+ *
+ * 1. Take the lowest or highest .NET version in [targetFrameworks], depending on [strategy].
+ *    Compare only major and minor versions, so `net10.0-windows` counts as `net10.0`.
+ * 2. Look for the matching `netX.Y` in [supportedFrameworks]. If it is missing, pick the newest
+ *    .NET choice at or below that version, considering only choices without a platform suffix.
+ * 3. If all eligible choices are newer, pick the oldest one.
+ *
+ * Returns `null` if there is no recognized .NET target version or no eligible template choice.
  */
 @ApiStatus.Internal
 fun selectTemplateFramework(
@@ -66,7 +128,8 @@ fun isCompatibleWithLibraryFrameworks(
     projectTargetFrameworks: List<String>,
     libraryTargetFrameworks: List<String>,
 ): Boolean {
-    val lowestLibraryVersion = parseNetCoreVersions(libraryTargetFrameworks).minWithOrNull(versionComparator)
+    val lowestLibraryVersion = parseNetCoreVersions(libraryTargetFrameworks)
+        .minWithOrNull(versionComparator)
         ?: return true
 
     return parseNetCoreVersions(projectTargetFrameworks).all {

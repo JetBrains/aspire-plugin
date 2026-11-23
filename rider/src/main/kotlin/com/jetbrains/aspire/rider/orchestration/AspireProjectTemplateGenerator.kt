@@ -116,14 +116,15 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
         val session = RiderProjectTemplateProvider.createSession(createSolution = false)
 
         serviceLifetime.usingNested { lifetime ->
-            val template = findTemplateById(model, session, templateId, lifetime)
-                ?: return@withBackgroundProgress null
+            val templates = findTemplatesById(model, session, templateId, lifetime)
+            if (templates.isEmpty()) return@withBackgroundProgress null
 
-            val templateParameters = if (frameworkSelectionStrategy == null) {
-                emptyMap()
-            } else {
-                selectFrameworkParameter(template, projectPaths, frameworkSelectionStrategy)
-            }
+            val (template, templateParameters) = selectTemplateAndParameters(
+                templateId,
+                templates,
+                projectPaths,
+                frameworkSelectionStrategy
+            )
 
             return@withBackgroundProgress generateProjectFromTemplate(
                 session,
@@ -134,58 +135,96 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
         }
     }
 
-    private suspend fun selectFrameworkParameter(
-        template: RdProjectTemplate,
+    /**
+     * Selects one of the [templates] found by [templateId] and the template parameters for it.
+     *
+     * Several templates can match the same ID, for example, ServiceDefaults templates from MAUI template packs
+     * for different .NET versions. Each of them may support only some frameworks,
+     * so the template is selected together with the `Framework` choice.
+     * If the framework can't be selected, the latest template with its default parameters is used.
+     */
+    private suspend fun selectTemplateAndParameters(
+        templateId: String,
+        templates: List<RdProjectTemplate>,
         projectPaths: List<Path>,
-        strategy: TemplateFrameworkSelectionStrategy
-    ): Map<String, String> {
-        val frameworkOption = template.options
+        strategy: TemplateFrameworkSelectionStrategy?
+    ): Pair<RdProjectTemplate, Map<String, String>> {
+        val templatesByCandidate = templates.associateBy { template ->
+            TemplateCandidate(
+                template.id,
+                parseTemplateIdVersion(template.id, templateId),
+                getFrameworkChoices(template)
+            )
+        }
+        val candidates = templatesByCandidate.keys.toList()
+        val latestCandidate = requireNotNull(selectLatestTemplate(candidates))
+        val latestTemplate = templatesByCandidate.getValue(latestCandidate)
+
+        if (strategy == null) return latestTemplate to emptyMap()
+
+        if (candidates.all { it.frameworks.isEmpty() }) {
+            LOG.info("Template $templateId has no $FRAMEWORK_PARAMETER_NAME choices; using its default")
+            return latestTemplate to emptyMap()
+        }
+
+        val projectTargetFrameworks = getProjectTargetFrameworks(projectPaths)
+        if (projectTargetFrameworks == null) {
+            LOG.info("No target frameworks for template $templateId; using its default")
+            return latestTemplate to emptyMap()
+        }
+
+        val selection = selectTemplate(candidates, projectTargetFrameworks, strategy)
+        if (selection == null) {
+            LOG.info("No matching $FRAMEWORK_PARAMETER_NAME choice for template $templateId; using its default")
+            return latestTemplate to emptyMap()
+        }
+
+        val selectedTemplate = templatesByCandidate.entries.first { it.key.id == selection.id }.value
+        LOG.info("Selected template ${selectedTemplate.id} with $FRAMEWORK_PARAMETER_NAME ${selection.framework}")
+
+        return selectedTemplate to mapOf(FRAMEWORK_PARAMETER_NAME to selection.framework)
+    }
+
+    private fun getFrameworkChoices(template: RdProjectTemplate): Set<String> =
+        template.options
             .filterIsInstance<RdProjectTemplateChoiceOption>()
             .firstOrNull { it.name == FRAMEWORK_PARAMETER_NAME }
-        if (frameworkOption == null) {
-            LOG.info("Template ${template.id} has no $FRAMEWORK_PARAMETER_NAME choice; using its default")
-            return emptyMap()
-        }
+            ?.choices
+            ?.mapTo(mutableSetOf()) { it.name }
+            .orEmpty()
 
-        if (frameworkOption.choices.isEmpty()) {
-            LOG.info("Template ${template.id} has no choices for $FRAMEWORK_PARAMETER_NAME; using its default")
-            return emptyMap()
-        }
-
+    /**
+     * Returns the target frameworks of [projectPaths], or `null` if they can't be obtained or are empty.
+     */
+    private suspend fun getProjectTargetFrameworks(projectPaths: List<Path>): List<String>? {
         val projectTargetFrameworks = try {
             getProjectsTargetFrameworks(project, projectPaths)?.projects?.flatMap { it.targetFrameworks }
-                ?: run {
-                    LOG.info("Unable to get target frameworks for template ${template.id}; using its default")
-                    return emptyMap()
-                }
         } catch (e: Exception) {
             rethrowControlFlowException(e)
-            LOG.info("Unable to get target frameworks for template ${template.id}; using its default", e)
-            return emptyMap()
+            LOG.info("Unable to get target frameworks for projects $projectPaths", e)
+            return null
+        }
+
+        if (projectTargetFrameworks == null) {
+            LOG.info("Unable to get target frameworks for projects $projectPaths")
+            return null
         }
 
         if (projectTargetFrameworks.isEmpty()) {
-            LOG.info("No target frameworks found for template ${template.id}; using its default")
-            return emptyMap()
+            LOG.info("No target frameworks found for projects $projectPaths")
+            return null
         }
 
-        val supportedFrameworks = frameworkOption.choices.mapTo(mutableSetOf()) { it.name }
-        val selectedFramework = selectTemplateFramework(projectTargetFrameworks, supportedFrameworks, strategy)
-        if (selectedFramework == null) {
-            LOG.info("No matching $FRAMEWORK_PARAMETER_NAME choice for template ${template.id}; using its default")
-            return emptyMap()
-        }
-
-        return mapOf(FRAMEWORK_PARAMETER_NAME to selectedFramework)
+        return projectTargetFrameworks
     }
 
-    private suspend fun findTemplateById(
+    private suspend fun findTemplatesById(
         model: ProjectTemplatesModel,
         session: RdProjectTemplateSession,
         templateId: String,
         lifetime: Lifetime
-    ): RdProjectTemplate? {
-        val deferredTemplate = CompletableDeferred<RdProjectTemplate?>()
+    ): List<RdProjectTemplate> {
+        val deferredTemplates = CompletableDeferred<List<RdProjectTemplate>>()
 
         val advisingLifetime = lifetime.createTerminatedAfter(Duration.ofSeconds(30), Dispatchers.Default)
 
@@ -194,26 +233,24 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
                 model.session.set(null)
             }
 
-            if (!deferredTemplate.isCompleted) {
-                deferredTemplate.complete(null)
+            if (!deferredTemplates.isCompleted) {
+                deferredTemplates.complete(emptyList())
             }
         }
 
         session.templatesRaw.adviseNotNullOnce(advisingLifetime) { templates ->
-            val template = templates.filter { it.id.startsWith(templateId) }.maxByOrNull { it.id }
-            deferredTemplate.complete(template)
+            deferredTemplates.complete(templates.filter { it.id.startsWith(templateId) })
         }
 
         withContext(Dispatchers.EDT) {
             model.session.set(session)
         }
 
-        val result = deferredTemplate.await()
+        val result = deferredTemplates.await()
 
-        if (result == null) {
+        if (result.isEmpty()) {
             LOG.warn("Unable to find template: $templateId")
             notifyAboutMissingTemplates()
-            return null
         }
 
         return result

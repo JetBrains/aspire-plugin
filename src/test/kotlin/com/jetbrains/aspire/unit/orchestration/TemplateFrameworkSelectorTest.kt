@@ -1,9 +1,15 @@
 package com.jetbrains.aspire.unit.orchestration
 
 import com.intellij.testFramework.TestApplicationManager
+import com.jetbrains.aspire.rider.orchestration.TemplateCandidate
 import com.jetbrains.aspire.rider.orchestration.TemplateFrameworkSelectionStrategy
+import com.jetbrains.aspire.rider.orchestration.TemplateSelection
 import com.jetbrains.aspire.rider.orchestration.isCompatibleWithLibraryFrameworks
+import com.jetbrains.aspire.rider.orchestration.parseTemplateIdVersion
+import com.jetbrains.aspire.rider.orchestration.selectLatestTemplate
+import com.jetbrains.aspire.rider.orchestration.selectTemplate
 import com.jetbrains.aspire.rider.orchestration.selectTemplateFramework
+import com.jetbrains.rider.model.RdVersionInfo
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -259,5 +265,100 @@ class TemplateFrameworkSelectorTest {
         val result = isCompatibleWithLibraryFrameworks(projectFrameworks, libraryFrameworks)
 
         assertTrue(result)
+    }
+
+    @Test
+    fun `Template ID version suffix is parsed`() {
+        val templateId = "MauiAspire.ServiceDefaults.CSharp.11.0"
+
+        val result = parseTemplateIdVersion(templateId, MAUI_SERVICE_DEFAULTS_TEMPLATE_ID)
+
+        assertEquals(RdVersionInfo(11, 0, 0), result)
+    }
+
+    @Test
+    fun `Template ID without a version suffix has no version`() {
+        val templateId = "MauiAspire.ServiceDefaults.CSharp.Preview"
+
+        val result = parseTemplateIdVersion(templateId, MAUI_SERVICE_DEFAULTS_TEMPLATE_ID)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `Latest template is selected by numeric version`() {
+        val net10Template = TemplateCandidate(NET10_MAUI_TEMPLATE_ID, RdVersionInfo(8, 0, 0), setOf("net10.0"))
+        val net11Template = TemplateCandidate(NET11_MAUI_TEMPLATE_ID, RdVersionInfo(11, 0, 0), setOf("net11.0"))
+        val candidates = listOf(net10Template, net11Template)
+
+        val result = selectLatestTemplate(candidates)
+
+        assertEquals(net11Template, result)
+    }
+
+    @Test
+    fun `Template without a version is not selected as latest`() {
+        val unversionedTemplate = TemplateCandidate("MauiAspire.ServiceDefaults.CSharp", null, setOf("net11.0"))
+        val net10Template = TemplateCandidate(NET10_MAUI_TEMPLATE_ID, RdVersionInfo(8, 0, 0), setOf("net10.0"))
+        val candidates = listOf(unversionedTemplate, net10Template)
+
+        val result = selectLatestTemplate(candidates)
+
+        assertEquals(net10Template, result)
+    }
+
+    @Test
+    fun `Template supporting the project framework is selected among several templates`() {
+        val net10Template = TemplateCandidate(NET10_MAUI_TEMPLATE_ID, RdVersionInfo(8, 0, 0), setOf("net10.0"))
+        val net11Template = TemplateCandidate(NET11_MAUI_TEMPLATE_ID, RdVersionInfo(11, 0, 0), setOf("net11.0"))
+        val candidates = listOf(net10Template, net11Template)
+        val targetFrameworks = listOf("net11.0-android")
+
+        val result = selectTemplate(candidates, targetFrameworks, TemplateFrameworkSelectionStrategy.Lowest)
+
+        assertEquals(TemplateSelection(NET11_MAUI_TEMPLATE_ID, "net11.0"), result)
+    }
+
+    @Test
+    fun `Older template is selected for an older project framework`() {
+        val net10Template = TemplateCandidate(NET10_MAUI_TEMPLATE_ID, RdVersionInfo(8, 0, 0), setOf("net10.0"))
+        val net11Template = TemplateCandidate(NET11_MAUI_TEMPLATE_ID, RdVersionInfo(11, 0, 0), setOf("net11.0"))
+        val candidates = listOf(net10Template, net11Template)
+        val targetFrameworks = listOf("net10.0-android")
+
+        val result = selectTemplate(candidates, targetFrameworks, TemplateFrameworkSelectionStrategy.Lowest)
+
+        assertEquals(TemplateSelection(NET10_MAUI_TEMPLATE_ID, "net10.0"), result)
+    }
+
+    @Test
+    fun `Latest template is selected when several templates support the framework`() {
+        val olderTemplate =
+            TemplateCandidate(NET10_MAUI_TEMPLATE_ID, RdVersionInfo(8, 0, 0), setOf("net10.0"))
+        val newerTemplate =
+            TemplateCandidate(NET11_MAUI_TEMPLATE_ID, RdVersionInfo(11, 0, 0), setOf("net10.0", "net11.0"))
+        val candidates = listOf(olderTemplate, newerTemplate)
+        val targetFrameworks = listOf("net10.0")
+
+        val result = selectTemplate(candidates, targetFrameworks, TemplateFrameworkSelectionStrategy.Lowest)
+
+        assertEquals(TemplateSelection(NET11_MAUI_TEMPLATE_ID, "net10.0"), result)
+    }
+
+    @Test
+    fun `No template is selected for unrecognized project frameworks`() {
+        val net11Template = TemplateCandidate(NET11_MAUI_TEMPLATE_ID, RdVersionInfo(11, 0, 0), setOf("net11.0"))
+        val candidates = listOf(net11Template)
+        val targetFrameworks = listOf("net48")
+
+        val result = selectTemplate(candidates, targetFrameworks, TemplateFrameworkSelectionStrategy.Lowest)
+
+        assertNull(result)
+    }
+
+    private companion object {
+        const val MAUI_SERVICE_DEFAULTS_TEMPLATE_ID = "MauiAspire.ServiceDefaults.CSharp"
+        const val NET10_MAUI_TEMPLATE_ID = "MauiAspire.ServiceDefaults.CSharp.8.0"
+        const val NET11_MAUI_TEMPLATE_ID = "MauiAspire.ServiceDefaults.CSharp.11.0"
     }
 }
