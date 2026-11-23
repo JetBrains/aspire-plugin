@@ -41,7 +41,7 @@ internal class AspireTemplatePackageManager(private val project: Project) {
         val installedVersion = try {
             withTimeoutOrNull(PACKAGE_CHECK_TIMEOUT) {
                 val sessions = AspireProjectTemplateSessionService.getInstance(project)
-                sessions.withSession(useCachedTemplates = true) { session ->
+                sessions.withSession { session ->
                     withContext(Dispatchers.EDT) { getInstalledVersion(session) }
                 }
             }
@@ -75,7 +75,7 @@ internal class AspireTemplatePackageManager(private val project: Project) {
         val result = withBackgroundProgress(project, AspireRiderBundle.message("progress.updating.aspire.templates")) {
             try {
                 val sessions = AspireProjectTemplateSessionService.getInstance(project)
-                sessions.withSession(useCachedTemplates = true) { session ->
+                sessions.withSession { session ->
                     installSupportedVersion(session)
                 } ?: UpdateResult.Failed
             } catch (e: Exception) {

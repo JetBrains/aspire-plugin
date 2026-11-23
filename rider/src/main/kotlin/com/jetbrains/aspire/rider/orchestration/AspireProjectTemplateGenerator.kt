@@ -108,7 +108,7 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
         LOG.info("Generating Aspire project for template: $templateId")
 
         val sessions = AspireProjectTemplateSessionService.getInstance(project)
-        sessions.withSession(useCachedTemplates = false) { session ->
+        sessions.withSession { session ->
             val templates = serviceLifetime.usingNested { lifetime ->
                 findTemplatesById(session, templateId, lifetime)
             }

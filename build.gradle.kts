@@ -182,6 +182,9 @@ tasks {
         systemProperty("intellij.build.test.ignoreFirstAndLastTests", "true")
         // Avoid a Rider test framework teardown race between the lightweight backend and the IntelliJ application
         systemProperty("lightweight.backend.enabled", "false")
+        // Work around the Rider 2026.3.0.1 PSI read-action listener race during test startup.
+        systemProperty("psi.enable.persistent.syntax.tree", "false")
+        systemProperty("psi.enable.persistent.syntax.tree.locking.listener", "false")
         useJUnitPlatform()
         testLogging {
             showStandardStreams = true

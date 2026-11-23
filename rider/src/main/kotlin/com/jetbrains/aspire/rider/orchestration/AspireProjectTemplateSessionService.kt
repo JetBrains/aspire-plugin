@@ -23,12 +23,9 @@ internal class AspireProjectTemplateSessionService(private val project: Project)
 
     private val sessionMutex = Mutex()
 
-    suspend fun <T> withSession(
-        useCachedTemplates: Boolean,
-        action: suspend (RdProjectTemplateSession) -> T,
-    ): T? = sessionMutex.withLock {
+    suspend fun <T> withSession(action: suspend (RdProjectTemplateSession) -> T): T? = sessionMutex.withLock {
         val model = project.protocol.projectTemplatesModel
-        val session = RiderProjectTemplateProvider.createSession(createSolution = false, useCachedTemplates = useCachedTemplates)
+        val session = RiderProjectTemplateProvider.createSession(createSolution = false, useCachedTemplates = false)
         try {
             val attached = withContext(Dispatchers.EDT) {
                 if (model.session.value != null) return@withContext false
