@@ -21,8 +21,8 @@ import com.jetbrains.aspire.otlp.OpenTelemetryProtocolServerExtension
 import com.jetbrains.aspire.rider.run.AspireConfigurationType
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
+import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.run.AspireRunConfigurationManager
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.worker.AspireWorker
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.run.configurations.RunnableProjectKinds
@@ -37,9 +37,9 @@ import java.nio.file.Path
 
 /**
  * An implementation of the [DotNetSessionProcessLauncherExtension] interface that creates a [DotNetExecutable]
- * from a [DotNetSessionLaunchConfiguration] and uses it to create Run/Debug profiles.
+ * from a [SessionProcessLaunchConfiguration] and uses it to create Run/Debug profiles.
  */
-abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtension {
+internal abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtension {
     companion object {
         private val LOG = logger<DotNetSessionProcessLauncher>()
 
@@ -48,7 +48,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
 
     override suspend fun launchRunProcess(
         sessionId: String,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         appHostFile: Path,
@@ -102,7 +102,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
 
     override suspend fun launchDebugProcess(
         sessionId: String,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         appHostFile: Path,
@@ -179,7 +179,7 @@ abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLauncherExtens
     }
 
     protected abstract suspend fun getDotNetExecutable(
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         isDebugSession: Boolean,
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         project: Project,

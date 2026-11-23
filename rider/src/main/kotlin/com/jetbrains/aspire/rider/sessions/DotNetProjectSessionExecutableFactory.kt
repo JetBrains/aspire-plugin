@@ -11,7 +11,6 @@ import com.jetbrains.aspire.rider.launchProfiles.getWorkingDirectory
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.util.MSBuildPropertyService
 import com.jetbrains.aspire.rider.util.getStartBrowserAction
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.model.RunnableProjectKind
@@ -30,7 +29,7 @@ import kotlin.io.path.absolutePathString
  */
 @ApiStatus.Internal
 @Service(Service.Level.PROJECT)
-class DotNetProjectSessionExecutableFactory(private val project: Project) {
+internal class DotNetProjectSessionExecutableFactory(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<DotNetProjectSessionExecutableFactory>()
 
@@ -38,7 +37,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
     }
 
     suspend fun createExecutable(
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         addBrowserAction: Boolean,
         runnableProjectKinds: List<RunnableProjectKind>
@@ -70,7 +69,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
     private suspend fun getExecutableForRunnableProject(
         sessionProjectPath: Path,
         runnableProject: RunnableProject,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {
@@ -123,7 +122,7 @@ class DotNetProjectSessionExecutableFactory(private val project: Project) {
 
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         addBrowserAction: Boolean
     ): Pair<DotNetExecutable, StartBrowserSettings?>? {

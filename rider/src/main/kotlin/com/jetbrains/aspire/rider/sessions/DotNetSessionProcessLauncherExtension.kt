@@ -3,11 +3,10 @@ package com.jetbrains.aspire.rider.sessions
 import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
 import java.nio.file.Path
 
-interface DotNetSessionProcessLauncherExtension {
+internal interface DotNetSessionProcessLauncherExtension {
     companion object {
         private val EP_NAME =
             ExtensionPointName<DotNetSessionProcessLauncherExtension>("com.jetbrains.aspire.dotnetSessionProcessLauncherExtension")
@@ -19,6 +18,9 @@ interface DotNetSessionProcessLauncherExtension {
             }
             return null
         }
+
+        internal fun <T : DotNetSessionProcessLauncherExtension> getLauncher(launcherClass: Class<T>): T =
+            EP_NAME.findExtensionOrFail(launcherClass)
     }
 
     val priority: Int
@@ -27,7 +29,7 @@ interface DotNetSessionProcessLauncherExtension {
 
     suspend fun launchRunProcess(
         sessionId: String,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         appHostFile: Path,
@@ -36,7 +38,7 @@ interface DotNetSessionProcessLauncherExtension {
 
     suspend fun launchDebugProcess(
         sessionId: String,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
         sessionProcessLifetime: Lifetime,
         appHostFile: Path,

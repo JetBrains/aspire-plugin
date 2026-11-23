@@ -5,7 +5,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
+import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.rider.sessions.getExecutableParams
 import com.jetbrains.aspire.rider.sessions.getLaunchProfile
 import com.jetbrains.aspire.rider.sessions.mergeEnvironmentVariables
@@ -28,7 +28,7 @@ internal class ExecutableLibraryExecutableFactory(private val project: Project) 
         private val LOG = logger<ExecutableLibraryExecutableFactory>()
     }
 
-    suspend fun createExecutable(launchConfiguration: DotNetSessionLaunchConfiguration): DotNetExecutable? {
+    suspend fun createExecutable(launchConfiguration: SessionProcessLaunchConfiguration): DotNetExecutable? {
         val sessionProjectPath = launchConfiguration.projectPath
 
         val launchProfile = getLaunchProfile(launchConfiguration, sessionProjectPath, project)

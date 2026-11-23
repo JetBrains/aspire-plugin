@@ -8,7 +8,7 @@ import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
 import java.nio.file.Path
 
-abstract class DotNetRunnableSessionProcessLauncher : DotNetSessionProcessLauncher() {
+internal abstract class DotNetRunnableSessionProcessLauncher : DotNetSessionProcessLauncher() {
     protected abstract val supportedRunnableProjectKinds: List<RunnableProjectKind>
 
     override suspend fun isApplicable(projectPath: Path, project: Project): Boolean {

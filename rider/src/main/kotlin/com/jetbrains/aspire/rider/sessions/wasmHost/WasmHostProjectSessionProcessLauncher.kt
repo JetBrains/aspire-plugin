@@ -7,9 +7,9 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.sessions.DotNetProjectSessionExecutableFactory
+import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.rider.sessions.findRunnableProjectByPath
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionWithHotReloadProcessLauncher
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.model.RunnableProjectKind
 import com.jetbrains.rider.nuget.PackageVersionResolution
@@ -34,7 +34,7 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
 
     override val priority = 3
 
-    @Suppress("UnstableApiUsage")
+    @Suppress("JetBrainsInternalApiUsage")
     override val hotReloadExtension = WasmHostHotReloadConfigurationExtension()
     override val supportedRunnableProjectKinds: List<RunnableProjectKind> = listOf(RunnableProjectKinds.DotNetCore)
 
@@ -90,7 +90,7 @@ internal class WasmHostProjectSessionProcessLauncher : DotNetSessionWithHotReloa
     )
 
     override suspend fun getDotNetExecutable(
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         isDebugSession: Boolean,
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         project: Project,

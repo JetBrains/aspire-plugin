@@ -14,10 +14,11 @@ import java.nio.file.Path
  * An implementation of the `SessionProcessLauncherExtension` interface that modifies created [DotNetExecutable]
  * to apply a Hot Reload mechanism.
  */
-abstract class DotNetSessionWithHotReloadProcessLauncher : DotNetRunnableSessionProcessLauncher() {
-    @Suppress("UnstableApiUsage")
+internal abstract class DotNetSessionWithHotReloadProcessLauncher : DotNetRunnableSessionProcessLauncher() {
+    @Suppress("JetBrainsInternalApiUsage")
     protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
 
+    @Suppress("JetBrainsInternalApiUsage")
     override suspend fun modifyDotNetExecutable(
         executable: DotNetExecutable,
         sessionProjectPath: Path,
@@ -43,12 +44,10 @@ abstract class DotNetSessionWithHotReloadProcessLauncher : DotNetRunnableSession
                 ?.let { it.profiles?.get(launchProfile) }
         } else null
 
-        @Suppress("UnstableApiUsage")
         if (!hotReloadExtension.canExecute(lifetime, hotReloadRunInfo, profile)) {
             return executable to null
         }
 
-        @Suppress("UnstableApiUsage")
         return hotReloadExtension.execute(executable, lifetime, project)
     }
 }

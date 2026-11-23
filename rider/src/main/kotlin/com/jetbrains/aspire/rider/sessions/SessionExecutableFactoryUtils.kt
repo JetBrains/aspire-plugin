@@ -6,7 +6,6 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.model.RunnableProject
 import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
@@ -21,8 +20,8 @@ private const val DOTNET_LAUNCH_PROFILE = "DOTNET_LAUNCH_PROFILE"
 private val LOG = Logger.getInstance("#com.jetbrains.aspire.rider.sessions.SessionExecutableFactoryUtils")
 
 //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
-suspend fun getLaunchProfile(
-    launchConfiguration: DotNetSessionLaunchConfiguration,
+internal suspend fun getLaunchProfile(
+    launchConfiguration: SessionProcessLaunchConfiguration,
     runnableProject: RunnableProject,
     project: Project
 ): LaunchSettingsJson.Profile? {
@@ -37,8 +36,8 @@ suspend fun getLaunchProfile(
 }
 
 //See: https://github.com/dotnet/aspire/blob/main/docs/specs/IDE-execution.md#launch-profile-processing-project-launch-configuration
-suspend fun getLaunchProfile(
-    launchConfiguration: DotNetSessionLaunchConfiguration,
+internal suspend fun getLaunchProfile(
+    launchConfiguration: SessionProcessLaunchConfiguration,
     sessionProjectPath: Path,
     project: Project
 ): LaunchSettingsJson.Profile? {
@@ -52,7 +51,7 @@ suspend fun getLaunchProfile(
     return launchSettings.profiles?.get(launchProfileKey)
 }
 
-private fun getLaunchProfileKey(launchConfiguration: DotNetSessionLaunchConfiguration): String? {
+private fun getLaunchProfileKey(launchConfiguration: SessionProcessLaunchConfiguration): String? {
     if (launchConfiguration.disableLaunchProfile) {
         LOG.trace { "Launch profile disabled" }
         return null

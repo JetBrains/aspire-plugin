@@ -10,6 +10,7 @@ import com.intellij.testFramework.TestApplicationManager
 import com.intellij.testFramework.ExtensionTestUtil
 import com.intellij.testFramework.common.timeoutRunBlocking
 import com.intellij.testFramework.replaceService
+import com.jetbrains.aspire.sessions.AzureFunctionsSessionLaunchConfiguration
 import com.jetbrains.aspire.sessions.CreateSessionResponse
 import com.jetbrains.aspire.sessions.DeleteSessionResponse
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
@@ -291,6 +292,28 @@ internal class AspireSessionServerTest {
             assertTrue(launchConfiguration.disableLaunchProfile)
             assertTrue(launchConfiguration.debug)
             assertEquals(DEFAULT_HOST_ID, request.dcpInstancePrefix)
+            assertEquals(listOf("--x"), launchConfiguration.args)
+            assertEquals(listOf("A" to "1"), launchConfiguration.envs)
+        }
+    }
+
+    @Test
+    fun `create session maps azure-functions launch configuration`() {
+        val sessionManager = MockSessionManager()
+        val expectedProjectPath = Path("/p/Func.csproj")
+        val body = """
+            {"launch_configurations":[{"type":"azure-functions","project_path":"/p/Func.csproj","mode":"Debug"}],
+            "env":[{"name":"A","value":"1"}],"args":["--x"]}
+        """.trimIndent()
+
+        withServer(sessionManager) { baseUrl, server ->
+            val response = httpPut("$baseUrl/run_session", body, checkNotNull(server.endpoint).token)
+
+            response.assertStatus(201)
+            val request = checkNotNull(sessionManager.lastCreateRequest)
+            val launchConfiguration = assertIs<AzureFunctionsSessionLaunchConfiguration>(request.launchConfiguration)
+            assertEquals(expectedProjectPath, launchConfiguration.projectPath)
+            assertTrue(launchConfiguration.debug)
             assertEquals(listOf("--x"), launchConfiguration.args)
             assertEquals(listOf("A" to "1"), launchConfiguration.envs)
         }

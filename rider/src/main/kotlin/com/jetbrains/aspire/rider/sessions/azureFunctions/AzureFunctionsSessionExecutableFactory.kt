@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 package com.jetbrains.aspire.rider.sessions.azureFunctions
 
 import com.intellij.execution.configurations.RunProfile
@@ -13,13 +11,13 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.rider.launchProfiles.getWorkingDirectory
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
+import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.rider.sessions.findByProjectPath
 import com.jetbrains.aspire.rider.sessions.getLaunchProfile
 import com.jetbrains.aspire.rider.sessions.mergeArguments
 import com.jetbrains.aspire.rider.sessions.mergeEnvironmentVariables
 import com.jetbrains.aspire.rider.util.MSBuildPropertyService
 import com.jetbrains.aspire.rider.util.getStartBrowserAction
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rider.azureFunctions.coreTools.AzureFunctionsCoreToolsExecutableService
 import com.jetbrains.rider.azureFunctions.localSettings.AzureFunctionsLocalSettings
@@ -43,6 +41,7 @@ import kotlin.io.path.absolutePathString
 /**
  * Factory class for creating instances of [DotNetExecutable] from a .NET Azure Function project.
  */
+@Suppress("JetBrainsInternalApiUsage")
 @Service(Service.Level.PROJECT)
 internal class AzureFunctionsSessionExecutableFactory(private val project: Project) {
     companion object {
@@ -51,7 +50,7 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
     }
 
     suspend fun createExecutable(
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         aspireRunConfiguration: AspireRiderRunConfiguration?
     ): DotNetExecutable? {
         val sessionProjectPath = launchConfiguration.projectPath
@@ -77,7 +76,7 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
     private suspend fun getExecutableForRunnableProject(
         sessionProjectPath: Path,
         runnableProject: RunnableProject,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         aspireRunConfiguration: AspireRiderRunConfiguration?
     ): DotNetExecutable? {
         val output = runnableProject.projectOutputs.firstOrNull()
@@ -139,7 +138,7 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
 
     private suspend fun getExecutableForExternalProject(
         sessionProjectPath: Path,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         aspireRunConfiguration: AspireRiderRunConfiguration?
     ): DotNetExecutable? {
         val propertyService = MSBuildPropertyService.getInstance(project)

@@ -8,12 +8,12 @@ import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.toNioPathOrNull
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
+import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.rider.sessions.getLaunchProfile
 import com.jetbrains.aspire.rider.sessions.getStartBrowserSettings
 import com.jetbrains.aspire.rider.sessions.mergeArguments
 import com.jetbrains.aspire.rider.sessions.mergeEnvironmentVariables
 import com.jetbrains.aspire.rider.util.getStartBrowserAction
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rider.model.runnableProjectsModel
 import com.jetbrains.rider.projectView.solution
@@ -43,7 +43,7 @@ internal class FileBasedProjectSessionExecutableFactory(private val project: Pro
     }
 
     suspend fun createExecutable(
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         fileBasedProjectPath: Path,
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         addBrowserAction: Boolean

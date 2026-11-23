@@ -50,7 +50,9 @@
         <appHostDetectionExtension implementation="com.jetbrains.aspire.rider.run.RiderAppHostDetectionExtension"/>
 
         <startSessionRequestHandler
-                implementation="com.jetbrains.aspire.rider.sessions.DotNetStartSessionRequestHandler"/>
+                implementation="com.jetbrains.aspire.rider.sessions.sessionHandlers.DotNetStartSessionRequestHandler"/>
+        <startSessionRequestHandler
+                implementation="com.jetbrains.aspire.rider.sessions.sessionHandlers.AzureFunctionsStartSessionRequestHandler"/>
 
         <appHostDebugger implementation="com.jetbrains.aspire.rider.debugger.DotNetAppHostDebuggerExtension"/>
 

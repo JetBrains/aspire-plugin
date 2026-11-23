@@ -1,6 +1,6 @@
 @file:Suppress("LoggingSimilarMessage", "UnstableApiUsage")
 
-package com.jetbrains.aspire.rider.sessions
+package com.jetbrains.aspire.rider.sessions.sessionHandlers
 
 import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.application.EDT
@@ -11,15 +11,20 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.intellij.platform.workspace.jps.serialization.impl.toPath
 import com.intellij.util.application
-import com.jetbrains.aspire.rider.generated.GetReferencedProjectsFromAppHostRequest
-import com.jetbrains.aspire.rider.generated.aspirePluginModel
-import com.jetbrains.aspire.rider.util.DotNetBuildService
-import com.jetbrains.aspire.rider.util.findExistingAppHost
 import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.StartSessionRequestHandler
-import com.jetbrains.aspire.sessions.*
+import com.jetbrains.aspire.rider.generated.GetReferencedProjectsFromAppHostRequest
+import com.jetbrains.aspire.rider.generated.aspirePluginModel
+import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
+import com.jetbrains.aspire.rider.sessions.SessionProcessEventListener
+import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
+import com.jetbrains.aspire.rider.util.DotNetBuildService
+import com.jetbrains.aspire.rider.util.findExistingAppHost
+import com.jetbrains.aspire.sessions.SessionEvent
+import com.jetbrains.aspire.sessions.SessionLaunchMode
+import com.jetbrains.aspire.sessions.SessionLaunchPreferenceService
+import com.jetbrains.aspire.sessions.StartSessionRequest
 import com.jetbrains.aspire.settings.AspireSettings
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
 import com.jetbrains.rd.util.lifetime.isAlive
 import com.jetbrains.rd.util.lifetime.isNotAlive
@@ -32,41 +37,58 @@ import com.jetbrains.rider.model.BuildTarget
 import com.jetbrains.rider.model.SilentMode
 import com.jetbrains.rider.projectView.solution
 import com.jetbrains.rider.projectView.workspace.findProjects
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
 /**
- *  Starting point for handling all dotnet-related Aspire session requests.
+ *  Base for handlers of Aspire session requests that start .NET projects.
  *
- *  The handler could build all the requested projects, detect the type of each project, and then launch them
- *  by using a specific [DotNetSessionProcessLauncherExtension].
+ *  The handler builds all the requested projects and then launches each of them
+ *  with the [com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension] returned by [findLauncher].
  */
-internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
+internal abstract class AbstractDotNetStartSessionRequestHandler : StartSessionRequestHandler {
     companion object {
-        private val LOG = logger<DotNetStartSessionRequestHandler>()
+        private val LOG = logger<AbstractDotNetStartSessionRequestHandler>()
     }
 
-    override val sessionType: String = "project"
+    /**
+     * Converts the launch configuration of the [request] to a [SessionProcessLaunchConfiguration],
+     * or returns `null` if the request isn't supported by this handler.
+     */
+    protected abstract fun toProcessLaunchConfiguration(request: StartSessionRequest): SessionProcessLaunchConfiguration?
 
-    override fun isApplicable(request: StartSessionRequest) =
-        request.launchConfiguration is DotNetSessionLaunchConfiguration
+    /**
+     * Finds a process launcher for the project, or returns `null` if there is no suitable launcher.
+     */
+    protected abstract suspend fun findLauncher(
+        projectPath: Path,
+        project: Project
+    ): DotNetSessionProcessLauncherExtension?
 
     override suspend fun handleRequests(requests: List<StartSessionRequest>, project: Project) {
         LOG.trace { "Received ${requests.size} start session request(s)" }
 
-        val projectPaths = requests
-            .asSequence()
-            .map { it.launchConfiguration }
-            .filterIsInstance<DotNetSessionLaunchConfiguration>()
-            .map { it.projectPath }
+        val launchConfigurations = requests.mapNotNull { request ->
+            val launchConfiguration = toProcessLaunchConfiguration(request)
+            if (launchConfiguration == null) {
+                LOG.warn("Unsupported launch configuration: ${request.launchConfiguration::class.simpleName}")
+                return@mapNotNull null
+            }
+            request to launchConfiguration
+        }
+
+        val projectPaths = launchConfigurations
+            .map { it.second.projectPath }
             .distinct()
-            .toList()
         buildProjects(projectPaths, project)
 
-        requests.forEach {
-            handleStartSessionRequest(it, project)
+        launchConfigurations.forEach { (request, launchConfiguration) ->
+            handleStartSessionRequest(request, launchConfiguration, project)
         }
     }
 
@@ -162,16 +184,14 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         return referencedProjectsResponse.referencedProjectFilePaths.map { it.toNioPath() }
     }
 
-    private fun handleStartSessionRequest(request: StartSessionRequest, project: Project) {
+    private fun handleStartSessionRequest(
+        request: StartSessionRequest,
+        launchConfiguration: SessionProcessLaunchConfiguration,
+        project: Project
+    ) {
         LOG.info("Creating session ${request.sessionId}")
 
-        val launchConfiguration = request.launchConfiguration as? DotNetSessionLaunchConfiguration
-        if (launchConfiguration == null) {
-            LOG.warn("Launch configuration is not a DotNetSessionLaunchConfiguration: ${request.launchConfiguration::class.simpleName}")
-            return
-        }
-
-        logLaunchConfiguration(launchConfiguration)
+        logLaunchConfiguration(launchConfiguration, request.launchConfiguration.debug)
 
         val sessionLifetime = request.sessionLifetime.lifetime
         sessionLifetime.launch {
@@ -182,20 +202,13 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
                 project
             )
 
-            launchSessionProcess(
-                request.sessionId,
-                launchConfiguration,
-                sessionProcessListener,
-                sessionLifetime,
-                request.appHostFile,
-                project
-            )
+            launchSessionProcess(request, launchConfiguration, sessionProcessListener, project)
         }
     }
 
-    private fun logLaunchConfiguration(launchConfiguration: DotNetSessionLaunchConfiguration) {
+    private fun logLaunchConfiguration(launchConfiguration: SessionProcessLaunchConfiguration, debug: Boolean) {
         LOG.trace { "Session project path: ${launchConfiguration.projectPath}" }
-        LOG.trace { "Session debug flag: ${launchConfiguration.debug}" }
+        LOG.trace { "Session debug flag: $debug" }
         LOG.trace { "Session launch profile: ${launchConfiguration.launchProfile}" }
         LOG.trace { "Session disable launch profile flag: ${launchConfiguration.disableLaunchProfile}" }
         LOG.trace { "Session args: ${launchConfiguration.args?.joinToString(", ")}" }
@@ -223,17 +236,23 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
     }
 
     private suspend fun launchSessionProcess(
-        sessionId: String,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        request: StartSessionRequest,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         sessionProcessEventListener: ProcessListener,
-        sessionProcessLifetime: Lifetime,
-        appHostFile: Path,
         project: Project,
     ) {
         LOG.info("Starting a session process for the project ${launchConfiguration.projectPath}")
 
+        val sessionProcessLifetime = request.sessionLifetime.lifetime
         if (sessionProcessLifetime.isNotAlive) {
             LOG.warn("Unable to run project ${launchConfiguration.projectPath} because lifetimes are not alive")
+            return
+        }
+
+        val processLauncher = findLauncher(launchConfiguration.projectPath, project)
+        if (processLauncher == null) {
+            LOG.warn("Unable to find appropriate process launcher for the project ${launchConfiguration.projectPath}")
+            sessionProcessEventListener.processNotStarted()
             return
         }
 
@@ -243,79 +262,27 @@ internal class DotNetStartSessionRequestHandler : StartSessionRequestHandler {
         val shouldDebug = when (preferred) {
             SessionLaunchMode.DEBUG -> true
             SessionLaunchMode.RUN -> false
-            null -> launchConfiguration.debug
+            null -> request.launchConfiguration.debug
         }
 
         if (shouldDebug) {
-            launchDebugProcess(
-                sessionId,
+            processLauncher.launchDebugProcess(
+                request.sessionId,
                 launchConfiguration,
                 sessionProcessEventListener,
                 sessionProcessLifetime,
-                appHostFile,
+                request.appHostFile,
                 project,
             )
         } else {
-            launchRunProcess(
-                sessionId,
+            processLauncher.launchRunProcess(
+                request.sessionId,
                 launchConfiguration,
                 sessionProcessEventListener,
                 sessionProcessLifetime,
-                appHostFile,
+                request.appHostFile,
                 project,
             )
         }
-    }
-
-    private suspend fun launchDebugProcess(
-        sessionId: String,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
-        sessionProcessEventListener: ProcessListener,
-        sessionProcessLifetime: Lifetime,
-        appHostFile: Path,
-        project: Project
-    ) {
-        val processLauncher =
-            DotNetSessionProcessLauncherExtension.getApplicableLauncher(launchConfiguration.projectPath, project)
-        if (processLauncher == null) {
-            LOG.warn("Unable to find appropriate process launcher for the project ${launchConfiguration.projectPath}")
-            sessionProcessEventListener.processNotStarted()
-            return
-        }
-
-        processLauncher.launchDebugProcess(
-            sessionId,
-            launchConfiguration,
-            sessionProcessEventListener,
-            sessionProcessLifetime,
-            appHostFile,
-            project,
-        )
-    }
-
-    private suspend fun launchRunProcess(
-        sessionId: String,
-        launchConfiguration: DotNetSessionLaunchConfiguration,
-        sessionProcessEventListener: ProcessListener,
-        sessionProcessLifetime: Lifetime,
-        appHostFile: Path,
-        project: Project
-    ) {
-        val processLauncher =
-            DotNetSessionProcessLauncherExtension.getApplicableLauncher(launchConfiguration.projectPath, project)
-        if (processLauncher == null) {
-            LOG.warn("Unable to find appropriate process launcher for the project ${launchConfiguration.projectPath}")
-            sessionProcessEventListener.processNotStarted()
-            return
-        }
-
-        processLauncher.launchRunProcess(
-            sessionId,
-            launchConfiguration,
-            sessionProcessEventListener,
-            sessionProcessLifetime,
-            appHostFile,
-            project,
-        )
     }
 }

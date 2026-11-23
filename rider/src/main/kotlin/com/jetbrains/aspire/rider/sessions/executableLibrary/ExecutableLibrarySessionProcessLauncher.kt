@@ -10,8 +10,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.platform.backend.workspace.WorkspaceModel
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
+import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProcessLauncher
-import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.RdProjectDescriptor
@@ -59,7 +59,7 @@ internal class ExecutableLibrarySessionProcessLauncher : DotNetSessionProcessLau
     }
 
     override suspend fun getDotNetExecutable(
-        launchConfiguration: DotNetSessionLaunchConfiguration,
+        launchConfiguration: SessionProcessLaunchConfiguration,
         isDebugSession: Boolean,
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         project: Project,
