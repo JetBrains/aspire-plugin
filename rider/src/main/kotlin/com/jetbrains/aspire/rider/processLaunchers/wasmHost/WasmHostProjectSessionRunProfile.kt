@@ -1,0 +1,35 @@
+package com.jetbrains.aspire.rider.processLaunchers.wasmHost
+
+import com.intellij.execution.Executor
+import com.intellij.execution.process.ProcessListener
+import com.intellij.execution.runners.ExecutionEnvironment
+import com.jetbrains.aspire.rider.processLaunchers.DotNetSessionProfile
+import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.run.aspire.DotNetSessionRunProfileState
+import com.jetbrains.rider.runtime.DotNetExecutable
+import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
+import java.nio.file.Path
+
+internal class WasmHostProjectSessionRunProfile(
+    sessionId: String,
+    projectPath: Path,
+    dotnetExecutable: DotNetExecutable,
+    private val dotnetRuntime: DotNetCoreRuntime,
+    private val sessionProcessEventListener: ProcessListener,
+    private val sessionProcessLifetime: Lifetime,
+    aspireHostProjectPath: Path?
+) : DotNetSessionProfile(sessionId, projectPath, dotnetExecutable, aspireHostProjectPath, false) {
+
+    @Suppress("UnstableApiUsage")
+    override fun getState(
+        executor: Executor,
+        environment: ExecutionEnvironment
+    ) = DotNetSessionRunProfileState(
+        sessionId,
+        dotnetExecutable,
+        dotnetRuntime,
+        environment,
+        sessionProcessEventListener,
+        sessionProcessLifetime
+    )
+}

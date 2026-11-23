@@ -1,8 +1,8 @@
 package com.jetbrains.aspire.rider.sessions.sessionHandlers
 
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
-import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
+import com.jetbrains.aspire.rider.processLaunchers.DotNetSessionProcessLauncherExtension
+import com.jetbrains.aspire.rider.processLaunchers.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.sessions.StartSessionRequest
 import java.nio.file.Path
@@ -11,7 +11,7 @@ import java.nio.file.Path
  *  Handles Aspire session requests with the `project` launch configuration.
  *
  *  The handler detects the type of each project and launches it
- *  by using a specific [com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension].
+ *  by using a specific [DotNetSessionProcessLauncherExtension].
  */
 internal class DotNetStartSessionRequestHandler : AbstractDotNetStartSessionRequestHandler() {
     override val sessionType: String = "project"

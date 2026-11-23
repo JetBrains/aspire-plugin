@@ -6,7 +6,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.service
-import com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
+import com.jetbrains.aspire.rider.processLaunchers.DotNetSessionProfile
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import kotlin.io.path.absolutePathString
@@ -16,7 +16,7 @@ import kotlin.io.path.absolutePathString
  *
  * This allows understanding if a particular session profile was launched under the debugger.
  *
- * @see com.jetbrains.aspire.rider.sessions.projectLaunchers.DotNetSessionProfile
+ * @see DotNetSessionProfile
  */
 @Service(Service.Level.PROJECT)
 internal class SessionProfileModeService(private val project: Project) {

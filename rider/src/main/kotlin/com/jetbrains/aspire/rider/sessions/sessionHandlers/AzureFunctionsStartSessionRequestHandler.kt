@@ -1,9 +1,9 @@
 package com.jetbrains.aspire.rider.sessions.sessionHandlers
 
 import com.intellij.openapi.project.Project
-import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
-import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
-import com.jetbrains.aspire.rider.sessions.azureFunctions.AzureFunctionsSessionProcessLauncher
+import com.jetbrains.aspire.rider.processLaunchers.DotNetSessionProcessLauncherExtension
+import com.jetbrains.aspire.rider.processLaunchers.SessionProcessLaunchConfiguration
+import com.jetbrains.aspire.rider.processLaunchers.azureFunctions.AzureFunctionsSessionProcessLauncher
 import com.jetbrains.aspire.sessions.AzureFunctionsSessionLaunchConfiguration
 import com.jetbrains.aspire.sessions.StartSessionRequest
 import java.nio.file.Path
@@ -11,7 +11,7 @@ import java.nio.file.Path
 /**
  *  Handles Aspire session requests with the `azure-functions` launch configuration.
  *
- *  Every project is launched with [com.jetbrains.aspire.rider.sessions.azureFunctions.AzureFunctionsSessionProcessLauncher], whether it's part of the solution.
+ *  Every project is launched with [AzureFunctionsSessionProcessLauncher], whether it's part of the solution.
  */
 internal class AzureFunctionsStartSessionRequestHandler : AbstractDotNetStartSessionRequestHandler() {
     override val sessionType: String = "azure-functions"

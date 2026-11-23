@@ -15,9 +15,9 @@ import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.extensions.StartSessionRequestHandler
 import com.jetbrains.aspire.rider.generated.GetReferencedProjectsFromAppHostRequest
 import com.jetbrains.aspire.rider.generated.aspirePluginModel
-import com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension
+import com.jetbrains.aspire.rider.processLaunchers.DotNetSessionProcessLauncherExtension
+import com.jetbrains.aspire.rider.processLaunchers.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.rider.sessions.SessionProcessEventListener
-import com.jetbrains.aspire.rider.sessions.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.rider.util.DotNetBuildService
 import com.jetbrains.aspire.rider.util.findExistingAppHost
 import com.jetbrains.aspire.sessions.SessionEvent
@@ -49,7 +49,7 @@ import kotlin.io.path.absolutePathString
  *  Base for handlers of Aspire session requests that start .NET projects.
  *
  *  The handler builds all the requested projects and then launches each of them
- *  with the [com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension] returned by [findLauncher].
+ *  with the [DotNetSessionProcessLauncherExtension] returned by [findLauncher].
  */
 internal abstract class AbstractDotNetStartSessionRequestHandler : StartSessionRequestHandler {
     companion object {
