@@ -13,23 +13,18 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.toNioPathOrNull
 import com.intellij.platform.ide.progress.withBackgroundProgress
-import com.intellij.util.application
 import com.intellij.util.text.UniqueNameGenerator
 import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.rd.platform.util.idea.LifetimedService
 import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.reactive.adviseNotNullOnce
 import com.jetbrains.rd.util.threading.coroutines.createTerminatedAfter
-import com.jetbrains.rider.model.ProjectTemplatesModel
 import com.jetbrains.rider.model.RdProjectTemplate
 import com.jetbrains.rider.model.RdProjectTemplateChoiceOption
 import com.jetbrains.rider.model.RdProjectTemplateSession
-import com.jetbrains.rider.model.projectTemplatesModel
-import com.jetbrains.rider.projectView.projectTemplates.providers.RiderProjectTemplateProvider
 import com.jetbrains.rider.projectView.projectTemplates.utils.ProjectTemplatesExpanderUtils
 import com.jetbrains.rider.projectView.solutionDirectory
 import com.jetbrains.rider.projectView.solutionName
-import com.jetbrains.rider.protocol.protocol
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -112,12 +107,12 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
     ): Path? = withBackgroundProgress(project, AspireRiderBundle.message("progress.generating.aspire.projects")) {
         LOG.info("Generating Aspire project for template: $templateId")
 
-        val model = project.protocol.projectTemplatesModel
-        val session = RiderProjectTemplateProvider.createSession(createSolution = false)
-
-        serviceLifetime.usingNested { lifetime ->
-            val templates = findTemplatesById(model, session, templateId, lifetime)
-            if (templates.isEmpty()) return@withBackgroundProgress null
+        val sessions = AspireProjectTemplateSessionService.getInstance(project)
+        sessions.withSession(useCachedTemplates = false) { session ->
+            val templates = serviceLifetime.usingNested { lifetime ->
+                findTemplatesById(session, templateId, lifetime)
+            }
+            if (templates.isEmpty()) return@withSession null
 
             val (template, templateParameters) = selectTemplateAndParameters(
                 templateId,
@@ -126,7 +121,7 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
                 frameworkSelectionStrategy
             )
 
-            return@withBackgroundProgress generateProjectFromTemplate(
+            generateProjectFromTemplate(
                 session,
                 template,
                 projectSuffix,
@@ -219,7 +214,6 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
     }
 
     private suspend fun findTemplatesById(
-        model: ProjectTemplatesModel,
         session: RdProjectTemplateSession,
         templateId: String,
         lifetime: Lifetime
@@ -229,21 +223,13 @@ internal class AspireProjectTemplateGenerator(private val project: Project) : Li
         val advisingLifetime = lifetime.createTerminatedAfter(Duration.ofSeconds(30), Dispatchers.Default)
 
         advisingLifetime.onTermination {
-            application.invokeLater {
-                model.session.set(null)
-            }
-
-            if (!deferredTemplates.isCompleted) {
-                deferredTemplates.complete(emptyList())
-            }
-        }
-
-        session.templatesRaw.adviseNotNullOnce(advisingLifetime) { templates ->
-            deferredTemplates.complete(templates.filter { it.id.startsWith(templateId) })
+            deferredTemplates.complete(emptyList())
         }
 
         withContext(Dispatchers.EDT) {
-            model.session.set(session)
+            session.templatesRaw.adviseNotNullOnce(advisingLifetime) { templates ->
+                deferredTemplates.complete(templates.filter { it.id.startsWith(templateId) })
+            }
         }
 
         val result = deferredTemplates.await()

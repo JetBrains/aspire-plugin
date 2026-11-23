@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Warning and update action for outdated Aspire project templates when adding orchestration in Rider
+
 ### Changed
 
 - Choose target frameworks for generated Aspire AppHost and ServiceDefaults projects based on the selected projects

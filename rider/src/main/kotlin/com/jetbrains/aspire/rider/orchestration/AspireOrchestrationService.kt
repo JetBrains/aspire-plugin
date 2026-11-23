@@ -78,7 +78,17 @@ class AspireOrchestrationService(private val project: Project) {
      */
     suspend fun addAspireOrchestration(
         projectEntities: List<ProjectModelEntity>,
-    ) = withBackgroundProgress(project, AspireRiderBundle.message("progress.adding.aspire.orchestration")) {
+    ) {
+        withBackgroundProgress(project, AspireRiderBundle.message("progress.adding.aspire.orchestration")) {
+            addOrchestration(projectEntities)
+        }
+
+        AspireTemplatePackageManager
+            .getInstance(project)
+            .notifyIfOutdated()
+    }
+
+    private suspend fun addOrchestration(projectEntities: List<ProjectModelEntity>) {
         val existingAppHostEntity = findExistingAppHost(project)
 
         val appHostEntity = if (existingAppHostEntity != null) {
@@ -91,7 +101,7 @@ class AspireOrchestrationService(private val project: Project) {
 
         if (appHostEntity == null) {
             LOG.warn("Unable to find or generate AppHost project")
-            return@withBackgroundProgress
+            return
         }
 
         val appHostFileWasModified = updateAppHostProject(appHostEntity, projectEntities)
