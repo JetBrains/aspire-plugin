@@ -25,23 +25,67 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.relativeToOrNull
 
 internal abstract class BaseOrchestrationHandler : AspireProjectOrchestrationHandler {
     companion object {
         private val LOG = logger<BaseOrchestrationHandler>()
     }
 
-    protected suspend fun installAppHostPackageIfMissing(
+    /**
+     * The NuGet package that provides the AppHost API for the [supportedProjectTypes].
+     */
+    protected abstract val appHostPackageName: String
+    protected abstract val appHostPackageVersion: String
+
+    /**
+     * Builds the code that registers a project as a resource in the AppHost main file.
+     *
+     * @param resourceName The name of the Aspire resource.
+     * @param relativeProjectPath The project file path relative to the AppHost directory, with `/` separators.
+     */
+    protected abstract fun buildAppHostResourceCode(resourceName: String, relativeProjectPath: String): String
+
+    final override suspend fun modifyAppHost(
+        appHostEntity: ProjectModelEntity,
+        projectEntities: List<ProjectModelEntity>,
+        project: Project
+    ): List<String> {
+        val appHostProjectPath = appHostEntity.url?.toPath()
+        if (appHostProjectPath == null) {
+            LOG.warn("Unable to find AppHost project path. Skipping project registration")
+            return emptyList()
+        }
+
+        installAppHostPackageIfMissing(project, appHostEntity, appHostProjectPath)
+
+        val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
+
+        return buildList {
+            for (projectPath in projectPaths.sortedBy { it.nameWithoutExtension }) {
+                val projectName = projectPath.nameWithoutExtension
+                val projectResourceName = projectName.replace('.', '-').lowercase()
+                val relativeProjectPath = projectPath.relativeToOrNull(appHostProjectPath.parent)
+                if (relativeProjectPath == null) {
+                    LOG.warn("Unable to find a path from the AppHost to the project: $projectPath")
+                    continue
+                }
+
+                add(buildAppHostResourceCode(projectResourceName, relativeProjectPath.invariantSeparatorsPathString))
+            }
+        }
+    }
+
+    private suspend fun installAppHostPackageIfMissing(
         project: Project,
         appHostEntity: ProjectModelEntity,
         appHostProjectPath: Path,
-        packageName: String,
-        packageVersion: String,
     ) {
-        if (isNuGetPackageInstalled(packageName, appHostEntity, project) != false) return
+        if (isNuGetPackageInstalled(appHostPackageName, appHostEntity, project) != false) return
 
-        val request = InstallNuGetPackageRequest(appHostProjectPath.toRd(), packageName, packageVersion)
+        val request = InstallNuGetPackageRequest(appHostProjectPath.toRd(), appHostPackageName, appHostPackageVersion)
         withContext(Dispatchers.EDT) {
             project.solution.aspirePluginModel.installNuGetPackage.startSuspending(request)
         }

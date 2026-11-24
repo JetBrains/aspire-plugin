@@ -11,9 +11,6 @@ import com.jetbrains.rider.model.RdProjectType
 import com.jetbrains.rider.projectView.workspace.ProjectModelEntity
 import com.jetbrains.rider.projectView.workspace.findProjects
 import java.nio.file.Path
-import kotlin.io.path.invariantSeparatorsPathString
-import kotlin.io.path.nameWithoutExtension
-import kotlin.io.path.relativeToOrNull
 
 internal class MauiProjectOrchestrationHandler : BaseOrchestrationHandler() {
     companion object {
@@ -26,48 +23,11 @@ internal class MauiProjectOrchestrationHandler : BaseOrchestrationHandler() {
     override val requiresProjectReference = false
     override val supportedProjectTypes = listOf(RdProjectType.MAUI)
 
-    override suspend fun modifyAppHost(
-        appHostEntity: ProjectModelEntity,
-        projectEntities: List<ProjectModelEntity>,
-        project: Project
-    ): List<String> {
-        val appHostProjectPath = appHostEntity.url?.toPath()
-        if (appHostProjectPath == null) {
-            LOG.warn("Unable to find AppHost project path. Skipping Maui nuget installation")
-            return emptyList()
-        }
+    override val appHostPackageName = MAUI_HOSTING_PACKAGE_NAME
+    override val appHostPackageVersion = MAUI_HOSTING_PACKAGE_VERSION
 
-        installAppHostPackageIfMissing(
-            project,
-            appHostEntity,
-            appHostProjectPath,
-            MAUI_HOSTING_PACKAGE_NAME,
-            MAUI_HOSTING_PACKAGE_VERSION,
-        )
-
-        val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
-
-        return buildList {
-            for (projectPath in projectPaths.sortedBy { it.nameWithoutExtension }) {
-                val projectName = projectPath.nameWithoutExtension
-                val projectResourceName = projectName.replace('.', '-').lowercase()
-                val relativeProjectPath = projectPath.relativeToOrNull(appHostProjectPath.parent)
-                if (relativeProjectPath == null) {
-                    LOG.warn("Unable to find a path from the AppHost to the .NET MAUI project: $projectPath")
-                    continue
-                }
-
-                val line = buildString {
-                    append("builder.AddMauiProject(\"")
-                    append(projectResourceName)
-                    append("\", \"")
-                    append(relativeProjectPath.invariantSeparatorsPathString)
-                    append("\");")
-                }
-                add(line)
-            }
-        }
-    }
+    override fun buildAppHostResourceCode(resourceName: String, relativeProjectPath: String) =
+        "builder.AddMauiProject(\"$resourceName\", \"$relativeProjectPath\");"
 
     override suspend fun findExistingServiceDefaults(project: Project): Path? {
         val dotnetProjects = project.serviceAsync<WorkspaceModel>().findProjects()
