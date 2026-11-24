@@ -64,8 +64,11 @@ class AspireAppHost(
 
     private val resourceClient = MutableStateFlow<AspireResourceClient?>(null)
     private val resourceTreeManager = ResourceTreeManager(project, cs, this, resourceClient)
+
     override val rootResources: StateFlow<List<AspireResource>>
         get() = resourceTreeManager.rootResources
+    val projectResources: StateFlow<Map<Path, List<AspireResource>>>
+        get() = resourceTreeManager.projectResources
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val aspireDashboardUrl: StateFlow<String?> = rootResources

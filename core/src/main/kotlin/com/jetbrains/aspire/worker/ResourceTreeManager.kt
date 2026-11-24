@@ -23,6 +23,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.ApiStatus
+import java.nio.file.InvalidPathException
+import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
@@ -43,6 +45,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * All resource mutation methods are called exclusively from the resource collection coroutine,
  * so they are inherently single-threaded and do not require additional synchronization.
  * Plain [HashMap] is used instead of [java.util.concurrent.ConcurrentHashMap].
+ * State read from other threads ([rootResources], [projectResources]) is published as immutable snapshots.
  */
 @ApiStatus.Internal
 class ResourceTreeManager(
@@ -64,6 +67,9 @@ class ResourceTreeManager(
 
     private val _rootResources = MutableStateFlow<List<AspireResource>>(emptyList())
     val rootResources: StateFlow<List<AspireResource>> = _rootResources.asStateFlow()
+
+    private val _projectResources = MutableStateFlow<Map<Path, List<AspireResource>>>(emptyMap())
+    val projectResources: StateFlow<Map<Path, List<AspireResource>>> = _projectResources.asStateFlow()
 
     init {
         cs.launch {
@@ -166,6 +172,7 @@ class ResourceTreeManager(
         Disposer.register(parentDisposable, resource)
 
         resources[resource.resourceName] = resource
+        addProjectResource(resource, resource.data.value.projectFilePath())
 
         attachResource(resource)
 
@@ -177,7 +184,13 @@ class ResourceTreeManager(
     }
 
     private suspend fun updateResource(resource: AspireResource, data: AspireResourceData) {
+        val oldProjectFilePath = resource.data.value.projectFilePath()
         resource.update(data)
+        val newProjectFilePath = data.projectFilePath()
+        if (oldProjectFilePath != newProjectFilePath) {
+            removeProjectResource(resource, oldProjectFilePath)
+            addProjectResource(resource, newProjectFilePath)
+        }
 
         withContext(uiDispatcher) {
             project.messageBus.syncPublisher(ResourceListener.TOPIC).resourceUpdated(resource)
@@ -188,6 +201,7 @@ class ResourceTreeManager(
         if (!resources.containsKey(resource.resourceName)) return
 
         resources.remove(resource.resourceName)
+        removeProjectResource(resource, resource.data.value.projectFilePath())
 
         detachFromParent(resource)
 
@@ -259,6 +273,45 @@ class ResourceTreeManager(
 
     private fun removeRootResource(resource: AspireResource) {
         _rootResources.update { it - resource }
+    }
+
+    private fun addProjectResource(resource: AspireResource, projectFilePath: Path?) {
+        if (projectFilePath == null) return
+
+        val current = _projectResources.value
+        val resourcesWithPath = current[projectFilePath].orEmpty()
+        if (resource in resourcesWithPath) return
+
+        _projectResources.value = buildMap {
+            putAll(current)
+            put(projectFilePath, resourcesWithPath + resource)
+        }
+    }
+
+    private fun removeProjectResource(resource: AspireResource, projectFilePath: Path?) {
+        if (projectFilePath == null) return
+
+        val current = _projectResources.value
+        val resourcesWithPath = current[projectFilePath] ?: return
+        val remainingResources = resourcesWithPath - resource
+
+        _projectResources.value = buildMap {
+            putAll(current)
+            if (remainingResources.isEmpty()) remove(projectFilePath)
+            else put(projectFilePath, remainingResources)
+        }
+    }
+
+    private fun AspireResourceData.projectFilePath(): Path? {
+        if (kind != ResourceKind.Project) return null
+        val path = projectPath?.value ?: return null
+
+        return try {
+            path.toNioPath()
+        } catch (e: InvalidPathException) {
+            LOG.trace { "Unable to parse the project path ${path.value} of the resource $name: ${e.message}" }
+            null
+        }
     }
 
     private fun addPendingChild(parentName: String, childResourceName: String) {

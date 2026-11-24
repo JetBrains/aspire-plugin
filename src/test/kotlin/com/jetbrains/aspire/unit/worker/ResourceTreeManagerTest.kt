@@ -30,6 +30,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import kotlin.io.path.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotSame
@@ -38,6 +39,11 @@ import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ResourceTreeManagerTest {
+    companion object {
+        private const val API_PROJECT_PATH = "/solution/Api/Api.csproj"
+        private const val WEB_PROJECT_PATH = "/solution/Web/Web.csproj"
+    }
+
     private lateinit var testRootDisposable: Disposable
 
     private val project get() = ProjectManager.getInstance().defaultProject
@@ -570,6 +576,103 @@ internal class ResourceTreeManagerTest {
 
     // endregion
 
+    // region Project Resources
+
+    @Test
+    fun `project resource is indexed by its project path`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resource = buildResource("api", "API", projectPath = API_PROJECT_PATH)
+        val update = buildUpsertUpdate(listOf(resource))
+
+        client.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+
+        val storedResource = manager.rootResources.value.single()
+        val expected = mapOf(Path(API_PROJECT_PATH) to listOf(storedResource))
+        assertEquals(expected, manager.projectResources.value)
+    }
+
+    @Test
+    fun `non-project resource with a project path is not indexed`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resource = buildResource("api", "API", resourceType = "Executable", projectPath = API_PROJECT_PATH)
+        val update = buildUpsertUpdate(listOf(resource))
+
+        client.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+
+        assertEquals(1, manager.rootResources.value.size)
+        assertTrue(manager.projectResources.value.isEmpty())
+    }
+
+    @Test
+    fun `project path change moves resource in the index`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resource = buildResource("api", "API", projectPath = API_PROJECT_PATH)
+        val createUpdate = buildUpsertUpdate(listOf(resource))
+        client.resourceUpdates.emit(createUpdate)
+        testScheduler.runCurrent()
+        val movedResource = buildResource("api", "API", projectPath = WEB_PROJECT_PATH)
+        val moveUpdate = buildUpsertUpdate(listOf(movedResource))
+
+        client.resourceUpdates.emit(moveUpdate)
+        testScheduler.runCurrent()
+
+        val storedResource = manager.rootResources.value.single()
+        val expected = mapOf(Path(WEB_PROJECT_PATH) to listOf(storedResource))
+        assertEquals(expected, manager.projectResources.value)
+    }
+
+    @Test
+    fun `deleting one of the resources with the same project path keeps the other one indexed`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val firstReplica = buildResource("api-1", "API", projectPath = API_PROJECT_PATH)
+        val secondReplica = buildResource("api-2", "API", projectPath = API_PROJECT_PATH)
+        val createUpdate = buildUpsertUpdate(listOf(firstReplica, secondReplica))
+        client.resourceUpdates.emit(createUpdate)
+        testScheduler.runCurrent()
+        val deleteUpdate = buildDeleteUpdate(listOf(firstReplica))
+
+        client.resourceUpdates.emit(deleteUpdate)
+        testScheduler.runCurrent()
+
+        val storedResource = manager.rootResources.value.single()
+        assertEquals(secondReplica.name, storedResource.resourceName)
+        val expected = mapOf(Path(API_PROJECT_PATH) to listOf(storedResource))
+        assertEquals(expected, manager.projectResources.value)
+    }
+
+    @Test
+    fun `removing the client clears the project resource index`() = runTest {
+        val client = MockAspireResourceClient()
+        val resourceClient = MutableStateFlow<AspireResourceClient?>(client)
+        val manager = createResourceTreeManager(resourceClient)
+        testScheduler.runCurrent()
+        val resource = buildResource("api", "API", projectPath = API_PROJECT_PATH)
+        val update = buildUpsertUpdate(listOf(resource))
+        client.resourceUpdates.emit(update)
+        testScheduler.runCurrent()
+
+        resourceClient.value = null
+        testScheduler.runCurrent()
+
+        assertTrue(manager.projectResources.value.isEmpty())
+    }
+
+    // endregion
+
     // region MessageBus Events
 
     @Test
@@ -827,6 +930,7 @@ internal class ResourceTreeManagerTest {
         state: String = "Running",
         isHidden: Boolean = false,
         parentName: String? = null,
+        projectPath: String? = null,
     ): Resource {
         val builder = Resource.newBuilder()
             .setName(name)
@@ -835,6 +939,15 @@ internal class ResourceTreeManagerTest {
             .setUid("uid-$name")
             .setState(state)
             .setIsHidden(isHidden)
+
+        if (projectPath != null) {
+            val projectPathValue = Value.newBuilder().setStringValue(projectPath).build()
+            val projectPathProperty = ResourceProperty.newBuilder()
+                .setName("project.path")
+                .setValue(projectPathValue)
+                .build()
+            builder.addProperties(projectPathProperty)
+        }
 
         if (parentName != null) {
             val parentValue = Value.newBuilder().setStringValue(parentName).build()

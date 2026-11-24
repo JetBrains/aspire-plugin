@@ -2,7 +2,6 @@ package com.jetbrains.aspire.util
 
 import com.jetbrains.aspire.worker.*
 import org.jetbrains.annotations.ApiStatus
-import java.nio.file.Path
 
 @ApiStatus.Internal
 fun AspireAppHost.getAllResources(): List<AspireResource> =
@@ -14,15 +13,6 @@ private fun AspireResource.withDescendants(): List<AspireResource> =
 @ApiStatus.Internal
 fun AspireAppHost.findResource(predicate: (AspireResource) -> Boolean): AspireResource? =
     rootResources.value.findInTree(predicate)
-
-@ApiStatus.Internal
-fun AspireWorker.findProjectResource(projectPath: Path): AspireResource? =
-    appHosts.value.firstNotNullOfOrNull { host ->
-        host.findResource {
-            val data = it.data.value
-            data.kind == ResourceKind.Project && data.projectPath?.value?.toNioPath() == projectPath
-        }
-    }
 
 private fun List<AspireResource>.findInTree(predicate: (AspireResource) -> Boolean): AspireResource? {
     for (resource in this) {

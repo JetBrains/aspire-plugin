@@ -44,6 +44,7 @@
                                 listener="com.jetbrains.aspire.rider.resources.RiderResourceProtocolListener"/>
         <stepsBeforeRunProvider implementation="com.jetbrains.aspire.rider.run.file.BuildAspireFileBeforeRunTaskProvider"/>
         <uiDataRule implementation="com.jetbrains.aspire.rider.actions.dashboard.resource.AspireProjectResourceUiDataRule"/>
+        <uiDataRule implementation="com.jetbrains.aspire.rider.actions.dashboard.host.AspireAppHostUiDataRule"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.jetbrains.aspire">
