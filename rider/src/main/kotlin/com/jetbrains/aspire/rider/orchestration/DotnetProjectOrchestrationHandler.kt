@@ -9,9 +9,9 @@ import kotlin.io.path.invariantSeparatorsPathString
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.relativeToOrNull
 
-internal class DefaultProjectOrchestrationHandler : BaseOrchestrationHandler() {
+internal class DotnetProjectOrchestrationHandler : BaseOrchestrationHandler() {
     companion object {
-        private val LOG = logger<DefaultProjectOrchestrationHandler>()
+        private val LOG = logger<DotnetProjectOrchestrationHandler>()
     }
 
     override val priority = 0
@@ -33,6 +33,14 @@ internal class DefaultProjectOrchestrationHandler : BaseOrchestrationHandler() {
             LOG.warn("Unable to find AppHost project path. Skipping .NET project registration")
             return emptyList()
         }
+
+        installAppHostPackageIfMissing(
+            project,
+            appHostEntity,
+            appHostProjectPath,
+            DOTNET_HOSTING_PACKAGE_NAME,
+            DOTNET_HOSTING_PACKAGE_VERSION,
+        )
 
         val projectPaths = projectEntities.mapNotNull { it.url?.toPath() }
 
