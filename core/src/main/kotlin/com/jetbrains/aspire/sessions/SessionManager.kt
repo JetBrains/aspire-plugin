@@ -85,14 +85,41 @@ data class DeleteSessionResponse(
 )
 
 @ApiStatus.Internal
-sealed interface SessionLaunchConfiguration
+sealed interface SessionLaunchConfiguration {
+    val projectPath: Path
+    val debug: Boolean
+    val args: List<String>?
+    val envs: List<Pair<String, String>>?
+}
 
 @ApiStatus.Internal
 data class DotNetSessionLaunchConfiguration(
-    val projectPath: Path,
-    val debug: Boolean,
+    override val projectPath: Path,
+    override val debug: Boolean,
     val launchProfile: String?,
     val disableLaunchProfile: Boolean,
-    val args: List<String>?,
-    val envs: List<Pair<String, String>>?
+    override val args: List<String>?,
+    override val envs: List<Pair<String, String>>?
+) : SessionLaunchConfiguration
+
+@ApiStatus.Internal
+data class ExternalBuildSessionLaunchConfiguration(
+    override val projectPath: Path,
+    override val debug: Boolean,
+    val launchProfile: String?,
+    val disableLaunchProfile: Boolean,
+    override val args: List<String>?,
+    override val envs: List<Pair<String, String>>?,
+    val buildConfiguration: String?,
+    val buildEnvironment: Map<String, String>?,
+    val buildWorkingDirectory: Path?,
+    val suppressBuild: Boolean,
+) : SessionLaunchConfiguration
+
+@ApiStatus.Internal
+data class AzureFunctionsSessionLaunchConfiguration(
+    override val projectPath: Path,
+    override val debug: Boolean,
+    override val args: List<String>?,
+    override val envs: List<Pair<String, String>>?
 ) : SessionLaunchConfiguration

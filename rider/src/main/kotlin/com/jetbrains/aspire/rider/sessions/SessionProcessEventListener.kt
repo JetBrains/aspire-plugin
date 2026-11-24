@@ -34,7 +34,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * The handler is the only place where the process output and termination are processed.
  */
 @ApiStatus.Internal
-class SessionProcessEventListener(
+internal class SessionProcessEventListener(
     private val sessionId: String,
     private val sessionEvents: Channel<SessionEvent>,
     parentLifetime: Lifetime,

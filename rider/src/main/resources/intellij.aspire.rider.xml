@@ -16,7 +16,7 @@
 
     <extensionPoints>
         <extensionPoint qualifiedName="com.jetbrains.aspire.dotnetSessionProcessLauncherExtension"
-                        interface="com.jetbrains.aspire.rider.sessions.DotNetSessionProcessLauncherExtension"
+                        interface="com.jetbrains.aspire.rider.processLaunchers.DotNetSessionProcessLauncherExtension"
                         dynamic="true"/>
         <extensionPoint qualifiedName="com.jetbrains.aspire.projectOrchestrationHandler"
                         interface="com.jetbrains.aspire.rider.orchestration.AspireProjectOrchestrationHandler"
@@ -51,20 +51,26 @@
         <appHostDetectionExtension implementation="com.jetbrains.aspire.rider.run.RiderAppHostDetectionExtension"/>
 
         <startSessionRequestHandler
-                implementation="com.jetbrains.aspire.rider.sessions.DotNetStartSessionRequestHandler"/>
+                implementation="com.jetbrains.aspire.rider.sessions.sessionHandlers.DotNetStartSessionRequestHandler"/>
+        <startSessionRequestHandler
+                implementation="com.jetbrains.aspire.rider.sessions.sessionHandlers.ProjectWithExternalBuildStartSessionRequestHandler"/>
+        <startSessionRequestHandler
+                implementation="com.jetbrains.aspire.rider.sessions.sessionHandlers.AzureFunctionsStartSessionRequestHandler"/>
 
         <appHostDebugger implementation="com.jetbrains.aspire.rider.debugger.DotNetAppHostDebuggerExtension"/>
 
         <dotnetSessionProcessLauncherExtension
-                implementation="com.jetbrains.aspire.rider.sessions.wasmHost.WasmHostProjectSessionProcessLauncher"/>
+                implementation="com.jetbrains.aspire.rider.processLaunchers.wasmHost.WasmHostProjectSessionProcessLauncher"/>
         <dotnetSessionProcessLauncherExtension
-                implementation="com.jetbrains.aspire.rider.sessions.dotnetProject.DotNetProjectSessionProcessLauncher"/>
+                implementation="com.jetbrains.aspire.rider.processLaunchers.dotnetProject.DotNetProjectSessionProcessLauncher"/>
         <dotnetSessionProcessLauncherExtension
-                implementation="com.jetbrains.aspire.rider.sessions.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
+                implementation="com.jetbrains.aspire.rider.processLaunchers.executableLibrary.ExecutableLibrarySessionProcessLauncher"/>
         <dotnetSessionProcessLauncherExtension
-                implementation="com.jetbrains.aspire.rider.sessions.fileBasedProject.FileBasedProjectSessionProcessLauncher"/>
+                implementation="com.jetbrains.aspire.rider.processLaunchers.fileBasedProject.FileBasedProjectSessionProcessLauncher"/>
         <dotnetSessionProcessLauncherExtension
-                implementation="com.jetbrains.aspire.rider.sessions.azureFunctions.AzureFunctionsSessionProcessLauncher"/>
+                implementation="com.jetbrains.aspire.rider.processLaunchers.azureFunctions.AzureFunctionsSessionProcessLauncher"/>
+        <dotnetSessionProcessLauncherExtension
+                implementation="com.jetbrains.aspire.rider.processLaunchers.externalBuild.ExternalBuildSessionProcessLauncher"/>
 
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.DotnetProjectOrchestrationHandler"/>
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.MauiProjectOrchestrationHandler"/>

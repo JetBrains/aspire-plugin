@@ -67,7 +67,9 @@ internal class AspireHostExecutorFactory(
             ?: throw CantRunException("Profile ${parameters.profileName} not found")
 
         val projectFilePath = Path(parameters.projectFilePath)
-        val executable = getDotNetExecutable(projectFilePath, runnableProject, projectOutput, profile, activeRuntime)
+        val debugExecutor = executorId == DefaultDebugExecutor.EXECUTOR_ID
+        val executable =
+            getDotNetExecutable(projectFilePath, runnableProject, projectOutput, profile, activeRuntime, debugExecutor)
 
         return when (executorId) {
             DefaultRunExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
@@ -81,7 +83,8 @@ internal class AspireHostExecutorFactory(
         runnableProject: RunnableProject,
         projectOutput: ProjectOutput,
         launchProfile: LaunchProfile,
-        activeRuntime: DotNetCoreRuntime
+        activeRuntime: DotNetCoreRuntime,
+        debugExecutor: Boolean,
     ): DotNetExecutable {
         val effectiveArguments =
             if (parameters.trackArguments) getArguments(launchProfile.content, projectOutput)
@@ -94,7 +97,7 @@ internal class AspireHostExecutorFactory(
         val effectiveEnvs =
             if (parameters.trackEnvs) getEnvironmentVariables(launchProfile.name, launchProfile.content).toMutableMap()
             else parameters.envs.toMutableMap()
-        putAdditionalEnvironmentVariables(effectiveEnvs, projectFilePath, activeRuntime)
+        putAdditionalEnvironmentVariables(effectiveEnvs, projectFilePath, activeRuntime, debugExecutor)
 
         var effectiveUrl =
             if (parameters.trackUrl) getApplicationUrl(launchProfile.content)

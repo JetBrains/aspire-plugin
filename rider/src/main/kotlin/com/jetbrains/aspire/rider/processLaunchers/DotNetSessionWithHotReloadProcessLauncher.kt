@@ -1,0 +1,53 @@
+package com.jetbrains.aspire.rider.processLaunchers
+
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.runners.ProgramRunner
+import com.intellij.openapi.project.Project
+import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.run.aspire.AspireProjectHotReloadConfigurationExtension
+import com.jetbrains.rider.run.configurations.RuntimeHotReloadRunConfigurationInfo
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJsonService
+import com.jetbrains.rider.runtime.DotNetExecutable
+import java.nio.file.Path
+
+/**
+ * An implementation of the `SessionProcessLauncherExtension` interface that modifies created [DotNetExecutable]
+ * to apply a Hot Reload mechanism.
+ */
+internal abstract class DotNetSessionWithHotReloadProcessLauncher : DotNetRunnableSessionProcessLauncher() {
+    @Suppress("JetBrainsInternalApiUsage")
+    protected abstract val hotReloadExtension: AspireProjectHotReloadConfigurationExtension
+
+    @Suppress("JetBrainsInternalApiUsage")
+    override suspend fun modifyDotNetExecutable(
+        executable: DotNetExecutable,
+        sessionProjectPath: Path,
+        launchProfile: String?,
+        lifetime: Lifetime,
+        project: Project
+    ): Pair<DotNetExecutable, ProgramRunner.Callback?> {
+        val runnableProject = findSupportedRunnableProjectByPath(sessionProjectPath, project)
+            ?: return executable to null
+
+        val hotReloadRunInfo = RuntimeHotReloadRunConfigurationInfo(
+            DefaultRunExecutor.EXECUTOR_ID,
+            project,
+            runnableProject,
+            executable.projectTfm,
+            null
+        )
+
+        val profile = if (!launchProfile.isNullOrEmpty()) {
+            LaunchSettingsJsonService
+                .getInstance(project)
+                .loadLaunchSettingsSuspend(runnableProject)
+                ?.let { it.profiles?.get(launchProfile) }
+        } else null
+
+        if (!hotReloadExtension.canExecute(lifetime, hotReloadRunInfo, profile)) {
+            return executable to null
+        }
+
+        return hotReloadExtension.execute(executable, lifetime, project)
+    }
+}

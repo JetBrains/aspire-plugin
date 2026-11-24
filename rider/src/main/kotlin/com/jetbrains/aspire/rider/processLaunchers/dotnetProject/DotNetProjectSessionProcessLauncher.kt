@@ -1,0 +1,94 @@
+package com.jetbrains.aspire.rider.processLaunchers.dotnetProject
+
+import com.intellij.execution.process.ProcessListener
+import com.intellij.ide.browsers.StartBrowserSettings
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.project.Project
+import com.jetbrains.aspire.rider.processLaunchers.DotNetProjectSessionExecutableFactory
+import com.jetbrains.aspire.rider.processLaunchers.DotNetSessionWithHotReloadProcessLauncher
+import com.jetbrains.aspire.rider.processLaunchers.SessionExecutable
+import com.jetbrains.aspire.rider.processLaunchers.SessionProcessLaunchConfiguration
+import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
+import com.jetbrains.rd.util.lifetime.Lifetime
+import com.jetbrains.rider.model.RunnableProjectKind
+import com.jetbrains.rider.run.aspire.DotNetProjectHotReloadConfigurationExtension
+import com.jetbrains.rider.run.configurations.RunnableProjectKinds
+import com.jetbrains.rider.runtime.DotNetExecutable
+import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntime
+import java.nio.file.Path
+
+/**
+ * Launches a regular .NET project from an Aspire session request.
+ */
+internal class DotNetProjectSessionProcessLauncher : DotNetSessionWithHotReloadProcessLauncher() {
+    companion object {
+        private val LOG = logger<DotNetProjectSessionProcessLauncher>()
+    }
+
+    override val priority = 10
+
+    @Suppress("JetBrainsInternalApiUsage")
+    override val hotReloadExtension = DotNetProjectHotReloadConfigurationExtension()
+    override val supportedRunnableProjectKinds: List<RunnableProjectKind> =
+        listOf(RunnableProjectKinds.DotNetCore, RunnableProjectKinds.Wpf)
+
+    override suspend fun isApplicable(projectPath: Path, project: Project) = true
+
+    override fun getRunProfile(
+        sessionId: String,
+        projectPath: Path,
+        dotnetExecutable: DotNetExecutable,
+        dotnetRuntime: DotNetCoreRuntime,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessLifetime: Lifetime,
+        aspireHostProjectPath: Path?
+    ) = DotNetProjectSessionRunProfile(
+        sessionId,
+        projectPath,
+        dotnetExecutable,
+        dotnetRuntime,
+        sessionProcessEventListener,
+        sessionProcessLifetime,
+        aspireHostProjectPath
+    )
+
+    override fun getDebugProfile(
+        sessionId: String,
+        projectPath: Path,
+        dotnetExecutable: DotNetExecutable,
+        dotnetRuntime: DotNetCoreRuntime,
+        browserSettings: StartBrowserSettings?,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessLifetime: Lifetime,
+        aspireHostProjectPath: Path?
+    ) = DotNetProjectSessionDebugProfile(
+        sessionId,
+        projectPath,
+        dotnetExecutable,
+        dotnetRuntime,
+        sessionProcessEventListener,
+        sessionProcessLifetime,
+        aspireHostProjectPath
+    )
+
+    override suspend fun getDotNetExecutable(
+        launchConfiguration: SessionProcessLaunchConfiguration,
+        isDebugSession: Boolean,
+        aspireRunConfiguration: AspireRiderRunConfiguration?,
+        project: Project,
+        sessionProcessLifetime: Lifetime
+    ): SessionExecutable? {
+        val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
+        val executable = factory.createExecutable(
+            launchConfiguration,
+            aspireRunConfiguration,
+            true,
+            supportedRunnableProjectKinds
+        )
+        if (executable == null) {
+            LOG.warn("Unable to create executable for project: ${launchConfiguration.projectPath}")
+        }
+
+        return executable
+    }
+}

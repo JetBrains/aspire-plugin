@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.sessions.*
 import com.jetbrains.aspire.dcp.AspireSessionServer.Companion.BEARER_AUTH
 import com.jetbrains.aspire.dcp.DcpErrors.AspireSessionNotFound
+import com.jetbrains.aspire.extensions.StartSessionRequestHandler
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -61,7 +62,11 @@ class AspireSessionServer(
         private const val BEARER_REALM = "Aspire DCP"
 
         private val SUPPORTED_PROTOCOL_VERSIONS = listOf("2024-04-23", "2025-10-01")
-        private val DEFAULT_SUPPORTED_SESSION_TYPES = listOf("project")
+
+        internal fun getInfo(): Info = Info(
+            SUPPORTED_PROTOCOL_VERSIONS,
+            StartSessionRequestHandler.getSupportedSessionTypes().distinct(),
+        )
     }
 
     private val lifecycleMutex = Mutex()
@@ -168,12 +173,7 @@ class AspireSessionServer(
 
         routing {
             get("/info") {
-                call.respond(
-                    Info(
-                        SUPPORTED_PROTOCOL_VERSIONS,
-                        DEFAULT_SUPPORTED_SESSION_TYPES
-                    )
-                )
+                call.respond(getInfo())
             }
 
             authenticate(BEARER_AUTH) {
@@ -214,19 +214,38 @@ class AspireSessionServer(
     }
 
     private fun createSession(aspireHostId: String, session: Session): Pair<String?, ErrorCode?> {
-        val projectLaunchConfiguration = session.launchConfigurations
-            .filterIsInstance<ProjectLaunchConfiguration>()
-            .singleOrNull()
-            ?: return null to ErrorCode.UnableToFindSupportedLaunchConfiguration
+        val launchConfiguration = when (val dcpLaunchConfiguration = session.launchConfigurations.singleOrNull()) {
+            is ProjectLaunchConfiguration -> DotNetSessionLaunchConfiguration(
+                Path(dcpLaunchConfiguration.projectPath),
+                dcpLaunchConfiguration.mode == Mode.Debug,
+                dcpLaunchConfiguration.launchProfile,
+                dcpLaunchConfiguration.disableLaunchProfile == true,
+                session.args,
+                mapEnvironmentVariables(session),
+            )
 
-        val launchConfiguration = DotNetSessionLaunchConfiguration(
-            Path(projectLaunchConfiguration.projectPath),
-            projectLaunchConfiguration.mode == Mode.Debug,
-            projectLaunchConfiguration.launchProfile,
-            projectLaunchConfiguration.disableLaunchProfile == true,
-            session.args,
-            mapEnvironmentVariables(session),
-        )
+            is ProjectWithExternalBuildLaunchConfiguration -> ExternalBuildSessionLaunchConfiguration(
+                Path(dcpLaunchConfiguration.projectPath),
+                dcpLaunchConfiguration.mode == Mode.Debug,
+                dcpLaunchConfiguration.launchProfile,
+                dcpLaunchConfiguration.disableLaunchProfile == true,
+                session.args,
+                mapEnvironmentVariables(session),
+                dcpLaunchConfiguration.buildConfiguration,
+                dcpLaunchConfiguration.buildEnvironment,
+                dcpLaunchConfiguration.buildWorkingDirectory?.let { Path(it) },
+                dcpLaunchConfiguration.suppressBuild,
+            )
+
+            is AzureFunctionsLaunchConfiguration -> AzureFunctionsSessionLaunchConfiguration(
+                Path(dcpLaunchConfiguration.projectPath),
+                dcpLaunchConfiguration.mode == Mode.Debug,
+                session.args,
+                mapEnvironmentVariables(session),
+            )
+
+            null -> return null to ErrorCode.UnableToFindSupportedLaunchConfiguration
+        }
         val request = CreateSessionRequest(aspireHostId, launchConfiguration)
         val response = sessionManager.createSession(request)
 

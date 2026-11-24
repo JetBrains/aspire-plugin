@@ -56,11 +56,13 @@ internal class AspireFileExecutorFactory(
         val activeRuntime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
             ?: throw CantRunException("Unable to find appropriate dotnet runtime")
 
-        val executable = getDotNetExecutable(activeRuntime,getLifetime(project, parameters.filePath, environment))
+        val debugExecutor = executorId == DefaultDebugExecutor.EXECUTOR_ID
+        val executable =
+            getDotNetExecutable(activeRuntime, getLifetime(project, parameters.filePath, environment), debugExecutor)
 
         return when (executorId) {
             DefaultRunExecutor.EXECUTOR_ID -> AspireHostRunProfileState(executable, activeRuntime, environment)
-            DefaultDebugExecutor.EXECUTOR_ID ->  AspireHostDebugProfileState(executable, activeRuntime, environment)
+            DefaultDebugExecutor.EXECUTOR_ID -> AspireHostDebugProfileState(executable, activeRuntime, environment)
             else -> throw CantRunException("Unable to execute Aspire host with $executorId executor")
         }
     }
@@ -68,7 +70,8 @@ internal class AspireFileExecutorFactory(
     @Suppress("UnstableApiUsage", "DuplicatedCode")
     private suspend fun getDotNetExecutable(
         activeRuntime: DotNetCoreRuntime,
-        projectFileLifetime: Lifetime
+        projectFileLifetime: Lifetime,
+        debugExecutor: Boolean,
     ): DotNetExecutable {
         val sourceFile = RdFileBasedProgramSource(parameters.filePath.toRdPath())
         val projectManager = FileBasedProgramProjectManager.getInstance(project)
@@ -103,7 +106,7 @@ internal class AspireFileExecutorFactory(
         val effectiveEnvs =
             if (parameters.trackEnvs) getEnvironmentVariables(launchProfile.name, launchProfile.content).toMutableMap()
             else parameters.envs.toMutableMap() // TODO: Apply TerminalMode
-        putAdditionalEnvironmentVariables(effectiveEnvs, Path(parameters.filePath), activeRuntime)
+        putAdditionalEnvironmentVariables(effectiveEnvs, Path(parameters.filePath), activeRuntime, debugExecutor)
 
         var effectiveUrl =
             if (parameters.trackUrl) getApplicationUrl(launchProfile.content)

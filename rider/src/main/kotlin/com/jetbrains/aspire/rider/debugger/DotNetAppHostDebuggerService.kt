@@ -16,7 +16,7 @@ import com.intellij.platform.eel.provider.toEelApi
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.intellij.util.PathUtil
 import com.jetbrains.aspire.rider.AspireRiderBundle
-import com.jetbrains.aspire.rider.sessions.findRunnableProjectByPath
+import com.jetbrains.aspire.rider.util.findRunnableProjectByPath
 import com.jetbrains.aspire.rider.util.pathWithoutExeOrDllExtension
 import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
 import com.jetbrains.rd.util.lifetime.Lifetime

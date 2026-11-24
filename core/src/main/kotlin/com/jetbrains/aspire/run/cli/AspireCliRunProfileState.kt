@@ -32,7 +32,7 @@ import com.jetbrains.aspire.AspireService
 import com.jetbrains.aspire.cli.AspireCliLocator
 import com.jetbrains.aspire.cli.AspireCliNotifications
 import com.jetbrains.aspire.cli.AspireCliLogLevel
-import com.jetbrains.aspire.dcp.toDcpEnvironmentVariables
+import com.jetbrains.aspire.dcp.buildDcpEnvironmentVariables
 import com.jetbrains.aspire.extensions.AppHostDebuggerExtension
 import com.jetbrains.aspire.extensions.DevCertificateProvider
 import com.jetbrains.aspire.run.AspireExecutionListener.Companion.APP_HOST_ENVIRONMENT_KEY
@@ -82,13 +82,13 @@ internal class AspireCliRunProfileState(
 
         val eelApi = project.getEelDescriptor().toEelApi()
 
+        val debugExecutor = executor.id == DefaultDebugExecutor.EXECUTOR_ID
         val envs = buildBaseEnvironment(options, eelApi).toMutableMap()
-        putAdditionalEnvironmentVariables(envs, appHostFile)
+        putAdditionalEnvironmentVariables(envs, appHostFile, debugExecutor)
 
-        val debugServices = executor.id == DefaultDebugExecutor.EXECUTOR_ID
-        val appHostDebugger = if (debugServices) resolveAppHostDebugger(appHostFile) else null
+        val appHostDebugger = if (debugExecutor) resolveAppHostDebugger(appHostFile) else null
         val appHostAttachTimeout = AspireSettings.getInstance().appHostAttachTimeoutSeconds.seconds
-        configureDebuggingEnvironmentVariables(debugServices, appHostDebugger != null, appHostAttachTimeout, envs)
+        configureDebuggingEnvironmentVariables(appHostDebugger != null, appHostAttachTimeout, envs)
 
         checkAndNotifyDevCertificate(envs)
 
@@ -113,7 +113,7 @@ internal class AspireCliRunProfileState(
             attachScope.launch {
                 attachDebuggerToAppHost(appHostDebugger, appHostFile, cliProcessPid, appHostAttachTimeout)
             }
-        } else if (debugServices) {
+        } else if (debugExecutor) {
             notifyAppHostNotDebugged(appHostFile)
         }
 
@@ -135,12 +135,16 @@ internal class AspireCliRunProfileState(
         putAll(options.environmentVariables)
     }
 
-    private suspend fun putAdditionalEnvironmentVariables(envs: MutableMap<String, String>, appHostFile: Path) {
+    private suspend fun putAdditionalEnvironmentVariables(
+        envs: MutableMap<String, String>,
+        appHostFile: Path,
+        debugExecutor: Boolean
+    ) {
         val aspireWorker = AspireWorker.getInstance(environment.project)
         val (appHost, endpoint) = aspireWorker.startAppHostSessionServer(appHostFile)
         environment.putUserData(APP_HOST_ID_KEY, appHost.id)
         envs[DCP_INSTANCE_ID_PREFIX] = appHost.id.value
-        envs.putAll(endpoint.toDcpEnvironmentVariables())
+        envs.putAll(buildDcpEnvironmentVariables(endpoint, debugExecutor))
 
         val aspireEnvironmentVariables = getAspireSpecificEnvironmentVariables(
             envs,
@@ -150,12 +154,10 @@ internal class AspireCliRunProfileState(
     }
 
     private fun configureDebuggingEnvironmentVariables(
-        debugServices: Boolean,
         debugAppHost: Boolean,
         appHostAttachTimeout: Duration,
         envs: MutableMap<String, String>
     ) {
-        envs[DEBUG_SESSION_RUN_MODE] = if (debugServices) DEBUG_SESSION_RUN_MODE_DEBUG else DEBUG_SESSION_RUN_MODE_NO_DEBUG
         if (debugAppHost) {
             envs[ASPIRE_WAIT_FOR_DEBUGGER] = "true"
             envs[ASPIRE_DEBUGGER_TIMEOUT] = appHostAttachTimeout.inWholeSeconds.toString()
@@ -286,11 +288,12 @@ internal class AspireCliRunProfileState(
             AspireCoreBundle.message("notification.app.host.not.debugged.content", appHostFile.name),
             NotificationType.INFORMATION
         )
-            .addAction(NotificationAction.createSimpleExpiring(
-                AspireCoreBundle.message("notification.action.never.show.again")
-            ) {
-                settings.showAppHostNotDebuggedNotification = false
-            })
+            .addAction(
+                NotificationAction.createSimpleExpiring(
+                    AspireCoreBundle.message("notification.action.never.show.again")
+                ) {
+                    settings.showAppHostNotDebuggedNotification = false
+                })
             .notify(environment.project)
     }
 
@@ -302,15 +305,16 @@ internal class AspireCliRunProfileState(
             AspireCoreBundle.message("notification.app.host.attach.failed.content", appHostFile.name),
             NotificationType.WARNING
         )
-            .addAction(NotificationAction.createSimpleExpiring(
-                AspireCoreBundle.message("notification.action.aspire.settings")
-            ) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(
-                    project,
-                    Predicate { ConfigurableVisitor.getId(it) == AspireSettings.CONFIGURABLE_ID },
-                    null
-                )
-            })
+            .addAction(
+                NotificationAction.createSimpleExpiring(
+                    AspireCoreBundle.message("notification.action.aspire.settings")
+                ) {
+                    ShowSettingsUtil.getInstance().showSettingsDialog(
+                        project,
+                        Predicate { ConfigurableVisitor.getId(it) == AspireSettings.CONFIGURABLE_ID },
+                        null
+                    )
+                })
             .notify(project)
     }
 }
