@@ -52,6 +52,8 @@
         <startSessionRequestHandler
                 implementation="com.jetbrains.aspire.rider.sessions.sessionHandlers.DotNetStartSessionRequestHandler"/>
         <startSessionRequestHandler
+                implementation="com.jetbrains.aspire.rider.sessions.sessionHandlers.ProjectWithExternalBuildStartSessionRequestHandler"/>
+        <startSessionRequestHandler
                 implementation="com.jetbrains.aspire.rider.sessions.sessionHandlers.AzureFunctionsStartSessionRequestHandler"/>
 
         <appHostDebugger implementation="com.jetbrains.aspire.rider.debugger.DotNetAppHostDebuggerExtension"/>
@@ -66,6 +68,8 @@
                 implementation="com.jetbrains.aspire.rider.processLaunchers.fileBasedProject.FileBasedProjectSessionProcessLauncher"/>
         <dotnetSessionProcessLauncherExtension
                 implementation="com.jetbrains.aspire.rider.processLaunchers.azureFunctions.AzureFunctionsSessionProcessLauncher"/>
+        <dotnetSessionProcessLauncherExtension
+                implementation="com.jetbrains.aspire.rider.processLaunchers.externalBuild.ExternalBuildSessionProcessLauncher"/>
 
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.DefaultProjectOrchestrationHandler"/>
         <projectOrchestrationHandler implementation="com.jetbrains.aspire.rider.orchestration.MauiProjectOrchestrationHandler"/>

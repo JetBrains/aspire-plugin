@@ -401,10 +401,11 @@ internal class AspireCliResourceConverterTest {
         assertNull(data.stoppedAt)
     }
 
-    @Test
-    fun `properties populate process paths and container data`() {
+    @ParameterizedTest
+    @ValueSource(strings = ["project", "project-with-external-build.v1"])
+    fun `properties populate process paths and container data`(launchConfigurationType: String) {
         val properties = mapOf(
-            "resource.launchConfigurationType" to "project",
+            "resource.launchConfigurationType" to launchConfigurationType,
             "executable.pid" to "123",
             "project.path" to "/src/api.csproj",
             "executable.path" to "/usr/bin/api",

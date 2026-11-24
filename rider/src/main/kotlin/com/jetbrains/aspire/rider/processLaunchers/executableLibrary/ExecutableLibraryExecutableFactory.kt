@@ -10,7 +10,9 @@ import com.jetbrains.aspire.rider.processLaunchers.getExecutableParams
 import com.jetbrains.aspire.rider.processLaunchers.getLaunchProfile
 import com.jetbrains.aspire.rider.processLaunchers.mergeEnvironmentVariables
 import com.jetbrains.aspire.rider.util.MSBuildPropertyService
+import com.jetbrains.rider.model.RdTargetFrameworkId
 import com.jetbrains.rider.run.configurations.TerminalMode
+import com.jetbrains.rider.run.configurations.launchSettings.LaunchSettingsJson
 import com.jetbrains.rider.run.configurations.launchSettings.commands.ExecutableCommand
 import com.jetbrains.rider.runtime.DotNetExecutable
 import com.jetbrains.rider.runtime.dotNetCore.DotNetCoreRuntimeType
@@ -42,14 +44,35 @@ internal class ExecutableLibraryExecutableFactory(private val project: Project) 
             return null
         }
 
+        val targetFramework = MSBuildPropertyService.getInstance(project).getProjectTargetFramework(sessionProjectPath)
+            .getOrElse {
+                LOG.warn("Unable to get target framework of $sessionProjectPath", it)
+                null
+            }
+
+        return createExecutable(launchConfiguration, launchProfile, targetFramework)
+    }
+
+    /**
+     * Creates an executable from the `Executable` [launchProfile] of the session project.
+     */
+    suspend fun createExecutable(
+        launchConfiguration: SessionProcessLaunchConfiguration,
+        launchProfile: LaunchSettingsJson.Profile,
+        targetFramework: RdTargetFrameworkId?
+    ): DotNetExecutable? {
+        val sessionProjectPath = launchConfiguration.projectPath
+
         val executablePath = launchProfile.executablePath
-        val workingDirectory = launchProfile.workingDirectory
         val arguments = launchProfile.commandLineArgs ?: ""
 
-        if (executablePath.isNullOrEmpty() || workingDirectory.isNullOrEmpty()) {
-            LOG.warn("Some launch profile properties are empty or null")
+        if (executablePath.isNullOrEmpty()) {
+            LOG.warn("Launch profile executable path is empty or null")
             return null
         }
+
+        val workingDirectory = launchProfile.workingDirectory.takeUnless { it.isNullOrEmpty() }
+            ?: sessionProjectPath.parent.absolutePathString()
 
         val workingDirectoryAbsolutePath = if (workingDirectory.startsWith("$(")) {
             workingDirectory
@@ -63,8 +86,6 @@ internal class ExecutableLibraryExecutableFactory(private val project: Project) 
         }
 
         val envs = mergeEnvironmentVariables(launchConfiguration.envs, launchProfile.environmentVariables)
-
-        val targetFramework = MSBuildPropertyService.getInstance(project).getProjectTargetFramework(sessionProjectPath)
 
         val executableParams = getExecutableParams(
             sessionProjectPath,

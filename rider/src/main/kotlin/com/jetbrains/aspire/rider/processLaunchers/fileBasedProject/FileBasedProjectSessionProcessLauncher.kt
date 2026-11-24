@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.trace
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.rider.processLaunchers.DotNetSessionWithHotReloadProcessLauncher
+import com.jetbrains.aspire.rider.processLaunchers.SessionExecutable
 import com.jetbrains.aspire.rider.processLaunchers.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
@@ -63,7 +64,7 @@ internal class FileBasedProjectSessionProcessLauncher : DotNetSessionWithHotRelo
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         project: Project,
         sessionProcessLifetime: Lifetime
-    ): Pair<DotNetExecutable, StartBrowserSettings?>? {
+    ): SessionExecutable? {
         val csFilePath = launchConfiguration.projectPath
         if(!csFilePath.extension.equals("cs", ignoreCase = true)) {
             LOG.warn("Unable to create executable for file based project. File extension should be '.cs': ${launchConfiguration.projectPath}")
@@ -84,7 +85,8 @@ internal class FileBasedProjectSessionProcessLauncher : DotNetSessionWithHotRelo
             return null
         }
 
-        return executableAndBrowserSettings
+        val (executable, browserSettings) = executableAndBrowserSettings
+        return SessionExecutable(executable, browserSettings)
     }
 
     override fun getRunProfile(

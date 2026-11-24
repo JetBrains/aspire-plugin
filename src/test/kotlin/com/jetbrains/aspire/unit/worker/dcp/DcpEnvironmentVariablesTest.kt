@@ -27,7 +27,7 @@ internal class DcpEnvironmentVariablesTest {
             """
             {
                 "protocols_supported": ["2024-04-23", "2025-10-01"],
-                "supported_launch_configurations": ["project", "azure-functions"]
+                "supported_launch_configurations": ["project", "project-with-external-build.v1", "azure-functions"]
             }
             """.trimIndent(),
         )

@@ -2,22 +2,23 @@
 
 package com.jetbrains.aspire.rider.util
 
+import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.util.ExecUtil
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.platform.ide.progress.withBackgroundProgress
-import com.intellij.util.execution.ParametersListUtil
 import com.jetbrains.rider.model.RdTargetFrameworkId
-import com.jetbrains.rider.runtime.RiderDotNetActiveRuntimeHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.extension
 import kotlin.io.path.nameWithoutExtension
 
 @Service(Service.Level.PROJECT)
@@ -25,126 +26,153 @@ internal class MSBuildPropertyService(private val project: Project) {
     companion object {
         fun getInstance(project: Project) = project.service<MSBuildPropertyService>()
 
-        private val LOG = logger<MSBuildPropertyService>()
+        private const val RUN_PROPERTIES = "TargetFramework,TargetPath,RunCommand,RunArguments,RunWorkingDirectory"
 
         private val json by lazy {
             Json { ignoreUnknownKeys = true }
         }
     }
 
-    suspend fun getProjectRunProperties(projectPath: Path): ProjectRunProperties? {
-        val projectRunPropertiesJson = getProjectProperties(
-            projectPath,
-            "TargetFramework,RunCommand,RunArguments,RunWorkingDirectory"
-        ) ?: return null
-        val projectProperties = json.decodeFromString<ProjectRunPropertiesOutput>(projectRunPropertiesJson)
+    /**
+     * Builds the project and evaluates its raw run properties.
+     */
+    suspend fun getProjectRunProperties(projectPath: Path): Result<RunProperties> = catchExecutionErrors {
+        val dotNetCliPath = getDotNetCliPath()
+        buildProject(projectPath, dotNetCliPath)
+        evaluateRunProperties(projectPath, dotNetCliPath)
+    }
 
-        val targetFramework = parseTargetFrameworkId(projectProperties.properties.targetFramework)
-            ?: return null
-        val executable = getExecutablePath(projectProperties.properties.runCommand)
-            ?: return null
-        val args = ParametersListUtil.parse(projectProperties.properties.runArguments)
-        val workingDirectory = getWorkingDirectoryPath(projectProperties.properties.runWorkingDirectory)
-            ?: return null
+    /**
+     * Evaluates the raw run properties of a project that was already built externally, using the same build inputs.
+     * The project isn't built.
+     */
+    suspend fun getExternallyBuiltProjectRunProperties(
+        projectPath: Path,
+        configuration: String?,
+        environment: Map<String, String>,
+        workingDirectory: Path?
+    ): Result<RunProperties> = catchExecutionErrors {
+        val dotNetCliPath = getDotNetCliPath()
+        evaluateRunProperties(projectPath, dotNetCliPath, configuration, environment, workingDirectory)
+    }
 
-        return ProjectRunProperties(
-            targetFramework,
-            executable,
-            args,
-            workingDirectory
+    /**
+     * Builds the project and evaluates its target framework.
+     */
+    suspend fun getProjectTargetFramework(projectPath: Path): Result<RdTargetFrameworkId> = catchExecutionErrors {
+        val dotNetCliPath = getDotNetCliPath()
+        buildProject(projectPath, dotNetCliPath)
+
+        val properties = evaluateRunProperties(projectPath, dotNetCliPath)
+
+        parseTargetFrameworkId(properties.targetFramework)
+            ?: throw ExecutionException("Unable to parse target framework '${properties.targetFramework}' of $projectPath")
+    }
+
+    private suspend fun buildProject(projectPath: Path, dotNetCliPath: Path) {
+        val commandLine = GeneralCommandLine()
+            .withExePath(dotNetCliPath.absolutePathString())
+            .withParameters("build", projectPath.absolutePathString())
+
+        runDotNetCli(
+            commandLine,
+            "Unable to build project $projectPath",
+            "Building ${projectPath.nameWithoutExtension}"
         )
     }
 
-    suspend fun getProjectTargetFramework(projectPath: Path): RdTargetFrameworkId? {
-        val targetFramework = getProjectProperties(
-            projectPath,
-            "TargetFramework"
-        )?.trim() ?: return null
+    private suspend fun evaluateRunProperties(
+        projectPath: Path,
+        dotNetCliPath: Path,
+        configuration: String? = null,
+        environment: Map<String, String> = emptyMap(),
+        workingDirectory: Path? = null
+    ): RunProperties = withContext(Dispatchers.IO) {
+        val temporaryDirectory = Files.createTempDirectory("aspire-msbuild-")
+        try {
+            val resultFile = temporaryDirectory.resolve("run-properties.json")
+            val isFileBasedProgram = projectPath.extension.equals("cs", true)
+            val commandLine = GeneralCommandLine()
+                .withExePath(dotNetCliPath.absolutePathString())
+                .withWorkingDirectory(workingDirectory ?: projectPath.parent)
+                .withEnvironment(environment)
+                .withParameters(if (isFileBasedProgram) "build" else "msbuild", projectPath.absolutePathString())
+            if (isFileBasedProgram) {
+                // The file-based program is already restored by the previous build
+                commandLine.addParameter("--no-restore")
+            }
+            if (!configuration.isNullOrEmpty()) {
+                commandLine.addParameter("-property:Configuration=${escapeMSBuildProperty(configuration)}")
+            }
+            commandLine.addParameters(
+                "-target:ComputeRunArguments",
+                "-getProperty:$RUN_PROPERTIES",
+                "-getResultOutputFile:$resultFile",
+                "-nologo",
+                "-v:q"
+            )
+            if (environment.isNotEmpty()) {
+                // The external build receives these values as global properties.
+                // A response file keeps them out of the process command line.
+                val responseFile = temporaryDirectory.resolve("build-properties.rsp")
+                Files.write(responseFile, environment.map { (name, value) ->
+                    "\"-property:${escapeMSBuildProperty(name)}=${escapeMSBuildProperty(value)}\""
+                })
+                commandLine.addParameter("@$responseFile")
+            }
 
-        return parseTargetFrameworkId(targetFramework)
+            runDotNetCli(
+                commandLine,
+                "Unable to evaluate run properties of $projectPath",
+                "Evaluating ${projectPath.nameWithoutExtension}"
+            )
+
+            decodeRunProperties(Files.readString(resultFile), projectPath)
+        } finally {
+            NioFiles.deleteRecursively(temporaryDirectory)
+        }
     }
 
-    private suspend fun getProjectProperties(projectPath: Path, listOfProperties: String): String? {
-        val runtime = RiderDotNetActiveRuntimeHost.getInstance(project).dotNetCoreRuntime.value
-        if (runtime == null) {
-            LOG.warn("Unable to find active .NET runtime")
-            return null
-        }
+    private fun getDotNetCliPath(): Path = getActiveDotNetCliPath(project).getOrThrow()
 
-        val buildCommandLine = GeneralCommandLine()
-            .withExePath(runtime.cliExePath.absolutePathString())
-            .withParameters(listOf("build", projectPath.absolutePathString()))
-        val buildOutput = withContext(Dispatchers.IO) {
-            withBackgroundProgress(project, "Building ${projectPath.nameWithoutExtension}") {
-                ExecUtil.execAndGetOutput(buildCommandLine)
+    private suspend fun runDotNetCli(commandLine: GeneralCommandLine, failureMessage: String, progressTitle: String) {
+        val output = withContext(Dispatchers.IO) {
+            withBackgroundProgress(project, progressTitle) {
+                ExecUtil.execAndGetOutput(commandLine)
             }
         }
-        if (!buildOutput.checkSuccess(LOG)) {
-            LOG.warn("Unable to build project ${projectPath.absolutePathString()}")
-            return null
+        if (output.exitCode != 0) {
+            val details = output.stderr.ifBlank { output.stdout }.trim()
+            throw ExecutionException("$failureMessage (exit code ${output.exitCode})\n$details")
         }
-
-        val propertyCommandLine = GeneralCommandLine()
-            .withExePath(runtime.cliExePath.absolutePathString())
-            .withParameters(
-                listOf(
-                    "build",
-                    projectPath.absolutePathString(),
-                    "-getProperty:${listOfProperties}"
-                )
-            )
-        val propertyOutput = withContext(Dispatchers.IO) {
-            ExecUtil.execAndGetOutput(propertyCommandLine)
-        }
-        if (!propertyOutput.checkSuccess(LOG)) {
-            LOG.warn("Unable to get properties for project ${projectPath.absolutePathString()}")
-            return null
-        }
-
-        return propertyOutput.stdout
     }
 
-    private fun getExecutablePath(runCommand: String): Path? {
-        if (runCommand.isEmpty()) {
-            LOG.warn("MSBuild RunCommand is empty")
-            return null
+    private fun decodeRunProperties(text: String, projectPath: Path): RunProperties =
+        try {
+            json.decodeFromString<ProjectRunPropertiesOutput>(text).properties
+        } catch (e: SerializationException) {
+            throw ExecutionException("Unable to read run properties of $projectPath", e)
+        } catch (e: IllegalArgumentException) {
+            throw ExecutionException("Unable to read run properties of $projectPath", e)
         }
 
-        val runCommandPath = Path(runCommand)
-        val runCommandExecutable = runCommandPath.nameWithoutExtension
-
-        if (runCommandExecutable.equals("dotnet", true)) {
-            LOG.warn("Unable to execute MSBuild RunCommand with .NET CLI")
-            return null
+    // See: https://learn.microsoft.com/visualstudio/msbuild/how-to-escape-special-characters-in-msbuild
+    private fun escapeMSBuildProperty(value: String) = buildString {
+        for (character in value) {
+            if (character in "%$@()*\\\"',;?=\t\r\n ") {
+                append('%')
+                append(character.code.toString(16).uppercase().padStart(2, '0'))
+            } else {
+                append(character)
+            }
         }
-
-        if (!runCommandPath.isAbsolute) {
-            LOG.warn("MSBuild RunCommand is not absolute path: $runCommandPath")
-            return null
-        }
-
-        return runCommandPath
     }
 
-    private fun getWorkingDirectoryPath(runWorkingDirectory: String): Path? {
-        if (runWorkingDirectory.isEmpty()) {
-            LOG.warn("MSBuild RunWorkingDirectory is empty")
-            return null
+    // Only expected failures become a Result; cancellation and programming errors propagate
+    private inline fun <T> catchExecutionErrors(block: () -> T): Result<T> =
+        try {
+            Result.success(block())
+        } catch (e: ExecutionException) {
+            Result.failure(e)
         }
-
-        val runWorkingDirectoryPath = Path(runWorkingDirectory)
-        if (!runWorkingDirectoryPath.isAbsolute) {
-            LOG.warn("MSBuild RunWorkingDirectory is not absolute path: $runWorkingDirectory")
-            return null
-        }
-
-        return runWorkingDirectoryPath
-    }
-
-    data class ProjectRunProperties(
-        val targetFramework: RdTargetFrameworkId,
-        val executablePath: Path,
-        val arguments: List<String>,
-        val workingDirectory: Path
-    )
 }

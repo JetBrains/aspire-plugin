@@ -15,6 +15,7 @@ import com.jetbrains.aspire.sessions.CreateSessionResponse
 import com.jetbrains.aspire.sessions.DeleteSessionResponse
 import com.jetbrains.aspire.sessions.DotNetSessionLaunchConfiguration
 import com.jetbrains.aspire.sessions.ErrorCode
+import com.jetbrains.aspire.sessions.ExternalBuildSessionLaunchConfiguration
 import com.jetbrains.aspire.sessions.SessionLogReceived
 import com.jetbrains.aspire.sessions.SessionProcessStarted
 import com.jetbrains.aspire.settings.AspireSettings
@@ -316,6 +317,39 @@ internal class AspireSessionServerTest {
             assertTrue(launchConfiguration.debug)
             assertEquals(listOf("--x"), launchConfiguration.args)
             assertEquals(listOf("A" to "1"), launchConfiguration.envs)
+        }
+    }
+
+    @Test
+    fun `create session maps project with an external build`() {
+        val sessionManager = MockSessionManager()
+        val projectPath = Path("/p/App.csproj")
+        val buildDirectory = Path("/sdk-root")
+        val buildEnvironment = mapOf("BUILD_FLAVOR" to "custom")
+        val runtimeEnvironment = listOf("BUILD_FLAVOR" to "runtime")
+        val body = """
+            {"launch_configurations":[{"type":"project-with-external-build.v1","project_path":"/p/App.csproj","mode":"Debug",
+            "launch_profile":"https","disable_launch_profile":true,"build_configuration":"Release",
+            "build_environment":{"BUILD_FLAVOR":"custom"},"build_working_directory":"/sdk-root","suppress_build":true}],
+            "env":[{"name":"BUILD_FLAVOR","value":"runtime"}],"args":[]}
+        """.trimIndent()
+
+        withServer(sessionManager) { baseUrl, server ->
+            val response = httpPut("$baseUrl/run_session", body, checkNotNull(server.endpoint).token)
+
+            response.assertStatus(201)
+            val request = checkNotNull(sessionManager.lastCreateRequest)
+            val launchConfiguration = assertIs<ExternalBuildSessionLaunchConfiguration>(request.launchConfiguration)
+            assertEquals(projectPath, launchConfiguration.projectPath)
+            assertTrue(launchConfiguration.debug)
+            assertEquals("https", launchConfiguration.launchProfile)
+            assertTrue(launchConfiguration.disableLaunchProfile)
+            assertEquals("Release", launchConfiguration.buildConfiguration)
+            assertEquals(buildEnvironment, launchConfiguration.buildEnvironment)
+            assertEquals(buildDirectory, launchConfiguration.buildWorkingDirectory)
+            assertTrue(launchConfiguration.suppressBuild)
+            assertEquals(emptyList(), launchConfiguration.args)
+            assertEquals(runtimeEnvironment, launchConfiguration.envs)
         }
     }
 

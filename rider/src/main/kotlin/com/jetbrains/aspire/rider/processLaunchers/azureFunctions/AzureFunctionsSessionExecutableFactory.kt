@@ -17,7 +17,9 @@ import com.jetbrains.aspire.rider.processLaunchers.mergeEnvironmentVariables
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.aspire.rider.util.MSBuildPropertyService
 import com.jetbrains.aspire.rider.util.findByProjectPath
+import com.jetbrains.aspire.rider.util.getActiveDotNetCliPath
 import com.jetbrains.aspire.rider.util.getStartBrowserAction
+import com.jetbrains.aspire.rider.util.toProjectRunProperties
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rider.azureFunctions.coreTools.AzureFunctionsCoreToolsExecutableService
 import com.jetbrains.rider.azureFunctions.localSettings.AzureFunctionsLocalSettings
@@ -142,9 +144,16 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
         aspireRunConfiguration: AspireRiderRunConfiguration?
     ): DotNetExecutable? {
         val propertyService = MSBuildPropertyService.getInstance(project)
-        val properties = propertyService.getProjectRunProperties(sessionProjectPath)
-        if (properties == null) {
-            LOG.warn("Unable to get MSBuild properties for project $sessionProjectPath")
+        val runProperties = propertyService.getProjectRunProperties(sessionProjectPath).getOrElse {
+            LOG.warn("Unable to get MSBuild run properties of $sessionProjectPath", it)
+            return null
+        }
+        val dotNetCliPath = getActiveDotNetCliPath(project).getOrElse {
+            LOG.warn("Unable to resolve MSBuild run command of $sessionProjectPath", it)
+            return null
+        }
+        val properties = runProperties.toProjectRunProperties(sessionProjectPath, dotNetCliPath).getOrElse {
+            LOG.warn("Unable to resolve MSBuild run command of $sessionProjectPath", it)
             return null
         }
 
@@ -158,7 +167,8 @@ internal class AzureFunctionsSessionExecutableFactory(private val project: Proje
         val launchProfile = getLaunchProfile(launchConfiguration, sessionProjectPath, project)
         val coreToolsExecutablePath = coreToolsExecutable.executablePath.absolutePathString()
         val workingDirectory = getWorkingDirectory(launchProfile, properties)
-        val arguments = mergeArguments(launchConfiguration.args, properties.arguments, launchProfile?.commandLineArgs)
+        val arguments =
+            mergeArguments(launchConfiguration.args, properties.runCommand.arguments, launchProfile?.commandLineArgs)
         val envs = mergeEnvironmentVariables(launchConfiguration.envs, launchProfile?.environmentVariables)
 
         val executableParams = getExecutableParams(

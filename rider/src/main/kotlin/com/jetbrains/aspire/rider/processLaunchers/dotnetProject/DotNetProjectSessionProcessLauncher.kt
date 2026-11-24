@@ -6,6 +6,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.jetbrains.aspire.rider.processLaunchers.DotNetProjectSessionExecutableFactory
 import com.jetbrains.aspire.rider.processLaunchers.DotNetSessionWithHotReloadProcessLauncher
+import com.jetbrains.aspire.rider.processLaunchers.SessionExecutable
 import com.jetbrains.aspire.rider.processLaunchers.SessionProcessLaunchConfiguration
 import com.jetbrains.aspire.rider.run.AspireRiderRunConfiguration
 import com.jetbrains.rd.util.lifetime.Lifetime
@@ -76,7 +77,7 @@ internal class DotNetProjectSessionProcessLauncher : DotNetSessionWithHotReloadP
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         project: Project,
         sessionProcessLifetime: Lifetime
-    ): Pair<DotNetExecutable, StartBrowserSettings?>? {
+    ): SessionExecutable? {
         val factory = DotNetProjectSessionExecutableFactory.getInstance(project)
         val executable = factory.createExecutable(
             launchConfiguration,

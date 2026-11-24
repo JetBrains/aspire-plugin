@@ -2,6 +2,7 @@
 
 package com.jetbrains.aspire.rider.sessions.sessionHandlers
 
+import com.intellij.execution.ExecutionException
 import com.intellij.execution.process.ProcessListener
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.serviceAsync
@@ -20,9 +21,11 @@ import com.jetbrains.aspire.rider.processLaunchers.SessionProcessLaunchConfigura
 import com.jetbrains.aspire.rider.sessions.SessionProcessEventListener
 import com.jetbrains.aspire.rider.util.DotNetBuildService
 import com.jetbrains.aspire.rider.util.findExistingAppHost
+import com.jetbrains.aspire.sessions.MessageLevel
 import com.jetbrains.aspire.sessions.SessionEvent
 import com.jetbrains.aspire.sessions.SessionLaunchMode
 import com.jetbrains.aspire.sessions.SessionLaunchPreferenceService
+import com.jetbrains.aspire.sessions.SessionMessageReceived
 import com.jetbrains.aspire.sessions.StartSessionRequest
 import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
@@ -48,13 +51,18 @@ import kotlin.io.path.absolutePathString
 /**
  *  Base for handlers of Aspire session requests that start .NET projects.
  *
- *  The handler builds all the requested projects and then launches each of them
- *  with the [DotNetSessionProcessLauncherExtension] returned by [findLauncher].
+ *  The handler builds all the requested projects (unless [buildProjectsBeforeLaunch] is `false`) and then launches
+ *  each of them with the [DotNetSessionProcessLauncherExtension] returned by [findLauncher].
  */
 internal abstract class AbstractDotNetStartSessionRequestHandler : StartSessionRequestHandler {
     companion object {
         private val LOG = logger<AbstractDotNetStartSessionRequestHandler>()
     }
+
+    /**
+     * Whether the requested projects are built before they are launched.
+     */
+    protected open val buildProjectsBeforeLaunch = true
 
     /**
      * Converts the launch configuration of the [request] to a [SessionProcessLaunchConfiguration],
@@ -82,10 +90,12 @@ internal abstract class AbstractDotNetStartSessionRequestHandler : StartSessionR
             request to launchConfiguration
         }
 
-        val projectPaths = launchConfigurations
-            .map { it.second.projectPath }
-            .distinct()
-        buildProjects(projectPaths, project)
+        if (buildProjectsBeforeLaunch) {
+            val projectPaths = launchConfigurations
+                .map { it.second.projectPath }
+                .distinct()
+            buildProjects(projectPaths, project)
+        }
 
         launchConfigurations.forEach { (request, launchConfiguration) ->
             handleStartSessionRequest(request, launchConfiguration, project)
@@ -202,7 +212,14 @@ internal abstract class AbstractDotNetStartSessionRequestHandler : StartSessionR
                 project
             )
 
-            launchSessionProcess(request, launchConfiguration, sessionProcessListener, project)
+            try {
+                launchSessionProcess(request, launchConfiguration, sessionProcessListener, project)
+            } catch (e: ExecutionException) {
+                LOG.warn("Unable to launch session ${request.sessionId}", e)
+                val message = e.message ?: "Unable to launch ${launchConfiguration.projectPath}"
+                request.sessionEvents.trySend(SessionMessageReceived(request.sessionId, MessageLevel.Error, message, null))
+                sessionProcessListener.processNotStarted()
+            }
         }
     }
 

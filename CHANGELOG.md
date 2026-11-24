@@ -7,6 +7,7 @@
 ### Added
 
 - Warning and update action for outdated Aspire project templates when adding orchestration in Rider
+- Support for .NET projects built by the AppHost (`project-with-external-build.v1` launch configuration)
 
 ### Changed
 

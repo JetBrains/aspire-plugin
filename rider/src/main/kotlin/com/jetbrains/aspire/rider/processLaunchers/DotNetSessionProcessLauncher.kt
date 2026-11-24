@@ -55,20 +55,39 @@ internal abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLaunc
         LOG.trace { "Starting run session for ${launchConfiguration.projectPath}" }
 
         val aspireRunConfig = getAspireRunConfiguration(appHostFile, project)
-        val executableAndBrowserSettings = getDotNetExecutable(
+        val sessionExecutable = getDotNetExecutable(
             launchConfiguration,
             false,
             aspireRunConfig,
             project,
             sessionProcessLifetime
         )
-        if (executableAndBrowserSettings == null) {
+        if (sessionExecutable == null) {
             LOG.warn("Unable to create an executable for the project ${launchConfiguration.projectPath}")
             sessionProcessEventListener.processNotStarted()
             return
         }
 
-        val (executable, _) = executableAndBrowserSettings
+        startRunProcess(
+            sessionId,
+            launchConfiguration,
+            sessionExecutable.executable,
+            sessionProcessEventListener,
+            sessionProcessLifetime,
+            appHostFile,
+            project
+        )
+    }
+
+    private suspend fun startRunProcess(
+        sessionId: String,
+        launchConfiguration: SessionProcessLaunchConfiguration,
+        executable: DotNetExecutable,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessLifetime: Lifetime,
+        appHostFile: Path,
+        project: Project
+    ) {
         val executableWithDetectedType = executable.withDetectedExecutableType()
         val executableWithOTLPEndpoint = modifyDotNetExecutableToUseCustomOTLPEndpoint(executableWithDetectedType)
         val (modifiedExecutable, callback) = modifyDotNetExecutable(
@@ -109,15 +128,51 @@ internal abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLaunc
         LOG.trace { "Starting debug session for project ${launchConfiguration.projectPath}" }
 
         val aspireRunConfig = getAspireRunConfiguration(appHostFile, project)
-        val executableAndBrowserSettings =
+        val sessionExecutable =
             getDotNetExecutable(launchConfiguration, true, aspireRunConfig, project, sessionProcessLifetime)
-        if (executableAndBrowserSettings == null) {
+        if (sessionExecutable == null) {
             LOG.warn("Unable to create an executable for the project ${launchConfiguration.projectPath}")
             sessionProcessEventListener.processNotStarted()
             return
         }
 
-        val (executable, browserSettings) = executableAndBrowserSettings
+        val (executable, browserSettings, canRunUnderDebugger) = sessionExecutable
+        if (!canRunUnderDebugger) {
+            LOG.warn("Running ${launchConfiguration.projectPath} without debugger because the executable doesn't run the project output: ${executable.exePath}")
+            startRunProcess(
+                sessionId,
+                launchConfiguration,
+                executable,
+                sessionProcessEventListener,
+                sessionProcessLifetime,
+                appHostFile,
+                project
+            )
+            return
+        }
+
+        startDebugProcess(
+            sessionId,
+            launchConfiguration,
+            executable,
+            browserSettings,
+            sessionProcessEventListener,
+            sessionProcessLifetime,
+            appHostFile,
+            project
+        )
+    }
+
+    private suspend fun startDebugProcess(
+        sessionId: String,
+        launchConfiguration: SessionProcessLaunchConfiguration,
+        executable: DotNetExecutable,
+        browserSettings: StartBrowserSettings?,
+        sessionProcessEventListener: ProcessListener,
+        sessionProcessLifetime: Lifetime,
+        appHostFile: Path,
+        project: Project
+    ) {
         val executableWithDetectedType = executable.withDetectedExecutableType()
         val modifiedExecutable = modifyDotNetExecutableToUseCustomOTLPEndpoint(executableWithDetectedType)
         val runtime = getDotNetRuntime(modifiedExecutable, project)
@@ -141,7 +196,7 @@ internal abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLaunc
         executeProfile(profile, true, null, sessionProcessEventListener, project)
     }
 
-    private suspend fun getAspireRunConfiguration(appHostFile: Path, project: Project): AspireRiderRunConfiguration? {
+    protected suspend fun getAspireRunConfiguration(appHostFile: Path, project: Project): AspireRiderRunConfiguration? {
         val appHostId = AspireWorker.getInstance(project)
             .getAppHostByPath(appHostFile)?.id
             ?: return null
@@ -182,7 +237,7 @@ internal abstract class DotNetSessionProcessLauncher : DotNetSessionProcessLaunc
         aspireRunConfiguration: AspireRiderRunConfiguration?,
         project: Project,
         sessionProcessLifetime: Lifetime,
-    ): Pair<DotNetExecutable, StartBrowserSettings?>?
+    ): SessionExecutable?
 
     private fun modifyDotNetExecutableToUseCustomOTLPEndpoint(executable: DotNetExecutable): DotNetExecutable {
         val extension = OpenTelemetryProtocolServerExtension.getEnabledExtension()
