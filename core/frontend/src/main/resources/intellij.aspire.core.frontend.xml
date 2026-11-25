@@ -63,6 +63,11 @@
                     icon="AllIcons.General.Web">
                 <override-text place="GoToAction"/>
             </action>
+            <action id="Aspire.Host.Secrets"
+                    class="com.jetbrains.aspire.actions.dashboard.host.OpenAppHostSecretsAction"
+                    icon="AllIcons.Nodes.Padlock">
+                <override-text place="GoToAction"/>
+            </action>
         </group>
         <group id="Aspire.Host.Tollbar">
             <reference ref="Aspire.Host.Run"/>
@@ -73,6 +78,7 @@
             <reference ref="Aspire.Host.Deploy"/>
             <separator/>
             <reference ref="Aspire.Host.Dashboard"/>
+            <reference ref="Aspire.Host.Secrets"/>
             <separator/>
             <reference ref="Aspire.Settings"/>
             <reference ref="Aspire.Help"/>

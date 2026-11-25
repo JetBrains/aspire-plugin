@@ -6,10 +6,8 @@ import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.execution.ExecutionException
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.platform.eel.EelApi
 import com.intellij.platform.eel.isWindows
 import com.intellij.platform.eel.path.EelPath
@@ -38,7 +36,7 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
             }
         } catch (e: AspireCliInvalidPathException) {
             LOG.info("Unable to prepare Aspire command $command: ${e.message}")
-            notifyInvalidCliPath(e)
+            AspireCliNotifications.notifyInvalidCliPath(project, e)
             null
         } catch (e: Exception) {
             rethrowControlFlowException(e)
@@ -93,8 +91,16 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
     private fun AppHostCommand.arguments(appHostPath: EelPath): List<String> {
         val appHostArguments = listOf("--apphost", appHostPath.toString())
         return when (this) {
-            is AspireCliCommand.Publish -> listOf("publish") + appHostArguments
-            is AspireCliCommand.Deploy -> listOf("deploy") + appHostArguments
+            is AspireCliCommand.Publish ->
+                listOf("publish") + appHostArguments
+            is AspireCliCommand.Deploy ->
+                listOf("deploy") + appHostArguments
+            is AspireCliCommand.SetSecret ->
+                buildList {
+                    addAll(listOf("secret", "set", this@arguments.key))
+                    addAll(appHostArguments)
+                    addAll(listOf("--environment", this@arguments.environment))
+                }
         }
     }
 
@@ -135,23 +141,14 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
     private fun shellQuote(value: String) =
         "'${value.replace("'", "'\\''")}'"
 
-    private fun notifyInvalidCliPath(e: AspireCliInvalidPathException) {
-        Notification(
-            "Aspire",
-            AspireCoreBundle.message("notification.aspire.cli.invalid.path.title"),
-            AspireCoreBundle.message("aspire.cli.invalid.path", StringUtil.escapeXmlEntities(e.configuredPath)),
-            NotificationType.WARNING,
-        )
-            .addAction(ActionManager.getInstance().getAction("Aspire.Settings"))
-            .notify(project)
-    }
-
     private fun notifyPreparationFailed(command: AspireCliCommand, e: Exception) {
         val (titleKey, contentKey) = when (command) {
             AspireCliCommand.Install ->
                 "notification.aspire.cli.install.failed.title" to "notification.aspire.cli.install.failed.content"
             AspireCliCommand.SelfUpdate ->
                 "notification.aspire.cli.update.failed.title" to "notification.aspire.cli.update.failed.content"
+            is AspireCliCommand.SetSecret ->
+                "notification.aspire.deployment.prepare.failed.title" to "notification.aspire.secrets.set.prepare.failed.content"
             is AppHostCommand ->
                 "notification.aspire.deployment.prepare.failed.title" to "notification.aspire.deployment.prepare.failed.content"
         }

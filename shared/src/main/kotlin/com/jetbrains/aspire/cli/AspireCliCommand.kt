@@ -33,6 +33,18 @@ sealed interface AspireCliCommand {
     /** `aspire deploy --apphost <path>` */
     @Serializable
     data class Deploy(override val appHostId: AspireAppHostId) : AppHostCommand
+
+    /**
+     * `aspire secret set <key> --apphost <path> --environment <environment>`
+     *
+     * The command has no value, so the Aspire CLI asks for it at a masked prompt.
+     */
+    @Serializable
+    data class SetSecret(
+        override val appHostId: AspireAppHostId,
+        val key: String,
+        val environment: String,
+    ) : AppHostCommand
 }
 
 @ApiStatus.Internal

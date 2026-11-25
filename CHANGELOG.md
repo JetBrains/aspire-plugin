@@ -8,6 +8,7 @@
 
 - Warning and update action for outdated Aspire project templates when adding orchestration in Rider
 - Support for .NET projects built by the AppHost (`project-with-external-build.v1` launch configuration)
+- [RIDER-145731](https://youtrack.jetbrains.com/issue/RIDER-145731) Action to open the per-environment Aspire secrets of an AppHost from the Services view and the Solution Explorer
 
 ### Changed
 

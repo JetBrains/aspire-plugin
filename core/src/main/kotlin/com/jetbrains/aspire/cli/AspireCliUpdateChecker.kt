@@ -13,8 +13,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.platform.eel.ReadResult
-import com.intellij.platform.eel.channels.EelReceiveChannel
 import com.intellij.platform.eel.path.EelPath
 import com.intellij.platform.eel.provider.asEelPath
 import com.intellij.platform.eel.provider.getEelDescriptor
@@ -34,9 +32,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.annotations.ApiStatus
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.nio.ByteBuffer
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
@@ -209,21 +204,6 @@ class AspireCliUpdateChecker(private val project: Project, cs: CoroutineScope) {
         return trimmedVersion
             .takeIf { it.length <= 128 && VERSION_PATTERN.matches(it) }
             ?.let(SemVer::parseFromText)
-    }
-
-    private suspend fun EelReceiveChannel.readLimitedText(maxBytes: Int): String {
-        val accumulatedBytes = ByteArrayOutputStream()
-        val readBuffer = ByteBuffer.allocate(8192)
-        do {
-            readBuffer.clear()
-            val readStatus = receive(readBuffer)
-            if (accumulatedBytes.size() + readBuffer.position() > maxBytes) {
-                throw IOException("Aspire CLI output exceeded $maxBytes bytes")
-            }
-            accumulatedBytes.write(readBuffer.array(), 0, readBuffer.position())
-        } while (readStatus != ReadResult.EOF)
-
-        return accumulatedBytes.toString(Charsets.UTF_8)
     }
 
     private fun displayUpdateNotification(
