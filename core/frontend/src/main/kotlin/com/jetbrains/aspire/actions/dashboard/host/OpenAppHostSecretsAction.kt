@@ -3,6 +3,7 @@
 package com.jetbrains.aspire.actions.dashboard.host
 
 import com.intellij.notification.Notification
+import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DataContext
@@ -16,6 +17,7 @@ import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.platform.ide.progress.withBackgroundProgress
 import com.jetbrains.aspire.AspireCoreFrontendBundle
+import com.jetbrains.aspire.secrets.AspireSecretCreator
 import com.jetbrains.aspire.secrets.AspireSecretsEnvironments
 import com.jetbrains.aspire.secrets.AspireSecretsService
 import com.jetbrains.aspire.secrets.AspireSecretsStore
@@ -63,7 +65,15 @@ internal class OpenAppHostSecretsAction : AspireAppHostBaseAction() {
             AspireCoreFrontendBundle.message("notification.secrets.not.found.title"),
             AspireCoreFrontendBundle.message("notification.secrets.not.found.content", appHostData.name),
             NotificationType.INFORMATION,
-        ).notify(project)
+        )
+            .addAction(
+                NotificationAction.createSimpleExpiring(
+                    AspireCoreFrontendBundle.message("notification.secrets.not.found.add.action")
+                ) {
+                    AspireSecretCreator.getInstance(project).createSecret(appHostData)
+                }
+            )
+            .notify(project)
     }
 
     private suspend fun chooseEnvironment(store: AspireSecretsStore, dataContext: DataContext): String? =

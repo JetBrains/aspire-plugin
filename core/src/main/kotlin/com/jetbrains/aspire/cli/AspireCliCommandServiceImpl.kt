@@ -91,8 +91,16 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
     private fun AppHostCommand.arguments(appHostPath: EelPath): List<String> {
         val appHostArguments = listOf("--apphost", appHostPath.toString())
         return when (this) {
-            is AspireCliCommand.Publish -> listOf("publish") + appHostArguments
-            is AspireCliCommand.Deploy -> listOf("deploy") + appHostArguments
+            is AspireCliCommand.Publish ->
+                listOf("publish") + appHostArguments
+            is AspireCliCommand.Deploy ->
+                listOf("deploy") + appHostArguments
+            is AspireCliCommand.SetSecret ->
+                buildList {
+                    addAll(listOf("secret", "set", this@arguments.key))
+                    addAll(appHostArguments)
+                    addAll(listOf("--environment", this@arguments.environment))
+                }
         }
     }
 
@@ -139,6 +147,8 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
                 "notification.aspire.cli.install.failed.title" to "notification.aspire.cli.install.failed.content"
             AspireCliCommand.SelfUpdate ->
                 "notification.aspire.cli.update.failed.title" to "notification.aspire.cli.update.failed.content"
+            is AspireCliCommand.SetSecret ->
+                "notification.aspire.deployment.prepare.failed.title" to "notification.aspire.secrets.set.prepare.failed.content"
             is AppHostCommand ->
                 "notification.aspire.deployment.prepare.failed.title" to "notification.aspire.deployment.prepare.failed.content"
         }
