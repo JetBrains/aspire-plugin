@@ -44,7 +44,7 @@ class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
     override val testLogManager by lazy { createAspireTestLogManager(traceScenarios, traceCategories) }
 
     @Test
-    @Solution("AspireFileBasedDefaultAspireSolution")
+    @Solution("AspireFileBasedSolution")
     fun runningAspireFileBasedSolutionLaunchesDashboard() {
         buildSolutionWithReSharperBuild()
         createAndSelectAspireFileConfiguration()
@@ -52,7 +52,7 @@ class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
     }
 
     @Test
-    @Solution("AspireFileBasedDefaultAspireSolution")
+    @Solution("AspireFileBasedSolution")
     fun runningAspireFileBasedSolutionLaunchesWebApp() {
         buildSolutionWithReSharperBuild()
         createAndSelectAspireFileConfiguration()
@@ -60,7 +60,7 @@ class RunningFileBasedApplicationTests : PerTestSolutionTestBase() {
     }
 
     @Test
-    @Solution("AspireFileBasedDefaultAspireSolution")
+    @Solution("AspireFileBasedSolution")
     fun runningAspireFileBasedSolutionLaunchesApiApp() {
         buildSolutionWithReSharperBuild()
         createAndSelectAspireFileConfiguration()

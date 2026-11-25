@@ -1,9 +1,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultAspireSolution.ServiceDefaults", "DefaultAspireSolution.ServiceDefaults\DefaultAspireSolution.ServiceDefaults.csproj", "{3465D8A1-4333-44B5-8B7A-8F331C3CEB6F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireFileBasedSolution.ServiceDefaults", "AspireFileBasedSolution.ServiceDefaults\AspireFileBasedSolution.ServiceDefaults.csproj", "{3465D8A1-4333-44B5-8B7A-8F331C3CEB6F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultAspireSolution.ApiService", "DefaultAspireSolution.ApiService\DefaultAspireSolution.ApiService.csproj", "{72BA5523-679E-4C82-B062-D1C3980C118C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireFileBasedSolution.ApiService", "AspireFileBasedSolution.ApiService\AspireFileBasedSolution.ApiService.csproj", "{72BA5523-679E-4C82-B062-D1C3980C118C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultAspireSolution.Web", "DefaultAspireSolution.Web\DefaultAspireSolution.Web.csproj", "{6BBA2AE2-8CA2-4697-9F0B-A5E189F53317}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireFileBasedSolution.Web", "AspireFileBasedSolution.Web\AspireFileBasedSolution.Web.csproj", "{6BBA2AE2-8CA2-4697-9F0B-A5E189F53317}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

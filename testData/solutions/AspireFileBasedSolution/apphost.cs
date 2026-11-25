@@ -11,10 +11,10 @@ var options = new DistributedApplicationOptions
 };
 var builder = DistributedApplication.CreateBuilder(options);
 
-var apiService = builder.AddDotnetProject("apiservice", "./DefaultAspireSolution.ApiService/DefaultAspireSolution.ApiService.csproj")
+var apiService = builder.AddDotnetProject("apiservice", "./AspireFileBasedSolution.ApiService/AspireFileBasedSolution.ApiService.csproj")
     .WithHttpHealthCheck("/health");
 
-builder.AddDotnetProject("webfrontend", "./DefaultAspireSolution.Web/DefaultAspireSolution.Web.csproj")
+builder.AddDotnetProject("webfrontend", "./AspireFileBasedSolution.Web/AspireFileBasedSolution.Web.csproj")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WithReference(apiService)
