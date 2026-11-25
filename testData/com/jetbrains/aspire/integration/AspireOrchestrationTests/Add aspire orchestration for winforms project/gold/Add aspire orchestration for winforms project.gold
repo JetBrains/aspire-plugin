@@ -1,0 +1,125 @@
+Solution file:
+
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{GUID}") = "DefaultWinFormsSolution", "DefaultWinFormsSolution\DefaultWinFormsSolution.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "DefaultWinFormsSolution.AppHost", "DefaultWinFormsSolution.AppHost\DefaultWinFormsSolution.AppHost.csproj", "{GUID}"
+EndProject
+Project("{GUID}") = "DefaultWinFormsSolution.ServiceDefaults", "DefaultWinFormsSolution.ServiceDefaults\DefaultWinFormsSolution.ServiceDefaults.csproj", "{GUID}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
+
+
+AppHost:
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net11.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>GUID</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="17.0.0"/>
+        <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.0.0"/>
+    </ItemGroup>
+
+</Project>
+
+
+AppHost.AppHost.cs:
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+builder.AddDotnetProject("defaultwinformssolution", "../DefaultWinFormsSolution/DefaultWinFormsSolution.csproj");
+
+builder.Build().Run();
+
+
+ServiceDefaults:
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net11.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsAspireSharedProject>true</IsAspireSharedProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0"/>
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.10.0"/>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.18.0"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.18.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.18.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.18.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.18.0"/>
+    </ItemGroup>
+
+</Project>
+
+
+Project(DefaultWinFormsSolution.csproj):
+
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net11.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DefaultWinFormsSolution.ServiceDefaults\DefaultWinFormsSolution.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>
+
+Project(DefaultWinFormsSolution.csproj) Program.cs:
+
+namespace DefaultWinFormsSolution;
+
+static class Program
+{
+    /// <summary>
+    ///  The main entry point for the application.
+    /// </summary>
+    [STAThread]
+    static void Main()
+    {
+        // To customize application configuration such as set high DPI settings or default font,
+        // see https://aka.ms/applicationconfiguration.
+        ApplicationConfiguration.Initialize();
+        Application.Run(new Form1());
+    }    
+}
+

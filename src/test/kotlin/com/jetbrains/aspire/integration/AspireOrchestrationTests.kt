@@ -73,6 +73,18 @@ class AspireOrchestrationTests : PerTestSolutionTestBase() {
         runTest()
     }
 
+    @Test
+    @Solution("DefaultWpfSolution")
+    fun `Add aspire orchestration for wpf project`() {
+        runTest(projectMainFileName = "App.xaml.cs")
+    }
+
+    @Test
+    @Solution("DefaultWinFormsSolution")
+    fun `Add aspire orchestration for winforms project`() {
+        runTest()
+    }
+
     private fun runTest(
         projectNames: List<String> = listOf(activeSolution),
         appHostName: String = "$activeSolution.AppHost",
