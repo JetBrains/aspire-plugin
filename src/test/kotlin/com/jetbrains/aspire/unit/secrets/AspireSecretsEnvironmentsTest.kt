@@ -1,5 +1,6 @@
 package com.jetbrains.aspire.unit.secrets
 
+import com.intellij.platform.eel.EelOsFamily
 import com.jetbrains.aspire.secrets.AspireSecretsEnvironments
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -10,6 +11,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@Suppress("UnstableApiUsage")
 internal class AspireSecretsEnvironmentsTest {
     @ParameterizedTest
     @ValueSource(strings = ["Development", "production", "staging-eu", "test_1", "1st"])
@@ -122,7 +124,7 @@ internal class AspireSecretsEnvironmentsTest {
     fun `secrets file path is the printed line without surrounding whitespace`() {
         val output = "  /home/user/.aspire/secrets/apphost-1234/Development.json  \n"
 
-        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development")
+        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development", EelOsFamily.Posix)
 
         assertEquals("/home/user/.aspire/secrets/apphost-1234/Development.json", path)
     }
@@ -131,7 +133,7 @@ internal class AspireSecretsEnvironmentsTest {
     fun `secrets file path is found after a notice`() {
         val output = "Welcome to Aspire!\r\nC:\\Users\\user\\.aspire\\secrets\\my-app\\Development.json\r\n\r\n"
 
-        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development")
+        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development", EelOsFamily.Windows)
 
         assertEquals("C:\\Users\\user\\.aspire\\secrets\\my-app\\Development.json", path)
     }
@@ -140,25 +142,16 @@ internal class AspireSecretsEnvironmentsTest {
     fun `secrets file path is found before a notice`() {
         val output = "/home/user/.aspire/secrets/my-app/Development.json\nA new version of Aspire CLI is available.\n"
 
-        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development")
+        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development", EelOsFamily.Posix)
 
         assertEquals("/home/user/.aspire/secrets/my-app/Development.json", path)
-    }
-
-    @Test
-    fun `secrets file path can be a UNC path`() {
-        val output = "\\\\wsl.localhost\\Ubuntu\\home\\user\\.aspire\\secrets\\my-app\\Development.json\n"
-
-        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development")
-
-        assertEquals("\\\\wsl.localhost\\Ubuntu\\home\\user\\.aspire\\secrets\\my-app\\Development.json", path)
     }
 
     @Test
     fun `secrets file path of another environment is ignored`() {
         val output = "/home/user/.aspire/secrets/my-app/Production.json\n"
 
-        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development")
+        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development", EelOsFamily.Posix)
 
         assertNull(path)
     }
@@ -167,7 +160,25 @@ internal class AspireSecretsEnvironmentsTest {
     fun `relative secrets file path is ignored`() {
         val output = "See Development.json\n"
 
-        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development")
+        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development", EelOsFamily.Posix)
+
+        assertNull(path)
+    }
+
+    @Test
+    fun `windows secrets file path is ignored in a posix environment`() {
+        val output = "C:\\Users\\user\\.aspire\\secrets\\my-app\\Development.json\n"
+
+        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development", EelOsFamily.Posix)
+
+        assertNull(path)
+    }
+
+    @Test
+    fun `posix secrets file path is ignored in a windows environment`() {
+        val output = "/home/user/.aspire/secrets/my-app/Development.json\n"
+
+        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development", EelOsFamily.Windows)
 
         assertNull(path)
     }
@@ -176,7 +187,7 @@ internal class AspireSecretsEnvironmentsTest {
     fun `blank output has no secrets file path`() {
         val output = " \n\n"
 
-        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development")
+        val path = AspireSecretsEnvironments.parseSecretsFilePath(output, "Development", EelOsFamily.Posix)
 
         assertNull(path)
     }

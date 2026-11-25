@@ -137,7 +137,8 @@ internal class AspireSecretsServiceImpl(private val project: Project) : AspireSe
         val filePath =
             if (output.exitCode == 0) AspireSecretsEnvironments.parseSecretsFilePath(
                 output.standardOutput,
-                AspireSecretsEnvironments.DEFAULT_ENVIRONMENT
+                AspireSecretsEnvironments.DEFAULT_ENVIRONMENT,
+                project.getEelDescriptor().osFamily
             )
             else null
         if (filePath == null) {

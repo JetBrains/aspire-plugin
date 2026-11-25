@@ -1,6 +1,7 @@
 package com.jetbrains.aspire.secrets
 
 import com.intellij.openapi.util.io.OSAgnosticPathUtil
+import com.intellij.platform.eel.EelOsFamily
 import com.intellij.util.PathUtil
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
@@ -54,15 +55,29 @@ object AspireSecretsEnvironments {
      *
      * The CLI can print notices before and after the path, so the path is the last line that is an absolute path
      * to the secrets file of the [environment].
+     *
+     * The CLI runs in the environment of the project and prints a path of that environment,
+     * which can differ from the IDE OS (WSL, Docker), so the path is checked against the [osFamily] of the environment.
      */
-    fun parseSecretsFilePath(output: String, environment: String): String? {
+    @Suppress("UnstableApiUsage")
+    fun parseSecretsFilePath(output: String, environment: String, osFamily: EelOsFamily): String? {
         val fileName = getFileName(environment)
         return output
             .lineSequence()
             .map { it.trim() }
-            // The CLI prints a path of its own OS, which can differ from the IDE OS (WSL, remote), so the checks are OS-agnostic.
-            .lastOrNull { OSAgnosticPathUtil.isAbsolute(it) && PathUtil.getFileName(it).equals(fileName, ignoreCase = true) }
+            .lastOrNull { isAbsolutePath(it, osFamily) && PathUtil.getFileName(it).equals(fileName, ignoreCase = true) }
     }
+
+    /**
+     * Checks that [path] is an absolute path of the [osFamily]: a path from the root on POSIX,
+     * or a path from a drive letter on Windows.
+     */
+    @Suppress("UnstableApiUsage")
+    private fun isAbsolutePath(path: String, osFamily: EelOsFamily): Boolean =
+        when (osFamily) {
+            EelOsFamily.Posix -> path.startsWith('/')
+            EelOsFamily.Windows -> OSAgnosticPathUtil.isAbsoluteDosPath(path)
+        }
 
     /**
      * Returns the [environments] without case-insensitive duplicates.
