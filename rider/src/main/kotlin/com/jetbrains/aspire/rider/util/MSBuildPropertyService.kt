@@ -70,15 +70,7 @@ internal class MSBuildPropertyService(private val project: Project) {
     }
 
     private suspend fun buildProject(projectPath: Path, dotNetCliPath: Path) {
-        val commandLine = GeneralCommandLine()
-            .withExePath(dotNetCliPath.absolutePathString())
-            .withParameters("build", projectPath.absolutePathString())
-
-        runDotNetCli(
-            commandLine,
-            "Unable to build project $projectPath",
-            "Building ${projectPath.nameWithoutExtension}"
-        )
+        DotNetBuildService.getInstance(project).buildProject(projectPath, dotNetCliPath).getOrThrow()
     }
 
     private suspend fun evaluateRunProperties(

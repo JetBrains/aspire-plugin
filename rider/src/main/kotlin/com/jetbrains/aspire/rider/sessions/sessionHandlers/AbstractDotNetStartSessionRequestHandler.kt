@@ -172,7 +172,11 @@ internal abstract class AbstractDotNetStartSessionRequestHandler : StartSessionR
 
         LOG.trace { "Building ${projectPaths.size} external project(s): ${projectPaths.map { it.fileName }}" }
         val buildService = DotNetBuildService.getInstance(project)
-        buildService.buildProjects(projectPaths)
+        for (projectPath in projectPaths) {
+            buildService.buildProject(projectPath).onFailure {
+                LOG.warn("Unable to build external project $projectPath", it)
+            }
+        }
     }
 
     @Suppress("JetBrainsInternalApiUsage")
