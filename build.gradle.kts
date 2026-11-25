@@ -187,7 +187,8 @@ tasks {
         systemProperty("psi.enable.persistent.syntax.tree.locking.listener", "false")
         useJUnitPlatform()
         testLogging {
-            showStandardStreams = true
+            // Pass `-PtestShowStandardStreams=false` to keep test output only in reports and IDE logs
+            showStandardStreams = providers.gradleProperty("testShowStandardStreams").map(String::toBoolean).getOrElse(true)
             exceptionFormat = TestExceptionFormat.FULL
         }
         environment["LOCAL_ENV_RUN"] = "true"
