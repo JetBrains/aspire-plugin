@@ -6,6 +6,7 @@ import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.jetbrains.aspire.AspireCoreBundle
 
 internal object AspireCliNotifications {
@@ -33,6 +34,20 @@ internal object AspireCliNotifications {
                 }
             )
             .addAction(actionManager.getAction(INSTALL_ACTION_ID))
+            .notify(project)
+    }
+
+    /**
+     * Notifies that the configured Aspire CLI path is invalid and offers to change it in the settings.
+     */
+    fun notifyInvalidCliPath(project: Project, e: AspireCliInvalidPathException) {
+        Notification(
+            NOTIFICATION_GROUP,
+            AspireCoreBundle.message("notification.aspire.cli.invalid.path.title"),
+            AspireCoreBundle.message("aspire.cli.invalid.path", StringUtil.escapeXmlEntities(e.configuredPath)),
+            NotificationType.WARNING,
+        )
+            .addAction(ActionManager.getInstance().getAction(SETTINGS_ACTION_ID))
             .notify(project)
     }
 }

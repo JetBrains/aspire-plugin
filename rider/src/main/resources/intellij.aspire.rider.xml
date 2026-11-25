@@ -101,6 +101,10 @@
                           anchor="after"/>
             <override-text place="GoToAction"/>
         </action>
+        <reference ref="Aspire.Host.Secrets">
+            <add-to-group group-id="SolutionExplorerPopupMenu.Tools" relative-to-action="Rider.Web.DotNetUserSecrets"
+                          anchor="after"/>
+        </reference>
     </actions>
 
 </idea-plugin>

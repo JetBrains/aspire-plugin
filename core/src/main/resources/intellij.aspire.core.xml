@@ -57,6 +57,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceInterface="com.jetbrains.aspire.cli.AspireCliCommandService"
                         serviceImplementation="com.jetbrains.aspire.cli.AspireCliCommandServiceImpl"/>
+        <projectService serviceInterface="com.jetbrains.aspire.secrets.AspireSecretsService"
+                        serviceImplementation="com.jetbrains.aspire.secrets.AspireSecretsServiceImpl"/>
+        <nonProjectFileWritingAccessExtension
+                implementation="com.jetbrains.aspire.secrets.AspireSecretsWritingAccessExtension"/>
 
         <applicationService serviceInterface="com.jetbrains.aspire.grpc.GrpcResourceClientFactory"
                             serviceImplementation="com.jetbrains.aspire.grpc.GrpcResourceClientFactoryImpl"/>

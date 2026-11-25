@@ -6,10 +6,8 @@ import com.intellij.diagnostic.rethrowControlFlowException
 import com.intellij.execution.ExecutionException
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.platform.eel.EelApi
 import com.intellij.platform.eel.isWindows
 import com.intellij.platform.eel.path.EelPath
@@ -38,7 +36,7 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
             }
         } catch (e: AspireCliInvalidPathException) {
             LOG.info("Unable to prepare Aspire command $command: ${e.message}")
-            notifyInvalidCliPath(e)
+            AspireCliNotifications.notifyInvalidCliPath(project, e)
             null
         } catch (e: Exception) {
             rethrowControlFlowException(e)
@@ -134,17 +132,6 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
 
     private fun shellQuote(value: String) =
         "'${value.replace("'", "'\\''")}'"
-
-    private fun notifyInvalidCliPath(e: AspireCliInvalidPathException) {
-        Notification(
-            "Aspire",
-            AspireCoreBundle.message("notification.aspire.cli.invalid.path.title"),
-            AspireCoreBundle.message("aspire.cli.invalid.path", StringUtil.escapeXmlEntities(e.configuredPath)),
-            NotificationType.WARNING,
-        )
-            .addAction(ActionManager.getInstance().getAction("Aspire.Settings"))
-            .notify(project)
-    }
 
     private fun notifyPreparationFailed(command: AspireCliCommand, e: Exception) {
         val (titleKey, contentKey) = when (command) {
