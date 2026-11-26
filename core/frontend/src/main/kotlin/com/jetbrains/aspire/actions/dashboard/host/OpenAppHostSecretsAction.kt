@@ -6,7 +6,6 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -16,6 +15,7 @@ import com.intellij.openapi.ui.popup.LightweightWindowEvent
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.platform.ide.progress.withBackgroundProgress
+import com.intellij.ui.awt.RelativePoint
 import com.jetbrains.aspire.AspireCoreFrontendBundle
 import com.jetbrains.aspire.secrets.AspireSecretCreator
 import com.jetbrains.aspire.secrets.AspireSecretsEnvironments
@@ -37,7 +37,7 @@ import kotlinx.coroutines.withContext
  */
 internal class OpenAppHostSecretsAction : AspireAppHostBaseAction() {
     override fun performAction(event: AnActionEvent, appHostData: AspireAppHostData, project: Project) {
-        val dataContext = event.dataContext
+        val popupLocation = JBPopupFactory.getInstance().guessBestPopupLocation(this, event)
         event.coroutineScope.launch {
             val store = getSecretsStore(project, appHostData) ?: return@launch
             if (store.environments.isEmpty()) {
@@ -45,7 +45,7 @@ internal class OpenAppHostSecretsAction : AspireAppHostBaseAction() {
                 return@launch
             }
 
-            val environment = chooseEnvironment(store, dataContext) ?: return@launch
+            val environment = chooseEnvironment(store, popupLocation) ?: return@launch
             project.service<AspireSecretsService>().openSecretsFile(store, environment)
         }
     }
@@ -76,7 +76,7 @@ internal class OpenAppHostSecretsAction : AspireAppHostBaseAction() {
             .notify(project)
     }
 
-    private suspend fun chooseEnvironment(store: AspireSecretsStore, dataContext: DataContext): String? =
+    private suspend fun chooseEnvironment(store: AspireSecretsStore, popupLocation: RelativePoint): String? =
         withContext(Dispatchers.EDT) {
             val chosenEnvironment = CompletableDeferred<String?>()
 
@@ -95,7 +95,7 @@ internal class OpenAppHostSecretsAction : AspireAppHostBaseAction() {
                     }
                 })
             }
-            popup.showInBestPositionFor(dataContext)
+            popup.show(popupLocation)
 
             try {
                 chosenEnvironment.await()

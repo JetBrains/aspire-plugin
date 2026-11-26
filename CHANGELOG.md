@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- The environment popup of the Aspire secrets action opens next to the action instead of at the console caret
+
 ## [2.10.0] - 2026-11-26
 
 ### Added
