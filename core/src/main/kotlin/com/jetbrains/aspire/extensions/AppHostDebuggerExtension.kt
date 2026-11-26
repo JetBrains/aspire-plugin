@@ -2,6 +2,7 @@ package com.jetbrains.aspire.extensions
 
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project
+import kotlinx.coroutines.CoroutineScope
 import org.jetbrains.annotations.ApiStatus
 import java.nio.file.Path
 
@@ -17,5 +18,15 @@ interface AppHostDebuggerExtension {
 
     fun isApplicable(appHostFilePath: Path): Boolean
 
-    suspend fun attachToAppHost(appHostFilePath: Path, cliProcessPid: Long, project: Project): Result<Unit>
+    /**
+     * Attaches the debugger to the AppHost started by the Aspire CLI process [cliProcessPid].
+     *
+     * [appHostRunScope] is cancelled when the CLI process stops; it can bound resources that must outlive the attach.
+     */
+    suspend fun attachToAppHost(
+        appHostFilePath: Path,
+        cliProcessPid: Long,
+        appHostRunScope: CoroutineScope,
+        project: Project,
+    ): Result<Unit>
 }

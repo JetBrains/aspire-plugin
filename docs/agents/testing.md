@@ -35,6 +35,8 @@ Run only tests related to the change:
 | AppHost detection, run configuration generation (`rider/run`, `rider/launchProfiles`)   | `RunConfigurationTests`            |
 | Running an AppHost (`core/dcp`, `core/sessions`, `rider/sessions`, `rider/processLaunchers`, `rider/run/host`) | `RunningApplicationTests`          |
 | File-based AppHost (`rider/run/file`)                                                   | `RunningFileBasedApplicationTests` |
+| Running an AppHost with the Aspire CLI (`core/run/cli`)                                 | `RunningAspireCliApplicationTests` |
+| Debugging an AppHost started with the Aspire CLI (`core/run/cli`, `rider/debugger`)     | `DebuggingAspireCliApplicationTests` |
 | Debugging (`rider/debugger`, debug paths in sessions and launchers)                     | `DebuggingApplicationTests`        |
 | Aspire test projects (`rider/unitTests`, `src/dotnet/AspirePlugin/UnitTest`)            | `TestingApplicationTests`          |
 | Publishing an AppHost (`PublishAppHostAction`)                                          | `PublishAppHostActionTest`         |

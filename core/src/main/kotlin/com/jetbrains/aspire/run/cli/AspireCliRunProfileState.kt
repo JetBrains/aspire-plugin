@@ -43,6 +43,7 @@ import com.jetbrains.aspire.settings.AspireSettings
 import com.jetbrains.aspire.util.*
 import com.jetbrains.aspire.worker.AspireAppHost.AppHostEnvironment
 import com.jetbrains.aspire.worker.AspireWorker
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -88,7 +89,7 @@ internal class AspireCliRunProfileState(
 
         val appHostDebugger = if (debugExecutor) resolveAppHostDebugger(appHostFile) else null
         val appHostAttachTimeout = AspireSettings.getInstance().appHostAttachTimeoutSeconds.seconds
-        configureDebuggingEnvironmentVariables(appHostDebugger != null, appHostAttachTimeout, envs)
+        putDebuggingEnvironmentVariables(envs, appHostDebugger != null, appHostAttachTimeout)
 
         checkAndNotifyDevCertificate(envs)
 
@@ -100,18 +101,20 @@ internal class AspireCliRunProfileState(
         }
 
         if (appHostDebugger != null) {
-            val attachScope = AspireService.getInstance(project).scope.childScope("Aspire AppHost debugger attach")
+            val appHostRunScope = AspireService.getInstance(project).scope.childScope("Aspire AppHost run")
             processHandler.addProcessListener(object : ProcessListener {
-                override fun processTerminated(event: ProcessEvent) {
-                    attachScope.cancel()
-                }
+                override fun processTerminated(event: ProcessEvent) = appHostRunScope.cancel()
 
-                override fun processNotStarted() {
-                    attachScope.cancel()
-                }
+                override fun processNotStarted() = appHostRunScope.cancel()
             })
-            attachScope.launch {
-                attachDebuggerToAppHost(appHostDebugger, appHostFile, cliProcessPid, appHostAttachTimeout)
+            appHostRunScope.launch {
+                attachDebuggerToAppHost(
+                    appHostDebugger,
+                    appHostFile,
+                    cliProcessPid,
+                    appHostRunScope,
+                    appHostAttachTimeout
+                )
             }
         } else if (debugExecutor) {
             notifyAppHostNotDebugged(appHostFile)
@@ -153,10 +156,10 @@ internal class AspireCliRunProfileState(
         envs.putAll(aspireEnvironmentVariables)
     }
 
-    private fun configureDebuggingEnvironmentVariables(
+    private fun putDebuggingEnvironmentVariables(
+        envs: MutableMap<String, String>,
         debugAppHost: Boolean,
-        appHostAttachTimeout: Duration,
-        envs: MutableMap<String, String>
+        appHostAttachTimeout: Duration
     ) {
         if (debugAppHost) {
             envs[ASPIRE_WAIT_FOR_DEBUGGER] = "true"
@@ -183,12 +186,13 @@ internal class AspireCliRunProfileState(
         debuggerExtension: AppHostDebuggerExtension,
         appHostFilePath: Path,
         cliProcessPid: Long,
+        appHostRunScope: CoroutineScope,
         attachTimeout: Duration,
     ) {
         val project = environment.project
         val attached = try {
             withTimeoutOrNull(attachTimeout) {
-                debuggerExtension.attachToAppHost(appHostFilePath, cliProcessPid, project)
+                debuggerExtension.attachToAppHost(appHostFilePath, cliProcessPid, appHostRunScope, project)
             }
         } catch (e: Exception) {
             rethrowControlFlowException(e)

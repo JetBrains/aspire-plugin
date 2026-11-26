@@ -19,8 +19,8 @@ import com.jetbrains.aspire.rider.AspireRiderBundle
 import com.jetbrains.aspire.rider.util.findRunnableProjectByPath
 import com.jetbrains.aspire.rider.util.pathWithoutExeOrDllExtension
 import com.jetbrains.rd.ide.model.RdFileBasedProgramSource
-import com.jetbrains.rd.util.lifetime.Lifetime
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition
+import com.jetbrains.rd.util.threading.coroutines.synchronizeWith
 import com.jetbrains.rider.ijent.extensions.toRd
 import com.jetbrains.rider.model.ProjectOutput
 import com.jetbrains.rider.run.configurations.dotNetFile.FileBasedProgramProjectManager
@@ -42,21 +42,25 @@ internal class DotNetAppHostDebuggerService(private val project: Project) {
         fun getInstance(project: Project): DotNetAppHostDebuggerService = project.service()
     }
 
-    suspend fun attachToAppHost(appHostFilePath: Path, cliProcessPid: Long): Result<Unit> = coroutineScope {
-        val lifetime = LifetimeDefinition()
-        coroutineContext.job.invokeOnCompletion { lifetime.terminate() }
-
-        return@coroutineScope withBackgroundProgress(project, AspireRiderBundle.message("progress.waiting.for.apphost")) {
-            waitForAppHostProcess(appHostFilePath, cliProcessPid, lifetime)
+    /**
+     * Waits for the AppHost process started by the Aspire CLI and attaches the .NET debugger to it.
+     *
+     * @param appHostFilePath path to the AppHost project (`.csproj`) or file-based AppHost (`.cs`).
+     * @param cliProcessPid PID of the Aspire CLI process; the AppHost is searched among its descendants.
+     * @param appHostRunScope scope of the AppHost run, cancelled when the CLI process stops. It also bounds the temporary
+     * project of a file-based AppHost, so the project stays loaded for the whole debug session, not only until the attach.
+     */
+    suspend fun attachToAppHost(appHostFilePath: Path, cliProcessPid: Long, appHostRunScope: CoroutineScope): Result<Unit> =
+        withBackgroundProgress(project, AspireRiderBundle.message("progress.waiting.for.apphost")) {
+            waitForAppHostProcess(appHostFilePath, cliProcessPid, appHostRunScope)
         }.map { pid ->
             LOG.trace { "Attaching .NET debugger to AppHost process $pid ($appHostFilePath)" }
             AttachDebuggerService.getInstance(project)
                 .attach(pid.toInt(), AspireRiderBundle.message("progress.attach.debugger.to.apphost"))
         }
-    }
 
-    private suspend fun waitForAppHostProcess(appHostFilePath: Path, cliProcessPid: Long, lifetime: Lifetime): Result<Long> {
-        val outputs = resolveAppHostOutputs(appHostFilePath, lifetime)
+    private suspend fun waitForAppHostProcess(appHostFilePath: Path, cliProcessPid: Long, appHostRunScope: CoroutineScope): Result<Long> {
+        val outputs = resolveAppHostOutputs(appHostFilePath, appHostRunScope)
         if (outputs.isEmpty()) {
             LOG.warn("Could not find the .NET AppHost outputs for $appHostFilePath; skipping debugger attach")
             return Result.failure(Exception("Could not find the .NET AppHost outputs for $appHostFilePath"))
@@ -71,10 +75,10 @@ internal class DotNetAppHostDebuggerService(private val project: Project) {
         return Result.success(pid)
     }
 
-    private suspend fun resolveAppHostOutputs(appHostFilePath: Path, lifetime: Lifetime): List<ProjectOutput> {
+    private suspend fun resolveAppHostOutputs(appHostFilePath: Path, appHostRunScope: CoroutineScope): List<ProjectOutput> {
         val projectPath = when (appHostFilePath.extension.lowercase()) {
             "csproj" -> appHostFilePath
-            "cs" -> getFileBasedProjectPath(appHostFilePath, lifetime)
+            "cs" -> getFileBasedProjectPath(appHostFilePath, appHostRunScope)
             else -> null
         }
 
@@ -87,9 +91,10 @@ internal class DotNetAppHostDebuggerService(private val project: Project) {
         return outputPaths.orEmpty()
     }
 
-    private suspend fun getFileBasedProjectPath(appHostFilePath: Path, lifetime: Lifetime): Path? {
+    private suspend fun getFileBasedProjectPath(appHostFilePath: Path, appHostRunScope: CoroutineScope): Path? {
+        val projectLifetime = LifetimeDefinition().apply { synchronizeWith(appHostRunScope) }
         val projectManager = FileBasedProgramProjectManager.getInstance(project)
-        return projectManager.createProjectFile(RdFileBasedProgramSource(appHostFilePath.toRd()), lifetime)
+        return projectManager.createProjectFile(RdFileBasedProgramSource(appHostFilePath.toRd()), projectLifetime)
     }
 
     private suspend fun findAppHostPid(outputs: List<ProjectOutput>, cliProcessPid: Long, eelApi: EelApi): EelProcessInfo? {

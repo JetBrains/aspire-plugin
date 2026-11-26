@@ -1,0 +1,7 @@
+--> apphost.cs:23(770,792) // builder.Build().Run();
+Program.Main() in apphost.dll
+    +apiService = DistributedApplicationResourceBuilder<DotnetProjectResource>
+    args = string[0]
+    +builder = DistributedApplicationBuilder
+    +options = DistributedApplicationOptions
+

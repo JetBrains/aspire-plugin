@@ -1,0 +1,6 @@
+--> Program.cs:44(1149,1159) // app.Run();
+Program.Main() in AspireFileBasedSolution.Web.dll
+    +app = {WebApplication} ApplicationName = "AspireFileBasedSolution.Web", IsRunning = false
+    args = string[0]
+    +builder = WebApplicationBuilder
+

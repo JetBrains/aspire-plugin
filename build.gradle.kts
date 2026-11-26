@@ -58,6 +58,7 @@ dependencies {
         testBundledPlugins("tanvd.grazi")
         testBundledModule("intellij.rider.rdclient.dotnet")
         testBundledModule("intellij.rd.client")
+        testBundledModule("intellij.platform.debugger")
         testBundledPlugin("intellij.structureView.plugin")
         testBundledPlugin("intellij.bookmarks.plugin")
         testBundledPlugin("org.jetbrains.plugins.terminal")
