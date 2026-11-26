@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [2.10.0] - 2026-11-26
+
 ### Added
 
 - Warning and update action for outdated Aspire project templates when adding orchestration in Rider
@@ -857,7 +859,8 @@
 
 - Support for running and debugging of Aspire projects
 
-[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.9.11...HEAD
+[Unreleased]: https://github.com/JetBrains/aspire-plugin/compare/2.10.0...HEAD
+[2.10.0]: https://github.com/JetBrains/aspire-plugin/compare/2.9.11...2.10.0
 [2.9.11]: https://github.com/JetBrains/aspire-plugin/compare/2.9.10...2.9.11
 [2.9.10]: https://github.com/JetBrains/aspire-plugin/compare/2.9.9...2.9.10
 [2.9.9]: https://github.com/JetBrains/aspire-plugin/compare/2.9.8...2.9.9
