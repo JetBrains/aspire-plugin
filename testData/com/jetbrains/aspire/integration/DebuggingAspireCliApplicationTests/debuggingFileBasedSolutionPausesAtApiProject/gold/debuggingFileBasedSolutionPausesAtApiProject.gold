@@ -1,0 +1,7 @@
+--> Program.cs:43(1191,1201) // app.Run();
+Program.Main() in AspireFileBasedSolution.ApiService.dll
+    +app = {WebApplication} ApplicationName = "AspireFileBasedSolution.ApiService", IsRunning = false
+    args = string[0]
+    +builder = WebApplicationBuilder
+    +summaries = string[10]
+
