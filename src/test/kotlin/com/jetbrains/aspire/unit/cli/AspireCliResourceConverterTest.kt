@@ -542,6 +542,32 @@ internal class AspireCliResourceConverterTest {
         assertTrue(data.resourceTypeDisplayName.isBlank())
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["\"true\"", "\"True\"", "true"])
+    fun `enabled terminal property enables the terminal`(enabled: String) {
+        val json = """
+            {"name":"agent-abc123","resourceType":"Executable","properties":{"terminal.enabled":$enabled}}
+        """.trimIndent()
+        val resource = Json.decodeFromString<AspireCliResource>(json)
+
+        val data = convert(resource)
+
+        assertTrue(data.isTerminalEnabled)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["\"false\"", "\"\"", "null", "false"])
+    fun `resource without an enabled terminal has no terminal`(enabled: String) {
+        val json = """
+            {"name":"agent","resourceType":"Executable","properties":{"terminal.enabled":$enabled}}
+        """.trimIndent()
+        val resource = Json.decodeFromString<AspireCliResource>(json)
+
+        val data = convert(resource)
+
+        assertFalse(data.isTerminalEnabled)
+    }
+
     private fun convert(resource: AspireCliResource): AspireResourceData {
         val update = assertIs<AspireResourceUpdate.Changes>(resource.toAspireResourceUpdate(appHostId))
         return assertIs<AspireResourceChange.Upsert>(update.changes.single()).data

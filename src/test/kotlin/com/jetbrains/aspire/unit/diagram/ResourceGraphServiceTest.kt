@@ -110,6 +110,7 @@ class ResourceGraphServiceTest {
             connectionString = null,
             source = null,
             value = null,
+            isTerminalEnabled = false,
         )
     }
 }

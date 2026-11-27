@@ -173,6 +173,7 @@ class VisibleResourcesTest {
                 connectionString = null,
                 source = null,
                 value = null,
+                isTerminalEnabled = false,
             )
     }
 }
