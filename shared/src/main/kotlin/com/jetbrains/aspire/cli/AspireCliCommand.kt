@@ -45,6 +45,12 @@ sealed interface AspireCliCommand {
         val key: String,
         val environment: String,
     ) : AppHostCommand
+
+    /**
+     * `aspire terminal attach <resource> --apphost <path>`
+     */
+    @Serializable
+    data class TerminalAttach(override val appHostId: AspireAppHostId, val resourceName: String) : AppHostCommand
 }
 
 @ApiStatus.Internal

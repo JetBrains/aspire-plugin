@@ -41,13 +41,18 @@ internal class AspireCliCommandRunner(private val project: Project) {
      * If [onTerminated] is set, it runs in the scope of the tab after the process of the command terminates.
      * It doesn't run if the command didn't start or if the user closes the tab before the process terminates,
      * so nothing waits for the command after its tab is gone.
+     *
+     * If [startWhenTabShown] is set, the process starts only when the tab is shown, so it gets the actual terminal size.
+     * Use it for full-screen commands that read the size only at startup. Otherwise, the process starts immediately
+     * with the default size, so the command also runs when the tab is never shown (e.g., in headless tests).
      */
     suspend fun run(
         command: AspireCliCommand,
         @NlsContexts.TabTitle tabName: String,
+        startWhenTabShown: Boolean = false,
         onTerminated: (suspend () -> Unit)? = null,
     ) {
-        val tab = openTerminal(command, tabName) ?: return
+        val tab = openTerminal(command, tabName, startWhenTabShown) ?: return
         if (onTerminated == null) return
 
         val view = tab.view
@@ -60,14 +65,16 @@ internal class AspireCliCommandRunner(private val project: Project) {
     private suspend fun openTerminal(
         command: AspireCliCommand,
         @NlsContexts.TabTitle tabName: String,
+        startWhenTabShown: Boolean,
     ): TerminalToolWindowTab? {
         val commandLine = project.service<AspireCliCommandService>().prepare(command) ?: return null
-        return openTerminal(commandLine, tabName)
+        return openTerminal(commandLine, tabName, startWhenTabShown)
     }
 
     private suspend fun openTerminal(
         commandLine: AspireCliCommandLine,
         @NlsContexts.TabTitle tabName: String,
+        startWhenTabShown: Boolean,
     ): TerminalToolWindowTab? = withContext(Dispatchers.EDT) {
         try {
             // The terminal selects its execution environment from the frontend's NIO path.
@@ -79,7 +86,7 @@ internal class AspireCliCommandRunner(private val project: Project) {
                 .processType(TerminalProcessType.NON_SHELL)
                 .tabName(tabName)
                 .requestFocus(true)
-                .deferSessionStartUntilUiShown(false)
+                .deferSessionStartUntilUiShown(startWhenTabShown)
                 .closeOnProcessTermination(false)
                 .restoreOnProjectReopen(false)
                 .createTab()
