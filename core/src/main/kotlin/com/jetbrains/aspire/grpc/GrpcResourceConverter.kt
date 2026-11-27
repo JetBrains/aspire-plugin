@@ -61,6 +61,7 @@ fun Resource.toAspireResourceData(appHostId: AspireAppHostId): AspireResourceDat
     var connectionString: AspireResourceProperty<String>? = null
     var source: AspireResourceProperty<String>? = null
     var value: AspireResourceProperty<String>? = null
+    var isTerminalEnabled = false
 
     for (property in propertiesList) {
         val propValue = getStringValue(property.value) ?: continue
@@ -84,6 +85,7 @@ fun Resource.toAspireResourceData(appHostId: AspireAppHostId): AspireResourceDat
             "resource.connectionString" -> connectionString = AspireResourceProperty(propValue, isSensitive)
             "resource.source" -> source = AspireResourceProperty(propValue, isSensitive)
             "Value" -> value = AspireResourceProperty(propValue, isSensitive)
+            "terminal.enabled" -> isTerminalEnabled = mapResourceTerminalEnabled(propValue)
         }
     }
 
@@ -161,7 +163,8 @@ fun Resource.toAspireResourceData(appHostId: AspireAppHostId): AspireResourceDat
         containerLifetime = containerLifetime,
         connectionString = connectionString,
         source = source,
-        value = value
+        value = value,
+        isTerminalEnabled = isTerminalEnabled
     )
 }
 

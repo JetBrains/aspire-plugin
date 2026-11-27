@@ -3,6 +3,7 @@ package com.jetbrains.aspire.cli
 import com.jetbrains.aspire.resources.AspireResourceChange
 import com.jetbrains.aspire.resources.AspireResourceUpdate
 import com.jetbrains.aspire.util.mapLaunchConfigurationType
+import com.jetbrains.aspire.util.mapResourceTerminalEnabled
 import com.jetbrains.aspire.util.mapResourceState
 import com.jetbrains.aspire.util.mapResourceStateStyle
 import com.jetbrains.aspire.util.mapResourceKind
@@ -43,6 +44,7 @@ private fun AspireCliResource.toAspireResourceData(appHostId: AspireAppHostId): 
     var containerLifetime: AspireResourceProperty<String>? = null
     var connectionString: AspireResourceProperty<String>? = null
     var value: AspireResourceProperty<String>? = null
+    var isTerminalEnabled = false
 
     for ((propertyName, propertyValue) in properties.orEmpty()) {
         val propValue = propertyValue?.stringValue() ?: continue
@@ -63,6 +65,7 @@ private fun AspireCliResource.toAspireResourceData(appHostId: AspireAppHostId): 
             "container.lifetime" -> containerLifetime = AspireResourceProperty(propValue, false)
             "resource.connectionString" -> connectionString = AspireResourceProperty(propValue, false)
             "Value" -> value = AspireResourceProperty(propValue, false)
+            "terminal.enabled" -> isTerminalEnabled = mapResourceTerminalEnabled(propValue)
         }
     }
 
@@ -143,6 +146,7 @@ private fun AspireCliResource.toAspireResourceData(appHostId: AspireAppHostId): 
         connectionString = connectionString,
         source = source?.let { AspireResourceProperty(it, false) },
         value = value,
+        isTerminalEnabled = isTerminalEnabled,
     )
 }
 

@@ -41,6 +41,9 @@ internal fun mapResourceKind(type: String): ResourceKind = when (type) {
     else -> ResourceKind.Unknown
 }
 
+internal fun mapResourceTerminalEnabled(enabled: String): Boolean =
+    enabled.trim().equals("true", ignoreCase = true)
+
 internal fun mapLaunchConfigurationType(type: String): ResourceLaunchConfigurationType = when (type) {
     "project", "project-with-external-build.v1" -> ResourceLaunchConfigurationType.Project
     "azure-functions" -> ResourceLaunchConfigurationType.AzureFunctions
