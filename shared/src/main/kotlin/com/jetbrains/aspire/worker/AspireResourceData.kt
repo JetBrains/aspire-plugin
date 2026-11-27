@@ -46,5 +46,6 @@ data class AspireResourceData(
     val containerLifetime: AspireResourceProperty<String>?,
     val connectionString: AspireResourceProperty<String>?,
     val source: AspireResourceProperty<String>?,
-    val value: AspireResourceProperty<String>?
+    val value: AspireResourceProperty<String>?,
+    val isTerminalEnabled: Boolean
 )

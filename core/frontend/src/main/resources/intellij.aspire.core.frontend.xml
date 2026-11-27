@@ -119,6 +119,11 @@
                     icon="AllIcons.Actions.RunAnything">
                 <override-text place="GoToAction"/>
             </action>
+            <action id="Aspire.Resource.OpenTerminal"
+                    class="com.jetbrains.aspire.actions.dashboard.resource.OpenResourceTerminalAction"
+                    icon="AllIcons.Nodes.Console">
+                <override-text place="GoToAction"/>
+            </action>
         </group>
     </actions>
 </idea-plugin>

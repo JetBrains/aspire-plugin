@@ -101,6 +101,11 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
                     addAll(appHostArguments)
                     addAll(listOf("--environment", this@arguments.environment))
                 }
+            is AspireCliCommand.TerminalAttach ->
+                buildList {
+                    addAll(listOf("terminal", "attach", this@arguments.resourceName))
+                    addAll(appHostArguments)
+                }
         }
     }
 
@@ -149,6 +154,8 @@ internal class AspireCliCommandServiceImpl(private val project: Project) : Aspir
                 "notification.aspire.cli.update.failed.title" to "notification.aspire.cli.update.failed.content"
             is AspireCliCommand.SetSecret ->
                 "notification.aspire.deployment.prepare.failed.title" to "notification.aspire.secrets.set.prepare.failed.content"
+            is AspireCliCommand.TerminalAttach ->
+                "notification.aspire.deployment.prepare.failed.title" to "notification.aspire.terminal.attach.prepare.failed.content"
             is AppHostCommand ->
                 "notification.aspire.deployment.prepare.failed.title" to "notification.aspire.deployment.prepare.failed.content"
         }

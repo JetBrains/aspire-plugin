@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Action to attach to the interactive terminal of an Aspire resource with `WithTerminal()`
+
 ### Fixed
 
 - The environment popup of the Aspire secrets action opens next to the action instead of at the console caret

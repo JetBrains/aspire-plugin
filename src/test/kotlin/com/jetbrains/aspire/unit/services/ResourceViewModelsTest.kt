@@ -174,6 +174,7 @@ class ResourceViewModelsTest {
                 connectionString = null,
                 source = null,
                 value = null,
+                isTerminalEnabled = false,
             )
         )
         override val childrenResources = MutableStateFlow<List<AspireResourceModel>>(emptyList())

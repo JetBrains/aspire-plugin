@@ -1,11 +1,13 @@
 package com.jetbrains.aspire.unit.resources.grpc
 
+import com.google.protobuf.Value
 import com.jetbrains.aspire.generated.dashboard.ConsoleLogLine
 import com.jetbrains.aspire.generated.dashboard.InitialResourceData
 import com.jetbrains.aspire.generated.dashboard.Resource
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandResponse
 import com.jetbrains.aspire.generated.dashboard.ResourceCommandResult
 import com.jetbrains.aspire.generated.dashboard.ResourceDeletion
+import com.jetbrains.aspire.generated.dashboard.ResourceProperty
 import com.jetbrains.aspire.generated.dashboard.WatchResourceConsoleLogsUpdate
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesChange
 import com.jetbrains.aspire.generated.dashboard.WatchResourcesChanges
@@ -30,6 +32,7 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.NullAndEmptySource
 import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -269,6 +272,39 @@ internal class GrpcResourceConverterTest {
         val data = resource.toAspireResourceData(appHostId)
 
         assertTrue(data.resourceTypeDisplayName.isBlank())
+    }
+
+    @Test
+    fun `enabled terminal property enables the terminal`() {
+        val appHostId = AspireAppHostId("AppHost")
+        val enabledProperty = stringProperty("terminal.enabled", "true")
+        val resource = Resource.newBuilder()
+            .setName("agent-abc123")
+            .setResourceType("Executable")
+            .addProperties(enabledProperty)
+            .build()
+
+        val data = resource.toAspireResourceData(appHostId)
+
+        assertTrue(data.isTerminalEnabled)
+    }
+
+    @Test
+    fun `resource without terminal properties has no terminal`() {
+        val appHostId = AspireAppHostId("AppHost")
+        val resource = resource("api", "Running")
+
+        val data = resource.toAspireResourceData(appHostId)
+
+        assertFalse(data.isTerminalEnabled)
+    }
+
+    private fun stringProperty(name: String, value: String): ResourceProperty {
+        val propertyValue = Value.newBuilder().setStringValue(value).build()
+        return ResourceProperty.newBuilder()
+            .setName(name)
+            .setValue(propertyValue)
+            .build()
     }
 
     private fun resource(name: String, state: String): Resource = Resource.newBuilder()
